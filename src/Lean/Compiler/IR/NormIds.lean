@@ -64,9 +64,9 @@ def normExpr : Expr → M Expr
   | Expr.ctor c ys,      m => Expr.ctor c (normArgs ys m)
   | Expr.reset n x,      m => Expr.reset n (normVar x m)
   | Expr.reuse x c u ys, m => Expr.reuse (normVar x m) c u (normArgs ys m)
-  | Expr.proj i x,       m => Expr.proj i (normVar x m)
-  | Expr.uproj i x,      m => Expr.uproj i (normVar x m)
-  | Expr.sproj n o x,    m => Expr.sproj n o (normVar x m)
+  | Expr.proj c i x,     m => Expr.proj c i (normVar x m)
+  | Expr.uproj c i x,    m => Expr.uproj c i (normVar x m)
+  | Expr.sproj c n o x,  m => Expr.sproj c n o (normVar x m)
   | Expr.fap c ys,       m => Expr.fap c (normArgs ys m)
   | Expr.pap c ys,       m => Expr.pap c (normArgs ys m)
   | Expr.ap x ys,        m => Expr.ap (normVar x m) (normArgs ys m)
@@ -100,20 +100,20 @@ partial def normFnBody : FnBody → N FnBody
   | FnBody.jdecl j ys v b   => do
     let (ys, v) ← withParams ys fun ys => do let v ← normFnBody v; pure (ys, v)
     withJP j fun j => return FnBody.jdecl j ys v (← normFnBody b)
-  | FnBody.set x i y b      => return FnBody.set (← normVar x) i (← normArg y) (← normFnBody b)
-  | FnBody.uset x i y b     => return FnBody.uset (← normVar x) i (← normVar y) (← normFnBody b)
-  | FnBody.sset x i o y t b => return FnBody.sset (← normVar x) i o (← normVar y) t (← normFnBody b)
-  | FnBody.setTag x i b     => return FnBody.setTag (← normVar x) i (← normFnBody b)
-  | FnBody.inc x n c p b    => return FnBody.inc (← normVar x) n c p (← normFnBody b)
-  | FnBody.dec x n c p b    => return FnBody.dec (← normVar x) n c p (← normFnBody b)
-  | FnBody.del x b          => return FnBody.del (← normVar x) (← normFnBody b)
+  | FnBody.set x i y b        => return FnBody.set (← normVar x) i (← normArg y) (← normFnBody b)
+  | FnBody.uset x c i y b     => return FnBody.uset (← normVar x) c i (← normVar y) (← normFnBody b)
+  | FnBody.sset x c i o y t b => return FnBody.sset (← normVar x) c i o (← normVar y) t (← normFnBody b)
+  | FnBody.setTag x i b       => return FnBody.setTag (← normVar x) i (← normFnBody b)
+  | FnBody.inc x n c p b      => return FnBody.inc (← normVar x) n c p (← normFnBody b)
+  | FnBody.dec x n c p b      => return FnBody.dec (← normVar x) n c p (← normFnBody b)
+  | FnBody.del x b            => return FnBody.del (← normVar x) (← normFnBody b)
   | FnBody.case tid x xType alts => do
     let x ← normVar x
     let alts ← alts.mapM fun alt => alt.modifyBodyM normFnBody
     return FnBody.case tid x xType alts
-  | FnBody.jmp j ys        => return FnBody.jmp (← normJP j) (← normArgs ys)
-  | FnBody.ret x           => return FnBody.ret (← normArg x)
-  | FnBody.unreachable     => pure FnBody.unreachable
+  | FnBody.jmp j ys           => return FnBody.jmp (← normJP j) (← normArgs ys)
+  | FnBody.ret x              => return FnBody.ret (← normArg x)
+  | FnBody.unreachable        => pure FnBody.unreachable
 
 def normDecl (d : Decl) : N Decl :=
   match d with
@@ -141,9 +141,9 @@ def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.ctor c ys      => Expr.ctor c (mapArgs f ys)
   | Expr.reset n x      => Expr.reset n (f x)
   | Expr.reuse x c u ys => Expr.reuse (f x) c u (mapArgs f ys)
-  | Expr.proj i x       => Expr.proj i (f x)
-  | Expr.uproj i x      => Expr.uproj i (f x)
-  | Expr.sproj n o x    => Expr.sproj n o (f x)
+  | Expr.proj c i x     => Expr.proj c i (f x)
+  | Expr.uproj c i x    => Expr.uproj c i (f x)
+  | Expr.sproj c n o x  => Expr.sproj c n o (f x)
   | Expr.fap c ys       => Expr.fap c (mapArgs f ys)
   | Expr.pap c ys       => Expr.pap c (mapArgs f ys)
   | Expr.ap x ys        => Expr.ap (f x) (mapArgs f ys)
@@ -157,8 +157,8 @@ partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.jdecl j ys v b        => FnBody.jdecl j ys (mapFnBody f v) (mapFnBody f b)
   | FnBody.set x i y b           => FnBody.set (f x) i (mapArg f y) (mapFnBody f b)
   | FnBody.setTag x i b          => FnBody.setTag (f x) i (mapFnBody f b)
-  | FnBody.uset x i y b          => FnBody.uset (f x) i (f y) (mapFnBody f b)
-  | FnBody.sset x i o y t b      => FnBody.sset (f x) i o (f y) t (mapFnBody f b)
+  | FnBody.uset x c i y b        => FnBody.uset (f x) c i (f y) (mapFnBody f b)
+  | FnBody.sset x c i o y t b    => FnBody.sset (f x) c i o (f y) t (mapFnBody f b)
   | FnBody.inc x n c p b         => FnBody.inc (f x) n c p (mapFnBody f b)
   | FnBody.dec x n c p b         => FnBody.dec (f x) n c p (mapFnBody f b)
   | FnBody.del x b               => FnBody.del (f x) (mapFnBody f b)

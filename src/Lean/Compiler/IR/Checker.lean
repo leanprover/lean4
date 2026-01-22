@@ -80,7 +80,7 @@ def checkArgs (as : Array Arg) : M Unit :=
 
 @[inline] def checkEqTypes (ty₁ ty₂ : IRType) : M Unit := do
   unless ty₁ == ty₂ do
-    throwCheckerError "unexpected type '{ty₁}' != '{ty₂}'"
+    throwCheckerError s!"unexpected type '{ty₁}' != '{ty₂}'"
 
 @[inline] def checkType (ty : IRType) (p : IRType → Bool) (suffix? : Option String := none): M Unit := do
   unless p ty do
@@ -91,7 +91,13 @@ def checkArgs (as : Array Arg) : M Unit :=
 
 def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
 
+def checkObjOrStructType (ty : IRType) : M Unit :=
+  checkType ty IRType.isObjOrStruct "object or struct expected"
+
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar "scalar expected"
+
+def checkScalarOrStructType (ty : IRType) : M Unit :=
+  checkType ty IRType.isScalarOrStruct "scalar expected"
 
 def getType (x : VarId) : M IRType := do
   let ctx ← read
@@ -105,8 +111,11 @@ def getType (x : VarId) : M IRType := do
 def checkObjVar (x : VarId) : M Unit :=
   checkVarType x IRType.isObj "object expected"
 
-def checkScalarVar (x : VarId) : M Unit :=
-  checkVarType x IRType.isScalar "scalar expected"
+def checkObjOrStructVar (x : VarId) : M Unit :=
+  checkVarType x IRType.isObjOrStruct "object or struct expected"
+
+def checkScalarOrStructVar (x : VarId) : M Unit :=
+  checkVarType x IRType.isScalarOrStruct "scalar expected"
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c
@@ -141,7 +150,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
       throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
-      checkObjType ty
+      checkObjOrStructType ty
       checkArgs ys
   | .reset _ x =>
     checkObjVar x
@@ -151,13 +160,13 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkArgs ys
     checkObjType ty
   | .box xty x =>
-    checkObjType ty
-    checkScalarVar x
+    checkObjOrStructType ty
+    checkScalarOrStructVar x
     checkVarType x (· == xty)
   | .unbox x =>
-    checkScalarType ty
+    checkScalarOrStructType ty
     checkObjVar x
-  | .proj i x =>
+  | .proj c i x =>
     let xType ← getType x;
     /-
     Projections are a valid operation on `tobject`. Thus they should also
@@ -166,19 +175,28 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     -/
     match xType with
     | .object | .tobject =>
-      checkObjType ty
-    | .struct _ tys | .union _ tys =>
-      if h : i < tys.size then
-        checkEqTypes (tys[i]) ty
-      else
+      checkObjOrStructType ty
+    | .struct _ tys _ _ =>
+      if c ≠ 0 then
+        throwCheckerError "expected constructor index 0 for struct"
+      if h : i ≥ tys.size then
         throwCheckerError "invalid proj index"
+      --else checkEqTypes (tys[i]) ty
+    | .union _ tys =>
+      if h : c < tys.size then
+        let .struct _ tys _ _ := tys[c] | throwCheckerError "expected struct inside union"
+        if h : i ≥ tys.size then
+          throwCheckerError "invalid proj index"
+        --else checkEqTypes (tys[i]) ty
+      else
+        throwCheckerError "invalid proj constructor index"
     | .tagged => pure ()
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
-  | .uproj _ x =>
-    checkObjVar x
+  | .uproj _ _ x =>
+    checkObjOrStructVar x
     checkType ty (· == .usize)
-  | .sproj _ _ x =>
-    checkObjVar x
+  | .sproj _ _ _ x =>
+    checkObjOrStructVar x
     checkScalarType ty
   | .isShared x =>
     checkObjVar x
@@ -208,11 +226,11 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
     checkVar x
     checkArg y
     checkFnBody b
-  | .uset x _ y b =>
+  | .uset x _ _ y b =>
     checkVar x
     checkVar y
     checkFnBody b
-  | .sset x _ _ y _ b =>
+  | .sset x _ _ _ y _ b =>
     checkVar x
     checkVar y
     checkFnBody b

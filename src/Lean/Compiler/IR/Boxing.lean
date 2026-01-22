@@ -12,6 +12,7 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Data.AssocList
+import Lean.Compiler.InitAttr
 
 public section
 
@@ -33,8 +34,9 @@ private def N.mkFresh : N VarId :=
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
   let ps := decl.params
-  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow || p.ty.isVoid) || isExtern env decl.name))
-  || ps.size > closureMaxArgs
+  (ps.size > 0 && (decl.resultType.isScalarOrStruct ||
+    ps.any (fun p => p.ty.isScalarOrStruct || p.borrow || p.ty.isVoid) || isExtern env decl.name))
+    || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
@@ -42,14 +44,14 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i _ (newVDecls, xs) => do
     let p := ps[i]!
     let q := qs[i]
-    if !p.ty.isScalar then
+    if !p.ty.isScalarOrStruct then
       pure (newVDecls, xs.push (.var q.x))
     else
       let x ← N.mkFresh
       pure (newVDecls.push (.vdecl x p.ty (.unbox q.x) default), xs.push (.var x))
   let r ← N.mkFresh
   let newVDecls := newVDecls.push (.vdecl r decl.resultType (.fap decl.name xs) default)
-  let body ← if !decl.resultType.isScalar then
+  let body ← if !decl.resultType.isScalarOrStruct then
     pure <| reshape newVDecls (.ret (.var r))
   else
     let newR ← N.mkFresh
@@ -60,13 +62,27 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
 def mkBoxedVersion (decl : Decl) : Decl :=
   (mkBoxedVersionAux decl).run' 1
 
+partial def transformBoxedPaps (decls : Array Decl) (env : Environment) (b : FnBody) : FnBody :=
+  match b with
+  | .vdecl x ty (.pap f ys) b =>
+    let decl := (findEnvDecl' env f decls).get!
+    let f := if requiresBoxedVersion env decl then mkBoxedName f else f
+    .vdecl x ty (.pap f ys) (transformBoxedPaps decls env b)
+  | .jdecl j xs v b =>
+    .jdecl j xs (transformBoxedPaps decls env v) (transformBoxedPaps decls env b)
+  | .case t x xTy alts =>
+    .case t x xTy (alts.map (Alt.modifyBody <| transformBoxedPaps decls env))
+  | _ => if b.isTerminal then b else b.setBody (transformBoxedPaps decls env b.body)
+
 def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
   let boxedDecls := decls.foldl (init := #[]) fun newDecls decl =>
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
+  let decls := decls.map fun
+    | .fdecl f xs ty b i =>
+      let b := transformBoxedPaps decls env b
+      .fdecl f xs ty b i
+    | d => d
   decls ++ boxedDecls
-
-def eqvTypes (t₁ t₂ : IRType) : Bool :=
-  (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext where
   f : FunId
@@ -130,7 +146,7 @@ def getDecl (fid : FunId) : M Decl := do
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
 /-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
-   and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
+   and `x`'s type is not cheap to box (e.g., it is `UInt64`), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   match xType with
   | .uint8 | .uint16 => return none
@@ -149,11 +165,19 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
-  if expectedType.isScalar then
-    return .unbox x
+  if expectedType.isScalarOrStruct then
+    if xType.isStruct then
+      -- Reshaping a struct is denoted by the .box instruction
+      return .box xType x
+    else
+      return .unbox x
   else
     match (← isExpensiveConstantValueBoxing x xType) with
     | some v => do
+      if let .fap nm #[] := v then
+        if expectedType.isObj && xType.isStruct then
+          -- we create boxed versions specifically for struct constants (see `boxedConstDecl`)
+          return .fap (mkBoxedName nm) #[]
       let ctx ← read
       let s ← get
       /- Create auxiliary FnBody
@@ -170,7 +194,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
       match s.auxDeclCache.find? body with
       | some v => pure v
       | none   => do
-        let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
+        let auxName  := ctx.f.str ("_boxed_const_" ++ s.nextAuxId.repr)
         let auxConst := .fap auxName #[]
         let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
         modify fun s => { s with
@@ -183,7 +207,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
 
 @[inline] def castVarIfNeeded (x : VarId) (expected : IRType) (k : VarId → M FnBody) : M FnBody := do
   let xType ← getVarType x
-  if eqvTypes xType expected then
+  if xType.compatibleWith expected then
     k x
   else
     let y ← M.mkFresh
@@ -206,7 +230,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
       xs' := xs'.push x
     | .var x =>
       let xType ← getVarType x
-      if eqvTypes xType expected then
+      if xType.compatibleWith expected then
         xs' := xs'.push (.var x)
       else
         let y ← M.mkFresh
@@ -228,14 +252,14 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   pure (reshape bs b)
 
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
-  if ty.isScalar then
+  if ty.isScalarOrStruct then
     let y ← M.mkFresh
     return .vdecl y .tobject e (.vdecl x ty (.unbox y) b)
   else
     return .vdecl x ty e b
 
 def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody := do
-  if eqvTypes ty eType then
+  if ty.compatibleWith eType then
     return .vdecl x ty e b
   else
     let y ← M.mkFresh
@@ -243,28 +267,35 @@ def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b 
     let v ← mkCast y boxedTy ty
     return .vdecl y boxedTy e (.vdecl x ty v b)
 
-def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
+def visitCtorExpr (x : VarId) (ty : IRType) (c : CtorInfo) (ys : Array Arg) (b : FnBody) :
+    M FnBody := do
+  if c.isScalar && ty.isScalar then
+    return .vdecl x ty (.lit (.num c.cidx)) b
+  else if let .struct _ tys _ _ := ty then
+    let (ys, bs) ← castArgsIfNeededAux ys (fun i => tys[i]!)
+    return reshape bs (.vdecl x ty (.ctor c ys) b)
+  else if let .union _ tys := ty then
+    let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
+    let (ys, bs) ← castArgsIfNeededAux ys (fun i => tys[i]!)
+    return reshape bs (.vdecl x ty (.ctor c ys) b)
+  else
+    boxArgsIfNeeded ys fun ys => return .vdecl x ty (.ctor c ys) b
+
+def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   match e with
-  | .ctor c ys =>
-    if c.isScalar && ty.isScalar then
-      return .vdecl x ty (.lit (.num c.cidx)) b
-    else
-      boxArgsIfNeeded ys fun ys => return .vdecl x ty (.ctor c ys) b
+  | .ctor c ys => visitCtorExpr x ty c ys b
   | .reuse w c u ys =>
     boxArgsIfNeeded ys fun ys => return .vdecl x ty (.reuse w c u ys) b
-  | .fap f ys => do
+  | .fap f ys =>
     let decl ← getDecl f
     castArgsIfNeeded ys decl.params fun ys =>
     castResultIfNeeded x ty (.fap f ys) decl.resultType b
-  | .pap f ys => do
-    let env ← getEnv
-    let decl ← getDecl f
-    let f := if requiresBoxedVersion env decl then mkBoxedName f else f
+  | .pap f ys =>
     boxArgsIfNeeded ys fun ys => return .vdecl x ty (.pap f ys) b
   | .ap f ys =>
     boxArgsIfNeeded ys fun ys =>
     unboxResultIfNeeded x ty (.ap f ys) b
-  | _     =>
+  | _ =>
     return .vdecl x ty e b
 
 /--
@@ -276,14 +307,23 @@ let y : obj := f x
 where `f : obj -> uint8`. It is the job of the boxing pass to enforce a stricter obj/scalar
 separation and as such it needs to correct situations like this.
 -/
-def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType :=
+def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType := do
   match e with
-  | .fap f _ => do
+  | .fap f _ =>
     let decl ← getDecl f
     return decl.resultType
   | .pap .. => return .object
   | .uproj .. => return .usize
-  | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .proj .. | .reset .. =>
+  | .proj c i x =>
+    let type ← getVarType x
+    match type with
+    | .struct _ tys _ _ =>
+      return tys[i]!
+    | .union _ tys =>
+      let .struct _ tys _ _ := tys[c]! | unreachable!
+      return tys[i]!
+    | _ => return ty.boxed
+  | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .reset .. =>
     return ty
   | .unbox .. | .box .. | .isShared .. => unreachable!
 
@@ -296,16 +336,18 @@ partial def visitFnBody : FnBody → M FnBody
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
     return .jdecl j xs v b
-  | .uset x i y b      => do
+  | .uset x c i y b      => do
     let b ← visitFnBody b
     castVarIfNeeded y IRType.usize fun y =>
-      return .uset x i y b
-  | .sset x i o y ty b => do
+      return .uset x c i y b
+  | .sset x c i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
-      return .sset x i o y ty b
+      return .sset x c i o y ty b
   | .case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
+    if xType.isObj then
+      return .case tid x (← getVarType x) alts
     castVarIfNeeded x xType fun x => do
       return .case tid x xType alts
   | .ret x             => do
@@ -317,25 +359,156 @@ partial def visitFnBody : FnBody → M FnBody
   | other                    =>
     pure other
 
+namespace BoxParams
+
+def isExpensiveScalar (ty : IRType) : Bool :=
+  ty.isScalarOrStruct && !ty matches .uint8 | .uint16
+
+abbrev M := ReaderT BoxingContext (StateM VarIdSet)
+
+def checkArgsBoxed (args : Array Arg) (paramsBoxed : Nat → Bool) : VarIdSet → VarIdSet :=
+  go 0
+where
+  go (i : Nat) (set : VarIdSet) : VarIdSet :=
+    if h : i < args.size then
+      if let .var v := args[i] then
+        if paramsBoxed i then
+          go (i + 1) (set.insert v)
+        else
+          go (i + 1) set
+      else
+        go (i + 1) set
+    else set
+  termination_by args.size - i
+
+def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
+  match e with
+  | .ctor c ys =>
+    if ty.isObj then
+      modify (checkArgsBoxed ys fun _ => true)
+    else if (← get).contains x then
+      modify (checkArgsBoxed ys fun _ => true)
+      return .vdecl x ty.boxed e b
+    else if let .struct _ tys _ _ := ty then
+      modify (checkArgsBoxed ys fun i => !tys[i]!.isScalarOrStruct)
+    else if let .union _ tys := ty then
+      let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
+      modify (checkArgsBoxed ys fun i => !tys[i]!.isScalarOrStruct)
+    return .vdecl x ty e b
+  | .reuse _ _ _ ys =>
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | .fap f ys => do
+    let ctx ← read
+    let decl := (findEnvDecl' ctx.env f ctx.decls).get!
+    modify (checkArgsBoxed ys fun i => !decl.params[i]!.ty.isScalarOrStruct)
+    return .vdecl x ty e b
+  | .pap _ ys => do
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | .ap _ ys =>
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | _  => return .vdecl x ty e b
+
+partial def boxParams : FnBody → M FnBody
+  | .vdecl x t v b => do
+    let b ← boxParams b
+    visitVDeclExpr x t v b
+  | .jdecl j xs v b => do
+    let v ← boxParams v
+    let boxed ← get
+    let xs := xs.mapMono fun param =>
+      if isExpensiveScalar param.ty ∧ boxed.contains param.x then
+        { param with ty := param.ty.boxed }
+      else
+        param
+    withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) do
+      return .jdecl j xs v (← boxParams b)
+  | .case tid x xType alts => do
+    let alts ← alts.mapM fun alt => alt.modifyBodyM boxParams
+    return .case tid x xType alts
+  | .ret x => do
+    if let .var v := x then
+      let expected := (← read).resultType
+      if !expected.isScalarOrStruct then
+        modify (·.insert v)
+    return .ret x
+  | .jmp j ys => do
+    let ps := ((← read).localCtx.getJPParams j).get!
+    modify (checkArgsBoxed ys fun i => !ps[i]!.ty.isScalarOrStruct)
+    return .jmp j ys
+  | .uset x c i y b => do
+    return .uset x c i y (← boxParams b)
+  | .sset x c i o y ty b => do
+    return .sset x c i o y ty (← boxParams b)
+  | b => pure b
+
+end BoxParams
+
+def boxedConstDecl (f : FunId) (ty : IRType) : Decl :=
+  /-
+  def f._boxed : tobj :=
+    let x_1 : ty := f;
+    let x_2 : tobj := box x_1;
+    ret x_2
+  -/
+  .fdecl (mkBoxedName f) #[] ty.boxed (info := {}) <|
+    .vdecl { idx := 1 } ty (.fap f #[]) <|
+    .vdecl { idx := 2 } ty.boxed (.box ty { idx := 1 }) <|
+    .ret (.var { idx := 2 })
+
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
-  let decls := decls.foldl (init := #[]) fun newDecls decl =>
+  decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
     | .fdecl f xs resultType b _ =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := withParams xs (visitFnBody b) { f, resultType, decls, env } |>.run { nextIdx }
       let newDecls := newDecls ++ s.auxDecls
+      let newDecls :=
+        if resultType.isStruct && xs.isEmpty then
+          newDecls.push (boxedConstDecl f resultType)
+        else
+          newDecls
       let newDecl  := decl.updateBody! b
       let newDecl  := newDecl.elimDead
       newDecls.push newDecl
     | d => newDecls.push d
-  addBoxedVersions env decls
 
 end ExplicitBoxing
+
+open ExplicitBoxing BoxParams in
+def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
+  decls.map fun decl =>
+    match decl with
+    | .fdecl f xs resultType b info =>
+      let exported := isExport env f
+      let resultType := if exported && resultType.isStruct then resultType.boxed else resultType
+      let (b, boxed) := boxParams b { f, resultType, decls, env }
+        |>.run {}
+      if isExport env f then
+        -- exports shouldn't use unboxed structs
+        let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
+        .fdecl f xs resultType b info
+      else
+        let xs := xs.mapMono fun param =>
+          if isExpensiveScalar param.ty ∧ boxed.contains param.x then
+            { param with ty := param.ty.boxed }
+          else
+            param
+        .fdecl f xs resultType b info
+    | .extern f xs resultType e =>
+      -- extern declarations should also not use unboxed structs
+      let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
+      let resultType := if resultType.isStruct then resultType.boxed else resultType
+      .extern f xs resultType e
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   return ExplicitBoxing.run env decls
 
+builtin_initialize registerTraceClass `compiler.ir.box_params (inherited := true)
 builtin_initialize registerTraceClass `compiler.ir.boxing (inherited := true)
+builtin_initialize registerTraceClass `compiler.ir.boxed_versions (inherited := true)
 
 end Lean.IR

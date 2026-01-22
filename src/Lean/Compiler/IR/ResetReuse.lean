@@ -49,7 +49,7 @@ private partial def S (w : VarId) (c : CtorInfo) (relaxedReuse : Bool) (b : FnBo
 where
   go : FnBody → FnBody
   | .vdecl x t v@(.ctor c' ys) b   =>
-    if mayReuse c c' relaxedReuse then
+    if t.isObj && mayReuse c c' relaxedReuse then
       let updtCidx := c.cidx != c'.cidx
       .vdecl x t (.reuse w c' updtCidx ys) b
     else
@@ -223,6 +223,9 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 partial def R (e : FnBody) : M FnBody := do
   match e with
   | .case tid x xType alts =>
+    -- Unboxed struct/union values cannot be reused
+    if xType.isStruct then
+      return .case tid x xType (← alts.mapM <| Alt.modifyBodyM R)
     let alreadyFound := (← read).alreadyFound.contains x
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert x }) do
       let alts ← alts.mapM fun alt => do

@@ -1,10 +1,18 @@
+structure BoxedProd (α β : Type) where
+  fst : α
+  snd : β
+
+structure BoxedSigma (α : Type) (β : α → Type) where
+  fst : α
+  snd : β fst
+
 set_option trace.compiler.ir.reset_reuse true
 
-def f : Nat × Nat → Nat × Nat
-  | (a, b) => (b, a)
+def f : BoxedProd Nat Nat → BoxedProd Nat Nat
+  | ⟨a, b⟩ => ⟨b, a⟩
 
-def Sigma.toProd : (_ : α) × β → α × β
-  | ⟨a, b⟩ => (a, b)
+def Sigma.toProd : BoxedSigma α (fun _ => β) → BoxedProd α β
+  | ⟨a, b⟩ => ⟨a, b⟩
 
 def foo : List (Nat × Nat) → List Nat
   | [] => []

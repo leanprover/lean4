@@ -6,14 +6,14 @@
         ret x_4
       Bool.true →
         let x_6 : tobj := Array.uget ◾ x_4 x_3 ◾;
-        case x_6 : obj of
+        case x_6 : tobj of
         Prod.mk →
-          let x_7 : tobj := proj[0] x_6;
+          let x_7 : tobj := proj[0, 0] x_6;
           let x_19 : tobj := reset[2] x_6;
-          case x_7 : obj of
+          case x_7 : tobj of
           Prod.mk →
-            let x_8 : tobj := proj[0] x_7;
-            let x_9 : tobj := proj[1] x_7;
+            let x_8 : tobj := proj[0, 0] x_7;
+            let x_9 : tobj := proj[0, 1] x_7;
             let x_18 : tobj := reset[2] x_7;
             let x_10 : tagged := 0;
             let x_11 : obj := Array.uset ◾ x_4 x_3 x_10 ◾;

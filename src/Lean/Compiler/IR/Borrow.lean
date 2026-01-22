@@ -231,7 +231,7 @@ def ownArgsIfParam (xs : Array Arg) : M Unit := do
     | .var x => if ctx.paramSet.contains x.idx then ownVar x
     | .erased => pure ()
 
-def collectExpr (z : VarId) (e : Expr) : M Unit := do
+def collectExpr (z : VarId) (t : IRType) (e : Expr) : M Unit := do
   match e with
   | .reset _ x =>
     ownVar z
@@ -243,9 +243,10 @@ def collectExpr (z : VarId) (e : Expr) : M Unit := do
   | .ctor _ xs =>
     ownVar z
     ownArgsIfParam xs
-  | .proj _ x =>
+  | .proj _ _ x | .unbox x =>
     if (← isOwned x) then ownVar z
-    if (← isOwned z) then ownVar x
+    if (← isOwned z) then
+      unless t.isScalar do ownVar x
   | .fap g xs =>
     let ps ← getParamInfo (.decl g)
     ownVar z
@@ -257,7 +258,10 @@ def collectExpr (z : VarId) (e : Expr) : M Unit := do
   | .pap _ xs =>
     ownVar z
     ownArgs xs
-  | _ => pure ()
+  | .box _ x =>
+    ownVar z
+    ownVar x
+  | .lit _ | .isShared _ | .sproj .. | .uproj .. => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
@@ -279,9 +283,9 @@ partial def collectFnBody (b : FnBody) : M Unit := do
     let ctx ← read
     updateParamMap (.jp ctx.currFn j)
     collectFnBody b
-  | .vdecl x _ v b =>
+  | .vdecl x t v b =>
     collectFnBody b
-    collectExpr x v
+    collectExpr x t v
     preserveTailCall x v b
   | .jmp j ys =>
     let ctx ← read

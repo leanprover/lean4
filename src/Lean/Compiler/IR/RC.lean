@@ -66,10 +66,11 @@ private partial def removeFromParent (child : VarId) : M Unit := do
 
 private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
-  | .vdecl x _ e b =>
+  | .vdecl x t e b =>
     match e with
-    | .proj _ parent =>
-      addDerivedValue parent x
+    | .proj _ _ parent =>
+      unless t.isScalar do
+        addDerivedValue parent x
     | .fap ``Array.getInternal args =>
       if let .var parent := args[1]! then
         addDerivedValue parent x
@@ -78,6 +79,9 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
         addDerivedValue parent x
     | .reset _ x =>
       removeFromParent x
+    | .unbox y =>
+      if t.isStruct then
+        addDerivedValue y x
     | _ => pure ()
     visitFnBody b
   | .jdecl _ ps v b =>
@@ -185,7 +189,7 @@ private def useArgs (ctx : Context) (args : Array Arg) (liveVars : LiveVars) : L
 
 private def useExpr (ctx : Context) (e : Expr) (liveVars : LiveVars) : LiveVars :=
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ _ x | .sproj _ _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     useVar ctx x liveVars
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     useArgs ctx ys liveVars
@@ -356,11 +360,11 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
   let b := match v with
     | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .proj _ x =>
+    | .proj _ _ x | .unbox x =>
       let b := addDecIfNeeded ctx x b bLiveVars
-      let b := if !bLiveVars.borrows.contains z then addInc ctx z b else b
+      let b := if t.isPossibleRef && !bLiveVars.borrows.contains z then addInc ctx z b else b
       .vdecl z t v b
-    | .uproj _ x | .sproj _ _ x | .unbox x =>
+    | .uproj _ _ x | .sproj _ _ _ x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | .fap f ys =>
       let ps := (getDecl ctx f).params
@@ -376,7 +380,16 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (.vdecl z t v b) bLiveVars
-    | .lit _ | .box .. | .reset .. | .isShared _ =>
+    | .box xTy x =>
+      if xTy.isStruct then
+        let b := .vdecl z t v b
+        if bLiveVars.vars.contains x || bLiveVars.borrows.contains x then
+          addInc ctx x b
+        else
+          b
+      else
+        .vdecl z t v b
+    | .lit _ | .reset .. | .isShared _ =>
       .vdecl z t v b
   let liveVars := useExpr ctx v bLiveVars
   let liveVars := bindVar z liveVars
@@ -406,16 +419,16 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
     }
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     ⟨.jdecl j xs v b, bLiveVars⟩
-  | .uset x i y b =>
+  | .uset x c i y b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s := useVar ctx x s
-    ⟨.uset x i y b, s⟩
-  | .sset x i o y t b =>
+    ⟨.uset x c i y b, s⟩
+  | .sset x c i o y t b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s := useVar ctx x s
-    ⟨.sset x i o y t b, s⟩
+    ⟨.sset x c i o y t b, s⟩
   | .case tid x xType alts =>
     let alts : Array (Alt × LiveVars) := alts.map fun alt => match alt with
       | .ctor c b =>

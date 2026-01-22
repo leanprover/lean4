@@ -2,9 +2,9 @@
     def sefFn (x_1 : obj) (x_2 : obj) : obj :=
       case x_1 : obj of
       Lean.Expr.app._impl →
-        let x_3 : u64 := sproj[2, 0] x_1;
-        let x_4 : obj := proj[0] x_1;
-        let x_5 : obj := proj[1] x_1;
+        let x_3 : u64 := sproj[5, 2, 0] x_1;
+        let x_4 : obj := proj[5, 0] x_1;
+        let x_5 : obj := proj[5, 1] x_1;
         block_6 (x_7 : u8) :=
           case x_7 : u8 of
           Bool.false →

@@ -30,15 +30,15 @@
     def Exp.ctorElim._redArg (x_1 : tobj) (x_2 : tobj) : tobj :=
       case x_1 : tobj of
       Exp.var →
-        let x_3 : u32 := sproj[0, 0] x_1;
+        let x_3 : u32 := sproj[0, 0, 0] x_1;
         dec x_1;
         let x_4 : tobj := box x_3;
         let x_5 : tobj := app x_2 x_4;
         ret x_5
       Exp.app →
-        let x_6 : tobj := proj[0] x_1;
+        let x_6 : tobj := proj[1, 0] x_1;
         inc x_6;
-        let x_7 : tobj := proj[1] x_1;
+        let x_7 : tobj := proj[1, 1] x_1;
         inc x_7;
         dec x_1;
         let x_8 : tobj := app x_2 x_6 x_7;
@@ -50,7 +50,7 @@
     def Exp.ctorElim (x_1 : ◾) (x_2 : @& tobj) (x_3 : tobj) (x_4 : ◾) (x_5 : tobj) : tobj :=
       let x_6 : tobj := Exp.ctorElim._redArg x_3 x_5;
       ret x_6
-    def Exp.ctorElim._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) : tobj :=
+    def Exp.ctorElim._boxed (x_1 : tagged) (x_2 : tobj) (x_3 : tobj) (x_4 : tagged) (x_5 : tobj) : tobj :=
       let x_6 : tobj := Exp.ctorElim x_1 x_2 x_3 x_4 x_5;
       dec x_2;
       ret x_6
@@ -115,16 +115,16 @@
       case x_1 : tobj of
       Exp.var._impl →
         dec x_3;
-        let x_9 : u32 := sproj[0, 8] x_1;
+        let x_9 : u32 := sproj[0, 0, 8] x_1;
         dec x_1;
         let x_10 : tobj := box x_9;
         let x_11 : tobj := app x_2 x_10;
         ret x_11
       Exp.app._impl →
         dec x_2;
-        let x_12 : tobj := proj[0] x_1;
+        let x_12 : tobj := proj[1, 0] x_1;
         inc x_12;
-        let x_13 : tobj := proj[1] x_1;
+        let x_13 : tobj := proj[1, 1] x_1;
         inc x_13;
         dec x_1;
         let x_14 : tobj := app x_3 x_12 x_13;
@@ -167,16 +167,16 @@
       case x_2 : tobj of
       Exp.var._impl →
         dec x_4;
-        let x_10 : u32 := sproj[0, 8] x_2;
+        let x_10 : u32 := sproj[0, 0, 8] x_2;
         dec x_2;
         let x_11 : tobj := box x_10;
         let x_12 : tobj := app x_3 x_11;
         ret x_12
       Exp.app._impl →
         dec x_3;
-        let x_13 : tobj := proj[0] x_2;
+        let x_13 : tobj := proj[1, 0] x_2;
         inc x_13;
-        let x_14 : tobj := proj[1] x_2;
+        let x_14 : tobj := proj[1, 1] x_2;
         inc x_14;
         dec x_2;
         let x_15 : tobj := app x_4 x_13 x_14;
@@ -206,7 +206,7 @@
         dec x_3;
         inc x_9;
         ret x_9
-    def Exp.casesOn._override._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) (x_6 : tobj) (x_7 : tobj) (x_8 : tobj) (x_9 : tobj) : tobj :=
+    def Exp.casesOn._override._boxed (x_1 : tagged) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) (x_6 : tobj) (x_7 : tobj) (x_8 : tobj) (x_9 : tobj) : tobj :=
       let x_10 : tobj := Exp.casesOn._override x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8 x_9;
       dec x_9;
       dec x_8;
@@ -220,8 +220,8 @@
       let x_3 : u64 := 1000;
       let x_4 : u64 := UInt64.add x_2 x_3;
       let x_5 : obj := ctor_0.0.12[Exp.var._impl];
-      sset x_5[0, 0] : u64 := x_4;
-      sset x_5[0, 8] : u32 := x_1;
+      sset x_5[0, 0, 0] : u64 := x_4;
+      sset x_5[0, 0, 8] : u32 := x_1;
       ret x_5
     def Exp.var._override._boxed (x_1 : tobj) : tobj :=
       let x_2 : u32 := unbox x_1;
@@ -232,10 +232,10 @@
     def Exp.hash._override (x_1 : @& tobj) : u64 :=
       case x_1 : tobj of
       Exp.var._impl →
-        let x_2 : u64 := sproj[0, 0] x_1;
+        let x_2 : u64 := sproj[0, 0, 0] x_1;
         ret x_2
       Exp.app._impl →
-        let x_3 : u64 := sproj[2, 0] x_1;
+        let x_3 : u64 := sproj[1, 2, 0] x_1;
         ret x_3
       default →
         let x_4 : u64 := 42;
@@ -251,7 +251,7 @@
       let x_4 : u64 := Exp.hash._override x_2;
       let x_5 : u64 := mixHash x_3 x_4;
       let x_6 : obj := ctor_1.0.8[Exp.app._impl] x_1 x_2;
-      sset x_6[2, 0] : u64 := x_5;
+      sset x_6[1, 2, 0] : u64 := x_5;
       ret x_6
 [Compiler.IR] [result]
     def Exp.a1._override : tobj :=
@@ -309,12 +309,12 @@
     def hash' (x_1 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.var._impl →
-        let x_2 : u32 := sproj[0, 8] x_1;
+        let x_2 : u32 := sproj[0, 0, 8] x_1;
         let x_3 : tobj := UInt32.toNat x_2;
         ret x_3
       Exp.app._impl →
-        let x_4 : tobj := proj[0] x_1;
-        let x_5 : tobj := proj[1] x_1;
+        let x_4 : tobj := proj[1, 0] x_1;
+        let x_5 : tobj := proj[1, 1] x_1;
         let x_6 : tobj := hash' x_4;
         let x_7 : tobj := hash' x_5;
         let x_8 : tobj := Nat.add x_6 x_7;
@@ -332,7 +332,7 @@
     def getAppFn (x_1 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.app._impl →
-        let x_2 : tobj := proj[0] x_1;
+        let x_2 : tobj := proj[1, 0] x_1;
         let x_3 : tobj := getAppFn x_2;
         ret x_3
       default →

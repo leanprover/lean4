@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.IR.UnboxResult
 
 public section
 
@@ -35,6 +36,35 @@ builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
 
 builtin_initialize trivialStructureInfoExt :
     LCNF.CacheExtension Name (Option LCNF.TrivialStructureInfo) ←
+  LCNF.CacheExtension.register
+
+inductive CtorFieldInfo where
+  | erased
+  | object (i : Nat) (type : IRType)
+  | usize  (i : Nat)
+  | scalar (sz : Nat) (offset : Nat) (type : IRType)
+  | void
+  deriving Inhabited
+
+namespace CtorFieldInfo
+
+def format : CtorFieldInfo → Format
+  | erased => "◾"
+  | void => "void"
+  | object i type => f!"obj@{i}:{type}"
+  | usize i    => f!"usize@{i}"
+  | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
+
+instance : ToFormat CtorFieldInfo := ⟨format⟩
+
+end CtorFieldInfo
+
+structure CtorLayout where
+  ctorInfo : CtorInfo
+  fieldInfo : Array CtorFieldInfo
+  deriving Inhabited
+
+builtin_initialize ctorLayoutExt : LCNF.CacheExtension Name CtorLayout ←
   LCNF.CacheExtension.register
 
 /--
@@ -102,6 +132,8 @@ private def isAnyProducingType (type : Lean.Expr) : Bool :=
   | .forallE _ _ b _ => isAnyProducingType b
   | _ => false
 
+mutual
+
 partial def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
   | .const name _ => visitApp name #[]
@@ -126,39 +158,47 @@ where
       let ctorType ← LCNF.getOtherDeclBaseType info.ctorName []
       let monoType ← LCNF.toMonoType (LCNF.getParamTypes (← LCNF.instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
       toIRType monoType
+    else if UnboxResult.hasUnboxAttr (← getEnv) declName then
+      unboxedIRType declName args
     else
       nameToIRType declName
 
-inductive CtorFieldInfo where
-  | erased
-  | object (i : Nat) (type : IRType)
-  | usize  (i : Nat)
-  | scalar (sz : Nat) (offset : Nat) (type : IRType)
-  | void
-  deriving Inhabited
+partial def unboxedIRType (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
+  let induct ← getConstInfoInduct declName
+  if args.size < induct.numParams then
+    throwError "too few parameters for type {declName}: \
+      expected {induct.numParams} but got only {args.size}"
+  let params := args.extract 0 induct.numParams
+  if let [] := induct.ctors then
+    return .erased -- really, an "impossible" type but erased is good enough
+  if let [ctor] := induct.ctors then
+    return ← handleCtor declName ctor params
+  let mut types : Array IRType := #[]
+  for ctor in induct.ctors do
+    types := types.push (← handleCtor none ctor params)
+  return .union declName types
+where
+  /-- `induct` is specified if this is the only constructor -/
+  handleCtor (induct : Option Name) (ctorName : Name)
+      (params : Array Lean.Expr) : CoreM IRType := do
+    let ctorLayout ← getCtorLayout ctorName
+    let type := (← getConstVal ctorName).type
+    Meta.MetaM.run' <| Meta.forallTelescope type fun vars _ => do
+      let mut objectTypes : Array IRType := Array.replicate ctorLayout.ctorInfo.size default
+      let paramVars := vars.extract 0 params.size
+      for h : i in *...ctorLayout.fieldInfo.size do
+        let info := ctorLayout.fieldInfo[i]
+        let .object j _ := info | continue
+        let field := vars[i + params.size]!
+        let fieldType ← field.fvarId!.getType
+        let lcnfFieldType ← LCNF.toLCNFType fieldType
+        let lcnfFieldType := lcnfFieldType.replaceFVars paramVars params
+        let monoFieldType ← LCNF.toMonoType lcnfFieldType
+        let irFieldType ← toIRType monoFieldType
+        objectTypes := objectTypes.set! j irFieldType
+      return .struct induct objectTypes ctorLayout.ctorInfo.usize ctorLayout.ctorInfo.ssize
 
-namespace CtorFieldInfo
-
-def format : CtorFieldInfo → Format
-  | erased => "◾"
-  | void => "void"
-  | object i type => f!"obj@{i}:{type}"
-  | usize i    => f!"usize@{i}"
-  | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
-
-instance : ToFormat CtorFieldInfo := ⟨format⟩
-
-end CtorFieldInfo
-
-structure CtorLayout where
-  ctorInfo : CtorInfo
-  fieldInfo : Array CtorFieldInfo
-  deriving Inhabited
-
-builtin_initialize ctorLayoutExt : LCNF.CacheExtension Name CtorLayout ←
-  LCNF.CacheExtension.register
-
-def getCtorLayout (ctorName : Name) : CoreM CtorLayout := do
+partial def getCtorLayout (ctorName : Name) : CoreM CtorLayout := do
   match (← ctorLayoutExt.find? ctorName) with
   | some info => return info
   | none =>
@@ -180,7 +220,7 @@ where fillCache := do
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
       let irFieldType ← toIRType monoFieldType
       let ctorField ← match irFieldType with
-      | .object | .tagged | .tobject => do
+      | .object | .tagged | .tobject | .struct .. | .union .. => do
         let i := nextIdx
         nextIdx := nextIdx + 1
         pure <| .object i irFieldType
@@ -205,7 +245,6 @@ where fillCache := do
       | .float =>
         has8BScalar := true
         .pure <| .scalar 8 0 .float
-      | .struct .. | .union .. => unreachable!
       fields := fields.push ctorField
     let numObjs := nextIdx
     ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
@@ -245,6 +284,8 @@ where fillCache := do
       }
       fieldInfo := fields
     }
+
+end
 
 end IR
 end Lean

@@ -535,6 +535,8 @@ structure PProd (α : Sort u) (β : Sort v) where
   /-- The second element of a pair. -/
   snd : β
 
+attribute [unbox] PProd
+
 /--
 A product type in which both `α` and `β` are in the same universe.
 
@@ -545,6 +547,8 @@ structure MProd (α β : Type u) where
   fst : α
   /-- The second element of a pair. -/
   snd : β
+
+attribute [unbox] MProd
 
 /--
 `And a b`, or `a ∧ b`, is the conjunction of propositions. It can be

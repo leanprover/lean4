@@ -1,0 +1,10 @@
+(1, 2, 3, 4, 5, 6.000000, 7.000000, 8)
+SpecialValue.thing 1 2 3 4 5
+SpecialValue.nothing
+SpecialValue.something (2, 3)
+SpecialValue.something _
+[SpecialValue.thing 1 2 3 4 5]
+[SpecialValue.nothing]
+[SpecialValue.something (2, 3)]
+[SpecialValue.something _]
+3

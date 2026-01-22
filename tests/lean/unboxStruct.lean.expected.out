@@ -1,9 +1,13 @@
 [Compiler.IR] [result]
-    def test2 (x_1 : u32) (x_2 : void) : obj :=
+    def test2 (x_1 : u32) (x_2 : void) : ({tagged} | {tobj}) :=
       let x_3 : obj := foo x_1 ◾;
-      ret x_3
+      let x_4 : ({tagged} | {tobj}) := unbox x_3;
+      inc x_4;
+      dec x_3;
+      ret x_4
     def test2._boxed (x_1 : tobj) (x_2 : tagged) : obj :=
       let x_3 : u32 := unbox x_1;
       dec x_1;
-      let x_4 : obj := test2 x_3 x_2;
-      ret x_4
+      let x_4 : ({tagged} | {tobj}) := test2 x_3 x_2;
+      let x_5 : obj := box x_4;
+      ret x_5

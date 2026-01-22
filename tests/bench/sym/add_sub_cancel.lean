@@ -267,7 +267,7 @@ elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
 example (l : PartialMap String Word) : ((l.put "b" x).put "a" y).get "b" = x := by
   sym_simp [PartialMap.get_put_diff, PartialMap.get_put]
 
-partial def solve (mvarId : MVarId) : SymM Unit := do
+partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
   let exec_cpsRule ← mkBackwardRuleFromDecl ``Exec.seq_cps
   let inputRule ← mkBackwardRuleFromDecl ``Exec.input
   let skipRule ← mkBackwardRuleFromDecl ``Exec.skip
@@ -294,20 +294,23 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
     let .goal mvarId' ← Sym.simpGoal mvarId' evalMethods | failure
     let .goal mvarId' ← Sym.simpGoal mvarId' simpMethods | failure
     let .goals [] ← rflRule.apply mvarId' | failure
-    -- The following step is not in the `MetaM` version, but it helps performance
-    -- let .goal mvarId ← Sym.trySimpGoal mvarId simpMethods | failure
-    loop mvarId
-
+    if simpEagerly then
+      -- The following step is not in the `MetaM` version, but it helps performance
+      let .goal mvarId ← Sym.trySimpGoal mvarId simpMethods | failure
+      loop mvarId
+    else
+      loop mvarId
   let mvarId ← loop mvarId
   let .goals [mvarId] ← skipRule.apply mvarId | failure
   let .closed ← Sym.simpGoal mvarId finalSimpMethods { maxSteps := 100000 } | failure
   return
 
-def solveUsingSym (n : Nat) (check := true) : MetaM Unit := do
-  driver n check fun mvarId => SymM.run do solve mvarId
+def solveUsingSym (n : Nat) (check := true) (simpEagerly : Bool) : MetaM Unit := do
+  driver n check fun mvarId => SymM.run do solve mvarId simpEagerly
 
 set_option maxRecDepth 100000
-#eval solveUsingSym 80
--- goal_40: 49.065042 ms, kernel: 35.214791 ms
--- goal_80: 157.440000 ms, kernel: 101.177958 ms
--- goal_100: 236.273125 ms, kernel: 158.136958 ms
+-- set_option profiler true
+#eval solveUsingSym 200 true false -- No eager simplification
+-- goal_200: 778.797584 ms, kernel: 538.355625 ms
+#eval solveUsingSym 200 true true -- No eager simplification
+-- goal_200: goal_200: 123.957000 ms, kernel: 37.756625 ms

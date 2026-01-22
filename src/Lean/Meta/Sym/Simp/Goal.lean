@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Util
 import Lean.Meta.AppBuilder
+import Lean.Meta.Sym.InferType
 namespace Lean.Meta.Sym
 /-!
 # Goal simplification
@@ -49,7 +50,8 @@ public def simpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : 
   | .rfl _ => return .noProgress
   | .step target' h _ =>
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
-    let h ← mkAppM ``Eq.mpr #[h, mvarNew]
+    let u ← getLevel target
+    let h := mkApp4 (mkConst ``Eq.mpr [u]) target target' h mvarNew
     mvarId.assign h
     if target'.isTrue then
       mvarNew.mvarId!.assign (mkConst ``True.intro)

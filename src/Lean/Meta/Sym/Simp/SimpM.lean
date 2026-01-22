@@ -101,7 +101,7 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 /-- Configuration options for the structural simplifier. -/
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
-  maxSteps : Nat := 1000
+  maxSteps : Nat := 100000
   /--
   Maximum depth of reentrant simplifier calls through dischargers.
   Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.

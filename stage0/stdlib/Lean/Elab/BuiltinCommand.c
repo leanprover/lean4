@@ -252,7 +252,6 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabDocsToVerso___regBuiltin_Lean_Elab_Command_elabDocsToVerso__1___closed__3;
 lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logInfoAt___at___00Lean_Elab_Command_elabCheckCore_spec__1_spec__1___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getVersoModuleDocs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___at___00Lean_logInfo___at___00Lean_Elab_Command_elabSynth_spec__0_spec__0___redArg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_elabWhere_describeOpenDecls_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Elab_Command_elabWhere_spec__2(lean_object*, lean_object*);
@@ -657,6 +656,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnkn
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_failIfSucceeds___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Command_elabOpen_spec__0_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMainModuleDoc(lean_object*, lean_object*);
+lean_object* l_Lean_getMainVersoModuleDocs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_resolveId___at___00Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___at___00Lean_Elab_OpenDecl_resolveNameUsingNamespaces___at___00Lean_Elab_Command_elabExport_spec__1_spec__3_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00Lean_Elab_Command_elabDocsToVerso_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at___00Lean_Elab_addCompletionInfo___at___00Lean_Elab_Command_elabEnd_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
@@ -2514,7 +2514,7 @@ x_23 = lean_st_ref_get(x_3);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_24);
 lean_dec(x_23);
-x_25 = l_Lean_getVersoModuleDocs(x_24);
+x_25 = l_Lean_getMainVersoModuleDocs(x_24);
 x_26 = l_Lean_VersoModuleDocs_isEmpty(x_25);
 lean_dec_ref(x_25);
 if (x_26 == 0)
@@ -2621,7 +2621,7 @@ x_61 = lean_st_ref_get(x_3);
 x_62 = lean_ctor_get(x_61, 0);
 lean_inc_ref(x_62);
 lean_dec(x_61);
-x_63 = l_Lean_getVersoModuleDocs(x_62);
+x_63 = l_Lean_getMainVersoModuleDocs(x_62);
 x_64 = l_Lean_VersoModuleDocs_isEmpty(x_63);
 lean_dec_ref(x_63);
 if (x_64 == 0)
@@ -2952,7 +2952,7 @@ x_117 = lean_st_ref_get(x_3);
 x_118 = lean_ctor_get(x_117, 0);
 lean_inc_ref(x_118);
 lean_dec(x_117);
-x_119 = l_Lean_getVersoModuleDocs(x_118);
+x_119 = l_Lean_getMainVersoModuleDocs(x_118);
 x_120 = l_Lean_VersoModuleDocs_isEmpty(x_119);
 lean_dec_ref(x_119);
 if (x_120 == 0)

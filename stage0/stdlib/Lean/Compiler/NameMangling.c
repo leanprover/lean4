@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.NameMangling
-// Imports: public import Lean.Setup import Init.Data.String.Termination
+// Imports: public import Lean.Setup import Init.Data.String.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___
 lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationStem(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_mk_mangled_boxed_name(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -80,6 +81,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+static lean_object* l_Lean_mkMangledBoxedName___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter___redArg(uint32_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -92,9 +94,11 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_dem
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_fromHex_x3f(uint32_t);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_demangle_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_demangle___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkMangledBoxedName___closed__2;
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t lean_uint32_land(uint32_t, uint32_t);
@@ -103,12 +107,14 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_dem
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux(lean_object*, lean_object*, lean_object*);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__6_splitter(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkMangledBoxedName___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Name_demangle(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_mangle(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_nameStart___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex(lean_object*, uint32_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1095,6 +1101,71 @@ x_3 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_1);
 x_4 = lean_string_append(x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_Lean_mkMangledBoxedName___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("___boxed", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkMangledBoxedName___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__3;
+x_2 = lean_string_utf8_byte_size(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_mkMangledBoxedName___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_00__boxed", 10, 10);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* lean_mk_mangled_boxed_name(lean_object* x_1) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__3;
+x_6 = lean_string_utf8_byte_size(x_1);
+x_7 = l_Lean_mkMangledBoxedName___closed__1;
+x_8 = lean_nat_dec_le(x_7, x_6);
+if (x_8 == 0)
+{
+goto block_4;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_nat_sub(x_6, x_7);
+x_11 = lean_string_memcmp(x_1, x_5, x_10, x_9, x_7);
+lean_dec(x_10);
+if (x_11 == 0)
+{
+goto block_4;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = l_Lean_mkMangledBoxedName___closed__2;
+x_13 = lean_string_append(x_1, x_12);
+return x_13;
+}
+}
+block_4:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_mkMangledBoxedName___closed__0;
+x_3 = lean_string_append(x_1, x_2);
+return x_3;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationStem(lean_object* x_1, lean_object* x_2) {
@@ -2185,7 +2256,7 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Setup(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_NameMangling(uint8_t builtin) {
 lean_object * res;
@@ -2194,7 +2265,7 @@ _G_initialized = true;
 res = initialize_Lean_Setup(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Termination(builtin);
+res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__0 = _init_l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__0();
@@ -2213,6 +2284,12 @@ l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1 = _ini
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1);
 l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__2 = _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__2();
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__2);
+l_Lean_mkMangledBoxedName___closed__0 = _init_l_Lean_mkMangledBoxedName___closed__0();
+lean_mark_persistent(l_Lean_mkMangledBoxedName___closed__0);
+l_Lean_mkMangledBoxedName___closed__1 = _init_l_Lean_mkMangledBoxedName___closed__1();
+lean_mark_persistent(l_Lean_mkMangledBoxedName___closed__1);
+l_Lean_mkMangledBoxedName___closed__2 = _init_l_Lean_mkMangledBoxedName___closed__2();
+lean_mark_persistent(l_Lean_mkMangledBoxedName___closed__2);
 l_Lean_mkModuleInitializationFunctionName___closed__0 = _init_l_Lean_mkModuleInitializationFunctionName___closed__0();
 lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__0);
 l_Lean_mkPackageSymbolPrefix___closed__0 = _init_l_Lean_mkPackageSymbolPrefix___closed__0();

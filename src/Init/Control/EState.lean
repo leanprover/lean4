@@ -13,7 +13,7 @@ universe u v
 
 namespace EStateM
 
-variable {ε σ α : Type u}
+variable {ε : Type uε} {σ : Type uσ} {α : Type uα}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
@@ -35,7 +35,7 @@ end EStateM
 
 namespace EStateM
 
-variable {ε σ α β : Type u}
+variable {ε : Type uε} {σ : Type uσ} {α : Type uα} {β : Type uβ}
 
 /--
 Alternative orElse operator that allows callers to select which exception should be used when both
@@ -70,7 +70,7 @@ Converts a state monad action into a state monad action with exceptions.
 
 The resulting action does not throw an exception.
 -/
-@[always_inline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
+@[always_inline, inline] def fromStateM {ε σ α : Type _} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'
 

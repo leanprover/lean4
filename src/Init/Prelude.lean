@@ -4412,13 +4412,13 @@ automatically roll back the state.
 `Result ε σ α` is equivalent to `Except ε α × σ`, but using a single combined inductive type yields
 a more efficient data representation.
 -/
-inductive Result (ε σ α : Type u) where
+inductive Result (ε : Type uε) (σ : Type uσ) (α : Type uα) where
   /-- A success value of type `α` and a new state `σ`. -/
   | ok    : α → σ → Result ε σ α
   /-- An exception of type `ε` and a new state `σ`. -/
   | error : ε → σ → Result ε σ α
 
-variable {ε σ α : Type u}
+variable {ε σ α : Type _}
 
 instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) where
   default := Result.error default default
@@ -4433,11 +4433,11 @@ Instances of `EStateM.Backtrackable` provide a way to roll back some part of the
 
 `EStateM ε σ` is equivalent to `ExceptT ε (StateM σ)`, but it is more efficient.
 -/
-def EStateM (ε σ α : Type u) := σ → Result ε σ α
+def EStateM (ε : Type uε) (σ : Type uσ) (α : Type uα) := σ → Result ε σ α
 
 namespace EStateM
 
-variable {ε σ α β : Type u}
+variable {ε : Type uε} {σ : Type uσ} {α : Type uα} {β : Type uβ}
 
 instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
   default := fun s => Result.error default s

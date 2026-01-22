@@ -825,7 +825,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx
-  -- Term.synthesizeSyntheticMVarsUsingDefault
+  Term.synthesizeSyntheticMVarsUsingDefault
   trace[Elab.do] "{← instantiateMVars res}"
   pure res
 

@@ -20,7 +20,7 @@ open Lean.Meta
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
   elabNestedActions e fun e => do
-  let e ← Term.elabTermEnsuringType e mα
+  let e ← Term.withSynthesize (postpone := .yes) <| Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure stx e
 
 @[builtin_doElem_elab Lean.Parser.Term.doNested] def elabDoNested : DoElab := fun stx dec => do

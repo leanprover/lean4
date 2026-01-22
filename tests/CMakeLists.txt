@@ -212,7 +212,7 @@ endforeach(T)
 # online: downloads remote repositories
 file(
   GLOB_RECURSE LEANLAKETESTS
-  #"${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
 )

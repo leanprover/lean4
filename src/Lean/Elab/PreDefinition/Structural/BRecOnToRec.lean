@@ -38,15 +38,16 @@ def withPProdComponents (type : Expr) (i : Nat) (k : Expr → Expr → Expr → 
   | _ =>
     throwError "withPProdComponents (step {i+1}): expected PProd type, got{indentExpr type}"
 
-public def getBRecOntoRecSimpContext : MetaM Simp.Context := do
-   Simp.mkContext
-      (simpTheorems   := {})
-      (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with dsimp := true, beta := true, iota := true, etaStruct := .none, letToHave := true })
-
-public  def brecOnToRecSimp (e : Expr) : MetaM Simp.Result := do
-  let (r, _) ← simp e (← getBRecOntoRecSimpContext)
-  pure r
+/--
+Performs one iota reduction (possibly under lambdas),
+and then also projection reduction in the expression
+-/
+public def iotaReduceOne (e : Expr) : MetaM (Option Expr) := do
+  let e := e.headBeta
+  lambdaTelescope e fun xs e => do
+    let .reduced e ← reduceMatcher? e | return none
+    let e ← PProdN.reduceProjs e
+    return some (← mkLambdaFVars xs e)
 
 /--
 If `belowType` reduces to something of the form `(a₁ ×' b₁) ×' ... ×' (aₙ ×' bₙ)`, then
@@ -130,8 +131,9 @@ def brecOnToRec' (e : Expr) : MetaM Expr := e.withApp fun fn args => do
       withBelowComponents belowType (n := ihNum) fun ihs _moreBelow below => do
         let lhs := mkApp lhs below
         let lhs := lhs.headBeta
+        let some lhs ← iotaReduceOne lhs
+          | throwError "brecOnToRec: iota reduction failed on lhs for ctor {ctorName}:{indentExpr lhs}"
         let rhs := mkAppN rhs ihs
-        let lhs := (← brecOnToRecSimp lhs).expr
         trace[Elab.definition.structural.brecOnToRec] "defeq task:{indentExpr lhs}\n=?={indentExpr rhs}"
         unless (← isDefEq lhs rhs) do
           throwError "brecOnToRec: could not solve defeq for ctor {ctorName}, probably not structurally recursive"

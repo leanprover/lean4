@@ -74,7 +74,7 @@ fun n =>
   Nat.rec 0
     (fun n ih_1 =>
       id
-        (have m : Nat := n + 1;
+        (let m : Nat := n + 1;
         m * ih_1))
     n
 -/
@@ -135,7 +135,7 @@ info: id
 info: Nat.rec 0
   (fun n ih_1 =>
     id
-      (have m : Nat := n + 1;
+      (let m : Nat := n + 1;
       m * ih_1))
   1
 -/

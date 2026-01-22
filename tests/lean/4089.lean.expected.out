@@ -21,18 +21,6 @@
       let x_4 : obj := Sigma.toProd._redArg x_3;
       ret x_4
 [Compiler.IR] [reset_reuse]
-    def _private.lean.«4089».0.f.match_1.splitter._redArg (x_1 : obj) (x_2 : tobj) : tobj :=
-      case x_1 : obj of
-      Prod.mk →
-        let x_3 : tobj := proj[0] x_1;
-        let x_4 : tobj := proj[1] x_1;
-        let x_5 : tobj := app x_2 x_3 x_4;
-        ret x_5
-[Compiler.IR] [reset_reuse]
-    def _private.lean.«4089».0.f.match_1.splitter (x_1 : ◾) (x_2 : obj) (x_3 : tobj) : tobj :=
-      let x_4 : tobj := _private.lean.«4089».0.f.match_1.splitter._redArg x_2 x_3;
-      ret x_4
-[Compiler.IR] [reset_reuse]
     def foo (x_1 : tobj) : tobj :=
       case x_1 : tobj of
       List.nil →

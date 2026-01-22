@@ -1,6 +1,7 @@
 axiom testSorry : α
 
 
+-- set_option trace.Meta.FunInd true in
 def Nat.id : Nat → Nat
   | 0 => 0
   | n+1 => Nat.id n
@@ -10,7 +11,7 @@ termination_by structural x => x
 info: Nat.id.induct_unfolding (motive : Nat → Nat → Prop) (case1 : motive Nat.zero 0)
   (case2 : ∀ (n : Nat), motive n n.id → motive n.succ n.id) (a✝ : Nat) : motive a✝ a✝.id
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check Nat.id.induct_unfolding
 
 

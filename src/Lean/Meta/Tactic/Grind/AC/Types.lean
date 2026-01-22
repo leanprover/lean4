@@ -117,7 +117,7 @@ structure State where
   -/
   structs : Array Struct := {}
   /--
-  Mapping from operators to its "operator id". We cache failures using `none`.
+  Mapping from operators to their "operator id". We cache failures using `none`.
   `opIdOf[op]` is `some id`, then `id < structs.size`. -/
   opIdOf : PHashMap ExprPtr (Option Nat) := {}
   /--

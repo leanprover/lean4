@@ -201,7 +201,7 @@ def AltExpr.vars (alt : AltExpr σ) : Array Var := Id.run do
     `vars` is the array of variables declared by it, and `cont` is the next instruction in the `do` code block.
     `vars` is an array since we have declarations such as `let (a, b) := s`.
 
-  - `reassign` is an reassignment-like `doElem` (e.g., `x := x + 1`).
+  - `reassign` is a reassignment-like `doElem` (e.g., `x := x + 1`).
 
   - `joinpoint` is a join point declaration: an auxiliary `let`-declaration used to represent the control-flow.
 

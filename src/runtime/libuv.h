@@ -18,7 +18,6 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
-#include "runtime/object.h"
 
 namespace lean {
 

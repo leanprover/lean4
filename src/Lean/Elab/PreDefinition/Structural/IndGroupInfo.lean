@@ -15,7 +15,7 @@ This module contains the types
 * `IndGroupInfo`, a variant of `InductiveVal` with information that
    applies to a whole group of mutual inductives and
 * `IndGroupInst` which extends `IndGroupInfo` with levels and parameters
-   to indicate a instantiation of the group.
+   to indicate an instantiation of the group.
 
 One purpose of this abstraction is to make it clear when a function operates on a group as
 a whole, rather than a specific inductive within the group.
@@ -50,7 +50,7 @@ partial def IndGroupInfo.brecOnName (info : IndGroupInfo) (idx : Nat) : Name :=
       info.brecOnName 0 |>.appendIndexAfter j
 
 /--
-An instance of an mutually inductive group of inductives, identified by the `all` array
+An instance of a mutually inductive group of inductives, identified by the `all` array
 and the level and expressions parameters.
 
 For example this distinguishes between `List α` and `List β` so that we will not even attempt

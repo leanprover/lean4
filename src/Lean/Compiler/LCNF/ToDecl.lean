@@ -91,7 +91,7 @@ def declIsNotUnsafe (declName : Name) : CoreM Bool := do
     return false
   else
     if info matches .opaqueInfo .. then
-      -- check if its a partial def
+      -- check if it's a partial def
       return env.find? (Compiler.mkUnsafeRecName declName) |>.isNone
     else
       return true

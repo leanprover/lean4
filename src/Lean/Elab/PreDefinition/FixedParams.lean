@@ -462,7 +462,7 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
       assert! paramIdx < mapping.size
       if let some fixedParamIdx := mapping[paramIdx]! then
         mask := mask.set! fixedParamIdx true
-  -- Take the transitive closure under under `fixedParamPerms.revDeps`.
+  -- Take the transitive closure under `fixedParamPerms.revDeps`.
   let mut changed := true
   while changed do
     changed := false

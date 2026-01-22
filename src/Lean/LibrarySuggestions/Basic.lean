@@ -92,10 +92,10 @@ end FoldRelevantConstantsImpl
 @[implemented_by FoldRelevantConstantsImpl.foldUnsafe]
 public opaque foldRelevantConstants {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α := pure init
 
-/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+/-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantConstants e #[] (fun n ns => return ns.push n)
 
-/-- Collect the constants occuring in `e` (once each), skipping instance arguments and proofs. -/
+/-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
 
 end Lean.Expr

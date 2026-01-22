@@ -285,7 +285,7 @@ abbrev ExtendM := ReaderT ExtendContext StateRefT ExtendState ScopeM
 Replace a free variable if necessary, that is:
 - It is in the list of candidates
 - We are currently within a join point (if we are within a function there
-  cannot be a need to replace them since we dont extend their context)
+  cannot be a need to replace them since we don't extend their context)
 - Said join point actually has a replacement parameter registered.
 otherwise just return `fvar`.
 -/

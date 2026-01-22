@@ -293,7 +293,7 @@ def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSourc
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
-/-- Returns extension states associate with `grind` attributes in use -/
+/-- Returns extension states associated with `grind` attributes in use -/
 def getExtensions : GrindM Grind.ExtensionStateArray :=
   return (← readThe Context).extensions
 
@@ -1171,7 +1171,7 @@ def isEqv (a b : Expr) : GoalM Bool := do
     let some nb ← getENode? b | return false
     return isSameExpr na.root nb.root
 
-/-- Returns `true` if the root of its equivalence class. -/
+/-- Returns `true` if `e` is the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do
   let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
   return isSameExpr n.root e
@@ -1202,7 +1202,7 @@ def getRootENode? (e : Expr) : GoalM (Option ENode) := do
   let some n ← getENode? e | return none
   getENode? n.root
 /--
-Returns `true` if the ENode associate with `e` has support for function equality
+Returns `true` if the ENode associated with `e` has support for function equality
 congruence closure. See `Grind.Config.funCC` for additional details.
 -/
 def useFunCC (e : Expr) : GoalM Bool :=
@@ -1379,7 +1379,7 @@ For each equality `b = c` in `parents`, executes `k b c` IF
       else
         k b c
 
-/-- Returns `true` is `e` is the root of its congruence class. -/
+/-- Returns `true` if `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
 

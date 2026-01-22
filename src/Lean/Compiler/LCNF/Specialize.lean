@@ -225,7 +225,7 @@ def shouldSpecialize (specEntry : SpecEntry) (args : Array Arg) : SpecializeM Bo
         If we have `f p` where `p` is a param it makes no sense to specialize as we will just
         close over `p` again and will have made no progress.
 
-        The reason for doing this only for declarations which have have already been specialised
+        The reason for doing this only for declarations which have already been specialised
         themselves is, that we *must* always specialize declarations that are marked with
         `@[specialize]`. This is because the specializer will not specialize their bodies because it
         waits for the bodies to be specialized at the call site. This is for example important in

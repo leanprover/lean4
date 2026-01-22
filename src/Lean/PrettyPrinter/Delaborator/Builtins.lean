@@ -884,7 +884,7 @@ binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do gr
 inside-out, on the Syntax level, because it depends on comparing the Expr binder types.
 
 The `allNames` set is used to make sure names in the same `fun` binders are unique.
-Users have reported than `fun x x x => x` is confusing.
+Users have reported that `fun x x x => x` is confusing.
 -/
 private partial def delabBinders (allNames : NameSet) (curNames : Array Syntax) (dep ppTypes : Bool)
     (delabBody : NameSet → Delab)

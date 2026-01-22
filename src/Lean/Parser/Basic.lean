@@ -151,7 +151,7 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
 
 /-- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.
-   This useful to make sure a parser consumed at least one character.  -/
+   This is useful to make sure a parser consumed at least one character.  -/
 @[builtin_doc] def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
   fn := errorAtSavedPosFn msg delta
 }

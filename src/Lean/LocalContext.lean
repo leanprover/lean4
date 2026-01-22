@@ -598,7 +598,7 @@ def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : B
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
   Id.run <| lctx.allM (pure <| p ·)
 
-/-- If option `pp.sanitizeNames` is set to `true`, add tombstone to shadowed local declaration names and ones contains macroscopes. -/
+/-- If option `pp.sanitizeNames` is set to `true`, add tombstone to shadowed local declaration names and ones containing macroscopes. -/
 def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext := do
   let st ← get
   if !getSanitizeNames st.options then pure lctx else

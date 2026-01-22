@@ -341,7 +341,7 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     /-
     **Note**: Most patterns do not have free variables since they are created from
     top-level theorems. That said, some user may want to create patterns using local hypotheses, and they
-    may contain free variables. This is not the common case. So, we just push to pending an continue.
+    may contain free variables. This is not the common case. So, we just push to pending and continue.
     -/
     pushPending p e
     return true

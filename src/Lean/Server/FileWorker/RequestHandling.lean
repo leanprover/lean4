@@ -33,7 +33,7 @@ def findCompletionCmdDataAtPos
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
   -- However, most completions don't need trailing whitespace at the term level;
-  -- synthetic completions are the only notions of completion that care care about whitespace.
+  -- synthetic completions are the only notions of completion that care about whitespace.
   -- Synthetic tactic completion only needs the `ContextInfo` of the command, so any snapshot
   -- will do.
   -- Synthetic field completion in `{ }` doesn't care about whitespace;

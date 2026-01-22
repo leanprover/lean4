@@ -22,9 +22,9 @@ import Lean.Meta.Match.NamedPatterns
 
 /-!
 This module implements the backend of match compilation. The elaborator has already elaborated
-the patterns and the the expected type of the matcher is known.
+the patterns and the expected type of the matcher is known.
 
-The match compilation task is represented as a `Problem`, which is then processed interatively by
+The match compilation task is represented as a `Problem`, which is then processed iteratively by
 the `process` function. It has various “moves” which it tries in a particular order, to make progress
 on the problem, possibly splitting it.
 

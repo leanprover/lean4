@@ -56,7 +56,7 @@ Marks the theorem as a definitional equality.
 The theorem must be an equality that holds by `rfl`. This allows `dsimp` to use this theorem
 when rewriting.
 
-A theorem with with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`.
+A theorem with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`.
 To avoid this behavior, write `:= (rfl)` instead.
 
 The attribute should be given before a `@[simp]` attribute to have effect.

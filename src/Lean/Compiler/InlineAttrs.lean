@@ -40,7 +40,7 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
     declName' == ``WellFounded.Nat.fix ||
     declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module
   if Option.isSome <| info.value.find? fun e => e.isConst && isRec e.constName! then
-    -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursvie
+    -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursive
     return false
   return true
 

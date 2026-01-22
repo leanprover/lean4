@@ -2146,7 +2146,7 @@ sufficient for our purposes.
 We may have to revise this design decision and eagerly generate equational theorems when
 we implement the module system.
 
-Remark: we do not check whether the theorem `value` field match. This feature is useful and
+Remark: we do not check whether the theorem `value` field matches. This feature is useful and
 ensures the proofs for equational theorems do not need to be identical. This decision
 relies on the fact that theorem types are propositions, we have proof irrelevance,
 and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems

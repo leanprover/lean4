@@ -206,7 +206,7 @@ inline object * mk_except_error_string(char const * err) {
     return r;
 }
 
-/* Given `o` representing a Lean value of type `Except String A`, return `T` an smart pointer
+/* Given `o` representing a Lean value of type `Except String A`, return `T` a smart pointer
    that encapsulates `A` values or throw an exception */
 template<typename T> T get_except_value(obj_arg o) {
     if (cnstr_tag(o) == 1) {

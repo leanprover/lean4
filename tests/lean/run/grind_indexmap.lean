@@ -86,7 +86,8 @@ private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
-@[reducible] instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
+@[reducible]
+instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
@@ -95,8 +96,7 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := by grind
   getElem!_def := by grind
 
-@[inline] def insert (m : IndexMap α β) (a : α) (b : β) :
-    IndexMap α β :=
+@[inline] def insert (m : IndexMap α β) (a : α) (b : β) : IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
     { indices := m.indices

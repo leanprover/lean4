@@ -22,6 +22,7 @@ open Lean.Meta
   elabNestedActions (e?.getD ⟨.missing⟩) fun e => do
   -- When using the ControlLifter framework, `returnCont.resultType` can be different than the
   -- result type of the `do` block. That's why we track it separately.
+  -- trace[Elab.do] "return e: {e} with type {returnCont.resultType}"
   let e ← match e.raw with
     | .missing => Term.ensureHasType returnCont.resultType (← mkPUnitUnit)
     | _        => Term.elabTermEnsuringType e returnCont.resultType

@@ -69,7 +69,6 @@ attribute [Std.Internal.tree_tac] Tree.balanced_impl Tree.size_impl
 def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced)
     (hlr : BalancedAtRoot l.size r.size) : View α β (l.size + r.size) :=
   match l with
-  | leaf => ⟨k, v, ⟨r, hr, ✓⟩⟩
   | inner _ k' v' l' r' =>
     let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := minView k' v' l' r' ✓ ✓ ✓
     ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by
@@ -77,6 +76,7 @@ def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
         exact hlr.erase_left
           (by simp only [hdt', hl.eq, size_inner]; omega)
           (by simp only [hdt', hl.eq, size_inner]; omega)), ✓, ✓⟩⟩
+  | leaf => ⟨k, v, ⟨r, hr, ✓⟩⟩
 
 /--
 Slower version of `minView` which can be used in the absence of balance information but still

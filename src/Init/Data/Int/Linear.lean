@@ -205,9 +205,9 @@ where
     | .var v    => (.add coeff v ·)
     | .add a b  => go coeff a ∘ go coeff b
     | .sub a b  => go coeff a ∘ go (-coeff) b
+    | .neg a    => go (-coeff) a
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
-    | .neg a    => go (-coeff) a
 
 /-- Converts the given expression into a polynomial, and then normalizes it. -/
 @[expose]
@@ -501,19 +501,19 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   | case5 k a b iha ihb =>
     simp [toPoly'.go, iha, ihb, Int.mul_sub]
     rw [Int.sub_eq_add_neg, ←Int.neg_mul, Int.add_assoc]
-  | case6 k k' a h
-  | case8 k a k' h =>
+  | case6 k a ih => simp [toPoly'.go, ih, Int.neg_mul, Int.mul_neg]
+  | case7 k k' a h
+  | case9 k a k' h =>
     simp only [toPoly'.go, h]
     simp [eq_of_beq h]
-  | case7 k a k' h ih =>
+  | case8 k a k' h ih =>
     simp only [toPoly'.go, h, cond_false]
     simpa [denote, ← Int.mul_assoc] using ih
-  | case9 k a h h ih =>
+  | case10 k a h h ih =>
     simp only [toPoly'.go, h, cond_false]
     simp only [mul_def, denote]
     rw [Int.mul_comm (denote _ _) _]
     simpa [Int.mul_assoc] using ih
-  | case10 k a ih => simp [toPoly'.go, ih, Int.neg_mul, Int.mul_neg]
 
 theorem Expr.denote_norm (ctx : Context) (e : Expr) : e.norm.denote ctx = e.denote ctx := by
   simp [norm, toPoly', Expr.denote_toPoly'_go]

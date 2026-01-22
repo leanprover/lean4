@@ -274,9 +274,6 @@ Internal implementation detail of the tree map
 noncomputable def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
     (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
-  | leaf => match (f .empty).inner with
-    | none => ⟨.leaf, ✓, ✓, ✓⟩
-    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
@@ -289,6 +286,9 @@ noncomputable def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → C
     | .gt =>
       let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r ✓
       ⟨balance ky y l newR ✓ ✓ ✓, ✓, ✓, ✓⟩
+  | leaf => match (f .empty).inner with
+    | none => ⟨.leaf, ✓, ✓, ✓⟩
+    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
 
 /-!
 ## Model functions

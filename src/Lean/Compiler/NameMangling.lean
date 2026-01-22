@@ -86,7 +86,7 @@ theorem lt_of_parseLowerHex?_eq_some {k : Nat} {s : String} {p q : s.Pos} {acc :
   fun_induction parseLowerHex? with
   | case1 => simp at hk
   | case2 => simp
-  | case3 p acc k h d x ih =>
+  | case3 k p acc h d x ih =>
     match k with
     | 0 => simpa [parseLowerHex?] using fun h _ => h ▸ p.lt_next
     | k + 1 => exact fun h => String.Pos.lt_trans p.lt_next (ih (by simp) h)

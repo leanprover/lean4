@@ -38,7 +38,7 @@ inductive Direction
   Generating and sending outgoing responses to clients.
   -/
   | sending
-deriving BEq
+deriving BEq, Repr
 
 /--
 Inverts the direction of the requests.

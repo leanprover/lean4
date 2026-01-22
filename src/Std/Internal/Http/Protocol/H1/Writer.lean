@@ -93,7 +93,7 @@ structure Writer (dir : Direction) where
   /--
   The state of the writer machine.
   -/
-  state : Writer.State := .pending
+  state : Writer.State := match dir with | .receiving => .pending | .sending => .waitingHeaders
 
   /--
   When the user specifies the exact size upfront, we can use Content-Length

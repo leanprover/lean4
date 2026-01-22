@@ -429,13 +429,14 @@ def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : D
       let e' ← mkPureApp eResultTy eRes
       let (isPure, isDuplicable) ← withNewMCtxDepth do
         let isPure ← isDefEq e e'
-        let isDuplicable ← pure eRes.isFVar <||> isDefEq eResultTy (← mkPUnit)
+        let isDuplicable ← isDefEq eResultTy (← mkPUnit)
+          -- <||> pure eRes.isFVar -- this is too aggressive; users expect to see "useless binds" after elaboration
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
           return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
-        else
-          return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+        -- else -- would be too aggressive
+        --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
     let kResultTy ← mkFreshResultType `kResultTy
     let body ← Term.ensureHasType (← mkMonadicType kResultTy) body

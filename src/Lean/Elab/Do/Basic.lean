@@ -103,22 +103,7 @@ structure Context where
   -/
   deadCode : CodeLiveness := .alive
 
-structure MonadInstanceCache where
-  /-- The inferred `Pure` instance of `(← read).monadInfo.m`. -/
-  instPure : Option Expr := none
-  /-- The inferred `Bind` instance of `(← read).monadInfo.m`. -/
-  instBind : Option Expr := none
-  /-- The cached `Pure.pure` expression. -/
-  cachedPure : Option Expr := none
-  /-- The cached `Bind.bind` expression. -/
-  cachedBind : Option Expr := none
-  deriving Nonempty
-
-structure State where
-  monadInstanceCache : MonadInstanceCache := {}
-  deriving Nonempty
-
-abbrev DoElabM := ReaderT Context <| StateRefT State Term.TermElabM
+abbrev DoElabM := ReaderT Context Term.TermElabM
 
 /--
 Whether the continuation of a `do` element is duplicable and if so whether it is just `pure r` for
@@ -233,25 +218,18 @@ def mkPUnit : DoElabM Expr := do
 def mkPUnitUnit : DoElabM Expr := do
   return (← read).monadInfo.cachedPUnitUnit
 
-/-- The cached `@Pure.pure m instPure` expression. -/
-private def getCachedPure : DoElabM Expr := do
-  let s ← get
-  if let some cachedPure := s.monadInstanceCache.cachedPure then return cachedPure
-  let info := (← read).monadInfo
-  let instPure ← Term.mkInstMVar (mkApp (mkConst ``Pure [info.u, info.v]) info.m)
-  let cachedPure := mkApp2 (mkConst ``Pure.pure [info.u, info.v]) info.m instPure
-  let cachedPure ← instantiateMVars cachedPure -- try to get rid of metavariables eagerly
-  set { s with monadInstanceCache := { s.monadInstanceCache with cachedPure := some cachedPure } : State}
-  return cachedPure
-
 /-- The expression ``pure (α:=α) e``. -/
 def mkPureApp (α e : Expr) : DoElabM Expr := do
+  let info := (← read).monadInfo
   if (← read).deadCode matches .deadSyntactically then
     -- There is no dead syntax here. Just return a fresh metavariable so that we don't
     -- do the `Term.ensureHasType` check below.
-    return ← mkFreshExprMVar (← mkMonadicType α)
+    return ← mkFreshExprMVar (mkApp info.m α)
+  let α ← Term.ensureHasType (mkSort (mkLevelSucc info.u)) α
   let e ← Term.ensureHasType α e
-  return mkApp2 (← getCachedPure) α e
+  let instPure ← Term.mkInstMVar (mkApp (mkConst ``Pure [info.u, info.v]) info.m)
+  let instPure ← instantiateMVars instPure
+  return mkApp4 (mkConst ``Pure.pure [info.u, info.v]) info.m instPure α e
 
 /-- Create a `DoElemCont` returning the result using `pure`. -/
 def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
@@ -271,24 +249,15 @@ def ReturnCont.mkPure (resultType : Expr) : TermElabM ReturnCont := do
   return { resultType, k x := do
     mkPureApp (← inferType x) x }
 
-/-- The cached `@Bind.bind m instBind` expression. -/
-private def getCachedBind : DoElabM Expr := do
-  let s ← get
-  if let some cachedBind := s.monadInstanceCache.cachedBind then return cachedBind
-  let info := (← read).monadInfo
-  let instBind ← Term.mkInstMVar (mkApp (mkConst ``Bind [info.u, info.v]) info.m)
-  let cachedBind := mkApp2 (mkConst ``Bind.bind [info.u, info.v]) info.m instBind
-  let cachedBind ← instantiateMVars cachedBind -- try to get rid of metavariables eagerly
-  set { s with monadInstanceCache := { s.monadInstanceCache with cachedBind := some cachedBind } : State}
-  return cachedBind
-
 /-- The expression ``Bind.bind (α:=α) (β:=β) e k``. -/
 def mkBindApp (α β e k : Expr) : DoElabM Expr := do
-  let mα ← mkMonadicType α
+  let info := (← read).monadInfo
+  let α ← Term.ensureHasType (mkSort (mkLevelSucc info.u)) α
+  let mα := mkApp info.m α
   let e ← Term.ensureHasType mα e
-  let k ← Term.ensureHasType (← mkArrow α (← mkMonadicType β)) k
-  let cachedBind ← getCachedBind
-  return mkApp4 cachedBind α β e k
+  let k ← Term.ensureHasType (← mkArrow α (mkApp info.m β)) k
+  let instBind ← Term.mkInstMVar (mkApp (mkConst ``Bind [info.u, info.v]) info.m)
+  return mkApp6 (mkConst ``Bind.bind [info.u, info.v]) info.m instBind α β e k
 
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
@@ -343,8 +312,8 @@ Like `controlAt TermElabM`, but it maintains the state using the `DoElabM`'s ref
 in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
 -/
 @[inline]
-def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx ref => do
-  k (· ctx ref)
+def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx => do
+  k (· ctx)
 
 @[inline]
 def mapTermElabM (f : ∀{α}, TermElabM α → TermElabM α) {α} (k : DoElabM α) : DoElabM α :=
@@ -532,15 +501,13 @@ private def withLambdaIf (b : Bool) (name : Name) (type : Expr) (k : DoElabM Exp
 -/
 structure SavedState where
   «term» : Term.SavedState
-  «do» : State
   deriving Nonempty
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : DoElabM Unit := do
   s.term.restore (restoreInfo := restoreInfo)
-  set s.do
 
 protected def DoElabM.saveState : DoElabM SavedState :=
-  return { «term» := (← Term.saveState), «do» := (← get) }
+  return { «term» := (← Term.saveState) }
 
 instance : MonadBacktrack SavedState DoElabM where
   saveState      := DoElabM.saveState
@@ -855,7 +822,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
-  let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
+  let res ← elabDoSeq doSeq cont |>.run ctx
   -- Term.synthesizeSyntheticMVarsUsingDefault
   trace[Elab.do] "{← instantiateMVars res}"
   pure res

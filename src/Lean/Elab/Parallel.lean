@@ -77,11 +77,11 @@ private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
     | .yield it' out => True
     | .skip _ => False
     | .done => it.internalState.tasks = []
-  step it := do
+  step it :=
     match h : it.internalState.tasks with
     | [] =>
         pure <| .deflate ⟨.done, rfl⟩
-    | task :: rest =>
+    | task :: rest => do
         have hlen : 0 < (task :: rest).length := by simp
         let (result, remaining) ← IO.waitAny' (task :: rest) hlen
         pure <| .deflate ⟨

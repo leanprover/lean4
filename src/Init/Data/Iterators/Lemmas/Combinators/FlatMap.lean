@@ -116,17 +116,18 @@ public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type
     {γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ : Iter (α := α) β} {it₂ : Option (IterM (α := α₂) m γ)} :
-  (it₁.flatMapAfterM f it₂).step = (do
+  (it₁.flatMapAfterM f it₂).step = (
     match it₂ with
     | none =>
       match it₁.step with
       | .yield it₁' b h =>
-        let fx ← MonadAttach.attach (f b)
+        MonadAttach.attach (f b) >>= fun fx =>
         return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (.outerYield_flatMapM_pure h fx.property))
       | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (.outerSkip_flatMapM_pure h))
       | .done h => return .deflate (.done (.outerDone_flatMapM_pure h))
     | some it₂ =>
-      match (← it₂.step).inflate with
+      it₂.step >>= fun x =>
+      match x.inflate with
       | .yield it₂' out h =>
         return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (.innerYield_flatMapM_pure h))
       | .skip it₂' h =>

@@ -572,8 +572,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     catch ex => match ex with
       | .error .. => throw ex
       | .internal id _ =>
-        if id == postponeExceptionId && !(← readThe Term.Context).mayPostpone then
+        if id == postponeExceptionId then
+          -- trace[Elab.do] "postponed exception, resultType was {nondupDec.resultType}"
           s.restore
+          -- trace[Elab.do] "resultType after restore: {nondupDec.resultType}"
           pure none
         else
           throw ex
@@ -585,6 +587,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     let live ← deadCode.get
     (if body?.isSome then withDeadCode live else id) do
     let e ← nondupDec.k .missing
+    -- trace[Elab.do] "join body: {e}, nondupDec.resultType: {nondupDec.resultType}, u: {(← read).monadInfo.u}, abstracting over {r} and {muts}"
     mkLambdaFVars (#[r] ++ muts) e
   discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
 

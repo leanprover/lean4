@@ -1226,7 +1226,7 @@ private def waitExpectedType (expectedType? : Option Expr) : TermElabM Expr := d
     | some expectedType => pure expectedType
     | none              => mkFreshTypeMVar
 
-private def tryPostponeIfDiscrTypeIsMVar (motive? : Option Syntax) (discrs : Array Syntax) : TermElabM Unit := do
+def tryPostponeIfDiscrTypeIsMVar (motive? : Option Syntax) (discrs : Array Syntax) : TermElabM Unit := do
   -- We don't wait for the discriminants types when match type is provided by user
   if motive?.isNone then
     for discr in discrs do

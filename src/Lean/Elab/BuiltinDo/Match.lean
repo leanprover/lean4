@@ -174,7 +174,8 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
   let mγ ← mkMonadicType doBlockResultType
   elabNestedActionsArray discrs fun discrs => do
   elabNonAtomicDiscrs motive? discrs fun discrs => do
-  discard <| Term.waitExpectedTypeAndDiscrs motive? discrs nondupDec.resultType
+  trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}"
+  Term.tryPostponeIfDiscrTypeIsMVar motive? discrs
   let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
     let ⟨discrs, resultMotive, isDep⟩ ← Term.withSynthesize <|
        Term.elabMatchTypeAndDiscrs discrs motive? nondupDec.resultType
@@ -363,7 +364,6 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
     return ← expandToTermMatch stx dec
   if let `(matchAltExpr| | $y:ident => $seq) := alts.getD 0 ⟨.missing⟩ then
     if let `(matchDiscr| $[$_ :]? $discr) := discrs.getElems.getD 0 ⟨.missing⟩ then
-      trace[Elab.do.match] "simple match: y: {y}, discr: {discr}"
       if alts.size == 1 && (← Term.isPatternVar y) then
         let newStx ← `(doSeq| let $y:ident := $discr; do $(⟨seq⟩))
         return ← Term.withMacroExpansion stx newStx <| elabDoSeq ⟨newStx⟩ dec

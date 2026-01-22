@@ -134,6 +134,11 @@ def f9 (xs : List Nat) : IO (List Nat) := do
 return xs
 return xs -- warn unreachable
 
+example (declName : Name) (x : Bool) (f : String → MetaM Bool) : MetaM Unit := do
+  let res ← match x with | _ => throwError m!"`{.ofConstName declName}` has no docstring"
+  let _ ← f res
+  throwError "No metadata satisfied the predicate"
+
 def logErrorNames (x : MetaM Unit) : MetaM Unit := do
   Core.setMessageLog {}
   x
@@ -218,24 +223,7 @@ example (x : Nat) : Nat :=
   | 42 => y
   | _ => 0
 
-/-- info: Except.ok 23 -/
-#guard_msgs in
-#eval Id.run <| ExceptT.run (ε:=String) do
-  let res ←
-    let false := true | pure true
-    throw "error"
-    return 44
-  if res then pure 23 else return 33
-
-set_option trace.Elab.match true in
-#eval Id.run <| ExceptT.run (ε:=String) do
-  let res ←
-    let false := true | pure true
-    throw "error"
-    return 44
-  if res then pure 23 else return 33
-
-set_option backward.do.legacy true in
+-- set_option backward.do.legacy true in
 /-- info: "ok" -/
 #guard_msgs in
 #eval Id.run do
@@ -1967,7 +1955,7 @@ example : (Id.run doo
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.12
+  ?m.9
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -2281,7 +2269,7 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 example := doo return 42
 /--
 error: typeclass instance problem is stuck
-  Bind ?m.14
+  Bind ?m.23
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 

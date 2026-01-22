@@ -75,22 +75,25 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   match h : m.indices[a]? with
   | some i =>
     { indices := m.indices
-      keys := m.keys.set i a sorry
-      values := m.values.set i b sorry
+      keys    := m.keys.set i a sorry
+      values  := m.values.set i b sorry
       size_keys' := sorry
-      WF := sorry }
+      WF      := sorry }
   | none =>
     { indices := m.indices.insert a m.size
-      keys := m.keys.push a
-      values := m.values.push b
+      keys    := m.keys.push a
+      values  := m.values.push b
       size_keys' := sorry
-      WF := sorry }
+      WF      := sorry }
 
-instance : Singleton (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
+instance : Singleton (α × β) (IndexMap α β) :=
+  ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
 
-instance : Insert (α × β) (IndexMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+instance : Insert (α × β) (IndexMap α β) :=
+  ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
-instance : LawfulSingleton (α × β) (IndexMap α β) := ⟨fun _ => rfl⟩
+instance : LawfulSingleton (α × β) (IndexMap α β) :=
+  ⟨fun _ => rfl⟩
 
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
@@ -133,7 +136,14 @@ theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a sorry = if h : a ∈ m then m.findIdx a h else m.size := by
   sorry
 
+theorem findIdx?_eq (m : IndexMap α β) (a : α) :
+    m.findIdx? a = if h : a ∈ m then some (m.findIdx a h) else none := by
+  sorry
+
 theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
     m.getIdx (m.findIdx a h) sorry = m[a] := sorry
+
+theorem getIdx?_eq (m : IndexMap α β) (i : Nat) :
+    m.getIdx? i = if h : i < m.size then some (m.getIdx i h) else none := sorry
 
 end IndexMap

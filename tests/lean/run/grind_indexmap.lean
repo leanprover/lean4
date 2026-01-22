@@ -86,26 +86,16 @@ private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
-instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
+@[reducible] instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
-
-@[local grind =]
-private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) :
-    m[a] = m.values[m.indices[a]'h] := rfl
-@[local grind =]
-private theorem getElem?_def (m : IndexMap α β) (a : α) :
-    m[a]? = m.indices[a]?.bind (fun i => (m.values[i]?)) := rfl
-@[local grind =]
-private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
-    m[a]! = (m.indices[a]?.bind (fun i => (m.values[i]?))).getD default := rfl
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := by grind
   getElem!_def := by grind
 
-@[inline] def insert [LawfulBEq α] (m : IndexMap α β) (a : α) (b : β) :
+@[inline] def insert (m : IndexMap α β) (a : α) (b : β) :
     IndexMap α β :=
   match h : m.indices[a]? with
   | some i =>
@@ -117,14 +107,14 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
       keys    := m.keys.push a
       values  := m.values.push b }
 
-instance [LawfulBEq α] : Singleton (α × β) (IndexMap α β) :=
-    ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
+instance : Singleton (α × β) (IndexMap α β) :=
+  ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
 
-instance [LawfulBEq α] : Insert (α × β) (IndexMap α β) :=
-    ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+instance : Insert (α × β) (IndexMap α β) :=
+  ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
-instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
-    ⟨fun _ => rfl⟩
+instance : LawfulSingleton (α × β) (IndexMap α β) :=
+  ⟨fun _ => rfl⟩
 
 -- This is not needed if we activate `grind_pattern getElem?_pos => c[i]` above.
 @[local grind .]
@@ -164,11 +154,6 @@ theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.i
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
   grind +locals
 
-@[grind =]
-theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
-    (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
-  grind +locals
-
 theorem findIdx_lt (m : IndexMap α β) (a : α) (h : a ∈ m) :
     m.findIdx a h < m.size := by
   grind +locals
@@ -176,7 +161,23 @@ theorem findIdx_lt (m : IndexMap α β) (a : α) (h : a ∈ m) :
 grind_pattern findIdx_lt => m.findIdx a h
 
 @[grind =]
+theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
+    (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
+  grind +locals
+
+@[grind =]
+theorem findIdx?_eq (m : IndexMap α β) (a : α) :
+    m.findIdx? a = if h : a ∈ m then some (m.findIdx a h) else none := by
+  grind +locals
+
+@[grind =]
 theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
     m.getIdx (m.findIdx a) = m[a] := by grind +locals
+
+omit [LawfulBEq α] [LawfulHashable α] in
+@[grind =]
+theorem getIdx?_eq (m : IndexMap α β) (i : Nat) :
+    m.getIdx? i = if h : i < m.size then some (m.getIdx i h) else none := by
+  grind +locals
 
 end IndexMap

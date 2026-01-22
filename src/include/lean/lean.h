@@ -2661,18 +2661,23 @@ static inline size_t lean_isize_mul(size_t a1, size_t a2) {
     return (size_t)(lhs * rhs);
 }
 
+
 static inline size_t lean_isize_div(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return (size_t)PTRDIFF_MIN;
+    return (size_t)(lhs / rhs);
 }
 
 static inline size_t lean_isize_mod(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (size_t)lhs;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return 0;
+    return (size_t)(lhs % rhs);
 }
 
 static inline size_t lean_isize_land(size_t a1, size_t a2) {

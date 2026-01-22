@@ -845,7 +845,6 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
             throwError "failed to elaborate with `+generalize`, generalized expected type is not type correct:{indentD motive}"
         expectedType? := motive
       elabTermEnsuringType body expectedType? >>= instantiateMVars
-    addLocalVarInfo id x
     match config.eq? with
     | none =>
       let body ← elabBody

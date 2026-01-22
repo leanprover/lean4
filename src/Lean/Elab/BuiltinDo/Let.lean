@@ -99,13 +99,11 @@ def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (
     letOrReassign.registerReassignAliasInfo vars
     k
 
-def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
+partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
-  -- of the RHS:
+  -- Some decl preprocessing on the patterns and expected types:
   let decl ←
     if letOrReassign matches .reassign then
       match decl with
@@ -129,19 +127,34 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
       | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
-  let mayPostpone := (← readThe Term.Context).mayPostpone
-  let contElab : DoElabM Expr := do
-    elabWithReassignments letOrReassign vars do
-    withTheReader Term.Context (fun ctx => { ctx with mayPostpone }) do
-    (dec.continueWithUnit decl)
-  doElabToSyntax m!"let body of {vars}" contElab fun body => do
-    elabNestedActions decl fun decl => do
-    withTheReader Term.Context (fun ctx => { ctx with mayPostpone := true }) do
-    let postponeValue := decl matches `(letDecl| $_:letIdDecl) && false -- This is worth trying
-    let nondep := !(letOrReassign matches .let none)
+
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  elabNestedActions decl fun decl => do
+  match decl with
+  | `(letDecl| $decl:letEqnsDecl) =>
+    let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
+    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign letOrReassign declNew dec
+  | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
+    let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
+    let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
+    doElabToSyntax m!"let body of {pattern}" contElab fun body => do
+    let term ← `(match (motive := ∀_, $(← Term.exprToSyntax mγ)) $rhs:term with | $pattern:term => $body)
+    Term.withMacroExpansion (← getRef) term do Term.elabTermEnsuringType term (some mγ)
+  | `(letDecl| $decl:letIdDecl) =>
+    let { id, binders, type, value } := Term.mkLetIdDeclView decl
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
-    -- TODO: Undo this change once we have the attribute-based inference stuff
-    Term.elabLetDeclCore (← `(let $decl:letDecl; $body)) (some mγ) { postponeValue, nondep }
+    -- TODO: Perhaps make let muts actually behave as let muts again once the attribute-based inference stuff is in place
+    let nondep := !(letOrReassign matches .let none)
+    let config := { nondep }
+    controlAtTermElabM fun runInBase => do
+    Term.withElabLetDeclAux config id binders type value fun x val => runInBase do
+      elabWithReassignments letOrReassign vars do
+      let body ← dec.continueWithUnit decl >>= instantiateMVars
+      if config.zeta then
+        body.replaceFVarsM #[x] #[val]
+      else
+        mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+  | _ => throwUnsupportedSyntax
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with

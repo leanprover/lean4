@@ -43,6 +43,7 @@ theorem addNat?_eq_none_iff {i : Fin n} : i.addNat? m = none ↔ n ≤ i + m := 
 theorem addNat?_zero {i : Fin n} : i.addNat? 0 = some i := by
   simp [addNat?_eq_some_iff]
 
+@[grind =]
 theorem addNat?_eq_dif {i : Fin n} :
     i.addNat? m = if h : i + m < n then some ⟨i + m, h⟩ else none := by
   rfl

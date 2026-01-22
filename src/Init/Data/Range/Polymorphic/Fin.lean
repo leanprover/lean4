@@ -20,18 +20,17 @@ instance : UpwardEnumerable (Fin n) where
   succ? i := i.addNat? 1
   succMany? m i := i.addNat? m
 
-@[simp]
+@[simp, grind =]
 theorem pRangeSucc?_eq : PRange.succ? (α := Fin n) = (·.addNat? 1) := rfl
 
-@[simp]
+@[simp, grind =]
 theorem pRangeSuccMany?_eq : PRange.succMany? m (α := Fin n) = (·.addNat? m) :=
   rfl
 
 instance : LawfulUpwardEnumerable (Fin n) where
-  ne_of_lt a b := by
-    simpa [UpwardEnumerable.LT, ← Fin.val_inj, Fin.addNat?_eq_some_iff] using by grind
+  ne_of_lt a b := by grind [UpwardEnumerable.LT]
   succMany?_zero a := by simp
-  succMany?_add_one m a := by simpa [Fin.addNat?_eq_dif] using by grind
+  succMany?_add_one m a := by grind
 
 instance : LawfulUpwardEnumerableLE (Fin n) where
   le_iff x y := by
@@ -62,16 +61,14 @@ instance : LawfulUpwardEnumerableLT (Fin n) := inferInstance
 instance : Rxc.HasSize (Fin n) where
   size lo hi := hi + 1 - lo
 
+@[grind =]
+theorem rxcHasSize_eq :
+    Rxc.HasSize.size (α := Fin n) = fun (lo hi : Fin n) => (hi + 1 - lo : Nat) := rfl
+
 instance : Rxc.LawfulHasSize (Fin n) where
-  size_eq_zero_of_not_le bound x := by
-    simp [Rxc.HasSize.size, Fin.lt_def]
-    grind
-  size_eq_one_of_succ?_eq_none lo hi := by
-    simp [Rxc.HasSize.size, Fin.le_def, UpwardEnumerable.succ?]
-    grind
-  size_eq_succ_of_succ?_eq_some lo hi x := by
-    simp [Rxc.HasSize.size, Fin.le_def, UpwardEnumerable.succ?]
-    grind [Fin.addNat?_eq_dif]
+  size_eq_zero_of_not_le bound x := by grind
+  size_eq_one_of_succ?_eq_none lo hi := by grind
+  size_eq_succ_of_succ?_eq_some lo hi x := by grind
 
 instance : Rxc.IsAlwaysFinite (Fin n) := inferInstance
 
@@ -82,13 +79,13 @@ instance : Rxo.IsAlwaysFinite (Fin n) := inferInstance
 instance : Rxi.HasSize (Fin n) where
   size lo := n - lo
 
+@[grind =]
+theorem rxiHasSize_eq :
+    Rxi.HasSize.size (α := Fin n) = fun (lo : Fin n) => (n - lo : Nat) := rfl
+
 instance : Rxi.LawfulHasSize (Fin n) where
-  size_eq_one_of_succ?_eq_none x := by
-    simp [Rxi.HasSize.size, UpwardEnumerable.succ?]
-    grind
-  size_eq_succ_of_succ?_eq_some lo lo' := by
-    simp [Rxi.HasSize.size, UpwardEnumerable.succ?]
-    grind [Fin.addNat?_eq_dif]
+  size_eq_one_of_succ?_eq_none x := by grind
+  size_eq_succ_of_succ?_eq_some lo lo' := by grind
 
 instance : Rxi.IsAlwaysFinite (Fin n) := inferInstance
 

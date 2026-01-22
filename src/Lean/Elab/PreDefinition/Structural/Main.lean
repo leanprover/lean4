@@ -142,6 +142,7 @@ def structuralRecursion
     prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
+      markAsRecursive preDefNonRec.declName
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   addAndCompilePartialRec docCtx preDefs
@@ -157,7 +158,6 @@ def structuralRecursion
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
     addSmartUnfoldingDef docCtx preDef recArgPos
-    markAsRecursive preDef.declName
   for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs
     enableRealizationsForConst preDef.declName

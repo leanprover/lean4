@@ -129,14 +129,19 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
       | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
-  let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
+  let mayPostpone := (← readThe Term.Context).mayPostpone
+  let contElab : DoElabM Expr := do
+    elabWithReassignments letOrReassign vars do
+    withTheReader Term.Context (fun ctx => { ctx with mayPostpone }) do
+    (dec.continueWithUnit decl)
   doElabToSyntax m!"let body of {vars}" contElab fun body => do
     elabNestedActions decl fun decl => do
-    match letOrReassign with
+    withTheReader Term.Context (fun ctx => { ctx with mayPostpone := true }) do
+    let postponeValue := decl matches `(letDecl| $_:letIdDecl) && false -- This is worth trying
+    let nondep := !(letOrReassign matches .let none)
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
     -- TODO: Undo this change once we have the attribute-based inference stuff
-    | .let none => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
-    | _         => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
+    Term.elabLetDeclCore (← `(let $decl:letDecl; $body)) (some mγ) { postponeValue, nondep }
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with

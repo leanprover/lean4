@@ -5,17 +5,20 @@ import subprocess
 from pathlib import Path
 from typing import Iterable
 
+OUTFILE = Path() / "measurements.jsonl"
+
 SRC = Path("src")
 STAGE3 = Path("build/release/stage3")
 STAGE3_TEMP = STAGE3 / "lib" / "temp"
 STAGE3_LEAN = STAGE3 / "lib" / "lean"
 
 
-def print_result(metric: str, value: float, unit: str | None = None) -> None:
+def output_result(metric: str, value: float, unit: str | None = None) -> None:
     data = {"metric": metric, "value": value}
     if unit is not None:
         data["unit"] = unit
-    print(f"radar::measurement={json.dumps(data)}")
+    with open(OUTFILE, "a") as f:
+        f.write(f"{json.dumps(data)}\n")
 
 
 def measure_bytes(topic: str, paths: Iterable[Path]) -> None:
@@ -24,8 +27,8 @@ def measure_bytes(topic: str, paths: Iterable[Path]) -> None:
     for path in paths:
         amount += 1
         total += path.stat().st_size
-    print_result(f"{topic}//files", amount)
-    print_result(f"{topic}//bytes", total, "B")
+    output_result(f"{topic}//files", amount)
+    output_result(f"{topic}//bytes", total, "B")
 
 
 def measure_lines(topic: str, paths: Iterable[Path]) -> None:
@@ -35,22 +38,24 @@ def measure_lines(topic: str, paths: Iterable[Path]) -> None:
         amount += 1
         with open(path) as f:
             total += sum(1 for _ in f)
-    print_result(f"{topic}//files", amount)
-    print_result(f"{topic}//lines", total)
+    output_result(f"{topic}//files", amount)
+    output_result(f"{topic}//lines", total)
 
 
 def measure_bytes_for_file(topic: str, path: Path) -> int:
     size = path.stat().st_size
-    print_result(f"{topic}//bytes", size, "B")
+    output_result(f"{topic}//bytes", size, "B")
     return size
+
 
 def measure_bytes_for_dir(topic: str, path: Path) -> int:
     total = 0
     for path in path.rglob("*"):
         if path.is_file():
             total += path.stat().st_size
-    print_result(f"{topic}//bytes", total, "B")
+    output_result(f"{topic}//bytes", total, "B")
     return total
+
 
 def measure_symbols_for_file(topic: str, path: Path) -> int:
     result = subprocess.run(
@@ -60,7 +65,7 @@ def measure_symbols_for_file(topic: str, path: Path) -> int:
         check=True,
     )
     count = len(result.stdout.splitlines())
-    print_result(f"{topic}//dynamic symbols", count)
+    output_result(f"{topic}//dynamic symbols", count)
     return count
 
 

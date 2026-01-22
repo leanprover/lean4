@@ -33,8 +33,8 @@ cp "$BENCH/build/lean_wrapper.py" "$STAGE2/bin/lean"
 # Analyze lakeprof data
 mv lakeprof.log src
 pushd src
-lakeprof report -pj | jq -r '"radar::measurement=\({metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"})"'
-lakeprof report -rj | jq -r '"radar::measurement=\({metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"})"'
+lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
+lakeprof report -rj | jq '{metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
 popd
 
 # Upload lakeprof report

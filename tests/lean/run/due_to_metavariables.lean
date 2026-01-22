@@ -97,14 +97,12 @@ stuck typeclass resolution instance. Preferring smaller ranges generically
 would also work here.
 -/
 /--
-error: Application type mismatch: The argument
+error: Type mismatch
   isDigitEven? n
 has type
   ?m.2 Bool
 but is expected to have type
   Prop
-in the application
-  @ite (Option Nat) (isDigitEven? n)
 -/
 #guard_msgs in
 def myOption (s : String) : Option Nat := do

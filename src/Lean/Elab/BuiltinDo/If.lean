@@ -41,32 +41,41 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
   if let some stxNew ← liftMacroM <| expandDoIf? stx then
     return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
   let `(doIf|if $cond:doIfCond then $thenSeq else $elseSeq) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  let mi := (← read).monadInfo
   dec.withDuplicableCont fun dec => do
   elabNestedActions cond fun cond => do
   match cond with
-  | `(doIfCond|$cond) =>
-    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
+  | `(doIfCond|$cond) => elabIte cond thenSeq elseSeq dec
+  | `(doIfCond|_ : $cond) => elabDite none cond thenSeq elseSeq dec
+  | `(doIfCond|$h:ident : $cond) => elabDite (some h.getId) cond thenSeq elseSeq dec
+  | _ => throwUnsupportedSyntax
+where
+  elabIte cond thenSeq elseSeq dec := do
+    -- It turned out to be far more reliable to offload as much work as possible to the App
+    -- elaborator.
+    let mγ ← mkMonadicType (← read).doBlockResultType
     let then_ ← elabDoSeq thenSeq dec
     let else_ ← elabDoSeq elseSeq dec
-    -- We resolve the instance only here so that we see more error messages when `cond` is a `sorry`
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
-    return mkApp5 (mkConst ``ite [mi.v.succ]) mγ cond decidable then_ else_
-  | `(doIfCond|_ : $cond) =>
-    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
-    let then_ ← withLocalDeclD (← mkFreshUserName `h) cond fun h => do
+    let then_ ← Term.exprToSyntax then_
+    let else_ ← Term.exprToSyntax else_
+    Term.elabTermEnsuringType (← `(ite $cond $then_ $else_)) mγ (catchExPostpone := false)
+
+  elabDite h? cond thenSeq elseSeq dec := do
+    -- It turned out to be far more reliable to offload as much work as possible to the App
+    -- elaborator.
+    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← Term.exprToSyntax mγ
+    let dite ← Term.elabTerm (← `(@dite $mγ $cond _)) none (catchExPostpone := false)
+    let ty ← inferType dite
+    let cond ←
+      match ← instantiateMVars ty with
+      | .forallE _ (.forallE _ cond _ _) _ _ =>
+        pure cond
+      | _ =>
+        Term.tryPostpone
+        throwError "Internal error of `do` `dite` elaborator: expected a type of the form `(c → α) → (¬c → α) → α` but got {ty}"
+    let h ← h?.getDM (mkFreshUserName `h)
+    let then_ ← withLocalDeclD h cond fun h => do
       mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
-    let else_ ← withLocalDeclD (← mkFreshUserName `h) (mkApp (mkConst ``Not) cond) fun h => do
+    let else_ ← withLocalDeclD h (mkApp (mkConst ``Not) cond) fun h => do
       mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
-    return mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_
-  | `(doIfCond|$h:ident : $cond) =>
-    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
-    let then_ ← withLocalDeclD h.getId cond fun h => do
-      mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
-    let else_ ← withLocalDeclD h.getId (mkApp (mkConst ``Not) cond) fun h => do
-      mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
-    return mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_
-  | _ => throwUnsupportedSyntax
+    return mkApp2 dite then_ else_

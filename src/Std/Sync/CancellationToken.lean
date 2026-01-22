@@ -9,7 +9,7 @@ prelude
 public import Std.Data
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
@@ -21,7 +21,7 @@ that a cancellation has occurred.
 -/
 
 namespace Std
-open Std.Internal.IO.Async
+open Std.Async
 
 /--
 Reasons for cancellation.

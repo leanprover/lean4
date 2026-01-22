@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich
 module
 
 prelude
+public import Std.Async
 public import Std.Data
 public import Std.Do
 public import Std.Sat

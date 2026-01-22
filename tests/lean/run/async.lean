@@ -1,9 +1,9 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Internal.UV
 import Std.Net.Addr
 
-open Std.Internal.IO.Async.UDP
-open Std.Internal.IO.Async
+open Std.Async.UDP
+open Std.Async
 open Std.Net
 
 def t : IO (Async Nat) := do

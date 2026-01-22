@@ -1,7 +1,7 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync
 
-open Std.Internal.IO Async
+open Std Async
 
 -- Test basic wait and notifyOne functionality
 def testBasicWaitNotifyOne : Async Unit := do

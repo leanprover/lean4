@@ -1,11 +1,11 @@
-import Std.Internal.Async.Timer
+import Std.Async.Timer
 
 /-
 these tests are just some preliminary ones as `async_sleep.lean` already contains extensive tests
 for the entire timer state machine and `Async.Timer` is merely a light wrapper around it.
 -/
 
-open Std.Internal.IO.Async
+open Std.Async
 
 def BASE_DURATION : Std.Time.Millisecond.Offset := 10
 

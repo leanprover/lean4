@@ -8,15 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.UDP
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
-namespace UDP
+namespace Std.Async.UDP
 
 open Std.Net
 
@@ -190,8 +186,4 @@ def setTTL (s : Socket) (ttl : UInt32) : IO Unit :=
 
 end Socket
 
-end UDP
-end Async
-end IO
-end Internal
-end Std
+end Std.Async.UDP

@@ -1,7 +1,7 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync
 
-open Std.Internal.IO Async
+open Std Async
 
 -- Test tryRecv with empty channel
 def tryRecvEmpty : Async Unit := do

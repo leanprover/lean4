@@ -8,12 +8,9 @@ module
 prelude
 public import Std.Data
 public import Init.Data.Queue
-public import Std.Internal.Async.IO
+public import Std.Async.IO
 
 public section
-
-open Std.Internal.Async.IO
-open Std.Internal.IO.Async
 
 /-!
 This module provides `StreamMap`, a container that maps keys to async streams.
@@ -21,6 +18,7 @@ It allows for dynamic management of multiple named streams with async operations
 -/
 
 namespace Std
+open Std.Async
 
 /--
 This is an existential wrapper for AsyncStream that is used for the `.ofArray` function

@@ -1,7 +1,7 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync
 
-open Std.Internal.IO Async
+open Std Async
 
 -- Test basic message reception from multiple channels
 def testSimpleMessages : Async Unit := do

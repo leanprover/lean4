@@ -18,13 +18,9 @@ manipulation.
 -/
 
 open Std Time
-open System
+open Internal UV System
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
-namespace System
+namespace Std.Async.System
 
 /--
 A group identifier, represented by a numeric ID in UNIX systems (e.g. 1000).
@@ -314,8 +310,4 @@ def getGroup (groupId : GroupId) : IO (Option GroupInfo) := do
     members := group.members
   }
 
-end System
-end Async
-end IO
-end Internal
-end Std
+end Std.Async.System

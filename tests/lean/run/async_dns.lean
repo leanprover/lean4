@@ -1,8 +1,8 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Internal.UV
 import Std.Net.Addr
 
-open Std.Internal.IO Async
+open Std Async
 open Std.Net
 
 open Std.Net

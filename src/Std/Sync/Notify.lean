@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
@@ -24,7 +24,7 @@ will be woken up per notification.
 -/
 
 namespace Std
-open Std.Internal.IO.Async
+open Std.Async
 
 inductive Notify.Consumer (α : Type) where
   | normal (promise : IO.Promise α)

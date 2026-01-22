@@ -8,15 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.TCP
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
-namespace TCP
+namespace Std.Async.TCP
 open Std.Net
 
 namespace Socket
@@ -256,8 +252,4 @@ def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ :
 
 end Client
 end Socket
-end TCP
-end Async
-end IO
-end Internal
-end Std
+end Std.Async.TCP

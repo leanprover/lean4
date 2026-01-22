@@ -10,10 +10,7 @@ public import Init.System.Promise
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
+namespace Std.Async
 
 /-!
 
@@ -105,10 +102,6 @@ instance [MonadAwait t m] : MonadAwait t (StateRefT' s n m) where
   await := liftM (m := m) ∘ MonadAwait.await
 
 @[default_instance]
-instance [Monad m] [MonadAwait t m] : MonadAwait t (StateT s m) where
-  await := liftM (m := m) ∘ MonadAwait.await
-
-@[default_instance]
 instance [MonadAsync t m] : MonadAsync t (ReaderT n m) where
   async p prio := MonadAsync.async (prio := prio) ∘ p
 
@@ -121,6 +114,19 @@ instance [Monad m] [Functor t] [inst : MonadAsync t m] : MonadAsync t (StateT s 
   async p prio := fun s => do
     let t ← inst.async (prio := prio) (p s)
     pure (t <&> Prod.fst, s)
+
+/--
+Type class for converting a source type into an async computation.
+
+This provides a uniform interface for lifting various types (tasks, promises, etc.)
+into async monads.
+-/
+class ToAsync (source : Type) (target : outParam Type) where
+  /--
+  Convert the source value into an async computation using the default error message.
+  -/
+
+  toAsync : source → target
 
 /--
 A `Task` that may resolve to either a value of type `α` or an error value of type `ε`.
@@ -177,14 +183,12 @@ protected def mapEIO (f : α → EIO ε β) (x : ETask ε α) (prio := Task.Prio
     | .error e => throw e
 
 /--
-Block until the `ETask` in `x` finishes and returns its value. Propagates any error encountered
+Wait until the `ETask` in `x` finishes and returns its value. Propagates any error encountered
 during execution.
 -/
 @[inline]
-def block (x : ETask ε α) : EIO ε α := do
-  match x.get with
-  | .ok a => return a
-  | .error e => throw e
+def block (x : ETask ε α) : EIO ε α :=
+  liftExcept x.get
 
 /--
 Create an `ETask` that resolves to the value of the promise `x`. If the promise gets dropped then it
@@ -200,7 +204,7 @@ panics.
 -/
 @[inline]
 def ofPurePromise (x : IO.Promise α) : ETask ε α :=
-  x.result!.map pure (sync := true)
+  x.result!.map .ok (sync := true)
 
 /--
 Obtain the `IO.TaskState` of `x`.
@@ -212,9 +216,8 @@ def getState (x : ETask ε α) : BaseIO IO.TaskState :=
 instance : Functor (ETask ε) where
   map := ETask.map
 
-instance : Monad (ETask ε) where
-  pure := ETask.pure
-  bind := ETask.bind
+instance : ToAsync (IO.Promise (Except ε α)) (ETask ε α) where
+  toAsync := ETask.ofPromise!
 
 end ETask
 
@@ -224,6 +227,13 @@ A `Task` that may resolve to a value or an error value of type `IO.Error`. Alias
 abbrev AsyncTask := ETask IO.Error
 
 namespace AsyncTask
+
+/--
+Waits for the result of the `AsyncTask`, blocking if necessary.
+-/
+@[inline]
+protected def block (self : AsyncTask α) : IO α :=
+  ETask.block self
 
 /--
 Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
@@ -236,86 +246,38 @@ protected def mapIO (f : α → IO β) (x : AsyncTask α) (prio := Task.Priority
     | .error e => throw e
 
 /--
-Construct an `AsyncTask` that is already resolved with value `x`.
--/
-@[inline]
-protected def pure (x : α) : AsyncTask α :=
-  Task.pure <| .ok x
-
-/--
-Create a new `AsyncTask` that will run after `x` has finished.
-If `x`:
-- errors, return an `AsyncTask` that resolves to the error.
-- succeeds, run `f` on the result of `x` and return the `AsyncTask` produced by `f`.
--/
-@[inline]
-protected def bind (x : AsyncTask α) (f : α → AsyncTask β) (prio := Task.Priority.default) (sync := false) : AsyncTask β :=
-  Task.bind x (prio := prio) (sync := sync) fun
-    | .ok a => f a
-    | .error e => Task.pure <| .error e
-
-/--
-Create a new `AsyncTask` that will run after `x` has finished.
-If `x`:
-- errors, return an `AsyncTask` that resolves to the error.
-- succeeds, return an `AsyncTask` that resolves to `f x`.
--/
-@[inline]
-def map (f : α → β) (x : AsyncTask α) (prio := Task.Priority.default) (sync := false) : AsyncTask β :=
-  Task.map (x := x) (f <$> ·) prio sync
-
-/--
 Similar to `bind`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
 `AsyncTask` resolves to that error.
 -/
 @[inline]
-def bindIO (x : AsyncTask α) (f : α → IO (AsyncTask β)) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
+protected def bindIO (x : AsyncTask α) (f : α → IO (AsyncTask β)) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
   IO.bindTask x (prio := prio) (sync := sync) fun
     | .ok a => f a
     | .error e => throw e
 
 /--
-Similar to `map`, however `f` has access to the `IO` monad. If `f` throws an error, the returned
-`AsyncTask` resolves to that error.
+Create an `AsyncTask` that resolves to the value of `x`. Returns an error if the promise is dropped.
 -/
 @[inline]
-def mapTaskIO (f : α → IO β) (x : AsyncTask α) (prio := Task.Priority.default) (sync := false) : BaseIO (AsyncTask β) :=
-  IO.mapTask (t := x) (prio := prio) (sync := sync) fun
-    | .ok a => f a
-    | .error e => throw e
-
-/--
-Block until the `AsyncTask` in `x` finishes.
--/
-def block (x : AsyncTask α) : IO α :=
-  match x.get with
-  | .ok a => return a
-  | .error e => throw e
-
-/--
-Create an `AsyncTask` that resolves to the value of `x`.
--/
-@[inline]
-def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the AsyncTask was dropped") : AsyncTask α :=
   x.result?.map fun
     | none => .error error
     | some res => res
 
 /--
-Create an `AsyncTask` that resolves to the value of `x`.
+Create an `AsyncTask` that resolves to the value of `x`. Returns an error if the promise is dropped.
 -/
 @[inline]
-def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
+def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the AsyncTask was dropped") : AsyncTask α :=
   x.result?.map (sync := true) fun
     | none => .error error
     | some res => pure res
 
-/--
-Obtain the `IO.TaskState` of `x`.
--/
-@[inline]
-def getState (x : AsyncTask α) : BaseIO IO.TaskState :=
-  IO.getTaskState x
+instance : ToAsync (IO.Promise (Except IO.Error α)) (AsyncTask α) where
+  toAsync x := AsyncTask.ofPromise x "the promise linked to the AsyncTask was dropped"
+
+instance : ToAsync (IO.Promise α) (AsyncTask α) where
+  toAsync x := AsyncTask.ofPurePromise x "the promise linked to the AsyncTask was dropped"
 
 end AsyncTask
 
@@ -397,10 +359,11 @@ def mk (x : BaseIO (MaybeTask α)) : BaseAsync α :=
   x
 
 /--
-Converts a `BaseAsync` into a `BaseIO`
+Unwraps a `BaseAsync` to access the underlying `BaseIO (MaybeTask α)`.
+This is an implementation detail and should not be used directly.
 -/
 @[inline]
-def toRawBaseIO (x : BaseAsync α) : BaseIO (MaybeTask α) :=
+protected def unwrap (x : BaseAsync α) : BaseIO (MaybeTask α) :=
   x
 
 /--
@@ -408,7 +371,7 @@ Converts a `BaseAsync` to a `BaseIO Task`.
 -/
 @[inline]
 protected def toBaseIO (x : BaseAsync α) : BaseIO (Task α) :=
-  MaybeTask.toTask <$> x.toRawBaseIO
+  MaybeTask.toTask <$> x.unwrap
 
 /--
 Creates a new `BaseAsync` out of a `Task`.
@@ -429,32 +392,29 @@ Maps the result of a `BaseAsync` computation with a function.
 -/
 @[inline]
 protected def map (f : α → β) (self : BaseAsync α) (prio := Task.Priority.default) (sync := false) : BaseAsync β :=
-  mk <| (·.map f prio sync) <$> self.toRawBaseIO
+  mk <| (·.map f prio sync) <$> self.unwrap
 
 /--
 Sequences two computations, allowing the second to depend on the value computed by the first.
 -/
 @[inline]
 protected def bind (self : BaseAsync α) (f : α → BaseAsync β) (prio := Task.Priority.default) (sync := false) : BaseAsync β :=
-  mk <| self.toRawBaseIO >>= (bindAsyncTask · f |>.toRawBaseIO)
-where
-  bindAsyncTask (t : MaybeTask α) (f : α → BaseAsync β) : BaseAsync β := .mk <|
-    match t with
-    | .pure a => (f a) |>.toRawBaseIO
-    | .ofTask t => .ofTask <$> BaseIO.bindTask t (fun a => MaybeTask.toTask <$> (f a |>.toRawBaseIO)) prio sync
+  mk <| self.unwrap >>= fun
+    | .pure a => (f a).unwrap
+    | .ofTask t => .ofTask <$> BaseIO.bindTask t (fun a => MaybeTask.toTask <$> (f a).unwrap) prio sync
 
 /--
 Lifts a `BaseIO` action into a `BaseAsync` computation.
 -/
 @[inline]
 protected def lift (x : BaseIO α) : BaseAsync α :=
-  .mk <| (pure ∘ pure) =<< x
+  .mk <| MaybeTask.pure <$> x
 
 /--
 Waits for the result of the `BaseAsync` computation, blocking if necessary.
 -/
 @[inline]
-protected def wait (self : BaseAsync α) : BaseIO α :=
+protected def block (self : BaseAsync α) : BaseIO α :=
   pure ∘ Task.get =<< self.toBaseIO
 
 /--
@@ -462,7 +422,7 @@ Lifts a `BaseAsync` computation into a `Task` that can be awaited and joined.
 -/
 @[inline]
 protected def asTask (x : BaseAsync α) (prio := Task.Priority.default) : BaseIO (Task α) := do
-  let res ← BaseIO.asTask (prio := prio) x.toRawBaseIO
+  let res ← BaseIO.asTask (prio := prio) x.unwrap
   return MaybeTask.joinTask res
 
 /--
@@ -527,16 +487,20 @@ The other result is lost and the other task is not cancelled, so the task will c
 until the end.
 -/
 @[inline, specialize]
-def race [Inhabited α] (x : BaseAsync α) (y : BaseAsync α) (prio := Task.Priority.default) : BaseAsync α := do
-  let promise ← IO.Promise.new
+def race (x : BaseAsync α) (y : BaseAsync α) (prio := Task.Priority.default) : BaseAsync α := do
+  -- Use Option α for the promise to avoid Inhabited constraint
+  let promise : IO.Promise (Option α) ← IO.Promise.new
 
   let task₁ : Task _ ← MonadAsync.async (prio := prio) x
   let task₂ : Task _ ← MonadAsync.async (prio := prio) y
 
-  BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
-  BaseIO.chainTask task₂ (liftM ∘ promise.resolve)
+  BaseIO.chainTask task₁ (liftM ∘ promise.resolve ∘ some)
+  BaseIO.chainTask task₂ (liftM ∘ promise.resolve ∘ some)
 
-  MonadAwait.await promise.result!
+  let result ← MonadAwait.await promise.result!
+  match result with
+  | some a => pure a
+  | none => MonadAwait.await task₁  -- Fallback, shouldn't happen in practice
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.
@@ -561,6 +525,12 @@ def raceAll [Inhabited α] [ForM BaseAsync c (BaseAsync α)] (xs : c) (prio := T
 
   MonadAwait.await promise.result!
 
+instance : ToAsync (Task α) (BaseAsync α) where
+  toAsync := BaseAsync.ofTask
+
+instance : ToAsync (Except Empty α) (BaseAsync α) where
+  toAsync := BaseAsync.ofExcept
+
 end BaseAsync
 
 /--
@@ -575,10 +545,10 @@ Converts a `EAsync` to a `ETask`.
 -/
 @[inline]
 protected def toBaseIO (x : EAsync ε α) : BaseIO (ETask ε α) :=
-  MaybeTask.toTask <$> x.toRawBaseIO
+  MaybeTask.toTask <$> x.unwrap
 
 /--
-Creates a new `EAsync` out of a `RTask`.
+Creates a new `EAsync` out of an `ETask`.
 -/
 @[inline]
 protected def ofTask (x : ETask ε α) : EAsync ε α :=
@@ -589,14 +559,7 @@ Converts a `BaseAsync` to a `EIO ETask`.
 -/
 @[inline]
 protected def toEIO (x : EAsync ε α) : EIO ε (ETask ε α) :=
-  MaybeTask.toTask <$> x.toRawBaseIO
-
-/--
-Creates a new `EAsync` out of a `ETask`.
--/
-@[inline]
-protected def ofETask (x : ETask ε α) : EAsync ε α :=
-  .mk <| BaseAsync.ofTask x
+  MaybeTask.toTask <$> x.unwrap
 
 /--
 Creates an `EAsync` computation that immediately returns the given value.
@@ -609,15 +572,15 @@ protected def pure (a : α) : EAsync ε α :=
 Maps the result of an `EAsync` computation with a pure function.
 -/
 @[inline]
-protected def map (f : α → β) (self : EAsync ε α) : EAsync ε β :=
-  .mk <| BaseAsync.map (.map f) self
+protected def map (f : α → β) (self : EAsync ε α) (prio := Task.Priority.default) (sync := false) : EAsync ε β :=
+  .mk <| BaseAsync.map (.map f) self prio sync
 
 /--
 Sequences two computations, allowing the second to depend on the value computed by the first.
 -/
 @[inline]
-protected def bind (self : EAsync ε α) (f : α → EAsync ε β) : EAsync ε β :=
-  .mk <| BaseAsync.bind self fun
+protected def bind (self : EAsync ε α) (f : α → EAsync ε β) (prio := Task.Priority.default) (sync := false) : EAsync ε β :=
+  .mk <| BaseAsync.bind (prio := prio) (sync := sync) self fun
     | .ok a => f a
     | .error e => BaseAsync.pure (.error e)
 
@@ -632,11 +595,8 @@ protected def lift (x : EIO ε α) : EAsync ε α :=
 Waits for the result of the `EAsync` computation, blocking if necessary.
 -/
 @[inline]
-protected def wait (self : EAsync ε α) : EIO ε α := do
-  let result ← self |> BaseAsync.wait
-  match result with
-  | .ok a => return a
-  | .error e => throw e
+protected def block (self : EAsync ε α) : EIO ε α :=
+  liftExcept =<< BaseAsync.block self
 
 /--
 Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.
@@ -644,13 +604,6 @@ Lifts an `EAsync` computation into an `ETask` that can be awaited and joined.
 @[inline]
 protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε (ETask ε α) :=
   x |> BaseAsync.asTask (prio := prio)
-
-/--
-Block until the `EAsync` finishes and returns its value. Propagates any error encountered during execution.
--/
-@[inline]
-protected def block (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε α :=
-  x.asTask (prio := prio) >>= ETask.block
 
 /--
 Raises an error of type `ε` within the `EAsync` monad.
@@ -671,11 +624,9 @@ protected def tryCatch (x : EAsync ε α) (f : ε → EAsync ε α) (prio := Tas
 /--
 Runs an action, ensuring that some other action always happens afterward.
 -/
-protected def tryFinally'
-    (x : EAsync ε α) (f : Option α → EAsync ε β)
-    (prio := Task.Priority.default) (sync := false) :
-    EAsync ε (α × β) :=
-  .mk <| BaseAsync.bind x (prio := prio) (sync := sync) fun
+@[inline]
+protected def tryFinally' (x : EAsync ε α) (f : Option α → EAsync ε β) : EAsync ε (α × β) :=
+  .mk <| BaseAsync.bind x fun
     | .ok a => do
       match ← (f (some a)) with
       | .ok b => BaseAsync.pure (.ok (a, b))
@@ -776,7 +727,7 @@ protected partial def forIn
       | .ok (.yield b) => loop b
 
   loop init
-  .mk <| EAsync.ofETask promise.result!
+  .mk <| EAsync.ofTask promise.result!
 
 instance : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
@@ -805,19 +756,22 @@ The other result is lost and the other task is not cancelled, so the task will c
 until the end.
 -/
 @[inline, specialize]
-def race [Inhabited α] (x : EAsync ε α) (y : EAsync ε α)
+def race (x : EAsync ε α) (y : EAsync ε α)
     (prio := Task.Priority.default) :
     EAsync ε α := do
-  let promise ← IO.Promise.new
+  -- Use Option to avoid Inhabited constraint
+  let promise : IO.Promise (Option (Except ε α)) ← IO.Promise.new
 
   let task₁ : ETask ε _ ← MonadAsync.async (prio := prio) x
   let task₂ : ETask ε _ ← MonadAsync.async (prio := prio) y
 
-  BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
-  BaseIO.chainTask task₂ (liftM ∘ promise.resolve)
+  BaseIO.chainTask task₁ (liftM ∘ promise.resolve ∘ some)
+  BaseIO.chainTask task₂ (liftM ∘ promise.resolve ∘ some)
 
   let result ← MonadAwait.await promise.result!
-  EAsync.ofExcept result
+  match result with
+  | some res => EAsync.ofExcept res
+  | none => MonadAwait.await task₁  -- Fallback, shouldn't happen
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.
@@ -843,6 +797,40 @@ def raceAll [Inhabited α] [ForM (EAsync ε) c (EAsync ε α)] (xs : c) (prio :=
   let result ← MonadAwait.await promise.result!
   EAsync.ofExcept result
 
+/--
+Resource acquisition pattern for async computations. Acquires a resource, runs an action with it,
+and ensures the resource is released even if the action fails.
+
+The release action uses `BaseAsync` to ensure it always runs regardless of errors, and its
+errors (if any) are ignored to preserve the original error from the use action.
+-/
+@[inline, specialize]
+def bracket (acquire : EAsync ε α) (release : α → BaseAsync Unit) (use : α → EAsync ε β) : EAsync ε β :=
+  -- EAsync ε α = BaseAsync (Except ε α), so we work in BaseAsync
+  .mk <| BaseAsync.bind acquire fun
+    | .error e => BaseAsync.pure (.error e)
+    | .ok resource => BaseAsync.bind (use resource) fun result => do
+      _ ← release resource
+      BaseAsync.pure result
+
+/--
+Resource acquisition pattern where both acquire and release may fail with the same error type.
+If `use` fails, that error is returned. If `use` succeeds but `release` fails, the release
+error is returned.
+-/
+@[inline, specialize]
+def bracketFull (acquire : EAsync ε α) (release : α → EAsync ε Unit) (use : α → EAsync ε β) : EAsync ε β := do
+  let resource ← acquire
+  let result ← use resource
+  release resource
+  return result
+
+instance : ToAsync (ETask ε α) (EAsync ε α) where
+  toAsync := EAsync.ofTask
+
+instance : ToAsync (Except ε α) (EAsync ε α) where
+  toAsync := EAsync.ofExcept
+
 end EAsync
 
 /--
@@ -857,20 +845,20 @@ Converts a `Async` to a `AsyncTask`.
 -/
 @[inline]
 protected def toIO (x : Async α) : IO (AsyncTask α) :=
-  MaybeTask.toTask <$> x.toRawBaseIO
+  MaybeTask.toTask <$> x.unwrap
 
 /--
-Block until the `Async` finishes and returns its value. Propagates any error encountered during execution.
+Waits for the result of the `Async` computation, blocking if necessary.
 -/
 @[inline]
-protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
-  x.asTask (prio := prio) >>= ETask.block
+protected def block (self : Async α) : IO α :=
+  EAsync.block self
 
 /--
 Converts `Promise` into `Async`.
 -/
 @[inline]
-protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
+protected def ofIOPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
   match ← task.toBaseIO with
   | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
     | none => .error error
@@ -932,12 +920,8 @@ instance : MonadAwait IO.Promise Async :=
 Runs two computations concurrently and returns both results as a pair.
 -/
 @[inline, specialize]
-def concurrently (x : Async α) (y : Async β) (prio := Task.Priority.default) : Async (α × β) := do
-  let taskX ← MonadAsync.async x (prio := prio)
-  let taskY ← MonadAsync.async y (prio := prio)
-  let resultX ← MonadAwait.await taskX
-  let resultY ← MonadAwait.await taskY
-  return (resultX, resultY)
+def concurrently (x : Async α) (y : Async β) (prio := Task.Priority.default) : Async (α × β) :=
+  EAsync.concurrently x y prio
 
 /--
 Runs two computations concurrently and returns the result of the one that finishes first.
@@ -945,27 +929,15 @@ The other result is lost and the other task is not cancelled, so the task will c
 until the end.
 -/
 @[inline, specialize]
-def race [Inhabited α] (x : Async α) (y : Async α)
-    (prio := Task.Priority.default) :
-    Async α := do
-  let promise ← IO.Promise.new
-
-  let task₁ ← MonadAsync.async (t := AsyncTask) (prio := prio) x
-  let task₂ ← MonadAsync.async (t := AsyncTask) (prio := prio) y
-
-  BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
-  BaseIO.chainTask task₂ (liftM ∘ promise.resolve)
-
-  let result ← MonadAwait.await promise
-  Async.ofExcept result
+def race (x : Async α) (y : Async α) (prio := Task.Priority.default) : Async α :=
+  EAsync.race x y prio
 
 /--
 Runs all computations in an `Array` concurrently and returns all results as an array.
 -/
 @[inline, specialize]
-def concurrentlyAll (xs : Array (Async α)) (prio := Task.Priority.default) : Async (Array α) := do
-  let tasks : Array (AsyncTask α) ← xs.mapM (MonadAsync.async (prio := prio))
-  tasks.mapM MonadAwait.await
+def concurrentlyAll (xs : Array (Async α)) (prio := Task.Priority.default) : Async (Array α) :=
+  EAsync.concurrentlyAll xs prio
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
@@ -973,15 +945,43 @@ All other results are lost, and the tasks are not cancelled, so they'll continue
 until the end.
 -/
 @[inline, specialize]
-def raceAll [ForM Async c (Async α)] (xs : c) (prio := Task.Priority.default) : Async α := do
-  let promise ← IO.Promise.new
+def raceAll [Inhabited α] [ForM (EAsync IO.Error) c (EAsync IO.Error α)] (xs : c) (prio := Task.Priority.default) : Async α :=
+  EAsync.raceAll xs prio
 
-  ForM.forM xs fun x => do
-    let task₁ ← MonadAsync.async (t := AsyncTask) (prio := prio) x
-    BaseIO.chainTask task₁ (liftM ∘ promise.resolve)
+/--
+Resource acquisition pattern for async computations. Acquires a resource, runs an action with it,
+and ensures the resource is released even if the action fails.
 
-  let result ← MonadAwait.await promise
-  Async.ofExcept result
+The release action uses `BaseAsync` to ensure it always runs regardless of errors, and its
+errors (if any) are ignored to preserve the original error from the use action.
+-/
+@[inline, specialize]
+def bracket (acquire : Async α) (release : α → BaseAsync Unit) (use : α → Async β) : Async β :=
+  EAsync.bracket acquire release use
+
+/--
+Resource acquisition pattern where both acquire and release may fail with `IO.Error`.
+If `use` fails, that error is returned. If `use` succeeds but `release` fails, the release
+error is returned.
+-/
+@[inline, specialize]
+def bracketFull (acquire : Async α) (release : α → Async Unit) (use : α → Async β) : Async β :=
+  EAsync.bracketFull acquire release use
+
+instance : ToAsync (AsyncTask α) (Async α) where
+  toAsync := Async.ofAsyncTask
+
+instance : ToAsync (Task α) (Async α) where
+  toAsync := Async.ofTask
+
+instance : ToAsync (Except IO.Error α) (Async α) where
+  toAsync := Async.ofExcept
+
+instance : ToAsync (IO (IO.Promise (Except IO.Error α))) (Async α) where
+  toAsync x := Async.ofIOPromise x "the promise linked to the Async was dropped"
+
+instance : ToAsync (IO (IO.Promise α)) (Async α) where
+  toAsync x := Async.ofPurePromise x "the promise linked to the Async was dropped"
 
 end Async
 
@@ -995,7 +995,4 @@ This function transforms the operation inside the monad `m` into a task and let 
 def background [Monad m] [MonadAsync t m] (action : m α) (prio := Task.Priority.default) : m Unit :=
   discard (async (t := t) (prio := prio) action)
 
-end Async
-end IO
-end Internal
-end Std
+end Std.Async

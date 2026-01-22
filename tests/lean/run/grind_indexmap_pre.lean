@@ -60,6 +60,8 @@ instance {m : IndexMap α β} {a : α} : Decidable (a ∈ m) :=
 @[inline] def getIdx (m : IndexMap α β) (i : Nat) (h : i < m.size := by get_elem_tactic) : β :=
   m.values[i]
 
+variable [LawfulBEq α] [LawfulHashable α]
+
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]'(by sorry)
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))

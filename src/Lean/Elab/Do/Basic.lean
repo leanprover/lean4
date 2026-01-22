@@ -579,7 +579,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     return e
 
   let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
-  let body? : Option Expr ← observingPostpone elabBody
+  let body? : Option Expr ← elabBody
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
@@ -756,18 +756,18 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
   match fns with
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
   | elabFn :: elabFns =>
-      let expectedType ← mkMonadicType (← read).doBlockResultType
-      withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
-        try
-          elabFn.value stx cont
-        catch ex => match ex with
-          | .internal id _ =>
-            if id == unsupportedSyntaxExceptionId then
-              s.restore
-              elabDoElemFns stx cont elabFns
-            else
-              throw ex
-          | _ => throw ex
+    let expectedType ← mkMonadicType (← read).doBlockResultType
+    withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
+      try
+        elabFn.value stx cont
+      catch ex => match ex with
+        | .internal id _ =>
+          if id == unsupportedSyntaxExceptionId then
+            s.restore
+            elabDoElemFns stx cont elabFns
+          else
+            throw ex
+        | _ => throw ex
 
 private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
@@ -799,7 +799,6 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
     | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
     | elabFns => elabDoElemFns stx cont elabFns
   return result
-  -- simplifyMatchers result
 
 partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
   if h : doElems.size = 0 then

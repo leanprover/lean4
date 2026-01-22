@@ -3,6 +3,8 @@ open System Lake DSL
 
 package test
 
+require dep from "dep"
+
 lean_lib lib where
   srcDir := "lib"
   roots := #[`A, `B, `C]

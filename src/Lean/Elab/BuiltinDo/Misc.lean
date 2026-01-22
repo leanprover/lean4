@@ -20,6 +20,9 @@ open Lean.Meta
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
   elabNestedActions e fun e => do
+  -- We need to synthesize here, otherwise we quickly get `match` discriminants with MVar types,
+  -- which will bring the constraint system to a halt. Apparently even using `postpone := .partial`
+  -- here will report type errors too eagerly.
   let e ← Term.withSynthesize (postpone := .yes) <| Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure stx e
 

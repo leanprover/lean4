@@ -21,6 +21,7 @@ import Lean.Data.Array
 import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Split
+import Lean.Elab.PreDefinition.Structural.BRecOnToRec
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -412,6 +413,7 @@ partial def foldAndCollect (oldIH newIH : Array FVarId) (isRecCall : Expr → Op
 
   let eType ← whnf (← inferType e')
   if let .some call := isRecCall eType then
+    trace[Meta.FunInd] "found recursive call{inlineExpr call}:{indentExpr e'}"
     M.tell (← mkExpectedTypeHint e' eType)
     return call
 
@@ -1251,7 +1253,7 @@ where doRealize inductName := do
             let (minors', mvars) ← M2.run do
               let mut minors' := #[]
               for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTypeFormerTargetss do
-                let minor' ← forallTelescope goal fun xs goal => do
+                let minor' ← M2.branch do forallTelescope goal fun xs goal => do
                   unless xs.size ≥ numTargets do
                     throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
                   let targets : Array Expr := xs[*...numTargets]
@@ -1427,7 +1429,7 @@ where doRealize inductName := do
               assert! recMinors.size = numFieldsAndIHs.size
               for recMinor in recMinors, goal in minorTypes, (numFields, numIHs) in numFieldsAndIHs do
                 trace[Meta.FunInd] m!"transforming minor with {numFields} fields, {numIHs} ihs and type:{indentExpr goal}"
-                let minor' ← forallTelescope goal fun xs goal => do
+                let minor' ← M2.branch do forallTelescope goal fun xs goal => do
                   let fields := xs[:numFields].copy
                   let newIHs := xs[numFields:numFields + numIHs].copy.map (·.fvarId!)
                   let extraParams := xs[numFields + numIHs:].copy
@@ -1438,8 +1440,8 @@ where doRealize inductName := do
                     let body' ←
                       withRewrittenMotive goal (inProdLambdaLastArg (rwFun names)) fun goal' =>
                       -- The Split.simpMatch here is much more crude than how we usually do things here
-                      withRewrittenMotive goal' Split.simpMatch fun goal'' => do
-                        let body := (← Split.simpMatch body).expr
+                      withRewrittenMotive goal' brecOnToRecSimp fun goal'' => do
+                        let body := (← brecOnToRecSimp body).expr
                         buildInductionBody (oldIHs ++ newIHs) #[] goal'' oldIHs newIHs isRecCall body
                     oldIHs.forM fun oldIH => do
                       if body'.containsFVar oldIH then

@@ -190,20 +190,20 @@ termination_by structural x => x
 
 /--
 info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)
-  (case1 : ∀ (a : List Ty) (ty : Ty) (h : Member ty a) (env : HList Ty.denote a), motive (Term.var h) env)
-  (case2 : ∀ (a : List Ty) (n : Nat) (x : HList Ty.denote a), motive (Term.const n) x)
+  (case1 : ∀ {ty : Ty} {ctx : List Ty} (a : Member ty ctx) (a_1 : HList Ty.denote ctx), motive (Term.var a) a_1)
+  (case2 : ∀ {ctx : List Ty} (a : Nat) (a_1 : HList Ty.denote ctx), motive (Term.const a) a_1)
   (case3 :
-    ∀ (a : List Ty) (a_1 b : Term a Ty.nat) (env : HList Ty.denote a),
-      motive a_1 env → motive b env → motive (a_1.plus b) env)
+    ∀ {ctx : List Ty} (a a_1 : Term ctx Ty.nat) (a_2 : HList Ty.denote ctx),
+      motive a a_2 → motive a_1 a_2 → motive (a.plus a_1) a_2)
   (case4 :
-    ∀ (a : List Ty) (ty dom : Ty) (f : Term a (dom.fn ty)) (a_1 : Term a dom) (env : HList Ty.denote a),
-      motive f env → motive a_1 env → motive (f.app a_1) env)
+    ∀ {ctx : List Ty} {dom ran : Ty} (a : Term ctx (dom.fn ran)) (a_1 : Term ctx dom) (a_2 : HList Ty.denote ctx),
+      motive a a_2 → motive a_1 a_2 → motive (a.app a_1) a_2)
   (case5 :
-    ∀ (a : List Ty) (dom ran : Ty) (b : Term (dom :: a) ran) (env : HList Ty.denote a),
-      (∀ (x : dom.denote), motive b (HList.cons x env)) → motive b.lam env)
+    ∀ {dom : Ty} {ctx : List Ty} {ran : Ty} (a : Term (dom :: ctx) ran) (a_1 : HList Ty.denote ctx),
+      (∀ (x : dom.denote), motive a (HList.cons x a_1)) → motive a.lam a_1)
   (case6 :
-    ∀ (a : List Ty) (ty ty₁ : Ty) (a_1 : Term a ty₁) (b : Term (ty₁ :: a) ty) (env : HList Ty.denote a),
-      motive a_1 env → motive b (HList.cons (a_1.denote env) env) → motive (a_1.let b) env)
+    ∀ {ctx : List Ty} {ty₁ ty₂ : Ty} (a : Term ctx ty₁) (a_1 : Term (ty₁ :: ctx) ty₂) (a_2 : HList Ty.denote ctx),
+      motive a a_2 → motive a_1 (HList.cons (a.denote a_2) a_2) → motive (a.let a_1) a_2)
   {ctx : List Ty} {ty : Ty} (a✝ : Term ctx ty) (a✝¹ : HList Ty.denote ctx) : motive a✝ a✝¹
 -/
 #guard_msgs in

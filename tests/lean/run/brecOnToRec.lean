@@ -23,9 +23,8 @@ def N.add : N → N → N
   | a, N.succ b => N.succ (N.add a b)
 termination_by structural _ n => n
 
--- TODO
--- /-- N.rec -/
--- #guard_msgs (substring := true) in #print N.add
+/-- N.rec -/
+#guard_msgs (substring := true) in #print N.add
 
 inductive Tree α where
   | leaf : α → Tree α

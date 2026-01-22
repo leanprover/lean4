@@ -30,16 +30,16 @@ termination_by structural fuel
 /--
 error: Failed: `fail` tactic was invoked
 case case1
-x y fuel x✝ fuel✝ : Nat
-hfuel✝ : x✝ < fuel✝.succ
+x y fuel n✝ x✝ : Nat
+hfuel✝ : x✝ < n✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
 this✝ : x✝ - y < x✝
-ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
-⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
+ih1✝ : Bug.divCore (x✝ - y) y n✝ ⋯ = 42
+⊢ Bug.divCore (x✝ - y) y n✝ ⋯ + 1 = 42
 
 case case2
-x y fuel x✝ fuel✝ : Nat
-hfuel✝ : x✝ < fuel✝.succ
+x y fuel n✝ x✝ : Nat
+hfuel✝ : x✝ < n✝.succ
 h✝ : ¬(0 < y ∧ y ≤ x✝)
 ⊢ 0 = 42
 -/
@@ -51,16 +51,16 @@ protected theorem divCore_eq_div : Bug.divCore x y fuel h = 42 := by
 /--
 error: Failed: `fail` tactic was invoked
 case case1
-x y fuel x✝ fuel✝ : Nat
-hfuel✝ : x✝ < fuel✝.succ
+x y fuel n✝ x✝ : Nat
+hfuel✝ : x✝ < n✝.succ
 h✝ : 0 < y ∧ y ≤ x✝
 this✝ : x✝ - y < x✝
-ih1✝ : Bug.divCore (x✝ - y) y fuel✝ ⋯ = 42
-⊢ Bug.divCore (x✝ - y) y fuel✝ ⋯ + 1 = 42
+ih1✝ : Bug.divCore (x✝ - y) y n✝ ⋯ = 42
+⊢ Bug.divCore (x✝ - y) y n✝ ⋯ + 1 = 42
 
 case case2
-x y fuel x✝ fuel✝ : Nat
-hfuel✝ : x✝ < fuel✝.succ
+x y fuel n✝ x✝ : Nat
+hfuel✝ : x✝ < n✝.succ
 h✝ : ¬(0 < y ∧ y ≤ x✝)
 ⊢ 0 = 42
 -/

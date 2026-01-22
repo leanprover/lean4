@@ -7,8 +7,11 @@ module
 
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Check
 import Lean.Meta.PProdN
+import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Split
 
 open Lean Meta
 
@@ -35,6 +38,16 @@ def withPProdComponents (type : Expr) (i : Nat) (k : Expr → Expr → Expr → 
   | _ =>
     throwError "withPProdComponents (step {i+1}): expected PProd type, got{indentExpr type}"
 
+public def getBRecOntoRecSimpContext : MetaM Simp.Context := do
+   Simp.mkContext
+      (simpTheorems   := {})
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := { Simp.neutralConfig with dsimp := true, beta := true, iota := true, etaStruct := .none, letToHave := true })
+
+public  def brecOnToRecSimp (e : Expr) : MetaM Simp.Result := do
+  let (r, _) ← simp e (← getBRecOntoRecSimpContext)
+  pure r
+
 /--
 If `belowType` reduces to something of the form `(a₁ ×' b₁) ×' ... ×' (aₙ ×' bₙ)`, then
 then introduce varibles of these types and pass the variables `#[a₁, ..., aₙ]` and `#[b₁, ..., bₙ]`
@@ -50,8 +63,6 @@ partial def withBelowComponents (belowType : Expr) (n : Nat)
     go belowType 0 fun as bs below =>
       k as.reverse bs.reverse below
 where go belowType (i : Nat) (k : Array Expr → Array Expr → Expr → MetaM α) := do
-  trace[Elab.definition.structural.brecOnToRec]
-    "withBelowComponents ({i+1}/{n}):{indentExpr belowType}"
   let belowType ← whnf belowType
   if i + 1 = n then
     withPProdComponents belowType i fun a b below =>
@@ -120,9 +131,8 @@ def brecOnToRec' (e : Expr) : MetaM Expr := e.withApp fun fn args => do
         let lhs := mkApp lhs below
         let lhs := lhs.headBeta
         let rhs := mkAppN rhs ihs
+        let lhs := (← brecOnToRecSimp lhs).expr
         trace[Elab.definition.structural.brecOnToRec] "defeq task:{indentExpr lhs}\n=?={indentExpr rhs}"
-        check lhs
-        check rhs
         unless (← isDefEq lhs rhs) do
           throwError "brecOnToRec: could not solve defeq for ctor {ctorName}, probably not structurally recursive"
 

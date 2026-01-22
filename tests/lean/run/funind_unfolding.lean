@@ -121,16 +121,21 @@ info: filter.fun_cases_unfolding (p : Nat → Bool) (motive : List Nat → List 
 
 /--
 info: filter.induct (p : Nat → Bool) (motive : List Nat → Prop) (case1 : motive [])
-  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs → motive (x :: xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs → motive (x :: xs)) (a✝ : List Nat) : motive a✝
+  (case2 : ∀ (head : Nat) (tail : List Nat), p head = true → motive tail → motive (head :: tail))
+  (case3 : ∀ (head : Nat) (tail : List Nat), ¬p head = true → motive tail → motive (head :: tail)) (a✝ : List Nat) :
+  motive a✝
 -/
 #guard_msgs(pass trace, all) in
 #check filter.induct
 
 /--
 info: filter.induct_unfolding (p : Nat → Bool) (motive : List Nat → List Nat → Prop) (case1 : motive [] [])
-  (case2 : ∀ (x : Nat) (xs : List Nat), p x = true → motive xs (filter p xs) → motive (x :: xs) (x :: filter p xs))
-  (case3 : ∀ (x : Nat) (xs : List Nat), ¬p x = true → motive xs (filter p xs) → motive (x :: xs) (filter p xs))
+  (case2 :
+    ∀ (head : Nat) (tail : List Nat),
+      p head = true → motive tail (filter p tail) → motive (head :: tail) (head :: filter p tail))
+  (case3 :
+    ∀ (head : Nat) (tail : List Nat),
+      ¬p head = true → motive tail (filter p tail) → motive (head :: tail) (filter p tail))
   (a✝ : List Nat) : motive a✝ (filter p a✝)
 -/
 #guard_msgs(pass trace, all) in
@@ -632,3 +637,40 @@ info: Poly.mulMon.go.induct_unfolding (k m : Int) (motive : Poly → Poly → Pr
 -/
 #guard_msgs(pass trace, all) in
 #check Poly.mulMon.go.induct_unfolding
+
+inductive Expr where
+  | val (v : Nat)
+  | var (x : Nat)
+  | bin (lhs : Expr) (op : Unit) (rhs : Expr)
+  | una (uop : Unit) (arg : Expr)
+deriving Inhabited
+
+opaque f : Expr → Expr → Expr
+opaque g : Expr → Expr
+
+-- set_option trace.Meta.FunInd true in
+def Expr.simplify : Expr → Expr
+  | bin lhs _op rhs => f lhs.simplify rhs.simplify
+  | una _uop arg => g arg.simplify
+  | e => e
+
+/--
+info: Expr.simplify.induct (motive : Expr → Prop) (case1 : ∀ (v : Nat), motive (Expr.val v))
+  (case2 : ∀ (x : Nat), motive (Expr.var x))
+  (case3 : ∀ (lhs : Expr) (op : Unit) (rhs : Expr), motive lhs → motive rhs → motive (lhs.bin op rhs))
+  (case4 : ∀ (uop : Unit) (arg : Expr), motive arg → motive (Expr.una uop arg)) (a✝ : Expr) : motive a✝
+-/
+#guard_msgs(pass trace, all) in
+#check Expr.simplify.induct
+
+/--
+info: Expr.simplify.induct_unfolding (motive : Expr → Expr → Prop) (case1 : ∀ (v : Nat), motive (Expr.val v) (Expr.val v))
+  (case2 : ∀ (x : Nat), motive (Expr.var x) (Expr.var x))
+  (case3 :
+    ∀ (lhs : Expr) (op : Unit) (rhs : Expr),
+      motive lhs lhs.simplify → motive rhs rhs.simplify → motive (lhs.bin op rhs) (f lhs.simplify rhs.simplify))
+  (case4 : ∀ (uop : Unit) (arg : Expr), motive arg arg.simplify → motive (Expr.una uop arg) (g arg.simplify))
+  (a✝ : Expr) : motive a✝ a✝.simplify
+-/
+#guard_msgs(pass trace, all) in
+#check Expr.simplify.induct_unfolding

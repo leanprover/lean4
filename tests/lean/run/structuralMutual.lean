@@ -661,9 +661,9 @@ info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case
 #check A.hasNoBEmpty.induct
 
 /--
-info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
-  (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
-  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) (a✝ : Nat) : motive_1 a✝
+info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 Nat.zero) (case2 : motive_2 Nat.zero)
+  (case3 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case4 : ∀ (n : Nat), motive_2 n → motive_1 n → motive_2 n.succ)
+  (a✝ : Nat) : motive_1 a✝
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct

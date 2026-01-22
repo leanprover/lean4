@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Tactic.Split
+import Lean.Elab.PreDefinition.Structural.BRecOnToRec
 
 namespace Lean.Elab
 open Meta

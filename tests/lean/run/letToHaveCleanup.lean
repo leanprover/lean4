@@ -71,20 +71,12 @@ info: def fnStructRec : Nat →
   have α : Type := Nat;
   α :=
 fun n =>
-  Nat.rec
-    ((match (motive :=
-        (n : Nat) →
-          Nat.below n →
-            let α : Type := Nat;
-            α)
-        Nat.zero with
-      | 0 => fun x => 0
-      | n.succ => fun x =>
-        id
-          (let m : Nat := n + 1;
-          m * x.1))
-      PUnit.unit)
-    (fun n => (n + 1).mul) n
+  Nat.rec 0
+    (fun n ih_1 =>
+      id
+        (have m : Nat := n + 1;
+        m * ih_1))
+    n
 -/
 #guard_msgs in #print fnStructRec
 /--
@@ -140,20 +132,12 @@ info: id
 -/
 #guard_msgs in #unfold1 fnStructRec 1
 /--
-info: Nat.rec
-  ((match (motive :=
-      (n : Nat) →
-        Nat.below n →
-          let α : Type := Nat;
-          α)
-      Nat.zero with
-    | 0 => fun x => 0
-    | n.succ => fun x =>
-      id
-        (let m : Nat := n + 1;
-        m * x.1))
-    PUnit.unit)
-  (fun n => (n + 1).mul) 1
+info: Nat.rec 0
+  (fun n ih_1 =>
+    id
+      (have m : Nat := n + 1;
+      m * ih_1))
+  1
 -/
 #guard_msgs in
 set_option smartUnfolding false in

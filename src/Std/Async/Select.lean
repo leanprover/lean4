@@ -163,7 +163,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
 
         async.toBaseIO
 
-  Async.ofPromise (pure promise)
+  Async.ofIOPromise (pure promise)
 
 /--
 Performs fair and data-loss free non-blocking multiplexing on the `Selectable`s in `selectables`.

@@ -51,7 +51,8 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
 where
   elabIte cond thenSeq elseSeq dec := do
     -- It turned out to be far more reliable to offload as much work as possible to the App
-    -- elaborator.
+    -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
+    Term.tryPostponeIfMVar (← inferType (← Term.elabTerm cond none))
     let mγ ← mkMonadicType (← read).doBlockResultType
     let then_ ← elabDoSeq thenSeq dec
     let else_ ← elabDoSeq elseSeq dec
@@ -61,7 +62,8 @@ where
 
   elabDite h? cond thenSeq elseSeq dec := do
     -- It turned out to be far more reliable to offload as much work as possible to the App
-    -- elaborator.
+    -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
+    Term.tryPostponeIfMVar (← inferType (← Term.elabTerm cond none))
     let mγ ← mkMonadicType (← read).doBlockResultType
     let mγ ← Term.exprToSyntax mγ
     let dite ← Term.elabTerm (← `(@dite $mγ $cond _)) none (catchExPostpone := false)

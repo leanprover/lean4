@@ -44,8 +44,11 @@ first because solving it often solves `?w`.
 def mkResultPos (pattern : Pattern) : List Nat := Id.run do
   let auxPrefix := `_sym_pre
   -- Initialize "found" mask with arguments that can be synthesized by type class resolution.
-  let mut found := pattern.isInstance
   let numArgs := pattern.varTypes.size
+  let mut found := if let some varInfos := pattern.varInfos? then
+     varInfos.argsInfo.map fun info : ProofInstArgInfo => info.isInstance
+  else
+     Array.replicate numArgs false
   let auxVars := pattern.varTypes.mapIdx fun i _ => mkFVar ⟨.num auxPrefix i⟩
   -- Collect arguments that occur in the pattern
   for fvarId in collectFVars {} (pattern.pattern.instantiateRev auxVars) |>.fvarIds do
@@ -96,6 +99,10 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
   else
     mkAppN (expr.instantiateLevelParams pattern.levelParams result.us) result.args
 
+public inductive ApplyResult where
+  | notApplicable
+  | goals (mvarId : List MVarId)
+
 /--
 Applies a backward rule to a goal, returning new subgoals.
 
@@ -103,27 +110,23 @@ Applies a backward rule to a goal, returning new subgoals.
 2. Assigns the goal metavariable to the theorem application
 3. Returns new goals for unassigned arguments (per `resultPos`)
 
-Returns `none` if unification fails.
+Returns `.notApplicable` if unification fails.
 -/
-public def BackwardRule.apply? (mvarId : MVarId) (rule : BackwardRule) : SymM (Option (List MVarId)) := mvarId.withContext do
+public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM ApplyResult := mvarId.withContext do
   let decl ← mvarId.getDecl
   if let some result ← rule.pattern.unify? decl.type then
     mvarId.assign (mkValue rule.expr rule.pattern result)
-    return some <| rule.resultPos.map fun i =>
+    return .goals <| rule.resultPos.map fun i =>
       result.args[i]!.mvarId!
   else
-    return none
+    return .notApplicable
 
 /--
-Similar to `BackwardRule.apply?`, but throws an error if unification fails.
+Similar to `BackwardRule.apply', but throws an error if unification fails.
 -/
-public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := mvarId.withContext do
-  let decl ← mvarId.getDecl
-  if let some result ← rule.pattern.unify? decl.type then
-    mvarId.assign (mkValue rule.expr rule.pattern result)
-    return rule.resultPos.map fun i =>
-      result.args[i]!.mvarId!
-  else
-    throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
+public def BackwardRule.apply' (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := do
+  let .goals mvarIds ← rule.apply mvarId
+    | throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
+  return mvarIds
 
 end Lean.Meta.Sym

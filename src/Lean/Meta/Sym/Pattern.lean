@@ -64,7 +64,11 @@ def mkProofInstInfoMapFor (pattern : Expr) : MetaM (AssocList Name ProofInstInfo
 public structure Pattern where
   levelParams    : List Name
   varTypes       : Array Expr
-  isInstance     : Array Bool
+  /--
+  If `some argsInfo`, `argsInfo` stores whether the pattern variables are instances/proofs.
+  It is `none` if no pattern variables are instance/proof.
+  -/
+  varInfos?      : Option ProofInstInfo
   pattern        : Expr
   fnInfos        : AssocList Name ProofInstInfo
   /--
@@ -77,6 +81,16 @@ public structure Pattern where
   deriving Inhabited
 
 def uvarPrefix : Name := `_uvar
+
+/-- Returns `true` if the `i`th argument / pattern variable is an instance. -/
+def Pattern.isInstance (p : Pattern) (i : Nat) : Bool := Id.run do
+  let some varInfos := p.varInfos? | return false
+  varInfos.argsInfo[i]!.isInstance
+
+/-- Returns `true` if the `i`th argument / pattern variable is a proof. -/
+def Pattern.isProof (p : Pattern) (i : Nat) : Bool := Id.run do
+  let some varInfos := p.varInfos? | return false
+  varInfos.argsInfo[i]!.isProof
 
 def isUVar? (n : Name) : Option Nat := Id.run do
   let .num p idx := n | return none
@@ -144,12 +158,13 @@ where
       else
         mask
 
-def mkPatternCore (levelParams : List Name) (varTypes : Array Expr) (isInstance : Array Bool)
-    (pattern : Expr) : MetaM Pattern := do
+def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr) (pattern : Expr) : MetaM Pattern := do
   let fnInfos ← mkProofInstInfoMapFor pattern
   let checkTypeMask := mkCheckTypeMask pattern varTypes.size
   let checkTypeMask? := if checkTypeMask.all (· == false) then none else some checkTypeMask
-  return { levelParams, varTypes, isInstance, pattern, fnInfos, checkTypeMask? }
+  let varInfos? ← forallBoundedTelescope type varTypes.size fun xs _ =>
+    mkProofInstArgInfo? xs
+  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
 
 /--
 Creates a `Pattern` from the type of a theorem.
@@ -168,12 +183,12 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
   let (levelParams, type) ← preprocessPattern declName
   let hugeNumber := 10000000
   let num := num?.getD hugeNumber
-  let rec go (i : Nat) (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
+  let rec go (i : Nat) (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
     if i < num then
-      if let .forallE _ d b _ := type then
-        return (← go (i+1) b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
-    mkPatternCore levelParams varTypes isInstance type
-  go 0 type #[] #[]
+      if let .forallE _ d b _ := pattern then
+        return (← go (i+1) b (varTypes.push d))
+    mkPatternCore type levelParams varTypes pattern
+  go 0 type #[]
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
@@ -188,14 +203,14 @@ Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
   let (levelParams, type) ← preprocessPattern declName
-  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM (Pattern × Expr) := do
-    if let .forallE _ d b _ := type then
-      return (← go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
+    if let .forallE _ d b _ := pattern then
+      return (← go b (varTypes.push d))
     else
-      let_expr Eq _ lhs rhs := type | throwError "resulting type for `{.ofConstName declName}` is not an equality"
-      let pattern ← mkPatternCore levelParams varTypes isInstance lhs
+      let_expr Eq _ lhs rhs := pattern | throwError "resulting type for `{.ofConstName declName}` is not an equality"
+      let pattern ← mkPatternCore type levelParams varTypes lhs
       return (pattern, rhs)
-  go type #[] #[]
+  go type #[]
 
 structure UnifyM.Context where
   pattern   : Pattern
@@ -799,7 +814,6 @@ def mkPreResult : UnifyM MkPreResultResult := do
     | none => mkFreshLevelMVar
   let pattern := (← read).pattern
   let varTypes := pattern.varTypes
-  let isInstance := pattern.isInstance
   let eAssignment := (← get).eAssignment
   let tPending := (← get).tPending
   let mut args := #[]
@@ -820,7 +834,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
       let type := varTypes[i]!
       let type ← instantiateLevelParamsS type pattern.levelParams us
       let type ← instantiateRevBetaS type args
-      if isInstance[i]! then
+      if pattern.isInstance i then
         if let .some val ← trySynthInstance type then
           args := args.push (← shareCommon val)
           continue

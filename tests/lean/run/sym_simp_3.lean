@@ -7,7 +7,9 @@ elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
     pre  := Sym.Simp.simpControl
     post := Sym.Simp.evalGround.andThen rewrite
   }
-  liftMetaTactic1 <| Sym.simpWith (Sym.simp · methods)
+  liftMetaTactic1 fun mvarId => Sym.SymM.run do
+    let mvarId ← Sym.preprocessMVar mvarId
+    (← Sym.simpGoal mvarId methods).toOption
 
 example : (1-1) + x*1 + (2-1)*0 = x := by
   sym_simp [Nat.add_zero, Nat.zero_add, Nat.mul_one]

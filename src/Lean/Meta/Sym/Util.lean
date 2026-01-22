@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Transform
 import Init.Grind.Util
 import Lean.Meta.WHNF
+import Lean.Util.ForEachExpr
 namespace Lean.Meta.Sym
 
 /--
@@ -90,5 +91,22 @@ public def preprocessMVar (mvarId : MVarId) : SymM MVarId := do
   let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
   mvarId.assign mvarNew
   return mvarNew.mvarId!
+
+/-- Debug helper: throws if any subexpression of `e` is not in the table of maximally shared terms. -/
+public def _root_.Lean.Expr.checkMaxShared (e : Expr) (msg := "") : SymM Unit := do
+  e.forEach fun e => do
+    if let some prev := (← get).share.set.find? { expr := e } then
+      unless isSameExpr prev.expr e do
+        throwNotMaxShared e
+    else
+      throwNotMaxShared e
+where
+  throwNotMaxShared (e : Expr) : SymM Unit := do
+    let msg := if msg == "" then msg else s!"[{msg}] "
+    throwError "{msg}term is not in the maximally shared table{indentExpr e}"
+
+/-- Debug helper: throws if any subexpression of the goal's target type is not in the table of maximally shared. -/
+public def _root_.Lean.MVarId.checkMaxShared (mvarId : MVarId) (msg := "") : SymM Unit := do
+  (← mvarId.getDecl).type.checkMaxShared msg
 
 end Lean.Meta.Sym

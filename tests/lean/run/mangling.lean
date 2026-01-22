@@ -1,15 +1,20 @@
 module
+import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.NameMangling
 
 /-!
 # Test behavior of name mangling
 -/
 
-def checkMangle (n : Lean.Name) (s : String) : IO Unit := do
+open Lean IR ExplicitBoxing
+def checkMangle (n : Name) (s : String) : IO Unit := do
   if n.mangle "" ≠ s then
     throw <| .userError s!"failed: {n} mangles to {n.mangle ""} but expected {s}"
   if .demangle s ≠ n then
     throw <| .userError s!"failed: {s} demangles to {Lean.Name.demangle s} but expected {n}"
+  if n ≠ .anonymous ∧ mkMangledBoxedName s ≠ (mkBoxedName n).mangle "" then
+    throw <| .userError s!"failed: {mkBoxedName n} mangles to {(mkBoxedName n).mangle ""} but \
+      mkMangledBoxedName produced {mkMangledBoxedName s}"
 
 /-!
 Mangling simple identifiers with optional number components and preceding underscores.

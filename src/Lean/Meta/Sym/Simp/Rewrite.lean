@@ -11,6 +11,7 @@ public import Lean.Meta.Sym.Simp.Theorems
 public import Lean.Meta.Sym.Simp.App
 public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.Simp.DiscrTree
 namespace Lean.Meta.Sym.Simp
 open Grind
@@ -20,31 +21,48 @@ Creates proof term for a rewriting step.
 Handles both constant expressions (common case, avoids `instantiateLevelParams`)
 and general expressions.
 -/
-def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr :=
+def mkValue (expr : Expr) (pattern : Pattern) (us : List Level) (args : Array Expr) : Expr :=
   if let .const declName [] := expr then
-    mkAppN (mkConst declName result.us) result.args
+    mkAppN (mkConst declName us) args
   else
-    mkAppN (expr.instantiateLevelParams pattern.levelParams result.us) result.args
+    mkAppN (expr.instantiateLevelParams pattern.levelParams us) args
 
 /--
 Tries to rewrite `e` using the given theorem.
 -/
-public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischargeNone) : SimpM Result := do
+public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischargeNone) : SimpM Result :=
+  /-
+  **Note**: We use `withNewMCtxDepth` to ensure auxiliary metavariables used during the `match?`
+  do not pollute the metavariable context.
+  Thus, we must ensure that all assigned variables have be instantiate.
+  -/
+  withNewMCtxDepth do
   if let some result ← thm.pattern.match? e then
     -- **Note**: Potential optimization: check whether pattern covers all variables.
-    for arg in result.args do
-      let .mvar mvarId := arg | pure ()
-      unless (← mvarId.isAssigned) do
-        let decl ← mvarId.getDecl
-        if let some val ← d decl.type then
-          mvarId.assign val
+    let mut args := result.args.toVector
+    let us ← result.us.mapM instantiateLevelMVars
+    for h : i in *...args.size do
+      let arg := args[i]
+      if let .mvar mvarId := arg then
+        if (← mvarId.isAssigned) then
+          let arg ← instantiateMVarsS arg
+          args := args.set i arg
         else
-          -- **Note**: Failed to discharge hypothesis.
-          return .rfl
-    let proof := mkValue thm.expr thm.pattern result
-    let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
-    let rhs   ← shareCommonInc rhs
-    let expr  ← instantiateRevBetaS rhs result.args
+          let decl ← mvarId.getDecl
+          if let some val ← d decl.type then
+            let val ← instantiateMVarsS val
+            mvarId.assign val
+            args := args.set i val
+          else
+            -- **Note**: Failed to discharge hypothesis.
+            return .rfl
+      else if arg.hasMVar then
+        let arg ← instantiateMVarsS arg
+        args := args.set i arg
+    let proof := mkValue thm.expr thm.pattern us args.toArray
+    let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams us
+    let rhs   ← share rhs
+    let expr  ← instantiateRevBetaS rhs args.toArray
     if isSameExpr e expr then
       return .rfl
     else

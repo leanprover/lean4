@@ -231,6 +231,18 @@ example (fnStx : Syntax) (args : Array AppImplicitArg) : Option Syntax := do
   | none => have args : Array Syntax := args.filterMap (·.syntax?); return fnStx
   | some stx => return stx
 
+-- Extracted from Lean.Language.Util. Tests that we try elaborating the join point RHS when
+-- elaboration of the match fails
+open Lean Language SnapshotTask in
+partial example (s : SnapshotTree) : CoreM Unit :=
+  go .skip s
+where go range? s := do
+  match range? with
+  | .some _ => pure ()
+  | .inherit => pure ()
+  | .skip => pure ()
+  s.children.toList.forM fun c => go c.reportingRange c.get
+
 end Repros
 
 -- test case doLetElse

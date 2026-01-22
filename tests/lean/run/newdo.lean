@@ -223,14 +223,6 @@ example : StateM (Nat × String) Unit := do
 structure AppImplicitArg where s : Term
 def AppImplicitArg.syntax? (arg : AppImplicitArg) : Option Syntax := some arg.s
 
--- set_option trace.Elab.do true in
-set_option trace.Elab.match true in
-set_option trace.Elab.do.match true in
-set_option trace.Elab.step true in
-set_option trace.Elab.do true in
-set_option trace.Elab.postpone true in
-set_option trace.Elab.resume true in
--- set_option backward.do.legacy true in
 -- Extracted from Lean.PrettyPrinter.Delab.Builtins. Tests the interaction between `match` elaboration
 -- and default instances.
 example (fnStx : Syntax) (args : Array AppImplicitArg) : Option Syntax := do
@@ -732,6 +724,7 @@ set_option trace.Elab.do true in
 #check Id.run <| ExceptT.run doo
   let e ← try
       let x := 0
+      let _ := 42
       throw "error"
     catch e : String =>
       pure e
@@ -766,20 +759,19 @@ trace: [Elab.do] have x := 1;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        have __kbreak_1 := fun __s_1 =>
-          let x_2 := __s_1;
-          if x_2 > 20 then __kbreak x_2 else __kcontinue x_2;
-        forInNew [4, 5, 6] x_1
-          (fun j __kcontinue_1 __s_1 =>
-            let x_2 := __s_1;
-            have __do_jp := fun __r x_3 =>
-              if j < 3 then __kcontinue_1 x_3 else if j > 6 then __kbreak_1 x_3 else __kcontinue_1 x_3;
+        let x := __s;
+        have __kbreak := fun __s =>
+          let x := __s;
+          if x > 20 then __kbreak x else __kcontinue x;
+        forInNew [4, 5, 6] x
+          (fun j __kcontinue __s =>
+            let x := __s;
+            have __do_jp := fun __r x => if j < 3 then __kcontinue x else if j > 6 then __kbreak x else __kcontinue x;
             if j < 5 then
-              have x := x_2 + j;
+              have x := x + j;
               __do_jp PUnit.unit x
-            else __do_jp PUnit.unit x_2)
-          __kbreak_1)
+            else __do_jp PUnit.unit x)
+          __kbreak)
       __kbreak
 -/
 #guard_msgs in
@@ -1051,27 +1043,27 @@ set_option trace.Elab.do true in
 trace: [Elab.do] have x := 42;
     have y := 0;
     have __kbreak := fun __s =>
-      let x_1 := __s.fst;
-      pure (x_1 + x_1 + x_1 + x_1);
+      let x := __s.fst;
+      pure (x + x + x + x);
     forInNew [1, 2, 3] (x, y)
       (fun i __kcontinue __s =>
-        let x_1 := __s.fst;
-        let y_1 := __s.snd;
-        have __do_jp := fun __r x_2 y_2 =>
-          if x_2 > 10 then
-            have x_3 := x_2 + 3;
-            __kcontinue (x_3, y_2)
+        let x := __s.fst;
+        let y := __s.snd;
+        have __do_jp := fun __r x y =>
+          if x > 10 then
+            have x := x + 3;
+            __kcontinue (x, y)
           else
-            if x_2 < 20 then
-              have x_3 := x_2 - 2;
-              __kbreak (x_3, y_2)
+            if x < 20 then
+              have x := x - 2;
+              __kbreak (x, y)
             else
-              have x_3 := x_2 + i;
-              __kcontinue (x_3, y_2);
-        if x_1 = 3 then
-          have x := x_1 + 1;
-          __do_jp PUnit.unit x y_1
-        else __do_jp PUnit.unit x_1 y_1)
+              have x := x + i;
+              __kcontinue (x, y);
+        if x = 3 then
+          have x := x + 1;
+          __do_jp PUnit.unit x y
+        else __do_jp PUnit.unit x y)
       __kbreak
 -/
 #guard_msgs in
@@ -1145,26 +1137,26 @@ set_option trace.Compiler.saveBase true in
 /--
 trace: [Elab.do] have x := 42;
     have __kbreak := fun __s =>
-      let x_1 := __s;
-      have x_2 := x_1 + 13;
-      have x_3 := x_2 + 13;
-      have x_4 := x_3 + 13;
-      have x := x_4 + 13;
+      let x := __s;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        if x_1 = 3 then pure x_1
+        let x := __s;
+        if x = 3 then pure x
         else
-          if x_1 > 10 then
-            have x := x_1 + 3;
+          if x > 10 then
+            have x := x + 3;
             __kcontinue x
           else
-            if x_1 < 20 then
-              have x := x_1 * 2;
+            if x < 20 then
+              have x := x * 2;
               __kbreak x
             else
-              have x := x_1 + i;
+              have x := x + i;
               __kcontinue x)
       __kbreak
 ---
@@ -1376,31 +1368,31 @@ trace: [Elab.do] have x := 42;
     have z := 1;
     forInNew [1, 2, 3] (x, y, z)
       (fun i __kcontinue __s =>
-        let x_1 := __s.fst;
-        let __s_1 := __s.snd;
-        let y_1 := __s_1.fst;
-        let z_1 := __s_1.snd;
-        have x_2 := x_1 + i;
-        forInNew [i:10].toList (x_2, y_1, z_1)
+        let x := __s.fst;
+        let __s := __s.snd;
+        let y := __s.fst;
+        let z := __s.snd;
+        have x := x + i;
+        forInNew [i:10].toList (x, y, z)
           (fun j __kcontinue __s =>
-            let x_3 := __s.fst;
+            let x := __s.fst;
             let __s := __s.snd;
             let y := __s.fst;
             let z := __s.snd;
-            have z := z + x_3 + j;
-            __kcontinue (x_3, y, z))
+            have z := z + x + j;
+            __kcontinue (x, y, z))
           fun __s =>
-          let x_3 := __s.fst;
+          let x := __s.fst;
           let __s := __s.snd;
           let y := __s.fst;
           let z := __s.snd;
-          __kcontinue (x_3, y, z))
+          __kcontinue (x, y, z))
       fun __s =>
-      let x_1 := __s.fst;
-      let __s_1 := __s.snd;
-      let y_1 := __s_1.fst;
-      let z_1 := __s_1.snd;
-      pure (x_1 + y_1 + z_1)
+      let x := __s.fst;
+      let __s := __s.snd;
+      let y := __s.fst;
+      let z := __s.snd;
+      pure (x + y + z)
 ---
 trace: [Compiler.saveBase] size: 12
     def Do._example : Nat :=
@@ -1979,6 +1971,14 @@ example : (Id.run doo
       return 13
   return x + y) := by rfl
 
+set_option trace.Elab.postpone true in
+example := Id.run doo
+  let x := true
+  if let 0 ← pure 42 then -- TODO: introduces weird metavariables. investigate!
+    pure 42
+  else
+    pure 9
+
 -- Test: ifCondLet and else if
 example : (Id.run doo
   let mut x := 0
@@ -2308,7 +2308,7 @@ Postponing Monad instance resolution appropriately
 
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.8
+  Pure ?m.9
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -2477,26 +2477,26 @@ set_option trace.Elab.do true in
 /--
 trace: [Elab.do] have x := 42;
     have __kbreak := fun __s =>
-      let x_1 := __s;
-      have x_2 := x_1 + 13;
-      have x_3 := x_2 + 13;
-      have x_4 := x_3 + 13;
-      have x := x_4 + 13;
+      let x := __s;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        if x_1 = 3 then pure x_1
+        let x := __s;
+        if x = 3 then pure x
         else
-          if x_1 > 10 then
-            have x := x_1 + 3;
+          if x > 10 then
+            have x := x + 3;
             __kcontinue x
           else
-            if x_1 < 20 then
-              have x := x_1 * 2;
+            if x < 20 then
+              have x := x * 2;
               __kbreak x
             else
-              have x := x_1 + i;
+              have x := x + i;
               __kcontinue x)
       __kbreak
 -/

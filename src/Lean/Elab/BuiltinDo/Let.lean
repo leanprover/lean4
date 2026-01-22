@@ -142,6 +142,7 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     Term.withMacroExpansion (← getRef) term do Term.elabTermEnsuringType term (some mγ)
   | `(letDecl| $decl:letIdDecl) =>
     let { id, binders, type, value } := Term.mkLetIdDeclView decl
+    let id ← if id.isIdent then pure id else Term.mkFreshIdent id (canonical := true)
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
     -- TODO: Perhaps make let muts actually behave as let muts again once the attribute-based inference stuff is in place
     let nondep := !(letOrReassign matches .let none)

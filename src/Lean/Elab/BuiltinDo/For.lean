@@ -142,10 +142,11 @@ open Lean.Meta
       throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
 
     -- Elaborate the loop body, which must have result type `PUnit`.
-    let body ←
+    let elabBody :=
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
+    let body? ← observingPostpone elabBody
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
@@ -154,6 +155,11 @@ open Lean.Meta
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
           dec.continueWithUnit .missing
     breakRhsMVar.mvarId!.assign breakRhs
+
+    let body ←
+      match body? with
+      | some body => pure body
+      | none => elabBody
 
     let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body

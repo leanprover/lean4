@@ -199,6 +199,17 @@ example {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
+example : Id (Array String) := do
+  let xs : Array Nat := #[]
+  let mut res := #[]
+  for x in xs do
+    if res.size > 0 then
+      match res.back!, x with
+      | x, 0 => res := res.set! (res.size - 1) x
+      | x, n => res := res.set! (res.size - 1) (x ++ toString n)
+    else res := res.push (toString x)
+  return res
+
 end Array
 
 -- test case doLetElse

@@ -527,6 +527,19 @@ def inlineJoinPointM (body : Expr) (jp : Expr) : MetaM Expr := do
   -- else
   body.replaceFVarsM #[jp] #[value]
 
+def observingPostpone (x : DoElabM α) : DoElabM (Option α) := do
+  let s ← saveState
+  try
+    some <$> x
+  catch ex => match ex with
+    | .error .. => throw ex
+    | .internal id _ =>
+      if id == postponeExceptionId then
+        s.restore
+        pure none
+      else
+        throw ex
+
 /--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
@@ -566,20 +579,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     return e
 
   let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
-  let s ← saveState
-  let body? : Option Expr ←
-    try
-      some <$> elabBody
-    catch ex => match ex with
-      | .error .. => throw ex
-      | .internal id _ =>
-        if id == postponeExceptionId then
-          -- trace[Elab.do] "postponed exception, resultType was {nondupDec.resultType}"
-          s.restore
-          -- trace[Elab.do] "resultType after restore: {nondupDec.resultType}"
-          pure none
-        else
-          throw ex
+  let body? : Option Expr ← observingPostpone elabBody
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
@@ -595,7 +595,6 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let body ←
     match body? with
     | some body => pure body
-    -- | none => controlAtTermElabM fun runInBase => Term.withoutPostponing (runInBase elabBody)
     | none => elabBody
 
   let calls ← calls.get

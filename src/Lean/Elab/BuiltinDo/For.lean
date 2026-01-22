@@ -98,11 +98,24 @@ open Lean.Meta
       discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) defn.type
       defs := defs.push defn.toExpr
     return defs
-  -- let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
+
+  unless ← isDefEq dec.resultType (← mkPUnit) do
+    logError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
+
   let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
+
+  -- Elaborate the `break` continuation.
+  -- If there is a `break`, the code will be shared in the `kbreak` join point.
+  -- We elaborate the continuation before the body so that type info from the continuation may
+  -- flow into the loop body.
+  let s ← mkFreshUserName `__s
+  let breakRhs ← do
+    withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
+      bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
+        dec.continueWithUnit .missing
+
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
-  let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β -- assigned below
   let (app, p?) ← match h? with
     | none =>
       let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
@@ -117,7 +130,7 @@ open Lean.Meta
       pure (app, some p)
   let kbreakName ← mkFreshUserName `__kbreak
   let kcontinueName ← mkFreshUserName `__kcontinue
-  withLetDecl kbreakName β breakRhsMVar (kind := .implDetail) (nondep := true) fun kbreak => do
+  withLetDecl kbreakName β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
   withContFVar kbreakName do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
     | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
@@ -125,10 +138,8 @@ open Lean.Meta
   withLocalDeclsD xh fun xh => do
   withLocalDecl kcontinueName .default β (kind := .implDetail) fun kcontinue => do
   withContFVar kcontinueName do
-  withLocalDecl (← mkFreshUserName `__s) .default σ (kind := .implDetail) fun loopS => do
+  withLocalDecl s .default σ (kind := .implDetail) fun loopS => do
   -- withProxyMutVarDefs fun elimProxyDefs => do
-    let rootCtx ← getLCtx
-
     let continueCont := do
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kcontinue tuple
@@ -138,28 +149,11 @@ open Lean.Meta
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kbreak tuple
 
-    unless ← isDefEq dec.resultType (← mkPUnit) do
-      throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
-
     -- Elaborate the loop body, which must have result type `PUnit`.
-    let elabBody :=
+    let body ←
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
-    let body? ← observingPostpone elabBody
-
-    -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
-    -- If there is a `break`, the code will be shared in the `kbreak` join point.
-    let breakRhs ← breakRhsMVar.mvarId!.withContext do
-      withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
-        bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-          dec.continueWithUnit .missing
-    breakRhsMVar.mvarId!.assign breakRhs
-
-    let body ←
-      match body? with
-      | some body => pure body
-      | none => elabBody
 
     let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body

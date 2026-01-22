@@ -6,16 +6,24 @@ import Std.Data.HashMap
 
 open Std
 
+/--
+An `IndexMap α β` is a map from keys of type `α` to values of type `β`,
+which also maintains the insertion order of keys.
+
+Internally `IndexMap` is implementented redundantly as a `HashMap` from keys to indices
+(and hence the key type must be `Hashable`), along with `Array`s of keys and values.
+These implementation details are private, and hidden from the user.
+-/
 structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
-  indices : HashMap α Nat
-  keys : Array α
-  values : Array β
-  size_keys' : keys.size = values.size
-  WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i
+  private indices : HashMap α Nat
+  private keys : Array α
+  private values : Array β
+  private size_keys' : keys.size = values.size
+  private WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i
 
 namespace IndexMap
 
-variable {α : Type u} {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [LawfulHashable α]
+variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 variable {m : IndexMap α β} {a : α} {b : β} {i : Nat}
 
 @[inline] def size (m : IndexMap α β) : Nat :=
@@ -34,8 +42,7 @@ instance : EmptyCollection (IndexMap α β) where
 instance : Inhabited (IndexMap α β) where
   default := ∅
 
-@[inline] def contains (m : IndexMap α β)
-    (a : α) : Bool :=
+@[inline] def contains (m : IndexMap α β) (a : α) : Bool :=
   m.indices.contains a
 
 instance : Membership α (IndexMap α β) where

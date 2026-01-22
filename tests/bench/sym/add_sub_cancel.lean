@@ -355,3 +355,59 @@ def runBenchUsingSym (simpEagerly : Bool := false) : MetaM Unit := do
 #eval solveUsingSym 400 true true
 #eval solveUsingSym 500 true true
 #eval solveUsingSym 600 true true
+#eval solveUsingSym 700 true true
+
+/-!
+`SymM` Solution + reusing simplifier cache
+-/
+
+/-- Simplifies the goal reusing the simplifier state. -/
+def simpGoal (mvarId : MVarId) (m : Sym.Simp.Methods) (s : Sym.Simp.State)
+    : SymM (SimpGoalResult × Sym.Simp.State) := mvarId.withContext do
+  Simp.SimpM.run (methods := m) (config := {}) (s := s) do
+    let decl ← mvarId.getDecl
+    return (← (← Simp.simp decl.type).toSimpGoalResult mvarId).ignoreNoProgress mvarId
+
+partial def solveReusingCache (mvarId : MVarId) : SymM Unit := do
+  let exec_cpsRule ← mkBackwardRuleFromDecl ``Exec.seq_cps
+  let inputRule ← mkBackwardRuleFromDecl ``Exec.input
+  let skipRule ← mkBackwardRuleFromDecl ``Exec.skip
+  let setRule ← mkBackwardRuleFromDecl ``Exec.set
+  let rflRule ← mkBackwardRuleFromDecl ``Eq.refl
+  let unfoldMethods ← mkMethods #[``generated_cmd.eq_1, ``repeated_cmds.eq_1, ``repeated_cmds.eq_2]
+  let simpMethods ← mkMethods #[``Expr.eval.eq_1, ``Expr.eval.eq_2, ``Expr.eval.eq_3,
+          ``PartialMap.get_put_diff, ``PartialMap.get_put, ``PartialMap.put_put, ``Binop.interp_add,
+          ``Binop.interp_sub, ``Word.add_sub_cancel, ``Option.some.injEq, ``not_false_eq_true, ``ne_eq]
+  let finalSimpMethods ← mkMethods #[``List.cons.injEq, ``IOEvent.IN.injEq, ``and_true, ``true_and,
+    ``PartialMap.put_put, ``PartialMap.get_put, ``PartialMap.get_put_diff, ``Option.some.injEq,
+    ``and_self, ``exists_eq_True, ``Word.add_sub_cancel]
+  -- ## Initialize
+  let mvarId ← preprocessMVar mvarId
+  let (_, mvarId) ← Sym.introN mvarId 2
+  let .goal mvarId ← Sym.simpGoal mvarId unfoldMethods | failure
+  let .goals [mvarId] ← exec_cpsRule.apply mvarId | failure
+  let .goals [mvarId] ← inputRule.apply mvarId | failure
+  let (_, mvarId) ← Sym.introN mvarId 1
+  -- ## Loop
+  let rec loop (mvarId : MVarId) (simpState : Sym.Simp.State) : SymM MVarId := do
+    let .goals [mvarId] ← exec_cpsRule.apply mvarId | return mvarId
+    let .goals [mvarId', mvarId, _] ← setRule.apply mvarId | failure
+    let (.goal mvarId', simpState) ← simpGoal mvarId' simpMethods simpState | failure
+    let .goals [] ← rflRule.apply mvarId' | failure
+    loop mvarId simpState
+  let mvarId ← loop mvarId {}
+  -- `apply Exec.skip`
+  let .goals [mvarId] ← skipRule.apply mvarId | failure
+  let .closed ← Sym.simpGoal mvarId finalSimpMethods | failure
+  return
+
+def solveUsingCSym (n : Nat) (check := true) : MetaM Unit := do
+  driver n check fun mvarId => SymM.run do solveReusingCache mvarId |>.run' {}
+
+def runBenchUsingCSym : MetaM Unit := do
+  IO.println "=== Symbolic Simulation Tests ==="
+  IO.println ""
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700] do
+    solveUsingCSym n
+
+#eval runBenchUsingCSym

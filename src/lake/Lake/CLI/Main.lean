@@ -395,7 +395,7 @@ protected def get : CliM PUnit := do
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.platform?.isSome || opts.toolchain?.isSome then
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
@@ -470,7 +470,7 @@ where
     if (← repo.hasDiff) then
       logWarning s!"{pkg.prettyName}: package has changes; \
         only artifacts for committed code will be downloaded"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let n := opts.maxRevs
     let revs ← repo.getHeadRevisions n
@@ -505,7 +505,7 @@ protected def put : CliM PUnit := do
   if (← repo.hasDiff) then
     logWarning s!"{pkg.prettyName}: package has changes; \
       artifacts will be uploaded for the most recent commit"
-    if .warning ≤ opts.failLv then
+    if opts.failLv ≤ .warning then
       exit 1
   let rev ← repo.getHeadRevision
   let map ← CacheMap.load file

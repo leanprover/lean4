@@ -133,7 +133,7 @@ private def abstractDiscrsGeneralizingIf (generalize? : LocalDecl → Bool) (dis
       kept := kept.push decl
   let contDiscrDecls := kept.reverse
   let contDiscrs := contDiscrDecls.map (·.toExpr)
-  trace[Elab.do.match] "kept: {contDiscrs}"
+  trace[Elab.do.match] "kept generalization candidates: {contDiscrs}"
   let discrs := discrs ++ contDiscrs
   let type ← abstractDiscrs discrs type
   try check type catch ex =>
@@ -154,6 +154,7 @@ a failure when synthesizing jump sites.
 -/
 private def generalizeMutsContsFVars (initialGenFVars : Array FVarId) (mutVars : Array Ident)
     (contFVars : Std.HashSet Name) (doGeneralize : Bool) : Term.Generalizer k := fun discrs matchType altViews => do
+  trace[Elab.do.match] "generalizeMutsContsFVars: matchType: {matchType}, mutVars: {mutVars}"
   let generalize? decl :=
     doGeneralize || matchType.containsFVar decl.fvarId || mutVars.any (·.getId == decl.userName) || contFVars.contains decl.userName
   let discrExprs := discrs.map (·.expr)
@@ -174,11 +175,12 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
   let mγ ← mkMonadicType doBlockResultType
   elabNestedActionsArray discrs fun discrs => do
   elabNonAtomicDiscrs motive? discrs fun discrs => do
-  trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}"
+  trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   Term.tryPostponeIfDiscrTypeIsMVar motive? discrs
   let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
     let ⟨discrs, resultMotive, isDep⟩ ← Term.withSynthesize <|
        Term.elabMatchTypeAndDiscrs discrs motive? nondupDec.resultType
+    trace[Elab.do.match] "initial resultMotive: {resultMotive}"
 
     let mi := (← read).monadInfo
     let discrExprs := discrs |>.map (·.expr)
@@ -186,7 +188,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       throwError "Invalid match expression: monad {mi.m} depends on one of the discriminants. \
         This is not supported by the `do` elaborator."
 
-    Term.synthesizeSyntheticMVars -- using default would be too strong here; omitting it would be too weak to provoke the bad discrminant refinement error
+    Term.synthesizeSyntheticMVars -- using default would be too strong here; omitting it would be too weak to provoke the bad discrminant refinement error. Even (postpone := .partial) is too strong for the cache example.
     -- We do not support custom motives or `generalizing := false`. We always produce our own motive
     -- by abstracting the expected type (`dec.resultType`) over the discriminants.
     -- We *do* take the instantiated motive produced by `elabMatchTypeAndDiscrs` though because it
@@ -203,7 +205,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
     let doBlockResultType := (← read).doBlockResultType
     trace[Elab.do.match] "doBlockResultType: {doBlockResultType}"
     let matchType ← mkMonadicType doBlockResultType
-    let matchMotive ← abstractDiscrsM discrExprs matchType
+    let matchMotive ← abstractDiscrs discrExprs matchType
     trace[Elab.do.match] "discrExprs: {discrExprs}, matchMotive: {matchMotive}"
     check matchMotive
     trace[Elab.do.match] "discrExprs: {discrExprs}, resultMotive: {resultMotive}, matchMotive: {matchMotive}"
@@ -219,23 +221,19 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       let discrExprs' := (← patterns.mapM (·.toExpr)).toArray
       trace[Elab.do.match] "discriminants after generalization: {discrExprs}, substitute with patterns: {discrExprs'}"
 
-      let doBlockResultMotive ← withLCtx' outerLCtx <| abstractDiscrsM discrExprs doBlockResultType
+      let doBlockResultMotive ← withLCtx' outerLCtx <| abstractDiscrs discrExprs doBlockResultType
       check doBlockResultMotive
       let doBlockResultType := doBlockResultMotive.getForallBodyMaxDepth discrExprs.size |>.instantiateRev discrExprs'
 
-      let resultMotive ← withLCtx' outerLCtx <| abstractDiscrsM discrExprs resultType
+      let resultMotive ← withLCtx' outerLCtx <| abstractDiscrs discrExprs resultType
       check resultMotive
       let resultType := resultMotive.getForallBodyMaxDepth discrExprs.size |>.instantiateRev discrExprs'
 
-      let returnMotive ← withLCtx' outerLCtx <| abstractDiscrsM discrExprs returnType
+      let returnMotive ← withLCtx' outerLCtx <| abstractDiscrs discrExprs returnType
       check returnMotive
       let returnType := returnMotive.getForallBodyMaxDepth discrExprs.size |>.instantiateRev discrExprs'
 
-
       trace[Elab.do.match] "resultType: {resultType}\nreturnType: {returnType}\ndoBlockResultType: {doBlockResultType}\nmatchMotive: {matchMotive}\nrhs: {rhs}"
-      let ctx ← read
-      let contInfo := { ctx.contInfo.toContInfo with returnCont.resultType := returnType }.toContInfoRef
-      let ctx := { ctx with contInfo, doBlockResultType }
       unless (← haveCheckedBadDiscriminantRefinement.get) do
         -- We have not checked for bad refined discriminants yet; do it now, but only once.
         haveCheckedBadDiscriminantRefinement.set true
@@ -254,6 +252,11 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
             result type {indentExpr matchMotive}\nhad occurrences of free variables that depend on \
             the discriminants, but no continuation variables were generalized.\n\
             This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this."
+
+      trace[Elab.do.match] "elabDoMatchRhs before elabDoSeq: {rhs}, do elems: {getDoElems rhs}"
+      let ctx ← read
+      let contInfo := { ctx.contInfo.toContInfo with returnCont.resultType := returnType }.toContInfoRef
+      let ctx := { ctx with contInfo, doBlockResultType }
       withReader (fun _ => ctx) do elabDoSeq rhs { dec with resultType }
 
     let mutVars := (← read).mutVars

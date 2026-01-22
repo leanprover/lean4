@@ -212,6 +212,35 @@ example : Id (Array String) := do
 
 end Array
 
+namespace Repros
+
+-- Extracted from Lake.Build.Run. Tests if postponement and coercion insertion.
+example : StateM (Nat × String) Unit := do
+  let resetCtrl ← modifyGet fun s => (s.fst, {s with snd := ""})
+  if resetCtrl.isValidChar then
+    pure ()
+
+structure AppImplicitArg where s : Term
+def AppImplicitArg.syntax? (arg : AppImplicitArg) : Option Syntax := some arg.s
+
+-- set_option trace.Elab.do true in
+set_option trace.Elab.match true in
+set_option trace.Elab.do.match true in
+set_option trace.Elab.step true in
+set_option trace.Elab.do true in
+set_option trace.Elab.postpone true in
+set_option trace.Elab.resume true in
+-- set_option backward.do.legacy true in
+-- Extracted from Lean.PrettyPrinter.Delab.Builtins. Tests the interaction between `match` elaboration
+-- and default instances.
+example (fnStx : Syntax) (args : Array AppImplicitArg) : Option Syntax := do
+  let x ← pure (f := Option) none <|> pure (f := Option) none
+  match x with
+  | none => have args : Array Syntax := args.filterMap (·.syntax?); return fnStx
+  | some stx => return stx
+
+end Repros
+
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
@@ -527,7 +556,7 @@ has type
 but is expected to have type
   iter1 ≠ str1.endPos
 in the application
-  iter1.get h1
+  iter1.next h1
 ---
 error: Application type mismatch: The argument
   h1
@@ -536,7 +565,7 @@ has type
 but is expected to have type
   iter1 ≠ str1.endPos
 in the application
-  iter1.next h1
+  iter1.get h1
 -/
 #guard_msgs (error) in
 example (str1 str2 : String) : Unit := Id.run do
@@ -1347,31 +1376,31 @@ trace: [Elab.do] have x := 42;
     have z := 1;
     forInNew [1, 2, 3] (x, y, z)
       (fun i __kcontinue __s =>
-        let x := __s.fst;
-        let __s := __s.snd;
-        let y := __s.fst;
-        let z := __s.snd;
-        have x := x + i;
-        forInNew [i:10].toList (x, y, z)
+        let x_1 := __s.fst;
+        let __s_1 := __s.snd;
+        let y_1 := __s_1.fst;
+        let z_1 := __s_1.snd;
+        have x_2 := x_1 + i;
+        forInNew [i:10].toList (x_2, y_1, z_1)
           (fun j __kcontinue __s =>
-            let x := __s.fst;
+            let x_3 := __s.fst;
             let __s := __s.snd;
             let y := __s.fst;
             let z := __s.snd;
-            have z := z + x + j;
-            __kcontinue (x, y, z))
+            have z := z + x_3 + j;
+            __kcontinue (x_3, y, z))
           fun __s =>
-          let x := __s.fst;
+          let x_3 := __s.fst;
           let __s := __s.snd;
           let y := __s.fst;
           let z := __s.snd;
-          __kcontinue (x, y, z))
+          __kcontinue (x_3, y, z))
       fun __s =>
-      let x := __s.fst;
-      let __s := __s.snd;
-      let y := __s.fst;
-      let z := __s.snd;
-      pure (x + y + z)
+      let x_1 := __s.fst;
+      let __s_1 := __s.snd;
+      let y_1 := __s_1.fst;
+      let z_1 := __s_1.snd;
+      pure (x_1 + y_1 + z_1)
 ---
 trace: [Compiler.saveBase] size: 12
     def Do._example : Nat :=

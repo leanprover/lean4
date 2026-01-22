@@ -92,13 +92,14 @@ open Lean.Meta
   let useLoopMutVars : TermElabM (Array Expr) := do
     let mut defs := #[]
     for x in loopMutVars do
-      let defn ← getFVarFromUserName x.getId
-      Term.addTermInfo' x defn
-      defs := defs.push defn
+      let defn ← getLocalDeclFromUserName x.getId
+      Term.addTermInfo' x defn.toExpr
+      -- ForInNew forces all mut vars into the same universe: that of the do block result type.
+      discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) defn.type
+      defs := defs.push defn.toExpr
     return defs
   -- let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
   let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
-  discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ -- to assign universe MVars of `mut` vars
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
   let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β -- assigned below

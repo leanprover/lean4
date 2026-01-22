@@ -117,7 +117,6 @@ private meta def expandIfThenElse'
       pure hole
   mkCase thenTk pos `(?pos)
 
-
 end Tactic
 
 section Blah
@@ -191,6 +190,16 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
+section Array
+
+-- Test that `forInNew` forces all mut vars into the same universe
+example {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+  let mut ys := #[]
+  for b in mask, x in xs do
+    if b then ys := ys.push x
+  return ys
+
+end Array
 
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do

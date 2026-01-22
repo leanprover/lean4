@@ -72,20 +72,18 @@ info: def fnStructRec : Nat →
   α :=
 fun n =>
   Nat.rec
-    ((fun n f =>
-        (match (motive :=
-            (n : Nat) →
-              Nat.below n →
-                let α : Type := Nat;
-                α)
-            n with
-          | 0 => fun x => 0
-          | n.succ => fun x =>
-            id
-              (let m : Nat := n + 1;
-              m * x.1))
-          f)
-      Nat.zero PUnit.unit)
+    ((match (motive :=
+        (n : Nat) →
+          Nat.below n →
+            let α : Type := Nat;
+            α)
+        Nat.zero with
+      | 0 => fun x => 0
+      | n.succ => fun x =>
+        id
+          (let m : Nat := n + 1;
+          m * x.1))
+      PUnit.unit)
     (fun n => (n + 1).mul) n
 -/
 #guard_msgs in #print fnStructRec
@@ -143,20 +141,18 @@ info: id
 #guard_msgs in #unfold1 fnStructRec 1
 /--
 info: Nat.rec
-  ((fun n f =>
-      (match (motive :=
-          (n : Nat) →
-            Nat.below n →
-              let α : Type := Nat;
-              α)
-          n with
-        | 0 => fun x => 0
-        | n.succ => fun x =>
-          id
-            (let m : Nat := n + 1;
-            m * x.1))
-        f)
-    Nat.zero PUnit.unit)
+  ((match (motive :=
+      (n : Nat) →
+        Nat.below n →
+          let α : Type := Nat;
+          α)
+      Nat.zero with
+    | 0 => fun x => 0
+    | n.succ => fun x =>
+      id
+        (let m : Nat := n + 1;
+        m * x.1))
+    PUnit.unit)
   (fun n => (n + 1).mul) 1
 -/
 #guard_msgs in

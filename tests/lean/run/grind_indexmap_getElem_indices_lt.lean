@@ -175,11 +175,20 @@ private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
 
 grind_pattern getElem_indices_lt => m.indices[a]
 
-@[reducible] -- This avoids needing boilerplate lemmas for the fields below, but may not be ideal.
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
+
+@[local grind =]
+private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m[a] = m.values[m.indices[a]'h] := rfl
+@[local grind =]
+private theorem getElem?_def (m : IndexMap α β) (a : α) :
+    m[a]? = m.indices[a]?.bind (fun i => (m.values[i]?)) := rfl
+@[local grind =]
+private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
+    m[a]! = (m.indices[a]?.bind (fun i => (m.values[i]?))).getD default := rfl
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := by grind

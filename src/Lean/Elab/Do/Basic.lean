@@ -541,6 +541,11 @@ def observingPostpone (x : DoElabM α) : DoElabM (Option α) := do
       else
         throw ex
 
+def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
+  controlAtTermElabM fun runInBase =>
+    Term.elabToSyntax (hint? := hint) (ref := ref)
+      (fun _ => runInBase doElab) (runInBase ∘ k)
+
 /--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
@@ -580,14 +585,18 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     return e
 
   let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
+  -- we seem to need the observingPostpone for one example in newdo: when we need to elab the
+  -- continuation before being able to instantiate discriminants of a match.
   let body? : Option Expr ← observingPostpone elabBody
+
+  -- trace[Elab.do] "body?: {body?}"
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
-    let live ← deadCode.get
-    (if body?.isSome then withDeadCode live else id) do
+    -- let live ← deadCode.get
+    -- (if body?.isSome then withDeadCode live else id) do
     let e ← nondupDec.k .missing
     -- trace[Elab.do] "join body: {e}, nondupDec.resultType: {nondupDec.resultType}, u: {(← read).monadInfo.u}, abstracting over {r} and {muts}"
     mkLambdaFVars (#[r] ++ muts) e
@@ -596,10 +605,11 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let body ←
     match body? with
     | some body => pure body
-    | none => elabBody
+    | none => doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
 
   let calls ← calls.get
-  if calls.size > 1 || calls.any (fun _ refined => refined) then
+  -- TODO: This will not be conservative when we have postponement... fix this with a post pass.
+  if true || calls.size > 1 || calls.any (fun _ refined => refined) || body?.isNone then
     mkLetFVars (generalizeNondepLet := false) #[jp] body
   else
     -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
@@ -711,11 +721,6 @@ private def checkUnchangedResultType (ty? : Option Expr) (k : DoElabM α) : DoEl
       throwError "The monadic type changed from {oldTy} to {ty}. This is not supported by the `do` elaborator."
   k
 
-def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
-  controlAtTermElabM fun runInBase =>
-    Term.elabToSyntax (hint? := hint) (ref := ref)
-      (fun _ => runInBase doElab) (runInBase ∘ k)
-
 unsafe def mkDoElemElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute DoElab) :=
   mkElabAttribute DoElab `builtin_doElem_elab `doElem_elab `Lean.Parser.Term.doElem ``Lean.Elab.Do.DoElab "do element" ref
 
@@ -752,7 +757,7 @@ private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedTyp
     Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
 
 private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
-    (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) : DoElabM Expr := do
+    (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) (catchExPostpone : Bool := true) : DoElabM Expr := do
   let s ← saveState
   match fns with
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
@@ -766,6 +771,9 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
           if id == unsupportedSyntaxExceptionId then
             s.restore
             elabDoElemFns stx cont elabFns
+          else if catchExPostpone && id == postponeExceptionId then
+            s.restore
+            doElabToSyntax m!"do element {stx}" (elabFn.value stx cont) (Term.postponeElabTerm · expectedType)
           else
             throw ex
         | _ => throw ex
@@ -776,7 +784,7 @@ private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoE
   return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
 
 mutual
-partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Expr := do
+partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   let k := stx.raw.getKind
   trace[Elab.do.step] "do element: {stx}"
   checkSystem "do element elaborator"
@@ -798,7 +806,7 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
   | none =>
     match doElemElabAttribute.getEntries (← getEnv) k with
     | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-    | elabFns => elabDoElemFns stx cont elabFns
+    | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
   return result
 
 partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do

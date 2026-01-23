@@ -143,7 +143,9 @@ If the key is not present, the map is unchanged.
         values := m.values.pop.set i lastValue }
   | none => m
 
-/-! ### Verification theorems -/
+-- TODO: similarly define `eraseShift`, etc.
+
+/-! ### Verification theorems (not exhaustive) -/
 
 @[grind =]
 theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
@@ -179,6 +181,26 @@ omit [LawfulBEq α] [LawfulHashable α] in
 @[grind =]
 theorem getIdx?_eq (m : IndexMap α β) (i : Nat) :
     m.getIdx? i = if h : i < m.size then some (m.getIdx i h) else none := by
+  grind +locals
+
+private theorem getElem_keys_mem {m : IndexMap α β} {i : Nat} (h : i < m.size) :
+    m.keys[i] ∈ m := by
+  have : m.indices[m.keys[i]]? = some i := by grind
+  grind
+
+local grind_pattern getElem_keys_mem => m.keys[i]
+
+theorem getElem?_eraseSwap (m : IndexMap α β) (a a' : α) :
+    (m.eraseSwap a)[a']? = if a' == a then none else m[a']? := by
+  grind +locals
+
+@[grind =]
+theorem mem_eraseSwap (m : IndexMap α β) (a a' : α) :
+    a' ∈ m.eraseSwap a ↔ a' ≠ a ∧ a' ∈ m := by
+  grind +locals
+
+theorem getElem_eraseSwap (m : IndexMap α β) (a a' : α) (h : a' ∈ m.eraseSwap a) :
+    (m.eraseSwap a)[a'] = m[a'] := by
   grind +locals
 
 end IndexMap

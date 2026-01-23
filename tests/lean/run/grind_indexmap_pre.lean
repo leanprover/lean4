@@ -118,7 +118,9 @@ If the key is not present, the map is unchanged.
         WF := sorry }
   | none => m
 
-/-! ### Verification theorems -/
+-- TODO: similarly define `eraseShift`, etc.
+
+/-! ### Verification theorems (not exhaustive) -/
 
 theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
@@ -145,5 +147,14 @@ theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
 
 theorem getIdx?_eq (m : IndexMap α β) (i : Nat) :
     m.getIdx? i = if h : i < m.size then some (m.getIdx i h) else none := sorry
+
+theorem getElem?_eraseSwap (m : IndexMap α β) (a a' : α) :
+    (m.eraseSwap a)[a']? = if a' == a then none else m[a']? := sorry
+
+theorem mem_eraseSwap (m : IndexMap α β) (a a' : α) :
+    a' ∈ m.eraseSwap a ↔ a' ≠ a ∧ a' ∈ m := sorry
+
+theorem getElem_eraseSwap (m : IndexMap α β) (a a' : α) (h : a' ∈ m.eraseSwap a) :
+    (m.eraseSwap a)[a'] = m[a']'sorry := sorry
 
 end IndexMap

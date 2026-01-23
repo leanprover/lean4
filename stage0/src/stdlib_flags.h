@@ -1,6 +1,5 @@
 #include "util/options.h"
 
-// Please update
 namespace lean {
 options get_default_options() {
     options opts;

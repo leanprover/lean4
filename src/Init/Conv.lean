@@ -51,6 +51,10 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
+/-- `cbv` runs the call-by-value normalization tactic. -/
+syntax (name := cbv) "cbv" : conv
+
+
 /--
 Traverses into the left subterm of a binary operator.
 

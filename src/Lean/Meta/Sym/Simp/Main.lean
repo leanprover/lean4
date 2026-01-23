@@ -13,6 +13,7 @@ import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.Simp.Forall
+import Lean.Meta.WHNF
 namespace Lean.Meta.Sym.Simp
 open Internal
 
@@ -20,7 +21,8 @@ def simpStep : Simproc := fun e => do
   match e with
   | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
   | .proj .. =>
-    throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
+    let some e ← reduceProj? e | throwError "could not reduce projection"
+    simp e
   | .mdata m b =>
     let r ← simp b
     match r with

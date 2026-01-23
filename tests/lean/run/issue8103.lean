@@ -73,17 +73,17 @@ def baz (n : Nat) (h : n ≠ 0) : Nat :=
 
 
 /--
-info: baz.induct (motive : (n : Nat) → n ≠ 0 → Prop) (case1 : ∀ (h : 0 + 1 ≠ 0), motive (Nat.succ 0) h)
-  (case2 : ∀ (k : Nat) (h : k + 1 ≠ 0) (h_1 : ¬k = 0), motive k h_1 → motive k.succ h) (n : Nat) (h : n ≠ 0) :
+info: baz.induct (motive : (n : Nat) → n ≠ 0 → Prop) (case1 : ∀ (h : Nat.succ 0 ≠ 0), motive (Nat.succ 0) h)
+  (case2 : ∀ (n : Nat) (h : n.succ ≠ 0) (h_1 : ¬n = 0), motive n h_1 → motive n.succ h) (n : Nat) (h : n ≠ 0) :
   motive n h
 -/
 #guard_msgs(pass trace, all) in
 #check baz.induct
 
 /--
-info: baz.induct_unfolding (motive : (n : Nat) → n ≠ 0 → Nat → Prop) (case1 : ∀ (h : 0 + 1 ≠ 0), motive (Nat.succ 0) h 0)
-  (case2 : ∀ (k : Nat) (h : k + 1 ≠ 0) (h_1 : ¬k = 0), motive k h_1 (baz k h_1) → motive k.succ h (baz k h_1)) (n : Nat)
-  (h : n ≠ 0) : motive n h (baz n h)
+info: baz.induct_unfolding (motive : (n : Nat) → n ≠ 0 → Nat → Prop) (case1 : ∀ (h : Nat.succ 0 ≠ 0), motive (Nat.succ 0) h 0)
+  (case2 : ∀ (n : Nat) (h : n.succ ≠ 0) (h_1 : ¬n = 0), motive n h_1 (baz n h_1) → motive n.succ h (baz n h_1))
+  (n : Nat) (h : n ≠ 0) : motive n h (baz n h)
 -/
 #guard_msgs(pass trace, all) in
 #check baz.induct_unfolding

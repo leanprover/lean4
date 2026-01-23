@@ -14,9 +14,11 @@ def test (l : List Nat) : Nat :=
 
 /--
 info: test.induct_unfolding (motive : List Nat → Nat → Prop) (case1 : motive [] 0)
-  (case2 : ∀ (x : Nat) (l : List Nat), (x == 3) = false → motive l (test l) → motive (x :: l) (test l))
-  (case3 : ∀ (x : Nat) (l : List Nat), (x == 3) = true → motive l (test l) → motive (x :: l) (test l)) (l : List Nat) :
-  motive l (test l)
+  (case2 :
+    ∀ (head : Nat) (tail : List Nat), (head == 3) = false → motive tail (test tail) → motive (head :: tail) (test tail))
+  (case3 :
+    ∀ (head : Nat) (tail : List Nat), (head == 3) = true → motive tail (test tail) → motive (head :: tail) (test tail))
+  (l : List Nat) : motive l (test l)
 -/
 #guard_msgs in
 #check test.induct_unfolding
@@ -35,11 +37,11 @@ def deptest (l : List Nat) : Nat :=
 /--
 info: deptest.induct_unfolding (motive : List Nat → Nat → Prop) (case1 : motive [] 0)
   (case2 :
-    ∀ (x : Nat) (l : List Nat) (h : (x == 3) = false),
-      motive l (deptest l) → motive (x :: l) (deptest l + someFunction x h))
+    ∀ (head : Nat) (tail : List Nat) (h : (head == 3) = false),
+      motive tail (deptest tail) → motive (head :: tail) (deptest tail + someFunction head h))
   (case3 :
-    ∀ (x : Nat) (l : List Nat) (h : (x == 3) = true),
-      motive l (deptest l) → motive (x :: l) (deptest l + someOtherFunction x h))
+    ∀ (head : Nat) (tail : List Nat) (h : (head == 3) = true),
+      motive tail (deptest tail) → motive (head :: tail) (deptest tail + someOtherFunction head h))
   (l : List Nat) : motive l (deptest l)
 -/
 #guard_msgs in

@@ -1174,7 +1174,7 @@ theorem Poly.denote_mulMon_nc_go {α} [Ring α] (ctx : Context α) (k : Int) (m 
     rw [ih, denote_insert, Mon.denote_mul_nc, Semiring.left_distrib, Ring.intCast_mul]
     rw [Ring.intCast_mul_left_comm]; simp [← Semiring.mul_assoc]
     conv => enter [1, 2, 1, 1, 1]; rw [Ring.intCast_mul_comm]
-    simp [Semiring.add_assoc, Semiring.add_comm, add_left_comm]
+    simp [Semiring.add_assoc, add_left_comm]
 
 theorem Poly.denote_mulMon_nc {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMon_nc k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
@@ -1296,8 +1296,7 @@ theorem Poly.denote_cancelVar' {α} [CommRing α] (ctx : Context α) (p : Poly) 
     congr 1
     rw [← Semiring.mul_assoc, ← CommSemiring.mul_pow, h₂, Semiring.one_pow, Semiring.one_mul]
   next ih =>
-    simp [ih, denote_insert, denote, Ring.zsmul_eq_intCast_mul, Semiring.add_assoc,
-      Semiring.add_comm, add_left_comm]
+    simp [ih, denote_insert, denote, Ring.zsmul_eq_intCast_mul, Semiring.add_assoc, add_left_comm]
 
 theorem Poly.denote_cancelVar {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Int) (x : Var)
     : c ≠ 0 → c * x.denote ctx = 1 → (p.cancelVar c x).denote ctx = p.denote ctx := by
@@ -1413,7 +1412,7 @@ theorem Poly.denote_mulMonC_nc_go {α c} [Ring α] [IsCharP α c] (ctx : Context
         Semiring.left_distrib, Ring.intCast_mul]
     rw [Ring.intCast_mul_left_comm]; simp [← Semiring.mul_assoc]
     conv => enter [1, 2, 1, 1, 1]; rw [Ring.intCast_mul_comm]
-    simp [Semiring.add_assoc, Semiring.add_comm, add_left_comm]
+    simp [Semiring.add_assoc, add_left_comm]
 
 theorem Poly.denote_mulMonC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMonC_nc k m p c).denote ctx = k * m.denote ctx * p.denote ctx := by

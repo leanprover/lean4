@@ -9,7 +9,7 @@ inductive Tableau : History → Sequent → Type
   | loc {Hist X} (nrep : ¬ rep Hist X) (nbas : ¬ X.basic) (lt : LocalTableau X)
             (next : ∀ Y ∈ endNodesOf lt, Tableau (X :: Hist) Y) : Tableau Hist X
 
-set_option maxHeartbeats 2000 in
+set_option maxHeartbeats 3000 in
 inductive PathIn : ∀ {Hist X}, Tableau Hist X → Type
 | nil : PathIn _
 | loc {nrep nbas lt next Y} (Y_in : Y ∈ endNodesOf lt) (tail : PathIn (next Y Y_in))

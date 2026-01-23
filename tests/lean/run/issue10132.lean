@@ -16,13 +16,13 @@ def S.eraseDup (s : S) : S :=
 
 /--
 info: theorem S.eraseDup.induct_unfolding : ∀ (motive : S → S → Prop),
-  (∀ (y : Nat), motive (S.var y) (S.var y)) →
-    (∀ (y : Nat) (s : S),
+  (∀ (x : Nat), motive (S.var x) (S.var x)) →
+    (∀ (x : Nat) (s : S),
         have s' := s.eraseDup;
-        ∀ (y_1 : Nat), s' = S.var y_1 → motive s s.eraseDup → motive (S.cons y s) (S.var y_1)) →
-      (∀ (y : Nat) (s : S),
+        ∀ (y : Nat), s' = S.var y → motive s s.eraseDup → motive (S.cons x s) (S.var y)) →
+      (∀ (x : Nat) (s : S),
           have s' := s.eraseDup;
-          ∀ (y_1 : Nat) (s_1 : S), s' = S.cons y_1 s_1 → motive s s.eraseDup → motive (S.cons y s) (S.var y_1)) →
+          ∀ (y : Nat) (s_1 : S), s' = S.cons y s_1 → motive s s.eraseDup → motive (S.cons x s) (S.var y)) →
         ∀ (s : S), motive s s.eraseDup
 -/
 #guard_msgs (pass trace, all) in
@@ -39,13 +39,13 @@ def S.eraseDup' (s : S) : S :=
 
 /--
 info: theorem S.eraseDup'.induct_unfolding : ∀ (motive : S → S → Prop),
-  (∀ (y : Nat), motive (S.var y) (S.var y)) →
-    (∀ (y : Nat) (s : S),
+  (∀ (x : Nat), motive (S.var x) (S.var x)) →
+    (∀ (x : Nat) (s : S),
         have s' := s.eraseDup';
-        ∀ (y_1 : Nat), s' = S.var y_1 → motive s s.eraseDup' → motive (S.cons y s) (S.var y_1)) →
-      (∀ (y : Nat) (s : S),
+        ∀ (y : Nat), s' = S.var y → motive s s.eraseDup' → motive (S.cons x s) (S.var y)) →
+      (∀ (x : Nat) (s : S),
           have s' := s.eraseDup';
-          ∀ (y_1 : Nat) (s_1 : S), s' = S.cons y_1 s_1 → motive s s.eraseDup' → motive (S.cons y s) (S.cons y_1 s')) →
+          ∀ (y : Nat) (s_1 : S), s' = S.cons y s_1 → motive s s.eraseDup' → motive (S.cons x s) (S.cons y s')) →
         ∀ (s : S), motive s s.eraseDup'
 -/
 #guard_msgs (pass trace, all) in
@@ -61,11 +61,10 @@ def S.eraseDup'' (s : S) : S :=
 
 /--
 info: theorem S.eraseDup''.induct_unfolding : ∀ (motive : S → S → Prop),
-  (∀ (y : Nat), motive (S.var y) (S.var y)) →
-    (∀ (y : Nat) (s : S) (y_1 : Nat),
-        s.eraseDup'' = S.var y_1 → motive s s.eraseDup'' → motive (S.cons y s) (S.var y_1)) →
-      (∀ (y : Nat) (s : S) (y_1 : Nat) (s_1 : S),
-          s.eraseDup'' = S.cons y_1 s_1 → motive s s.eraseDup'' → motive (S.cons y s) (S.var y_1)) →
+  (∀ (x : Nat), motive (S.var x) (S.var x)) →
+    (∀ (x : Nat) (s : S) (y : Nat), s.eraseDup'' = S.var y → motive s s.eraseDup'' → motive (S.cons x s) (S.var y)) →
+      (∀ (x : Nat) (s : S) (y : Nat) (s_1 : S),
+          s.eraseDup'' = S.cons y s_1 → motive s s.eraseDup'' → motive (S.cons x s) (S.var y)) →
         ∀ (s : S), motive s s.eraseDup''
 -/
 #guard_msgs (pass trace, all) in

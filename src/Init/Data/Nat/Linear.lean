@@ -430,14 +430,15 @@ theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
   | case4 k a b iha ihb => simp [toPoly.go, iha, ihb]
   | case5 k k' a h => simp [toPoly.go, eq_of_beq h]
   | case6 k a k' h ih =>
-    simp only [toPoly.go, denote, mul_eq]
-    simp [h, cond_false, ih, Nat.mul_assoc]
+    simp only [toPoly.go, denote, mul_eq, h, cond_false]
+    rw [ih, Nat.mul_assoc]
   | case7 k a k' h =>
     simp only [toPoly.go, denote, mul_eq]
     simp [eq_of_beq h]
   | case8 k a k' h ih =>
-    simp only [toPoly.go, denote, mul_eq]
-    simp [h, cond_false, ih, Nat.mul_assoc]
+    simp only [toPoly.go, denote, mul_eq, h, cond_false]
+    rw [ih, Nat.mul_assoc]
+    simp
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, Expr.denote_toPoly_go]

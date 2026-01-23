@@ -30,7 +30,7 @@ termination_by structural t => t
 
 /--
 info: bar.induct (a : Nat) (f : Fin a) (motive : (i : Nat) → T (↑f) i → Prop) (case1 : motive 0 T.zero)
-  (case2 : ∀ (i : Nat) (t : T (↑f) i) (a_1 : T (↑f) (i + ↑f)), motive i t → motive i (t.succ a_1)) (i : Nat)
+  (case2 : ∀ {i : Nat} (a_1 : T (↑f) i) (a_2 : T (↑f) (i + ↑f)), motive i a_1 → motive i (a_1.succ a_2)) (i : Nat)
   (a✝ : T (↑f) i) : motive i a✝
 -/
 #guard_msgs in

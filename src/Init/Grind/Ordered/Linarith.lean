@@ -149,9 +149,9 @@ where
     | .var v    => (.add coeff v ·)
     | .add a b  => go coeff a ∘ go coeff b
     | .sub a b  => go coeff a ∘ go (-coeff) b
+    | .neg a    => go (-coeff) a
     | .natMul k a  => bif k == 0 then id else go (Int.mul coeff k) a
     | .intMul k a  => bif k == 0 then id else go (Int.mul coeff k) a
-    | .neg a    => go (-coeff) a
 
 /-- Converts the given expression into a polynomial, and then normalizes it. -/
 def Expr.norm (e : Expr) : Poly :=
@@ -217,11 +217,11 @@ private theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context 
   induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, zsmul_add]
   next => ac_rfl
   next => rw [sub_eq_add_neg, neg_zsmul, zsmul_add, zsmul_neg]; ac_rfl
+  next => rw [zsmul_neg, neg_zsmul]
   next h => simp at h; subst h; simp
   next ih => simp at ih; rw [ih, mul_zsmul, zsmul_natCast_eq_nsmul]
   next ih => simp at ih; simp [ih]
   next ih => simp at ih; rw [ih, mul_zsmul]
-  next => rw [zsmul_neg, neg_zsmul]
 
 theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.norm.denote ctx = e.denote ctx := by
   simp [norm, toPoly', Expr.denote_toPoly'_go, Poly.denote]

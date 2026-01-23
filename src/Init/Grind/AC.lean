@@ -207,8 +207,10 @@ theorem Seq.denote_sort' {α} (ctx : Context α) {inst₁ : Std.Associative ctx.
     : (sort' s acc).denote ctx = ctx.op (s.denote ctx) (acc.denote ctx) := by
   fun_induction sort' s acc <;> simp
   next x s ih =>
-    simp [ih, ← Std.Associative.assoc (self := inst₁)]
-    rw [Std.Commutative.comm (self := inst₂) (x.denote ctx) (s.denote ctx)]
+    simp [ih]
+    rw [← Std.Associative.assoc (self := inst₁)]
+    congr 1
+    apply Std.Commutative.comm
 
 attribute [local simp] Seq.denote_sort'
 
@@ -414,7 +416,6 @@ noncomputable def Seq.unionFuel_k (fuel : Nat) : Seq → Seq → Seq :=
 
 theorem Seq.unionFuel_k_eq_unionFuel (fuel : Nat) (s₁ s₂ : Seq) : unionFuel_k fuel s₁ s₂ = unionFuel fuel s₁ s₂ := by
   fun_induction unionFuel <;> simp [unionFuel_k, *]
-  next => rfl
   next ih => rw [← ih]; rfl
   next ih => rw [← ih]; rfl
 

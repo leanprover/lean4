@@ -178,8 +178,8 @@ def Zipper.size : Zipper α β → Nat
 | .cons _ _ tree next => 1 + tree.treeSize + next.size
 
 public def Zipper.prependMap : Impl α β → Zipper α β → Zipper α β
-  | .leaf, it => it
   | .inner _ k v l r, it => prependMap l (.cons k v r it)
+  | .leaf, it => it
 
 public def Zipper.prependMapGE [Ord α] (t : Impl α β) (lowerBound : α)
     (it : Zipper α β) : Zipper α β :=
@@ -315,10 +315,10 @@ theorem Zipper.ordered_of_ordered_cons [Ord α] [TransOrd α] {t : Impl α β}
 theorem Zipper.size_prependMap (t : Impl α β) (it : Zipper α β) :
     (Zipper.prependMap t it).size = t.treeSize + it.size := by
   fun_induction Zipper.prependMap
-  case case1 =>
-   simp only [Impl.treeSize, Nat.zero_add]
-  case case2 size k v l r it ih =>
+  case case1 size k v l r it ih =>
     simp only [ih, Zipper.size, Impl.treeSize, ← Nat.add_assoc, Nat.add_comm]
+  case case2 =>
+   simp only [Impl.treeSize, Nat.zero_add]
 
 public def Zipper.step : Zipper α β → IterStep (IterM (α := Zipper α β) Id ((a : α) × β a)) ((a : α) × β a)
   | .done => .done

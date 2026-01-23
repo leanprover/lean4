@@ -449,12 +449,12 @@ def entryAtIdx : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n
 
 /-- Implementation detail of the tree map -/
 def entryAtIdx? : Impl α β → Nat → Option ((a : α) × β a)
-  | .leaf, _ => none
   | .inner _ k v l r, n =>
     match compare n l.size with
     | .lt => l.entryAtIdx? n
     | .eq => some ⟨k, v⟩
     | .gt => r.entryAtIdx? (n - l.size - 1)
+  | .leaf, _ => none
 
 /-- Implementation detail of the tree map -/
 def entryAtIdx! [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a

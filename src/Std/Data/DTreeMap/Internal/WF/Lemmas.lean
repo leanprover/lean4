@@ -116,9 +116,9 @@ theorem toListModel_minView {k : α} {v : β k} {l r : Impl α β} {hl hr hlr} :
       (minView k v l r hl hr hlr).tree.impl.toListModel =
     l.toListModel ++ ⟨k, v⟩ :: r.toListModel := by
   induction k, v, l, r, hl, hr, hlr using minView.induct
-  · simp [minView]
   · rename_i ih
     simp [minView, ← ih]
+  · simp [minView]
 
 @[simp]
 theorem toListModel_maxView {k : α} {v : β k} {l r : Impl α β} {hl hr hlr} :
@@ -277,8 +277,6 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
       (f (List.findCell l.toListModel (compare k))).inner.toList ++
       l.toListModel.filter (compare k ·.1 == .lt) := by
   induction l, hlb using updateCell.induct k f
-  · simp_all [updateCell]
-  · simp_all [updateCell]
   · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     rw [toListModel_balance, toListModel_filter_gt_of_lt hcmp hlo,
@@ -299,6 +297,8 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
     rw [toListModel_filter_gt_of_gt hcmp hlo, findCell_of_gt hcmp hlo,
       toListModel_filter_lt_of_gt hcmp hlo, toListModel_balance, ih hlo.right]
     simp
+  · simp_all [updateCell]
+  · simp_all [updateCell]
 
 theorem toListModel_eq_append [Ord α] [TransOrd α] (k : α → Ordering) [IsStrictCut compare k]
     {l : Impl α β} (ho : l.Ordered) :
@@ -2344,16 +2344,16 @@ theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {t 
 theorem entryAtIdx?_eq_getElem? {t : Impl α β} (htb : t.Balanced) {i : Nat} :
     t.entryAtIdx? i = t.toListModel[i]? := by
   induction t, i using entryAtIdx?.induct_unfolding with
-  | case1 => rfl
-  | case2 _ _ _ _ _ _ h ih =>
+  | case4 => rfl
+  | case1 _ _ _ _ _ _ h ih =>
     simp only [toListModel_inner, *, htb.left]
     simp_all only [Nat.compare_eq_lt, ← size_eq_length,
       List.getElem?_append_left, htb.left]
-  | case3 =>
+  | case2 =>
     simp only [toListModel_inner, *]
     simp_all only [Nat.compare_eq_eq, List.getElem?_append_right, Nat.le_refl, htb.left,
       ← size_eq_length, Nat.sub_self, List.getElem?_cons_zero]
-  | case4 =>
+  | case3 =>
     simp only [toListModel_inner, *, htb.right]
     simp_all only [Nat.compare_eq_gt, List.getElem?_append_right, Nat.le_of_lt,
       ← size_eq_length, htb.left, List.getElem?_cons, Nat.sub_eq_zero_iff_le,

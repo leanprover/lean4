@@ -1,21 +1,7 @@
 protected def Nat.add : Nat → Nat → Nat :=
-fun x x_1 =>
-  Nat.brecOn x_1
-    (fun x f x_2 =>
-      (match x_2, x with
-        | a, Nat.zero => fun x => a
-        | a, b.succ => fun x => (x.1 a).succ)
-        f)
-    x
+fun x x_1 => Nat.rec (fun x => x) (fun n ih_1 x => (ih_1 x).succ) x_1 x
 protected def Nat.add : Nat → Nat → Nat :=
-fun x x_1 =>
-  Nat.brecOn (motive := fun x => Nat → Nat) x_1
-    (fun x f x_2 =>
-      (match (motive := Nat → (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat) x_2, x with
-        | a, Nat.zero => fun x => a
-        | a, b.succ => fun x => (x.1 a).succ)
-        f)
-    x
+fun x x_1 => Nat.rec (motive := fun x => Nat → Nat) (fun x => x) (fun n ih_1 x => (ih_1 x).succ) x_1 x
 theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
 fun x x_1 x_2 x_3 =>
   match x, x_1, x_2, x_3 with

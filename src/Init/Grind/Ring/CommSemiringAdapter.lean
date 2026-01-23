@@ -244,12 +244,12 @@ theorem Poly.denoteS_mulMon_nc_go {α} [Semiring α] (ctx : Context α) (k : Int
     : k ≥ 0 → p.NonnegCoeffs → acc.NonnegCoeffs
       → (mulMon_nc.go k m p acc).denoteS ctx = k.toNat * m.denote ctx * p.denoteS ctx + acc.denoteS ctx := by
   fun_induction mulMon_nc.go with simp [*]
-  | case1 acc k' =>
+  | case1 k' acc  =>
     intro h₁ h₂ h₃; cases h₂
     have : k * k' ≥ 0 := by apply Int.mul_nonneg <;> assumption
     simp [denoteS_insert, denoteS, Int.toNat_mul, Semiring.natCast_mul, Semiring.mul_assoc, *]
     rw [← Semiring.natCast_mul_comm]
-  | case2 acc k' m' p ih =>
+  | case2 k' m' p acc ih =>
     intro h₁ h₂ h₃; rcases h₂
     next _ h₂ =>
     have : k * k' ≥ 0 := by apply Int.mul_nonneg <;> assumption
@@ -311,7 +311,7 @@ theorem Poly.mulMon_nc_go_NonnegCoeffs {p : Poly} {k : Int} (m : Mon) {acc : Pol
     : k ≥ 0 → p.NonnegCoeffs → acc.NonnegCoeffs → (Poly.mulMon_nc.go k m p acc).NonnegCoeffs := by
   intro h₁ h₂ h₃
   fun_induction Poly.mulMon_nc.go
-  next k' =>
+  next k' _ =>
     cases h₂
     have : k*k' ≥ 0 := by apply Int.mul_nonneg <;> assumption
     apply Poly.insert_Nonneg <;> assumption
@@ -419,7 +419,7 @@ theorem Poly.denoteS_mul_go {α} [CommSemiring α] (ctx : Context α) (p₁ p₂
     cases h₁; rename_i h₁
     have := p₂.mulConst_NonnegCoeffs h₁ h₂
     simp [denoteS, denoteS_combine, denoteS_mulConst, *]
-  next acc a m p ih =>
+  next a m p acc ih =>
     cases h₁; rename_i h₁ h₁'
     have := p₂.mulMon_NonnegCoeffs m h₁ h₂
     have := acc.combine_NonnegCoeffs h₃ this
@@ -440,7 +440,7 @@ theorem Poly.denoteS_mul_nc_go {α} [Semiring α] (ctx : Context α) (p₁ p₂ 
     cases h₁; rename_i h₁
     have := p₂.mulConst_NonnegCoeffs h₁ h₂
     simp [denoteS, denoteS_combine, denoteS_mulConst, *]
-  next acc a m p ih =>
+  next a m p acc ih =>
     cases h₁; rename_i h₁ h₁'
     have := p₂.mulMon_nc_NonnegCoeffs m h₁ h₂
     have := acc.combine_NonnegCoeffs h₃ this
@@ -479,28 +479,32 @@ theorem Poly.denoteS_pow_nc {α} [Semiring α] (ctx : Context α) (p : Poly) (k 
 theorem Expr.toPolyS_NonnegCoeffs {e : Expr} : e.toPolyS.NonnegCoeffs := by
   fun_induction toPolyS
   next => constructor; apply Int.natCast_nonneg
+  next => constructor; apply Int.natCast_nonneg
+  next => exact Poly.num_zero_NonnegCoeffs
   next => simp [Poly.ofVar, Poly.ofMon]; constructor; decide; constructor; decide
+  next => exact Poly.num_zero_NonnegCoeffs
   next => apply Poly.combine_NonnegCoeffs <;> assumption
+  next => exact Poly.num_zero_NonnegCoeffs
   next => apply Poly.mul_NonnegCoeffs <;> assumption
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_NonnegCoeffs; assumption
-  next => constructor; apply Int.natCast_nonneg
-  all_goals exact Poly.num_zero_NonnegCoeffs
 
 attribute [local simp] Expr.toPolyS_NonnegCoeffs
 
 theorem Expr.toPolyS_nc_NonnegCoeffs {e : Expr} : e.toPolyS_nc.NonnegCoeffs := by
   fun_induction toPolyS_nc
   next => constructor; apply Int.natCast_nonneg
+  next => constructor; apply Int.natCast_nonneg
+  next => exact Poly.num_zero_NonnegCoeffs
   next => simp [Poly.ofVar, Poly.ofMon]; constructor; decide; constructor; decide
+  next => exact Poly.num_zero_NonnegCoeffs
   next => apply Poly.combine_NonnegCoeffs <;> assumption
+  next => exact Poly.num_zero_NonnegCoeffs
   next => apply Poly.mul_nc_NonnegCoeffs <;> assumption
   next => constructor; apply Int.pow_nonneg; apply Int.natCast_nonneg
   next => constructor; decide; constructor; decide
   next => apply Poly.pow_nc_NonnegCoeffs; assumption
-  next => constructor; apply Int.natCast_nonneg
-  all_goals exact Poly.num_zero_NonnegCoeffs
 
 attribute [local simp] Expr.toPolyS_nc_NonnegCoeffs
 
@@ -508,6 +512,7 @@ theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr
    : e.toPolyS.denoteS ctx = e.denoteS ctx := by
   fun_induction toPolyS <;> simp [denoteS, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
   next => simp [Semiring.ofNat_eq_natCast]
+  next => simp [Semiring.natCast_eq_ofNat]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul] <;> simp [*]
   next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast, ← Semiring.ofNat_eq_natCast]
@@ -516,12 +521,12 @@ theorem Expr.denoteS_toPolyS {α} [CommSemiring α] (ctx : Context α) (e : Expr
                 Semiring.natCast_zero, Semiring.natCast_one, Semiring.one_mul,
                 CommRing.Var.denote, Var.denote, Semiring.mul_one]
   next ih => rw [Poly.denoteS_pow, ih]; apply toPolyS_NonnegCoeffs
-  next => simp [Semiring.natCast_eq_ofNat]
 
 theorem Expr.denoteS_toPolyS_nc {α} [Semiring α] (ctx : Context α) (e : Expr)
    : e.toPolyS_nc.denoteS ctx = e.denoteS ctx := by
   fun_induction Expr.toPolyS_nc <;> simp [denoteS, Poly.denoteS, Poly.denoteS_ofVar, denoteSInt_eq]
   next => simp [Semiring.ofNat_eq_natCast]
+  next => simp [Semiring.natCast_eq_ofNat]
   next => simp [Poly.denoteS_combine] <;> simp [*]
   next => simp [Poly.denoteS_mul_nc] <;> simp [*]
   next => rw [Int.toNat_pow_of_nonneg, Semiring.natCast_pow, Int.toNat_natCast, ← Semiring.ofNat_eq_natCast]
@@ -530,7 +535,6 @@ theorem Expr.denoteS_toPolyS_nc {α} [Semiring α] (ctx : Context α) (e : Expr)
                 Semiring.natCast_zero, Semiring.natCast_one, Semiring.one_mul,
                 CommRing.Var.denote, Var.denote, Semiring.mul_one]
   next ih => rw [Poly.denoteS_pow_nc, ih]; apply toPolyS_nc_NonnegCoeffs
-  next => simp [Semiring.natCast_eq_ofNat]
 
 def eq_normS_cert (lhs rhs : Expr) : Bool :=
   lhs.toPolyS == rhs.toPolyS

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async
+public import Std.Internal.Http.Data.Headers
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Version
 
@@ -44,7 +45,7 @@ structure Response.Head where
   The set of response headers, providing metadata such as `Content-Type`,
   `Content-Length`, and caching directives.
   -/
-  headers : HashMap String (Array String) := .emptyWithCapacity
+  headers : Headers := .emptyWithCapacity
 deriving Inhabited, Repr
 
 /--
@@ -78,10 +79,18 @@ instance : ToString Head where
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
     toString r.status ++ "\r\n" ++
-    r.headers.fold (init := "") (fun acc key values =>
-      values.foldl (init := acc) (fun acc value =>
-        acc ++ key ++ ": " ++ value ++ "\r\n")) ++
+    toString r.headers ++
     "\r\n"
+
+open Internal in
+instance : Encode .v11 Head where
+  encode buffer r :=
+    let buffer := Encode.encode (v := .v11) buffer r.version
+    let buffer := buffer.writeChar ' '
+    let buffer := Encode.encode (v := .v11) buffer r.status
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer r.headers
+    buffer.writeString "\r\n"
 
 /--
 Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1, empty headers)
@@ -104,16 +113,14 @@ def status (builder : Builder) (status : Status) : Builder :=
 /--
 Sets the headers for the response being built
 -/
-def headers (builder : Builder) (headers : HashMap String (Array String)) : Builder :=
+def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
 Adds a single header to the response being built
 -/
 def header (builder : Builder) (key : String) (value : String) : Builder :=
-  let headers := builder.head.headers
-  let values := headers.getD key #[]
-  { builder with head := { builder.head with headers := headers.insert key (values.push value) } }
+  { builder with head := { builder.head with headers := builder.head.headers.add key value } }
 
 /--
 Builds and returns the final HTTP Response with the specified body

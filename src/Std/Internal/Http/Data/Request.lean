@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Internal.Http.Data.Method
 public import Std.Internal.Http.Data.Version
-public import Std.Data.HashMap
+public import Std.Internal.Http.Data.Headers
 
 public section
 
@@ -45,7 +45,7 @@ structure Request.Head where
   /--
   Collection of HTTP headers for the request (Content-Type, Authorization, etc.)
   -/
-  headers : HashMap String (Array String) := .emptyWithCapacity
+  headers : Headers := .emptyWithCapacity
 deriving Inhabited, Repr
 
 /--
@@ -80,10 +80,20 @@ instance : ToString Head where
     toString req.uri ++ " " ++
     toString req.version ++
     "\r\n" ++
-    req.headers.fold (init := "") (fun acc key values =>
-      values.foldl (init := acc) (fun acc value =>
-        acc ++ key ++ ": " ++ value ++ "\r\n")) ++
+    toString req.headers ++
     "\r\n"
+
+open Internal in
+instance : Encode .v11 Head where
+  encode buffer req :=
+    let buffer := Encode.encode (v := .v11) buffer req.method
+    let buffer := buffer.writeChar ' '
+    let buffer := buffer.writeString req.uri
+    let buffer := buffer.writeChar ' '
+    let buffer := Encode.encode (v := .v11) buffer req.version
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer req.headers
+    buffer.writeString "\r\n"
 
 /--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
@@ -120,16 +130,14 @@ def uri (builder : Builder) (uri : String) : Builder :=
 /--
 Sets the headers for the request being built
 -/
-def headers (builder : Builder) (headers : HashMap String (Array String)) : Builder :=
+def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
 Adds a single header to the request being built
 -/
 def header (builder : Builder) (key : String) (value : String) : Builder :=
-  let headers := builder.head.headers
-  let values := headers.getD key #[]
-  { builder with head := { builder.head with headers := headers.insert key (values.push value) } }
+  { builder with head := { builder.head with headers := builder.head.headers.add key value } }
 
 /--
 Adds a header to the request being built only if the value is `some`

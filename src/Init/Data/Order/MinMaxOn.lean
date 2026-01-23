@@ -11,6 +11,7 @@ public import Init.Data.Order.Lemmas
 public import Init.Data.Order.Opposite
 
 open Std
+open scoped OppositeOrderInstances
 
 /-! ## Definitions -/
 

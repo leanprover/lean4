@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Order.MinMaxOn
-import all Init.Data.Order.MinMaxOn
 public import Init.Data.Int.OfNat
 public import Init.Data.List.Lemmas
 public import Init.Data.List.TakeDrop
@@ -24,6 +23,7 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 public section
 
 open Std
+open scoped OppositeOrderInstances
 
 namespace List
 
@@ -62,10 +62,9 @@ Returns an element of {name}`l` that maximizes {name}`f`. If {given}`x, y` are s
 empty.
 -/
 @[inline, suggest_for List.argmax? List.argmax] -- Mathlib's `List.argmax` returns an `Option α`
-protected def maxOn? [LE β] [DecidableLE β] (f : α → β) (l : List α) : Option α :=
-  match l with
-  | [] => none
-  | x :: xs => some (xs.foldl (init := x) (maxOn f))
+protected def maxOn? [i : LE β] [DecidableLE β] (f : α → β) (l : List α) : Option α :=
+  letI : LE β := i.opposite
+  l.minOn? f
 
 /-! ### minOn -/
 
@@ -250,9 +249,10 @@ protected theorem maxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → 
 protected theorem maxOn_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :
     (x :: xs).maxOn f (by exact of_decide_eq_false rfl) =
-      if h : xs = [] then x else maxOn f x (xs.maxOn f h) :=
+      if h : xs = [] then x else maxOn f x (xs.maxOn f h) := by
+  simp only [maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn_cons (f := f)
+  exact List.minOn_cons (f := f)
 
 protected theorem min_eq_max {min : Min α} {xs : List α} {h} :
     xs.min h = (letI := min.oppositeMax; xs.max h) := by
@@ -359,7 +359,7 @@ protected theorem le_apply_maxOn_append_right [LE β] [DecidableLE β] [IsLinear
 protected theorem maxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β] {xs ys : List α}
     {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
     (xs ++ ys).maxOn f (by simp [hxs]) = maxOn f (xs.maxOn f hxs) (ys.maxOn f hys) := by
-  rw [List.maxOn_eq_minOn]
+  simp only [List.maxOn_eq_minOn, maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
   simpa [LE.le_opposite_iff] using List.minOn_append (f := f) hxs hys
 
@@ -507,9 +507,12 @@ protected theorem maxOn?_cons_eq_some_maxOn
 
 protected theorem maxOn?_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
-    (x :: xs).maxOn? f = some ((xs.maxOn? f).elim x (maxOn f x)) :=
+    (x :: xs).maxOn? f = some ((xs.maxOn? f).elim x (maxOn f x)) := by
+  have : maxOn f x = (letI : LE β := LE.opposite inferInstance; minOn f x) := by
+    ext; simp only [maxOn_eq_minOn]
+  simp only [List.maxOn?_eq_minOn?, this]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn?_cons
+  exact List.minOn?_cons
 
 @[simp]
 protected theorem maxOn?_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
@@ -594,8 +597,11 @@ protected theorem maxOn?_replicate_of_pos [LE β] [DecidableLE β] [IsLinearPreo
 @[simp]
 protected theorem maxOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     (xs ys : List α) (f : α → β) : (xs ++ ys).maxOn? f =
-      (xs.maxOn? f).merge (_root_.maxOn f) (ys.maxOn? f) :=
+      (xs.maxOn? f).merge (_root_.maxOn f) (ys.maxOn? f) := by
+  have : maxOn f = (letI : LE β := LE.opposite inferInstance; minOn f) := by
+    ext; simp only [maxOn_eq_minOn]
+  simp only [List.maxOn?_eq_minOn?, this]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn?_append xs ys f
+  exact List.minOn?_append xs ys f
 
 end List

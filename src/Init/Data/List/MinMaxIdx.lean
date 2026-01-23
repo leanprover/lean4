@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.List.MinMaxOn
 import Init.Data.List.MinMaxOn
-import all Init.Data.Order.MinMaxOn
 public import Init.Data.List.Pairwise
 public import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
@@ -18,6 +17,7 @@ import Init.Data.Order.Opposite
 public section
 
 open Std
+open scoped OppositeOrderInstances
 
 set_option doc.verso true
 set_option linter.missingDocs true

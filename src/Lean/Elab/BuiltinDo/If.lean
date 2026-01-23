@@ -58,7 +58,7 @@ where
     let else_ ← elabDoSeq elseSeq dec
     let then_ ← Term.exprToSyntax then_
     let else_ ← Term.exprToSyntax else_
-    Term.elabTermEnsuringType (← `(ite $cond $then_ $else_)) mγ (catchExPostpone := false)
+    Term.elabTermEnsuringType (← `(ite $cond $then_ $else_)) mγ
 
   elabDite h? cond thenSeq elseSeq dec := do
     -- It turned out to be far more reliable to offload as much work as possible to the App
@@ -66,7 +66,7 @@ where
     Term.tryPostponeIfMVar (← inferType (← Term.elabTerm cond none))
     let mγ ← mkMonadicType (← read).doBlockResultType
     let mγ ← Term.exprToSyntax mγ
-    let dite ← Term.elabTerm (← `(@dite $mγ $cond _)) none (catchExPostpone := false)
+    let dite ← Term.elabTerm (← `(@dite $mγ $cond _)) none
     let ty ← inferType dite
     let cond ←
       match ← instantiateMVars ty with

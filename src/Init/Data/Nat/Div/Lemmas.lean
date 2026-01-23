@@ -54,10 +54,14 @@ theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := b
   rw [le_iff_lt_add_one, Nat.div_lt_iff_lt_mul h, Nat.add_one_mul]
   omega
 
-theorem le_mul_iff_le_left (hc : 0 < z) :
+theorem le_mul_iff_le_left (hz : 0 < z) :
     x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
-  rw [Nat.div_le_iff_le_mul hc]
+  rw [Nat.div_le_iff_le_mul hz]
   omega
+
+theorem le_mul_iff_le_right (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Nat.mul_comm]
 
 -- TODO: reprove `div_eq_of_lt_le` in terms of this:
 protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ y * k ≤ x ∧ x ≤ y * k + k - 1 := by

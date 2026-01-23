@@ -104,16 +104,6 @@ open Lean.Meta
 
   let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
 
-  -- Elaborate the `break` continuation.
-  -- If there is a `break`, the code will be shared in the `kbreak` join point.
-  -- We elaborate the continuation before the body so that type info from the continuation may
-  -- flow into the loop body.
-  let s ← mkFreshUserName `__s
-  let breakRhs ← do
-    withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
-      bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-        dec.continueWithUnit .missing
-
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
   let (app, p?) ← match h? with
@@ -128,9 +118,11 @@ open Lean.Meta
       let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
       let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, some p)
+  let s ← mkFreshUserName `__s
   let kbreakName ← mkFreshUserName `__kbreak
   let kcontinueName ← mkFreshUserName `__kcontinue
-  withLetDecl kbreakName β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
+  let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β
+  withLetDecl kbreakName β breakRhsMVar (kind := .implDetail) (nondep := true) fun kbreak => do
   withContFVar kbreakName do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
     | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
@@ -154,6 +146,17 @@ open Lean.Meta
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
+
+    -- Elaborate the `break` continuation.
+    -- If there is a `break`, the code will be shared in the `kbreak` join point.
+    -- We elaborate the continuation before the body so that type info from the continuation may
+    -- flow into the loop body.
+    let breakRhs ← breakRhsMVar.mvarId!.withContext do
+      withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
+        bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
+          dec.continueWithUnit .missing
+    unless ← breakRhsMVar.mvarId!.checkedAssign breakRhs do
+      throwError "Failed to assign break continuation"
 
     let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body

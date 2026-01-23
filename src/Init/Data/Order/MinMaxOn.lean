@@ -158,11 +158,6 @@ public theorem maxOn_eq_right_of_lt
   letI : LT β := (inferInstanceAs (LT β)).opposite
   minOn_eq_right_of_lt (h := by simpa [LT.lt_opposite_iff] using h) ..
 
-theorem bla {α : Type u} {le : LE α} {i : DecidableLE α} :
-    i = (fun a b => Classical.propDecidable (a ≤ b)) := by
-  apply funext; intro a; apply funext; intro b
-  apply Subsingleton.allEq
-
 public theorem left_le_apply_maxOn [le : LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f x ≤ f (maxOn f x y) := by
   rw [maxOn_eq_minOn]

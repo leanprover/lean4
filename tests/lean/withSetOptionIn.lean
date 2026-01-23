@@ -154,20 +154,20 @@ section malformedOption
 /-! A malformed `set_option` should only produce an error at the command level;
 linters should ignore the bad option and not fail. -/
 
--- Control: ensure `linter.missingDocs` is present and uses `withSetOptionIn`
+-- Control: ensure `linter.indexVariables` is present and uses `withSetOptionIn`
 
-set_option linter.missingDocs false
+set_option linter.indexVariables false
 
 /--
-warning: missing doc string for public def foo
+warning: Forbidden variable appearing as an index: use `i`, `j`, or `k`: x
 
-Note: This linter can be disabled with `set_option linter.missingDocs false`
+Note: This linter can be disabled with `set_option linter.indexVariables false`
 -/
 #guard_msgs in
-set_option linter.missingDocs true in
-def foo := true
+set_option linter.indexVariables true in
+example (a : List Bool) (x : Nat) := a[x]?
 
--- No error from `linter.missingDocs` on unknown options
+-- No error from `linter.indexVariables` on unknown options
 /--
 error: Unknown option `unknown.option`
 -/
@@ -175,7 +175,7 @@ error: Unknown option `unknown.option`
 set_option unknown.option true in
 example := trivial
 
--- No error from `linter.missingDocs` on bad option values
+-- No error from `linter.indexVariables` on bad option values
 /--
 error: set_option value type mismatch: The value
   3

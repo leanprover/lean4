@@ -937,7 +937,7 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
         let hint ← flagHint m!"The `+error` flag indicates that errors are expected:" #[" +error"]
         logErrorAt msgStx m!"Unexpected error:{indentD msg.data}{hint.getD m!""}"
       if msg.severity == .warning && !warning then
-        let hint ← flagHint m!"The `+error` flag indicates that warnings are expected:" #[" +warning"]
+        let hint ← flagHint m!"The `+warning` flag indicates that warnings are expected:" #[" +warning"]
         logErrorAt msgStx m!"Unexpected warning:{indentD msg.data}{hint.getD m!""}"
       else
         withRef msgStx <| log msg.data (severity := .information) (isSilent := true)

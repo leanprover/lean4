@@ -167,6 +167,11 @@ structure LetRecToLift where
   val            : Expr
   mvarId         : MVarId
   termination    : TerminationHints
+  /-- The binders syntax for the declaration, used for docstring elaboration. -/
+  binders        : Syntax := .missing
+  /-- The docstring, if present, and whether it's Verso. Docstring processing is deferred until the
+  declaration is added to the environment (needed for Verso docstrings to work). -/
+  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment × Bool) := none
   deriving Inhabited
 
 /--

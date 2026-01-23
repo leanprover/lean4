@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String
 public import Std.Data.HashMap
 public import Std.Internal.Http.Internal
+public import Std.Internal.Http.Data.Headers.Basic
 public import Std.Internal.Http.Data.Headers.Name
 public import Std.Internal.Http.Data.Headers.Value
 
@@ -112,6 +113,13 @@ Inserts a new key-value pair into the headers.
 @[inline]
 def insert (headers : Headers) (key : Header.Name) (value : Header.Value) : Headers :=
   { map := headers.map.insert key value }
+
+/--
+Adds a header from string name and value, panicking if either is invalid.
+-/
+@[inline]
+def insert! (headers : Headers) (name : String) (value : String) : Headers :=
+  headers.insert (Header.Name.ofString! name) (Header.Value.ofString! value)
 
 /--
 Inserts a new key with an array of values.
@@ -223,7 +231,9 @@ instance : ToString Headers where
     String.intercalate "\r\n" pairs.toList
 
 instance : Encode .v11 Headers where
-  encode buffer := buffer.writeString ∘ toString
+  encode buffer headers :=
+    headers.fold buffer (fun buf name value =>
+      buf.writeString s!"{name}: {value}\r\n")
 
 instance : EmptyCollection Headers :=
   ⟨Headers.empty⟩

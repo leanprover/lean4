@@ -49,38 +49,6 @@ instance [h : Header α] : Encode .v11 α where
     buffer.writeString s!"{name}: {value}\r\n"
 
 /--
-A raw HTTP header containing an uninterpreted name-value pair.
--/
-structure Raw where
-
-  /--
-  The header name.
-  -/
-  name : Name
-
-  /--
-  The header value.
-  -/
-  value : Value
-deriving BEq, Repr
-
-namespace Raw
-
-/--
-Parse a raw header from a name and value
-.-/
-def parse (name : Name) (value : Value) : Raw :=
-  ⟨name, value⟩
-
-/--
-Serialize a raw header back to a name-value pair
-.-/
-def serialize (raw : Raw) : Name × Value :=
-  (raw.name, raw.value)
-
-end Raw
-
-/--
 The `Content-Length` header, representing the size of the message body in bytes.
 Parses only valid natural number values.
 -/
@@ -92,9 +60,23 @@ structure ContentLength where
   length : Nat
 deriving BEq, Repr
 
-instance : Header ContentLength where
-  parse v := v.value.toNat?.map (.mk)
-  serialize h := (Header.Name.contentLength, Value.ofString! (toString h.length))
+namespace ContentLength
+
+/--
+Parse a content length header from a name and value
+.-/
+def parse (v : Value) : Option ContentLength :=
+   v.value.toNat?.map (.mk)
+
+/--
+Serialize a content length header back to a name-value pair
+.-/
+def serialize (h : ContentLength) : Name × Value :=
+  (Header.Name.contentLength, Value.ofString! (toString h.length))
+
+instance : Header ContentLength := ⟨parse, serialize⟩
+
+end ContentLength
 
 /--
 The `Transfer-Encoding` header, representing the list of transfer codings applied to the message body.
@@ -128,7 +110,7 @@ def isChunked (te : TransferEncoding) : Bool :=
 Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
 -/
 private def validate (codings : Array String) : Option (Array String) :=
-  if codings.isEmpty then
+  if codings.isEmpty ∨ codings.any (· == "") then
     none
   else
     let chunkedCount := codings.filter (· == "chunked") |>.size
@@ -144,7 +126,7 @@ private def validate (codings : Array String) : Option (Array String) :=
 Parse a comma-separated list of transfer codings from a header value, validating chunked placement.
 -/
 def parse (v : Value) : Option TransferEncoding :=
-  let codings := v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
+  let codings := v.value.split (· == ',')|>.toArray.map (·.trimAscii.toString.toLower)
   match TransferEncoding.validate codings with
   | none =>
     none

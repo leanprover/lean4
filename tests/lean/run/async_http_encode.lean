@@ -110,44 +110,65 @@ info: "999 999"
 #eval encodeStr (Status.other 999)
 
 /--
-info: "GET /path HTTP/1.1\x0d\n"
+info: ""
+-/
+#guard_msgs in
+#eval encodeStr Headers.empty
+
+/--
+info: "Content-Type: text/html\x0d\n"
+-/
+#guard_msgs in
+#eval encodeStr (Headers.empty.insert! "content-type" "text/html")
+
+/--
+info: "X-Custom-Header: value\x0d\n"
+-/
+#guard_msgs in
+#eval encodeStr (Headers.empty.insert! "x-custom-header" "value")
+
+
+/--
+info: "GET /path HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({ method := .get, version := .v11, uri := "/path" } : Request.Head)
 
 /--
-info: "POST /submit HTTP/1.1\x0d\n"
+info: "POST /submit HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({ method := .post, version := .v11, uri := "/submit" } : Request.Head)
 
 /--
-info: "PUT /resource HTTP/2.0\x0d\n"
+info: "PUT /resource HTTP/2.0\x0d\nContent-Type: application/json\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({
     method := .put
     version := .v20
     uri := "/resource"
+    headers := Headers.empty.insert! "content-type" "application/json"
   } : Request.Head)
 
 /--
-info: "HTTP/1.1 200 OK\x0d\n"
+info: "HTTP/1.1 200 OK\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({ status := .ok, version := .v11 } : Response.Head)
 
 /--
-info: "HTTP/1.1 404 Not Found\x0d\n"
+info: "HTTP/1.1 404 Not Found\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({ status := .notFound, version := .v11 } : Response.Head)
 
 /--
-info: "HTTP/2.0 500 Internal Server Error\x0d\n"
+info: "HTTP/2.0 500 Internal Server Error\x0d\nContent-Type: text/plain\x0d\n\x0d\n"
 -/
 #guard_msgs in
 #eval encodeStr ({
     status := .internalServerError
     version := .v20
+    headers := Headers.empty.insert! "content-type" "text/plain"
   } : Response.Head)

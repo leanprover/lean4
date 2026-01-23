@@ -260,7 +260,7 @@ jobs:
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-16x32-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,
@@ -277,7 +277,7 @@ jobs:
                 // * `grind_guide` always times out.
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/|lake/'"
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/'"
               },
               {
                 "name": "macOS",

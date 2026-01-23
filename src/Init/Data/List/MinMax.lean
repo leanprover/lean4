@@ -168,6 +168,10 @@ theorem min_eq_get_min? [Min α] : (l : List α) → (hl : l ≠ []) →
     l.min hl = l.min?.get (isSome_min?_of_ne_nil hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
 
+theorem min_singleton [Min α] {x : α} :
+    [x].min (cons_ne_nil _ _) = x := by
+  simp [List.min]
+
 theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => min a b = a)) : l.min hl = l.head hl := by
   apply Option.some.inj
@@ -182,6 +186,7 @@ theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMi
     l.min (ne_nil_of_mem ha) ≤ a :=
   (min?_eq_some_iff.mp (min?_eq_some_min (List.ne_nil_of_mem ha))).right a ha
 
+@[grind =]
 protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
   le_min?_iff (min?_eq_some_min hl)
@@ -354,6 +359,10 @@ theorem max_eq_get_max? [Max α] : (l : List α) → (hl : l ≠ []) →
     l.max hl = l.max?.get (isSome_max?_of_ne_nil hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
 
+theorem max_singleton [Max α] {x : α} :
+    [x].max (cons_ne_nil _ _) = x := by
+  simp [List.max]
+
 theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by
   apply Option.some.inj
@@ -363,6 +372,7 @@ theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=
   max?_mem (max?_eq_some_max hl)
 
+@[grind =]
 protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x :=
   max?_le_iff (max?_eq_some_max hl)

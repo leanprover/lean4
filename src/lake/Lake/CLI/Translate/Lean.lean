@@ -221,7 +221,6 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
-set_option linter.deprecated false in
 @[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
   go k []
 where

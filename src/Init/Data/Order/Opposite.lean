@@ -18,7 +18,7 @@ set_option linter.missingDocs true
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
-set_option linter.missingDocs false in -- verso docstrings added below
+set_option linter.missingDocs false in -- verso docstrings added at the end of the file
 def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
@@ -30,7 +30,7 @@ theorem LE.le_opposite_iff {le : LE α} {a b : α} :
     (haveI := le.opposite; a ≤ b) ↔ b ≤ a := by
   exact Iff.rfl
 
-set_option linter.missingDocs false in -- verso docstrings added below
+set_option linter.missingDocs false in -- verso docstrings added at the end of the file
 def LT.opposite (lt : LT α) : LT α where
   lt a b := b < a
 
@@ -42,7 +42,7 @@ theorem LT.lt_opposite_iff {lt : LT α} {a b : α} :
     (haveI := lt.opposite; a < b) ↔ b < a := by
   exact Iff.rfl
 
-set_option linter.missingDocs false in -- verso docstrings added below
+set_option linter.missingDocs false in -- verso docstrings added at the end of the file
 def Min.oppositeMax (min : Min α) : Max α where
   max a b := Min.min a b
 
@@ -54,7 +54,7 @@ theorem Min.max_oppositeMax {min : Min α} {a b : α} :
     (haveI := min.oppositeMax; Max.max a b) = Min.min a b :=
   (rfl)
 
-set_option linter.missingDocs false in -- verso docstrings added below
+set_option linter.missingDocs false in -- verso docstrings added at the end of the file
 def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b
 

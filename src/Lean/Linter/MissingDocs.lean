@@ -252,8 +252,10 @@ def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"
 
 @[builtin_missing_docs_handler «in»]
 def handleIn : Handler := fun _ stx => do
+  -- Note: the missing docs linter must descind into `in`s which are not of the form
+  -- `set_option ... in`. This is unlike `withSetOptionIn`, and so we must inline it.
   if stx[0].getKind == ``«set_option» then
-    let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
+    let opts ← try Elab.elabSetOption stx[0][1] stx[0][3] (addInfo := false) catch _ => getOptions
     withScope (fun scope => { scope with opts }) do
       missingDocs.run stx[2]
   else

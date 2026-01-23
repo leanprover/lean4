@@ -72,16 +72,52 @@ end IO
 
 namespace Lean.Server
 
+open IO
+open Lsp
+
+private def externalUriToName (uri : DocumentUri) : Lean.Name :=
+  .str .anonymous s!"external:{uri}"
+
+private def externalNameToUri? (name : Lean.Name) : Option DocumentUri := do
+  let .str .anonymous name := name
+    | none
+  let uri ← name.dropPrefix? "external:"
+  return uri.toString
+
+def modToUri'? (c : PkgContext) (modId : GlobalModId) : Option DocumentUri := do
+  if let some uri := externalNameToUri? modId.mod then
+    return uri
+  let path ← c.modToPath'? modId
+  return System.Uri.pathToUri path
+
+def uriToMod' (c : PkgContext) (uri : DocumentUri) : GlobalModId := Id.run do
+  let some path := System.Uri.fileUriToPath? uri
+    | return { pkg? := none, mod := externalUriToName uri }
+  if path.extension != "lean" then
+    return { pkg? := none, mod := externalUriToName uri }
+  let some modId := PkgContext.pathToMod'? c path
+    | return { pkg? := none, mod := externalUriToName uri }
+  return modId
+
+/--
+Finds the URI corresponding to `modId`. Yields `none` if the given module cannot be found in the
+search path anymore (e.g. because the module name was loaded from a file that was built using an old
+search path).
+-/
+def modToUri? (modId : GlobalModId) : BaseIO (Option DocumentUri) := do
+  let c ← PkgContext.getPkgContext
+  return modToUri'? c modId
+
+/-- Finds the module identifier corresponding to `uri`. -/
+def uriToMod (uri : DocumentUri) : BaseIO GlobalModId := do
+  let c ← PkgContext.getPkgContext
+  return uriToMod' c uri
+
 /-- Meta-Data of a document. -/
 structure DocumentMeta where
   /-- URI where the document is located. -/
   uri                 : Lsp.DocumentUri
-  /--
-  Module name corresponding to `uri`.
-  We store the module name instead of recomputing it as needed to ensure that we can still
-  determine the original module name even when the file has been deleted in the mean-time.
-  -/
-  mod                 : Name
+  modId               : GlobalModId
   /-- Version number of the document. Incremented whenever the document is edited. -/
   version             : Nat
   /--
@@ -102,6 +138,10 @@ def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext :=
     (fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString)
     (fileMap  := doc.text)
 
+/-- Converts a module name to a URI in the dependency closure of this document. -/
+def DocumentMeta.modToUri? (doc : DocumentMeta) (mod : Name) : BaseIO (Option DocumentUri) :=
+  Server.modToUri? { pkg? := doc.modId.pkg?, mod }
+
 /--
 Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)
 with `newText`.
@@ -116,10 +156,6 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   -- If `pre` ends with `\r` and `newText` begins with `\n`, the result is potentially inaccurate.
   -- If this is ever a problem, we could store a second unnormalized FileMap, edit it, and normalize it here.
   (pre ++ newText.crlfToLf ++ post).toFileMap
-
-open IO
-
-open Lsp
 
 /-- Returns the document contents with the change applied. -/
 def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentChangeEvent) → FileMap
@@ -166,19 +202,13 @@ def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
     JsonRpc.Request ApplyWorkspaceEditParams :=
   ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
 
-private def externalUriToName (uri : DocumentUri) : Lean.Name :=
-  .str .anonymous s!"external:{uri}"
-
-private def externalNameToUri? (name : Lean.Name) : Option DocumentUri := do
-  let .str .anonymous name := name
-    | none
-  let uri ← name.dropPrefix? "external:"
-  return uri.toString
-
 /--
 Finds the URI corresponding to `modName` in `searchSearchPath`.
 Yields `none` if the file corresponding to `modName` has been deleted in the mean-time.
+
+See also `getSrcSearchPath`.
 -/
+@[deprecated Lean.Server.modToUri? (since := "2026-02-03")]
 def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
   if let some uri := externalNameToUri? modName then
     return uri
@@ -189,7 +219,12 @@ def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
   let path ← IO.FS.realPath path
   return some <| System.Uri.pathToUri path
 
-/-- Finds the module name corresponding to `uri` in `srcSearchPath`. -/
+/--
+Finds the module name corresponding to `uri` in `srcSearchPath`.
+
+See also `getSrcSearchPath`.
+-/
+@[deprecated Lean.Server.uriToMod (since := "2026-02-03")]
 def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
   let some path := System.Uri.fileUriToPath? uri
     | return externalUriToName uri

@@ -13,18 +13,18 @@ public section
 
 namespace Lean.Elab
 
-def InlayHintLinkLocation.toLspLocation (text : FileMap)
+def InlayHintLinkLocation.toLspLocation (doc : Server.FileWorker.EditableDocument)
     (l : InlayHintLinkLocation) : IO (Option Lsp.Location) := do
-  let some uri ← Server.documentUriFromModule? l.module
+  let some uri ← doc.meta.modToUri? l.module
     | return none
   return some {
     uri
-    range := text.utf8RangeToLspRange l.range
+    range := doc.meta.text.utf8RangeToLspRange l.range
   }
 
-def InlayHintLabelPart.toLspInlayHintLabelPart (text : FileMap)
+def InlayHintLabelPart.toLspInlayHintLabelPart (doc : Server.FileWorker.EditableDocument)
     (p : InlayHintLabelPart) : IO Lsp.InlayHintLabelPart := do
-  let location? ← p.location?.bindM fun loc => loc.toLspLocation text
+  let location? ← p.location?.bindM fun loc => loc.toLspLocation doc
   let tooltip? := do return .markdown { kind := .markdown, value := ← p.tooltip? }
   return {
     value := p.value
@@ -32,9 +32,9 @@ def InlayHintLabelPart.toLspInlayHintLabelPart (text : FileMap)
     tooltip?
   }
 
-def InlayHintLabel.toLspInlayHintLabel (text : FileMap) : InlayHintLabel → IO Lsp.InlayHintLabel
+def InlayHintLabel.toLspInlayHintLabel (doc : Server.FileWorker.EditableDocument) : InlayHintLabel → IO Lsp.InlayHintLabel
   | .name n => do return .name n
-  | .parts p => do return .parts <| ← p.mapM (·.toLspInlayHintLabelPart text)
+  | .parts p => do return .parts <| ← p.mapM (·.toLspInlayHintLabelPart doc)
 
 def InlayHintKind.toLspInlayHintKind : InlayHintKind → Lsp.InlayHintKind
   | .type => .type
@@ -45,10 +45,11 @@ def InlayHintTextEdit.toLspTextEdit (text : FileMap) (e : InlayHintTextEdit) : L
   newText := e.newText
 }
 
-def InlayHintInfo.toLspInlayHint (text : FileMap) (i : InlayHintInfo) : IO Lsp.InlayHint := do
+def InlayHintInfo.toLspInlayHint (doc : Server.FileWorker.EditableDocument) (i : InlayHintInfo) : IO Lsp.InlayHint := do
+  let text := doc.meta.text
   return {
     position := text.utf8PosToLspPos i.position
-    label := ← i.label.toLspInlayHintLabel text
+    label := ← i.label.toLspInlayHintLabel doc
     kind? := i.kind?.map (·.toLspInlayHintKind)
     textEdits? := some <| i.textEdits.map (·.toLspTextEdit text)
     tooltip? := do return .markdown { kind := .markdown, value := ← i.tooltip? }
@@ -118,8 +119,7 @@ def InlayHintState.init : InlayHintState := {
 def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     RequestM (LspResponse (Array InlayHint) × InlayHintState) := do
   let ctx ← read
-  let text := ctx.doc.meta.text
-  let range := text.lspRangeToUtf8Range p.range
+  let range := ctx.doc.meta.text.lspRangeToUtf8Range p.range
   if s.isFirstRequestAfterEdit then
     -- We immediately respond to the first inlay hint request after an edit with the old inlay hints,
     -- without waiting for the edit delay.
@@ -130,7 +130,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     -- To reduce the size of the window for this race condition, we attempt to minimize the delay
     -- after an edit, providing VS Code with a set of old inlay hints that we have already updated
     -- correctly for VS Code ASAP.
-    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint text)
+    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint ctx.doc)
     let r := { response := lspInlayHints, isComplete := false }
     let s := { s with isFirstRequestAfterEdit := false }
     return (r, s)
@@ -152,7 +152,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     -- In the latter case, we respond with the old inlay hints, since we can't respond with an error.
     -- This is to prevent cancellation from making us serve updated inlay hints before the
     -- edit delay has passed.
-    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint text)
+    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint ctx.doc)
     let r := { response := lspInlayHints, isComplete := false }
     return (r, s)
   let snaps := snaps.toArray
@@ -182,7 +182,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
         modify (·.push ih.toInlayHintInfo))
   let allInlayHints := newInlayHints ++ oldInlayHints
   let inlayHintsInRange := allInlayHints.filter (range.contains (includeStop := true) ·.position)
-  let lspInlayHints ← inlayHintsInRange.mapM (·.toLspInlayHint text)
+  let lspInlayHints ← inlayHintsInRange.mapM (·.toLspInlayHint ctx.doc)
   let r := { response := lspInlayHints, isComplete }
   let s := { s with
     oldInlayHints := allInlayHints
@@ -205,8 +205,8 @@ def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
 where
 
   updateOldInlayHints (oldInlayHints : Array Elab.InlayHintInfo) : RequestM (Array Elab.InlayHintInfo) := do
-    let doc := (← read).doc.meta
-    let text := doc.text
+    let doc := (← read).doc
+    let text := doc.meta.text
     let mut updatedOldInlayHints := #[]
     for ihi in oldInlayHints do
       let mut ihi := ihi
@@ -215,7 +215,7 @@ where
         let .rangeChange changeRange newText := c
           | return #[] -- `fullChange` => all old inlay hints invalidated
         let changeRange := text.lspRangeToUtf8Range changeRange
-        let some ihi' := applyEditToHint? doc.mod ihi changeRange newText
+        let some ihi' := applyEditToHint? doc.meta.modId.mod ihi changeRange newText
           | -- Change in some position of inlay hint => inlay hint invalidated
             inlayHintInvalidated := true
             break

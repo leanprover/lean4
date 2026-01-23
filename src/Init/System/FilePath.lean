@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.Ord.Basic
+import Init.Data.Ord.String
 import Init.Data.String.Modify
 import Init.Data.String.Search
 
@@ -24,7 +26,7 @@ delimited by a platform-dependent separator character (see `System.FilePath.path
 structure FilePath where
   /-- The string representation of the path. -/
   toString : String
-  deriving Inhabited, DecidableEq, Hashable
+  deriving Inhabited, DecidableEq, Hashable, Ord
 
 instance : Repr FilePath where
   reprPrec p := Repr.addAppParen ("FilePath.mk " ++ repr p.toString)

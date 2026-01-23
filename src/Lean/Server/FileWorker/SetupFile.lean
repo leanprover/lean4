@@ -86,6 +86,7 @@ partial def setupFile (m : DocumentMeta) (header : ModuleHeader) (handleStderr :
   | 0 =>
     let Except.ok (setup : ModuleSetup) := Json.parse result.stdout >>= fromJson?
       | return FileSetupResult.error s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
+    Lean.initCurrentPackageSourcePath setup.legacySrcSearchPath.toList
     setup.dynlibs.forM loadDynlib
     return FileSetupResult.success setup
   | 2 => -- exit code for lake reporting that there is no lakefile

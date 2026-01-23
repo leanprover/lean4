@@ -432,7 +432,7 @@ def setupImports
         metaSnap := default
       }
     | .noLakefile =>
-      pure { name := doc.mod, isModule := header.isModule }
+      pure { name := doc.modId.mod, isModule := header.isModule }
     | .success setup =>
       pure setup
 
@@ -445,7 +445,7 @@ def setupImports
   let opts := Elab.inServer.set opts true
 
   return .ok {
-    mainModuleName := doc.mod
+    mainModuleName := doc.modId.mod
     package? := setup.package?
     isModule := strictOr setup.isModule header.isModule
     imports := setup.imports?.getD header.imports
@@ -478,7 +478,7 @@ section Initialization
     let initSnap ← processor doc.mkInputContext
     let _ ← ServerTask.IO.asTask do
       let importClosure ← IO.lazyPure fun _ => getImportClosure? initSnap
-      let importClosure ← importClosure.filterMapM (documentUriFromModule? ·)
+      let importClosure ← importClosure.filterMapM (doc.modToUri? ·)
       chanOut.send <| .ofMsg <| mkImportClosureNotification importClosure
     let ctx := {
       chanOut
@@ -711,7 +711,7 @@ section MessageHandling
 
     match st.importCachingTask? with
     | none => ServerTask.IO.asTask do
-      let availableImports ← ImportCompletion.collectAvailableImports
+      let availableImports ← ImportCompletion.collectAvailableImports st.doc.meta.uri
       let lastRequestTimestampMs ← IO.monoMsNow
       let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
@@ -721,7 +721,7 @@ section MessageHandling
       let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
       let timestampNowMs ← IO.monoMsNow
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
-        availableImports ← ImportCompletion.collectAvailableImports
+        availableImports ← ImportCompletion.collectAvailableImports st.doc.meta.uri
       lastRequestTimestampMs := timestampNowMs
       let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
@@ -1058,7 +1058,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
 
   let doc : DocumentMeta := {
     uri := doc.uri
-    mod := ← moduleFromDocumentUri doc.uri
+    modId := ← uriToMod doc.uri
     version := doc.version
     -- LSP always refers to characters by (line, column),
     -- so converting CRLF to LF preserves line and column numbers.

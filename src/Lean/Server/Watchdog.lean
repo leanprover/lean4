@@ -347,20 +347,38 @@ section ServerM
   structure ReferenceData where
     loadingTask : ServerTask Unit
     references : References
+    ileanPkgs  : Std.TreeMap System.FilePath VersionedPkgId
     finalizedWorkerILeanVersions : Std.TreeMap DocumentUri Nat
     pendingWaitForILeanRequests : Array WaitForILeanRequest
 
   def ReferenceData.modifyReferences (rd : ReferenceData) (f : References → References)
       : ReferenceData :=
     let refs := rd.references
-    let rd := { rd with references := .empty }
+    let rd := { rd with references := { pkgCtx := {}, pkgs := {} } }
     { rd with references := f refs }
 
-    def ReferenceData.modifyReferencesM [Monad m] (rd : ReferenceData) (f : References → m References)
-      : m ReferenceData := do
+  def ReferenceData.modifyReferencesM [Monad m] (rd : ReferenceData) (f : References → m References)
+    : m ReferenceData := do
     let refs := rd.references
-    let rd := { rd with references := .empty }
+    let rd := { rd with references := { pkgCtx := {}, pkgs := {} } }
     return { rd with references := ← f refs }
+
+  def ReferenceData.findPkg (rd : ReferenceData) (ileanPath : System.FilePath) : IO (ReferenceData × VersionedPkgId) := do
+    let some ileanDir := ileanPath.parent
+      | throw <| IO.userError s!"Got invalid .ilean path: '{ileanPath}'"
+    if let some pkg := rd.ileanPkgs.get? ileanDir then
+      return (rd, pkg)
+    let manifestPath := ileanDir / "ilean-manifest.json"
+    let .ok manifest ← EIO.toBaseIO do
+        IO.FS.readFile manifestPath
+      | throw <| IO.userError s!"Cannot read .ilean manifest at '{manifestPath}'"
+    let .ok manifest := Json.parse manifest
+      | throw <| IO.userError s!"Cannot parse .ilean manifest at '{manifestPath}'"
+    let .ok (manifest : IleanManifest) := fromJson? manifest
+      | throw <| IO.userError s!"Cannot parse .ilean manifest at '{manifestPath}'"
+    let pkg := manifest.pkg
+    let rd := { rd with ileanPkgs := rd.ileanPkgs.insert ileanDir pkg }
+    return (rd, pkg)
 
   def ReferenceData.modifyPendingWaitForILeanRequests (rd : ReferenceData)
       (f : Array WaitForILeanRequest → Array WaitForILeanRequest) : ReferenceData :=
@@ -399,8 +417,7 @@ section ServerM
     requestData       : RequestDataMutex
 
   structure ReferenceRequestContext where
-    fileWorkerMods : Std.TreeMap DocumentUri Name
-    references     : References
+    references : References
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -439,6 +456,13 @@ section ServerM
       let rd ← rd.modifyReferencesM (m := IO) f
       set rd
 
+  def findPkg (ileanPath : System.FilePath) : ServerM VersionedPkgId := do
+    (← read).referenceData.atomically do
+      let rd ← get
+      let (rd, pkg) ← rd.findPkg ileanPath
+      set rd
+      return pkg
+
   def getFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).get? uri
 
@@ -448,14 +472,13 @@ section ServerM
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.importData.modify (·.eraseImportsOf uri)
-    let mod? ← s.fileWorkersRef.modifyGet fun fileWorkers =>
-      let mod? := fileWorkers.get? uri |>.map (·.doc.mod)
-      (mod?, fileWorkers.erase uri)
-    let some mod := mod?
+    let some modId ← s.fileWorkersRef.modifyGet fun fileWorkers =>
+        let modId? := fileWorkers.get? uri |>.map (·.doc.modId)
+        (modId?, fileWorkers.erase uri)
       | return
     s.referenceData.atomically do
       let pendingWaitForILeanRequests ← modifyGet fun rd =>
-        let rd := rd.modifyReferences (·.removeWorkerRefs mod)
+        let rd := rd.modifyReferences (·.removeWorkerRefs modId.pkg? uri)
         let (pending, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
         let rd := { rd with pendingWaitForILeanRequests := rest }
         let rd := rd.modifyFinalizedWorkerILeanVersions (·.erase uri)
@@ -499,22 +522,19 @@ section ServerM
     return r?.isSome
 
   def handleILeanHeaderSetupInfo (fw : FileWorker) (params : LeanILeanHeaderSetupInfoParams) : ServerM Unit := do
-    let module := fw.doc.mod
     let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.directImports params.isSetupFailure)
+    modifyReferences (·.updateWorkerSetupInfo fw.doc.modId.pkg? uri params.version params.directImports params.isSetupFailure)
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
-    let module := fw.doc.mod
     let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerRefs module uri params.version params.references params.decls)
+    modifyReferences (·.updateWorkerRefs fw.doc.modId.pkg? uri params.version params.references params.decls)
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    let module := fw.doc.mod
     let uri := fw.doc.uri
     s.referenceData.atomically do
       let rd ← get
-      let rd ← rd.modifyReferencesM (·.finalizeWorkerRefs module uri params.version params.references params.decls)
+      let rd := rd.modifyReferences (·.finalizeWorkerRefs fw.doc.modId.pkg? uri params.version params.references params.decls)
       let (pendingWaitForILeanRequests, rest) := rd.pendingWaitForILeanRequests.partition (·.uri == uri)
       let rd := { rd with pendingWaitForILeanRequests := rest }
       let rd := rd.modifyFinalizedWorkerILeanVersions (·.insert uri params.version)
@@ -627,15 +647,18 @@ section ServerM
       : ServerM (ServerTask Unit × CancelToken) := do
     let cancelTk ← CancelToken.new
     let refs ← getReferences
+    let c ← PkgContext.getPkgContext
     let task ← ServerTask.IO.asTask do
       let mut queryResults : Array LeanQueriedModule := #[]
       for query in params.queries do
-        let filterMapIdent decl := matchAgainstQuery? query decl
+        let filterMapIdent pkg? decl := do
+          guard <| c.isVisible fw.doc.modId.pkg? pkg?
+          matchAgainstQuery? query decl
         let symbols ← refs.definitionsMatching filterMapIdent cancelTk
         let sorted := symbols.toList.mergeSort fun { ident := m1, .. } { ident := m2, .. } =>
           m1.fastCompare m2 == .gt
         let result : LeanQueriedModule := sorted.take 10 |>.toArray.map fun m => {
-          module := m.mod
+          module := m.mod.toName
           decl := m.ident.decl
           isExactMatch := m.ident.isExactMatch
         }
@@ -662,11 +685,10 @@ section ServerM
 
   def findDefinitions (fw : FileWorker) (p : TextDocumentPositionParams) :
       ServerM (Array Location) := do
-    let module := fw.doc.mod
     let references ← getReferences
     let mut definitions := #[]
-    for ident in references.findAt module p.position (includeStop := true) do
-      if let some ⟨definitionLocation, _, _⟩ := references.definitionOf? ident then
+    for ident in references.findAt fw.doc.modId.pkg? fw.doc.uri p.position (includeStop := true) do
+      if let some ⟨definitionLocation, _⟩ := references.definitionOf? ident then
         definitions := definitions.push definitionLocation
     return definitions
 
@@ -700,11 +722,15 @@ section ServerM
   def bendLocationLinks (fw : FileWorker) (req : JsonRpc.Request Json) (r : Array LeanLocationLink) :
       ServerM Json := do
     let refs ← getReferences
-    let r : Array LeanLocationLink := r.filterMap fun ll => Id.run do
+    let r : Array LeanLocationLink ← r.filterMapM fun ll => do
       let some ident := ll.ident?
         | return ll
-      let ident : RefIdent := .const ident.module.toString ident.decl.toString
-      let some definitionInfo := refs.definitionOf? ident
+      let { pkg?, mod } ← uriToMod ident.uri
+      let localId : RefIdent := .const mod.toString ident.decl.toString
+      let globalId : GlobalRefIdent := {
+        pkg?, moduleUri := ident.uri, localId
+      }
+      let some definitionInfo := refs.definitionOf? globalId
         | return ll
       let newTargetRange := definitionInfo.location.range
       return some {
@@ -954,12 +980,11 @@ section RequestHandling
 open FuzzyMatching
 
 def handleReference (p : ReferenceParams) : ReaderT ReferenceRequestContext IO (Array Location) := do
-  let fileWorkerMods := (← read).fileWorkerMods
-  let some module := fileWorkerMods.get? p.textDocument.uri
-    | return #[]
+  let uri := p.textDocument.uri
+  let { pkg?, .. } ← uriToMod uri
   let references := (← read).references
   let mut result := #[]
-  for ident in references.findAt module p.position (includeStop := true) do
+  for ident in references.findAt pkg? uri p.position (includeStop := true) do
     let identRefs := references.referringTo ident
       p.context.includeDeclaration
     result := result.append <| identRefs.map (·.location)
@@ -970,8 +995,7 @@ Used in `CallHierarchyItem.data?` to retain all the data needed to quickly re-id
 call hierarchy item.
 -/
 structure CallHierarchyItemData where
-  module : Name
-  name   : Name
+  name : Name
   deriving FromJson, ToJson
 
 /--
@@ -982,13 +1006,13 @@ def CallHierarchyItemData.fromItem? (item : CallHierarchyItem) : Option CallHier
 
 private def callHierarchyItemOf?
     (refs  : References)
-    (ident : RefIdent)
+    (ident : GlobalRefIdent)
     : Option CallHierarchyItem := do
-  let some ⟨definitionLocation, definitionModule, parentDecl?⟩ := refs.definitionOf? ident
+  let some ⟨definitionLocation, parentDecl?⟩ := refs.definitionOf? ident
     | none
 
-  match ident with
-  | .const definitionModule definitionNameString =>
+  match ident.localId with
+  | .const _ definitionNameString =>
     let definitionName := definitionNameString.toName
     -- If we have a constant with a proper name, use it.
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
@@ -1004,8 +1028,7 @@ private def callHierarchyItemOf?
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
       data?          := toJson {
-        module := definitionModule.toName
-        name   := definitionName
+        name := definitionName
         : CallHierarchyItemData
       }
     }
@@ -1024,22 +1047,18 @@ private def callHierarchyItemOf?
       range          := parentDeclRange,
       selectionRange := parentDeclSelectionRange
       data?          := toJson {
-        -- Assumption: The parent declaration of a reference lives in the same module
-        -- as the reference.
-        module := definitionModule
-        name   := parentDeclName
+        name := parentDeclName
         : CallHierarchyItemData
       }
     }
 
 def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
     : ReaderT ReferenceRequestContext IO (Array CallHierarchyItem) := do
-  let fileWorkerMods := (← read).fileWorkerMods
-  let some module := fileWorkerMods.get? p.textDocument.uri
-    | return #[]
+  let moduleUri := p.textDocument.uri
+  let { pkg?, .. } ← uriToMod moduleUri
 
   let references := (← read).references
-  let idents := references.findAt module p.position (includeStop := true)
+  let idents := references.findAt pkg? moduleUri p.position (includeStop := true)
 
   let items := idents.filterMap fun ident =>
     callHierarchyItemOf? references ident
@@ -1049,11 +1068,17 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
     : ReaderT ReferenceRequestContext IO (Array CallHierarchyIncomingCall) := do
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
+  let { pkg?, mod } ← uriToMod p.item.uri
+  let id : GlobalRefIdent := {
+    pkg?
+    moduleUri := p.item.uri
+    localId := (.const mod.toString itemData.name.toString)
+  }
 
   let references := (← read).references
-  let identRefs := references.referringTo (.const itemData.module.toString itemData.name.toString) false
+  let identRefs := references.referringTo id false
 
-  let incomingCalls ← identRefs.mapM fun ⟨location, refModule, parentDecl?⟩ => do
+  let incomingCalls ← identRefs.mapM fun ⟨location, parentDecl?⟩ => do
 
     let ⟨parentDeclNameString, parentDeclRange, parentDeclSelectionRange⟩ :=
       match parentDecl? with
@@ -1073,8 +1098,7 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
         range          := parentDeclRange
         selectionRange := parentDeclSelectionRange
         data?          := toJson {
-          module := refModule
-          name   := parentDeclName
+          name := parentDeclName
           : CallHierarchyItemData
         }
       }
@@ -1101,7 +1125,10 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
   let references := (← read).references
 
-  let some (_, refs, _) := references.getModuleRefs? itemData.module
+  let moduleUri := p.item.uri
+  let { pkg?, .. } ← uriToMod moduleUri
+
+  let some (refs, _) := references.getModuleRefs? pkg? moduleUri
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
@@ -1114,7 +1141,11 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
     if outgoingUsages.isEmpty then
       return none
 
-    let some item := callHierarchyItemOf? references ident
+    let globalIdent := {
+      pkg?, moduleUri, localId := ident
+    }
+
+    let some item := callHierarchyItemOf? references globalIdent
       | return none
 
     -- filter local defs from outgoing calls
@@ -1138,18 +1169,17 @@ where
 
 def handlePrepareModuleHierarchy (p : LeanPrepareModuleHierarchyParams) : ReaderT ReferenceRequestContext IO (Option LeanModule) := do
   let uri := p.textDocument.uri
-  let fileWorkerMods := (← read).fileWorkerMods
-  let some module := fileWorkerMods.get? uri
-    | return none
-  return some { name := module.toString, uri, data? := none }
+  let { mod, .. } ← uriToMod uri
+  return some { name := mod.toString, uri, data? := none }
 
 def sortModuleImports (imports : Array ModuleImport) : Array ModuleImport :=
   imports.toList.mergeSort (compare ·.module.toString ·.module.toString == .lt) |>.toArray
 
 def handleModuleHierarchyImports (p : LeanModuleHierarchyImportsParams) : ReaderT ReferenceRequestContext IO (Array LeanImport) := do
-  let module := p.module.name.toName
+  let moduleUri := p.module.uri
   let references := (← read).references
-  let directImports := references.getDirectImports? module |>.getD ∅ |>.ordered
+  let { pkg?, .. } ← uriToMod moduleUri
+  let directImports := references.getDirectImports? pkg? moduleUri |>.getD ∅ |>.ordered
   let directImports := directImports.groupByKey (·.module)
     |>.valuesArray.map ModuleImport.collapseIdenticalImports?
     |>.map (·.get!)
@@ -1160,9 +1190,9 @@ def handleModuleHierarchyImports (p : LeanModuleHierarchyImportsParams) : Reader
   }
 
 def handleModuleHierarchyImportedBy (p : LeanModuleHierarchyImportedByParams) : ReaderT ReferenceRequestContext IO (Array LeanImport) := do
-  let module := p.module.name.toName
   let references := (← read).references
-  let importedBy := references.importedBy module
+  let modId ← uriToMod p.module.uri
+  let importedBy := references.importedBy modId
   let importedBy := sortModuleImports importedBy
   return importedBy.map fun i => {
     module := { name := i.module.toString, uri := i.uri, data? := none }
@@ -1173,7 +1203,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
   if p.query.isEmpty then
     return #[]
   let references := (← read).references
-  let filterMapIdent ident := do
+  let filterMapIdent _ ident := do
     let ident := privateToUserName? ident |>.getD ident |>.toString
     let score ← FuzzyMatching.fuzzyMatchScoreWithThreshold? p.query ident
     return (ident, score)
@@ -1196,11 +1226,9 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
 
 def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestContext IO (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
-  let fileWorkerMods := (← read).fileWorkerMods
-  let some module := fileWorkerMods.get? p.textDocument.uri
-    | return none
   let references := (← read).references
-  return references.findRange? module p.position (includeStop := true)
+  let { pkg?, .. } ← uriToMod p.textDocument.uri
+  return references.findRange? pkg? p.textDocument.uri p.position (includeStop := true)
 
 def handleRename (p : RenameParams) : ReaderT ReferenceRequestContext IO Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
@@ -1227,7 +1255,7 @@ section NotificationHandling
     let doc := p.textDocument
     startFileWorker {
       uri := doc.uri
-      mod := ← moduleFromDocumentUri doc.uri
+      modId := ← uriToMod doc.uri
       version := doc.version
       /-
       Note (kmill): LSP always refers to characters by (line, column),
@@ -1288,8 +1316,12 @@ section NotificationHandling
     if ! ileanChanges.isEmpty then
       let oleanSearchPath ← Lean.searchPathRef.get
       for (c, path) in ileanChanges do
+        let pkg ← try
+          findPkg path
+        catch _ =>
+          continue
         if let FileChangeType.Deleted := c.type then
-          modifyReferences (·.removeIlean path)
+          modifyReferences (·.removeIlean pkg path)
           continue
         let isIleanInSearchPath := (← searchModuleNameOfFileName path oleanSearchPath).isSome
         if ! isIleanInSearchPath then
@@ -1297,12 +1329,12 @@ section NotificationHandling
         try
           let ilean ← Ilean.load path
           if let FileChangeType.Changed := c.type then
-            modifyReferencesIO (·.removeIlean path |>.addIlean path ilean)
+            modifyReferences (·.removeIlean pkg path |>.addIlean pkg path ilean)
           else
-            modifyReferencesIO (·.addIlean path ilean)
+            modifyReferences (·.addIlean pkg path ilean)
         catch
           -- ilean vanished, ignore error
-          | .noFileOrDirectory .. => modifyReferences (·.removeIlean path)
+          | .noFileOrDirectory .. => modifyReferences (·.removeIlean pkg path)
           | e => throw e
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
@@ -1347,13 +1379,12 @@ section MessageHandling
   def handleReferenceRequest α β [FromJson α] [ToJson β] (id : RequestID) (params : Json)
       (handler : α → ReaderT ReferenceRequestContext IO β) : ServerM Unit := do
     let ctx ← read
-    let fileWorkerMods := (← ctx.fileWorkersRef.get).map fun _ fw => fw.doc.mod
     let references ← getReferences
     let _ ← ServerTask.IO.asTask <| ReaderT.run (ρ := ServerContext) (r := ctx) do
       try
         let params ← parseParams α params
         let result ← ReaderT.run (m := IO)
-          (r := { fileWorkerMods, references : ReferenceRequestContext })
+          (r := { references : ReferenceRequestContext })
           <| handler params
         writeMessage { id, result : Response β }
       catch
@@ -1680,7 +1711,8 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         let ilean ← Ilean.load path
         referenceData.atomically do
           let rd ← get
-          let rd ← rd.modifyReferencesM (·.addIlean path ilean)
+          let (rd, pkg) ← rd.findPkg path
+          let rd := rd.modifyReferences (·.addIlean pkg path ilean)
           set rd
       catch _ =>
         -- could be a race with the build system, for example
@@ -1720,9 +1752,10 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let referenceData : Std.Mutex ReferenceData ← Std.Mutex.new {
     loadingTask := ServerTask.pure ()
-    references := .empty
+    references := ← References.empty
     finalizedWorkerILeanVersions := ∅
     pendingWaitForILeanRequests := #[]
+    ileanPkgs := {}
   }
   startLoadingReferences referenceData
   let fileWorkersRef ← IO.mkRef ({} : Std.TreeMap DocumentUri FileWorker)

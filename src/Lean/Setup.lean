@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json.Parser
 public import Lean.Util.LeanOptions
+public import Lean.Util.PkgId
 
 set_option doc.verso true
 
@@ -109,14 +110,6 @@ def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath 
         fnames := fnames.push pFile
   return fnames
 
-/--
-The type of module package identifiers.
-
-This is a {name}`String` that is used to disambiguate native symbol prefixes between
-different packages (and different versions of the same package).
--/
-public abbrev PkgId := String
-
 /-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where
   /-- The name of the module. -/
@@ -142,6 +135,8 @@ structure ModuleSetup where
   plugins : Array System.FilePath := #[]
   /-- Additional options for the module. -/
   options : LeanOptions := {}
+  /-- TODO: set -/
+  legacySrcSearchPath : Array System.FilePath := #[]
   deriving Repr, Inhabited, ToJson, FromJson
 
 /-- Load a {lean}`ModuleSetup` from a JSON file. -/

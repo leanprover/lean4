@@ -10,6 +10,7 @@ public import Lean.Util.LakePath
 public import Lean.Data.Lsp
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
+import Init.System.Uri
 
 public section
 
@@ -86,15 +87,17 @@ def isImportCompletionRequest (text : FileMap) (headerStx : TSyntax ``Parser.Mod
   let headerEndPos := headerStx.raw.getTailPos?.getD headerStartPos
   completionPos <= headerEndPos + ' ' + ' '
 
-def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
+def collectAvailableImportsFromLake (uri : DocumentUri) : IO (Option AvailableImports) := do
   let lakePath ← Lean.determineLakePath
+  let filePath? := System.Uri.fileUriToPath? uri
   let spawnArgs : IO.Process.SpawnArgs := {
     stdin  := IO.Process.Stdio.null
     stdout := IO.Process.Stdio.piped
     stderr := IO.Process.Stdio.piped
     cmd    := lakePath.toString
-    args   := #["available-imports"]
+    args   := #["available-imports"] ++ (filePath?.map (#[·.toString]) |>.getD #[])
   }
+  -- TODO: implement
   let lakeProc ← IO.Process.spawn spawnArgs
   let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let exitCode ← lakeProc.wait
@@ -106,21 +109,10 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
   | _ =>
     return none
 
-def collectAvailableImportsFromSrcSearchPath : IO AvailableImports :=
-  (·.2) <$> StateT.run (s := #[]) do
-    let srcSearchPath ← getSrcSearchPath
-    for p in srcSearchPath do
-      if ! (← p.isDir) then
-        continue
-      Lean.forEachModuleInDir p fun mod => do
-        modify (·.push mod)
-
-def collectAvailableImports : IO AvailableImports := do
-  match ← ImportCompletion.collectAvailableImportsFromLake with
-  | none =>
-    -- lake is not available => walk LEAN_SRC_PATH for an approximation
-    ImportCompletion.collectAvailableImportsFromSrcSearchPath
-  | some availableImports => pure availableImports
+def collectAvailableImports (uri : DocumentUri) : IO AvailableImports := do
+  let some imports ← ImportCompletion.collectAvailableImportsFromLake uri
+    | return #[]
+  return imports
 
 /--
 Sets the `data?` field of every `CompletionItem` in `completionList` using `params`. Ensures that
@@ -149,7 +141,7 @@ def find (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : 
 
 def computeCompletions (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header)
     : IO CompletionList := do
-  let availableImports ← collectAvailableImports
+  let availableImports ← collectAvailableImports uri
   let completionList := find uri pos text headerStx availableImports
   return addCompletionItemData uri pos completionList
 

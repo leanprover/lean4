@@ -95,7 +95,7 @@ def locationLinksFromDecl (declName : Name) : GoToM (Array LeanLocationLink) := 
   -- Potentially this name is a builtin that has not been imported yet:
   if ! (← getEnv).contains declName then
     return #[]
-  let some (declModName, declModUri) ← declMod?
+  let some declModUri ← declMod?
     | return #[]
   let some ranges ← findDeclarationRanges? declName
     | return #[]
@@ -108,21 +108,19 @@ def locationLinksFromDecl (declName : Name) : GoToM (Array LeanLocationLink) := 
     targetUri := declModUri
     targetRange := ranges.range.toLspRange
     targetSelectionRange := ranges.selectionRange.toLspRange
-    ident? := some ⟨declModName, declName.eraseMacroScopes⟩
+    ident? := some ⟨declModUri, declName.eraseMacroScopes⟩
     isDefault := false
   }
   return #[ll]
 where
-  declMod? : GoToM (Option (Name × DocumentUri)) := do
+  declMod? : GoToM (Option DocumentUri) := do
     let ctx ← read
     let declMod? ← findModuleOf? declName
     match declMod? with
     | some declModName =>
-      let some declModUri ← documentUriFromModule? declModName
-        | return none
-      return some (declModName, declModUri)
+      ctx.doc.modToUri? declModName
     | none =>
-      return some (ctx.doc.mod, ctx.doc.uri)
+      return some ctx.doc.uri
 
 def locationLinksFromBinder (id : FVarId) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
@@ -158,7 +156,7 @@ def locationLinksFromImport (i : CommandInfo) : GoToM (Array LeanLocationLink) :
   let ctx ← read
   let `(Parser.Module.import| $[public]? $[meta]? import $[all]? $mod) := i.stx
     | return #[]
-  let some modUri ← documentUriFromModule? mod.getId
+  let some modUri ← ctx.doc.modToUri? mod.getId
     | return #[]
   let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
   let originSelectionRange? := do
@@ -207,7 +205,7 @@ def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LeanLoca
     | return #[]
   let some loc := explan.declLoc?
     | return #[]
-  let some modUri ← documentUriFromModule? loc.module
+  let some modUri ← ctx.doc.modToUri? loc.module
     | return #[]
   let range := loc.range.toLspRange
   let originSelectionRange? := do
@@ -272,7 +270,7 @@ def locationLinksFromDelabTermInfo (dti : DelabTermInfo) : GoToM (Array LeanLoca
   let { toTermInfo := ti, location?, .. } := dti
   let some location := location?
     | return ← locationLinksFromTermInfo ti
-  let some targetUri ← documentUriFromModule? location.module
+  let some targetUri ← ctx.doc.modToUri? location.module
     -- If we fail to find a DocumentUri, use the term info so that we have something to jump to.
     | return ← locationLinksFromTermInfo ti
   let range := location.range.toLspRange

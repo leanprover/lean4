@@ -72,7 +72,7 @@ public:
         m_buffer(reinterpret_cast<T *>(m_initial_buffer)),
         m_pos(0),
         m_capacity(INITIAL_SIZE) {
-        std::for_each(source.begin(), source.end(), [=](T const & e) { push_back(e); });
+        std::for_each(source.begin(), source.end(), [=, this](T const & e) { push_back(e); });
     }
 
     void ensure_capacity(size_t new_capacity) {
@@ -85,7 +85,7 @@ public:
 
     buffer & operator=(buffer const & source) {
         clear();
-        std::for_each(source.begin(), source.end(), [=](T const & e) { push_back(e); });
+        std::for_each(source.begin(), source.end(), [=, this](T const & e) { push_back(e); });
         return *this;
     }
 

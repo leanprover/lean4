@@ -61,6 +61,15 @@ Every time you run `release_checklist.py`, you MUST:
 This summary should be provided EVERY time you run the checklist, not just after creating new PRs.
 The user needs to see the complete picture of what's waiting for review.
 
+## Nightly Infrastructure
+
+The nightly build system uses branches and tags across two repositories:
+
+- `leanprover/lean4` has **branches** `nightly` and `nightly-with-mathlib` tracking the latest nightly builds
+- `leanprover/lean4-nightly` has **dated tags** like `nightly-2026-01-23`
+
+When a nightly succeeds with mathlib, all three should point to the same commit. Don't confuse these: branches are in the main lean4 repo, dated tags are in lean4-nightly.
+
 ## Error Handling
 
 **CRITICAL**: If something goes wrong or a command fails:

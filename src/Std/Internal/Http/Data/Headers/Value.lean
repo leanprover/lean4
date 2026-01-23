@@ -33,7 +33,7 @@ def isValidHeaderChar (c : Char) : Bool :=
 /--
 Proposition that asserts all characters in a string are valid for HTTP header values.
 -/
-abbrev isValidHeaderValue (s : String) : Prop :=
+abbrev IsValidHeaderValue (s : String) : Prop :=
   s.toList.all isValidHeaderChar
 
 /--
@@ -48,14 +48,14 @@ structure Value where
   /--
   The proof that it's a valid header value
   -/
-  validHeaderValue : isValidHeaderValue value
+  validHeaderValue : IsValidHeaderValue value
 deriving BEq, DecidableEq, Repr
 
 instance : Hashable Value where
   hash := Hashable.hash ∘ Value.value
 
 instance : Inhabited Value where
-  default := ⟨"", by native_decide⟩
+  default := ⟨"", by decide⟩
 
 namespace Value
 

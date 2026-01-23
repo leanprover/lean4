@@ -35,10 +35,10 @@ def isValidHeaderNameChar (c : Char) : Bool :=
       && c != '[' && c != ']' && c != '{' && c != '}'
 
 /--
-Proposition that asserts all characters in a string are valid for HTTP header names.
+Proposition that asserts all characters in a string are valid and that it is non-empty for HTTP header names.
 -/
-abbrev isValidHeaderName (s : String) : Prop :=
-  s.all isValidHeaderNameChar ∧ !s.isEmpty
+abbrev IsValidHeaderName (s : String) : Prop :=
+  s.toList.all isValidHeaderNameChar ∧ ¬s.isEmpty
 
 /--
 A validated HTTP header name that ensures all characters conform to HTTP standards. Header names are
@@ -53,7 +53,7 @@ structure Name where
   /--
   The proof that it's a valid header name
   -/
-  validHeaderName : isValidHeaderName value
+  validHeaderName : IsValidHeaderName value
 
   /--
   The proof that we stored the header name in normal form
@@ -67,14 +67,14 @@ instance : Hashable Name where
   hash x := Hashable.hash x.value
 
 instance : Inhabited Name where
-  default := ⟨"_", by native_decide, by native_decide⟩
+  default := ⟨"_", by decide, by native_decide⟩
 
 /--
 Creates a new `Name` from a string with an optional proof of validity. If no proof is provided, it
 attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : isValidHeaderName s := by native_decide) (h₁ : IsLowerCase s := by native_decide) : Name :=
+def new (s : String) (h : IsValidHeaderName s := by decide) (h₁ : IsLowerCase s := by native_decide) : Name :=
   ⟨s, h, h₁⟩
 
 /--
@@ -84,7 +84,7 @@ characters for HTTP header names or is empty.
 @[expose]
 def ofString? (s : String) : Option Name :=
   let val := s.toLower
-  if h : isValidHeaderName val ∧ IsLowerCase val then
+  if h : IsValidHeaderName val ∧ IsLowerCase val then
     some ⟨val, h.left, h.right⟩
   else
     none
@@ -96,7 +96,7 @@ string contains invalid characters for HTTP header names or is empty.
 @[expose]
 def ofString! (s : String) : Name :=
   let val := s.toLower
-  if h : isValidHeaderName val ∧ IsLowerCase val then
+  if h : IsValidHeaderName val ∧ IsLowerCase val then
     ⟨val, h.left, h.right⟩
   else
     panic! s!"invalid header name: {s.quote}"

@@ -223,8 +223,6 @@ def problem_instance (n : Nat) := (cbv_test n).getD (fun _ => 0) 1 = n
 
 set_option trace.Meta.Tactic true
 
-syntax "build_fn_with " num : tactic
-
 
 theorem leroy_test : problem_instance 10 := by
   unfold problem_instance

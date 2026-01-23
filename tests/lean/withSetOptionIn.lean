@@ -149,7 +149,7 @@ run_cmd do
 
 end infotree
 
-section unknownOption
+section malformedOption
 
 /-! A malformed `set_option` should only produce an error at the command level;
 linters should ignore the bad option and not fail. -/
@@ -188,4 +188,4 @@ but the option `linter.all` expects a value of type
 set_option linter.all 3 in
 example := trivial
 
-end unknownOption
+end malformedOption

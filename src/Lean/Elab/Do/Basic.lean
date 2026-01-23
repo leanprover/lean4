@@ -459,10 +459,11 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
   withDeadCode .deadSyntactically do
   withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
     let s ← Term.saveState
-    discard <| dec.k .missing
-    let msg ← Core.getMessageLog -- case in point! capture it
+    let log ← Core.getAndEmptyMessageLog
+    try discard <| dec.k .missing catch _ => pure ()
+    let warnings := MessageLog.getWarningMessages (← Core.getMessageLog)
     s.restore
-    Core.setMessageLog msg
+    Core.setMessageLog (log ++ warnings)
 
 def withContFVar (name : Name) (k : DoElabM α) : DoElabM α :=
   withReader (fun ctx => { ctx with contFVars := ctx.contFVars.insert name }) k

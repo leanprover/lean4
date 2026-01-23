@@ -613,6 +613,9 @@ def errorsToInfos (log : MessageLog) : MessageLog :=
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
+def getWarningMessages (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.warning => true | _ => false }
+
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.unreported.forM f
 

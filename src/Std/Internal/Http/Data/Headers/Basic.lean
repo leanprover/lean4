@@ -15,8 +15,7 @@ public section
 /-!
 # Header Typeclass and Common Headers
 
-This module defines the `Header` typeclass for typed HTTP headers, the `Raw` structure for
-uninterpreted header name-value pairs, and common header types like `ContentLength`.
+This module defines the `Header` typeclass for typed HTTP headers and some common header parsers.
 -/
 
 namespace Std.Http.Header

@@ -1,0 +1,167 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sofia Rodrigues
+-/
+module
+
+prelude
+public import Std.Internal.Http.Data.Headers.Name
+public import Std.Internal.Http.Data.Headers.Value
+public import Std.Internal.Http.Internal
+
+public section
+
+/-!
+# Header Typeclass and Common Headers
+
+This module defines the `Header` typeclass for typed HTTP headers, the `Raw` structure for
+uninterpreted header name-value pairs, and common header types like `ContentLength`.
+-/
+
+namespace Std.Http.Header
+
+set_option linter.all true
+
+open Internal
+
+/--
+Typeclass for typed HTTP headers that can be parsed from and serialized to header values.
+-/
+class Header (α : Type) where
+
+  /--
+  Parse a header value into the typed representation.
+  -/
+  parse : Value → Option α
+
+  /--
+  Serialize the typed representation back to a name-value pair.
+  -/
+  serialize : α → Name × Value
+
+/--
+An `Encode` instance can be derived from any `Header` instance by serializing to the wire format
+`Name: Value\r\n`.
+-/
+instance [h : Header α] : Encode .v11 α where
+  encode buffer a :=
+    let (name, value) := h.serialize a
+    buffer.writeString s!"{name}: {value}\r\n"
+
+/--
+A raw HTTP header containing an uninterpreted name-value pair.
+-/
+structure Raw where
+
+  /--
+  The header name.
+  -/
+  name : Name
+
+  /--
+  The header value.
+  -/
+  value : Value
+deriving BEq, Repr
+
+namespace Raw
+
+/--
+Parse a raw header from a name and value
+.-/
+def parse (name : Name) (value : Value) : Raw :=
+  ⟨name, value⟩
+
+/--
+Serialize a raw header back to a name-value pair
+.-/
+def serialize (raw : Raw) : Name × Value :=
+  (raw.name, raw.value)
+
+end Raw
+
+/--
+The `Content-Length` header, representing the size of the message body in bytes.
+Parses only valid natural number values.
+-/
+structure ContentLength where
+
+  /--
+  The content length in bytes.
+  -/
+  length : Nat
+deriving BEq, Repr
+
+instance : Header ContentLength where
+  parse v := v.value.toNat?.map (.mk)
+  serialize h := (Header.Name.contentLength, Value.ofString! (toString h.length))
+
+/--
+The `Transfer-Encoding` header, representing the list of transfer codings applied to the message body.
+
+Validation rules (RFC 9112 Section 6.1):
+- "chunked" may appear at most once.
+- If "chunked" is present, it must be the last encoding in the list.
+-/
+structure TransferEncoding where
+
+  /--
+  The ordered list of transfer codings.
+  -/
+  codings : Array String
+
+  /--
+  The list is non-empty.
+  -/
+  nonempty : codings.size > 0
+deriving Repr
+
+namespace TransferEncoding
+
+/--
+Returns `true` if the transfer encoding ends with chunked.
+-/
+def isChunked (te : TransferEncoding) : Bool :=
+  te.codings.back? == some "chunked"
+
+/--
+Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
+-/
+private def validate (codings : Array String) : Option (Array String) :=
+  if codings.isEmpty then
+    none
+  else
+    let chunkedCount := codings.filter (· == "chunked") |>.size
+    let lastIsChunked := codings.back? == some "chunked"
+    if chunkedCount > 1 then
+      none
+    else if chunkedCount == 1 && !lastIsChunked then
+      none
+    else
+      some codings
+
+/--
+Parse a comma-separated list of transfer codings from a header value, validating chunked placement.
+-/
+def parse (v : Value) : Option TransferEncoding :=
+  let codings := v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
+  match TransferEncoding.validate codings with
+  | none =>
+    none
+  | some validated =>
+    if h : validated.size > 0 then
+      some ⟨validated, h⟩
+    else
+      none
+
+/--
+Serialize a transfer encoding back to a comma-separated header value.
+-/
+def serialize (te : TransferEncoding) : Header.Name × Header.Value :=
+  let value := ",".intercalate (te.codings.toList)
+  (Header.Name.transferEncoding, Value.ofString! value)
+
+instance : Header TransferEncoding := ⟨parse, serialize⟩
+
+end Std.Http.Header.TransferEncoding

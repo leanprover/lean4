@@ -39,9 +39,9 @@ abbrev M := ReaderT Context (EStateM String String)
 
 @[inline] def getModName : M Name := Context.modName <$> read
 
-@[inline] def getModInitFn : M String := do
+@[inline] def getModInitFn (isMeta : Bool) : M String := do
   let pkg? := (← getEnv).getModulePackage?
-  return mkModuleInitializationFunctionName (← getModName) pkg?
+  return mkModuleInitializationFunctionName (isMeta := isMeta) (← getModName) pkg?
 
 def getDecl (n : Name) : M Decl := do
   let env ← getEnv
@@ -343,7 +343,7 @@ def emitMainFn : M Unit := do
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn s!"res = {← getModInitFn}(1 /* builtin */);"
+    emitLn s!"res = {← getModInitFn (isMeta := false)}(1 /* builtin */);"
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -887,24 +887,21 @@ def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
     emitCName n
     emitLn ");"
 
-def emitDeclInit (d : Decl) : M Unit := do
+def withErrRet (emitIORes : M Unit) : M Unit := do
+    emit "res = "; emitIORes; emitLn ";"
+    emitLn "if (lean_io_result_is_error(res)) return res;"
+
+def emitDeclInit (d : Decl) (isBuiltin : Bool) : M Unit := do
   let env ← getEnv
   let n := d.name
-  if isIOUnitInitFn env n then
-    if isIOUnitBuiltinInitFn env n then
-      emit "if (builtin) {"
-    emit "res = "; emitCName n; emitLn "();"
-    emitLn "if (lean_io_result_is_error(res)) return res;"
+  if (isBuiltin && isIOUnitBuiltinInitFn env n) || isIOUnitInitFn env n then
+    withErrRet do
+      emitCName n; emitLn "()"
     emitLn "lean_dec_ref(res);"
-    if isIOUnitBuiltinInitFn env n then
-      emit "}"
   else if d.params.size == 0 then
-    match getInitFnNameFor? env d.name with
-    | some initFn =>
-      if getBuiltinInitFnNameFor? env d.name |>.isSome then
-        emit "if (builtin) {"
-      emit "res = "; emitCName initFn; emitLn "();"
-      emitLn "if (lean_io_result_is_error(res)) return res;"
+    if let some initFn := (guard isBuiltin *> getBuiltinInitFnNameFor? env d.name) <|> getInitFnNameFor? env d.name then
+      withErrRet do
+        emitCName initFn; emitLn "()"
       emitCName n
       if d.resultType.isScalar then
         emitLn (" = " ++ getUnboxOpName d.resultType ++ "(lean_io_result_get_value(res));")
@@ -912,41 +909,71 @@ def emitDeclInit (d : Decl) : M Unit := do
         emitLn " = lean_io_result_get_value(res);"
         emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
-      if getBuiltinInitFnNameFor? env d.name |>.isSome then
-        emit "}"
-    | _ =>
-      if !isClosedTermName env d.name && !isSimpleGroundDecl env d.name then
-        emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
+    else if !isClosedTermName env d.name && !isSimpleGroundDecl env d.name then
+      emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
-def emitInitFn : M Unit := do
+def emitInitFn (isMeta : Bool) : M Unit := do
   let env ← getEnv
-  let impInitFns ← env.imports.mapM fun imp => do
+  let impInitFns ← env.imports.filterMapM fun imp => do
+    if imp.isMeta != isMeta then
+      return none
     let some idx := env.getModuleIdx? imp.module
       | throw "(internal) import without module index" -- should be unreachable
     let pkg? := env.getModulePackageByIdx? idx
-    let fn := mkModuleInitializationFunctionName imp.module pkg?
+    let fn := mkModuleInitializationFunctionName (isMeta := isMeta && !imp.isMeta) imp.module pkg?
     emitLn s!"lean_object* {fn}(uint8_t builtin);"
-    return fn
+    return some fn
+  let initialized := s!"_G_{if isMeta then "meta_" else ""}initialized"
   emitLns [
-    "static bool _G_initialized = false;",
-    s!"LEAN_EXPORT lean_object* {← getModInitFn}(uint8_t builtin) \{",
+    s!"static bool {initialized} = false;",
+    s!"LEAN_EXPORT lean_object* {← getModInitFn (isMeta := isMeta)}(uint8_t builtin) \{",
     "lean_object * res;",
-    "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
-    "_G_initialized = true;"
+    s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
+    s!"{initialized} = true;"
   ]
-  impInitFns.forM fun fn => emitLns [
-    s!"res = {fn}(builtin);",
-    "if (lean_io_result_is_error(res)) return res;",
-    "lean_dec_ref(res);"]
+  --withErrRet do
+  --  emitLn "initialize_common()"
+  impInitFns.forM fun fn => do
+    withErrRet do
+      emitLn s!"{fn}(builtin)"
+    emitLn "lean_dec_ref(res);"
   let decls := getDecls env
-  decls.reverse.forM emitDeclInit
+  for d in decls.reverse do
+    if isMarkedMeta env d.name == isMeta then
+      emitDeclInit d (isBuiltin := !isMeta)
   emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
 
+def emitAllMetaInitFn : M Unit := do
+  let env ← getEnv
+  let impInitFns ← env.imports.filterMapM fun imp => do
+    let some idx := env.getModuleIdx? imp.module
+      | throw "(internal) import without module index" -- should be unreachable
+    let pkg? := env.getModulePackageByIdx? idx
+    let fn := mkModuleInitializationFunctionName (isMeta := true) imp.module pkg?
+    emitLn s!"lean_object* all_{fn}(uint8_t builtin);"
+    return some fn
+  let initialized := s!"_G_all_meta_initialized"
+  emitLns [
+    s!"static bool {initialized} = false;",
+    s!"LEAN_EXPORT lean_object* all_{← getModInitFn (isMeta := true)}(uint8_t builtin) \{",
+    "lean_object * res;",
+    s!"if ({initialized}) return lean_io_result_mk_ok(lean_box(0));",
+    s!"{initialized} = true;"
+  ]
+  impInitFns.forM fun fn => do
+    withErrRet do
+      emitLn s!"all_{fn}(builtin)"
+    emitLn "lean_dec_ref(res);"
+  emitLns [s!"return {← getModInitFn (isMeta := true)}(builtin);", "}"]
 def main : M Unit := do
   emitFileHeader
   emitFnDecls
   emitFns
-  emitInitFn
+  --emitCommonInitFn
+  emitInitFn (isMeta := false)
+  if (← getEnv).header.isModule then
+    emitInitFn (isMeta := true)
+    emitAllMetaInitFn
   emitMainFnIfNeeded
   emitFileFooter
 

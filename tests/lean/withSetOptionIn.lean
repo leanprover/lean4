@@ -148,3 +148,44 @@ run_cmd do
     throwError "comparison produced error:\n\n{ex.toMessageData}"
 
 end infotree
+
+section unknownOption
+
+/-! A malformed `set_option` should only produce an error at the command level;
+linters should ignore the bad option and not fail. -/
+
+-- Control: ensure `linter.missingDocs` is present and uses `withSetOptionIn`
+
+set_option linter.missingDocs false
+
+/--
+warning: missing doc string for public def foo
+
+Note: This linter can be disabled with `set_option linter.missingDocs false`
+-/
+#guard_msgs in
+set_option linter.missingDocs true in
+def foo := true
+
+-- No error from `linter.missingDocs` on unknown options
+/--
+error: Unknown option `unknown.option`
+-/
+#guard_msgs in
+set_option unknown.option true in
+example := trivial
+
+-- No error from `linter.missingDocs` on bad option values
+/--
+error: set_option value type mismatch: The value
+  3
+has type
+  Nat
+but the option `linter.all` expects a value of type
+  Bool
+-/
+#guard_msgs in
+set_option linter.all 3 in
+example := trivial
+
+end unknownOption

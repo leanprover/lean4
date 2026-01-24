@@ -24,7 +24,7 @@ public partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := d
   if let some (_, lhs) ← matchEqHEqLHS? target then
     if let some fvarId ← findFVar? lhs then
       return (←  mvarId.cases fvarId).map fun s => s.mvarId
-  throwError "'casesOnStuckLHS' failed"
+  throwError "`casesOnStuckLHS` failed"
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
     match e.getAppFn with

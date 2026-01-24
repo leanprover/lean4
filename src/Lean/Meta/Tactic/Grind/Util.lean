@@ -138,7 +138,7 @@ def foldProjs (e : Expr) : MetaM Expr := do
       In the test `grind_cat.lean`, the following operation fails if we are not using default
       transparency. We get the following error.
       ```
-      error: AppBuilder for 'mkProjection', structure expected
+      error: AppBuilder for `mkProjection`, structure expected
         T
       has type
         F ⟶ G

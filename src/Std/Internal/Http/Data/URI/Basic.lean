@@ -726,4 +726,7 @@ instance : ToString RequestTarget where
     | .authorityForm auth => toString auth
     | .asteriskForm => "*"
 
+instance : Encode .v11 RequestTarget where
+  encode buffer target := buffer.writeString (toString target)
+
 end Std.Http.RequestTarget

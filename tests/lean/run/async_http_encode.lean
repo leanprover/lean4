@@ -132,13 +132,13 @@ info: "X-Custom-Header: value\x0d\n"
 info: "GET /path HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .get, version := .v11, uri := "/path" } : Request.Head)
+#eval encodeStr ({ method := .get, version := .v11, uri := .parse! "/path" } : Request.Head)
 
 /--
 info: "POST /submit HTTP/1.1\x0d\n\x0d\n"
 -/
 #guard_msgs in
-#eval encodeStr ({ method := .post, version := .v11, uri := "/submit" } : Request.Head)
+#eval encodeStr ({ method := .post, version := .v11, uri := .parse! "/submit" } : Request.Head)
 
 /--
 info: "PUT /resource HTTP/2.0\x0d\nContent-Type: application/json\x0d\n\x0d\n"
@@ -147,7 +147,7 @@ info: "PUT /resource HTTP/2.0\x0d\nContent-Type: application/json\x0d\n\x0d\n"
 #eval encodeStr ({
     method := .put
     version := .v20
-    uri := "/resource"
+    uri := .parse! "/resource"
     headers := Headers.empty.insert! "content-type" "application/json"
   } : Request.Head)
 

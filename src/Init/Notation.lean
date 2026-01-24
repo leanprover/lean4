@@ -360,7 +360,7 @@ recommended_spelling "smul" for "•" in [HSMul.hSMul, «term_•_»]
 recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
 recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
-recommended_spelling "inv" for "⁻¹" in [Inv.inv]
+recommended_spelling "inv" for "⁻¹" in [Inv.inv, «term_⁻¹»]
 recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
 recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
 recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]

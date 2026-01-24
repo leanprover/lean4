@@ -502,19 +502,26 @@ def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
     return False
 
 def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_token):
-    """Check if the reference-manual release notes title has been updated for the final release.
+    """Check if the reference-manual release notes title matches the release type.
 
-    For non-RC releases, the release notes file should have the title updated from
-    "Lean X.Y.Z-rcN (date)" to "Lean X.Y.Z (date)".
+    For RC releases (e.g., v4.27.0-rc1), the title should contain the exact RC suffix.
+    For final releases (e.g., v4.27.0), the title should NOT contain any "-rc".
 
     Returns True if check passes or is not applicable, False if title needs updating.
     """
-    # Only check for non-RC releases
-    if is_release_candidate(toolchain):
-        return True
+    is_rc = is_release_candidate(toolchain)
+
+    # For RC releases, get the base version and RC suffix
+    # e.g., "v4.27.0-rc1" -> version="4.27.0", rc_suffix="-rc1"
+    if is_rc:
+        parts = toolchain.lstrip('v').split('-', 1)
+        version = parts[0]
+        rc_suffix = '-' + parts[1] if len(parts) > 1 else ''
+    else:
+        version = toolchain.lstrip('v')
+        rc_suffix = ''
 
     # Construct the release notes file path (e.g., Manual/Releases/v4_27_0.lean for v4.27.0)
-    version = toolchain.lstrip('v')  # "4.27.0"
     file_name = f"v{version.replace('.', '_')}.lean"  # "v4_27_0.lean"
     file_path = f"Manual/Releases/{file_name}"
 
@@ -531,14 +538,30 @@ def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_
     # Look for the #doc line with the title
     for line in content.splitlines():
         if line.strip().startswith('#doc') and 'Manual' in line:
-            # Check if the title contains -rc
-            if '-rc' in line.lower():
-                print(f"  ❌ Release notes title still shows RC version")
-                print(f"     Update {file_path} to remove '-rcN' from the title")
-                return False
+            has_rc_in_title = '-rc' in line.lower()
+
+            if is_rc:
+                # For RC releases, title should contain the exact RC suffix (e.g., "-rc1")
+                if rc_suffix.lower() in line.lower():
+                    print(f"  ✅ Release notes title correctly shows {rc_suffix}")
+                    return True
+                elif has_rc_in_title:
+                    print(f"  ❌ Release notes title shows wrong RC version (expected {rc_suffix})")
+                    print(f"     Update {file_path} to use '{rc_suffix}' in the title")
+                    return False
+                else:
+                    print(f"  ❌ Release notes title missing RC suffix")
+                    print(f"     Update {file_path} to include '{rc_suffix}' in the title")
+                    return False
             else:
-                print(f"  ✅ Release notes title is updated for final release")
-                return True
+                # For final releases, title should NOT contain -rc
+                if has_rc_in_title:
+                    print(f"  ❌ Release notes title still shows RC version")
+                    print(f"     Update {file_path} to remove '-rcN' from the title")
+                    return False
+                else:
+                    print(f"  ✅ Release notes title is updated for final release")
+                    return True
 
     # If we didn't find the #doc line, don't block
     print(f"  ⚠️  Could not find release notes title in {file_path}")

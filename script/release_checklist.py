@@ -501,6 +501,49 @@ def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
     print(f"     You will need to create and push a tag v0.0.{next_version}")
     return False
 
+def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_token):
+    """Check if the reference-manual release notes title has been updated for the final release.
+
+    For non-RC releases, the release notes file should have the title updated from
+    "Lean X.Y.Z-rcN (date)" to "Lean X.Y.Z (date)".
+
+    Returns True if check passes or is not applicable, False if title needs updating.
+    """
+    # Only check for non-RC releases
+    if is_release_candidate(toolchain):
+        return True
+
+    # Construct the release notes file path (e.g., Manual/Releases/v4_27_0.lean for v4.27.0)
+    version = toolchain.lstrip('v')  # "4.27.0"
+    file_name = f"v{version.replace('.', '_')}.lean"  # "v4_27_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    # Try to get the file from the PR branch first, then fall back to main branch
+    content = get_branch_content(repo_url, pr_branch, file_path, github_token)
+    if content is None:
+        # Try the default branch
+        content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    if content is None:
+        print(f"  ⚠️  Could not check release notes file: {file_path}")
+        return True  # Don't block on this
+
+    # Look for the #doc line with the title
+    for line in content.splitlines():
+        if line.strip().startswith('#doc') and 'Manual' in line:
+            # Check if the title contains -rc
+            if '-rc' in line.lower():
+                print(f"  ❌ Release notes title still shows RC version")
+                print(f"     Update {file_path} to remove '-rcN' from the title")
+                return False
+            else:
+                print(f"  ✅ Release notes title is updated for final release")
+                return True
+
+    # If we didn't find the #doc line, don't block
+    print(f"  ⚠️  Could not find release notes title in {file_path}")
+    return True
+
 def run_mathlib_verify_version_tags(toolchain, verbose=False):
     """Run mathlib4's verify_version_tags.py script to validate the release tag.
 
@@ -709,6 +752,11 @@ def main():
                     print(f"     ⚠️  CI: {ci_message}")
                 else:
                     print(f"     ❓ CI: {ci_message}")
+
+                # For reference-manual, check that the release notes title has been updated
+                if name == "reference-manual":
+                    pr_branch = f"bump_to_{toolchain}"
+                    check_reference_manual_release_title(url, toolchain, pr_branch, github_token)
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
                 print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")

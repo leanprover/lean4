@@ -100,8 +100,8 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
     mkAppN (expr.instantiateLevelParams pattern.levelParams result.us) result.args
 
 public inductive ApplyResult where
-  | notApplicable
-  | goals (mvarId : List MVarId)
+  | failed
+  | goals (mvarIds : List MVarId)
 
 /--
 Applies a backward rule to a goal, returning new subgoals.
@@ -119,7 +119,7 @@ public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM App
     return .goals <| rule.resultPos.map fun i =>
       result.args[i]!.mvarId!
   else
-    return .notApplicable
+    return .failed
 
 /--
 Similar to `BackwardRule.apply', but throws an error if unification fails.

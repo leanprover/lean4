@@ -72,7 +72,7 @@ public def simpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : 
 /--
 Similar to `simpGoal`, but returns `.goal mvarId` if no progress was made.
 -/
-public def trySimpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : Simp.Config := {})
+public def simpGoalIgnoringNoProgress (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : Simp.Config := {})
     : SymM SimpGoalResult := do
   match (← simpGoal mvarId methods config) with
   | .noProgress => return .goal mvarId

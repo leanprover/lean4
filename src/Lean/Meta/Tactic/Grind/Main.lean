@@ -155,7 +155,7 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
 /-- Returns a new goal for the given metavariable. -/
-public def mkGoal (mvarId : MVarId) : GrindM Goal := do
+public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -288,7 +288,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  let goal ← mkGoal mvarId
+  let goal ← mkGoalCore mvarId
   if config.revert then
     return goal
   else

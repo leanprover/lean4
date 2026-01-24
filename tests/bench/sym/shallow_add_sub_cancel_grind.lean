@@ -51,16 +51,19 @@ theorem modify_eq : (modify f : StateM S Unit) s = ((), f s) := by
 
 def step (v : Nat) : StateM Nat Unit := do
   let s ← get
-  set (s + v)
-  let s ← get
-  set (s - v)
+  set (v + s)
+  let s' ← get
+  if s' = s then
+    set (s' - v)
 
 def loop (n : Nat) : StateM Nat Unit := do
   match n with
   | 0 => pure ()
   | n+1 => step n; loop n
 
-def Goal (n : Nat) : Prop := ∀ s post, post () s → Exec s (loop n) post
+def Goal (n : Nat) : Prop := ∀ s, Exec s (loop n) fun _ s' => s' > s
+
+set_option maxRecDepth 100_000
 
 open Lean Meta Elab
 
@@ -82,42 +85,10 @@ def driver (n : Nat) (check := true) (k : MVarId → MetaM Unit) : MetaM Unit :=
     IO.println s!"goal_{n}: {ms} ms"
 
 /-!
-`MetaM` Solution
+`SymM` + `GrindM` Solution
 -/
 
-/-
-A tactic for solving goal `Goal n`
--/
-macro "solve" : tactic => `(tactic| {
-  intro s post; intro n;
-  simp only [loop, step, Nat.add_zero, Nat.sub_zero, bind_pure_comp, map_bind, id_map', bind_assoc];
-  repeat (apply Exec.bind; apply Exec.get; apply Exec.bind; apply Exec.set);
-  apply Exec.bind; apply Exec.get; apply Exec.set;
-  simp only [Nat.add_sub_cancel]; assumption
-})
-
-/--
-Solves a goal of the form `Goal n` using the `solve` tactic.
--/
-def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
-  driver n check fun mvarId => do
-    let ([], _) ← runTactic mvarId (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
-
-def runBenchUsingMeta : MetaM Unit := do
-  IO.println "=== Symbolic Simulation Tests ==="
-  IO.println ""
-  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] do
-    solveUsingMeta n
-
-set_option maxRecDepth 10000
-set_option maxHeartbeats 10000000
-#eval runBenchUsingMeta
-
-/-!
-`SymM` Solution
--/
-
-open Sym
+open Sym Grind
 
 theorem unit_map : (fun _ : Unit => PUnit.unit) <$> (k : StateM Nat Unit) = k := by
  simp
@@ -128,51 +99,61 @@ def mkSimpMethods (declNames : Array Name) : MetaM Sym.Simp.Methods := do
     post := Sym.Simp.evalGround.andThen rewrite
   }
 
-partial def solve (mvarId : MVarId) : SymM Unit := do
+def isBind (goal : Goal) : MetaM Bool := do
+  let target ← goal.mvarId.getType
+  let_expr Exec _ _ _ k _ := target | return false
+  return k.isAppOf ``Bind.bind
+
+partial def solve (mvarId : MVarId) : GrindM Unit := do
   /-
   Creates an `BackwardRule` for each theorem `T` we want to use `apply T`.
   -/
   let execBindRule ← mkBackwardRuleFromDecl ``Exec.bind
   let execGetRule ← mkBackwardRuleFromDecl ``Exec.get
   let execSetRule ← mkBackwardRuleFromDecl ``Exec.set
+  let execPureRule ← mkBackwardRuleFromDecl ``Exec.pure
+  let execIteTrueRule ← mkBackwardRuleFromDecl ``Exec.ite_true
+  let execIteFalseRule ← mkBackwardRuleFromDecl ``Exec.ite_false
   /-
   Creates simplification methods for each collection of rewriting rules we want to apply.
   Recall Lean creates equational lemmas of the form `_eq_<idx>` for definitions.
   -/
   let preMethods ← mkSimpMethods #[``step.eq_1, ``loop.eq_1, ``loop.eq_2,
     ``Nat.add_zero, ``Nat.sub_zero, ``bind_pure_comp, ``map_bind, ``id_map', ``unit_map, ``bind_assoc]
-  let postMethods ← mkMethods #[``Nat.add_sub_cancel]
   -- ## Initialize
-  -- `processMVar` ensures the input goal becomes a `Sym` compatible goal.
-  let mvarId ← preprocessMVar mvarId
-  -- `intro s post n`
-  let .goal _ mvarId ← Sym.introN mvarId 3 | failure
-  let .goal mvarId ← Sym.simpGoal mvarId preMethods | failure
+  let goal ← mkGoal mvarId
+  let .goal _ goal ← goal.introN 1 | failure
+  let .goal goal ← goal.simp preMethods | failure
+  let goal ← goal.internalizeAll -- Internalize all hypotheses
   -- ## Loop
   -- We simulate the `repeat` block using a tail-recursive function `loop`
-  let rec loop (mvarId₀ : MVarId) : SymM MVarId := do
-    -- apply Exec.bind; apply Exec.get; apply Exec.bind; apply Exec.set
-    let .goals [mvarId] ← execBindRule.apply mvarId₀ | return mvarId₀
-    let .goals [mvarId] ← execGetRule.apply mvarId | return mvarId₀
-    let .goals [mvarId] ← execBindRule.apply mvarId | return mvarId₀
-    let .goals [mvarId] ← execSetRule.apply mvarId | return mvarId₀
-    loop mvarId
-  let mvarId ← loop mvarId
-  let .goals [mvarId] ← execBindRule.apply mvarId | failure
-  let .goals [mvarId] ← execGetRule.apply mvarId | failure
-  let .goals [mvarId] ← execSetRule.apply mvarId | failure
-  let .goal mvarId ← Sym.simpGoal mvarId postMethods | failure
-  mvarId.assumption
+  let rec loop (goal₀ : Goal) : GrindM Goal := do
+    -- logInfo goal₀.mvarId
+    let .goals [goal] ← goal₀.apply execBindRule | return goal₀
+    let .goals [goal] ← goal.apply execGetRule | failure
+    let .goals [goal] ← goal.apply execBindRule | failure
+    let .goals [goal] ← goal.apply execSetRule | failure
+    let .goals [goal] ← goal.apply execBindRule | failure
+    let .goals [goal] ← goal.apply execGetRule | failure
+    if (← isBind goal) then
+      let .goals [goal] ← goal.apply execBindRule | failure
+      let .goals [goalCond, goal] ← goal.apply execIteFalseRule | failure
+      let .closed ← goalCond.grind | failure
+      let .goals [goal] ← goal.apply execPureRule | failure
+      loop goal
+    else
+      let .goals [goalCond, goal] ← goal.apply execIteTrueRule | failure
+      let .closed ← goalCond.grind | failure
+      return goal
+  let goal ← loop goal
+  let .goals [goal] ← goal.apply execSetRule | failure
+  let .closed ← goal.grind | failure
   return
 
-def solveUsingSym (n : Nat) (check := true) : MetaM Unit := do
-  driver n check fun mvarId => SymM.run do solve mvarId
+def solveUsingGrind (n : Nat) (check := true) : MetaM Unit := do
+  let params ← mkDefaultParams {}
+  driver n check fun mvarId => SymM.run <| GrindM.run (params := params) do
+    solve mvarId
 
-def runBenchUsingSym : MetaM Unit := do
-  IO.println "=== Symbolic Simulation Tests ==="
-  IO.println ""
-  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] do
-    solveUsingSym n
-
-#eval runBenchUsingSym
-#eval solveUsingSym 1000
+-- **TODO**: the proof term grows quadratically because we are not simplifying the state
+#eval solveUsingGrind 50

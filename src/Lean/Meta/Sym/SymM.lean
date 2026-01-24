@@ -155,6 +155,21 @@ def SymM.run (x : SymM α) : MetaM α := do
 def getSharedExprs : SymM SharedExprs :=
   return (← read).sharedExprs
 
+/-- Returns the internalized `True` constant.  -/
+def getTrueExpr : SymM Expr := return (← getSharedExprs).trueExpr
+/-- Returns the internalized `False` constant.  -/
+def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : SymM Expr := return (← getSharedExprs).bfalseExpr
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : SymM Expr := return (← getSharedExprs).natZExpr
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : SymM Expr := return (← getSharedExprs).ordEqExpr
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : SymM Expr := return (← getSharedExprs).intExpr
+
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.

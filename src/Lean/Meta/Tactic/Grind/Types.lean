@@ -160,14 +160,9 @@ structure Context where
   /-- Symbol priorities for inferring E-matching patterns -/
   symPrios     : SymbolPriorities
   extensions   : ExtensionStateArray := #[]
-  trueExpr     : Expr
-  falseExpr    : Expr
-  natZExpr     : Expr
-  btrueExpr    : Expr
-  bfalseExpr   : Expr
-  ordEqExpr    : Expr -- `Ordering.eq`
-  intExpr      : Expr -- `Int`
   debug        : Bool -- Cached `grind.debug (← getOptions)`
+
+export Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr getNatZeroExpr getOrderingEqExpr getIntExpr)
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -304,34 +299,6 @@ Uses reducible transparency if `reducible` is `true`, otherwise default transpar
 abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n] (k : n α) : n α := do
   let m := if (← getConfig).reducible then .reducible else .default
   withTransparency m k
-
-/-- Returns the internalized `True` constant.  -/
-def getTrueExpr : GrindM Expr := do
-  return (← readThe Context).trueExpr
-
-/-- Returns the internalized `False` constant.  -/
-def getFalseExpr : GrindM Expr := do
-  return (← readThe Context).falseExpr
-
-/-- Returns the internalized `Bool.true`.  -/
-def getBoolTrueExpr : GrindM Expr := do
-  return (← readThe Context).btrueExpr
-
-/-- Returns the internalized `Bool.false`.  -/
-def getBoolFalseExpr : GrindM Expr := do
-  return (← readThe Context).bfalseExpr
-
-/-- Returns the internalized `0 : Nat` numeral.  -/
-def getNatZeroExpr : GrindM Expr := do
-  return (← readThe Context).natZExpr
-
-/-- Returns the internalized `Ordering.eq`.  -/
-def getOrderingEqExpr : GrindM Expr := do
-  return (← readThe Context).ordEqExpr
-
-/-- Returns the internalized `Int`.  -/
-def getIntExpr : GrindM Expr := do
-  return (← readThe Context).intExpr
 
 /-- Returns the anchor references (if any) being used to restrict the search. -/
 def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do

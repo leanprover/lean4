@@ -139,6 +139,29 @@ private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
       return acc.push e
   go e (← inferType e) #[]
 
+/--
+Reverts a homogenenous or heterogeneous equality between two free variables,
+and also reverts the variables. Returns number of reverted variables, with the equality last..
+-/
+private def revertEq (mvarId : MVarId) (h : FVarId) : MetaM (Nat × MVarId) := mvarId.withContext do
+  let hType ← h.getType
+  let (lhs, rhs) ← match_expr hType with
+    | Eq _ lhs rhs => pure (lhs, rhs)
+    | HEq _ lhs _ rhs => pure (lhs, rhs)
+    | _ => throwError "unexpected type in revertEq:{indentExpr hType}"
+  let .fvar lhs := lhs | throwError "unexpected lhs in revertEq: {indentExpr hType}"
+  let .fvar rhs := rhs | throwError "unexpected rhs in revertEq: {indentExpr hType}"
+  let (hs1, mvarId) ← mvarId.revert #[h]
+  unless hs1.size == 1 do
+    throwError "unexpected number of reverted hypotheses in revertEq: {hs1.size}"
+  let (hs2, mvarId) ← mvarId.revert #[lhs, rhs]
+  return (hs1.size + hs2.size, mvarId)
+
+private def applyInjEqHelper (mvarId : MVarId) (lhs rhs body : Expr) : MetaM MVarId := mvarId.withContext do
+  let e ← mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
+  mvarId.assign <| mkApp4 (mkConst `Lean.injEq_helper) lhs rhs body e
+  return e.mvarId!
+
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
@@ -147,17 +170,55 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     let (h, mvarId₁) ← mvarId₁.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
     let mut mvarId₂ := mvarId₂
+    -- First intro all the equalities
+    -- Also keep track of which fvars these will rewrite
+    let mut eqs := #[]  -- Equalities between non-dependent variables
+    let mut heqs := #[] -- Equlaities between dependent variables
+    let mut vars := #[] -- Variables that will be rewritten
     while true do
       let t ← mvarId₂.getType
       let some (conj, body) := t.arrow?  | break
       match_expr conj with
-      | And lhs rhs =>
-        let [mvarId₂'] ← mvarId₂.applyN (mkApp3 (mkConst `Lean.injEq_helper) lhs rhs body) 1
-            | throwError "unexpected number of goals after applying `Lean.and_imp`"
-        mvarId₂ := mvarId₂'
+      | And lhs rhs => mvarId₂ ← applyInjEqHelper mvarId₂ lhs rhs body
       | _ => pure ()
       let (h, mvarId₂') ← mvarId₂.intro1
+      mvarId₂ := mvarId₂'
+      let hType ← instantiateMVars (← mvarId₂.withContext h.getType)
+      let (alpha, a) ← match_expr hType with
+        | Eq α a _ => pure (α, a)
+        | HEq α a _ _ => pure (α, a)
+        | _ => throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
+      if (← vars.anyM (exprDependsOn alpha ·)) then
+        heqs := heqs.push h
+      else
+        eqs := eqs.push h
+      vars := vars.push a.fvarId!
+    -- Then revert the `HEq`s together with their variables, from back to front.
+    let mut introChunks : Array Nat := #[]
+    for heq in heqs.reverse do
+      let (n, mvarId₂') ← revertEq mvarId₂ heq
+      introChunks := introChunks.push n
+      mvarId₂ := mvarId₂'
+    trace[Meta.injective] "after reverting {heqs.size} HEqs in blocks {introChunks}:\n{mvarId₂}"
+    -- Now revert the other equalities, but without their variables
+    (_, mvarId₂) ← mvarId₂.revert eqs
+    trace[Meta.injective] "after reverting {eqs.size} Eqs:\n{mvarId₂}"
+    -- Intro and subst these equalities
+    for _ in [:eqs.size] do
+      let (h, mvarId₂') ← mvarId₂.intro1
       (_, mvarId₂) ← substEq mvarId₂' h
+    -- Now re-introduce and subst the HEqs
+    for n in introChunks.reverse do
+      let t ← mvarId₂.getType
+      unless t.isForall do break
+      let (hs, mvarId₂') ← mvarId₂.introN n
+      mvarId₂ := mvarId₂'
+      assert! hs.size = n
+      let h := hs.back!
+      mvarId₂.withContext do
+        trace[Meta.injective] "substituting{inlineExpr (mkFVar h)}in\n{mvarId₂}"
+      (_, mvarId₂) ← substEq mvarId₂ h
+    trace[Meta.injective] "after all substitution:\n{mvarId₂}"
     try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 

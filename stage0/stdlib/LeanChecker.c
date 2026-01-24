@@ -104,7 +104,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00main_spec__2___redArg___
 uint8_t l_Lean_instOrdOLeanLevel_ord(uint8_t, uint8_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_main___closed__7;
 uint8_t l_List_elem___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_replayFromFresh___closed__0;
@@ -2611,21 +2610,13 @@ return x_2;
 static lean_object* _init_l_main___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_searchPathRef;
-return x_1;
-}
-}
-static lean_object* _init_l_main___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_main___closed__5() {
+static lean_object* _init_l_main___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -2633,7 +2624,7 @@ x_1 = lean_mk_string_unchecked("--fresh flag is only valid when specifying a sin
 return x_1;
 }
 }
-static lean_object* _init_l_main___closed__6() {
+static lean_object* _init_l_main___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2641,7 +2632,7 @@ x_1 = lean_mk_string_unchecked("-v", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_main___closed__7() {
+static lean_object* _init_l_main___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -2691,13 +2682,13 @@ if (lean_is_exclusive(x_13)) {
  x_16 = lean_box(0);
 }
 x_17 = l_main___closed__2;
-x_99 = l_main___closed__6;
+x_99 = l_main___closed__5;
 lean_inc(x_14);
 x_100 = l_List_elem___redArg(x_17, x_99, x_14);
 if (x_100 == 0)
 {
 lean_object* x_101; uint8_t x_102; 
-x_101 = l_main___closed__7;
+x_101 = l_main___closed__6;
 lean_inc(x_14);
 x_102 = l_List_elem___redArg(x_17, x_101, x_14);
 x_86 = x_102;
@@ -2711,7 +2702,7 @@ goto block_98;
 block_85:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = l_main___closed__3;
+x_21 = l_Lean_searchPathRef;
 x_22 = lean_st_ref_get(x_21);
 lean_inc(x_14);
 x_23 = l_List_forIn_x27_loop___at___00main_spec__2___redArg(x_22, x_17, x_14, x_19, x_10);
@@ -2729,7 +2720,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; 
 lean_free_object(x_23);
-x_28 = l_main___closed__4;
+x_28 = l_main___closed__3;
 x_29 = l_List_forIn_x27_loop___at___00main_spec__3___redArg(x_25, x_28);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -2798,7 +2789,7 @@ lean_dec(x_41);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_44 = l_main___closed__5;
+x_44 = l_main___closed__4;
 x_45 = l_List_toString___at___00Lean_Environment_AddConstAsyncResult_commitConst_spec__1(x_25);
 x_46 = lean_string_append(x_44, x_45);
 lean_dec_ref(x_45);
@@ -2853,7 +2844,7 @@ x_55 = l_List_elem___redArg(x_17, x_54, x_14);
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; 
-x_56 = l_main___closed__4;
+x_56 = l_main___closed__3;
 x_57 = l_List_forIn_x27_loop___at___00main_spec__3___redArg(x_53, x_56);
 if (lean_obj_tag(x_57) == 0)
 {
@@ -2924,7 +2915,7 @@ lean_dec(x_69);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
-x_72 = l_main___closed__5;
+x_72 = l_main___closed__4;
 x_73 = l_List_toString___at___00Lean_Environment_AddConstAsyncResult_commitConst_spec__1(x_53);
 x_74 = lean_string_append(x_72, x_73);
 lean_dec_ref(x_73);
@@ -3265,8 +3256,6 @@ l_main___closed__5 = _init_l_main___closed__5();
 lean_mark_persistent(l_main___closed__5);
 l_main___closed__6 = _init_l_main___closed__6();
 lean_mark_persistent(l_main___closed__6);
-l_main___closed__7 = _init_l_main___closed__7();
-lean_mark_persistent(l_main___closed__7);
 l_main___boxed__const__1 = _init_l_main___boxed__const__1();
 lean_mark_persistent(l_main___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));

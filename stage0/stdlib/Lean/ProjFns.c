@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983
 static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_instReprProjectionFunctionInfo;
 uint8_t lean_usize_dec_eq(size_t, size_t);
-static lean_object* l_Lean_addProjectionFnInfo___closed__0;
 static lean_object* l_Lean_initFn___lam__0___closed__1_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_mkMapDeclarationExtension___redArg(lean_object*, lean_object*, lean_object*);
@@ -798,19 +797,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_addProjectionFnInfo___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_projectionFnInfoExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addProjectionFnInfo(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_Lean_addProjectionFnInfo___closed__0;
+x_7 = l_Lean_projectionFnInfoExt;
 x_8 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_8, 0, x_3);
 lean_ctor_set(x_8, 1, x_4);
@@ -833,7 +824,7 @@ LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_3 = l_Lean_addProjectionFnInfo___closed__0;
+x_3 = l_Lean_projectionFnInfoExt;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 2);
@@ -851,7 +842,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_instInhabitedProjectionFunctionInfo_default;
-x_4 = l_Lean_addProjectionFnInfo___closed__0;
+x_4 = l_Lean_projectionFnInfoExt;
 x_5 = l_Lean_MapDeclarationExtension_contains___redArg(x_3, x_4, x_1, x_2);
 return x_5;
 }
@@ -1119,9 +1110,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_projectionFnInfoExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_projectionFnInfoExt);
 lean_dec_ref(res);
-}l_Lean_addProjectionFnInfo___closed__0 = _init_l_Lean_addProjectionFnInfo___closed__0();
-lean_mark_persistent(l_Lean_addProjectionFnInfo___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

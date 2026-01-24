@@ -79,7 +79,6 @@ static lean_object* l_Lean_Doc_instReprPart_repr___at___00Prod_reprTuple___at___
 static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_DocString_Extension_1505119820____hygCtx___hyg_2_;
 static lean_object* l_Lean_Doc_instReprDescItem_repr___at___00Array_Array_repr___at___00Lean_Doc_instReprBlock_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__4_spec__10___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Prod_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__1_spec__3___redArg(lean_object*);
-static lean_object* l_Lean_addMainModuleDoc___closed__0;
 static lean_object* l_Lean_Doc_instReprInline_repr___at___00Array_Array_repr___at___00Lean_Doc_instReprBlock_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__2_spec__4___closed__0;
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_quoteCodeBlock(lean_object*, lean_object*);
@@ -99,7 +98,6 @@ static lean_object* l_Lean_instMarkdownBlockElabInlineElabBlock___closed__0;
 static lean_object* l_Lean_getDocStringText___redArg___closed__0;
 static lean_object* l_Lean_Doc_instReprInline_repr___at___00Array_Array_repr___at___00Lean_Doc_instReprBlock_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__2_spec__4___closed__29;
 static lean_object* l_Lean_instMarkdownInlineElabInline___closed__13;
-static lean_object* l_Lean_getVersoModuleDocs___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_VersoModuleDocs_DocContext_addBlocks(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_VersoModuleDocs_DocContext_addBlocks___closed__1;
 static lean_object* l_Lean_Doc_instReprPart_repr___at___00Prod_reprTuple___at___00Prod_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__1_spec__3_spec__10_spec__18___redArg___closed__10;
@@ -147,7 +145,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_DocString_Extensio
 static lean_object* l_Lean_addDocStringCore___redArg___lam__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__2_00___x40_Lean_DocString_Extension_3367263305____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2___closed__4;
-static lean_object* l_Lean_addDocStringCore___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_instReprPart_repr___at___00Prod_reprTuple___at___00Prod_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__1_spec__3_spec__10_spec__18___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprVersoModuleDocs___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToMarkdownSnippet___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -185,7 +182,6 @@ static lean_object* l_Lean_Doc_instReprInline_repr___at___00Array_Array_repr___a
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_DocString_Extension_152104186____hygCtx___hyg_2__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_doc_verso;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_getBuiltinVersoDocStrings___closed__0;
 static lean_object* l_Lean_Doc_instReprBlock_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0___closed__22;
 lean_object* lean_string_length(lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__6_00___x40_Lean_DocString_Extension_177922276____hygCtx___hyg_2_;
@@ -371,7 +367,6 @@ static lean_object* l_Lean_Doc_instReprPart_repr___at___00Prod_reprTuple___at___
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__4_00___x40_Lean_DocString_Extension_71268105____hygCtx___hyg_2_;
 static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_DocString_Extension_1462683259____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_VersoModuleDocs_assemble_spec__0_spec__1_spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1;
 lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl(lean_object*);
 lean_object* l_StateT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addInheritedDocString(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -466,7 +461,6 @@ LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__0(lean_object*,
 static lean_object* l_Lean_instMarkdownInlineElabInline___closed__0;
 lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_instToMarkdownPartOfMarkdownInlineOfMarkdownBlock___private__1___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_addBuiltinDocString___closed__0;
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_VersoModuleDocs_DocContext_addPart___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__1_00___x40_Lean_DocString_Extension_3367263305____hygCtx___hyg_2_;
@@ -484,7 +478,6 @@ static lean_object* l_Lean_Doc_instReprInline_repr___at___00Array_Array_repr___a
 static lean_object* l_Lean_addVersoModuleDocSnippet___closed__0;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_findInternalDocString_x3f___closed__1;
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2___closed__14;
 LEAN_EXPORT lean_object* l_Lean_addBuiltinDocString___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDocStringCore___redArg___lam__3___closed__1;
@@ -645,7 +638,6 @@ static lean_object* l_Lean_Doc_instReprInline_repr___at___00Array_Array_repr___a
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__2_00___x40_Lean_DocString_Extension_71268105____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Lean_Doc_instReprBlock_repr___at___00Array_Array_repr___at___00Lean_VersoModuleDocs_instReprSnippet_repr_spec__0_spec__0_spec__4_spec__11_spec__18(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__2_00___x40_Lean_DocString_Extension_71268105____hygCtx___hyg_2_(lean_object*, lean_object*);
-static lean_object* l_Lean_addInheritedDocString___redArg___lam__0___closed__0;
 static lean_object* l_Lean_getDocStringText___redArg___closed__4;
 static lean_object* l_Lean_instReprElabInline___lam__0___closed__0;
 lean_object* lean_array_get_size(lean_object*);
@@ -2319,19 +2311,11 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_addBuiltinDocString___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addBuiltinDocString(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_4 = l_Lean_addBuiltinDocString___closed__0;
+x_4 = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 x_5 = lean_st_ref_take(x_4);
 x_6 = l_String_removeLeadingSpaces(x_2);
 x_7 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_1, x_6, x_5);
@@ -4847,7 +4831,7 @@ LEAN_EXPORT lean_object* l_Lean_removeBuiltinDocString(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_addBuiltinDocString___closed__0;
+x_3 = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 x_4 = lean_st_ref_take(x_3);
 x_5 = l_Std_DTreeMap_Internal_Impl_erase___at___00Lean_removeBuiltinDocString_spec__0___redArg(x_1, x_4);
 x_6 = lean_st_ref_set(x_3, x_5);
@@ -4882,19 +4866,11 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_getBuiltinVersoDocStrings___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_builtinVersoDocStrings;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getBuiltinVersoDocStrings() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_getBuiltinVersoDocStrings___closed__0;
+x_2 = l___private_Lean_DocString_Extension_0__Lean_builtinVersoDocStrings;
 x_3 = lean_st_ref_get(x_2);
 x_4 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -4909,19 +4885,11 @@ x_2 = l_Lean_getBuiltinVersoDocStrings();
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_addDocStringCore___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_docStringExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_addDocStringCore___redArg___lam__0___closed__0;
+x_4 = l_Lean_docStringExt;
 x_5 = l_String_removeLeadingSpaces(x_1);
 x_6 = l_Lean_MapDeclarationExtension_insert___redArg(x_4, x_3, x_2, x_5);
 return x_6;
@@ -5092,7 +5060,7 @@ LEAN_EXPORT lean_object* l_Lean_removeDocStringCore___redArg___lam__1(lean_objec
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_Lean_addDocStringCore___redArg___lam__0___closed__0;
+x_3 = l_Lean_docStringExt;
 x_4 = lean_box(2);
 x_5 = lean_box(0);
 x_6 = l_Lean_PersistentEnvExtension_modifyState___redArg(x_3, x_2, x_1, x_4, x_5);
@@ -5266,19 +5234,11 @@ lean_dec(x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_addInheritedDocString___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_inheritDocStringExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addInheritedDocString___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_addInheritedDocString___redArg___lam__0___closed__0;
+x_4 = l___private_Lean_DocString_Extension_0__Lean_inheritDocStringExt;
 x_5 = l_Lean_MapDeclarationExtension_insert___redArg(x_4, x_3, x_1, x_2);
 return x_5;
 }
@@ -5304,7 +5264,7 @@ LEAN_EXPORT lean_object* l_Lean_addInheritedDocString___redArg___lam__3(lean_obj
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_12 = l_Lean_addInheritedDocString___redArg___lam__0___closed__0;
+x_12 = l___private_Lean_DocString_Extension_0__Lean_inheritDocStringExt;
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_13, 2);
@@ -5388,7 +5348,7 @@ LEAN_EXPORT lean_object* l_Lean_addInheritedDocString___redArg___lam__4(lean_obj
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
-x_10 = l_Lean_addInheritedDocString___redArg___lam__0___closed__0;
+x_10 = l___private_Lean_DocString_Extension_0__Lean_inheritDocStringExt;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_11, 2);
@@ -5591,19 +5551,11 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_findInternalDocString_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_versoDocStringExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_findInternalDocString_x3f(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
 lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
-x_9 = l_Lean_addInheritedDocString___redArg___lam__0___closed__0;
+x_9 = l___private_Lean_DocString_Extension_0__Lean_inheritDocStringExt;
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_10, 2);
@@ -5629,7 +5581,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_14);
-x_17 = l_Lean_addDocStringCore___redArg___lam__0___closed__0;
+x_17 = l_Lean_docStringExt;
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_18, 2);
@@ -5643,7 +5595,7 @@ lean_dec(x_19);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_22 = l_Lean_findInternalDocString_x3f___closed__1;
+x_22 = l_Lean_versoDocStringExt;
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_23, 2);
@@ -5664,7 +5616,7 @@ goto block_8;
 else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = l_Lean_addBuiltinDocString___closed__0;
+x_27 = l___private_Lean_DocString_Extension_0__Lean_builtinDocStrings;
 x_28 = lean_st_ref_get(x_27);
 x_29 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_28, x_2);
 lean_dec(x_28);
@@ -5703,7 +5655,7 @@ else
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 lean_dec(x_29);
-x_38 = l_Lean_getBuiltinVersoDocStrings___closed__0;
+x_38 = l___private_Lean_DocString_Extension_0__Lean_builtinVersoDocStrings;
 x_39 = lean_st_ref_get(x_38);
 x_40 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_39, x_2);
 lean_dec(x_2);
@@ -8940,19 +8892,11 @@ x_2 = l___private_Lean_DocString_Extension_0__Lean_initFn_00___x40_Lean_DocStrin
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_addMainModuleDoc___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addMainModuleDoc(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_addMainModuleDoc___closed__0;
+x_3 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 2);
@@ -8976,7 +8920,7 @@ LEAN_EXPORT lean_object* l_Lean_getMainModuleDoc(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Lean_addMainModuleDoc___closed__0;
+x_2 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_3, 2);
@@ -9021,7 +8965,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = l_Lean_getModuleDoc_x3f___closed__0;
-x_8 = l_Lean_addMainModuleDoc___closed__0;
+x_8 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 x_9 = 1;
 x_10 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_7, x_8, x_1, x_6, x_9);
 lean_dec(x_6);
@@ -9035,7 +8979,7 @@ x_11 = lean_ctor_get(x_3, 0);
 lean_inc(x_11);
 lean_dec(x_3);
 x_12 = l_Lean_getModuleDoc_x3f___closed__0;
-x_13 = l_Lean_addMainModuleDoc___closed__0;
+x_13 = l___private_Lean_DocString_Extension_0__Lean_moduleDocExt;
 x_14 = 1;
 x_15 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_12, x_13, x_1, x_11, x_14);
 lean_dec(x_11);
@@ -9331,16 +9275,8 @@ return x_5;
 static lean_object* _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedDeclarationRange_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0;
+x_1 = l_Lean_instInhabitedDeclarationRange_default;
 x_2 = l_Lean_instInhabitedVersoDocString_default___closed__0;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -9353,7 +9289,7 @@ static lean_object* _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default() 
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1;
+x_1 = l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0;
 return x_1;
 }
 }
@@ -17352,19 +17288,11 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_getVersoModuleDocs___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_versoModuleDocExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getVersoModuleDocs(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Lean_getVersoModuleDocs___closed__0;
+x_2 = l___private_Lean_DocString_Extension_0__Lean_versoModuleDocExt;
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_3, 2);
@@ -17447,7 +17375,7 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec_ref(x_3);
-x_20 = l_Lean_getVersoModuleDocs___closed__0;
+x_20 = l___private_Lean_DocString_Extension_0__Lean_versoModuleDocExt;
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc_ref(x_21);
 x_22 = lean_ctor_get(x_21, 2);
@@ -17657,13 +17585,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_versoDocStringExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_versoDocStringExt);
 lean_dec_ref(res);
-}l_Lean_addBuiltinDocString___closed__0 = _init_l_Lean_addBuiltinDocString___closed__0();
-lean_mark_persistent(l_Lean_addBuiltinDocString___closed__0);
-l_Lean_getBuiltinVersoDocStrings___closed__0 = _init_l_Lean_getBuiltinVersoDocStrings___closed__0();
-lean_mark_persistent(l_Lean_getBuiltinVersoDocStrings___closed__0);
-l_Lean_addDocStringCore___redArg___lam__0___closed__0 = _init_l_Lean_addDocStringCore___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_addDocStringCore___redArg___lam__0___closed__0);
-l_Lean_addDocStringCore___redArg___lam__3___closed__0 = _init_l_Lean_addDocStringCore___redArg___lam__3___closed__0();
+}l_Lean_addDocStringCore___redArg___lam__3___closed__0 = _init_l_Lean_addDocStringCore___redArg___lam__3___closed__0();
 lean_mark_persistent(l_Lean_addDocStringCore___redArg___lam__3___closed__0);
 l_Lean_addDocStringCore___redArg___lam__3___closed__1 = _init_l_Lean_addDocStringCore___redArg___lam__3___closed__1();
 lean_mark_persistent(l_Lean_addDocStringCore___redArg___lam__3___closed__1);
@@ -17677,8 +17599,6 @@ l_Lean_removeDocStringCore___redArg___lam__4___closed__0 = _init_l_Lean_removeDo
 lean_mark_persistent(l_Lean_removeDocStringCore___redArg___lam__4___closed__0);
 l_Lean_removeDocStringCore___redArg___lam__4___closed__1 = _init_l_Lean_removeDocStringCore___redArg___lam__4___closed__1();
 lean_mark_persistent(l_Lean_removeDocStringCore___redArg___lam__4___closed__1);
-l_Lean_addInheritedDocString___redArg___lam__0___closed__0 = _init_l_Lean_addInheritedDocString___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_addInheritedDocString___redArg___lam__0___closed__0);
 l_Lean_addInheritedDocString___redArg___lam__3___closed__0 = _init_l_Lean_addInheritedDocString___redArg___lam__3___closed__0();
 lean_mark_persistent(l_Lean_addInheritedDocString___redArg___lam__3___closed__0);
 l_Lean_addInheritedDocString___redArg___lam__3___closed__1 = _init_l_Lean_addInheritedDocString___redArg___lam__3___closed__1();
@@ -17695,8 +17615,6 @@ l_Lean_addInheritedDocString___redArg___closed__0 = _init_l_Lean_addInheritedDoc
 lean_mark_persistent(l_Lean_addInheritedDocString___redArg___closed__0);
 l_Lean_findInternalDocString_x3f___closed__0 = _init_l_Lean_findInternalDocString_x3f___closed__0();
 lean_mark_persistent(l_Lean_findInternalDocString_x3f___closed__0);
-l_Lean_findInternalDocString_x3f___closed__1 = _init_l_Lean_findInternalDocString_x3f___closed__1();
-lean_mark_persistent(l_Lean_findInternalDocString_x3f___closed__1);
 l_String_Slice_replace___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2_spec__5___redArg___closed__0 = _init_l_String_Slice_replace___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2_spec__5___redArg___closed__0();
 lean_mark_persistent(l_String_Slice_replace___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2_spec__5___redArg___closed__0);
 l_String_Slice_replace___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2_spec__5___redArg___closed__1 = _init_l_String_Slice_replace___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___at___00__private_Lean_DocString_Extension_0__Lean_findSimpleDocString_x3f_toMarkdown_spec__1_spec__2_spec__5___redArg___closed__1();
@@ -17783,9 +17701,7 @@ if (lean_io_result_is_error(res)) return res;
 l___private_Lean_DocString_Extension_0__Lean_moduleDocExt = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_DocString_Extension_0__Lean_moduleDocExt);
 lean_dec_ref(res);
-}l_Lean_addMainModuleDoc___closed__0 = _init_l_Lean_addMainModuleDoc___closed__0();
-lean_mark_persistent(l_Lean_addMainModuleDoc___closed__0);
-l_Lean_getMainModuleDoc___closed__0 = _init_l_Lean_getMainModuleDoc___closed__0();
+}l_Lean_getMainModuleDoc___closed__0 = _init_l_Lean_getMainModuleDoc___closed__0();
 lean_mark_persistent(l_Lean_getMainModuleDoc___closed__0);
 l_Lean_getModuleDoc_x3f___closed__0 = _init_l_Lean_getModuleDoc_x3f___closed__0();
 lean_mark_persistent(l_Lean_getModuleDoc_x3f___closed__0);
@@ -17801,8 +17717,6 @@ l_Lean_getDocStringText___redArg___closed__4 = _init_l_Lean_getDocStringText___r
 lean_mark_persistent(l_Lean_getDocStringText___redArg___closed__4);
 l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0 = _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0();
 lean_mark_persistent(l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__0);
-l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1 = _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1();
-lean_mark_persistent(l_Lean_VersoModuleDocs_instInhabitedSnippet_default___closed__1);
 l_Lean_VersoModuleDocs_instInhabitedSnippet_default = _init_l_Lean_VersoModuleDocs_instInhabitedSnippet_default();
 lean_mark_persistent(l_Lean_VersoModuleDocs_instInhabitedSnippet_default);
 l_Lean_VersoModuleDocs_instInhabitedSnippet = _init_l_Lean_VersoModuleDocs_instInhabitedSnippet();
@@ -18134,9 +18048,7 @@ if (lean_io_result_is_error(res)) return res;
 l___private_Lean_DocString_Extension_0__Lean_versoModuleDocExt = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_DocString_Extension_0__Lean_versoModuleDocExt);
 lean_dec_ref(res);
-}l_Lean_getVersoModuleDocs___closed__0 = _init_l_Lean_getVersoModuleDocs___closed__0();
-lean_mark_persistent(l_Lean_getVersoModuleDocs___closed__0);
-l_Lean_addVersoModuleDocSnippet___closed__0 = _init_l_Lean_addVersoModuleDocSnippet___closed__0();
+}l_Lean_addVersoModuleDocSnippet___closed__0 = _init_l_Lean_addVersoModuleDocSnippet___closed__0();
 lean_mark_persistent(l_Lean_addVersoModuleDocSnippet___closed__0);
 l_Lean_addVersoModuleDocSnippet___closed__1 = _init_l_Lean_addVersoModuleDocSnippet___closed__1();
 lean_mark_persistent(l_Lean_addVersoModuleDocSnippet___closed__1);

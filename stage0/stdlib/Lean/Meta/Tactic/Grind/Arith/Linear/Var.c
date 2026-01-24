@@ -56,7 +56,6 @@ lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lea
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Linear_mkVar_spec__1_spec__2___redArg___closed__0;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Linear_mkVar_spec__1_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Linear_mkVar_spec__1_spec__2_spec__4_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1263,14 +1262,6 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_mkVar(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -1326,7 +1317,7 @@ x_22 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0_
 lean_closure_set(x_22, 0, x_3);
 lean_closure_set(x_22, 1, x_1);
 lean_closure_set(x_22, 2, x_21);
-x_23 = l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0;
+x_23 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_24 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_23, x_22, x_4);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -1584,7 +1575,7 @@ x_55 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0_
 lean_closure_set(x_55, 0, x_3);
 lean_closure_set(x_55, 1, x_1);
 lean_closure_set(x_55, 2, x_54);
-x_56 = l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0;
+x_56 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_57 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_56, x_55, x_4);
 if (lean_obj_tag(x_57) == 0)
 {
@@ -1919,8 +1910,6 @@ l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0___closed__1 = _init_l_Lean_Meta_Gr
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0___closed__1);
 l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0___closed__2();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_mkVar___lam__0___closed__2);
-l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0 = _init_l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_mkVar___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

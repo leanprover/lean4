@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix___lam__0(lean_object*,
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__33;
 lean_object* l_Array_mkArray0(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__15;
-static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3;
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray1___redArg(lean_object*);
@@ -58,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1();
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__22;
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix_declRange__3___closed__3;
-static lean_object* l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix_declRange__3___closed__1;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__25;
@@ -120,21 +118,13 @@ static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__46;
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix_declRange__3___closed__0;
 static lean_object* l_Lean_Elab_Command_expandMixfix___lam__0___closed__50;
-static lean_object* _init_l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_mkAttrKindGlobal;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_unsigned_to_nat(2u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
-x_7 = l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0;
+x_7 = l_Lean_Elab_mkAttrKindGlobal;
 x_8 = l_Lean_Syntax_setArg(x_1, x_5, x_7);
 x_9 = lean_apply_3(x_2, x_8, x_3, x_4);
 if (lean_obj_tag(x_9) == 0)
@@ -4311,7 +4301,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_macroAttribute;
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -4319,25 +4309,17 @@ static lean_object* _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Elab", 4, 4);
+x_1 = lean_mk_string_unchecked("expandMixfix", 12, 12);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("expandMixfix", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2;
+x_1 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__1;
 x_2 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__2;
-x_3 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__1;
+x_3 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__0;
 x_4 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
@@ -4347,9 +4329,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__0;
+x_2 = l_Lean_Elab_macroAttribute;
 x_3 = l_Lean_Elab_Command_expandMixfix___lam__0___closed__18;
-x_4 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3;
+x_4 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2;
 x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Command_expandMixfix), 3, 0);
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(x_2, x_3, x_4, x_5);
 return x_6;
@@ -4459,7 +4441,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3;
+x_2 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2;
 x_3 = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix_declRange__3___closed__6;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3);
 return x_4;
@@ -4482,8 +4464,6 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Attributes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0 = _init_l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0();
-lean_mark_persistent(l___private_Lean_Elab_Mixfix_0__Lean_Elab_Command_expandMixfix_withAttrKindGlobal___closed__0);
 l_Lean_Elab_Command_expandMixfix___lam__0___closed__0 = _init_l_Lean_Elab_Command_expandMixfix___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Elab_Command_expandMixfix___lam__0___closed__0);
 l_Lean_Elab_Command_expandMixfix___lam__0___closed__1 = _init_l_Lean_Elab_Command_expandMixfix___lam__0___closed__1();
@@ -4604,8 +4584,6 @@ l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1_
 lean_mark_persistent(l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__1);
 l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2 = _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2();
 lean_mark_persistent(l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__2);
-l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3 = _init_l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3();
-lean_mark_persistent(l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1___closed__3);
 if (builtin) {res = l_Lean_Elab_Command_expandMixfix___regBuiltin_Lean_Elab_Command_expandMixfix__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

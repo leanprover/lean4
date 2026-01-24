@@ -142,7 +142,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_oleanPrivateFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_irFacet;
 static lean_object* l_Lake_Module_coFacet___closed__1;
 static lean_object* l_Lake_LeanExe_defaultFacet___closed__0;
-static lean_object* l_Lake_instInhabitedModuleExportInfo_default___closed__1;
 static lean_object* l_Lake_Module_exportInfoFacet___closed__1;
 static lean_object* l_Lake_Module_oleanPrivateFacet___closed__1;
 static lean_object* l_Lake_Module_oNoExportFacet___closed__0;
@@ -678,16 +677,8 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedModuleExportInfo_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedImportArtifacts_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedModuleExportInfo_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_instInhabitedModuleExportInfo_default___closed__0;
+x_1 = l_Lean_instInhabitedImportArtifacts_default;
 x_2 = l_Lake_instInhabitedModuleImportInfo_default___closed__1;
 x_3 = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -707,7 +698,7 @@ static lean_object* _init_l_Lake_instInhabitedModuleExportInfo_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedModuleExportInfo_default___closed__1;
+x_1 = l_Lake_instInhabitedModuleExportInfo_default___closed__0;
 return x_1;
 }
 }
@@ -1787,8 +1778,6 @@ l_Lake_Module_importInfoFacet = _init_l_Lake_Module_importInfoFacet();
 lean_mark_persistent(l_Lake_Module_importInfoFacet);
 l_Lake_instInhabitedModuleExportInfo_default___closed__0 = _init_l_Lake_instInhabitedModuleExportInfo_default___closed__0();
 lean_mark_persistent(l_Lake_instInhabitedModuleExportInfo_default___closed__0);
-l_Lake_instInhabitedModuleExportInfo_default___closed__1 = _init_l_Lake_instInhabitedModuleExportInfo_default___closed__1();
-lean_mark_persistent(l_Lake_instInhabitedModuleExportInfo_default___closed__1);
 l_Lake_instInhabitedModuleExportInfo_default = _init_l_Lake_instInhabitedModuleExportInfo_default();
 lean_mark_persistent(l_Lake_instInhabitedModuleExportInfo_default);
 l_Lake_instInhabitedModuleExportInfo = _init_l_Lake_instInhabitedModuleExportInfo();

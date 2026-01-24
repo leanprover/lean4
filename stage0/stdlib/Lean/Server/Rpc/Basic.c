@@ -88,7 +88,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Server_rpcReleaseRef_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_fromJson_x3f___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_WithRpcRef_mk___redArg___closed__0;
 lean_object* l_id___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instBEqRpcRef_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Server_rpcReleaseRef_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
@@ -809,19 +808,11 @@ x_2 = l_Lean_Server_initFn_00___x40_Lean_Server_Rpc_Basic_1605303199____hygCtx__
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_WithRpcRef_mk___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Server_freshWithRpcRefId;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_mk___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; 
-x_3 = l_Lean_Server_WithRpcRef_mk___redArg___closed__0;
+x_3 = l_Lean_Server_freshWithRpcRefId;
 x_4 = lean_st_ref_take(x_3);
 x_5 = 1;
 x_6 = lean_unbox_usize(x_4);
@@ -4890,9 +4881,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_freshWithRpcRefId = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_freshWithRpcRefId);
 lean_dec_ref(res);
-}l_Lean_Server_WithRpcRef_mk___redArg___closed__0 = _init_l_Lean_Server_WithRpcRef_mk___redArg___closed__0();
-lean_mark_persistent(l_Lean_Server_WithRpcRef_mk___redArg___closed__0);
-l_Lean_Server_rpcStoreRef___redArg___closed__0 = _init_l_Lean_Server_rpcStoreRef___redArg___closed__0();
+}l_Lean_Server_rpcStoreRef___redArg___closed__0 = _init_l_Lean_Server_rpcStoreRef___redArg___closed__0();
 lean_mark_persistent(l_Lean_Server_rpcStoreRef___redArg___closed__0);
 l_Lean_Server_rpcStoreRef___redArg___closed__1 = _init_l_Lean_Server_rpcStoreRef___redArg___closed__1();
 lean_mark_persistent(l_Lean_Server_rpcStoreRef___redArg___closed__1);

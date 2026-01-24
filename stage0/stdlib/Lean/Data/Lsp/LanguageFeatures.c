@@ -859,7 +859,6 @@ static lean_object* l_Lean_Lsp_instFromJsonCallHierarchyItem_fromJson___closed__
 LEAN_EXPORT lean_object* l_Lean_Lsp_instHashableCompletionIdentifier;
 static lean_object* l_Lean_Lsp_instFromJsonResolvableCompletionItem_fromJson___closed__21;
 static lean_object* l_Lean_Lsp_instFromJsonRenameOptions_fromJson___closed__7;
-static lean_object* l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedCallHierarchyOutgoingCall_default;
 static lean_object* l_Lean_Lsp_instFromJsonInlayHintClientCapabilities_fromJson___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonParameterInformationLabel___lam__0(lean_object*);
@@ -31865,16 +31864,8 @@ return x_1;
 static lean_object* _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedRange_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0;
+x_1 = l_Lean_Lsp_instInhabitedRange_default;
 x_2 = lean_box(0);
 x_3 = 0;
 x_4 = l_Lean_Lsp_instInhabitedCompletionItem_default___closed__0;
@@ -31894,7 +31885,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1;
+x_1 = l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0;
 return x_1;
 }
 }
@@ -54104,8 +54095,6 @@ l_Lean_Lsp_instHashableCallHierarchyItem = _init_l_Lean_Lsp_instHashableCallHier
 lean_mark_persistent(l_Lean_Lsp_instHashableCallHierarchyItem);
 l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0 = _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__0);
-l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1 = _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedCallHierarchyItem_default___closed__1);
 l_Lean_Lsp_instInhabitedCallHierarchyItem_default = _init_l_Lean_Lsp_instInhabitedCallHierarchyItem_default();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedCallHierarchyItem_default);
 l_Lean_Lsp_instInhabitedCallHierarchyItem = _init_l_Lean_Lsp_instInhabitedCallHierarchyItem();

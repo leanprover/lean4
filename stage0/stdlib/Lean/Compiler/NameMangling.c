@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_fromHex_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_demangleAux_match__4_splitter___boxed__const__1;
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -34,11 +34,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_dem
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_pushHex_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName(lean_object*, lean_object*, uint8_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__2;
 lean_object* l_Nat_reprFast(lean_object*);
+static lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg___boxed(lean_object*);
 LEAN_EXPORT uint32_t l___private_Lean_Compiler_NameMangling_0__String_digitChar___redArg(uint32_t);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_NameMangling_0__Lean_checkLowerHex(lean_object*, lean_object*, lean_object*);
@@ -1136,24 +1137,52 @@ x_1 = lean_mk_string_unchecked("initialize_", 11, 11);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1() {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_Lean_mkModuleInitializationFunctionName___closed__0;
-x_4 = l_Lean_mkModuleInitializationStem(x_1, x_2);
-x_5 = lean_string_append(x_3, x_4);
-lean_dec_ref(x_4);
-return x_5;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("meta_", 5, 5);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_mkModuleInitializationFunctionName(x_1, x_2);
+lean_object* x_4; 
+if (x_3 == 0)
+{
+lean_object* x_10; 
+x_10 = l_String_mangle___closed__0;
+x_4 = x_10;
+goto block_9;
+}
+else
+{
+lean_object* x_11; 
+x_11 = l_Lean_mkModuleInitializationFunctionName___closed__1;
+x_4 = x_11;
+goto block_9;
+}
+block_9:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = l_Lean_mkModuleInitializationFunctionName___closed__0;
+x_6 = lean_string_append(x_4, x_5);
+x_7 = l_Lean_mkModuleInitializationStem(x_1, x_2);
+x_8 = lean_string_append(x_6, x_7);
+lean_dec_ref(x_7);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_mkModuleInitializationFunctionName___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+x_5 = l_Lean_mkModuleInitializationFunctionName(x_1, x_2, x_4);
 lean_dec(x_2);
-return x_3;
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_mkPackageSymbolPrefix___closed__0() {
@@ -2215,6 +2244,8 @@ l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__2 = _ini
 lean_mark_persistent(l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__2);
 l_Lean_mkModuleInitializationFunctionName___closed__0 = _init_l_Lean_mkModuleInitializationFunctionName___closed__0();
 lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__0);
+l_Lean_mkModuleInitializationFunctionName___closed__1 = _init_l_Lean_mkModuleInitializationFunctionName___closed__1();
+lean_mark_persistent(l_Lean_mkModuleInitializationFunctionName___closed__1);
 l_Lean_mkPackageSymbolPrefix___closed__0 = _init_l_Lean_mkPackageSymbolPrefix___closed__0();
 lean_mark_persistent(l_Lean_mkPackageSymbolPrefix___closed__0);
 l_Lean_mkPackageSymbolPrefix___closed__1 = _init_l_Lean_mkPackageSymbolPrefix___closed__1();

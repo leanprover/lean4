@@ -28,7 +28,6 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object*, lean_object*);
-static uint8_t l_Lake_mkRelPathString___closed__0;
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
@@ -53,7 +52,6 @@ lean_object* l_String_Slice_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_modOfFilePath(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object*);
-static uint32_t l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
@@ -259,19 +257,11 @@ goto _start;
 }
 }
 }
-static uint8_t _init_l_Lake_mkRelPathString___closed__0() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isWindows;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lake_mkRelPathString___closed__0;
+x_2 = l_System_Platform_isWindows;
 if (x_2 == 0)
 {
 return x_1;
@@ -372,14 +362,6 @@ x_1 = l_Lake_instDivFilePath__lake___closed__0;
 return x_1;
 }
 }
-static uint32_t _init_l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0() {
-_start:
-{
-uint32_t x_1; 
-x_1 = l_System_FilePath_pathSeparator;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -392,7 +374,7 @@ lean_object* x_6; uint32_t x_7; uint32_t x_8; uint8_t x_9;
 x_6 = lean_string_utf8_prev(x_1, x_2);
 lean_dec(x_2);
 x_7 = lean_string_utf8_get(x_1, x_6);
-x_8 = l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0;
+x_8 = l_System_FilePath_pathSeparator;
 x_9 = lean_uint32_dec_eq(x_7, x_8);
 if (x_9 == 0)
 {
@@ -453,7 +435,7 @@ static lean_object* _init_l_String_Slice_dropSuffix___at___00String_dropSuffix__
 _start:
 {
 uint32_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0;
+x_1 = l_System_FilePath_pathSeparator;
 x_2 = l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0;
 x_3 = lean_string_push(x_2, x_1);
 return x_3;
@@ -642,7 +624,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_mkRelPathString___closed__0 = _init_l_Lake_mkRelPathString___closed__0();
 l_Lake_instToJsonFilePath__lake___closed__0 = _init_l_Lake_instToJsonFilePath__lake___closed__0();
 lean_mark_persistent(l_Lake_instToJsonFilePath__lake___closed__0);
 l_Lake_instToJsonFilePath__lake = _init_l_Lake_instToJsonFilePath__lake();
@@ -655,7 +636,6 @@ l_Lake_instDivFilePath__lake = _init_l_Lake_instDivFilePath__lake();
 lean_mark_persistent(l_Lake_instDivFilePath__lake);
 l_Lake_instHDivFilePathString__lake = _init_l_Lake_instHDivFilePathString__lake();
 lean_mark_persistent(l_Lake_instHDivFilePathString__lake);
-l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0 = _init_l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___closed__0();
 l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0 = _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0();
 lean_mark_persistent(l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0);
 l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1 = _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1();

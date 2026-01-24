@@ -27,7 +27,6 @@ extern lean_object* l_Lean_Grind_CommRing_instInhabitedPoly_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstrProof_coreS_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_PolyDerivation_step_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstrProof_simp_elim___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_instInhabitedSemiring;
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing_default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at___00Lean_Meta_Grind_Arith_CommRing_instInhabitedCommRing_default_spec__0(lean_object*);
@@ -1139,19 +1138,11 @@ x_2 = l_Lean_Meta_Grind_Arith_CommRing_initFn_00___x40_Lean_Meta_Tactic_Grind_Ar
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0;
+x_4 = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
 x_5 = l_Lean_Meta_Grind_SolverExtension_getState___redArg(x_4, x_1, x_2);
 return x_5;
 }
@@ -1195,7 +1186,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_modify_x27___redArg(le
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0;
+x_4 = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_4, x_1, x_2);
 return x_5;
 }
@@ -1213,7 +1204,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_modify_x27(lean_object
 _start:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0;
+x_12 = l_Lean_Meta_Grind_Arith_CommRing_ringExt;
 x_13 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_12, x_1, x_2);
 return x_13;
 }
@@ -1331,9 +1322,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_Arith_CommRing_ringExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_ringExt);
 lean_dec_ref(res);
-}l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0 = _init_l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

@@ -165,7 +165,6 @@ lean_object* lean_st_mk_ref(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__20;
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls();
 LEAN_EXPORT lean_object* l_Lean_getOptionDeclsArray___boxed(lean_object*);
-static lean_object* l_Lean_instInhabitedOptionDecl_default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Option_register___auto__1;
 static lean_object* l_List_foldl___at___00List_toString___at___00Lean_Options_instToString___private__1_spec__1_spec__1___closed__1;
 lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -292,7 +291,6 @@ LEAN_EXPORT lean_object* l_Lean_Options_getBool___boxed(lean_object*, lean_objec
 static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__13;
 static lean_object* l_Lean_Option_registerOption___closed__9;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__1;
-static lean_object* l_Lean_registerOption___closed__4;
 static lean_object* l_Lean_Options_instBEq___private__1___closed__0;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Lean_Options_instBEq___private__1_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__4;
@@ -4836,24 +4834,16 @@ static lean_object* _init_l_Lean_instInhabitedOptionDecl_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedDataValue_default;
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedOptionDecl_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedOptionDecl_default___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_instInhabitedOptionDecl_default___closed__1;
-x_2 = l_Lean_instInhabitedOptionDecl_default___closed__0;
+x_1 = l_Lean_instInhabitedOptionDecl_default___closed__0;
+x_2 = l_Lean_instInhabitedDataValue_default;
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -4867,7 +4857,7 @@ static lean_object* _init_l_Lean_instInhabitedOptionDecl_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedOptionDecl_default___closed__2;
+x_1 = l_Lean_instInhabitedOptionDecl_default___closed__1;
 return x_1;
 }
 }
@@ -5005,19 +4995,11 @@ static lean_object* _init_l_Lean_registerOption___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_Data_Options_0__Lean_optionDeclsRef;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_registerOption___closed__3() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("Invalid option declaration `", 28, 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_registerOption___closed__4() {
+static lean_object* _init_l_Lean_registerOption___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -5053,7 +5035,7 @@ return x_4;
 else
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = l_Lean_registerOption___closed__2;
+x_9 = l___private_Lean_Data_Options_0__Lean_optionDeclsRef;
 x_10 = lean_st_ref_get(x_9);
 x_11 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_NameMap_contains_spec__0___redArg(x_1, x_10);
 if (x_11 == 0)
@@ -5069,11 +5051,11 @@ else
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_10);
 lean_dec_ref(x_2);
-x_14 = l_Lean_registerOption___closed__3;
+x_14 = l_Lean_registerOption___closed__2;
 x_15 = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(x_1, x_11);
 x_16 = lean_string_append(x_14, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Lean_registerOption___closed__4;
+x_17 = l_Lean_registerOption___closed__3;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_mk_io_user_error(x_18);
 lean_ctor_set_tag(x_4, 1);
@@ -5103,7 +5085,7 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_24 = l_Lean_registerOption___closed__2;
+x_24 = l___private_Lean_Data_Options_0__Lean_optionDeclsRef;
 x_25 = lean_st_ref_get(x_24);
 x_26 = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_NameMap_contains_spec__0___redArg(x_1, x_25);
 if (x_26 == 0)
@@ -5120,11 +5102,11 @@ else
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_25);
 lean_dec_ref(x_2);
-x_30 = l_Lean_registerOption___closed__3;
+x_30 = l_Lean_registerOption___closed__2;
 x_31 = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(x_1, x_26);
 x_32 = lean_string_append(x_30, x_31);
 lean_dec_ref(x_31);
-x_33 = l_Lean_registerOption___closed__4;
+x_33 = l_Lean_registerOption___closed__3;
 x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_mk_io_user_error(x_34);
 x_36 = lean_alloc_ctor(1, 1, 0);
@@ -5169,7 +5151,7 @@ LEAN_EXPORT lean_object* l_Lean_getOptionDecls() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_registerOption___closed__2;
+x_2 = l___private_Lean_Data_Options_0__Lean_optionDeclsRef;
 x_3 = lean_st_ref_get(x_2);
 x_4 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -7828,8 +7810,6 @@ l_Lean_instInhabitedOptionDecl_default___closed__0 = _init_l_Lean_instInhabitedO
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl_default___closed__0);
 l_Lean_instInhabitedOptionDecl_default___closed__1 = _init_l_Lean_instInhabitedOptionDecl_default___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl_default___closed__1);
-l_Lean_instInhabitedOptionDecl_default___closed__2 = _init_l_Lean_instInhabitedOptionDecl_default___closed__2();
-lean_mark_persistent(l_Lean_instInhabitedOptionDecl_default___closed__2);
 l_Lean_instInhabitedOptionDecl_default = _init_l_Lean_instInhabitedOptionDecl_default();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl_default);
 l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
@@ -7857,8 +7837,6 @@ l_Lean_registerOption___closed__2 = _init_l_Lean_registerOption___closed__2();
 lean_mark_persistent(l_Lean_registerOption___closed__2);
 l_Lean_registerOption___closed__3 = _init_l_Lean_registerOption___closed__3();
 lean_mark_persistent(l_Lean_registerOption___closed__3);
-l_Lean_registerOption___closed__4 = _init_l_Lean_registerOption___closed__4();
-lean_mark_persistent(l_Lean_registerOption___closed__4);
 l_Lean_getOptionDeclsArray___closed__0 = _init_l_Lean_getOptionDeclsArray___closed__0();
 lean_mark_persistent(l_Lean_getOptionDeclsArray___closed__0);
 l_Lean_getOptionDecl___closed__0 = _init_l_Lean_getOptionDecl___closed__0();

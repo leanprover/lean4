@@ -165,7 +165,6 @@ static lean_object* l_Lean_Meta_Simp_checkLoops___lam__0___closed__6;
 static lean_object* l_Lean_Meta_Simp_mkLoopWarningMsg___closed__4;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_checkLoops___lam__1___closed__3;
-static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0;
 static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withFreshUsedTheorems___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__6;
@@ -189,7 +188,6 @@ LEAN_EXPORT uint8_t l_Lean_Option_get___at___00Lean_Meta_Simp_shouldCheckLoops_s
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Meta_Simp_shouldCheckLoops_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0;
 static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_checkLoops___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -1917,14 +1915,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Simp_linter_loopingSimpArgs;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_shouldCheckLoops___redArg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1937,7 +1927,7 @@ if (x_1 == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0;
+x_8 = l_Lean_Meta_Simp_linter_loopingSimpArgs;
 x_9 = l_Lean_Option_get___at___00Lean_Meta_Simp_shouldCheckLoops_spec__0(x_7, x_8);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
@@ -2697,14 +2687,6 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_warningAsError;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -3079,7 +3061,7 @@ goto block_108;
 else
 {
 lean_object* x_120; uint8_t x_121; 
-x_120 = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0;
+x_120 = l_Lean_warningAsError;
 x_121 = l_Lean_Option_get___at___00Lean_Meta_Simp_shouldCheckLoops_spec__0(x_112, x_120);
 lean_inc_ref(x_110);
 lean_inc_ref(x_111);
@@ -3618,7 +3600,7 @@ lean_inc(x_22);
 lean_dec_ref(x_21);
 x_23 = lean_ctor_get(x_18, 5);
 lean_inc(x_23);
-x_24 = l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0;
+x_24 = l_Lean_Meta_Simp_linter_loopingSimpArgs;
 x_25 = l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0(x_24, x_23, x_22, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_19);
 lean_dec(x_17);
@@ -4363,8 +4345,6 @@ l_Lean_Meta_Simp_mkLoopWarningMsg___closed__8 = _init_l_Lean_Meta_Simp_mkLoopWar
 lean_mark_persistent(l_Lean_Meta_Simp_mkLoopWarningMsg___closed__8);
 l_Lean_Meta_Simp_mkLoopWarningMsg___closed__9 = _init_l_Lean_Meta_Simp_mkLoopWarningMsg___closed__9();
 lean_mark_persistent(l_Lean_Meta_Simp_mkLoopWarningMsg___closed__9);
-l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0 = _init_l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_Simp_shouldCheckLoops___redArg___closed__0);
 l_Lean_isTracingEnabledFor___at___00Lean_Meta_Simp_checkLoops_spec__2___redArg___closed__0 = _init_l_Lean_isTracingEnabledFor___at___00Lean_Meta_Simp_checkLoops_spec__2___redArg___closed__0();
 lean_mark_persistent(l_Lean_isTracingEnabledFor___at___00Lean_Meta_Simp_checkLoops_spec__2___redArg___closed__0);
 l_Lean_isTracingEnabledFor___at___00Lean_Meta_Simp_checkLoops_spec__2___redArg___closed__1 = _init_l_Lean_isTracingEnabledFor___at___00Lean_Meta_Simp_checkLoops_spec__2___redArg___closed__1();
@@ -4386,8 +4366,6 @@ l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Le
 lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__5);
 l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__6 = _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__6();
 lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___lam__0___closed__6);
-l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0 = _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0();
-lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0_spec__0_spec__3___redArg___closed__0);
 l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0___closed__0 = _init_l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0___closed__0();
 lean_mark_persistent(l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0___closed__0);
 l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0___closed__1 = _init_l_Lean_Linter_logLint___at___00Lean_Meta_Simp_checkLoops_spec__0___closed__1();

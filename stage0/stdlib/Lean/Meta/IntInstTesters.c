@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLTInt___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstMulInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstSubInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Structural_isInstLTInt___redArg___closed__0;
-static lean_object* l_Lean_Meta_DefEq_isInstLTInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstOfNatInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstLEInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Structural_isInstNegInt___redArg___closed__2;
@@ -42,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHPowInt___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstAddInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DefEq_isInstDvdInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstDivInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstMulInt___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstAddInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstPowInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstHAddInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHAddInt___redArg___boxed(l
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstNegInt___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Structural_isInstOfNatInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLTInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstHMulInt___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstLEInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLEInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
@@ -70,7 +67,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHPowInt___redArg___boxed(l
 static lean_object* l_Lean_Meta_Structural_isInstHMulInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstHSubInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstNegInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstHAddInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHAddInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstModInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHDivInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,7 +83,6 @@ static lean_object* l_Lean_Meta_Structural_isInstModInt___redArg___closed__1;
 static lean_object* l_Lean_Meta_Structural_isInstMulInt___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstMulInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstDvdInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstAddInt___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstSubInt___redArg___closed__1;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Structural_isInstHAddInt___redArg___closed__0;
@@ -100,7 +95,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHSubInt(lean_object*, lean
 extern lean_object* l_Lean_Int_mkInstMul;
 static lean_object* l_Lean_Meta_Structural_isInstSubInt___redArg___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstHDivInt___redArg___closed__1;
-static lean_object* l_Lean_Meta_DefEq_isInstSubInt___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstDivInt___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHAddInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,7 +109,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstDvdInt___boxed(lean_object
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstNatPowInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstDvdInt___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstSubInt___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstHSubInt___closed__0;
 static lean_object* l_Lean_Meta_Structural_isInstLEInt___redArg___closed__1;
 static lean_object* l_Lean_Meta_Structural_isInstPowInt___redArg___closed__1;
 static lean_object* l_Lean_Meta_Structural_isInstDivInt___redArg___closed__1;
@@ -134,7 +127,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 extern lean_object* l_Lean_Int_mkInstLT;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstLEInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstAddInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstNegInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHPowInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstLTInt___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstDivInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +155,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstDvdInt(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHModInt___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstSubInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstHModInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DefEq_isInstLEInt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstSubInt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Structural_isInstDvdInt___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Structural_isInstLTInt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2339,14 +2330,6 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstNegInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstNeg;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstNegInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2364,7 +2347,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstNegInt___closed__0;
+x_10 = l_Lean_Int_mkInstNeg;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2397,14 +2380,6 @@ x_7 = l_Lean_Meta_DefEq_isInstNegInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstAddInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstAdd;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstAddInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2422,7 +2397,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstAddInt___closed__0;
+x_10 = l_Lean_Int_mkInstAdd;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2455,14 +2430,6 @@ x_7 = l_Lean_Meta_DefEq_isInstAddInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstHAddInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstHAdd;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstHAddInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2480,7 +2447,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstHAddInt___closed__0;
+x_10 = l_Lean_Int_mkInstHAdd;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2513,14 +2480,6 @@ x_7 = l_Lean_Meta_DefEq_isInstHAddInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstSubInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstSub;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstSubInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2538,7 +2497,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstSubInt___closed__0;
+x_10 = l_Lean_Int_mkInstSub;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2571,14 +2530,6 @@ x_7 = l_Lean_Meta_DefEq_isInstSubInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstHSubInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstHSub;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstHSubInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2596,7 +2547,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstHSubInt___closed__0;
+x_10 = l_Lean_Int_mkInstHSub;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2629,14 +2580,6 @@ x_7 = l_Lean_Meta_DefEq_isInstHSubInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstMulInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstMul;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstMulInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2654,7 +2597,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstMulInt___closed__0;
+x_10 = l_Lean_Int_mkInstMul;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2687,14 +2630,6 @@ x_7 = l_Lean_Meta_DefEq_isInstMulInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstHMulInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstHMul;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstHMulInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2712,7 +2647,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstHMulInt___closed__0;
+x_10 = l_Lean_Int_mkInstHMul;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2745,14 +2680,6 @@ x_7 = l_Lean_Meta_DefEq_isInstHMulInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstLTInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstLT;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLTInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2770,7 +2697,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstLTInt___closed__0;
+x_10 = l_Lean_Int_mkInstLT;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -2803,14 +2730,6 @@ x_7 = l_Lean_Meta_DefEq_isInstLTInt(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Meta_DefEq_isInstLEInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Int_mkInstLE;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEq_isInstLEInt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2828,7 +2747,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_7);
-x_10 = l_Lean_Meta_DefEq_isInstLEInt___closed__0;
+x_10 = l_Lean_Int_mkInstLE;
 x_11 = l_Lean_Meta_isDefEqI(x_1, x_10, x_2, x_3, x_4, x_5);
 return x_11;
 }
@@ -3004,24 +2923,6 @@ l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__0 = _init_l_Lean_Meta_St
 lean_mark_persistent(l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__0);
 l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__1 = _init_l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__1();
 lean_mark_persistent(l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__1);
-l_Lean_Meta_DefEq_isInstNegInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstNegInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstNegInt___closed__0);
-l_Lean_Meta_DefEq_isInstAddInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstAddInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstAddInt___closed__0);
-l_Lean_Meta_DefEq_isInstHAddInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstHAddInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstHAddInt___closed__0);
-l_Lean_Meta_DefEq_isInstSubInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstSubInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstSubInt___closed__0);
-l_Lean_Meta_DefEq_isInstHSubInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstHSubInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstHSubInt___closed__0);
-l_Lean_Meta_DefEq_isInstMulInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstMulInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstMulInt___closed__0);
-l_Lean_Meta_DefEq_isInstHMulInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstHMulInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstHMulInt___closed__0);
-l_Lean_Meta_DefEq_isInstLTInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstLTInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstLTInt___closed__0);
-l_Lean_Meta_DefEq_isInstLEInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstLEInt___closed__0();
-lean_mark_persistent(l_Lean_Meta_DefEq_isInstLEInt___closed__0);
 l_Lean_Meta_DefEq_isInstDvdInt___closed__0 = _init_l_Lean_Meta_DefEq_isInstDvdInt___closed__0();
 lean_mark_persistent(l_Lean_Meta_DefEq_isInstDvdInt___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

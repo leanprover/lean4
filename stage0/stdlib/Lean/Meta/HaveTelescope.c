@@ -185,7 +185,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_HaveTelescope_0__Lean_Meta_getHav
 LEAN_EXPORT lean_object* l___private_Lean_Meta_HaveTelescope_0__Lean_Meta_getHaveTelescopeInfo_collect___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_HaveTelescope_0__Lean_Meta_getHaveTelescopeInfo_collect___lam__1___closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_instInhabitedHaveInfo_default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_letTelescope___at___00Lean_Meta_zetaUnused_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ZetaUnusedMode_ctorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_ZetaUnusedMode_no_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -376,17 +375,9 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_instInhabitedHaveInfo_default___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedLocalDecl_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedHaveInfo_default___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_instInhabitedHaveInfo_default___closed__2;
+x_2 = l_Lean_instInhabitedLocalDecl_default;
 x_3 = l_Lean_Meta_instInhabitedHaveInfo_default___closed__1;
 x_4 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -400,7 +391,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedHaveInfo_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedHaveInfo_default___closed__3;
+x_1 = l_Lean_Meta_instInhabitedHaveInfo_default___closed__2;
 return x_1;
 }
 }
@@ -9471,8 +9462,6 @@ l_Lean_Meta_instInhabitedHaveInfo_default___closed__1 = _init_l_Lean_Meta_instIn
 lean_mark_persistent(l_Lean_Meta_instInhabitedHaveInfo_default___closed__1);
 l_Lean_Meta_instInhabitedHaveInfo_default___closed__2 = _init_l_Lean_Meta_instInhabitedHaveInfo_default___closed__2();
 lean_mark_persistent(l_Lean_Meta_instInhabitedHaveInfo_default___closed__2);
-l_Lean_Meta_instInhabitedHaveInfo_default___closed__3 = _init_l_Lean_Meta_instInhabitedHaveInfo_default___closed__3();
-lean_mark_persistent(l_Lean_Meta_instInhabitedHaveInfo_default___closed__3);
 l_Lean_Meta_instInhabitedHaveInfo_default = _init_l_Lean_Meta_instInhabitedHaveInfo_default();
 lean_mark_persistent(l_Lean_Meta_instInhabitedHaveInfo_default);
 l_Lean_Meta_instInhabitedHaveInfo = _init_l_Lean_Meta_instInhabitedHaveInfo();

@@ -155,7 +155,6 @@ static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__25;
 lean_object* l_Lean_PersistentEnvExtension_modifyState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkTagDeclarationExtension___closed__2;
-static lean_object* l_Lean_mkTagDeclarationExtension___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_replayOfFilter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getEntries(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__5;
@@ -1542,19 +1541,11 @@ x_1 = l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__28;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_mkTagDeclarationExtension___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_mkTagDeclarationExtension___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_mkTagDeclarationExtension___lam__0___closed__0;
+x_2 = l_Lean_NameSet_empty;
 return x_2;
 }
 }
@@ -3043,8 +3034,6 @@ l_Lean_registerSimplePersistentEnvExtension___redArg___closed__2 = _init_l_Lean_
 lean_mark_persistent(l_Lean_registerSimplePersistentEnvExtension___redArg___closed__2);
 l_Lean_mkTagDeclarationExtension___auto__1 = _init_l_Lean_mkTagDeclarationExtension___auto__1();
 lean_mark_persistent(l_Lean_mkTagDeclarationExtension___auto__1);
-l_Lean_mkTagDeclarationExtension___lam__0___closed__0 = _init_l_Lean_mkTagDeclarationExtension___lam__0___closed__0();
-lean_mark_persistent(l_Lean_mkTagDeclarationExtension___lam__0___closed__0);
 l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0 = _init_l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_mkTagDeclarationExtension_spec__0___redArg___closed__0);
 l_Lean_mkTagDeclarationExtension___closed__0 = _init_l_Lean_mkTagDeclarationExtension___closed__0();

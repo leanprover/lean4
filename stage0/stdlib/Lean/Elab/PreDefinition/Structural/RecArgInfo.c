@@ -87,7 +87,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_a
 static lean_object* l_Lean_Elab_Structural_instReprRecArgInfo_repr___redArg___closed__25;
 static lean_object* l_Array_Array_repr___at___00Lean_Elab_Structural_instReprRecArgInfo_repr_spec__1___closed__9;
 lean_object* l_Lean_Elab_FixedParamPerm_buildArgs___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2;
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lean_Elab_Structural_instReprRecArgInfo_repr___redArg___closed__26;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -138,16 +137,8 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Structural_instInhabitedIndGroupInst_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1;
+x_1 = l_Lean_Elab_Structural_instInhabitedIndGroupInst_default;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0;
 x_4 = lean_box(0);
@@ -165,7 +156,7 @@ static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2;
+x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1;
 return x_1;
 }
 }
@@ -1545,8 +1536,6 @@ l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0 = _init_l_Lea
 lean_mark_persistent(l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__0);
 l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1 = _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__1);
-l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2 = _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2();
-lean_mark_persistent(l_Lean_Elab_Structural_instInhabitedRecArgInfo_default___closed__2);
 l_Lean_Elab_Structural_instInhabitedRecArgInfo_default = _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo_default();
 lean_mark_persistent(l_Lean_Elab_Structural_instInhabitedRecArgInfo_default);
 l_Lean_Elab_Structural_instInhabitedRecArgInfo = _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo();

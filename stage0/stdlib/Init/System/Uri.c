@@ -124,7 +124,6 @@ LEAN_EXPORT uint8_t l_System_Uri_UriEscape_zero;
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
-static uint8_t l_System_Uri_pathToUri___closed__4;
 LEAN_EXPORT lean_object* l_panic___at___00System_Uri_UriEscape_decodeUri_spec__1(lean_object*);
 static lean_object* l_System_Uri_UriEscape_rfc3986ReservedChars___closed__9;
 lean_object* lean_uint8_to_nat(uint8_t);
@@ -1564,20 +1563,12 @@ x_1 = lean_mk_string_unchecked("file://", 7, 7);
 return x_1;
 }
 }
-static uint8_t _init_l_System_Uri_pathToUri___closed__4() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isWindows;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_System_Uri_pathToUri(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_6; lean_object* x_21; lean_object* x_25; uint8_t x_26; uint8_t x_43; 
 x_25 = l_System_FilePath_normalize(x_1);
-x_43 = l_System_Uri_pathToUri___closed__4;
+x_43 = l_System_Platform_isWindows;
 if (x_43 == 0)
 {
 x_6 = x_25;
@@ -2020,7 +2011,7 @@ x_25 = lean_string_utf8_extract(x_20, x_21, x_22);
 lean_dec(x_22);
 lean_dec(x_21);
 lean_dec_ref(x_20);
-x_68 = l_System_Uri_pathToUri___closed__4;
+x_68 = l_System_Platform_isWindows;
 if (x_68 == 0)
 {
 x_59 = x_68;
@@ -2332,7 +2323,6 @@ l_System_Uri_pathToUri___closed__2 = _init_l_System_Uri_pathToUri___closed__2();
 lean_mark_persistent(l_System_Uri_pathToUri___closed__2);
 l_System_Uri_pathToUri___closed__3 = _init_l_System_Uri_pathToUri___closed__3();
 lean_mark_persistent(l_System_Uri_pathToUri___closed__3);
-l_System_Uri_pathToUri___closed__4 = _init_l_System_Uri_pathToUri___closed__4();
 l_System_Uri_fileUriToPath_x3f___closed__0 = _init_l_System_Uri_fileUriToPath_x3f___closed__0();
 lean_mark_persistent(l_System_Uri_fileUriToPath_x3f___closed__0);
 l_System_Uri_fileUriToPath_x3f___closed__1 = _init_l_System_Uri_fileUriToPath_x3f___closed__1();

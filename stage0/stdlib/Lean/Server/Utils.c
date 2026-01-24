@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -958,17 +957,9 @@ return x_1;
 static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedFileMap_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__2() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = 0;
-x_2 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
+x_2 = l_Lean_instInhabitedFileMap_default;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_box(0);
 x_5 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__0;
@@ -985,7 +976,7 @@ static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__2;
+x_1 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
 return x_1;
 }
 }
@@ -2230,8 +2221,6 @@ l_Lean_Server_instInhabitedDocumentMeta_default___closed__0 = _init_l_Lean_Serve
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__0);
 l_Lean_Server_instInhabitedDocumentMeta_default___closed__1 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__1);
-l_Lean_Server_instInhabitedDocumentMeta_default___closed__2 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__2();
-lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__2);
 l_Lean_Server_instInhabitedDocumentMeta_default = _init_l_Lean_Server_instInhabitedDocumentMeta_default();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default);
 l_Lean_Server_instInhabitedDocumentMeta = _init_l_Lean_Server_instInhabitedDocumentMeta();

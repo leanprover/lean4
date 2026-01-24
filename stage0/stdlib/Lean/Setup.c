@@ -331,7 +331,6 @@ lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Lean_instFromJsonImport_fromJson___closed__5;
 static lean_object* l_Lean_instInhabitedModuleArtifacts_default___closed__0;
 static lean_object* l_Lean_instFromJsonModuleArtifacts_fromJson___closed__3;
-static lean_object* l_Lean_instInhabitedModuleSetup_default___closed__1;
 static lean_object* l_Lean_instFromJsonModuleArtifacts_fromJson___closed__29;
 static lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonModuleArtifacts_fromJson_spec__0_spec__0___closed__0;
 static lean_object* l_Lean_instFromJsonImport_fromJson___closed__0;
@@ -6720,16 +6719,8 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedModuleSetup_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedLeanOptions_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedModuleSetup_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_instInhabitedModuleSetup_default___closed__0;
+x_1 = l_Lean_instInhabitedLeanOptions_default;
 x_2 = l_Lean_instInhabitedImportArtifacts_default___closed__0;
 x_3 = lean_box(1);
 x_4 = 0;
@@ -6751,7 +6742,7 @@ static lean_object* _init_l_Lean_instInhabitedModuleSetup_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedModuleSetup_default___closed__1;
+x_1 = l_Lean_instInhabitedModuleSetup_default___closed__0;
 return x_1;
 }
 }
@@ -11574,8 +11565,6 @@ l_Lean_instReprModuleSetup = _init_l_Lean_instReprModuleSetup();
 lean_mark_persistent(l_Lean_instReprModuleSetup);
 l_Lean_instInhabitedModuleSetup_default___closed__0 = _init_l_Lean_instInhabitedModuleSetup_default___closed__0();
 lean_mark_persistent(l_Lean_instInhabitedModuleSetup_default___closed__0);
-l_Lean_instInhabitedModuleSetup_default___closed__1 = _init_l_Lean_instInhabitedModuleSetup_default___closed__1();
-lean_mark_persistent(l_Lean_instInhabitedModuleSetup_default___closed__1);
 l_Lean_instInhabitedModuleSetup_default = _init_l_Lean_instInhabitedModuleSetup_default();
 lean_mark_persistent(l_Lean_instInhabitedModuleSetup_default);
 l_Lean_instInhabitedModuleSetup = _init_l_Lean_instInhabitedModuleSetup();

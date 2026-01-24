@@ -114,7 +114,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lake_Date_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00Lake_Toml_DateTime_ofString_x3f_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeDateDateTime___lam__0(lean_object*);
-static lean_object* l_Lake_Toml_instInhabitedDateTime_default___closed__1;
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00Lake_Toml_Time_ofString_x3f_spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedDateTime;
 extern lean_object* l_Lake_instInhabitedDate_default;
@@ -1424,18 +1423,10 @@ return x_5;
 static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lake_instInhabitedDate_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = l_Lake_Toml_instInhabitedTime_default;
-x_3 = l_Lake_Toml_instInhabitedDateTime_default___closed__0;
+x_3 = l_Lake_instInhabitedDate_default;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -1447,7 +1438,7 @@ static lean_object* _init_l_Lake_Toml_instInhabitedDateTime_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_Toml_instInhabitedDateTime_default___closed__1;
+x_1 = l_Lake_Toml_instInhabitedDateTime_default___closed__0;
 return x_1;
 }
 }
@@ -3587,8 +3578,6 @@ l_Lake_Toml_Time_instToString = _init_l_Lake_Toml_Time_instToString();
 lean_mark_persistent(l_Lake_Toml_Time_instToString);
 l_Lake_Toml_instInhabitedDateTime_default___closed__0 = _init_l_Lake_Toml_instInhabitedDateTime_default___closed__0();
 lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default___closed__0);
-l_Lake_Toml_instInhabitedDateTime_default___closed__1 = _init_l_Lake_Toml_instInhabitedDateTime_default___closed__1();
-lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default___closed__1);
 l_Lake_Toml_instInhabitedDateTime_default = _init_l_Lake_Toml_instInhabitedDateTime_default();
 lean_mark_persistent(l_Lake_Toml_instInhabitedDateTime_default);
 l_Lake_Toml_instInhabitedDateTime = _init_l_Lake_Toml_instInhabitedDateTime();

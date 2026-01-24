@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwErro
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__0;
 static lean_object* l_Lake_registerOrderedTagAttribute___auto__1___closed__3;
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
-static lean_object* l_Lake_instInhabitedOrderedTagAttribute_default___closed__7;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrMustBeGlobal___at___00Lake_registerOrderedTagAttribute_spec__2___redArg___closed__2;
 static lean_object* l_Lake_registerOrderedTagAttribute___auto__1___closed__24;
@@ -332,19 +331,11 @@ static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedAttributeImpl_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__5() {
-_start:
-{
-lean_object* x_1; 
 x_1 = l_Lean_instInhabitedEnvExtension_default(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__6() {
+static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -353,7 +344,7 @@ x_2 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__2;
 x_3 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__1;
 x_4 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__0;
 x_5 = lean_box(0);
-x_6 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__5;
+x_6 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__4;
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
@@ -364,12 +355,12 @@ lean_ctor_set(x_7, 5, x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__7() {
+static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__6;
-x_2 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__4;
+x_1 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__5;
+x_2 = l_Lean_instInhabitedAttributeImpl_default;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -380,7 +371,7 @@ static lean_object* _init_l_Lake_instInhabitedOrderedTagAttribute_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__7;
+x_1 = l_Lake_instInhabitedOrderedTagAttribute_default___closed__6;
 return x_1;
 }
 }
@@ -2249,8 +2240,6 @@ l_Lake_instInhabitedOrderedTagAttribute_default___closed__5 = _init_l_Lake_instI
 lean_mark_persistent(l_Lake_instInhabitedOrderedTagAttribute_default___closed__5);
 l_Lake_instInhabitedOrderedTagAttribute_default___closed__6 = _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__6();
 lean_mark_persistent(l_Lake_instInhabitedOrderedTagAttribute_default___closed__6);
-l_Lake_instInhabitedOrderedTagAttribute_default___closed__7 = _init_l_Lake_instInhabitedOrderedTagAttribute_default___closed__7();
-lean_mark_persistent(l_Lake_instInhabitedOrderedTagAttribute_default___closed__7);
 l_Lake_instInhabitedOrderedTagAttribute_default = _init_l_Lake_instInhabitedOrderedTagAttribute_default();
 lean_mark_persistent(l_Lake_instInhabitedOrderedTagAttribute_default);
 l_Lake_instInhabitedOrderedTagAttribute = _init_l_Lake_instInhabitedOrderedTagAttribute();

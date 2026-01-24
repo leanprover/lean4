@@ -59,7 +59,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Lean_initFn_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2__spec__0_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___at___00Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Lean_initFn_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2__spec__0_spec__2___lam__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn___closed__18_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2_;
-static lean_object* l_Lean_getIndirectModUses___closed__2;
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprExtraModUse_repr_spec__0(lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn___closed__4_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2_;
@@ -174,7 +173,6 @@ LEAN_EXPORT lean_object* l_Lean_instBEqIndirectModUse_beq___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_recordIndirectModUse___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_recordExtraModUseFromDecl___redArg___closed__0;
 static lean_object* l_Lean_initFn___closed__4_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2_;
@@ -190,7 +188,6 @@ static size_t l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__5_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_instBEqExtraModUse_beq___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_getExtraModUses___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 uint8_t l_Lean_PersistentHashMap_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,7 +218,6 @@ LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUse
 static lean_object* l_Lean_instReprExtraModUse_repr___redArg___closed__3;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_initFn___closed__15_00___x40_Lean_ExtraModUses_4259277863____hygCtx___hyg_2_;
-static lean_object* l_Lean_isExtraRevModUse___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__2_spec__3_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_ExtraModUses_447004708____hygCtx___hyg_2__spec__2_spec__3_spec__6(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_recordIndirectModUse___redArg___lam__3___closed__4;
@@ -1264,20 +1260,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_getIndirectModUses___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_indirectModUseExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getIndirectModUses(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = l_Lean_getIndirectModUses___closed__1;
-x_4 = l_Lean_getIndirectModUses___closed__2;
+x_4 = l_Lean_indirectModUseExt;
 x_5 = 0;
 x_6 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_3, x_4, x_1, x_2, x_5);
 return x_6;
@@ -1445,7 +1433,7 @@ LEAN_EXPORT lean_object* l_Lean_recordIndirectModUse___redArg___lam__2(lean_obje
 _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_14 = l_Lean_getIndirectModUses___closed__2;
+x_14 = l_Lean_indirectModUseExt;
 x_15 = lean_box(2);
 x_16 = l_Lean_SimplePersistentEnvExtension_getEntries___redArg(x_1, x_14, x_13, x_15);
 lean_inc(x_3);
@@ -2999,20 +2987,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_getExtraModUses___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_ExtraModUses_0__Lean_extraModUses;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_getExtraModUses(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = l_Lean_getExtraModUses___closed__1;
-x_4 = l_Lean_getExtraModUses___closed__2;
+x_4 = l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 x_5 = 0;
 x_6 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_3, x_4, x_1, x_2, x_5);
 return x_6;
@@ -3084,7 +3064,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l_Lean_getExtraModUses___closed__0;
-x_4 = l_Lean_getExtraModUses___closed__2;
+x_4 = l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 x_5 = lean_box(1);
 x_6 = l_Lean_SimplePersistentEnvExtension_getEntries___redArg(x_3, x_4, x_1, x_5);
 x_7 = l_List_forIn_x27_loop___at___00Lean_copyExtraModUses_spec__0___redArg(x_3, x_4, x_5, x_6, x_2);
@@ -3375,7 +3355,7 @@ LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUse
 _start:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_18 = l_Lean_getExtraModUses___closed__2;
+x_18 = l___private_Lean_ExtraModUses_0__Lean_extraModUses;
 x_19 = lean_box(1);
 x_20 = lean_box(0);
 x_21 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_1, x_18, x_17, x_19, x_20);
@@ -3723,7 +3703,7 @@ LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg___lam__3(lean
 _start:
 {
 lean_object* x_16; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_26 = l_Lean_getIndirectModUses___closed__2;
+x_26 = l_Lean_indirectModUseExt;
 x_27 = lean_box(1);
 x_28 = lean_box(0);
 lean_inc_ref(x_2);
@@ -3952,14 +3932,6 @@ x_18 = l_Lean_recordExtraModUseFromDecl___redArg___lam__5(x_1, x_2, x_3, x_4, x_
 return x_18;
 }
 }
-static lean_object* _init_l_Lean_recordExtraModUseFromDecl___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedEffectiveImport_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_recordExtraModUseFromDecl___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8) {
 _start:
 {
@@ -3974,7 +3946,7 @@ lean_inc(x_12);
 x_13 = l_Lean_initFn___closed__2_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_;
 x_14 = l_Lean_initFn___closed__3_00___x40_Lean_ExtraModUses_1766255300____hygCtx___hyg_2_;
 x_15 = l_Lean_getIndirectModUses___closed__0;
-x_16 = l_Lean_recordExtraModUseFromDecl___redArg___closed__0;
+x_16 = l_Lean_instInhabitedEffectiveImport_default;
 x_17 = lean_box(x_8);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -4149,20 +4121,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_isExtraRevModUse___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_ExtraModUses_0__Lean_isExtraRevModUseExt;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_isExtraRevModUse(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = l_Lean_isExtraRevModUse___closed__0;
-x_4 = l_Lean_isExtraRevModUse___closed__1;
+x_4 = l___private_Lean_ExtraModUses_0__Lean_isExtraRevModUseExt;
 x_5 = 0;
 x_6 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_3, x_4, x_1, x_2, x_5);
 x_7 = l_Array_isEmpty___redArg(x_6);
@@ -4268,7 +4232,7 @@ static lean_object* _init_l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_isExtraRevModUse___closed__1;
+x_1 = l___private_Lean_ExtraModUses_0__Lean_isExtraRevModUseExt;
 x_2 = lean_alloc_closure((void*)(l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__0), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -4278,7 +4242,7 @@ LEAN_EXPORT lean_object* l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam_
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_11 = l_Lean_isExtraRevModUse___closed__1;
+x_11 = l___private_Lean_ExtraModUses_0__Lean_isExtraRevModUseExt;
 x_12 = lean_box(1);
 x_13 = l_Lean_SimplePersistentEnvExtension_getEntries___redArg(x_1, x_11, x_10, x_12);
 x_14 = l_List_isEmpty___redArg(x_13);
@@ -4620,8 +4584,6 @@ lean_dec_ref(res);
 lean_mark_persistent(l_Lean_getIndirectModUses___closed__0);
 l_Lean_getIndirectModUses___closed__1 = _init_l_Lean_getIndirectModUses___closed__1();
 lean_mark_persistent(l_Lean_getIndirectModUses___closed__1);
-l_Lean_getIndirectModUses___closed__2 = _init_l_Lean_getIndirectModUses___closed__2();
-lean_mark_persistent(l_Lean_getIndirectModUses___closed__2);
 l_Lean_recordIndirectModUse___redArg___lam__3___closed__0 = _init_l_Lean_recordIndirectModUse___redArg___lam__3___closed__0();
 lean_mark_persistent(l_Lean_recordIndirectModUse___redArg___lam__3___closed__0);
 l_Lean_recordIndirectModUse___redArg___lam__3___closed__1 = _init_l_Lean_recordIndirectModUse___redArg___lam__3___closed__1();
@@ -4731,8 +4693,6 @@ lean_dec_ref(res);
 lean_mark_persistent(l_Lean_getExtraModUses___closed__0);
 l_Lean_getExtraModUses___closed__1 = _init_l_Lean_getExtraModUses___closed__1();
 lean_mark_persistent(l_Lean_getExtraModUses___closed__1);
-l_Lean_getExtraModUses___closed__2 = _init_l_Lean_getExtraModUses___closed__2();
-lean_mark_persistent(l_Lean_getExtraModUses___closed__2);
 l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__0 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__0();
 lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__0);
 l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__1 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__1();
@@ -4761,8 +4721,6 @@ l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___
 lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__12);
 l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__13 = _init_l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__13();
 lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__3___closed__13);
-l_Lean_recordExtraModUseFromDecl___redArg___closed__0 = _init_l_Lean_recordExtraModUseFromDecl___redArg___closed__0();
-lean_mark_persistent(l_Lean_recordExtraModUseFromDecl___redArg___closed__0);
 l_Lean_initFn___closed__0_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_ = _init_l_Lean_initFn___closed__0_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_();
 lean_mark_persistent(l_Lean_initFn___closed__0_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_);
 l_Lean_initFn___closed__1_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_ = _init_l_Lean_initFn___closed__1_00___x40_Lean_ExtraModUses_2233475121____hygCtx___hyg_2_();
@@ -4782,8 +4740,6 @@ lean_mark_persistent(l___private_Lean_ExtraModUses_0__Lean_isExtraRevModUseExt);
 lean_dec_ref(res);
 }l_Lean_isExtraRevModUse___closed__0 = _init_l_Lean_isExtraRevModUse___closed__0();
 lean_mark_persistent(l_Lean_isExtraRevModUse___closed__0);
-l_Lean_isExtraRevModUse___closed__1 = _init_l_Lean_isExtraRevModUse___closed__1();
-lean_mark_persistent(l_Lean_isExtraRevModUse___closed__1);
 l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__3___closed__0 = _init_l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__3___closed__0();
 lean_mark_persistent(l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__3___closed__0);
 l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__3___closed__1 = _init_l_Lean_recordExtraRevUseOfCurrentModule___redArg___lam__3___closed__1();

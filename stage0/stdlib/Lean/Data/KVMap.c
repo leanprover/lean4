@@ -94,7 +94,6 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_instValueBool___lam__1___boxed(lean_object
 lean_object* l_id___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprDataValue_repr___closed__7;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_KVMap_mergeBy_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_DataValue_str___closed__3;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueName;
 static lean_object* l_List_repr___at___00Lean_instReprKVMap_repr_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instCoeNatDataValue;
@@ -1470,14 +1469,6 @@ x_1 = lean_mk_string_unchecked("-", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_DataValue_str___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* lean_data_value_to_string(lean_object* x_1) {
 _start:
 {
@@ -1569,7 +1560,7 @@ lean_dec_ref(x_1);
 x_24 = lean_box(0);
 x_25 = 0;
 x_26 = l_Lean_Syntax_formatStx(x_23, x_24, x_25);
-x_27 = l_Lean_DataValue_str___closed__3;
+x_27 = l_Std_Format_defWidth;
 x_28 = lean_unsigned_to_nat(0u);
 x_29 = l_Std_Format_pretty(x_26, x_27, x_28, x_28);
 return x_29;
@@ -4382,8 +4373,6 @@ l_Lean_DataValue_str___closed__1 = _init_l_Lean_DataValue_str___closed__1();
 lean_mark_persistent(l_Lean_DataValue_str___closed__1);
 l_Lean_DataValue_str___closed__2 = _init_l_Lean_DataValue_str___closed__2();
 lean_mark_persistent(l_Lean_DataValue_str___closed__2);
-l_Lean_DataValue_str___closed__3 = _init_l_Lean_DataValue_str___closed__3();
-lean_mark_persistent(l_Lean_DataValue_str___closed__3);
 l_Lean_instToStringDataValue___closed__0 = _init_l_Lean_instToStringDataValue___closed__0();
 lean_mark_persistent(l_Lean_instToStringDataValue___closed__0);
 l_Lean_instToStringDataValue = _init_l_Lean_instToStringDataValue();

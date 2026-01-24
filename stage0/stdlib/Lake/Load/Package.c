@@ -37,7 +37,6 @@ LEAN_EXPORT lean_object* l_Lake_loadPackageCore___lam__0(lean_object*);
 static lean_object* l_Lake_loadPackage___closed__0;
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 lean_object* l_Lake_loadTomlConfig(lean_object*, lean_object*);
-static lean_object* l_Lake_loadPackage___closed__1;
 static lean_object* l_Lake_configFileExists___closed__1;
 LEAN_EXPORT lean_object* l_Lake_loadPackageCore___lam__1(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -867,14 +866,6 @@ static lean_object* _init_l_Lake_loadPackage___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_searchPathRef;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_loadPackage___closed__1() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("[root]", 6, 6);
 return x_1;
 }
@@ -884,10 +875,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = l_Lake_loadPackage___closed__0;
+x_5 = l_Lean_searchPathRef;
 x_6 = l_Lake_Env_leanSearchPath(x_4);
 x_7 = lean_st_ref_set(x_5, x_6);
-x_8 = l_Lake_loadPackage___closed__1;
+x_8 = l_Lake_loadPackage___closed__0;
 x_9 = l_Lake_loadPackageCore(x_8, x_1, x_2);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -1001,8 +992,6 @@ l_Lake_loadPackageCore___closed__8 = _init_l_Lake_loadPackageCore___closed__8();
 lean_mark_persistent(l_Lake_loadPackageCore___closed__8);
 l_Lake_loadPackage___closed__0 = _init_l_Lake_loadPackage___closed__0();
 lean_mark_persistent(l_Lake_loadPackage___closed__0);
-l_Lake_loadPackage___closed__1 = _init_l_Lake_loadPackage___closed__1();
-lean_mark_persistent(l_Lake_loadPackage___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

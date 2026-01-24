@@ -39,7 +39,6 @@ uint8_t l_Array_isEmpty___redArg(lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitUnknownIdentifierRanges___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6;
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -237,7 +236,6 @@ lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges_spec__2(size_t, size_t, lean_object*);
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0;
 lean_object* l_Lean_MessageLog_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__1_spec__3(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1542,19 +1540,11 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_unknownIdentifierMessageTag;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0;
+x_2 = l_Lean_unknownIdentifierMessageTag;
 x_3 = lean_name_eq(x_1, x_2);
 return x_3;
 }
@@ -3729,16 +3719,8 @@ return x_5;
 static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__4;
+x_1 = l_Lean_NameSet_empty;
 x_2 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__3;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -3747,7 +3729,7 @@ lean_ctor_set(x_3, 2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6() {
+static lean_object* _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3811,7 +3793,7 @@ x_52 = lean_ctor_get(x_51, 0);
 lean_inc(x_52);
 x_53 = lean_ctor_get(x_51, 1);
 lean_inc(x_53);
-x_54 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6;
+x_54 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5;
 x_55 = 1;
 x_56 = l_Lean_Language_SnapshotTask_map___redArg(x_51, x_54, x_52, x_53, x_55);
 lean_ctor_set(x_22, 0, x_56);
@@ -3831,7 +3813,7 @@ x_59 = lean_ctor_get(x_58, 0);
 lean_inc(x_59);
 x_60 = lean_ctor_get(x_58, 1);
 lean_inc(x_60);
-x_61 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6;
+x_61 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5;
 x_62 = 1;
 x_63 = l_Lean_Language_SnapshotTask_map___redArg(x_58, x_61, x_59, x_60, x_62);
 x_64 = lean_alloc_ctor(1, 1, 0);
@@ -3887,7 +3869,7 @@ lean_ctor_set(x_32, 1, x_31);
 x_33 = l_Lean_Language_SnapshotTree_getAll(x_32);
 x_34 = lean_unsigned_to_nat(0u);
 x_35 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__3;
-x_36 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5;
+x_36 = l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__4;
 x_37 = lean_array_size(x_33);
 x_38 = 0;
 x_39 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges_spec__2(x_37, x_38, x_33);
@@ -10770,8 +10752,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Server_CodeActions_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__1___lam__0___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__2_spec__7___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__2_spec__7___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__2_spec__7___closed__0);
 l_Lean_Server_FileWorker_waitUnknownIdentifierRanges___closed__0 = _init_l_Lean_Server_FileWorker_waitUnknownIdentifierRanges___closed__0();
@@ -10798,8 +10778,6 @@ l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__4 = _in
 lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__4);
 l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5 = _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5();
 lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__5);
-l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6 = _init_l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6();
-lean_mark_persistent(l_Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges___closed__6);
 l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0 = _init_l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0();
 lean_mark_persistent(l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Server_FileWorker_collectOpenNamespaces_spec__0___closed__0);
 l_Lean_Server_FileWorker_collectOpenNamespaces___closed__0 = _init_l_Lean_Server_FileWorker_collectOpenNamespaces___closed__0();

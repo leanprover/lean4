@@ -38,7 +38,6 @@ static lean_object* l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__11;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Arith_Util_0__Lean_Meta_Simp_Arith_isSupportedType___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_isLinearCnstr___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__10;
-static lean_object* l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15;
 static lean_object* l_Lean_Meta_Simp_Arith_isLinearCnstr___closed__1;
 static lean_object* l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__0;
 static lean_object* l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__9;
@@ -284,16 +283,8 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Nat_mkType;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14;
+x_1 = l_Lean_Nat_mkType;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -447,7 +438,7 @@ else
 {
 lean_object* x_44; 
 lean_dec_ref(x_15);
-x_44 = l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15;
+x_44 = l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14;
 return x_44;
 }
 }
@@ -1019,8 +1010,6 @@ l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13 = _init_l_Lean_Meta_Simp_Ar
 lean_mark_persistent(l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__13);
 l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14 = _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14();
 lean_mark_persistent(l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__14);
-l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15 = _init_l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15();
-lean_mark_persistent(l_Lean_Meta_Simp_Arith_isLinearTerm_x3f___closed__15);
 l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__0 = _init_l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__0();
 lean_mark_persistent(l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__0);
 l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__1 = _init_l_Lean_Meta_Simp_Arith_isLinearPosCnstr___closed__1();

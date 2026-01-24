@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lake_instInhabitedWorkspaceConfig_default___closed__0;
 static lean_object* l_Lake_WorkspaceConfig_instConfigInfo___closed__6;
 static lean_object* l_Lake_instReprWorkspaceConfig_repr___redArg___closed__14;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__0___boxed(lean_object*);
@@ -39,7 +38,6 @@ lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_ob
 static lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___closed__4;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig;
-static lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
 static lean_object* l_Lake_WorkspaceConfig_instConfigInfo___closed__2;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj;
 static lean_object* l_Lake_WorkspaceConfig_instConfigInfo___closed__0;
@@ -101,7 +99,7 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprWorkspaceConfig_repr_s
 static lean_object* l_Lake_WorkspaceConfig_instConfigInfo___closed__17;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig_default___closed__0() {
+static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig_default() {
 _start:
 {
 lean_object* x_1; 
@@ -109,19 +107,11 @@ x_1 = l_System_instInhabitedFilePath_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig_default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instInhabitedWorkspaceConfig_default___closed__0;
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedWorkspaceConfig_default___closed__0;
+x_1 = l_System_instInhabitedFilePath_default;
 return x_1;
 }
 }
@@ -391,19 +381,11 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_defaultPackagesDir;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
+x_2 = l_Lake_defaultPackagesDir;
 return x_2;
 }
 }
@@ -777,7 +759,7 @@ static lean_object* _init_l_Lake_WorkspaceConfig_instEmptyCollection() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0;
+x_1 = l_Lake_defaultPackagesDir;
 return x_1;
 }
 }
@@ -798,8 +780,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instInhabitedWorkspaceConfig_default___closed__0 = _init_l_Lake_instInhabitedWorkspaceConfig_default___closed__0();
-lean_mark_persistent(l_Lake_instInhabitedWorkspaceConfig_default___closed__0);
 l_Lake_instInhabitedWorkspaceConfig_default = _init_l_Lake_instInhabitedWorkspaceConfig_default();
 lean_mark_persistent(l_Lake_instInhabitedWorkspaceConfig_default);
 l_Lake_instInhabitedWorkspaceConfig = _init_l_Lake_instInhabitedWorkspaceConfig();
@@ -838,8 +818,6 @@ l_Lake_instReprWorkspaceConfig___closed__0 = _init_l_Lake_instReprWorkspaceConfi
 lean_mark_persistent(l_Lake_instReprWorkspaceConfig___closed__0);
 l_Lake_instReprWorkspaceConfig = _init_l_Lake_instReprWorkspaceConfig();
 lean_mark_persistent(l_Lake_instReprWorkspaceConfig);
-l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0 = _init_l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0();
-lean_mark_persistent(l_Lake_WorkspaceConfig_packagesDir___proj___lam__3___closed__0);
 l_Lake_WorkspaceConfig_packagesDir___proj___closed__0 = _init_l_Lake_WorkspaceConfig_packagesDir___proj___closed__0();
 lean_mark_persistent(l_Lake_WorkspaceConfig_packagesDir___proj___closed__0);
 l_Lake_WorkspaceConfig_packagesDir___proj___closed__1 = _init_l_Lake_WorkspaceConfig_packagesDir___proj___closed__1();

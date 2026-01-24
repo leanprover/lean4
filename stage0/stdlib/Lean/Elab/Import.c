@@ -48,7 +48,6 @@ static lean_object* l_Lean_Elab_parseImports___closed__0;
 extern lean_object* l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_startPos(lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__4;
-static lean_object* l_Lean_Elab_processHeaderCore___closed__2;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_printImportSrcs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_printImports_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,7 +56,6 @@ lean_object* l_Lean_getSrcSearchPath();
 LEAN_EXPORT lean_object* l_IO_print___at___00IO_println___at___00Lean_Elab_printImports_spec__0_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Elab_processHeaderCore_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__2;
-static lean_object* l_Lean_Elab_processHeaderCore___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_setState___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setMainModule(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
@@ -115,7 +113,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0(lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__1;
-static lean_object* l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_startPos(lean_object* x_1) {
 _start:
 {
@@ -196,19 +193,11 @@ x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedImport_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0;
+x_2 = l_Lean_instInhabitedImport_default;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -1166,23 +1155,7 @@ static lean_object* _init_l_Lean_Elab_processHeaderCore___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_processHeaderCore___closed__1() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_processHeaderCore___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_inServer;
 return x_1;
 }
 }
@@ -1201,7 +1174,7 @@ goto block_65;
 else
 {
 lean_object* x_67; uint8_t x_68; 
-x_67 = l_Lean_Elab_processHeaderCore___closed__2;
+x_67 = l_Lean_Elab_inServer;
 x_68 = l_Lean_Option_get___at___00Lean_Elab_processHeaderCore_spec__0(x_4, x_67);
 if (x_68 == 0)
 {
@@ -1222,7 +1195,7 @@ block_22:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_17 = l_Lean_Environment_setMainModule(x_14, x_10);
-x_18 = l_Lean_Elab_processHeaderCore___closed__0;
+x_18 = l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
 x_19 = l_Lean_PersistentEnvExtension_setState___redArg(x_18, x_17, x_11);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -1272,7 +1245,7 @@ x_34 = l_Lean_FileMap_toPosition(x_33, x_1);
 x_35 = lean_box(0);
 x_36 = 0;
 x_37 = 2;
-x_38 = l_Lean_Elab_processHeaderCore___closed__1;
+x_38 = l_Lean_Elab_processHeaderCore___closed__0;
 x_39 = lean_io_error_to_string(x_28);
 lean_ctor_set_tag(x_25, 3);
 lean_ctor_set(x_25, 0, x_39);
@@ -1341,7 +1314,7 @@ x_52 = l_Lean_FileMap_toPosition(x_51, x_1);
 x_53 = lean_box(0);
 x_54 = 0;
 x_55 = 2;
-x_56 = l_Lean_Elab_processHeaderCore___closed__1;
+x_56 = l_Lean_Elab_processHeaderCore___closed__0;
 x_57 = lean_io_error_to_string(x_46);
 x_58 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
@@ -2058,8 +2031,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0 = _init_l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0();
 lean_mark_persistent(l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0);
-l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0 = _init_l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0();
-lean_mark_persistent(l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__1___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_HeaderSyntax_imports_spec__2___redArg___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_HeaderSyntax_imports_spec__2___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_HeaderSyntax_imports_spec__2___redArg___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_HeaderSyntax_imports_spec__2___redArg___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_HeaderSyntax_imports_spec__2___redArg___closed__1();
@@ -2106,10 +2077,6 @@ l_Lean_Elab_HeaderSyntax_imports___closed__14 = _init_l_Lean_Elab_HeaderSyntax_i
 lean_mark_persistent(l_Lean_Elab_HeaderSyntax_imports___closed__14);
 l_Lean_Elab_processHeaderCore___closed__0 = _init_l_Lean_Elab_processHeaderCore___closed__0();
 lean_mark_persistent(l_Lean_Elab_processHeaderCore___closed__0);
-l_Lean_Elab_processHeaderCore___closed__1 = _init_l_Lean_Elab_processHeaderCore___closed__1();
-lean_mark_persistent(l_Lean_Elab_processHeaderCore___closed__1);
-l_Lean_Elab_processHeaderCore___closed__2 = _init_l_Lean_Elab_processHeaderCore___closed__2();
-lean_mark_persistent(l_Lean_Elab_processHeaderCore___closed__2);
 l_Lean_Elab_parseImports___closed__0 = _init_l_Lean_Elab_parseImports___closed__0();
 lean_mark_persistent(l_Lean_Elab_parseImports___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

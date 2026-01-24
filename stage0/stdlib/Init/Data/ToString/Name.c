@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static uint32_t l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0;
+static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0;
 static lean_object* l_Lean_Name_escapePart___closed__2;
 uint8_t lean_uint32_to_uint8(uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__1_spec__2(lean_object*);
@@ -59,7 +59,6 @@ LEAN_EXPORT uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWit
 LEAN_EXPORT uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAscii___redArg(lean_object*);
 static uint8_t l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscapeAsciiRest___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape___boxed(lean_object*);
-static uint32_t l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__3;
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 lean_object* l_Lean_Name_getRoot(lean_object*);
 static lean_object* l_Lean_Name_toStringWithSep___closed__0;
@@ -93,7 +92,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
 static lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_escapePart(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape_spec__2(lean_object*);
@@ -1224,15 +1222,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static uint32_t _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0() {
-_start:
-{
-uint32_t x_1; 
-x_1 = l_Lean_idBeginEscape;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1() {
+static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1240,30 +1230,22 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2() {
+static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0;
-x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
+x_1 = l_Lean_idBeginEscape;
+x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0;
 x_3 = lean_string_push(x_2, x_1);
 return x_3;
 }
 }
-static uint32_t _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__3() {
-_start:
-{
-uint32_t x_1; 
-x_1 = l_Lean_idEndEscape;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4() {
+static lean_object* _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__3;
-x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
+x_1 = l_Lean_idEndEscape;
+x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0;
 x_3 = lean_string_push(x_2, x_1);
 return x_3;
 }
@@ -1272,9 +1254,9 @@ LEAN_EXPORT lean_object* l___private_Init_Data_ToString_Name_0__Lean_Name_escape
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
+x_2 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 x_3 = lean_string_append(x_2, x_1);
-x_4 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
+x_4 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 x_5 = lean_string_append(x_3, x_4);
 return x_5;
 }
@@ -1326,10 +1308,10 @@ x_80 = lean_nat_dec_lt(x_78, x_79);
 if (x_80 == 0)
 {
 lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 
-x_81 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
+x_81 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 x_82 = lean_string_append(x_81, x_1);
 lean_dec_ref(x_1);
-x_83 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
+x_83 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 x_84 = lean_string_append(x_82, x_83);
 x_85 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_85, 0, x_84);
@@ -1426,10 +1408,10 @@ x_8 = l_String_Slice_contains___redArg(x_3, x_7, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
+x_9 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 x_10 = lean_string_append(x_9, x_1);
 lean_dec_ref(x_1);
-x_11 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
+x_11 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -2041,10 +2023,10 @@ x_69 = lean_nat_dec_lt(x_67, x_68);
 if (x_69 == 0)
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_70 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
+x_70 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 x_71 = lean_string_append(x_70, x_2);
 lean_dec_ref(x_2);
-x_72 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
+x_72 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 x_73 = lean_string_append(x_71, x_72);
 return x_73;
 }
@@ -2139,10 +2121,10 @@ lean_dec_ref(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
+x_8 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1;
 x_9 = lean_string_append(x_8, x_2);
 lean_dec_ref(x_2);
-x_10 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4;
+x_10 = l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
 }
@@ -2983,13 +2965,11 @@ lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEsc
 l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__4 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__4();
 lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__4);
 l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0();
+lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__0);
 l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1();
 lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__1);
 l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2();
 lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__2);
-l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__3 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__3();
-l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4 = _init_l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4();
-lean_mark_persistent(l___private_Init_Data_ToString_Name_0__Lean_Name_escape___closed__4);
 l_Lean_Name_escapePart___closed__0 = _init_l_Lean_Name_escapePart___closed__0();
 lean_mark_persistent(l_Lean_Name_escapePart___closed__0);
 l_Lean_Name_escapePart___closed__1 = _init_l_Lean_Name_escapePart___closed__1();

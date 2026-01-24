@@ -543,7 +543,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_trailingSep_parenthesizer___redArg___boxed(
 lean_object* l_Lean_Parser_sepBy1_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Toml_chAtom_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_stdTable_formatter___closed__2;
-static lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9;
 static lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_keyvalCore_formatter___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_toml_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_mlLiteralStringFn___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -6631,16 +6630,8 @@ return x_2;
 static lean_object* _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Parser_pushNone;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8;
+x_1 = l_Lean_Parser_pushNone;
 x_2 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__7;
 x_3 = l_Lean_Parser_andthen(x_2, x_1);
 return x_3;
@@ -6660,7 +6651,7 @@ x_8 = 1;
 x_9 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__3;
 x_10 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__5;
 x_11 = l_Lean_Parser_withAntiquotSpliceAndSuffix(x_9, x_7, x_10);
-x_12 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9;
+x_12 = l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8;
 x_13 = l_Lean_Parser_sepByNoAntiquot(x_11, x_12, x_8);
 x_14 = l_Lean_Parser_andthen(x_4, x_13);
 x_15 = l_Lean_Parser_nodeWithAntiquot(x_2, x_3, x_14, x_8);
@@ -9671,8 +9662,6 @@ l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__7 = _init_l___priv
 lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__7);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8();
 lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__8);
-l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9();
-lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_tomlCore___closed__9);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_inlineTableCore___closed__0 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_inlineTableCore___closed__0();
 lean_mark_persistent(l___private_Lake_Toml_Grammar_0__Lake_Toml_inlineTableCore___closed__0);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_inlineTableCore___closed__1 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_inlineTableCore___closed__1();

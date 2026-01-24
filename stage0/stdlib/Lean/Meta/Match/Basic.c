@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Match_toPattern_sp
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Meta_Match_Alt_replaceFVarId_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_Match_withGoalOf_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateLocalDeclMVars___at___00Lean_Meta_Match_instantiateAltLHSMVars_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Match_instInhabitedProblem_default___closed__1;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00Lean_Meta_Match_toPattern_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00__private_Lean_Meta_Match_Basic_0__Lean_Meta_Match_Pattern_toExpr_visit_spec__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -6100,17 +6099,9 @@ return x_5;
 static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedMVarId_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Match_instInhabitedProblem_default___closed__0;
+x_2 = l_Lean_instInhabitedMVarId_default;
 x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -6123,7 +6114,7 @@ static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Match_instInhabitedProblem_default___closed__1;
+x_1 = l_Lean_Meta_Match_instInhabitedProblem_default___closed__0;
 return x_1;
 }
 }
@@ -8795,8 +8786,6 @@ l_Lean_Meta_Match_Example_toMessageData___closed__5 = _init_l_Lean_Meta_Match_Ex
 lean_mark_persistent(l_Lean_Meta_Match_Example_toMessageData___closed__5);
 l_Lean_Meta_Match_instInhabitedProblem_default___closed__0 = _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__0();
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedProblem_default___closed__0);
-l_Lean_Meta_Match_instInhabitedProblem_default___closed__1 = _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__1();
-lean_mark_persistent(l_Lean_Meta_Match_instInhabitedProblem_default___closed__1);
 l_Lean_Meta_Match_instInhabitedProblem_default = _init_l_Lean_Meta_Match_instInhabitedProblem_default();
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedProblem_default);
 l_Lean_Meta_Match_instInhabitedProblem = _init_l_Lean_Meta_Match_instInhabitedProblem();

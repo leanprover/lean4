@@ -177,7 +177,6 @@ static lean_object* l_Lean_Lsp_instFromJsonLocationLink_fromJson___closed__14;
 static lean_object* l_Lean_Lsp_instToJsonWorkDoneProgressReport_toJson___closed__1;
 static lean_object* l_Lean_Lsp_instFromJsonTextEdit_fromJson___closed__6;
 static lean_object* l_Lean_Lsp_DeleteFile_instFromJsonOptions_fromJson___closed__5;
-static lean_object* l_Lean_Lsp_instInhabitedLocation_default___closed__2;
 static lean_object* l_Lean_Lsp_WorkspaceEdit_ofTextDocumentEdit___closed__0;
 static lean_object* l_Lean_Lsp_DeleteFile_instToJsonOptions___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentEdit_fromJson(lean_object*);
@@ -874,16 +873,8 @@ return x_1;
 static lean_object* _init_l_Lean_Lsp_instInhabitedLocation_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedRange_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instInhabitedLocation_default___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Lsp_instInhabitedLocation_default___closed__1;
+x_1 = l_Lean_Lsp_instInhabitedRange_default;
 x_2 = l_Lean_Lsp_instInhabitedLocation_default___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -895,7 +886,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedLocation_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedLocation_default___closed__2;
+x_1 = l_Lean_Lsp_instInhabitedLocation_default___closed__1;
 return x_1;
 }
 }
@@ -17147,8 +17138,6 @@ l_Lean_Lsp_instInhabitedLocation_default___closed__0 = _init_l_Lean_Lsp_instInha
 lean_mark_persistent(l_Lean_Lsp_instInhabitedLocation_default___closed__0);
 l_Lean_Lsp_instInhabitedLocation_default___closed__1 = _init_l_Lean_Lsp_instInhabitedLocation_default___closed__1();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedLocation_default___closed__1);
-l_Lean_Lsp_instInhabitedLocation_default___closed__2 = _init_l_Lean_Lsp_instInhabitedLocation_default___closed__2();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedLocation_default___closed__2);
 l_Lean_Lsp_instInhabitedLocation_default = _init_l_Lean_Lsp_instInhabitedLocation_default();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedLocation_default);
 l_Lean_Lsp_instInhabitedLocation = _init_l_Lean_Lsp_instInhabitedLocation();

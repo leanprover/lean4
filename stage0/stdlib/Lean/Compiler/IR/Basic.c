@@ -347,7 +347,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_Expr_sproj_elim___redArg(lean_object*, lean_o
 static lean_object* l_Lean_IR_instReprIRType_repr___closed__25;
 LEAN_EXPORT uint8_t l_Lean_IR_Decl_isExtern(lean_object*);
 static lean_object* l_Lean_IR_instBEqFnBody___closed__0;
-static lean_object* l_Lean_IR_instInhabitedDecl_default___closed__2;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_mkIndexSet_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_instReprIRType_repr___closed__17;
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedVarId;
@@ -7430,16 +7429,8 @@ return x_2;
 static lean_object* _init_l_Lean_IR_instInhabitedDecl_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedExternAttrData_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_instInhabitedDecl_default___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_IR_instInhabitedDecl_default___closed__1;
+x_1 = l_Lean_instInhabitedExternAttrData_default;
 x_2 = lean_box(0);
 x_3 = l_Lean_IR_instInhabitedDecl_default___closed__0;
 x_4 = lean_box(0);
@@ -7455,7 +7446,7 @@ static lean_object* _init_l_Lean_IR_instInhabitedDecl_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_instInhabitedDecl_default___closed__2;
+x_1 = l_Lean_IR_instInhabitedDecl_default___closed__1;
 return x_1;
 }
 }
@@ -14785,8 +14776,6 @@ l_Lean_IR_instInhabitedDecl_default___closed__0 = _init_l_Lean_IR_instInhabitedD
 lean_mark_persistent(l_Lean_IR_instInhabitedDecl_default___closed__0);
 l_Lean_IR_instInhabitedDecl_default___closed__1 = _init_l_Lean_IR_instInhabitedDecl_default___closed__1();
 lean_mark_persistent(l_Lean_IR_instInhabitedDecl_default___closed__1);
-l_Lean_IR_instInhabitedDecl_default___closed__2 = _init_l_Lean_IR_instInhabitedDecl_default___closed__2();
-lean_mark_persistent(l_Lean_IR_instInhabitedDecl_default___closed__2);
 l_Lean_IR_instInhabitedDecl_default = _init_l_Lean_IR_instInhabitedDecl_default();
 lean_mark_persistent(l_Lean_IR_instInhabitedDecl_default);
 l_Lean_IR_instInhabitedDecl = _init_l_Lean_IR_instInhabitedDecl();

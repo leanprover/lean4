@@ -26,7 +26,6 @@ lean_object* l_String_quote(lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToFormat___lam__0(lean_object*);
 static lean_object* l_Lean_Syntax_instToFormatTSyntax___closed__0;
-static lean_object* l_Lean_Syntax_instToString___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToStringTSyntax___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Syntax_formatStxAux_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___closed__1;
@@ -958,19 +957,11 @@ x_1 = l_Lean_Syntax_instToFormat___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Syntax_instToString___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToString___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Syntax_instToString___lam__0___closed__0;
+x_2 = l_Std_Format_defWidth;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Std_Format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
@@ -1049,7 +1040,7 @@ lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* 
 x_2 = lean_box(0);
 x_3 = 0;
 x_4 = l_Lean_Syntax_formatStx(x_1, x_2, x_3);
-x_5 = l_Lean_Syntax_instToString___lam__0___closed__0;
+x_5 = l_Std_Format_defWidth;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Std_Format_pretty(x_4, x_5, x_6, x_6);
 return x_7;
@@ -1161,8 +1152,6 @@ l_Lean_Syntax_instToFormat___closed__0 = _init_l_Lean_Syntax_instToFormat___clos
 lean_mark_persistent(l_Lean_Syntax_instToFormat___closed__0);
 l_Lean_Syntax_instToFormat = _init_l_Lean_Syntax_instToFormat();
 lean_mark_persistent(l_Lean_Syntax_instToFormat);
-l_Lean_Syntax_instToString___lam__0___closed__0 = _init_l_Lean_Syntax_instToString___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Syntax_instToString___lam__0___closed__0);
 l_Lean_Syntax_instToString___closed__0 = _init_l_Lean_Syntax_instToString___closed__0();
 lean_mark_persistent(l_Lean_Syntax_instToString___closed__0);
 l_Lean_Syntax_instToString___closed__1 = _init_l_Lean_Syntax_instToString___closed__1();

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_cleanPreDef(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__2___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Options_set___at___00Lean_Option_set___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__1_spec__1___closed__0;
@@ -65,7 +64,6 @@ lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_cleanPreDef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_enableInfoTree___at___00Lean_Elab_withEnableInfoTree___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__4_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___closed__1;
-static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6;
 lean_object* l_Lean_Elab_abstractNestedProofs(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefAttributes___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -89,13 +87,11 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_eraseRecAppSyntax(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___00Lean_setIrreducibleAttribute___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
 lean_object* l_List_reverse___redArg(lean_object*);
-static lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -707,7 +703,7 @@ static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedPreDefinition_default;
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -715,57 +711,25 @@ static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___boxed), 1, 0);
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_allowUnsafeReducibility;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_diagnostics;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_maxRecDepth;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5;
+x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7() {
+static lean_object* _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6;
+x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -777,7 +741,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; uint8_t x_100; uint8_t x_121; 
 x_13 = lean_ctor_get(x_4, 3);
-x_14 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__0;
+x_14 = l_Lean_Elab_instInhabitedPreDefinition_default;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get_borrowed(x_14, x_2, x_15);
 x_17 = lean_ctor_get(x_16, 3);
@@ -832,16 +796,16 @@ if (lean_is_exclusive(x_10)) {
 x_34 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_34);
 lean_dec(x_18);
-x_35 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__1;
+x_35 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__0;
 x_36 = lean_name_eq(x_13, x_17);
 x_37 = l_Lean_Elab_PreDefinition_filterAttrs(x_4, x_35);
 x_38 = lean_array_to_list(x_2);
 x_39 = lean_box(0);
 x_40 = l_List_mapTR_loop___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__0(x_38, x_39);
-x_41 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
+x_41 = l_Lean_allowUnsafeReducibility;
 x_42 = 1;
 x_43 = l_Lean_Option_set___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__1(x_21, x_41, x_42);
-x_44 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
+x_44 = l_Lean_diagnostics;
 x_45 = l_Lean_Option_get___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__2(x_43, x_44);
 x_121 = l_Lean_Kernel_isDiagnosticsEnabled(x_34);
 lean_dec_ref(x_34);
@@ -880,7 +844,7 @@ goto block_120;
 block_99:
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-x_61 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4;
+x_61 = l_Lean_maxRecDepth;
 x_62 = l_Lean_Option_get___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__3(x_43, x_61);
 if (lean_is_scalar(x_33)) {
  x_63 = lean_alloc_ctor(0, 14, 2);
@@ -1098,7 +1062,7 @@ x_103 = lean_ctor_get(x_101, 0);
 x_104 = lean_ctor_get(x_101, 5);
 lean_dec(x_104);
 x_105 = l_Lean_Kernel_enableDiag(x_103, x_45);
-x_106 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7;
+x_106 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
 lean_ctor_set(x_101, 5, x_106);
 lean_ctor_set(x_101, 0, x_105);
 x_107 = lean_st_ref_set(x_11, x_101);
@@ -1140,7 +1104,7 @@ lean_inc(x_109);
 lean_inc(x_108);
 lean_dec(x_101);
 x_116 = l_Lean_Kernel_enableDiag(x_108, x_45);
-x_117 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7;
+x_117 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
 x_118 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_118, 0, x_116);
 lean_ctor_set(x_118, 1, x_109);
@@ -1281,7 +1245,7 @@ static lean_object* _init_l_Lean_setReducibilityStatus___at___00Lean_setIrreduci
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6;
+x_1 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
 x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1307,7 +1271,7 @@ lean_dec(x_9);
 x_10 = 0;
 x_11 = lean_box(0);
 x_12 = l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore(x_8, x_1, x_2, x_10, x_11);
-x_13 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7;
+x_13 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
 lean_ctor_set(x_6, 5, x_13);
 lean_ctor_set(x_6, 0, x_12);
 x_14 = lean_st_ref_set(x_4, x_6);
@@ -1375,7 +1339,7 @@ lean_dec(x_6);
 x_39 = 0;
 x_40 = lean_box(0);
 x_41 = l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore(x_31, x_1, x_2, x_39, x_40);
-x_42 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7;
+x_42 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
 x_43 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_32);
@@ -2216,14 +2180,6 @@ l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2 = _init_l_Lean_Elab_Mutual_ad
 lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2);
 l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3 = _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3();
 lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3);
-l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4 = _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4();
-lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__4);
-l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5 = _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5();
-lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__5);
-l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6 = _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6();
-lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__6);
-l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7 = _init_l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7();
-lean_mark_persistent(l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__7);
 l_Lean_setReducibilityStatus___at___00Lean_setIrreducibleAttribute___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_setReducibilityStatus___at___00Lean_setIrreducibleAttribute___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___00Lean_setIrreducibleAttribute___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__1___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__1___closed__0();

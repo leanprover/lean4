@@ -203,7 +203,6 @@ size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_Meta_Grind_Arith_Linear_addOcc_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_DiseqCnstr_satisfied___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2;
 uint64_t l_Lean_Meta_Sym_hashPtrExpr_unsafe__1(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_getLeFn___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getOrderedRingInst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1771,14 +1770,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_setTermStructId(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -1873,7 +1864,7 @@ lean_dec(x_18);
 x_31 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_setTermStructId___lam__0), 3, 2);
 lean_closure_set(x_31, 0, x_1);
 lean_closure_set(x_31, 1, x_2);
-x_32 = l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2;
+x_32 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_33 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_32, x_31, x_3);
 return x_33;
 }
@@ -4372,7 +4363,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_resetAssignmentFrom___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_1);
-x_6 = l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2;
+x_6 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_7 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_6, x_5, x_3);
 return x_7;
 }
@@ -6575,7 +6566,7 @@ x_18 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_addOcc___lam__0
 lean_closure_set(x_18, 0, x_3);
 lean_closure_set(x_18, 1, x_2);
 lean_closure_set(x_18, 2, x_1);
-x_19 = l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2;
+x_19 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_20 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_19, x_18, x_4);
 return x_20;
 }
@@ -6605,7 +6596,7 @@ x_24 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_addOcc___lam__0
 lean_closure_set(x_24, 0, x_3);
 lean_closure_set(x_24, 1, x_2);
 lean_closure_set(x_24, 2, x_1);
-x_25 = l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2;
+x_25 = l_Lean_Meta_Grind_Arith_Linear_linearExt;
 x_26 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_25, x_24, x_4);
 return x_26;
 }
@@ -7239,8 +7230,6 @@ l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__0 = _init_l_Lean_Meta_G
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__0);
 l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__1 = _init_l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__1();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__1);
-l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2 = _init_l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_setTermStructId___closed__2);
 l_Lean_Meta_Grind_Arith_Linear_getNoNatDivInst___closed__0 = _init_l_Lean_Meta_Grind_Arith_Linear_getNoNatDivInst___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Linear_getNoNatDivInst___closed__0);
 l_Lean_Meta_Grind_Arith_Linear_getNoNatDivInst___closed__1 = _init_l_Lean_Meta_Grind_Arith_Linear_getNoNatDivInst___closed__1();

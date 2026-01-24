@@ -419,7 +419,6 @@ static lean_object* l_Lean_Firefox_instFromJsonCategory_fromJson___closed__18;
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Firefox_instFromJsonSamplesTable_fromJson_spec__1_spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Firefox_instFromJsonResourceTable_fromJson(lean_object*);
 static lean_object* l_Lean_Firefox_categories___closed__15;
-static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_collideThreads___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Firefox_instFromJsonProfile_fromJson___closed__14;
 static lean_object* l_Lean_Firefox_instFromJsonStackTable_fromJson___closed__7;
@@ -536,7 +535,6 @@ static lean_object* l_Lean_Firefox_instFromJsonRawMarkerTable_fromJson___closed_
 static lean_object* l_Lean_Firefox_instFromJsonCategory_fromJson___closed__16;
 static lean_object* l_Lean_Firefox_instFromJsonProfileMeta_fromJson___closed__28;
 static lean_object* l_Lean_Firefox_categories___closed__5;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Firefox_instFromJsonStackTable_fromJson___closed__23;
 static lean_object* l_Lean_Firefox_instFromJsonFuncTable___closed__0;
@@ -14578,14 +14576,6 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -16045,7 +16035,7 @@ lean_inc(x_3);
 x_521 = l_Lean_MessageData_format(x_8, x_3);
 x_522 = l_Lean_Firefox_instFromJsonCategory_fromJson___closed__11;
 x_523 = lean_string_append(x_518, x_522);
-x_524 = l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4;
+x_524 = l_Std_Format_defWidth;
 x_525 = l_Std_Format_pretty(x_521, x_524, x_14, x_14);
 x_526 = lean_string_append(x_523, x_525);
 lean_dec_ref(x_525);
@@ -18317,14 +18307,6 @@ lean_dec(x_5);
 return x_7;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_output_pp;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7) {
 _start:
 {
@@ -18730,7 +18712,7 @@ goto block_26;
 block_26:
 {
 lean_object* x_19; uint8_t x_20; lean_object* x_21; 
-x_19 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0;
+x_19 = l_Lean_trace_profiler_output_pp;
 x_20 = l_Lean_Option_get___at___00Lean_Firefox_Profile_export_spec__2(x_1, x_19);
 x_21 = l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace(x_20, x_17, x_16);
 if (lean_obj_tag(x_21) == 0)
@@ -23293,8 +23275,6 @@ l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__2 = _init_l
 lean_mark_persistent(l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__2);
 l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__3 = _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__3();
 lean_mark_persistent(l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__3);
-l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4 = _init_l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4();
-lean_mark_persistent(l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___closed__4);
 l_Lean_Firefox_Thread_new___closed__0 = _init_l_Lean_Firefox_Thread_new___closed__0();
 lean_mark_persistent(l_Lean_Firefox_Thread_new___closed__0);
 l_Lean_Firefox_Thread_new___closed__1 = _init_l_Lean_Firefox_Thread_new___closed__1();
@@ -23317,8 +23297,6 @@ l_Array_groupByKey___at___00Lean_Firefox_Profile_export_spec__0___redArg___close
 lean_mark_persistent(l_Array_groupByKey___at___00Lean_Firefox_Profile_export_spec__0___redArg___closed__1);
 l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__9___redArg___closed__0 = _init_l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__9___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Firefox_Profile_export_spec__9___redArg___closed__0);
-l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Firefox_Profile_export_spec__3___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Firefox_Profile_export_spec__7___redArg___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Firefox_Profile_export_spec__7___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Firefox_Profile_export_spec__7___redArg___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Firefox_Profile_export_spec__7___redArg___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Firefox_Profile_export_spec__7___redArg___closed__1();

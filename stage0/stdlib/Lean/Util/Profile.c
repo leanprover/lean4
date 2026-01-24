@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_profiler;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_Profile_2256275618____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 double lean_float_div(double, double);
-static double l_Lean_profiler_threshold_getSecs___closed__1;
 static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_Util_Profile_3464325698____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__0_00___x40_Lean_Util_Profile_3464325698____hygCtx___hyg_4_;
@@ -39,7 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_Profile_3464325698____
 static lean_object* l_Lean_initFn___closed__0_00___x40_Lean_Util_Profile_2256275618____hygCtx___hyg_4_;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_profiler_threshold_getSecs___closed__0;
+static double l_Lean_profiler_threshold_getSecs___closed__0;
 lean_object* l_unsafeBaseIO___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg___lam__0(lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
@@ -60,7 +59,6 @@ LEAN_EXPORT lean_object* l_Lean_profileit___boxed(lean_object*, lean_object*, le
 static lean_object* l_Lean_initFn___closed__4_00___x40_Lean_Util_Profile_3464325698____hygCtx___hyg_4_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_Profile_3464325698____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0;
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_Profile_2256275618____hygCtx___hyg_4_();
 LEAN_EXPORT lean_object* l_Lean_profiler_threshold;
@@ -541,19 +539,11 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_profiler;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t lean_get_profiler(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0;
+x_2 = l_Lean_profiler;
 x_3 = l_Lean_Option_get___at___00__private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
@@ -614,15 +604,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_profiler_threshold_getSecs___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_profiler_threshold;
-return x_1;
-}
-}
-static double _init_l_Lean_profiler_threshold_getSecs___closed__1() {
+static double _init_l_Lean_profiler_threshold_getSecs___closed__0() {
 _start:
 {
 lean_object* x_1; double x_2; 
@@ -635,11 +617,11 @@ LEAN_EXPORT double lean_get_profiler_threshold(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; double x_4; double x_5; double x_6; 
-x_2 = l_Lean_profiler_threshold_getSecs___closed__0;
+x_2 = l_Lean_profiler_threshold;
 x_3 = l_Lean_Option_get___at___00Lean_profiler_threshold_getSecs_spec__0(x_1, x_2);
 lean_dec_ref(x_1);
 x_4 = lean_float_of_nat(x_3);
-x_5 = l_Lean_profiler_threshold_getSecs___closed__1;
+x_5 = l_Lean_profiler_threshold_getSecs___closed__0;
 x_6 = lean_float_div(x_4, x_5);
 return x_6;
 }
@@ -888,11 +870,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_profiler_threshold = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_profiler_threshold);
 lean_dec_ref(res);
-}l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0 = _init_l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0();
-lean_mark_persistent(l___private_Lean_Util_Profile_0__Lean_get__profiler___closed__0);
-l_Lean_profiler_threshold_getSecs___closed__0 = _init_l_Lean_profiler_threshold_getSecs___closed__0();
-lean_mark_persistent(l_Lean_profiler_threshold_getSecs___closed__0);
-l_Lean_profiler_threshold_getSecs___closed__1 = _init_l_Lean_profiler_threshold_getSecs___closed__1();
+}l_Lean_profiler_threshold_getSecs___closed__0 = _init_l_Lean_profiler_threshold_getSecs___closed__0();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

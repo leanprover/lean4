@@ -52,7 +52,6 @@ static lean_object* l_Lean_Expr_withAppAux___at___00Lean_Expr_withAppAux___at___
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 uint8_t l_Lean_instBEqMVarId_beq(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3;
 lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_initFn___closed__10_00___x40_Lean_Meta_Tactic_Induction_2221195325____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Meta_getMajorTypeIndices___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,7 +142,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Meta_mkRecursorAppPrefix_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_initFn___closed__18_00___x40_Lean_Meta_Tactic_Induction_2221195325____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___closed__5;
-static lean_object* l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2;
 lean_object* lean_array_to_list(lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -706,35 +704,19 @@ return x_10;
 static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedMVarId_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedFVarSubst_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3() {
+static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2;
-x_2 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1;
-x_3 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__0;
+x_1 = l_Lean_Meta_instInhabitedFVarSubst_default;
+x_2 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__0;
+x_3 = l_Lean_instInhabitedMVarId_default;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -746,7 +728,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedInductionSubgoal_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3;
+x_1 = l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1;
 return x_1;
 }
 }
@@ -10702,10 +10684,6 @@ l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__0 = _init_l_Lean_Met
 lean_mark_persistent(l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__0);
 l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1 = _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1();
 lean_mark_persistent(l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__1);
-l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2 = _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__2);
-l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3 = _init_l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3();
-lean_mark_persistent(l_Lean_Meta_instInhabitedInductionSubgoal_default___closed__3);
 l_Lean_Meta_instInhabitedInductionSubgoal_default = _init_l_Lean_Meta_instInhabitedInductionSubgoal_default();
 lean_mark_persistent(l_Lean_Meta_instInhabitedInductionSubgoal_default);
 l_Lean_Meta_instInhabitedInductionSubgoal = _init_l_Lean_Meta_instInhabitedInductionSubgoal();

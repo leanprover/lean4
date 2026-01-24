@@ -25,7 +25,6 @@ uint8_t l_Array_isEmpty___redArg(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__25_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_IR_FnBody_pushProj_spec__2___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_pushProjs___closed__0;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__9_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__4_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___00Lean_IR_pushProjs_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -343,14 +342,6 @@ lean_dec_ref(x_1);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_IR_pushProjs___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_instInhabitedFnBody_default__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_pushProjs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -359,7 +350,7 @@ x_6 = l_Array_isEmpty___redArg(x_1);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_15; 
-x_7 = l_Lean_IR_pushProjs___closed__0;
+x_7 = l_Lean_IR_instInhabitedFnBody_default__1;
 x_8 = l_Array_back_x21___redArg(x_7, x_1);
 x_9 = lean_array_pop(x_1);
 if (lean_obj_tag(x_8) == 0)
@@ -1168,8 +1159,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_NormIds(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_pushProjs___closed__0 = _init_l_Lean_IR_pushProjs___closed__0();
-lean_mark_persistent(l_Lean_IR_pushProjs___closed__0);
 l_Lean_IR_FnBody_pushProj___closed__0 = _init_l_Lean_IR_FnBody_pushProj___closed__0();
 lean_mark_persistent(l_Lean_IR_FnBody_pushProj___closed__0);
 l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_PushProj_2323117793____hygCtx___hyg_2_();

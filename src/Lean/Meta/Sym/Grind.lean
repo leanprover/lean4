@@ -70,11 +70,10 @@ public inductive GrindResult where
   | closed
 
 public def Goal.grind (goal : Goal) : GrindM GrindResult := do
-  withProtectedMCtx (← getConfig) goal.mvarId fun mvarId => do
-    if let some failure ← solve { goal with mvarId } then
-      return .failed failure
-    else
-      return .closed
+  if let some failure ← solve goal then
+    return .failed failure
+  else
+    return .closed
 
 public def Goal.assumption (goal : Goal) : MetaM Bool := do
   -- **TODO**: add indexing

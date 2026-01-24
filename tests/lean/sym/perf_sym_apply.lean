@@ -26,7 +26,7 @@ set_option maxRecDepth 10000000
 def tryIntros? (goals : List MVarId) : SymM (Option (List MVarId)) := do
   try
     let goal :: goals := goals | return none
-    let (_, goal') ← intros goal
+    let .goal _ goal' ← intros goal | failure
     return some (goal' :: goals)
   catch _ =>
     return none

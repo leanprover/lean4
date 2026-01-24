@@ -140,7 +140,7 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   -- `processMVar` ensures the input goal becomes a `Sym` compatible goal.
   let mvarId ← preprocessMVar mvarId
   -- `intro s post n`
-  let (_, mvarId) ← Sym.introN mvarId 3
+  let .goal _ mvarId ← Sym.introN mvarId 3 | failure
   let .goal mvarId ← Sym.simpGoal mvarId preMethods | failure
   -- ## Loop
   -- We simulate the `repeat` block using a tail-recursive function `loop`

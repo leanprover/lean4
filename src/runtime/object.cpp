@@ -2741,4 +2741,87 @@ void finalize_object() {
     delete g_ext_classes;
     delete g_ext_classes_mutex;
 }
+
+extern "C" LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        lean_mark_persistent(*loc);
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_uint8_once_cold(uint8_t* loc, lean_once_cell_t* tok, uint8_t (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint16_t lean_uint16_once_cold(uint16_t* loc, lean_once_cell_t* tok, uint16_t (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_uint32_once_cold(uint32_t* loc, lean_once_cell_t* tok, uint32_t (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_uint64_once_cold(uint64_t* loc, lean_once_cell_t* tok, uint64_t (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT size_t lean_usize_once_cold(size_t* loc, lean_once_cell_t* tok, size_t (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT float lean_float32_once_cold(float* loc, lean_once_cell_t* tok, float (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+extern "C" LEAN_EXPORT double lean_float_once_cold(double* loc, lean_once_cell_t* tok, double (*init)(void)) {
+    pthread_mutex_lock(&tok->lock);
+    if (tok->state != 1) {
+        *loc = init();
+        tok->state = 1;
+    }
+    pthread_mutex_unlock(&tok->lock);
+    return *loc;
+}
+
+
 }

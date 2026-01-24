@@ -1808,7 +1808,7 @@ static inline uint8_t lean_uint8_of_nat_mk(lean_obj_arg a) { uint8_t r = lean_ui
 static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint8_t lean_uint8_add(uint8_t a1, uint8_t a2) { return a1+a2; }
 static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
-static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return a1*a2; }
+static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return 1U*a1*a2; }
 static inline uint8_t lean_uint8_div(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint8_t lean_uint8_land(uint8_t a, uint8_t b) { return a & b; }
@@ -1846,7 +1846,7 @@ static inline uint16_t lean_uint16_of_nat_mk(lean_obj_arg a) { uint16_t r = lean
 static inline lean_obj_res lean_uint16_to_nat(uint16_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint16_t lean_uint16_add(uint16_t a1, uint16_t a2) { return a1+a2; }
 static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2; }
-static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
+static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return 1U*a1*a2; }
 static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint16_t lean_uint16_land(uint16_t a, uint16_t b) { return a & b; }
@@ -1883,7 +1883,7 @@ static inline uint32_t lean_uint32_of_nat_mk(lean_obj_arg a) { uint32_t r = lean
 static inline lean_obj_res lean_uint32_to_nat(uint32_t a) { return lean_usize_to_nat((size_t)a); }
 static inline uint32_t lean_uint32_add(uint32_t a1, uint32_t a2) { return a1+a2; }
 static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2; }
-static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return a1*a2; }
+static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return 1U*a1*a2; }
 static inline uint32_t lean_uint32_div(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint32_t lean_uint32_land(uint32_t a, uint32_t b) { return a & b; }
@@ -1920,7 +1920,7 @@ static inline uint64_t lean_uint64_of_nat(b_lean_obj_arg a) { return lean_is_sca
 static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean_uint64_of_nat(a); lean_dec(a); return r; }
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
-static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return a1*a2; }
+static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
@@ -1995,6 +1995,11 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
  * definition rule, and also makes it impossible to run the clang sanitizer (which considers
  * -fwrapv a feature for graceful failures, not to mark things as intended).
  *
+ * To avoid integer promotion from small unsigned types to `int` in the `mul` functions, we add a
+ * `1U *` term as recommended by https://stackoverflow.com/a/31083928/102441. This is optimized out,
+ * but forces a cast to _at least_ `unsigned int`, without having to implicitly assume that this is
+ * `uint32_t`.
+ *
  * We rely on the implementation defined behavior of gcc/clang to apply reduction mod
  * 2^N when casting to an integer type of size N:
  * https://gcc.gnu.org/onlinedocs/gcc/Integers-implementation.html#Integers-implementation
@@ -2051,7 +2056,7 @@ static inline uint8_t lean_int8_sub(uint8_t a1, uint8_t a2) {
 
 static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
     // do not cast to `int8_t`, as there overflow is undefined behavior
-    return a1 * a2;
+    return 1U * a1 * a2;
 }
 
 static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
@@ -2192,7 +2197,7 @@ static inline uint16_t lean_int16_sub(uint16_t a1, uint16_t a2) {
 
 static inline uint16_t lean_int16_mul(uint16_t a1, uint16_t a2) {
     // do not cast to `int16_t`, as there overflow is undefined behavior
-    return a1 * a2;
+    return 1U * a1 * a2;
 }
 
 static inline uint16_t lean_int16_div(uint16_t a1, uint16_t a2) {
@@ -2332,7 +2337,7 @@ static inline uint32_t lean_int32_sub(uint32_t a1, uint32_t a2) {
 
 static inline uint32_t lean_int32_mul(uint32_t a1, uint32_t a2) {
     // do not cast to `int32_t`, as there overflow is undefined behavior
-    return a1 * a2;
+    return 1U * a1 * a2;
 }
 
 static inline uint32_t lean_int32_div(uint32_t a1, uint32_t a2) {
@@ -2472,7 +2477,7 @@ static inline uint64_t lean_int64_sub(uint64_t a1, uint64_t a2) {
 
 static inline uint64_t lean_int64_mul(uint64_t a1, uint64_t a2) {
     // do not cast to `int64_t`, as there overflow is undefined behavior
-    return a1 * a2;
+    return 1U * a1 * a2;
 }
 
 static inline uint64_t lean_int64_div(uint64_t a1, uint64_t a2) {
@@ -2614,7 +2619,7 @@ static inline size_t lean_isize_sub(size_t a1, size_t a2) {
 
 static inline size_t lean_isize_mul(size_t a1, size_t a2) {
     // do not cast to `ptrdiff_t`, as there overflow is undefined behavior
-    return a1 * a2;
+    return 1U * a1 * a2;
 }
 
 static inline size_t lean_isize_div(size_t a1, size_t a2) {

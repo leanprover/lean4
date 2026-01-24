@@ -542,7 +542,11 @@ def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_
 
             if is_rc:
                 # For RC releases, title should contain the exact RC suffix (e.g., "-rc1")
-                if rc_suffix.lower() in line.lower():
+                # Use regex to match exact suffix followed by non-digit (to avoid -rc1 matching -rc10)
+                # Pattern matches the RC suffix followed by a non-digit or end-of-string context
+                # e.g., "-rc1" followed by space, quote, paren, or similar
+                exact_match = re.search(rf'{re.escape(rc_suffix)}(?![0-9])', line, re.IGNORECASE)
+                if exact_match:
                     print(f"  ✅ Release notes title correctly shows {rc_suffix}")
                     return True
                 elif has_rc_in_title:

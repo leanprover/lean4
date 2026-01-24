@@ -40,6 +40,12 @@ theorem Exec.ite_false {_ : Decidable c} (t e : StateM S α) :
     ¬ c → Exec s e post → Exec s (if c then t else e) post := by
   intro h; simp [*]
 
+theorem Exec.ite {_ : Decidable c} (t e : StateM S α) :
+    (c → Exec s t post) → (¬ c → Exec s e post) → Exec s (if c then t else e) post := by
+  intro h₁ h₂; split
+  next h => exact h₁ h
+  next h => exact h₂ h
+
 theorem modify_eq : (modify f : StateM S Unit) s = ((), f s) := by
   simp [modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, pure]
 

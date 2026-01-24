@@ -18,7 +18,7 @@ throwable::~throwable() noexcept {}
 char const * throwable::what() const noexcept { return m_msg.c_str(); }
 
 stack_space_exception::stack_space_exception(char const * component_name):
-    m_msg((sstream() << "deep recursion was detected at '" << component_name << "' (potential solution: increase stack space in your system)").str()) {
+    m_msg((sstream() << "deep recursion was detected at '" << component_name << "' (potential solution: increase elaboration stack size using `lean` `--tstack` flag)").str()) {
 }
 
 memory_exception::memory_exception(char const * component_name):

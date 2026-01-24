@@ -27,7 +27,7 @@ open Internal
 /--
 Checks if a character is valid for use in an HTTP header value.
 -/
-def isValidHeaderChar (c : Char) : Bool :=
+abbrev isValidHeaderChar (c : Char) : Bool :=
   ('!' ≤ c ∧ c ≤ '~') ∨ c = '\t' ∨ c = ' '
 
 /--
@@ -64,7 +64,7 @@ Creates a new `Value` from a string with an optional proof of validity. If no pr
 it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : s.toList.all isValidHeaderChar := by decide) : Value :=
+def new (s : String) (h  : IsValidHeaderValue s := by decide) : Value :=
   ⟨s, h⟩
 
 /--
@@ -98,5 +98,15 @@ def is (s : Value) (h : String) : Bool :=
 
 instance : ToString Value where
   toString v := v.value
+
+/--
+Standard close header value
+-/
+def close : Header.Value := .new "close"
+
+/--
+Standard chunked header value
+-/
+def chunked : Header.Value := .new "chunked"
 
 end Std.Http.Header.Value

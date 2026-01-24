@@ -64,6 +64,13 @@ def write (buffer : ChunkedBuffer) (data : ByteArray) : ChunkedBuffer :=
   buffer.push data
 
 /--
+Writes a `ChunkedBuffer` to the `ChunkedBuffer`.
+-/
+@[inline]
+def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
+  { data := buffer.data.enqueueAll data.data.toArray.toList.reverse, size := buffer.size + data.size }
+
+/--
 Writes a `Char` to the `ChunkedBuffer`.
 -/
 @[inline]
@@ -101,7 +108,7 @@ Build from an array of ByteArrays directly.
 -/
 @[inline]
 def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
-  { data := .empty |>.enqueueAll bs.toList , size := bs.foldl (· + ·.size) 0 }
+  { data := .empty |>.enqueueAll bs.reverse.toList , size := bs.foldl (· + ·.size) 0 }
 
 /--
 Dequeue the first `ByteArray` from the `ChunkedBuffer`, returning it along with the remaining buffer.
@@ -112,36 +119,6 @@ def dequeue? (c : ChunkedBuffer) : Option (ByteArray × ChunkedBuffer) :=
   match c.data.dequeue? with
   | some (b, rest) => some (b, { data := rest, size := c.size - b.size })
   | none => none
-
-/--
-Push a `ByteArray` to the front of the `ChunkedBuffer`, so it will be dequeued first.
--/
-@[inline]
-def pushFront (c : ChunkedBuffer) (b : ByteArray) : ChunkedBuffer :=
-  { data := { c.data with dList := b :: c.data.dList }, size := c.size + b.size }
-
-/--
-Extract exactly `n` bytes from the front of the `ChunkedBuffer`. If the buffer contains fewer
-than `n` bytes, returns all available bytes. Returns the extracted bytes and the remaining buffer.
--/
-partial def take (c : ChunkedBuffer) (n : Nat) : ByteArray × ChunkedBuffer :=
-  if n ≥ c.size then
-    (c.toByteArray, empty)
-  else if n == 0 then
-    (.empty, c)
-  else
-    go (.emptyWithCapacity n) n c
-where
-  go (acc : ByteArray) (remaining : Nat) (buf : ChunkedBuffer) : ByteArray × ChunkedBuffer :=
-    match buf.dequeue? with
-    | none => (acc, buf)
-    | some (chunk, rest) =>
-      if chunk.size ≤ remaining then
-        go (acc ++ chunk) (remaining - chunk.size) rest
-      else
-        let taken := chunk.extract 0 remaining
-        let leftover := chunk.extract remaining chunk.size
-        (acc ++ taken, rest.pushFront leftover)
 
 /--
 Check if it's an empty array.

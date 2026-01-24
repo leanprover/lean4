@@ -25,7 +25,7 @@ private partial def atLeastAux (n : Nat) (p : ParserFn) : ParserFn := fun c s =>
   if s.hasError then
     return if iniPos == s.pos && n == 0 then s.restore iniSz iniPos else s
   if iniPos == s.pos then
-    return s.mkUnexpectedError "invalid 'atLeast' parser combinator application, parser did not consume anything"
+    return s.mkUnexpectedError "invalid `atLeast` parser combinator application, parser did not consume anything"
   if s.stackSize > iniSz + 1 then
     s := s.mkNode nullKind iniSz
   atLeastAux (n - 1) p c s
@@ -64,7 +64,7 @@ private partial def atMostAux (n : Nat) (p : ParserFn) (msg : String) : ParserFn
     if s.hasError then
       return if iniPos == s.pos then s.restore iniSz iniPos else s
     if iniPos == s.pos then
-      return s.mkUnexpectedError "invalid 'atMost' parser combinator application, parser did not \
+      return s.mkUnexpectedError "invalid `atMost` parser combinator application, parser did not \
         consume anything"
     if s.stackSize > iniSz + 1 then
       s := s.mkNode nullKind iniSz

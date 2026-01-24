@@ -45,9 +45,9 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
     let result := mkAppN (Lean.mkConst ``Trans.trans [u, v, w, u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, step]
     let resultType := (← instantiateMVars (← inferType result)).headBeta
     unless (← getCalcRelation? resultType).isSome do
-      throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
+      throwError "invalid `calc` step, step result is not a relation{indentExpr resultType}"
     return (result, resultType)
-  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}{useDiagnosticMsg}"
+  | _ => throwError "invalid `calc` step, failed to synthesize `Trans` instance{indentExpr selfType}{useDiagnosticMsg}"
 
 /--
 Adds a type annotation to a hole that occurs immediately at the beginning of the term.
@@ -111,11 +111,11 @@ def elabCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) := do
       else
         pure step.term
     let some (_, lhs, rhs) ← getCalcRelation? type |
-      throwErrorAt step.term "invalid 'calc' step, relation expected{indentExpr type}"
+      throwErrorAt step.term "invalid `calc` step, relation expected{indentExpr type}"
     if let some prevRhs := prevRhs? then
       unless (← isDefEqGuarded lhs prevRhs) do
         throwErrorAt step.term "\
-          invalid 'calc' step, left-hand side is{indentD m!"{lhs} : {← inferType lhs}"}\n\
+          invalid `calc` step, left-hand side is{indentD m!"{lhs} : {← inferType lhs}"}\n\
           but previous right-hand side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
     let proof ← withFreshMacroScope do elabTermEnsuringType step.proof type
     result? := some <| ← do
@@ -138,19 +138,19 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType result : Expr) :
         let (lhs, elhs) ← addPPExplicitToExposeDiff lhs elhs
         let (lhsTy, elhsTy) ← addPPExplicitToExposeDiff (← inferType lhs) (← inferType elhs)
         logErrorAt steps[0]!.term m!"\
-          invalid 'calc' step, left-hand side is{indentD m!"{lhs} : {lhsTy}"}\n\
+          invalid `calc` step, left-hand side is{indentD m!"{lhs} : {lhsTy}"}\n\
           but is expected to be{indentD m!"{elhs} : {elhsTy}"}"
         failed := true
       unless ← isDefEqGuarded rhs erhs do
         let (rhs, erhs) ← addPPExplicitToExposeDiff rhs erhs
         let (rhsTy, erhsTy) ← addPPExplicitToExposeDiff (← inferType rhs) (← inferType erhs)
         logErrorAt steps.back!.term m!"\
-          invalid 'calc' step, right-hand side is{indentD m!"{rhs} : {rhsTy}"}\n\
+          invalid `calc` step, right-hand side is{indentD m!"{rhs} : {rhsTy}"}\n\
           but is expected to be{indentD m!"{erhs} : {erhsTy}"}"
         failed := true
       if failed then
         throwAbortTerm
-  throwTypeMismatchError "'calc' expression" expectedType resultType result
+  throwTypeMismatchError "`calc` expression" expectedType resultType result
 
 /-!
 Warning! It is *very* tempting to try to improve `calc` so that it makes use of the expected type

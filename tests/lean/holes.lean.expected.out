@@ -30,4 +30,4 @@ f : {α : Type} → {β : ?m a} → α → α := ⋯
 ⊢ ?m a
 holes.lean:18:9-18:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
 holes.lean:21:12-21:14: error(lean.inferDefTypeFailed): Failed to infer type of definition `f7`
-holes.lean:25:8-25:11: error: failed to infer 'let rec' declaration type
+holes.lean:25:8-25:11: error: failed to infer `let rec` declaration type

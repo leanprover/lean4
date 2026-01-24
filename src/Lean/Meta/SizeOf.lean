@@ -192,7 +192,7 @@ def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
   ctorName ++ `sizeOf_spec
 
 def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
-  matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo _ => do
+  matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply `sizeOf` spec, constructor expected{indentExpr ctorApp}") fun ctorInfo _ => do
     let ctorArgs     := ctorApp.getAppArgs
     let ctorParams   := ctorArgs[*...ctorInfo.numParams]
     let ctorFields   := ctorArgs[ctorInfo.numParams...*]

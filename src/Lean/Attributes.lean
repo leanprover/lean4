@@ -30,7 +30,7 @@ structure AttributeImplCore where
   applicationTime := AttributeApplicationTime.afterTypeChecking
   deriving Inhabited
 
-/-- You can tag attributes with the 'local' or 'scoped' kind.
+/-- You can tag attributes with the `local` or `scoped` kind.
 For example: `attribute [local myattr, scoped yourattr, theirattr]`.
 
 This is used to indicate how an attribute should be scoped.

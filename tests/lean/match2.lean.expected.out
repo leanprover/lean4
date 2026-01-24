@@ -15,4 +15,4 @@ true
 false
 false
 ---- Foo 3
-match2.lean:83:0-85:21: error: The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided
+match2.lean:83:0-85:21: error: The `(generalizing := true)` parameter is not supported when the `match` motive is explicitly provided

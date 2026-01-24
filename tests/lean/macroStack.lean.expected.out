@@ -8,7 +8,7 @@ while expanding
   (x > 0)
 while expanding
   if h : (x > 0) then 1 else 0
-macroStack.lean:11:9-11:15: error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
+macroStack.lean:11:9-11:15: error: invalid use of `(<- ...)`, must be nested inside a `do` expression
 macroStack.lean:17:0-17:6: error: failed to synthesize instance of type class
   HAdd Nat String ?m
 

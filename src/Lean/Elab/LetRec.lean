@@ -41,11 +41,11 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
     let decl := attrDeclStx[2][0]
     if decl.isOfKind `Lean.Parser.Term.letPatDecl then
-      throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
+      throwErrorAt decl "patterns are not allowed in `let rec` expressions"
     else if decl.isOfKind ``Lean.Parser.Term.letIdDecl || decl.isOfKind ``Lean.Parser.Term.letEqnsDecl then
       let declId := decl[0][0]
       unless declId.isIdent do
-        throwErrorAt declId "'let rec' expressions must be named"
+        throwErrorAt declId "`let rec` expressions must be named"
       let shortDeclName := declId.getId
       let parentName? ← getDeclName?
       let mut declName := parentName?.getD Name.anonymous ++ shortDeclName
@@ -66,7 +66,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do
           let type ← elabType typeStx
-          registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type"
+          registerCustomErrorIfMVar type typeStx "failed to infer `let rec` declaration type"
           let (binderIds, xs) := xs.unzip
           let type ← mkForallFVars xs type
           pure (type, binderIds)

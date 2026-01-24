@@ -1,4 +1,4 @@
-Failure @45 (⟨2, 29⟩): expected '(' or '['
+Failure @45 (⟨2, 29⟩): expected `(` or `[`
 Final stack:
   [(Lean.Doc.Syntax.para
     "para{"

@@ -18,4 +18,4 @@ calcErrors.lean:40:7-40:12: error: invalid 'calc' step, left-hand side is
   γ : Sort u_1
 but previous right-hand side is
   b : β
-calcErrors.lean:60:18-60:19: error: unexpected token '['; expected command
+calcErrors.lean:60:18-60:19: error: unexpected token `[`; expected command

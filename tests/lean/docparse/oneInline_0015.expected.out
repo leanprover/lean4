@@ -1,4 +1,4 @@
-Failure @19 (⟨1, 19⟩): expected '(' or '['
+Failure @19 (⟨1, 19⟩): expected `(` or `[`
 Final stack:
   (Lean.Doc.Syntax.image
    "!["

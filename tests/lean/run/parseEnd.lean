@@ -51,7 +51,7 @@ elab d:docComment "test" : command => do
 -/
 test
 
-/-- error: unexpected end of input; expected ')' -/
+/-- error: unexpected end of input; expected `)` -/
 #guard_msgs in
 /--
 (

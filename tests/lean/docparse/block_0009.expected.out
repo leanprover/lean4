@@ -1,7 +1,7 @@
 2 failures:
   @44 (⟨4, 28⟩): expected token
     ""
-  @44 (⟨4, 28⟩): unexpected end of input; expected '![', '$$', '$', '[' or '[^'
+  @44 (⟨4, 28⟩): unexpected end of input; expected `![`, `$$`, `$`, `[^` or `[`
     ""
 
 Final stack:

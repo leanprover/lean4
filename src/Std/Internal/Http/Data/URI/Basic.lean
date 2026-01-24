@@ -55,7 +55,7 @@ structure UserInfo where
 deriving Inhabited, Repr
 
 /--
-?
+A domain name represented as a lowercase-normalized string.
 -/
 abbrev DomainName := { s : String // IsLowerCase s }
 

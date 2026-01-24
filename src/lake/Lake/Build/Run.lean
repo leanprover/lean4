@@ -120,11 +120,10 @@ private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {log, action, wantsRebuild, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
+  if wantsRebuild then
+    modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
-    modify fun s => {s with
-      failures := s.failures.push caption
-      wantsRebuild := s.wantsRebuild || wantsRebuild
-    }
+    modify fun s => {s with failures := s.failures.push caption}
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -335,10 +334,14 @@ def Workspace.finalizeBuild
   reportResult cfg ctx.out result
   if let some outputsFile := cfg.outputsFile? then
     ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
-  if cfg.noBuild && result.wantsRebuild then
-    IO.Process.exit noBuildCode.toUInt8
-  else
-    IO.ofExcept result.out
+  match result.out with
+  | .ok a =>
+    return a
+  | .error e =>
+    if cfg.noBuild && result.wantsRebuild then
+      IO.Process.exit noBuildCode.toUInt8
+    else
+      throw (IO.userError e)
 
 /--
 Run a build function in the Workspace's context using the provided configuration.

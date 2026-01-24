@@ -20,67 +20,70 @@ meta structure Parser.Category
 
 namespace Parser.Category
 
-/-- `command` is the syntax category for things that appear at the top level
-of a lean file. For example, `def foo := 1` is a `command`, as is
-`namespace Foo` and `end Foo`. Commands generally have an effect on the state of
-adding something to the environment (like a new definition), as well as
-commands like `variable` which modify future commands within a scope. -/
+/-- `command` is the syntax category for top-level constructs in a Lean file.
+Examples include `def foo := 1`, `theorem`, `#check`, `#eval`, `namespace Foo`,
+`open`, and `end Foo`. Commands typically update the environment (e.g., add
+declarations) or modify parsing/elaboration context for later commands (e.g.,
+`variable` or `set_option`). -/
 meta def command : Category := {}
 
-/-- `term` is the builtin syntax category for terms. A term denotes an expression
-in lean's type theory, for example `2 + 2` is a term. The difference between
-`Term` and `Expr` is that the former is a kind of syntax, while the latter is
-the result of elaboration. For example `by simp` is also a `Term`, but it elaborates
-to different `Expr`s depending on the context. -/
+/-- `term` is the builtin syntax category for terms, i.e. expressions in Lean's
+type theory. For example, `2 + 2` is a term. `Term` is syntax, while `Expr` is
+the elaborated result. A term like `by simp` elaborates differently depending on
+the surrounding expected type. This is the category referenced by `term` in
+parser DSLs such as `syntax term:60` declarations. -/
 meta def term : Category := {}
 
-/-- `tactic` is the builtin syntax category for tactics. These appear after
-`by` in proofs, and they are programs that take in the proof context
-(the hypotheses in scope plus the type of the term to synthesize) and construct
-a term of the expected type. For example, `simp` is a tactic, used in:
+/-- `tactic` is the builtin syntax category for tactics. These appear after `by`
+in proofs and are programs that transform a goal state into a proof term. The
+category underlies the tactic sequences accepted by `by` blocks and `tactic`
+declarations.
+For example, `simp` is a tactic, used in:
 ```
 example : 2 + 2 = 4 := by simp
 ```
 -/
 meta def tactic : Category := {}
 
-/-- `doElem` is a builtin syntax category for elements that can appear in the `do` notation.
-For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
+/-- `doElem` is the builtin syntax category for elements that can appear in `do` notation.
+For example, `let x ← e`, `if ... then ... else ...`, `for`, `match`, and
+`return` are `doElem`s. A `do` block is a list of `doElem`s. -/
 meta def doElem : Category := {}
 
-/-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
-For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
+/-- `structInstFieldDecl` is the syntax category for field values in structure instance notation.
+For example, the `:= 1` and `| 0 => 0 | n + 1 => n` parts in
+`{ x := 1, f | 0 => 0 | n + 1 => n }` are `structInstFieldDecl`s. -/
 meta def structInstFieldDecl : Category := {}
 
-/-- `level` is a builtin syntax category for universe levels.
-This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
-constants, and variables. -/
+/-- `level` is the builtin syntax category for universe levels. This is the `u`
+in `Sort u`: levels can contain `max`/`imax`, additions with constants, and
+level variables. -/
 meta def level : Category := {}
 
-/-- `attr` is a builtin syntax category for attributes.
-Declarations can be annotated with attributes using the `@[...]` notation. -/
+/-- `attr` is the builtin syntax category for attributes.
+Declarations can be annotated with attributes using the `@[ ... ]` notation,
+e.g. `@[simp]` or `@[simp, reducible]`, and the `attribute` command parses this
+category too. -/
 meta def attr : Category := {}
 
-/-- `stx` is a builtin syntax category for syntax. This is the abbreviated
-parser notation used inside `syntax` and `macro` declarations. -/
+/-- `stx` is the builtin syntax category for the syntax DSL used inside
+`syntax`/`macro` declarations (e.g., `term:60`, string literals, `ident`,
+`sepBy`, `many`, `optional`, `indent`, `colGt`, etc.). -/
 meta def stx : Category := {}
 
-/-- `prio` is a builtin syntax category for priorities.
-Priorities are used in many different attributes.
-Higher numbers denote higher priority, and for example typeclass search will
-try high priority instances before low priority.
-In addition to literals like `37`, you can also use `low`, `mid`, `high`, as well as
-add and subtract priorities. -/
+/-- `prio` is a builtin syntax category for priorities. Higher numbers denote
+higher priority (e.g., typeclass search tries higher priorities first).
+In addition to numeric literals like `37`, you can use `default`, `low`, `mid`,
+`high`, and `+`/`-` to offset priorities. -/
 meta def prio : Category := {}
 
-/-- `prec` is a builtin syntax category for precedences. A precedence is a value
-that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
-parsed as `1 + (2 * 3)` because `*` has a higher precedence than `+`.
-Higher numbers denote higher precedence.
-In addition to literals like `37`, there are some special named precedence levels:
-* `arg` for the precedence of function arguments
-* `max` for the highest precedence used in term parsers (not actually the maximum possible value)
-* `lead` for the precedence of terms not supposed to be used as arguments
+/-- `prec` is a builtin syntax category for precedences. Precedence expresses how
+tightly syntax binds: `1 + 2 * 3` parses as `1 + (2 * 3)` because `*` has higher
+precedence than `+`. Higher numbers denote higher precedence.
+Besides numeric literals, there are named levels:
+* `arg` for function arguments
+* `max` for the highest precedence used in term parsers (not the maximum possible)
+* `lead` for terms not meant as arguments
 and you can also add and subtract precedences. -/
 meta def prec : Category := {}
 

@@ -50,7 +50,7 @@ def add (declName : Name) (kind : AttributeKind) : CoreM Unit := do
   if let some entry ← isConstantReplacement? declName then
     ext.add entry kind
   else
-    throwError "invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
+    throwError "invalid `csimp` theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
 
 /--
 Tags compiler simplification theorems, which allow one value to be replaced by another equal value

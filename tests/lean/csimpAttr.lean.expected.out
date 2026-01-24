@@ -1,4 +1,4 @@
-csimpAttr.lean:7:2-7:7: error: invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.
+csimpAttr.lean:7:2-7:7: error: invalid `csimp` theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.
 [Compiler.IR] [init]
     def f (x_1 : tobj) : tobj :=
       let x_2 : tobj := Nat.add x_1 x_1;

@@ -18,7 +18,7 @@ public section
 This module defines the `Header` typeclass for typed HTTP headers and some common header parsers.
 -/
 
-namespace Std.Http.Header
+namespace Std.Http
 
 set_option linter.all true
 
@@ -32,12 +32,12 @@ class Header (α : Type) where
   /--
   Parse a header value into the typed representation.
   -/
-  parse : Value → Option α
+  parse : Header.Value → Option α
 
   /--
   Serialize the typed representation back to a name-value pair.
   -/
-  serialize : α → Name × Value
+  serialize : α → Header.Name × Header.Value
 
 /--
 An `Encode` instance can be derived from any `Header` instance by serializing to the wire format
@@ -47,6 +47,8 @@ instance [h : Header α] : Encode .v11 α where
   encode buffer a :=
     let (name, value) := h.serialize a
     buffer.writeString s!"{name}: {value}\r\n"
+
+namespace Header
 
 /--
 The `Content-Length` header, representing the size of the message body in bytes.

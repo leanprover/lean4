@@ -354,73 +354,6 @@ inductive Status where
   | other (number : UInt16)
 deriving Repr, Inhabited, BEq
 
-instance : ToString Status where
-  toString
-    | .«continue» => "Continue"
-    | .switchingProtocols => "Switching Protocols"
-    | .processing => "Processing"
-    | .earlyHints => "Early Hints"
-    | .ok => "OK"
-    | .created => "Created"
-    | .accepted => "Accepted"
-    | .nonAuthoritativeInformation => "Non-Authoritative Information"
-    | .noContent => "No Content"
-    | .resetContent => "Reset Content"
-    | .partialContent => "Partial Content"
-    | .multiStatus => "Multi-Status"
-    | .alreadyReported => "Already Reported"
-    | .imUsed => "IM Used"
-    | .multipleChoices => "Multiple Choices"
-    | .movedPermanently => "Moved Permanently"
-    | .found => "Found"
-    | .seeOther => "See Other"
-    | .notModified => "Not Modified"
-    | .useProxy => "Use Proxy"
-    | .unused => "Unused"
-    | .temporaryRedirect => "Temporary Redirect"
-    | .permanentRedirect => "Permanent Redirect"
-    | .badRequest => "Bad Request"
-    | .unauthorized => "Unauthorized"
-    | .paymentRequired => "Payment Required"
-    | .forbidden => "Forbidden"
-    | .notFound => "Not Found"
-    | .methodNotAllowed => "Method Not Allowed"
-    | .notAcceptable => "Not Acceptable"
-    | .proxyAuthenticationRequired => "Proxy Authentication Required"
-    | .requestTimeout => "Request Timeout"
-    | .conflict => "Conflict"
-    | .gone => "Gone"
-    | .lengthRequired => "Length Required"
-    | .preconditionFailed => "Precondition Failed"
-    | .payloadTooLarge => "Payload Too Large"
-    | .uriTooLong => "URI Too Long"
-    | .unsupportedMediaType => "Unsupported Media Type"
-    | .rangeNotSatisfiable => "Range Not Satisfiable"
-    | .expectationFailed => "Expectation Failed"
-    | .imATeapot => "I'm a teapot"
-    | .misdirectedRequest => "Misdirected Request"
-    | .unprocessableEntity => "Unprocessable Entity"
-    | .locked => "Locked"
-    | .failedDependency => "Failed Dependency"
-    | .tooEarly => "Too Early"
-    | .upgradeRequired => "Upgrade Required"
-    | .preconditionRequired => "Precondition Required"
-    | .tooManyRequests => "Too Many Requests"
-    | .requestHeaderFieldsTooLarge => "Request Header Fields Too Large"
-    | .unavailableForLegalReasons => "Unavailable For Legal Reasons"
-    | .internalServerError => "Internal Server Error"
-    | .notImplemented => "Not Implemented"
-    | .badGateway => "Bad Gateway"
-    | .serviceUnavailable => "Service Unavailable"
-    | .gatewayTimeout => "Gateway Timeout"
-    | .httpVersionNotSupported => "HTTP Version Not Supported"
-    | .variantAlsoNegotiates => "Variant Also Negotiates"
-    | .insufficientStorage => "Insufficient Storage"
-    | .loopDetected => "Loop Detected"
-    | .notExtended => "Not Extended"
-    | .networkAuthenticationRequired => "Network Authentication Required"
-    | .other n => toString n
-
 namespace Status
 
 /--
@@ -689,10 +622,13 @@ def reasonPhrase : Status → String
   | .networkAuthenticationRequired => "Network Authentication Required"
   | .other n => Nat.repr n.toNat
 
+instance : ToString Status where
+  toString := reasonPhrase
+
 instance : Encode .v11 Status where
   encode buffer status := buffer
     |>.writeString (toString <| toCode status)
     |>.writeChar ' '
-    |>.writeString (toString status)
+    |>.writeString status.reasonPhrase
 
 end Std.Http.Status

@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.Data.Array.Lemmas
 public import Init.Data.String
 public import Init.Data.ByteArray
 
@@ -37,7 +38,13 @@ structure ChunkedBuffer where
   The total size in bytes of all accumulated arrays
   -/
   size : Nat
-deriving Inhabited
+
+  /--
+  `size` is the total size of all accumulated arrays
+  -/
+  size_eq : (data.map (·.size)).sum = size := by simp
+
+attribute [simp] ChunkedBuffer.size_eq
 
 namespace ChunkedBuffer
 
@@ -53,7 +60,7 @@ Append a single `ByteArray` to the `ChunkedBuffer`.
 -/
 @[inline]
 def push (c : ChunkedBuffer) (b : ByteArray) : ChunkedBuffer :=
-  { data := c.data.push b, size := c.size + b.size }
+  { data := c.data.push b, size := c.size + b.size, size_eq := by simp [← Array.append_singleton] }
 
 /--
 Writes a `ByteArray` to the `ChunkedBuffer`.
@@ -105,7 +112,7 @@ Build from an array of ByteArrays directly.
 -/
 @[inline]
 def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
-  { data := bs, size := bs.foldl (· + ·.size) 0 }
+  { data := bs, size := bs.foldr (·.size + ·) 0, size_eq := by simp [Array.sum, Array.foldr_map'] }
 
 /--
 Check if it's an empty array.
@@ -113,6 +120,8 @@ Check if it's an empty array.
 @[inline]
 def isEmpty (bb : ChunkedBuffer) : Bool :=
   bb.size = 0
+
+instance : Inhabited ChunkedBuffer := ⟨empty⟩
 
 instance : EmptyCollection ChunkedBuffer where
   emptyCollection := empty

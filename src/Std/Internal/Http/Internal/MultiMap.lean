@@ -122,22 +122,20 @@ If the key already exists, appends the value to existing values.
 -/
 @[inline]
 def insert (map : MultiMap α β) (key : α) (value : β) : MultiMap α β :=
-  if let some existingValues := map.data.get? key then
-    let newArr := existingValues.val.push value
-    { data := map.data.insert key ⟨newArr, by unfold newArr; simp⟩ }
-  else
-    { data := map.data.insert key ⟨#[value], by simp⟩ }
+  let data := map.data.alter key fun
+    | some existingValues => some ⟨existingValues.val.push value, by simp⟩
+    | none => some ⟨#[value], by simp⟩
+  { data }
 
 /--
 Inserts a key with an array of values.
 -/
 @[inline]
 def insertMany (map : MultiMap α β) (key : α) (values : Array β) (h : values.size > 0) : MultiMap α β :=
-  if let some existingValues := map.data.get? key then
-    let newArr := existingValues.val ++ values
-    { data := map.data.insert key ⟨newArr, by unfold newArr; simp [Array.size_append]; omega⟩ }
-  else
-    { data := map.data.insert key ⟨values, h⟩ }
+  let data := map.data.alter key fun
+    | some existingValues => some ⟨existingValues.val ++ values, by simp; omega⟩
+    | none => some ⟨values, h⟩
+  { data }
 
 /--
 Creates an empty multimap.
@@ -149,7 +147,7 @@ def empty : MultiMap α β :=
 Creates a multimap from a list of key-value pairs.
 -/
 def ofList (pairs : List (α × β)) : MultiMap α β :=
-  { data := HashMap.ofList (pairs.map (fun (k, v) => (k, ⟨#[v], by simp⟩))) }
+  pairs.foldl (fun acc (k, v) => acc.insert k v) empty
 
 /--
 Checks if a key exists in the map.
@@ -180,7 +178,7 @@ def isEmpty (map : MultiMap α β) : Bool :=
   map.data.isEmpty
 
 /--
-Merges two multimaps, with the second taking precedence for duplicate keys.
+Merges two multimaps, with the values of the second appearing after the values of the first for duplicate keys.
 -/
 def merge (map1 map2 : MultiMap α β) : MultiMap α β :=
   map2.data.fold (fun acc k v => acc.insertMany k v.val v.property) map1

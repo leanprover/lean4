@@ -26,8 +26,22 @@ set_option linter.all true
 /--
 Predicate asserting that a string is already in lowercase normal form.
 -/
-abbrev IsLowerCase (s : String) : Prop :=
+@[expose] def IsLowerCase (s : String) : Prop :=
   s.toLower = s
+
+private theorem Char.toLower_eq_self_iff {c : Char} : c.toLower = c ↔ c.isUpper = false := by
+  simp only [Char.toLower, Char.isUpper]
+  split <;> rename_i h <;> simpa [UInt32.le_iff_toNat_le, Char.ext_iff] using h
+
+private theorem String.toLower_eq_self_iff {s : String} : s.toLower = s ↔ s.toList.any Char.isUpper = false := by
+  simp only [String.toLower, ← String.toList_inj, String.toList_map]
+  rw (occs := [2]) [← List.map_id s.toList]
+  rw [List.map_eq_map_iff]
+  simp [Char.toLower_eq_self_iff]
+
+instance : Decidable (IsLowerCase s) :=
+  decidable_of_decidable_of_iff (p := s.toList.any Char.isUpper = false)
+    (by exact String.toLower_eq_self_iff.symm)
 
 namespace IsLowerCase
 

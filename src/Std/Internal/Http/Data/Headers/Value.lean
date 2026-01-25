@@ -28,7 +28,7 @@ open Internal
 Checks if a character is valid for use in an HTTP header value.
 -/
 abbrev isValidHeaderChar (c : Char) : Bool :=
-  ('!' ≤ c ∧ c ≤ '~') ∨ c = '\t' ∨ c = ' '
+  (' ' ≤ c ∧ c ≤ '~') ∨ c = '\t'
 
 /--
 Proposition that asserts all characters in a string are valid for HTTP header values.

@@ -44,6 +44,7 @@ theorem implies_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) :
 theorem implies_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : (p → q₁) = (p → q₂) :=
   h ▸ rfl
 
+namespace Lean
 /--
 `Arrow α β` is definitionally equal to `α → β`, but represented as a function
 application rather than `Expr.forallE`.
@@ -67,6 +68,7 @@ theorem arrow_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : A
 
 theorem arrow_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : Arrow p q₁ = Arrow p q₂ :=
   h ▸ rfl
+end Lean
 
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
   Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)

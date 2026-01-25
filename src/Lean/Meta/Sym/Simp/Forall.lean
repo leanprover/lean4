@@ -94,17 +94,17 @@ Returns the simplified result paired with the remaining `ArrowInfo` list. When a
 collapses (e.g., to `True`), the returned `infos` list is empty, signaling to `toForall`
 that no reconstruction is needed.
 -/
-partial def simpArrows (e : Expr) (infos : List ArrowInfo) : SimpM (Result × List ArrowInfo) := do
+partial def simpArrows (e : Expr) (infos : List ArrowInfo) (simpBody : Simproc) : SimpM (Result × List ArrowInfo) := do
   match infos with
-  | [] => return ((← simp e), [])
+  | [] => return ((← simpBody e), [])
   | info :: infos' =>
-    let_expr f@Arrow p q := e | return ((← simp e), infos)
+    let_expr f@Arrow p q := e | return ((← simpBody e), infos)
     let p_r ← simp p
     if (← isFalseExpr (p_r.getResultExpr p)) && info.v.isZero then
       match p_r with
       | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``false_arrow) q), [])
       | .step _ h _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``false_arrow_congr) p q h), [])
-    let (q_r, infos') ← simpArrows q infos'
+    let (q_r, infos') ← simpArrows q infos' simpBody
     if (← isTrueExpr (q_r.getResultExpr q)) then
       match q_r with
       | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``arrow_true [info.u]) p), [])
@@ -157,10 +157,10 @@ a chance to apply `post` methods to the intermediate arrow `p → p`.
 Thus, this is a simproc that is meant to be used as a pre-method and marks the
 result as fully simplified to prevent `simpArrow` from being applied.
 -/
-public def simpArrowTelescope : Simproc := fun e => do
+public def simpArrowTelescope (simpBody : Simproc := simp) : Simproc := fun e => do
   unless e.isArrow do return .rfl -- not applicable
   let { arrow, infos, v } ← toArrow e
-  let (.step arrow' h _, infos) ← simpArrows arrow infos | return .rfl (done := true)
+  let (.step arrow' h _, infos) ← simpArrows arrow infos simpBody | return .rfl (done := true)
   let e' ← toForall arrow' infos
   let α := mkSort v
   let v1 := v.succ
@@ -190,7 +190,7 @@ public def simpArrow (e : Expr) : SimpM Result := do
     let e' ← e.updateForallS! p' q'
     return .step e' <| mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂
 
-public def simpForall (e : Expr) : SimpM Result := do
+public def simpForall' (simpArrow : Simproc) (simpBody : Simproc) (e : Expr) : SimpM Result := do
   if e.isArrow then
     simpArrow e
   else if (← isProp e) then
@@ -201,7 +201,7 @@ public def simpForall (e : Expr) : SimpM Result := do
     return .rfl
 where
   main (xs : Array Expr) (b : Expr) : SimpM Result := do
-    match (← simp b) with
+    match (← simpBody b) with
     | .rfl _ => return .rfl
     | .step b' h _ =>
       let h ← mkLambdaFVars xs h
@@ -215,5 +215,8 @@ where
     match e with
     | .forallE _ _ b _ => if b.hasLooseBVar 0 then getForallTelescopeSize b (n+1) else n
     | _ => n
+
+public def simpForall : Simproc :=
+  simpForall' simpArrow simp
 
 end Lean.Meta.Sym.Simp

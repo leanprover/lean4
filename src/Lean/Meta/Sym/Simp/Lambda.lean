@@ -46,12 +46,12 @@ def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
   let result ← mkLambdaFVars #[f, g, h] result
   return result
 
-public def simpLambda (e : Expr) : SimpM Result := do
+public def simpLambda' (simpBody : Simproc) (e : Expr) : SimpM Result := do
   lambdaTelescope e fun xs b => withoutModifyingCacheIfNotWellBehaved do
     main xs (← shareCommon b)
 where
   main (xs : Array Expr) (b : Expr) : SimpM Result := do
-    match (← simp b) with
+    match (← simpBody b) with
     | .rfl _ => return .rfl
     | .step b' h _ =>
       let h ← mkLambdaFVars xs h
@@ -68,5 +68,8 @@ where
       let h ← mkFunextFor xs β
       modify fun s => { s with funext := s.funext.insert { expr := key } h }
       return h
+
+public def simpLambda : Simproc :=
+  simpLambda' simp
 
 end Lean.Meta.Sym.Simp

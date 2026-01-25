@@ -49,8 +49,8 @@ def empty : Headers :=
 /--
 An empty headers collection. Same as `empty`.
 -/
-def emptyWithCapacity : Headers :=
-  { map := .emptyWithCapacity }
+def emptyWithCapacity (n : Nat) : Headers :=
+  { map := .emptyWithCapacity n }
 
 instance : EmptyCollection Headers := ⟨empty⟩
 
@@ -59,8 +59,7 @@ Adds a header value, appending to any existing values for that name.
 -/
 def add (h : Headers) (key : String) (value : String) : Headers :=
   let k := key.toLower
-  let values := h.map.getD k #[]
-  { map := h.map.insert k (values.push value) }
+  { map := h.map.alter k (fun values => some <| (values.getD #[]).push value) }
 
 /--
 Sets all values for a header name, replacing any existing values.

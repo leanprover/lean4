@@ -73,13 +73,13 @@ Returns the total size of the chunk including data and formatted extensions. Ext
 as: ;name=value;name=value. Plus 2 bytes for \r\n at the end.
 -/
 def size (chunk : Chunk) : Nat :=
-  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.map (fun v => v.length + 1) |>.getD 0) + 1) 0
+  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.elim 0 (fun v => v.length + 1)) + 1) 0
   chunk.data.size + extensionsSize + (if extensionsSize > 0 then 2 else 0)
 
 instance : Encode .v11 Chunk where
   encode buffer chunk :=
     let chunkLen := chunk.data.size
-    let exts := chunk.extensions.foldl (fun acc (name, value)  => acc ++ ";" ++ name ++ (value.map (fun x => "=" ++ x) |>.getD "")) ""
+    let exts := chunk.extensions.foldl (fun acc (name, value)  => acc ++ ";" ++ name ++ (value.elim "" (fun x => "=" ++ x))) ""
     let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
     buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
 
@@ -109,8 +109,8 @@ def empty : Trailer :=
 Adds a header field to the trailer.
 -/
 def header (trailer : Trailer) (key : String) (value : String) : Trailer :=
-  let values := trailer.headers.getD key #[]
-  { trailer with headers := trailer.headers.insert key (values.push value) }
+  let headers := trailer.headers.alter key (fun values => some <| (values.getD #[]).push value)
+  { trailer with headers }
 
 instance : Encode .v11 Trailer where
   encode buffer trailer :=

@@ -28,11 +28,8 @@ open Internal
 Checks if a character is valid for use in an HTTP header name.
 -/
 def isValidHeaderNameChar (c : Char) : Bool :=
-  if c < '!' || c > '~' then
-    false
-  else
-    c != '"' && c != '(' && c != ')' && c != ',' && c != ';'
-      && c != '[' && c != ']' && c != '{' && c != '}'
+  c ≥'!' &&  c ≤ '~' && c != '"' && c != '(' && c != ')' && c != ',' && c != ';' &&
+  c != '[' && c != ']' && c != '{' && c != '}'
 
 /--
 Proposition that asserts all characters in a string are valid and that it is non-empty for HTTP header names.
@@ -67,14 +64,14 @@ instance : Hashable Name where
   hash x := Hashable.hash x.value
 
 instance : Inhabited Name where
-  default := ⟨"_", by decide, by native_decide⟩
+  default := ⟨"_", by decide, by decide⟩
 
 /--
 Creates a new `Name` from a string with an optional proof of validity. If no proof is provided, it
 attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : IsValidHeaderName s := by decide) (h₁ : IsLowerCase s := by native_decide) : Name :=
+def new (s : String) (h : IsValidHeaderName s := by decide) (h₁ : IsLowerCase s := by decide) : Name :=
   ⟨s, h, h₁⟩
 
 /--

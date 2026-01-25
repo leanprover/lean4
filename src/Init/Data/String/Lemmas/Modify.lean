@@ -58,9 +58,13 @@ theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" 
   simp [← toList_eq_nil_iff]
 
 @[simp]
-theorem map_idempotent {s : String} (h : (c : Char) → f (f c) = f c) : (s.map f |>.map f) = s.map f := by
+theorem map_map {f g : Char → Char} {s : String} : String.map g (String.map f s) = String.map (g ∘ f) s  := by
   apply String.ext
-  simp [String.toList_map, List.map_map]
-  exact fun c _ => h c
+  simp [List.map_map]
+
+@[simp]
+theorem map_id {s : String} : String.map id s = s := by
+  apply String.ext
+  simp [List.map_id]
 
 end String

@@ -225,16 +225,8 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[inline, expose] def isEmpty (s : String) : Bool :=
   s.utf8ByteSize == 0
-
-theorem isEmpty_eq {s : String} : s.isEmpty = (s.utf8ByteSize == 0) := by rfl
-
-theorem isEmpty_iff {s : String} : s.isEmpty ↔ s.utf8ByteSize = 0 := by
-  simp [isEmpty_eq]
-
-instance {s : String} : Decidable s.isEmpty :=
-  decidable_of_iff' _ isEmpty_iff
 
 @[export lean_string_isempty]
 def Internal.isEmptyImpl (s : String) : Bool :=

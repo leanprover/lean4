@@ -9,6 +9,7 @@ prelude
 import Init.Grind
 public import Init.Data.String
 
+@[expose]
 public section
 
 /-!
@@ -54,7 +55,8 @@ predicate.
 -/
 theorem isLowerCase_toLower {s : String} : IsLowerCase s.toLower := by
   unfold IsLowerCase String.toLower
-  exact String.map_idempotent Char.toLower_idempotent
+  rw [String.map_map, Function.comp_def]
+  simp [Char.toLower_idempotent]
 
 theorem isLowerCase_empty : IsLowerCase "" := by
   simp [IsLowerCase, String.toLower]

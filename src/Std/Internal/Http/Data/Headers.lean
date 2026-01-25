@@ -49,7 +49,7 @@ def empty : Headers :=
 /--
 An empty headers collection. Same as `empty`.
 -/
-def emptyWithCapacity (n : Nat) : Headers :=
+def emptyWithCapacity (n : Nat := 8) : Headers :=
   { map := .emptyWithCapacity n }
 
 instance : EmptyCollection Headers := ⟨empty⟩

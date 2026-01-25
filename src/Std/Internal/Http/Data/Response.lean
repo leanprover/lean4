@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Async
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Version
+public import Std.Internal.Http.Data.Headers
 
 public section
 
@@ -39,6 +40,12 @@ structure Response.Head where
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
   -/
   version : Version := .v11
+
+  /--
+  The set of response headers, providing metadata such as `Content-Type`,
+  `Content-Length`, and caching directives.
+  -/
+  headers : Headers := .empty
 deriving Inhabited, Repr
 
 /--
@@ -71,7 +78,9 @@ instance : ToString Head where
   toString r :=
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    toString r.status ++ "\r\n"
+    toString r.status ++ "\r\n" ++
+    toString r.headers ++
+    "\r\n"
 
 open Internal in
 instance : Encode .v11 Head where
@@ -79,6 +88,8 @@ instance : Encode .v11 Head where
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer r.status
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer r.headers
     buffer.writeString "\r\n"
 
 /--
@@ -98,6 +109,26 @@ Sets the HTTP status code for the response being built
 -/
 def status (builder : Builder) (status : Status) : Builder :=
   { builder with head := { builder.head with status := status } }
+
+/--
+Sets the headers for the response being built
+-/
+def headers (builder : Builder) (headers : Headers) : Builder :=
+  { builder with head := { builder.head with headers } }
+
+/--
+Adds a single header to the request being built
+-/
+def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
+  { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
+
+/--
+Adds a single header to the response being built, panics if the header is invalid
+-/
+def header! (builder : Builder) (key : String) (value : String) : Builder :=
+  let key := Header.Name.ofString! key
+  let value := Header.Value.ofString! value
+  { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
 Builds and returns the final HTTP Response with the specified body

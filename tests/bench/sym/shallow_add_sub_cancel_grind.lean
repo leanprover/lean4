@@ -104,6 +104,29 @@ def isBind (goal : Goal) : MetaM Bool := do
   let_expr Exec _ _ _ k _ := target | return false
   return k.isAppOf ``Bind.bind
 
+def simpExecState : Sym.Simp.Simproc := fun e =>
+  /-
+  **Remark**: This simproc demonstrates how to perform targeted simplification steps using `Sym.simp`.
+  We only want to simplify the third argument of an `Exec`-application. We accomplished that
+  by using this simproc as a pre-method, using `simpInterlaced` where the `rewritable` mask
+  instructs the function to rewrite only the third argument, and then mark the resulting term
+  as simplified.
+  -/
+  let_expr Exec _ _ _ _ _ := e | return .rfl
+  -- Simplifies only the state (the third argument)
+  return (← Simp.simpInterlaced e #[false, false, true, false, false]).markAsDone
+
+theorem add_assoc_rev (a b c : Nat) : a + (b + c) = (a + b) + c := by simp +arith
+
+def mkSimpExecStateMethods : MetaM Sym.Simp.Methods := do
+  -- **Note**: we don't have `simp +arith` in `Sym.simp` yet. This is just a cheap hack
+  -- allow `Sym.simp` to simplify terms such as `2 + (1 + s)`.
+  let thm ← Sym.Simp.mkTheoremFromDecl ``add_assoc_rev
+  return {
+    pre  := simpExecState
+    post := Sym.Simp.evalGround.andThen thm.rewrite
+  }
+
 partial def solve (mvarId : MVarId) : GrindM Unit := do
   /-
   Creates an `BackwardRule` for each theorem `T` we want to use `apply T`.
@@ -120,6 +143,7 @@ partial def solve (mvarId : MVarId) : GrindM Unit := do
   -/
   let preMethods ← mkSimpMethods #[``step.eq_1, ``loop.eq_1, ``loop.eq_2,
     ``Nat.add_zero, ``Nat.sub_zero, ``bind_pure_comp, ``map_bind, ``id_map', ``unit_map, ``bind_assoc]
+  let execStateMethods ← mkSimpExecStateMethods
   -- ## Initialize
   let goal ← mkGoal mvarId
   let .goal _ goal ← goal.introN 1 | failure
@@ -127,9 +151,10 @@ partial def solve (mvarId : MVarId) : GrindM Unit := do
   let goal ← goal.internalizeAll -- Internalize all hypotheses
   -- ## Loop
   -- We simulate the `repeat` block using a tail-recursive function `loop`
-  let rec loop (goal₀ : Goal) : GrindM Goal := do
-    -- logInfo goal₀.mvarId
-    let .goals [goal] ← goal₀.apply execBindRule | return goal₀
+  let rec loop (goal : Goal) : GrindM Goal := do
+    let .goal goal ← goal.simpIgnoringNoProgress execStateMethods | failure
+    -- logInfo goal.mvarId
+    let .goals [goal] ← goal.apply execBindRule | return goal
     let .goals [goal] ← goal.apply execGetRule | failure
     let .goals [goal] ← goal.apply execBindRule | failure
     let .goals [goal] ← goal.apply execSetRule | failure
@@ -155,5 +180,10 @@ def solveUsingGrind (n : Nat) (check := true) : MetaM Unit := do
   driver n check fun mvarId => SymM.run <| GrindM.run (params := params) do
     solve mvarId
 
--- **TODO**: the proof term grows quadratically because we are not simplifying the state
-#eval solveUsingGrind 50
+def runBenchUsingGrind : MetaM Unit := do
+  IO.println "=== Symbolic Simulation Tests ==="
+  IO.println ""
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150] do
+    solveUsingGrind n
+
+#eval runBenchUsingGrind

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InferType
 namespace Lean.Meta.Sym.Simp
 
 /--
@@ -25,7 +26,7 @@ The proof uses the approach used in `mkFunextFor` followed by an `Eq.ndrec`.
 def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let prop := mkSort 0
   let type ← mkForallFVars xs prop
-  let w ← getLevel type
+  let w ← Meta.getLevel type
   withLocalDeclD `p type fun p =>
   withLocalDeclD `q type fun q => do
   let eq := mkApp3 (mkConst ``Eq [1]) prop (mkAppN p xs) (mkAppN q xs)
@@ -52,6 +53,78 @@ def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   return result
 
 open Internal
+
+structure ArrowInfo where
+  binderName : Name
+  binderInfo : BinderInfo
+
+structure ToArrowResult where
+  arrow : Expr
+  infos : List ArrowInfo
+  v     : Level
+
+def toArrow (e : Expr) : SymM ToArrowResult := do
+  if let .forallE n α β bi := e then
+    if !β.hasLooseBVars then
+      let { arrow, infos, v } ← toArrow β
+      let u ← getLevel α
+      let arrow ← mkAppS₂ (← mkConstS ``Arrow [u, v]) α arrow
+      let info := { binderName := n, binderInfo := bi }
+      return { arrow, v := mkLevelIMax' u v, infos := info :: infos }
+  return { arrow := e, infos := [], v := (← getLevel e) }
+
+def toForall (e : Expr) (infos : List ArrowInfo) : SymM Expr := do
+  let { binderName, binderInfo, .. } :: infos := infos | return e
+  let_expr Arrow α β := e | return e
+  mkForallS binderName binderInfo α (← toForall β infos)
+
+partial def simpArrows (e : Expr) : SimpM Result := do
+  let_expr f@Arrow p q := e | simp e
+  match (← simp p), (← simpArrows q) with
+  | .rfl _, .rfl _ => return .rfl
+  | .step p' h _, .rfl _ =>
+    let e' ← mkAppS₂ f p' q
+    return .step e' <| mkApp4 (mkConst ``arrow_congr_left f.constLevels!) p p' q h
+  | .rfl _, .step q' h _ =>
+    let e' ← mkAppS₂ f p q'
+    return .step e' <| mkApp4 (mkConst ``arrow_congr_right f.constLevels!) p q q' h
+  | .step p' h₁ _, .step q' h₂ _ =>
+    let e' ← mkAppS₂ f p' q'
+    return .step e' <| mkApp6 (mkConst ``arrow_congr f.constLevels!) p p' q q' h₁ h₂
+
+/--
+Simplifies a telescope of non-dependent arrows `p₁ → p₂ → ... → pₙ → q` by:
+1. Converting to `Arrow p₁ (Arrow p₂ (... (Arrow pₙ q)))` (see `toArrow`)
+2. Simplifying each `pᵢ` and `q` (see `simpArrows`)
+3. Converting back to `→` form (see `toForall`)
+
+Using `Arrow` (a definitional wrapper around `→`) avoids the quadratic proof growth that
+occurs with `Expr.forallE`. With `forallE`, each nesting level bumps de Bruijn indices in
+subterms, destroying sharing. For example, if each `pᵢ` contains a free variable `x`, the
+de Bruijn representation of `x` differs at each depth, preventing hash-consing from
+recognizing them as identical.
+
+With `Arrow`, both arguments are explicit (not under binders), so subterms remain identical
+across nesting levels and can be shared, yielding linear-sized proofs.
+
+**Tradeoff**: This function simplifies each `pᵢ` and `q` individually, but misses
+simplifications that depend on the arrow structure itself. For example, `q → p → p`
+won't be simplified to `True` (when `p : Prop`) because the simplifier does not have
+a chance to apply `post` methods to the intermediate arrow `p → p`.
+
+Thus, this is a simproc that is meant to be used as a pre-method and marks the
+result as fully simplified to prevent `simpArrow` from being applied.
+-/
+public def simpArrowTelescope : Simproc := fun e => do
+  unless e.isArrow do return .rfl -- not applicable
+  let { arrow, infos, v } ← toArrow e
+  let .step arrow' h _ ← simpArrows arrow | return .rfl (done := true)
+  let e' ← toForall arrow' infos
+  let α := mkSort v
+  let v1 := v.succ
+  let h := mkApp6 (mkConst ``Eq.trans [v1]) α e arrow arrow' (mkApp2 (mkConst ``Eq.refl [v1]) α arrow) h
+  let h := mkApp6 (mkConst ``Eq.trans [v1]) α e arrow' e' h (mkApp2 (mkConst ``Eq.refl [v1]) α e')
+  return .step e' h (done := true)
 
 public def simpArrow (e : Expr) : SimpM Result := do
   let p := e.bindingDomain!

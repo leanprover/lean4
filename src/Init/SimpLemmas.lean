@@ -44,6 +44,30 @@ theorem implies_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) :
 theorem implies_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : (p → q₁) = (p → q₂) :=
   h ▸ rfl
 
+/--
+`Arrow α β` is definitionally equal to `α → β`, but represented as a function
+application rather than `Expr.forallE`.
+
+This representation is useful for proof automation that builds nested implications
+like `pₙ → ... → p₂ → p₁`. With `Expr.forallE`, each nesting level introduces a
+binder that bumps de Bruijn indices in subterms, destroying sharing even with
+hash-consing. For example, if `p₁` contains `#20`, then at depth 2 it becomes `#21`,
+at depth 3 it becomes `#22`, etc., causing quadratic proof growth.
+
+With `arrow`, both arguments are explicit (not under binders), so subterms remain
+identical across nesting levels and can be shared, yielding linear-sized proofs.
+-/
+def Arrow (α : Sort u) (β : Sort v) : Sort (imax u v) := α → β
+
+theorem arrow_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : Arrow p₁ q₁ = Arrow p₂ q₂ :=
+  h₁ ▸ h₂ ▸ rfl
+
+theorem arrow_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : Arrow p₁ q = Arrow p₂ q :=
+  h ▸ rfl
+
+theorem arrow_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : Arrow p q₁ = Arrow p q₂ :=
+  h ▸ rfl
+
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
   Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)
 

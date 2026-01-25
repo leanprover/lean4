@@ -162,7 +162,7 @@ structure Context where
   extensions   : ExtensionStateArray := #[]
   debug        : Bool -- Cached `grind.debug (← getOptions)`
 
-export Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr getNatZeroExpr getOrderingEqExpr getIntExpr)
+export Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr getNatZeroExpr getOrderingEqExpr getIntExpr isTrueExpr isFalseExpr)
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -378,14 +378,6 @@ Abstracts nested proofs in `e`. This is a preprocessing step performed before in
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr :=
   Meta.abstractNestedProofs e
-
-/-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getTrueExpr)
-
-/-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getFalseExpr)
 
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
@@ -1115,11 +1107,11 @@ def getGeneration (e : Expr) : GoalM Nat :=
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getTrueExpr)
+  return (← isTrueExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getFalseExpr)
+  return (← isFalseExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
 def isEqBoolTrue (e : Expr) : GoalM Bool := do

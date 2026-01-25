@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.Simp.Result
 namespace Lean.Meta.Sym.Simp
 
 /--
@@ -57,6 +58,8 @@ open Internal
 structure ArrowInfo where
   binderName : Name
   binderInfo : BinderInfo
+  u          : Level
+  v          : Level
 
 structure ToArrowResult where
   arrow : Expr
@@ -69,7 +72,7 @@ def toArrow (e : Expr) : SymM ToArrowResult := do
       let { arrow, infos, v } ← toArrow β
       let u ← getLevel α
       let arrow ← mkAppS₂ (← mkConstS ``Arrow [u, v]) α arrow
-      let info := { binderName := n, binderInfo := bi }
+      let info := { binderName := n, binderInfo := bi, u, v }
       return { arrow, v := mkLevelIMax' u v, infos := info :: infos }
   return { arrow := e, infos := [], v := (← getLevel e) }
 
@@ -78,19 +81,58 @@ def toForall (e : Expr) (infos : List ArrowInfo) : SymM Expr := do
   let_expr Arrow α β := e | return e
   mkForallS binderName binderInfo α (← toForall β infos)
 
-partial def simpArrows (e : Expr) : SimpM Result := do
-  let_expr f@Arrow p q := e | simp e
-  match (← simp p), (← simpArrows q) with
-  | .rfl _, .rfl _ => return .rfl
-  | .step p' h _, .rfl _ =>
-    let e' ← mkAppS₂ f p' q
-    return .step e' <| mkApp4 (mkConst ``arrow_congr_left f.constLevels!) p p' q h
-  | .rfl _, .step q' h _ =>
-    let e' ← mkAppS₂ f p q'
-    return .step e' <| mkApp4 (mkConst ``arrow_congr_right f.constLevels!) p q q' h
-  | .step p' h₁ _, .step q' h₂ _ =>
-    let e' ← mkAppS₂ f p' q'
-    return .step e' <| mkApp6 (mkConst ``arrow_congr f.constLevels!) p p' q q' h₁ h₂
+/--
+Recursively simplifies an `Arrow` telescope, applying telescope-specific simplifications:
+
+- **False hypothesis**: `False → q` simplifies to `True` (via `false_arrow`)
+- **True hypothesis**: `True → q` simplifies to `q` (via `true_arrow`)
+- **True conclusion**: `p → True` simplifies to `True` (via `arrow_true`)
+
+The first two are applicable only if  `q` is in `Prop` (checked via `info.v.isZero`).
+
+Returns the simplified result paired with the remaining `ArrowInfo` list. When a telescope
+collapses (e.g., to `True`), the returned `infos` list is empty, signaling to `toForall`
+that no reconstruction is needed.
+-/
+partial def simpArrows (e : Expr) (infos : List ArrowInfo) : SimpM (Result × List ArrowInfo) := do
+  match infos with
+  | [] => return ((← simp e), [])
+  | info :: infos' =>
+    let_expr f@Arrow p q := e | return ((← simp e), infos)
+    let p_r ← simp p
+    if (← isFalseExpr (p_r.getResultExpr p)) && info.v.isZero then
+      match p_r with
+      | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``false_arrow) q), [])
+      | .step _ h _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``false_arrow_congr) p q h), [])
+    let (q_r, infos') ← simpArrows q infos'
+    if (← isTrueExpr (q_r.getResultExpr q)) then
+      match q_r with
+      | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``arrow_true [info.u]) p), [])
+      | .step _ h _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``arrow_true_congr [info.u]) p q h), [])
+    match p_r, q_r with
+    | .rfl _, .rfl _ =>
+      if (← isTrueExpr p) && info.v.isZero then
+        return (.step q (mkApp (mkConst ``true_arrow) q), infos')
+      else
+        return (.rfl, infos)
+    | .step p' h _, .rfl _ =>
+      if (← isTrueExpr p') && info.v.isZero then
+        return (.step q (mkApp3 (mkConst ``true_arrow_congr_left) p q h), infos')
+      else
+        let e' ← mkAppS₂ f p' q
+        return (.step e' <| mkApp4 (mkConst ``arrow_congr_left f.constLevels!) p p' q h, info :: infos')
+    | .rfl _, .step q' h _ =>
+      if (← isTrueExpr p) && info.v.isZero then
+        return (.step q' (mkApp3 (mkConst ``true_arrow_congr_right) q q' h), infos')
+      else
+        let e' ← mkAppS₂ f p q'
+        return (.step e' <| mkApp4 (mkConst ``arrow_congr_right f.constLevels!) p q q' h, info :: infos')
+    | .step p' h₁ _, .step q' h₂ _ =>
+      if (← isTrueExpr p') && info.v.isZero then
+        return (.step q' (mkApp5 (mkConst ``true_arrow_congr) p q q' h₁ h₂), infos')
+      else
+        let e' ← mkAppS₂ f p' q'
+        return (.step e' <| mkApp6 (mkConst ``arrow_congr f.constLevels!) p p' q q' h₁ h₂, info :: infos')
 
 /--
 Simplifies a telescope of non-dependent arrows `p₁ → p₂ → ... → pₙ → q` by:
@@ -118,7 +160,7 @@ result as fully simplified to prevent `simpArrow` from being applied.
 public def simpArrowTelescope : Simproc := fun e => do
   unless e.isArrow do return .rfl -- not applicable
   let { arrow, infos, v } ← toArrow e
-  let .step arrow' h _ ← simpArrows arrow | return .rfl (done := true)
+  let (.step arrow' h _, infos) ← simpArrows arrow infos | return .rfl (done := true)
   let e' ← toForall arrow' infos
   let α := mkSort v
   let v1 := v.succ

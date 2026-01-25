@@ -157,8 +157,12 @@ def getSharedExprs : SymM SharedExprs :=
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : SymM Expr := return (← getSharedExprs).trueExpr
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : SymM Bool := return isSameExpr e (← getTrueExpr)
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getFalseExpr)
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
 /-- Returns the internalized `Bool.false`.  -/

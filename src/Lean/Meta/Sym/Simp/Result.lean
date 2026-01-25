@@ -26,4 +26,8 @@ public def Result.markAsDone : Result → Result
   | .rfl _ => .rfl true
   | .step e h _ => .step e h true
 
+public def Result.getResultExpr : Expr → Result → Expr
+  | e, .rfl _ => e
+  | _, .step e _ _ => e
+
 end Lean.Meta.Sym.Simp

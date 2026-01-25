@@ -27,16 +27,16 @@ def simpIte : Simproc := fun e => do
     let_expr f@ite α c _ a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
-      if isSameExpr c (← getTrueExpr) then
+      if (← isTrueExpr c) then
         return .step a <| mkApp3 (mkConst ``ite_true f.constLevels!) α a b
-      else if isSameExpr c (← getFalseExpr) then
+      else if (← isFalseExpr  c) then
         return .step b <| mkApp3 (mkConst ``ite_false f.constLevels!) α a b
       else
         return .rfl (done := true)
     | .step c' h _ =>
-      if isSameExpr c' (← getTrueExpr) then
+      if (← isTrueExpr c') then
         return .step a <| mkApp (e.replaceFn ``ite_cond_eq_true) h
-      else if isSameExpr c' (← getFalseExpr) then
+      else if (← isFalseExpr c') then
         return .step b <| mkApp (e.replaceFn ``ite_cond_eq_false) h
       else
         let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
@@ -56,20 +56,20 @@ def simpDIte : Simproc := fun e => do
     let_expr f@dite α c _ a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
-      if isSameExpr c (← getTrueExpr) then
+      if (← isTrueExpr c) then
         let a' ← share <| a.betaRev #[mkConst ``True.intro]
         return .step a' <| mkApp3 (mkConst ``dite_true f.constLevels!) α a b
-      else if isSameExpr c (← getFalseExpr) then
+      else if (← isFalseExpr c) then
         let b' ← share <| b.betaRev #[mkConst ``not_false]
         return .step b' <| mkApp3 (mkConst ``dite_false f.constLevels!) α a b
       else
         return .rfl (done := true)
     | .step c' h _ =>
-      if isSameExpr c' (← getTrueExpr) then
+      if (← isTrueExpr c') then
         let h' ← shareCommon <| mkOfEqTrueCore c h
         let a ← share <| a.betaRev #[h']
         return .step a <| mkApp (e.replaceFn ``dite_cond_eq_true) h
-      else if isSameExpr c' (← getFalseExpr) then
+      else if (← isFalseExpr c') then
         let h' ← shareCommon <| mkOfEqFalseCore c h
         let b ← share <| b.betaRev #[h']
         return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h

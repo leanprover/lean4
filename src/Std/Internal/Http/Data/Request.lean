@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Internal.Http.Data.Method
 public import Std.Internal.Http.Data.Version
-public import Std.Internal.Http.Data.Headers
 
 public section
 
@@ -41,11 +40,6 @@ structure Request.Head where
   The request target/URI indicating the resource being requested
   -/
   uri : String := ""
-
-  /--
-  Collection of HTTP headers for the request (Content-Type, Authorization, etc.)
-  -/
-  headers : Headers := .emptyWithCapacity
 deriving Inhabited, Repr
 
 /--
@@ -79,8 +73,6 @@ instance : ToString Head where
     toString req.method ++ " " ++
     toString req.uri ++ " " ++
     toString req.version ++
-    "\r\n" ++
-    toString req.headers ++
     "\r\n"
 
 open Internal in
@@ -91,8 +83,6 @@ instance : Encode .v11 Head where
     let buffer := buffer.writeString req.uri
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer req.version
-    let buffer := buffer.writeString "\r\n"
-    let buffer := Encode.encode (v := .v11) buffer req.headers
     buffer.writeString "\r\n"
 
 /--
@@ -126,26 +116,6 @@ Sets the request target/URI for the request being built
 -/
 def uri (builder : Builder) (uri : String) : Builder :=
   { builder with head := { builder.head with uri := uri } }
-
-/--
-Sets the headers for the request being built
--/
-def headers (builder : Builder) (headers : Headers) : Builder :=
-  { builder with head := { builder.head with headers } }
-
-/--
-Adds a single header to the request being built
--/
-def header (builder : Builder) (key : String) (value : String) : Builder :=
-  { builder with head := { builder.head with headers := builder.head.headers.add key value } }
-
-/--
-Adds a header to the request being built only if the value is `some`
--/
-def headerOpt (builder : Builder) (key : String) (value : Option String) : Builder :=
-  match value with
-  | some v => builder.header key v
-  | none => builder
 
 /--
 Builds and returns the final HTTP Request with the specified body

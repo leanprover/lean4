@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Internal.Async
-public import Std.Internal.Http.Data.Headers
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Version
 
@@ -40,12 +39,6 @@ structure Response.Head where
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
   -/
   version : Version := .v11
-
-  /--
-  The set of response headers, providing metadata such as `Content-Type`,
-  `Content-Length`, and caching directives.
-  -/
-  headers : Headers := .emptyWithCapacity
 deriving Inhabited, Repr
 
 /--
@@ -78,9 +71,7 @@ instance : ToString Head where
   toString r :=
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    toString r.status ++ "\r\n" ++
-    toString r.headers ++
-    "\r\n"
+    toString r.status ++ "\r\n"
 
 open Internal in
 instance : Encode .v11 Head where
@@ -88,8 +79,6 @@ instance : Encode .v11 Head where
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer r.status
-    let buffer := buffer.writeString "\r\n"
-    let buffer := Encode.encode (v := .v11) buffer r.headers
     buffer.writeString "\r\n"
 
 /--
@@ -109,18 +98,6 @@ Sets the HTTP status code for the response being built
 -/
 def status (builder : Builder) (status : Status) : Builder :=
   { builder with head := { builder.head with status := status } }
-
-/--
-Sets the headers for the response being built
--/
-def headers (builder : Builder) (headers : Headers) : Builder :=
-  { builder with head := { builder.head with headers } }
-
-/--
-Adds a single header to the response being built
--/
-def header (builder : Builder) (key : String) (value : String) : Builder :=
-  { builder with head := { builder.head with headers := builder.head.headers.add key value } }
 
 /--
 Builds and returns the final HTTP Response with the specified body
@@ -201,30 +178,5 @@ Creates a new HTTP Response builder with the 503 status code.
 -/
 def serviceUnavailable : Builder :=
   .empty |>.status .serviceUnavailable
-
-/--
-Creates a redirect response with the 302 Found status code (temporary redirect).
--/
-def redirect (location : String) : Builder :=
-  Builder.empty
-  |>.status .found
-  |>.header "Location" location
-
-/--
-Creates a redirect response with the 301 Moved Permanently status code (permanent redirect).
--/
-def redirectPermanent (location : String) : Builder :=
-  Builder.empty
-  |>.status .movedPermanently
-  |>.header "Location" location
-
-/--
-Creates a redirect response with a configurable status code.
-Use `permanent := true` for 301 Moved Permanently, `permanent := false` for 302 Found.
--/
-def redirectWith (location : String) (permanent : Bool) : Builder :=
-  Builder.empty
-  |>.status (if permanent then .movedPermanently else .found)
-  |>.header "Location" location
 
 end Response

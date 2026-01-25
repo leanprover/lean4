@@ -8,15 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.TCP
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
-namespace TCP
+namespace Std.Async.TCP
 open Std.Net
 
 namespace Socket
@@ -66,7 +62,7 @@ Accepts an incoming connection.
 @[inline]
 def accept (s : Server) : Async Client := do
   s.native.accept
-  |> Async.ofPromise
+  |> Async.ofIOPromise
   |>.map Client.ofNative
 
 /--
@@ -153,21 +149,21 @@ Connects the client socket to the given address.
 -/
 @[inline]
 def connect (s : Client) (addr : SocketAddress) : Async Unit :=
-  Async.ofPromise <| s.native.connect addr
+  Async.ofIOPromise <| s.native.connect addr
 
 /--
 Sends multiple data buffers through the client socket.
 -/
 @[inline]
 def sendAll (s : Client) (data : Array ByteArray) : Async Unit :=
-  Async.ofPromise <| s.native.send data
+  Async.ofIOPromise <| s.native.send data
 
 /--
 Sends data through the client socket.
 -/
 @[inline]
 def send (s : Client) (data : ByteArray) : Async Unit :=
-  Async.ofPromise <| s.native.send #[data]
+  Async.ofIOPromise <| s.native.send #[data]
 
 /--
 Receives data from the client socket. If data is received, it’s wrapped in .some. If EOF is reached,
@@ -177,7 +173,7 @@ Furthermore calling this function in parallel with `recvSelector` is not support
 -/
 @[inline]
 def recv? (s : Client) (size : UInt64) : Async (Option ByteArray) :=
-  Async.ofPromise <| s.native.recv? size
+  Async.ofIOPromise <| s.native.recv? size
 
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
@@ -224,7 +220,7 @@ Shuts down the write side of the client socket.
 -/
 @[inline]
 def shutdown (s : Client) : Async Unit :=
-  Async.ofPromise <| s.native.shutdown
+  Async.ofIOPromise <| s.native.shutdown
 
 /--
 Gets the remote address of the client socket.
@@ -256,8 +252,4 @@ def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ :
 
 end Client
 end Socket
-end TCP
-end Async
-end IO
-end Internal
-end Std
+end Std.Async.TCP

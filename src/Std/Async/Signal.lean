@@ -8,14 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.Signal
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
+namespace Std.Async
 
 /--
 Unix style signals for Unix and Windows. SIGKILL and SIGSTOP are missing because they cannot be caught.
@@ -261,3 +258,5 @@ def selector (s : Signal.Waiter) : Selector Unit :=
     unregisterFn := s.native.cancel
 
   }
+
+end Std.Async.Signal.Waiter

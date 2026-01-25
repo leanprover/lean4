@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Random
-public import Std.Internal.Async.Basic
+public import Std.Async.Basic
 import Init.Data.ByteArray.Extra
 
 public section
@@ -18,10 +18,7 @@ The main entrypoint for users is `Selectable.one` and the various functions to p
 `Selector`s from other modules.
 -/
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
+namespace Std.Async
 
 /--
 The core data structure for racing on winning a `Selectable.one` if multiple event sources are ready
@@ -166,7 +163,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
 
         async.toBaseIO
 
-  Async.ofPromise (pure promise)
+  Async.ofIOPromise (pure promise)
 
 /--
 Performs fair and data-loss free non-blocking multiplexing on the `Selectable`s in `selectables`.
@@ -245,7 +242,4 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
         selectable.selector.unregisterFn
   }
 
-end Async
-end IO
-end Internal
-end Std
+end Std.Async

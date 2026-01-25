@@ -11,7 +11,7 @@ public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Sync.CancellationToken
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
@@ -21,7 +21,7 @@ automatically cancels all child contexts.
 -/
 
 namespace Std
-open Std.Internal.IO.Async
+open Std.Async
 
 structure CancellationContext.State where
   /--

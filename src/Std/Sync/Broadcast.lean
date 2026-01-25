@@ -10,14 +10,13 @@ public import Std.Data
 public import Init.Data.Queue
 public import Init.Data.Vector
 public import Std.Sync.Mutex
-public import Std.Internal.Async.IO
+public import Std.Async.IO
 
 public section
 
 namespace Std
 
-open Std.Internal.Async.IO
-open Std.Internal.IO.Async
+open Std.Async
 
 /-!
 The `Std.Sync.Broadcast` module implements a broadcasting primitive for sending values
@@ -60,7 +59,7 @@ instance instMonadLiftBroadcastIO : MonadLift (EIO Broadcast.Error) IO where
 
 private structure Broadcast.Consumer (α : Type) where
   promise : IO.Promise Bool
-  waiter : Option (Internal.IO.Async.Waiter (Option α))
+  waiter : Option (Async.Waiter (Option α))
 
 private def Broadcast.Consumer.resolve (c : Broadcast.Consumer α) (b : Bool) : BaseIO Unit :=
   c.promise.resolve b
@@ -403,7 +402,6 @@ private def recvReady'
     let slotVal ← slot.get
     return slotVal.pos = next
 
-open Internal.IO.Async in
 private partial def recvSelector (ch : Bounded.Receiver α) : Selector (Option α) where
   tryFn := do
     ch.state.atomically do
@@ -537,8 +535,6 @@ the next available message. This will block until a message is available.
 def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task (Option α)) := do
   Std.Bounded.Receiver.recv ch.inner
 
-open Internal.IO.Async in
-
 /--
 Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that data.
 -/
@@ -567,7 +563,7 @@ instance [Inhabited α] : AsyncStream (Broadcast.Receiver α) (Option α) where
   stop channel := channel.unsubscribe
 
 instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
-  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+  read receiver := Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
   write receiver x := do

@@ -8,8 +8,8 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV
-public import Std.Internal.Async.Basic
-public import Std.Internal.Async.Timer
+public import Std.Async.Basic
+public import Std.Async.Timer
 public import Std.Sync.CancellationContext
 
 public section
@@ -19,10 +19,7 @@ This module contains the implementation of `ContextAsync`, a monad for asynchron
 cooperative cancellation support that must be explicitly checked for and cancelled explicitly.
 -/
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
+namespace Std.Async
 
 /--
 An asynchronous computation with cooperative cancellation support via a `CancellationContext`. `ContextAsync α`
@@ -267,7 +264,4 @@ This is useful for selecting on cancellation alongside other asynchronous operat
 def Selector.cancelled : ContextAsync (Selector Unit) := do
   ContextAsync.doneSelector
 
-end Async
-end IO
-end Internal
-end Std
+end Std.Async

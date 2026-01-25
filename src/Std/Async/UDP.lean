@@ -8,15 +8,11 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.UDP
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
-namespace Std
-namespace Internal
-namespace IO
-namespace Async
-namespace UDP
+namespace Std.Async.UDP
 
 open Std.Net
 
@@ -66,7 +62,7 @@ address. If `addr` is `none`, the data is sent to the default peer address set b
 -/
 @[inline]
 def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
-  Async.ofPromise <| s.native.send data addr
+  Async.ofIOPromise <| s.native.send data addr
 
 /--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
@@ -74,7 +70,7 @@ is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
-  Async.ofPromise <| s.native.send #[data] addr
+  Async.ofIOPromise <| s.native.send #[data] addr
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive.
@@ -85,7 +81,7 @@ Furthermore calling this function in parallel with `recvSelector` is not support
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
-  Async.ofPromise <| s.native.recv size
+  Async.ofIOPromise <| s.native.recv size
 
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
@@ -190,8 +186,4 @@ def setTTL (s : Socket) (ttl : UInt32) : IO Unit :=
 
 end Socket
 
-end UDP
-end Async
-end IO
-end Internal
-end Std
+end Std.Async.UDP

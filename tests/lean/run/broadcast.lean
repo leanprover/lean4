@@ -1,7 +1,7 @@
-import Std.Internal.Async
+import Std.Async
 import Std.Sync
 
-open Std.Internal.IO Async
+open Std Async
 
 -- Test tryRecv with empty channel
 def tryRecvEmpty : Async Unit := do
@@ -245,9 +245,9 @@ def recvConditions : Async Unit := do
   let subs2 ← channel.subscribe
   let subs3 ← channel.subscribe
 
-  discard <| EAsync.ofETask (← channel.send 1)
-  discard <| EAsync.ofETask (← channel.send 2)
-  discard <| EAsync.ofETask (← channel.send 3)
+  discard <| EAsync.ofTask (← channel.send 1)
+  discard <| EAsync.ofTask (← channel.send 2)
+  discard <| EAsync.ofTask (← channel.send 3)
 
   channel.close
 
@@ -308,9 +308,9 @@ def selectableConditions : Async Unit := do
   let subs2 ← channel.subscribe
   let subs3 ← channel.subscribe
 
-  discard <| EAsync.ofETask (← channel.send 1)
-  discard <| EAsync.ofETask (← channel.send 2)
-  discard <| EAsync.ofETask (← channel.send 3)
+  discard <| EAsync.ofTask (← channel.send 1)
+  discard <| EAsync.ofTask (← channel.send 2)
+  discard <| EAsync.ofTask (← channel.send 3)
 
   channel.close
 

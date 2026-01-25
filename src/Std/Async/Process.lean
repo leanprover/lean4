@@ -12,13 +12,9 @@ public import Std.Data.HashMap
 
 public section
 
+namespace Std.Async.Process
 open Std Time
-open System
-
-namespace Std
-namespace Internal
-namespace IO
-namespace Process
+open Internal UV System
 
 /--
 Represents resource usage statistics for a process or thread.
@@ -236,7 +232,4 @@ Returns the available memory for allocation in bytes.
 def availableMemory : IO UInt64 :=
   UV.System.availableMemory
 
-end Process
-end IO
-end Internal
-end Std
+end Std.Async.Process

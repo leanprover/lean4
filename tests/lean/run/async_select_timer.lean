@@ -1,4 +1,4 @@
-import Std.Internal.Async.Timer
+import Std.Async.Timer
 
 open Std Internal IO Async
 

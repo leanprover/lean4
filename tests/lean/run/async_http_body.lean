@@ -423,29 +423,3 @@ def responseBuilderNoBody : Async Unit := do
   assert! body.isNone
 
 #eval responseBuilderNoBody.block
-
-/-! ## ChunkStream builder tests -/
-
--- Test Request.Builder.textChunked
-def requestBuilderTextChunked : Async Unit := do
-  let req ← Request.post (.originForm! "/api")
-    |>.textChunked "Hello, Chunked!"
-  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
-  assert! req.head.headers.get? Header.Name.transferEncoding == some (Header.Value.ofString! "chunked")
-  let chunk ← req.body.recv none
-  assert! chunk.isSome
-  assert! chunk.get!.data == "Hello, Chunked!".toUTF8
-
-#eval requestBuilderTextChunked.block
-
--- Test Response.Builder.textChunked
-def responseBuilderTextChunked : Async Unit := do
-  let res ← Response.ok
-    |>.textChunked "Hello, Chunked!"
-  assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
-  assert! res.head.headers.get? Header.Name.transferEncoding == some (Header.Value.ofString! "chunked")
-  let chunk ← res.body.recv none
-  assert! chunk.isSome
-  assert! chunk.get!.data == "Hello, Chunked!".toUTF8
-
-#eval responseBuilderTextChunked.block

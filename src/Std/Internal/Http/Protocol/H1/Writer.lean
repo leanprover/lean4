@@ -245,7 +245,7 @@ def setState (state : Writer.State) (writer : Writer dir) : Writer dir :=
 Writes the message headers to the output buffer
 -/
 private def writeHeaders (messageHead : Message.Head dir.swap) (writer : Writer dir) : Writer dir :=
-  { writer with outputData := writer.outputData.push (toString messageHead).toUTF8 }
+  { writer with outputData := Internal.Encode.encode (v := .v11) writer.outputData messageHead }
 
 /--
 Checks if the connection should be kept alive based on the Connection header

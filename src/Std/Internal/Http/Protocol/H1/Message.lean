@@ -72,43 +72,6 @@ def Message.Head.version (m : Message.Head dir) : Version :=
   | .receiving => Request.Head.version m
   | .sending => Response.Head.version m
 
-/--
-Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
--/
-def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
-  match message.headers.getAll? .contentLength, message.headers.getAll? .transferEncoding with
-  | some #[cl], none =>
-    .fixed <$> (Header.ContentLength.parse cl).map (·.length)
-  | none, some #[te] =>
-    (if · then some .chunked else none) =<< (Header.TransferEncoding.parse te).map (·.isChunked)
-  | none, none =>
-    if allowEOFBody then some (.fixed 0) else none
-  | _, _ => none
-
-/--
-Checks whether the message indicates that the connection should be kept alive.
--/
-@[inline]
-def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry .connection (.new "close")
-  ∧ message.version = .v11
-
-instance : Repr (Message.Head dir) :=
-  match dir with
-  | .receiving => inferInstanceAs (Repr Request.Head)
-  | .sending => inferInstanceAs (Repr Response.Head)
-
-instance : ToString (Message.Head dir) :=
-  match dir with
-  | .receiving => inferInstanceAs (ToString Request.Head)
-  | .sending => inferInstanceAs (ToString Response.Head)
-
-instance : EmptyCollection (Message.Head dir) where
-  emptyCollection :=
-    match dir with
-    | .receiving => {}
-    | .sending => {}
-
 private def isChunked (message : Message.Head dir) : Option Bool :=
   let headers := message.headers
 
@@ -128,3 +91,39 @@ private def isChunked (message : Message.Head dir) : Option Bool :=
         some lastIsChunked
   else
     some false
+
+/--
+Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
+-/
+def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
+  match (message.headers.getAll? .contentLength, isChunked message) with
+  | (some #[cl], some false) => .fixed <$> cl.value.toNat?
+  | (none, some false) => if allowEOFBody then some (.fixed 0) else none
+  | (none, some true) => some .chunked
+  | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
+  | (_, none) => none -- Error validating the chunked encoding
+
+
+/--
+Checks whether the message indicates that the connection should be kept alive.
+-/
+@[inline]
+def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
+  ¬message.headers.hasEntry .connection (.new "close")
+  ∧ message.version = .v11
+
+instance : Repr (Message.Head dir) :=
+  match dir with
+  | .receiving => inferInstanceAs (Repr Request.Head)
+  | .sending => inferInstanceAs (Repr Response.Head)
+
+instance : Internal.Encode .v11 (Message.Head dir) :=
+  match dir with
+  | .receiving => inferInstanceAs (Internal.Encode .v11 Request.Head)
+  | .sending => inferInstanceAs (Internal.Encode .v11 Response.Head)
+
+instance : EmptyCollection (Message.Head dir) where
+  emptyCollection :=
+    match dir with
+    | .receiving => {}
+    | .sending => {}

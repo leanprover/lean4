@@ -180,7 +180,7 @@ private def checkMessageHead (message : Message.Head dir) : Option Body.Length :
     if message.method == .head ∨ message.method == .connect then
       return .fixed 0
 
-  message.getSize false
+  message.getSize true
 
 -- State Checks
 
@@ -319,10 +319,10 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let size := Writer.determineTransferMode machine.writer
 
   let headers :=
-    if messageHead.headers.contains .host then
+    if messageHead.headers.contains Header.Name.host then
       messageHead.headers
     else if let some host := machine.host then
-      messageHead.headers.insert .host host
+      messageHead.headers.insert Header.Name.host host
     else
       messageHead.headers
 
@@ -330,36 +330,36 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let headers :=
     let identityOpt := machine.config.identityHeader
     match dir, identityOpt with
-    | .receiving, some server => headers.insert .server server
-    | .sending, some userAgent => headers.insert .userAgent userAgent
+    | .receiving, some server => headers.insert Header.Name.server server
+    | .sending, some userAgent => headers.insert Header.Name.userAgent userAgent
     | _, none => headers
 
   -- Add Connection: close if needed
   let headers :=
-    if !machine.keepAlive ∧ !headers.hasEntry .connection .close then
-      headers.insert .connection .close
+    if !machine.keepAlive ∧ !headers.hasEntry Header.Name.connection Header.Value.close then
+      headers.insert Header.Name.connection Header.Value.close
     else
       headers
 
   -- Add Content-Length or Transfer-Encoding if needed
   let headers :=
-    if !(headers.contains .contentLength ∨ headers.contains .transferEncoding) then
+    if !(headers.contains Header.Name.contentLength ∨ headers.contains Header.Name.transferEncoding) then
       match size with
-      | .fixed n => headers.insert .contentLength (.ofString! <| toString n)
-      | .chunked => headers.insert .transferEncoding .chunked
+      | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
+      | .chunked => headers.insert Header.Name.transferEncoding Header.Value.chunked
     else
       headers
 
   let state := Writer.State.writingBody size
 
-  let messageHead :=
-    match dir, messageHead with
-    | .receiving, messageHead => toString { messageHead with headers }
-    | .sending, messageHead => toString { messageHead with headers }
-
   machine.modifyWriter (fun writer => {
     writer with
-    outputData := writer.outputData.append messageHead.toUTF8,
+
+    outputData :=
+      match dir, messageHead with
+      | .receiving, messageHead => Encode.encode (v := .v11) writer.outputData { messageHead with headers }
+      | .sending, messageHead => Encode.encode  (v := .v11) writer.outputData { messageHead with headers },
+
     state
   })
 
@@ -404,7 +404,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
 
     let machine :=
       if machine.writer.knownSize.isNone then
-        match message.getSize false with
+        match extractBodyLengthFromHeaders message.headers with
         | some size => machine.setKnownSize size
         | none => machine
       else
@@ -414,7 +414,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
   else
     machine
 
-/-- Send data to the socket. -/
+/--Send data to the socket. -/
 @[inline]
 def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   if data.isEmpty then
@@ -422,18 +422,18 @@ def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   else
     machine.modifyWriter (fun writer => { writer with userData := writer.userData ++ data })
 
-/-- Get all the events of the machine. -/
+/--Get all the events of the machine. -/
 @[inline]
 def takeEvents (machine : Machine dir) : Machine dir × Array (Event dir) :=
   ({ machine with events := #[] }, machine.events)
 
-/-- Take all the accumulated output to send to the socket. -/
+/--Take all the accumulated output to send to the socket. -/
 @[inline]
 def takeOutput (machine : Machine dir) : Machine dir × ChunkedBuffer :=
   let output := machine.writer.outputData
   ({ machine with writer := { machine.writer with outputData := .empty } }, output)
 
-/-- Process the writer part of the machine. -/
+/--Process the writer part of the machine. -/
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
   | .pending =>

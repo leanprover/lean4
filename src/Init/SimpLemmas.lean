@@ -68,6 +68,35 @@ theorem arrow_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : A
 
 theorem arrow_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : Arrow p q₁ = Arrow p q₂ :=
   h ▸ rfl
+
+theorem true_arrow (p : Prop) : Arrow True p = p := by
+  simp [Arrow]; constructor
+  next => intro h; exact h .intro
+  next => intros; assumption
+
+theorem true_arrow_congr_left (p q : Prop) : p = True → Arrow p q = q := by
+  intros; subst p; apply true_arrow
+
+theorem true_arrow_congr_right (q q' : Prop) : q = q' → Arrow True q = q' := by
+  intros; subst q; apply true_arrow
+
+theorem true_arrow_congr (p q q' : Prop) : p = True → q = q' → Arrow p q = q' := by
+  intros; subst p q; apply true_arrow
+
+theorem false_arrow (p : Prop) : Arrow False p = True := by
+  simp [Arrow]; constructor
+  next => intros; exact .intro
+  next => intros; contradiction
+
+theorem false_arrow_congr (p q : Prop) : p = False → Arrow p q = True := by
+  intros; subst p; apply false_arrow
+
+theorem arrow_true (α : Sort u) : Arrow α True = True := by
+  simp [Arrow]; constructor <;> intros <;> exact .intro
+
+theorem arrow_true_congr (α : Sort u) (p : Prop) : p = True → Arrow α p = True := by
+  intros; subst p; apply arrow_true
+
 end Lean
 
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=

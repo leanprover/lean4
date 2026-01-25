@@ -88,7 +88,7 @@ def mkForallBench (n : Nat) (useImplies : Bool) : MetaM Expr :=
           go n (mkApp2 (mkConst ``implies) (mkNatEq xs[n]! (mkNatAdd (mkNatLit 0) xs[n]!)) e)
         else
           go n (← mkArrow (mkNatEq xs[n]! (mkNatAdd (mkNatLit 0) xs[n]!)) e)
-    go n (mkConst ``True)
+    go n (mkConst ``False)
 
 inductive Kind where
   | implies

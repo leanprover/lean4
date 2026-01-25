@@ -114,10 +114,12 @@ def header (trailer : Trailer) (key : String) (value : String) : Trailer :=
 
 instance : Encode .v11 Trailer where
   encode buffer trailer :=
-    let terminalChunk := "0\r\n".toUTF8
-    let trailerFields := trailer.headers.fold (init := ByteArray.empty) fun acc key values =>
+    let buffer := buffer.write "0\r\n".toUTF8
+
+    let buffer := trailer.headers.fold (init := buffer) fun acc key values =>
       values.foldl (init := acc) fun acc value =>
-        acc ++ (key ++ ": " ++ value ++ "\r\n").toUTF8
-    buffer.append #[terminalChunk, trailerFields, "\r\n".toUTF8]
+        acc.write (key ++ ": " ++ value ++ "\r\n").toUTF8
+
+    buffer.write "\r\n".toUTF8
 
 end Trailer

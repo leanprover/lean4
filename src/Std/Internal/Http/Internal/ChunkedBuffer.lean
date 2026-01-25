@@ -9,6 +9,7 @@ prelude
 import Init.Data.Array.Lemmas
 public import Init.Data.String
 public import Init.Data.ByteArray
+public import Init.Data.Queue
 
 public section
 
@@ -32,19 +33,12 @@ structure ChunkedBuffer where
   /--
   The accumulated byte arrays
   -/
-  data : Array ByteArray
+  data : Queue ByteArray
 
   /--
   The total size in bytes of all accumulated arrays
   -/
   size : Nat
-
-  /--
-  `size` is the total size of all accumulated arrays
-  -/
-  size_eq : (data.map (·.size)).sum = size := by simp
-
-attribute [simp] ChunkedBuffer.size_eq
 
 namespace ChunkedBuffer
 
@@ -53,14 +47,14 @@ An empty `ChunkedBuffer`.
 -/
 @[inline]
 def empty : ChunkedBuffer :=
-  { data := #[], size := 0 }
+  { data := .empty, size := 0 }
 
 /--
 Append a single `ByteArray` to the `ChunkedBuffer`.
 -/
 @[inline]
 def push (c : ChunkedBuffer) (b : ByteArray) : ChunkedBuffer :=
-  { data := c.data.push b, size := c.size + b.size, size_eq := by simp [← Array.append_singleton] }
+  { data := c.data.enqueue b, size := c.size + b.size }
 
 /--
 Writes a `ByteArray` to the `ChunkedBuffer`.
@@ -68,6 +62,13 @@ Writes a `ByteArray` to the `ChunkedBuffer`.
 @[inline]
 def write (buffer : ChunkedBuffer) (data : ByteArray) : ChunkedBuffer :=
   buffer.push data
+
+/--
+Writes a `ChunkedBuffer` to the `ChunkedBuffer`.
+-/
+@[inline]
+def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
+  { data := buffer.data.enqueueAll data.data.toArray.toList.reverse, size := buffer.size + data.size }
 
 /--
 Writes a `Char` to the `ChunkedBuffer`.
@@ -84,35 +85,40 @@ def writeString (buffer : ChunkedBuffer) (data : String) : ChunkedBuffer :=
   buffer.push data.toUTF8
 
 /--
-Append many ByteArrays at once.
--/
-@[inline]
-def append (c : ChunkedBuffer) (d : ChunkedBuffer) : ChunkedBuffer :=
-  { data := c.data ++ d.data, size := c.size + d.size }
-
-/--
 Turn the combined structure into a single contiguous ByteArray.
 -/
 @[inline]
 def toByteArray (c : ChunkedBuffer) : ByteArray :=
-  if h : 1 = c.data.size then
-    c.data[0]'(Nat.le_of_eq h)
+  let c := c.data.toArray
+
+  if h : 1 = c.size then
+    c[0]'(Nat.le_of_eq h)
   else
-    c.data.foldl (· ++ ·) (.emptyWithCapacity c.size)
+    c.foldl (· ++ ·) (.emptyWithCapacity c.size)
 
 /--
 Build from a ByteArray directly.
 -/
 @[inline]
 def ofByteArray (bs : ByteArray) : ChunkedBuffer :=
-  { data := #[bs], size := bs.size }
+  { data := .empty |>.enqueue bs, size := bs.size }
 
 /--
 Build from an array of ByteArrays directly.
 -/
 @[inline]
 def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
-  { data := bs, size := bs.foldr (·.size + ·) 0, size_eq := by simp [Array.sum, Array.foldr_map'] }
+  { data := .empty |>.enqueueAll bs.reverse.toList , size := bs.foldl (· + ·.size) 0 }
+
+/--
+Dequeue the first `ByteArray` from the `ChunkedBuffer`, returning it along with the remaining buffer.
+Returns `none` if the buffer is empty.
+-/
+@[inline]
+def dequeue? (c : ChunkedBuffer) : Option (ByteArray × ChunkedBuffer) :=
+  match c.data.dequeue? with
+  | some (b, rest) => some (b, { data := rest, size := c.size - b.size })
+  | none => none
 
 /--
 Check if it's an empty array.
@@ -126,19 +132,10 @@ instance : Inhabited ChunkedBuffer := ⟨empty⟩
 instance : EmptyCollection ChunkedBuffer where
   emptyCollection := empty
 
-instance : HAppend ChunkedBuffer ChunkedBuffer ChunkedBuffer where
-  hAppend := append
-
 instance : Coe ByteArray ChunkedBuffer where
   coe := ofByteArray
 
 instance : Coe (Array ByteArray) ChunkedBuffer where
   coe := ofArray
-
-instance : Append ChunkedBuffer where
-  append := append
-
-instance : Repr ChunkedBuffer where
-  reprPrec bb _ := s!"ChunkedBuffer.ofArray {bb.data}"
 
 end Std.Http.Internal.ChunkedBuffer

@@ -9,6 +9,8 @@ prelude
 public import Std.Sync
 public import Std.Internal.Async
 public import Std.Internal.Http.Data.Chunk
+public import Std.Internal.Http.Data.Request
+public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.Body.Length
 public import Init.Data.ByteArray
 
@@ -55,11 +57,6 @@ private structure Full.State where
   Whether the body has been closed.
   -/
   closed : Bool
-
-  /--
-  Waiters registered via `recvSelector` waiting for data to become available.
-  -/
-  waiters : Std.Queue (Waiter (Option Chunk))
 deriving Nonempty
 
 /--
@@ -76,14 +73,21 @@ namespace Full
 /--
 Creates a new `Full` body containing the given data converted to `ByteArray`.
 -/
-def ofData [ToByteArray β] (data : β) : Async Full := do
-  return { state := ← Mutex.new { data := some (ToByteArray.toByteArray data), closed := false, waiters := ∅ } }
+def new [ToByteArray β] (data : β) : Async Full := do
+  return { state := ← Mutex.new { data := some (ToByteArray.toByteArray data), closed := false } }
 
 /--
 Creates an empty `Full` body with no data.
 -/
 def empty : Async Full := do
-  return { state := ← Mutex.new { data := none, closed := true, waiters := ∅ } }
+  return { state := ← Mutex.new { data := none, closed := true } }
+
+/--
+Closes a `Full`
+-/
+def close (full : Full) : Async Unit := do
+  full.state.atomically do
+    modify ({ · with closed := true })
 
 /--
 Non-blocking receive. Returns the stored `ByteArray` if available and not yet consumed,
@@ -94,12 +98,7 @@ def recv? (full : Full) : Async (Option ByteArray) := do
     let st ← get
     match st.data with
     | some data =>
-      -- Resolve any pending waiters with none (data consumed by this call)
-      for waiter in st.waiters.toArray do
-        let lose := return ()
-        let win promise := promise.resolve (.ok none)
-        waiter.race lose win
-      set { st with data := none, closed := true, waiters := ∅ }
+      set { st with data := none, closed := true }
       return some data
     | none =>
       return none
@@ -115,28 +114,9 @@ def recv (full : Full) (_count : Option UInt64) : Async (Option ByteArray) :=
 /--
 Sends data to the body, replacing any previously stored data.
 -/
-private partial def tryWakeWaiter [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
-    (data : ByteArray) : AtomicT State m Bool := do
-  match (← get).waiters.dequeue? with
-  | none => return false
-  | some (waiter, waiters) =>
-    modify fun st => { st with waiters }
-    let lose := return false
-    let win promise := do
-      promise.resolve (.ok (some (Chunk.ofByteArray data)))
-      return true
-    let success ← waiter.race lose win
-    if success then return true
-    else tryWakeWaiter data
-
-/--
-Sends data to the body, replacing any previously stored data.
--/
 def send (full : Full) (data : ByteArray) : Async Unit := do
   full.state.atomically do
-    let success ← tryWakeWaiter data
-    if !success then
-      modify fun st => { st with data := some data, closed := false }
+    modify fun st => { st with data := some data, closed := false }
 
 /--
 Checks if the body is closed (consumed or empty).
@@ -174,29 +154,126 @@ def recvSelector (full : Full) : Selector (Option Chunk) where
         else return none
 
   registerFn waiter := do
-    full.state.atomically do
-      let st ← get
-      match st.data with
-      | some data =>
-        let lose := return ()
-        let win promise := do
-          promise.resolve (.ok (some (Chunk.ofByteArray data)))
-          set { (← get) with data := none, closed := true }
-        waiter.race lose win
-      | none =>
-        if st.closed then
-          let lose := return ()
-          let win promise := promise.resolve (.ok none)
-          waiter.race lose win
-        else
-          modify fun st => { st with waiters := st.waiters.enqueue waiter }
+    let lose := return ()
+    let win promise := do
+      let r ← full.recv?
+      match r with
+      | some data => promise.resolve (.ok (some (Chunk.ofByteArray data)))
+      | none => promise.resolve (.ok none)
+    waiter.race lose win
 
-  unregisterFn := do
-    full.state.atomically do
-      let st ← get
-      let waiters ← st.waiters.filterM fun waiter => return !(← waiter.checkFinished)
-      set { st with waiters }
+  unregisterFn := pure ()
 
-end Full
+end Body.Full
 
-end Std.Http.Body
+namespace Request.Builder
+open Internal.IO.Async
+
+/--
+Builds a request with a text body. Sets Content-Type to text/plain and Content-Length automatically.
+-/
+def text (builder : Builder) (content : String) : Async (Request Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "text/plain; charset=utf-8")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a request with a binary body. Sets Content-Type to application/octet-stream and Content-Length automatically.
+-/
+def bytes (builder : Builder) (content : ByteArray) : Async (Request Body.Full) := do
+  let body ← Body.Full.new content
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "application/octet-stream")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString content.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a request with a JSON body. Sets Content-Type to application/json and Content-Length automatically.
+-/
+def json (builder : Builder) (content : String) : Async (Request Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "application/json")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a request with an HTML body. Sets Content-Type to text/html and Content-Length automatically.
+-/
+def html (builder : Builder) (content : String) : Async (Request Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "text/html; charset=utf-8")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a request with an empty Full body.
+-/
+def noBody (builder : Builder) : Async (Request Body.Full) := do
+  let body ← Body.Full.empty
+  return { head := builder.head, body }
+
+end Request.Builder
+
+namespace Response.Builder
+open Internal.IO.Async
+
+/--
+Builds a response with a text body. Sets Content-Type to text/plain and Content-Length automatically.
+-/
+def text (builder : Builder) (content : String) : Async (Response Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "text/plain; charset=utf-8")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a response with a binary body. Sets Content-Type to application/octet-stream and Content-Length automatically.
+-/
+def bytes (builder : Builder) (content : ByteArray) : Async (Response Body.Full) := do
+  let body ← Body.Full.new content
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "application/octet-stream")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString content.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a response with a JSON body. Sets Content-Type to application/json and Content-Length automatically.
+-/
+def json (builder : Builder) (content : String) : Async (Response Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "application/json")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a response with an HTML body. Sets Content-Type to text/html and Content-Length automatically.
+-/
+def html (builder : Builder) (content : String) : Async (Response Body.Full) := do
+  let bytes := content.toUTF8
+  let body ← Body.Full.new bytes
+  let headers := builder.head.headers
+    |>.insert Header.Name.contentType (Header.Value.ofString! "text/html; charset=utf-8")
+    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
+  return { head := { builder.head with headers }, body }
+
+/--
+Builds a response with an empty Full body.
+-/
+def noBody (builder : Builder) : Async (Response Body.Full) := do
+  let body ← Body.Full.empty
+  return { head := builder.head, body }
+
+end Response.Builder
+
+end Std.Http

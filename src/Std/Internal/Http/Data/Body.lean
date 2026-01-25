@@ -11,6 +11,7 @@ public import Std.Internal.Http.Data.Headers
 public import Std.Internal.Http.Data.Body.Length
 public import Std.Internal.Http.Data.Body.ChunkStream
 public import Std.Internal.Http.Data.Body.Full
+public import Std.Internal.Http.Data.Body.Empty
 
 public section
 
@@ -71,6 +72,11 @@ class Body (α : Type) (β : outParam Type) where
   -/
   recvSelector : α → Selector (Option β)
 
+  /--
+  Closes the stream
+  -/
+  close :  α → Async Unit
+
 instance : Body Body.ChunkStream Chunk where
   recv? := Body.ChunkStream.tryRecv
   recv := Body.ChunkStream.recv
@@ -79,6 +85,7 @@ instance : Body Body.ChunkStream Chunk where
   size? := Body.ChunkStream.getKnownSize
   empty := Body.ChunkStream.empty
   recvSelector := Body.ChunkStream.recvSelector
+  close := Body.ChunkStream.close
 
 instance : Body Body.Full Chunk where
   recv? full := do return (← Body.Full.recv? full).map Chunk.ofByteArray
@@ -88,5 +95,16 @@ instance : Body Body.Full Chunk where
   size? := Body.Full.size?
   empty := Body.Full.empty
   recvSelector := Body.Full.recvSelector
+  close := Body.Full.close
+
+instance : Body Body.Empty Chunk where
+  recv? empty := do return (← Body.Empty.recv? empty).map Chunk.ofByteArray
+  recv empty count := do return (← Body.Empty.recv empty count).map Chunk.ofByteArray
+  send empty chunk := Body.Empty.send empty chunk.data
+  isClosed := Body.Empty.isClosed
+  size? := Body.Empty.size?
+  empty := Body.Empty.new
+  recvSelector := Body.Empty.recvSelector
+  close := Body.Empty.close
 
 end Std.Http

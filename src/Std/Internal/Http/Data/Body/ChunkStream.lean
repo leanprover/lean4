@@ -358,6 +358,4 @@ instance : ForIn Async ChunkStream Chunk where
 instance : ForIn ContextAsync ChunkStream Chunk where
   forIn := Std.Http.Body.ChunkStream.forIn'
 
-end ChunkStream
-
-end Std.Http.Body
+end Std.Http.Body.ChunkStream

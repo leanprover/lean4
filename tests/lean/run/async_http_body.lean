@@ -188,7 +188,7 @@ def chunkCloseUnblocksProducers : Async Unit := do
 
 -- Test ofData followed by recv
 def fullOfData : Async Unit := do
-  let full ← Full.ofData "hello".toUTF8
+  let full ← Full.new "hello".toUTF8
   let result ← full.recv none
   assert! result.isSome
   assert! result.get! == "hello".toUTF8
@@ -197,7 +197,7 @@ def fullOfData : Async Unit := do
 
 -- Test data is consumed exactly once
 def fullConsumedOnce : Async Unit := do
-  let full ← Full.ofData "data".toUTF8
+  let full ← Full.new "data".toUTF8
   let r1 ← full.recv none
   let r2 ← full.recv none
   assert! r1.isSome
@@ -215,7 +215,7 @@ def fullEmpty : Async Unit := do
 
 -- Test isClosed transitions after consumption
 def fullClosedAfterConsume : Async Unit := do
-  let full ← Full.ofData "data".toUTF8
+  let full ← Full.new "data".toUTF8
   assert! !(← full.isClosed)
   discard <| full.recv none
   assert! (← full.isClosed)
@@ -231,7 +231,7 @@ def fullEmptyIsClosed : Async Unit := do
 
 -- Test size? returns byte count
 def fullSize : Async Unit := do
-  let full ← Full.ofData "hello".toUTF8
+  let full ← Full.new "hello".toUTF8
   let size ← full.size?
   assert! size == some (.fixed 5)
 
@@ -239,7 +239,7 @@ def fullSize : Async Unit := do
 
 -- Test size? returns none after consumption
 def fullSizeAfterConsume : Async Unit := do
-  let full ← Full.ofData "hello".toUTF8
+  let full ← Full.new "hello".toUTF8
   discard <| full.recv none
   let size ← full.size?
   assert! size == none
@@ -259,7 +259,7 @@ def fullSendReplacesData : Async Unit := do
 
 -- Test recv? behaves the same as recv
 def fullRecvQuestion : Async Unit := do
-  let full ← Full.ofData "test".toUTF8
+  let full ← Full.new "test".toUTF8
   let r1 ← full.recv?
   assert! r1.isSome
   assert! r1.get! == "test".toUTF8
@@ -270,7 +270,7 @@ def fullRecvQuestion : Async Unit := do
 
 -- Test Full from String type
 def fullFromString : Async Unit := do
-  let full ← Full.ofData (β := String) "hello world"
+  let full ← Full.new (β := String) "hello world"
   let result ← full.recv none
   assert! result.isSome
   assert! result.get! == "hello world".toUTF8
@@ -292,10 +292,160 @@ def bodyChunkStream : Async Unit := do
 
 -- Test Body instance for Full
 def bodyFull : Async Unit := do
-  let full ← Full.ofData "hello".toUTF8
+  let full ← Full.new "hello".toUTF8
   let result ← @Body.recv Body.Full Chunk _ full none
   assert! result.isSome
   assert! result.get!.data == "hello".toUTF8
   assert! (← @Body.isClosed Body.Full Chunk _ full)
 
 #eval bodyFull.block
+
+/-! ## Empty body tests -/
+
+-- Test Empty body recv returns none
+def emptyRecv : Async Unit := do
+  let empty ← Body.Empty.new
+  let result ← empty.recv none
+  assert! result.isNone
+
+#eval emptyRecv.block
+
+-- Test Empty body is always closed
+def emptyIsClosed : Async Unit := do
+  let empty ← Body.Empty.new
+  assert! (← empty.isClosed)
+
+#eval emptyIsClosed.block
+
+-- Test Empty body size is 0
+def emptySize : Async Unit := do
+  let empty ← Body.Empty.new
+  let size ← empty.size?
+  assert! size == some (.fixed 0)
+
+#eval emptySize.block
+
+-- Test Body instance for Empty
+def bodyEmpty : Async Unit := do
+  let empty : Body.Empty ← Body.empty
+  let result ← @Body.recv Body.Empty Chunk _ empty none
+  assert! result.isNone
+  assert! (← @Body.isClosed Body.Empty Chunk _ empty)
+
+#eval bodyEmpty.block
+
+/-! ## Request.Builder Full body tests -/
+
+-- Test Request.Builder.text sets correct headers
+def requestBuilderText : Async Unit := do
+  let req ← Request.post (.originForm! "/api")
+    |>.text "Hello, World!"
+  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
+  assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
+  let body ← req.body.recv?
+  assert! body.isSome
+  assert! body.get! == "Hello, World!".toUTF8
+
+#eval requestBuilderText.block
+
+-- Test Request.Builder.json sets correct headers
+def requestBuilderJson : Async Unit := do
+  let req ← Request.post (.originForm! "/api")
+    |>.json "{\"key\": \"value\"}"
+  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
+  let body ← req.body.recv?
+  assert! body.isSome
+  assert! body.get! == "{\"key\": \"value\"}".toUTF8
+
+#eval requestBuilderJson.block
+
+-- Test Request.Builder.bytes sets correct headers
+def requestBuilderBytes : Async Unit := do
+  let data := ByteArray.mk #[0x01, 0x02, 0x03]
+  let req ← Request.post (.originForm! "/api")
+    |>.bytes data
+  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/octet-stream")
+  assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "3")
+  let body ← req.body.recv?
+  assert! body.isSome
+  assert! body.get! == data
+
+#eval requestBuilderBytes.block
+
+-- Test Request.Builder.html sets correct headers
+def requestBuilderHtml : Async Unit := do
+  let req ← Request.post (.originForm! "/api")
+    |>.html "<html></html>"
+  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/html; charset=utf-8")
+  let body ← req.body.recv?
+  assert! body.isSome
+
+#eval requestBuilderHtml.block
+
+-- Test Request.Builder.noBody creates empty body
+def requestBuilderNoBody : Async Unit := do
+  let req ← Request.get (.originForm! "/api")
+    |>.noBody
+  let body ← req.body.recv?
+  assert! body.isNone
+
+#eval requestBuilderNoBody.block
+
+/-! ## Response.Builder Full body tests -/
+
+-- Test Response.Builder.text sets correct headers
+def responseBuilderText : Async Unit := do
+  let res ← Response.ok
+    |>.text "Hello, World!"
+  assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
+  assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
+  let body ← res.body.recv?
+  assert! body.isSome
+  assert! body.get! == "Hello, World!".toUTF8
+
+#eval responseBuilderText.block
+
+-- Test Response.Builder.json sets correct headers
+def responseBuilderJson : Async Unit := do
+  let res ← Response.ok
+    |>.json "{\"status\": \"ok\"}"
+  assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
+  let body ← res.body.recv?
+  assert! body.isSome
+
+#eval responseBuilderJson.block
+
+-- Test Response.Builder.noBody creates empty body
+def responseBuilderNoBody : Async Unit := do
+  let res ← Response.ok
+    |>.noBody
+  let body ← res.body.recv?
+  assert! body.isNone
+
+#eval responseBuilderNoBody.block
+
+/-! ## ChunkStream builder tests -/
+
+-- Test Request.Builder.textChunked
+def requestBuilderTextChunked : Async Unit := do
+  let req ← Request.post (.originForm! "/api")
+    |>.textChunked "Hello, Chunked!"
+  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
+  assert! req.head.headers.get? Header.Name.transferEncoding == some (Header.Value.ofString! "chunked")
+  let chunk ← req.body.recv none
+  assert! chunk.isSome
+  assert! chunk.get!.data == "Hello, Chunked!".toUTF8
+
+#eval requestBuilderTextChunked.block
+
+-- Test Response.Builder.textChunked
+def responseBuilderTextChunked : Async Unit := do
+  let res ← Response.ok
+    |>.textChunked "Hello, Chunked!"
+  assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
+  assert! res.head.headers.get? Header.Name.transferEncoding == some (Header.Value.ofString! "chunked")
+  let chunk ← res.body.recv none
+  assert! chunk.isSome
+  assert! chunk.get!.data == "Hello, Chunked!".toUTF8
+
+#eval responseBuilderTextChunked.block

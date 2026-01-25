@@ -107,13 +107,6 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
 open Sym
 
 def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
-  let falseExpr  ← share <| mkConst ``False
-  let trueExpr   ← share <| mkConst ``True
-  let bfalseExpr ← share <| mkConst ``Bool.false
-  let btrueExpr  ← share <| mkConst ``Bool.true
-  let natZExpr   ← share <| mkNatLit 0
-  let ordEqExpr  ← share <| mkConst ``Ordering.eq
-  let intExpr    ← share <| Int.mkType
   /- **Note**: Consider using `Sym.simp` in the future. -/
   let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
@@ -124,9 +117,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, simp, extensions, symPrios
-      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
-      debug }
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do

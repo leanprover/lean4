@@ -83,7 +83,21 @@ inductive CongrInfo where
     -/
     congrTheorem (thm : CongrTheorem)
 
-/-- Mutable state for the symbolic simulator framework. -/
+/-- Pre-shared expressions for commonly used terms. -/
+structure SharedExprs where
+  trueExpr   : Expr
+  falseExpr  : Expr
+  natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
+  ordEqExpr  : Expr
+  intExpr    : Expr
+
+/-- Readonly context for the symbolic computation framework. -/
+structure Context where
+  sharedExprs : SharedExprs
+
+/-- Mutable state for the symbolic computation framework. -/
 structure State where
   /-- `ShareCommon` (aka `Hash-consing`) state. -/
   share : AlphaShareCommon.State := {}
@@ -120,11 +134,41 @@ structure State where
   congrInfo : PHashMap ExprPtr CongrInfo := {}
   debug : Bool := false
 
-abbrev SymM := StateRefT State MetaM
+abbrev SymM := ReaderT Context <| StateRefT State MetaM
+
+private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
+  let falseExpr  ← shareCommonAlphaInc <| mkConst ``False
+  let trueExpr   ← shareCommonAlphaInc  <| mkConst ``True
+  let bfalseExpr ← shareCommonAlphaInc  <| mkConst ``Bool.false
+  let btrueExpr  ← shareCommonAlphaInc  <| mkConst ``Bool.true
+  let natZExpr   ← shareCommonAlphaInc  <| mkNatLit 0
+  let ordEqExpr  ← shareCommonAlphaInc  <| mkConst ``Ordering.eq
+  let intExpr    ← shareCommonAlphaInc  <| Int.mkType
+  return { falseExpr, trueExpr, bfalseExpr, btrueExpr, natZExpr, ordEqExpr, intExpr }
 
 def SymM.run (x : SymM α) : MetaM α := do
+  let (sharedExprs, share) := mkSharedExprs |>.run {}
   let debug := sym.debug.get (← getOptions)
-  x |>.run' { debug }
+  x { sharedExprs } |>.run' { debug, share }
+
+/-- Returns maximally shared commonly used terms -/
+def getSharedExprs : SymM SharedExprs :=
+  return (← read).sharedExprs
+
+/-- Returns the internalized `True` constant.  -/
+def getTrueExpr : SymM Expr := return (← getSharedExprs).trueExpr
+/-- Returns the internalized `False` constant.  -/
+def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : SymM Expr := return (← getSharedExprs).bfalseExpr
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : SymM Expr := return (← getSharedExprs).natZExpr
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : SymM Expr := return (← getSharedExprs).ordEqExpr
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : SymM Expr := return (← getSharedExprs).intExpr
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have

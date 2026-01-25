@@ -56,16 +56,26 @@ def skipByte (b : UInt8) : Parser Unit :=
 /--
 Skip a sequence of bytes equal to the given `ByteArray`.
 -/
-def skipBytes (arr : ByteArray) : Parser Unit := do
-  for b in arr do
-    skipByte b
+def skipBytes (arr : ByteArray) : Parser Unit := fun it =>
+  if it.remainingBytes < arr.size then
+    .error it .eof
+  else
+    let rec go (idx : Nat) (it : ByteArray.Iterator) : ParseResult Unit ByteArray.Iterator :=
+      if h : idx < arr.size then
+        match skipByte arr[idx] it with
+        | .success it' _ => go (idx + 1) it'
+        | .error it' err => .error it' err
+      else
+        .success it ()
+    go 0 it
 
 /--
 Parse a string by matching its UTF-8 bytes, returns the string on success.
 -/
 @[inline]
 def pstring (s : String) : Parser String := do
-  skipBytes s.toUTF8
+  let utf8 := s.toUTF8
+  skipBytes utf8
   return s
 
 /--

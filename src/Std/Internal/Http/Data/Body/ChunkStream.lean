@@ -234,6 +234,16 @@ def send (stream : ChunkStream) (chunk : Chunk) : Async Unit := do
   await res
 
 /--
+Sends a ByteArray to the stream. Blocks if the buffer is full.
+-/
+def write (stream : ChunkStream) (data : ByteArray) : Async Unit := do
+  if data.isEmpty then
+    return
+
+  let res : AsyncTask _ ← send' stream (.mk data #[])
+  await res
+
+/--
 Gets the known size of the stream if available. Returns `none` if the size is not known.
 -/
 @[always_inline, inline]

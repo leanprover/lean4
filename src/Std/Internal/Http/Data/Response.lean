@@ -78,7 +78,9 @@ instance : ToString Head where
   toString r :=
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    toString r.status ++ "\r\n"
+    toString r.status ++ "\r\n" ++
+    toString r.headers ++
+    "\r\n"
 
 open Internal in
 instance : Encode .v11 Head where
@@ -86,6 +88,8 @@ instance : Encode .v11 Head where
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer r.status
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer r.headers
     buffer.writeString "\r\n"
 
 /--

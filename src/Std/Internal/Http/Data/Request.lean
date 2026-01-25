@@ -79,6 +79,8 @@ instance : ToString Head where
     toString req.method ++ " " ++
     toString req.uri ++ " " ++
     toString req.version ++
+    "\r\n" ++
+    toString req.headers ++
     "\r\n"
 
 open Internal in
@@ -89,6 +91,8 @@ instance : Encode .v11 Head where
     let buffer := buffer.writeString req.uri
     let buffer := buffer.writeChar ' '
     let buffer := Encode.encode (v := .v11) buffer req.version
+    let buffer := buffer.writeString "\r\n"
+    let buffer := Encode.encode (v := .v11) buffer req.headers
     buffer.writeString "\r\n"
 
 /--

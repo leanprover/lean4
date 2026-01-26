@@ -270,9 +270,9 @@ withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking
 
 The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
 -/
+@[inline]
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let _ := always.except
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -280,21 +280,27 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
-  let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := trace.profiler.get opts &&
-    stop - start > trace.profiler.threshold.unitAdjusted opts
-  unless clsEnabled || aboveThresh do
-    modifyTraces (oldTraces ++ ·)
-    return (← MonadExcept.ofExcept res)
-  let ref ← getRef
-  let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-  let mut data := { cls, collapsed, tag }
-  if trace.profiler.get opts then
-    data := { data with startTime := start, stopTime := stop }
-  addTraceNode oldTraces data ref m
-  MonadExcept.ofExcept res
+  let resStartStop ← withStartStop opts <| let _ := always.except; observing k
+  postCallback opts clsEnabled oldTraces msg resStartStop
+where
+  postCallback (opts : Options) (clsEnabled oldTraces msg resStartStop) : m α := do
+    let _ := always.except
+    let (res, start, stop) := resStartStop
+    let aboveThresh := trace.profiler.get opts &&
+      stop - start > trace.profiler.threshold.unitAdjusted opts
+    unless clsEnabled || aboveThresh do
+      modifyTraces (oldTraces ++ ·)
+      return (← MonadExcept.ofExcept res)
+    let ref ← getRef
+    let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
+    let mut data := { cls, collapsed, tag }
+    if trace.profiler.get opts then
+      data := { data with startTime := start, stopTime := stop }
+    addTraceNode oldTraces data ref m
+    MonadExcept.ofExcept res
 
 /-- A version of `Lean.withTraceNode` which allows generating the message within the computation. -/
+@[inline]
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
     (k : m (α × MessageData)) (collapsed := true) (tag := "") : m α :=
   let msg := fun
@@ -380,10 +386,10 @@ the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
 
 TODO: find better name for this function.
 -/
+@[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let _ := always.except
   let opts ← getOptions
   if !opts.hasTrace then
     return (← k)
@@ -394,18 +400,23 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
   let msg ← withRef ref do addMessageContext (← msg ())
-  let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := trace.profiler.get opts &&
-    stop - start > trace.profiler.threshold.unitAdjusted opts
-  unless clsEnabled || aboveThresh do
-    modifyTraces (oldTraces ++ ·)
-    return (← MonadExcept.ofExcept res)
-  let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-  let mut data := { cls, collapsed, tag }
-  if trace.profiler.get opts then
-    data := { data with startTime := start, stopTime := stop }
-  addTraceNode oldTraces data ref msg
-  MonadExcept.ofExcept res
+  let resStartStop ← withStartStop opts <| let _ := always.except; observing k
+  postCallback opts clsEnabled oldTraces ref msg resStartStop
+where
+  postCallback (opts : Options) (clsEnabled oldTraces ref msg resStartStop) : m α := do
+    let _ := always.except
+    let (res, start, stop) := resStartStop
+    let aboveThresh := trace.profiler.get opts &&
+      stop - start > trace.profiler.threshold.unitAdjusted opts
+    unless clsEnabled || aboveThresh do
+      modifyTraces (oldTraces ++ ·)
+      return (← MonadExcept.ofExcept res)
+    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
+    let mut data := { cls, collapsed, tag }
+    if trace.profiler.get opts then
+      data := { data with startTime := start, stopTime := stop }
+    addTraceNode oldTraces data ref msg
+    MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
   if trace.profiler.output.get? (← getOptions) |>.isSome then

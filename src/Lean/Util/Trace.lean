@@ -378,7 +378,7 @@ TODO: find better name for this function.
 @[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : Unit -> m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do

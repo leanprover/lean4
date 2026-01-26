@@ -13,37 +13,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__6;
-lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__5;
-LEAN_EXPORT lean_object* l_Lean_IR_addExtern___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__3;
-lean_object* lean_st_ref_take(lean_object*);
-lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__1;
 uint8_t l_Lean_isMarkedBorrowed(lean_object*);
-LEAN_EXPORT lean_object* lean_add_extern(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_get(lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__2;
-lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_IR_toIRType(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__4;
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_addExtern_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__0;
-extern lean_object* l_Lean_IR_tracePrefixOptionName;
-lean_object* l_Lean_IR_explicitRC___redArg(lean_object*, lean_object*);
-uint8_t l_Lean_isPrivateName(lean_object*);
-lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_addExtern___closed__7;
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_addExtern_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_addExtern_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_addExtern_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_IR_addExtern___closed__0;
+static lean_object* l_Lean_IR_addExtern___closed__1;
+static const lean_string_object l_Lean_IR_addExtern___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "result"};
+static const lean_object* l_Lean_IR_addExtern___closed__2 = (const lean_object*)&l_Lean_IR_addExtern___closed__2_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_IR_addExtern___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_IR_addExtern___closed__2_value),LEAN_SCALAR_PTR_LITERAL(180, 131, 177, 30, 113, 24, 63, 83)}};
+static const lean_object* l_Lean_IR_addExtern___closed__3 = (const lean_object*)&l_Lean_IR_addExtern___closed__3_value;
+extern lean_object* l_Lean_IR_tracePrefixOptionName;
+lean_object* l_Lean_Name_append(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_addExtern___closed__4;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_addExtern___closed__5;
+static lean_object* l_Lean_IR_addExtern___closed__6;
+static lean_object* l_Lean_IR_addExtern___closed__7;
+lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType(lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*);
+lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions(lean_object*, lean_object*);
+lean_object* l_Lean_IR_explicitRC___redArg(lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isPrivateName(lean_object*);
+lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_setDeclPublic(lean_object*, lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_add_extern(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_addExtern___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_addExtern_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -366,28 +368,11 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_addExtern___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("result", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_addExtern___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_IR_addExtern___closed__2;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_IR_addExtern___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_addExtern___closed__3;
+x_1 = ((lean_object*)(l_Lean_IR_addExtern___closed__3));
 x_2 = l_Lean_IR_tracePrefixOptionName;
 x_3 = l_Lean_Name_append(x_2, x_1);
 return x_3;
@@ -562,7 +547,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32;
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 lean_dec_ref(x_28);
-x_30 = l_Lean_IR_addExtern___closed__3;
+x_30 = ((lean_object*)(l_Lean_IR_addExtern___closed__3));
 x_31 = l_Lean_IR_addExtern___closed__4;
 lean_inc(x_29);
 x_32 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_31, x_30, x_29, x_22, x_23);
@@ -706,10 +691,6 @@ l_Lean_IR_addExtern___closed__0 = _init_l_Lean_IR_addExtern___closed__0();
 lean_mark_persistent(l_Lean_IR_addExtern___closed__0);
 l_Lean_IR_addExtern___closed__1 = _init_l_Lean_IR_addExtern___closed__1();
 lean_mark_persistent(l_Lean_IR_addExtern___closed__1);
-l_Lean_IR_addExtern___closed__2 = _init_l_Lean_IR_addExtern___closed__2();
-lean_mark_persistent(l_Lean_IR_addExtern___closed__2);
-l_Lean_IR_addExtern___closed__3 = _init_l_Lean_IR_addExtern___closed__3();
-lean_mark_persistent(l_Lean_IR_addExtern___closed__3);
 l_Lean_IR_addExtern___closed__4 = _init_l_Lean_IR_addExtern___closed__4();
 lean_mark_persistent(l_Lean_IR_addExtern___closed__4);
 l_Lean_IR_addExtern___closed__5 = _init_l_Lean_IR_addExtern___closed__5();

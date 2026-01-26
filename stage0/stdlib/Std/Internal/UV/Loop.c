@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object*);
 lean_object* lean_uv_event_loop_configure(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object*, lean_object*);
 uint8_t lean_uv_event_loop_alive();
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t);
-LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t x_1) {
 _start:
 {

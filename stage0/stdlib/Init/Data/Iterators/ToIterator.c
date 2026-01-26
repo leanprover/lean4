@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_ToIterator_of(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_iter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_iterM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_iterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_ofM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_iter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_ofM___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_ofM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_of___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_iterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToIterator_iterM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ToIterator_of(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ToIterator_iterM___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

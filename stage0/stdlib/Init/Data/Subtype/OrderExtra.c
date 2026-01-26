@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT uint8_t l_instOrdSubtype___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdSubtype___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdSubtype___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instOrdSubtype(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instOrdSubtype___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdSubtype___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

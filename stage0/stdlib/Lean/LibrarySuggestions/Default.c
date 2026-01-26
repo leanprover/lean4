@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static double l_Lean_LibrarySuggestions___librarySuggestions___closed__3_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
+double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
+static double l_Lean_LibrarySuggestions___librarySuggestions___closed__0_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
+LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions___closed__1___boxed__const__1_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
+lean_object* l_Lean_LibrarySuggestions_sineQuaNonSelector___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LibrarySuggestions___librarySuggestions___closed__1_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
 lean_object* l_Lean_LibrarySuggestions_Selector_filterGrindAnnotated___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LibrarySuggestions_currentFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static double l_Lean_LibrarySuggestions___librarySuggestions___closed__0_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
-lean_object* l_Lean_LibrarySuggestions_sineQuaNonSelector___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LibrarySuggestions___librarySuggestions___closed__2_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static double l_Lean_LibrarySuggestions___librarySuggestions___closed__3_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
+lean_object* l_Lean_LibrarySuggestions_currentFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LibrarySuggestions_Selector_intersperse(lean_object*, lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions___closed__1___boxed__const__1_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_;
+LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double _init_l_Lean_LibrarySuggestions___librarySuggestions___closed__0_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_() {
 _start:
 {

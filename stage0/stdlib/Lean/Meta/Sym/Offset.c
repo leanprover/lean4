@@ -13,48 +13,62 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Lean_Meta_Sym_isOffset(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset___closed__0;
-static lean_object* l_Lean_Meta_Sym_isOffset___closed__1;
-uint8_t l_Lean_Expr_isApp(lean_object*);
-lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_inc___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_num_elim___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__5;
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f_x27___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__2;
-static lean_object* l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_toOffset(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_add_elim___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instInhabitedOffset;
-uint8_t lean_name_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__0;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Offset_0__Lean_Meta_Sym_isOffset_x3f_get(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_instInhabitedOffset_default;
-lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__3;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset___boxed(lean_object*);
-uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x27___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f(lean_object*);
-static lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__4;
-lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* l_Lean_Meta_Sym_getNatValue_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_num_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_add_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Sym_instInhabitedOffset_default = (const lean_object*)&l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Sym_instInhabitedOffset = (const lean_object*)&l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0_value;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_inc(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_inc___boxed(lean_object*, lean_object*);
+static const lean_string_object l_Lean_Meta_Sym_isOffset_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "succ"};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__1 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__1_value;
+static const lean_string_object l_Lean_Meta_Sym_isOffset_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Nat"};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__0_value;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset_x3f___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset_x3f___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__2_value_aux_0),((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__1_value),LEAN_SCALAR_PTR_LITERAL(93, 165, 73, 246, 125, 40, 156, 223)}};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__2 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__2_value;
+static const lean_string_object l_Lean_Meta_Sym_isOffset_x3f___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "hAdd"};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__4 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__4_value;
+static const lean_string_object l_Lean_Meta_Sym_isOffset_x3f___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "HAdd"};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__3 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__3_value;
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset_x3f___closed__5_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__3_value),LEAN_SCALAR_PTR_LITERAL(221, 239, 47, 196, 170, 166, 59, 144)}};
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset_x3f___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__5_value_aux_0),((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__4_value),LEAN_SCALAR_PTR_LITERAL(134, 172, 115, 219, 189, 252, 56, 148)}};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__5 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__5_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset_x3f___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
+static const lean_object* l_Lean_Meta_Sym_isOffset_x3f___closed__6 = (const lean_object*)&l_Lean_Meta_Sym_isOffset_x3f___closed__6_value;
+lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
+uint8_t l_Lean_Expr_isApp(lean_object*);
+lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
+uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_getNatValue_x3f(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Offset_0__Lean_Meta_Sym_isOffset_x3f_get(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f_x27(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f_x27___boxed(lean_object*, lean_object*);
+static const lean_string_object l_Lean_Meta_Sym_isOffset___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "OfNat"};
+static const lean_object* l_Lean_Meta_Sym_isOffset___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_isOffset___closed__0_value;
+static const lean_string_object l_Lean_Meta_Sym_isOffset___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "ofNat"};
+static const lean_object* l_Lean_Meta_Sym_isOffset___closed__1 = (const lean_object*)&l_Lean_Meta_Sym_isOffset___closed__1_value;
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Sym_isOffset___closed__0_value),LEAN_SCALAR_PTR_LITERAL(135, 241, 166, 108, 243, 216, 193, 244)}};
+static const lean_ctor_object l_Lean_Meta_Sym_isOffset___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Meta_Sym_isOffset___closed__2_value_aux_0),((lean_object*)&l_Lean_Meta_Sym_isOffset___closed__1_value),LEAN_SCALAR_PTR_LITERAL(2, 108, 58, 34, 100, 49, 50, 216)}};
+static const lean_object* l_Lean_Meta_Sym_isOffset___closed__2 = (const lean_object*)&l_Lean_Meta_Sym_isOffset___closed__2_value;
+LEAN_EXPORT uint8_t l_Lean_Meta_Sym_isOffset(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Sym_isOffset_x27(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x27___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_toOffset(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -155,32 +169,6 @@ x_5 = l_Lean_Meta_Sym_Offset_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_instInhabitedOffset_default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_instInhabitedOffset() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Sym_instInhabitedOffset_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Offset_inc(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -250,67 +238,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("succ", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Sym_isOffset_x3f___closed__1;
-x_2 = l_Lean_Meta_Sym_isOffset_x3f___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hAdd", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("HAdd", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Sym_isOffset_x3f___closed__4;
-x_2 = l_Lean_Meta_Sym_isOffset_x3f___closed__3;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset_x3f___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Sym_isOffset_x3f___closed__0;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f(lean_object* x_1) {
 _start:
 {
@@ -330,7 +257,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_5);
 x_6 = l_Lean_Expr_appFnCleanup___redArg(x_2);
-x_7 = l_Lean_Meta_Sym_isOffset_x3f___closed__2;
+x_7 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__2));
 x_8 = l_Lean_Expr_isConstOf(x_6, x_7);
 if (x_8 == 0)
 {
@@ -408,7 +335,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27;
 x_24 = lean_ctor_get(x_21, 1);
 lean_inc_ref(x_24);
 x_25 = l_Lean_Expr_appFnCleanup___redArg(x_21);
-x_26 = l_Lean_Meta_Sym_isOffset_x3f___closed__5;
+x_26 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__5));
 x_27 = l_Lean_Expr_isConstOf(x_25, x_26);
 lean_dec_ref(x_25);
 if (x_27 == 0)
@@ -423,7 +350,7 @@ return x_28;
 else
 {
 lean_object* x_29; uint8_t x_30; 
-x_29 = l_Lean_Meta_Sym_isOffset_x3f___closed__6;
+x_29 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__6));
 x_30 = l_Lean_Expr_isConstOf(x_24, x_29);
 lean_dec_ref(x_24);
 if (x_30 == 0)
@@ -525,12 +452,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isOffset_x3f_x27(lean_object* x_1, lean
 _start:
 {
 uint8_t x_3; lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_Meta_Sym_isOffset_x3f___closed__2;
+x_7 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__2));
 x_8 = lean_name_eq(x_1, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Lean_Meta_Sym_isOffset_x3f___closed__5;
+x_9 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__5));
 x_10 = lean_name_eq(x_1, x_9);
 x_3 = x_10;
 goto block_6;
@@ -567,32 +494,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_isOffset___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("OfNat", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ofNat", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_isOffset___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Sym_isOffset___closed__1;
-x_2 = l_Lean_Meta_Sym_isOffset___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Meta_Sym_isOffset(lean_object* x_1) {
 _start:
 {
@@ -610,7 +511,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_4);
 x_5 = l_Lean_Expr_appFnCleanup___redArg(x_2);
-x_6 = l_Lean_Meta_Sym_isOffset_x3f___closed__2;
+x_6 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__2));
 x_7 = l_Lean_Expr_isConstOf(x_5, x_6);
 if (x_7 == 0)
 {
@@ -672,7 +573,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20;
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc_ref(x_17);
 x_18 = l_Lean_Expr_appFnCleanup___redArg(x_15);
-x_19 = l_Lean_Meta_Sym_isOffset_x3f___closed__5;
+x_19 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__5));
 x_20 = l_Lean_Expr_isConstOf(x_18, x_19);
 lean_dec_ref(x_18);
 if (x_20 == 0)
@@ -684,7 +585,7 @@ return x_20;
 else
 {
 lean_object* x_21; uint8_t x_22; 
-x_21 = l_Lean_Meta_Sym_isOffset_x3f___closed__6;
+x_21 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__6));
 x_22 = l_Lean_Expr_isConstOf(x_17, x_21);
 lean_dec_ref(x_17);
 if (x_22 == 0)
@@ -729,7 +630,7 @@ else
 {
 lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 x_30 = l_Lean_Expr_appFnCleanup___redArg(x_28);
-x_31 = l_Lean_Meta_Sym_isOffset___closed__2;
+x_31 = ((lean_object*)(l_Lean_Meta_Sym_isOffset___closed__2));
 x_32 = l_Lean_Expr_isConstOf(x_30, x_31);
 lean_dec_ref(x_30);
 if (x_32 == 0)
@@ -795,12 +696,12 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Sym_isOffset_x27(lean_object* x_1, lean_object* 
 _start:
 {
 uint8_t x_3; lean_object* x_6; uint8_t x_7; 
-x_6 = l_Lean_Meta_Sym_isOffset_x3f___closed__2;
+x_6 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__2));
 x_7 = lean_name_eq(x_1, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = l_Lean_Meta_Sym_isOffset_x3f___closed__5;
+x_8 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__5));
 x_9 = lean_name_eq(x_1, x_8);
 x_3 = x_9;
 goto block_5;
@@ -854,7 +755,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_10);
 x_11 = l_Lean_Expr_appFnCleanup___redArg(x_8);
-x_12 = l_Lean_Meta_Sym_isOffset_x3f___closed__2;
+x_12 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__2));
 x_13 = l_Lean_Expr_isConstOf(x_11, x_12);
 if (x_13 == 0)
 {
@@ -884,7 +785,7 @@ else
 {
 lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_18 = l_Lean_Expr_appFnCleanup___redArg(x_16);
-x_19 = l_Lean_Meta_Sym_isOffset___closed__2;
+x_19 = ((lean_object*)(l_Lean_Meta_Sym_isOffset___closed__2));
 x_20 = l_Lean_Expr_isConstOf(x_18, x_19);
 if (x_20 == 0)
 {
@@ -925,7 +826,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_26 = l_Lean_Expr_appFnCleanup___redArg(x_24);
-x_27 = l_Lean_Meta_Sym_isOffset_x3f___closed__5;
+x_27 = ((lean_object*)(l_Lean_Meta_Sym_isOffset_x3f___closed__5));
 x_28 = l_Lean_Expr_isConstOf(x_26, x_27);
 lean_dec_ref(x_26);
 if (x_28 == 0)
@@ -1051,32 +952,6 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Sym_LitValues(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0 = _init_l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedOffset_default___closed__0);
-l_Lean_Meta_Sym_instInhabitedOffset_default = _init_l_Lean_Meta_Sym_instInhabitedOffset_default();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedOffset_default);
-l_Lean_Meta_Sym_instInhabitedOffset = _init_l_Lean_Meta_Sym_instInhabitedOffset();
-lean_mark_persistent(l_Lean_Meta_Sym_instInhabitedOffset);
-l_Lean_Meta_Sym_isOffset_x3f___closed__1 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__1();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__1);
-l_Lean_Meta_Sym_isOffset_x3f___closed__0 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__0();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__0);
-l_Lean_Meta_Sym_isOffset_x3f___closed__2 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__2();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__2);
-l_Lean_Meta_Sym_isOffset_x3f___closed__4 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__4();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__4);
-l_Lean_Meta_Sym_isOffset_x3f___closed__3 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__3();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__3);
-l_Lean_Meta_Sym_isOffset_x3f___closed__5 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__5();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__5);
-l_Lean_Meta_Sym_isOffset_x3f___closed__6 = _init_l_Lean_Meta_Sym_isOffset_x3f___closed__6();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset_x3f___closed__6);
-l_Lean_Meta_Sym_isOffset___closed__0 = _init_l_Lean_Meta_Sym_isOffset___closed__0();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset___closed__0);
-l_Lean_Meta_Sym_isOffset___closed__1 = _init_l_Lean_Meta_Sym_isOffset___closed__1();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset___closed__1);
-l_Lean_Meta_Sym_isOffset___closed__2 = _init_l_Lean_Meta_Sym_isOffset___closed__2();
-lean_mark_persistent(l_Lean_Meta_Sym_isOffset___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

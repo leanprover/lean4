@@ -13,110 +13,107 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1;
-lean_object* l_Lean_Json_compress(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1;
-LEAN_EXPORT lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_serve___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lake_AnsiMode_isEnabled(lean_object*, uint8_t);
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2;
-lean_object* lean_array_push(lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* l_Lake_Log_toString(lean_object*);
-static lean_object* l_Lake_setupFile___closed__4;
-LEAN_EXPORT lean_object* l_IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0(lean_object*);
-lean_object* l_Lake_LoggerIO_captureLog___redArg(lean_object*);
-lean_object* l_instMonadST(lean_object*);
-lean_object* lean_io_getenv(lean_object*);
-static lean_object* l_Lake_serve___closed__3;
-lean_object* l_Lake_Env_baseVars(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lake_OutStream_get(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_serve(lean_object*, lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT uint32_t l_Lake_noConfigFileCode;
+static const lean_string_object l_Lake_invalidConfigEnvVar___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "LAKE_INVALID_CONFIG"};
+static const lean_object* l_Lake_invalidConfigEnvVar___closed__0 = (const lean_object*)&l_Lake_invalidConfigEnvVar___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_invalidConfigEnvVar = (const lean_object*)&l_Lake_invalidConfigEnvVar___closed__0_value;
+lean_object* l_instMonadST(lean_object*);
 static lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0;
-LEAN_EXPORT lean_object* l_IO_print___at___00IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0_spec__0___boxed(lean_object*, lean_object*);
-lean_object* lean_get_stdout();
-lean_object* lean_io_process_child_wait(lean_object*, lean_object*);
-lean_object* l_Lake_Workspace_augmentedEnvVars(lean_object*);
-static lean_object* l_Lake_setupFile___closed__3;
-size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Lake_resolvePath(lean_object*);
-static lean_object* l_Lake_serve___closed__1;
-LEAN_EXPORT lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1(lean_object*);
-lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_invalidConfigEnvVar;
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* l_Lake_loadWorkspace___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_loadWorkspace(lean_object*, lean_object*);
-lean_object* lean_io_process_spawn(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_get_stderr();
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0;
-LEAN_EXPORT uint32_t l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint32_t l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
-static lean_object* l_Lake_serve___closed__0;
-static lean_object* l_Lake_setupFile___closed__0;
-LEAN_EXPORT lean_object* l_IO_print___at___00IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___boxed(lean_object*, lean_object*);
-static lean_object* l_Lake_setupFile___closed__2;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_eprintln___at___00Lake_serve_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(lean_object*);
-LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lake_serve___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Array_append___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___boxed(lean_object*, lean_object*);
+lean_object* lean_get_stdout();
+LEAN_EXPORT lean_object* l_IO_print___at___00IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_IO_print___at___00IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0_spec__0___boxed(lean_object*, lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lake_invalidConfigEnvVar___closed__0;
-LEAN_EXPORT lean_object* l_Lake_setupFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_setupFile___closed__1;
-size_t lean_usize_add(size_t, size_t);
-lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0;
-lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Lean_instToJsonModuleSetup_toJson(lean_object*);
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "Lake.CLI.Serve"};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 48, .m_capacity = 48, .m_length = 47, .m_data = "_private.Lake.CLI.Serve.0.Lake.setupFile.print!"};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1_value;
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 38, .m_capacity = 38, .m_length = 37, .m_data = "Failed to print `setup-file` result: "};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2_value;
 lean_object* lean_io_error_to_string(lean_object*);
-extern lean_object* l_Lake_configModuleName;
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_eprintln___at___00Lake_serve_spec__0___boxed(lean_object*, lean_object*);
-lean_object* l_Lake_Workspace_runBuild___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_setupServerModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint32_t l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___boxed(lean_object*, lean_object*);
+lean_object* lean_get_stderr();
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprint___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21_spec__0___boxed(lean_object*, lean_object*);
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 49, .m_capacity = 49, .m_length = 48, .m_data = "_private.Lake.CLI.Serve.0.Lake.setupFile.eprint!"};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0_value;
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 37, .m_capacity = 37, .m_length = 36, .m_data = "Failed to print `setup-file` error: "};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1_value;
+static const lean_string_object l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "\nOriginal error:\n"};
+static const lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2 = (const lean_object*)&l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2_value;
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___boxed(lean_object*, lean_object*);
+lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_setupFile___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_setupFile___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 97, .m_capacity = 97, .m_length = 96, .m_data = "Failed to configure the Lake workspace. Please restart the server after fixing the error above.\n"};
+static const lean_object* l_Lake_setupFile___closed__0 = (const lean_object*)&l_Lake_setupFile___closed__0_value;
+static const lean_string_object l_Lake_setupFile___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 38, .m_capacity = 38, .m_length = 37, .m_data = "Failed to build module dependencies.\n"};
+static const lean_object* l_Lake_setupFile___closed__1 = (const lean_object*)&l_Lake_setupFile___closed__1_value;
+static const lean_string_object l_Lake_setupFile___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 36, .m_capacity = 36, .m_length = 35, .m_data = "Failed to load the Lake workspace.\n"};
+static const lean_object* l_Lake_setupFile___closed__2 = (const lean_object*)&l_Lake_setupFile___closed__2_value;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lake_setupFile___closed__3;
+static lean_object* l_Lake_setupFile___closed__4;
+lean_object* l_Lake_resolvePath(lean_object*);
 lean_object* l_Lake_realConfigFile(lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* lean_io_getenv(lean_object*);
+lean_object* l_Lake_OutStream_get(lean_object*);
+uint8_t l_Lake_AnsiMode_isEnabled(lean_object*, uint8_t);
+lean_object* l_Lake_loadWorkspace(lean_object*, lean_object*);
+lean_object* l_Lake_setupServerModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_Workspace_runBuild___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instToJsonModuleSetup_toJson(lean_object*);
+lean_object* l_Lean_Json_compress(lean_object*);
+extern lean_object* l_Lake_configModuleName;
+lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT uint32_t l_Lake_setupFile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_setupFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t);
+size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00Lake_serve_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_IO_eprintln___at___00Lake_serve_spec__0___boxed(lean_object*, lean_object*);
+static const lean_ctor_object l_Lake_serve___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(1, 1, 1, 0, 0, 0, 0, 0)}};
+static const lean_object* l_Lake_serve___closed__0 = (const lean_object*)&l_Lake_serve___closed__0_value;
+static const lean_string_object l_Lake_serve___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "--server"};
+static const lean_object* l_Lake_serve___closed__1 = (const lean_object*)&l_Lake_serve___closed__1_value;
+static lean_object* l_Lake_serve___closed__2;
+static const lean_string_object l_Lake_serve___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 81, .m_capacity = 81, .m_length = 80, .m_data = "warning: package configuration has errors, falling back to plain `lean --server`"};
+static const lean_object* l_Lake_serve___closed__3 = (const lean_object*)&l_Lake_serve___closed__3_value;
+lean_object* l_Array_append___redArg(lean_object*, lean_object*);
+lean_object* lean_io_process_spawn(lean_object*);
+lean_object* lean_io_process_child_wait(lean_object*, lean_object*);
+lean_object* l_Lake_loadWorkspace___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_LoggerIO_captureLog___redArg(lean_object*);
+lean_object* l_Lake_Workspace_augmentedEnvVars(lean_object*);
+lean_object* l_Lake_Env_baseVars(lean_object*);
+lean_object* l_Lake_Log_toString(lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_serve(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_serve___boxed(lean_object*, lean_object*, lean_object*);
 static uint32_t _init_l_Lake_noConfigFileCode() {
 _start:
 {
 uint32_t x_1; 
 x_1 = 2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_invalidConfigEnvVar___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("LAKE_INVALID_CONFIG", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_invalidConfigEnvVar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_invalidConfigEnvVar___closed__0;
 return x_1;
 }
 }
@@ -186,30 +183,6 @@ x_3 = l_IO_println___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lake.CLI.Serve", 14, 14);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_private.Lake.CLI.Serve.0.Lake.setupFile.print!", 47, 47);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Failed to print `setup-file` result: ", 37, 37);
-return x_1;
-}
-}
 LEAN_EXPORT uint32_t l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21(lean_object* x_1) {
 _start:
 {
@@ -228,11 +201,11 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0;
-x_7 = l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1;
+x_6 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0));
+x_7 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1));
 x_8 = lean_unsigned_to_nat(80u);
 x_9 = lean_unsigned_to_nat(6u);
-x_10 = l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2;
+x_10 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2));
 x_11 = lean_io_error_to_string(x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec_ref(x_11);
@@ -273,30 +246,6 @@ x_3 = l_IO_eprint___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_private.Lake.CLI.Serve.0.Lake.setupFile.eprint!", 48, 48);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Failed to print `setup-file` error: ", 36, 36);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nOriginal error:\n", 17, 17);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(lean_object* x_1) {
 _start:
 {
@@ -318,15 +267,15 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0;
-x_7 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0;
+x_6 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0));
+x_7 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0));
 x_8 = lean_unsigned_to_nat(84u);
 x_9 = lean_unsigned_to_nat(6u);
-x_10 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1;
+x_10 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1));
 x_11 = lean_io_error_to_string(x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec_ref(x_11);
-x_13 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2;
+x_13 = ((lean_object*)(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2));
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_14, x_1);
 lean_dec_ref(x_1);
@@ -362,30 +311,6 @@ x_7 = lean_unbox(x_3);
 x_8 = l_Lake_setupFile___lam__0(x_1, x_6, x_7, x_4);
 lean_dec_ref(x_4);
 return x_8;
-}
-}
-static lean_object* _init_l_Lake_setupFile___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Failed to configure the Lake workspace. Please restart the server after fixing the error above.\n", 96, 96);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_setupFile___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Failed to build module dependencies.\n", 37, 37);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_setupFile___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Failed to load the Lake workspace.\n", 35, 35);
-return x_1;
 }
 }
 static lean_object* _init_l_Lake_setupFile___closed__3() {
@@ -427,7 +352,7 @@ lean_dec_ref(x_9);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Lake_invalidConfigEnvVar___closed__0;
+x_14 = ((lean_object*)(l_Lake_invalidConfigEnvVar___closed__0));
 x_15 = lean_io_getenv(x_14);
 if (lean_obj_tag(x_15) == 1)
 {
@@ -441,7 +366,7 @@ x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
 x_17 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(x_16);
-x_18 = l_Lake_setupFile___closed__0;
+x_18 = ((lean_object*)(l_Lake_setupFile___closed__0));
 x_19 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(x_18);
 x_20 = 1;
 return x_20;
@@ -490,7 +415,7 @@ else
 {
 lean_object* x_38; lean_object* x_39; uint32_t x_40; 
 lean_dec_ref(x_33);
-x_38 = l_Lake_setupFile___closed__1;
+x_38 = ((lean_object*)(l_Lake_setupFile___closed__1));
 x_39 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(x_38);
 x_40 = 1;
 return x_40;
@@ -504,7 +429,7 @@ lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-x_41 = l_Lake_setupFile___closed__2;
+x_41 = ((lean_object*)(l_Lake_setupFile___closed__2));
 x_42 = l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21(x_41);
 x_43 = 1;
 return x_43;
@@ -633,42 +558,14 @@ x_3 = l_IO_eprintln___at___00Lake_serve_spec__0(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_serve___closed__0() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_alloc_ctor(0, 0, 3);
-lean_ctor_set_uint8(x_2, 0, x_1);
-lean_ctor_set_uint8(x_2, 1, x_1);
-lean_ctor_set_uint8(x_2, 2, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_serve___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("--server", 8, 8);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_serve___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_serve___closed__1;
+x_1 = ((lean_object*)(l_Lake_serve___closed__1));
 x_2 = l_Lake_setupFile___closed__4;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_serve___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("warning: package configuration has errors, falling back to plain `lean --server`", 80, 80);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_serve(lean_object* x_1, lean_object* x_2) {
@@ -737,7 +634,7 @@ goto block_54;
 block_24:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-x_7 = l_Lake_serve___closed__0;
+x_7 = ((lean_object*)(l_Lake_serve___closed__0));
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_1);
@@ -817,7 +714,7 @@ else
 {
 lean_object* x_36; lean_object* x_37; 
 lean_dec(x_27);
-x_36 = l_Lake_serve___closed__3;
+x_36 = ((lean_object*)(l_Lake_serve___closed__3));
 x_37 = l_IO_eprintln___at___00Lake_serve_spec__0(x_36);
 if (lean_obj_tag(x_37) == 0)
 {
@@ -826,7 +723,7 @@ lean_dec_ref(x_37);
 x_38 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_38);
 x_39 = l_Lake_Env_baseVars(x_38);
-x_40 = l_Lake_invalidConfigEnvVar___closed__0;
+x_40 = ((lean_object*)(l_Lake_invalidConfigEnvVar___closed__0));
 x_41 = l_Lake_Log_toString(x_28);
 lean_dec(x_28);
 x_42 = lean_alloc_ctor(1, 1, 0);
@@ -954,42 +851,14 @@ res = initialize_Lake_Util_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_noConfigFileCode = _init_l_Lake_noConfigFileCode();
-l_Lake_invalidConfigEnvVar___closed__0 = _init_l_Lake_invalidConfigEnvVar___closed__0();
-lean_mark_persistent(l_Lake_invalidConfigEnvVar___closed__0);
-l_Lake_invalidConfigEnvVar = _init_l_Lake_invalidConfigEnvVar();
-lean_mark_persistent(l_Lake_invalidConfigEnvVar);
 l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0 = _init_l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0();
 lean_mark_persistent(l_panic___at___00__private_Lake_CLI_Serve_0__Lake_setupFile_print_x21_spec__1___closed__0);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__0);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__1);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21___closed__2);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__0);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__1);
-l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2 = _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2();
-lean_mark_persistent(l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x21___closed__2);
-l_Lake_setupFile___closed__0 = _init_l_Lake_setupFile___closed__0();
-lean_mark_persistent(l_Lake_setupFile___closed__0);
-l_Lake_setupFile___closed__1 = _init_l_Lake_setupFile___closed__1();
-lean_mark_persistent(l_Lake_setupFile___closed__1);
-l_Lake_setupFile___closed__2 = _init_l_Lake_setupFile___closed__2();
-lean_mark_persistent(l_Lake_setupFile___closed__2);
 l_Lake_setupFile___closed__3 = _init_l_Lake_setupFile___closed__3();
 lean_mark_persistent(l_Lake_setupFile___closed__3);
 l_Lake_setupFile___closed__4 = _init_l_Lake_setupFile___closed__4();
 lean_mark_persistent(l_Lake_setupFile___closed__4);
-l_Lake_serve___closed__0 = _init_l_Lake_serve___closed__0();
-lean_mark_persistent(l_Lake_serve___closed__0);
-l_Lake_serve___closed__1 = _init_l_Lake_serve___closed__1();
-lean_mark_persistent(l_Lake_serve___closed__1);
 l_Lake_serve___closed__2 = _init_l_Lake_serve___closed__2();
 lean_mark_persistent(l_Lake_serve___closed__2);
-l_Lake_serve___closed__3 = _init_l_Lake_serve___closed__3();
-lean_mark_persistent(l_Lake_serve___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

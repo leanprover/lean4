@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueWorkspace_nonemptyType;
+LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Opaque_0__Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lake_Config_Opaque_0__Lake_OpaqueWorkspace_nonemptyType() {
 _start:
 {

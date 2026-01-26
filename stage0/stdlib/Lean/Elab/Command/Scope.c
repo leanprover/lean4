@@ -13,21 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Elab_Command_instInhabitedScope_default___closed__0;
+static const lean_string_object l_Lean_Elab_Command_instInhabitedScope_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lean_Elab_Command_instInhabitedScope_default___closed__0 = (const lean_object*)&l_Lean_Elab_Command_instInhabitedScope_default___closed__0_value;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Elab_Command_instInhabitedScope_default___closed__1;
+extern lean_object* l_Lean_Options_empty;
 static lean_object* l_Lean_Elab_Command_instInhabitedScope_default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instInhabitedScope_default;
-static lean_object* l_Lean_Elab_Command_instInhabitedScope_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instInhabitedScope;
-extern lean_object* l_Lean_Options_empty;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* _init_l_Lean_Elab_Command_instInhabitedScope_default___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_Command_instInhabitedScope_default___closed__1() {
 _start:
 {
@@ -46,7 +39,7 @@ x_2 = l_Lean_Elab_Command_instInhabitedScope_default___closed__1;
 x_3 = lean_box(0);
 x_4 = lean_box(0);
 x_5 = l_Lean_Options_empty;
-x_6 = l_Lean_Elab_Command_instInhabitedScope_default___closed__0;
+x_6 = ((lean_object*)(l_Lean_Elab_Command_instInhabitedScope_default___closed__0));
 x_7 = lean_alloc_ctor(0, 10, 3);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
@@ -89,8 +82,6 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Command_instInhabitedScope_default___closed__0 = _init_l_Lean_Elab_Command_instInhabitedScope_default___closed__0();
-lean_mark_persistent(l_Lean_Elab_Command_instInhabitedScope_default___closed__0);
 l_Lean_Elab_Command_instInhabitedScope_default___closed__1 = _init_l_Lean_Elab_Command_instInhabitedScope_default___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_instInhabitedScope_default___closed__1);
 l_Lean_Elab_Command_instInhabitedScope_default___closed__2 = _init_l_Lean_Elab_Command_instInhabitedScope_default___closed__2();

@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_allowNontermination___redArg(lean_object* x_1) {
 _start:
 {

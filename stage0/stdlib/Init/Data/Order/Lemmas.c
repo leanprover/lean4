@@ -14,11 +14,11 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instTransNotLtOfLawfulOrderLTOfTotalOfLe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instTransLtOfLeOfLawfulOrderLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instTransNotLtOfLawfulOrderLTOfTotalOfLe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Classical_Order_instLT(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instTransLeOfIsPreorder(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:

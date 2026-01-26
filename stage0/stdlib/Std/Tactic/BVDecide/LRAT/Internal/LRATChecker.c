@@ -13,45 +13,49 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx___boxed(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(uint8_t);
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult_default;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult;
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___redArg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_rupFailure_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult;
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ofNat___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___boxed(lean_object*);
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0;
-static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0;
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_outOfProof_elim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_success_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+static const lean_string_object l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "success"};
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0_value;
+static const lean_string_object l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "out of proof"};
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1_value;
+static const lean_string_object l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "rup failure"};
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2_value;
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(uint8_t);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0 = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult = (const lean_object*)&l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0_value;
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_Result_ctorIdx(uint8_t x_1) {
 _start:
 {
@@ -317,30 +321,6 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("success", 7, 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("out of proof", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("rup failure", 11, 11);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(uint8_t x_1) {
 _start:
 {
@@ -348,19 +328,19 @@ switch (x_1) {
 case 0:
 {
 lean_object* x_2; 
-x_2 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0;
+x_2 = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0));
 return x_2;
 }
 case 1:
 {
 lean_object* x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1;
+x_3 = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1));
 return x_3;
 }
 default: 
 {
 lean_object* x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2;
+x_4 = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2));
 return x_4;
 }
 }
@@ -373,22 +353,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = lean_unbox(x_1);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -585,16 +549,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult_default = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult_default();
 l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instInhabitedResult();
-l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__0);
-l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__1);
-l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0___closed__2);
-l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___closed__0);
-l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult = _init_l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult();
-lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getAddrInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_dns_get_name(lean_object*);
-lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getNameInfo___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_DNS_getAddrInfo___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:

@@ -13,21 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-extern lean_object* l_Lean_defaultMaxRecDepth;
-LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-LEAN_EXPORT lean_object* l_Lean_maxRecDepth;
-static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-static lean_object* l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4____boxed(lean_object*);
-static lean_object* l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
 lean_object* lean_register_option(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "maxRecDepth"};
+static const lean_object* l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = (const lean_object*)&l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value),LEAN_SCALAR_PTR_LITERAL(213, 238, 178, 82, 0, 139, 185, 177)}};
+static const lean_object* l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = (const lean_object*)&l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value;
+static const lean_string_object l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 49, .m_capacity = 49, .m_length = 48, .m_data = "maximum recursion depth for many Lean procedures"};
+static const lean_object* l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = (const lean_object*)&l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value;
+extern lean_object* l_Lean_defaultMaxRecDepth;
+static lean_object* l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
+static const lean_string_object l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
+static const lean_object* l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = (const lean_object*)&l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static const lean_ctor_object l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value_aux_0),((lean_object*)&l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value),LEAN_SCALAR_PTR_LITERAL(108, 252, 239, 255, 166, 128, 233, 59)}};
+static const lean_object* l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = (const lean_object*)&l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__value;
+LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
+LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4____boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_maxRecDepth;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -170,36 +176,11 @@ x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_17
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("maxRecDepth", 11, 11);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("maximum recursion depth for many Lean procedures", 48, 48);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
+x_1 = ((lean_object*)(l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_));
 x_2 = l_Lean_defaultMaxRecDepth;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -207,31 +188,13 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-x_2 = l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
+x_2 = ((lean_object*)(l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_));
 x_3 = l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
-x_4 = l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_;
+x_4 = ((lean_object*)(l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_));
 x_5 = l_Lean_Option_register___at___00Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4__spec__0(x_2, x_3, x_4);
 return x_5;
 }
@@ -253,18 +216,8 @@ _G_initialized = true;
 res = initialize_Lean_Data_Options(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-lean_mark_persistent(l_Lean_initFn___closed__0_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
-l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-lean_mark_persistent(l_Lean_initFn___closed__1_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
-l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-lean_mark_persistent(l_Lean_initFn___closed__2_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
 l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
 lean_mark_persistent(l_Lean_initFn___closed__3_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
-l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-lean_mark_persistent(l_Lean_initFn___closed__4_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
-l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
-lean_mark_persistent(l_Lean_initFn___closed__5_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_);
 if (builtin) {res = l_Lean_initFn_00___x40_Lean_Util_RecDepth_171279117____hygCtx___hyg_4_();
 if (lean_io_result_is_error(res)) return res;
 l_Lean_maxRecDepth = lean_io_result_get_value(res);

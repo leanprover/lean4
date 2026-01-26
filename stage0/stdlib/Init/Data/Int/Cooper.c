@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Int_gcd(lean_object*, lean_object*);
-lean_object* l_Int_lcm(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left__inv(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_Cooper_resolve__left_spec__0(lean_object*);
-lean_object* lean_int_emod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_add__of__le___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_add__of__le(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_add__of__le___redArg(lean_object*, lean_object*);
-lean_object* lean_int_mul(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left__inv___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_int_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_int_ediv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_add__of__le___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_add__of__le___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_add__of__le(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_add__of__le___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_Cooper_resolve__left_spec__0(lean_object*);
+lean_object* lean_int_mul(lean_object*, lean_object*);
+lean_object* l_Int_gcd(lean_object*, lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
+lean_object* l_Int_lcm(lean_object*, lean_object*);
+lean_object* lean_int_emod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left__inv(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left__inv___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_add__of__le___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

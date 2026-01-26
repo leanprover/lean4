@@ -13,52 +13,54 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Sum_swap___redArg___closed__1;
-LEAN_EXPORT uint8_t l_Sum_isRight(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_swap(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Sum_isRight___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_swap___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instBEq_beq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_map___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Sum_isLeft___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getLeft___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instBEq_beq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getLeft(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instBEq_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instBEq___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instBEq(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Sum_isLeft___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_isLeft___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Sum_isLeft(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_isLeft___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Sum_isRight___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_isRight___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Sum_isRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_isRight___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getLeft_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_elim___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_map___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getLeft___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getLeft___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getLeft(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getLeft___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instDecidableLiftRel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getLeft_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getLeft_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_getRight_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_elim___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_map___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_map___redArg___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_map___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_swap___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_swap___redArg___lam__1(lean_object*);
+static const lean_closure_object l_Sum_swap___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Sum_swap___redArg___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Sum_swap___redArg___closed__0 = (const lean_object*)&l_Sum_swap___redArg___closed__0_value;
+static const lean_closure_object l_Sum_swap___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Sum_swap___redArg___lam__1, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Sum_swap___redArg___closed__1 = (const lean_object*)&l_Sum_swap___redArg___closed__1_value;
+LEAN_EXPORT lean_object* l_Sum_swap___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_swap(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Sum_instDecidableLiftRel___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_instDecidableLiftRel___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instDecidableLiftRel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instDecidableLiftRel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instDecidableRelSumLex___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_isRight___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getLeft___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight_x3f___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_swap___redArg___lam__1(lean_object*);
-LEAN_EXPORT uint8_t l_Sum_instDecidableLiftRel___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_map___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instBEq___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getRight___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instBEq_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instDecidableRelSumLex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Sum_isLeft(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_swap___redArg___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_isLeft___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instBEq(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_isLeft___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_getLeft_x3f___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Sum_swap___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Sum_instDecidableRelSumLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Sum_instBEq_beq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -498,28 +500,12 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Sum_swap___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Sum_swap___redArg___lam__0), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Sum_swap___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Sum_swap___redArg___lam__1), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Sum_swap___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Sum_swap___redArg___closed__0;
-x_3 = l_Sum_swap___redArg___closed__1;
+x_2 = ((lean_object*)(l_Sum_swap___redArg___closed__0));
+x_3 = ((lean_object*)(l_Sum_swap___redArg___closed__1));
 x_4 = l_Sum_elim___redArg(x_2, x_3, x_1);
 return x_4;
 }
@@ -707,10 +693,6 @@ _G_initialized = true;
 res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Sum_swap___redArg___closed__0 = _init_l_Sum_swap___redArg___closed__0();
-lean_mark_persistent(l_Sum_swap___redArg___closed__0);
-l_Sum_swap___redArg___closed__1 = _init_l_Sum_swap___redArg___closed__1();
-lean_mark_persistent(l_Sum_swap___redArg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

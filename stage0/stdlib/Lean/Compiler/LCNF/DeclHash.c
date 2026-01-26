@@ -13,51 +13,55 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashParams_spec__0(lean_object*, size_t, size_t, uint64_t);
-uint64_t l_Lean_instHashableExternAttrData_hash(lean_object*);
-uint64_t l_Lean_Compiler_LCNF_instHashableArg_hash(lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashAlt(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlts___boxed(lean_object*);
-uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableDecl_hash(lean_object*);
-LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashAlts_spec__3(lean_object*, size_t, size_t, uint64_t);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT uint64_t l_List_foldl___at___00Lean_Compiler_LCNF_instHashableDecl_hash_spec__0(uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashParams___boxed(lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashParams(lean_object*);
-size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue_hash___boxed(lean_object*);
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableParam___lam__0(lean_object*);
-uint64_t l_Lean_Compiler_instHashableInlineAttributeKind_hash(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDecl;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashCode_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0;
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashCode(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashParams_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instHashableCode___closed__0;
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableDeclValue_hash(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue;
-uint64_t l_Lean_Expr_hash(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Compiler_LCNF_instHashableDecl_hash_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashCode___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDecl_hash___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableCode;
-LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashCode_spec__1(lean_object*, size_t, size_t, uint64_t);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableParam;
-uint64_t l_Lean_Name_hash___override(lean_object*);
 uint64_t l_Lean_instHashableFVarId_hash(lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instHashableParam___closed__0;
-LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashAlts(lean_object*);
-size_t lean_usize_add(size_t, size_t);
+uint64_t l_Lean_Expr_hash(lean_object*);
+uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableParam___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableParam___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Lean_Compiler_LCNF_instHashableParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Compiler_LCNF_instHashableParam___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Compiler_LCNF_instHashableParam___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableParam___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_instHashableParam = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableParam___closed__0_value;
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashAlts_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashParams_spec__0(lean_object*, size_t, size_t, uint64_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashParams_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instHashableDecl___closed__0;
+size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashParams(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashParams___boxed(lean_object*);
+uint64_t l_Lean_Compiler_LCNF_instHashableArg_hash(lean_object*);
+LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashCode_spec__1(lean_object*, size_t, size_t, uint64_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashCode_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashAlts_spec__3(lean_object*, size_t, size_t, uint64_t);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashAlts(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashCode(lean_object*);
 uint64_t l_Lean_Compiler_LCNF_instHashableLetValue_hash(lean_object*);
+uint64_t l_Lean_Name_hash___override(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashAlt(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashAlts_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlts___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlt___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashCode___boxed(lean_object*);
+static const lean_closure_object l_Lean_Compiler_LCNF_instHashableCode___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Compiler_LCNF_hashCode___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Compiler_LCNF_instHashableCode___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableCode___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_instHashableCode = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableCode___closed__0_value;
+uint64_t l_Lean_instHashableExternAttrData_hash(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableDeclValue_hash(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue_hash___boxed(lean_object*);
+static const lean_closure_object l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Compiler_LCNF_instHashableDeclValue_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0_value;
+LEAN_EXPORT uint64_t l_List_foldl___at___00Lean_Compiler_LCNF_instHashableDecl_hash_spec__0(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Compiler_LCNF_instHashableDecl_hash_spec__0___boxed(lean_object*, lean_object*);
+uint64_t l_Lean_Compiler_instHashableInlineAttributeKind_hash(uint8_t);
+LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableDecl_hash(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDecl_hash___boxed(lean_object*);
+static const lean_closure_object l_Lean_Compiler_LCNF_instHashableDecl___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Compiler_LCNF_instHashableDecl_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Compiler_LCNF_instHashableDecl___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableDecl___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_instHashableDecl = (const lean_object*)&l_Lean_Compiler_LCNF_instHashableDecl___closed__0_value;
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableParam___lam__0(lean_object* x_1) {
 _start:
 {
@@ -78,22 +82,6 @@ x_2 = l_Lean_Compiler_LCNF_instHashableParam___lam__0(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableParam___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instHashableParam___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableParam() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instHashableParam___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_hashParams_spec__0(lean_object* x_1, size_t x_2, size_t x_3, uint64_t x_4) {
@@ -584,22 +572,6 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableCode___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_hashCode___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableCode() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instHashableCode___closed__0;
-return x_1;
-}
-}
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableDeclValue_hash(lean_object* x_1) {
 _start:
 {
@@ -631,22 +603,6 @@ x_2 = l_Lean_Compiler_LCNF_instHashableDeclValue_hash(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instHashableDeclValue_hash___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableDeclValue() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT uint64_t l_List_foldl___at___00Lean_Compiler_LCNF_instHashableDecl_hash_spec__0(uint64_t x_1, lean_object* x_2) {
@@ -819,22 +775,6 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableDecl___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instHashableDecl_hash___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_instHashableDecl() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instHashableDecl___closed__0;
-return x_1;
-}
-}
 lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_DeclHash(uint8_t builtin) {
@@ -844,22 +784,6 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_instHashableParam___closed__0 = _init_l_Lean_Compiler_LCNF_instHashableParam___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableParam___closed__0);
-l_Lean_Compiler_LCNF_instHashableParam = _init_l_Lean_Compiler_LCNF_instHashableParam();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableParam);
-l_Lean_Compiler_LCNF_instHashableCode___closed__0 = _init_l_Lean_Compiler_LCNF_instHashableCode___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableCode___closed__0);
-l_Lean_Compiler_LCNF_instHashableCode = _init_l_Lean_Compiler_LCNF_instHashableCode();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableCode);
-l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0 = _init_l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableDeclValue___closed__0);
-l_Lean_Compiler_LCNF_instHashableDeclValue = _init_l_Lean_Compiler_LCNF_instHashableDeclValue();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableDeclValue);
-l_Lean_Compiler_LCNF_instHashableDecl___closed__0 = _init_l_Lean_Compiler_LCNF_instHashableDecl___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableDecl___closed__0);
-l_Lean_Compiler_LCNF_instHashableDecl = _init_l_Lean_Compiler_LCNF_instHashableDecl();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instHashableDecl);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

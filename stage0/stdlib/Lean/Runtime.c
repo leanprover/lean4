@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_libUVVersion___closed__0;
-LEAN_EXPORT lean_object* l_Lean_closureMaxArgs;
-lean_object* lean_libuv_version(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_maxSmallNat;
-LEAN_EXPORT lean_object* l_Lean_libUVVersionFn___boxed(lean_object*);
 lean_object* lean_closure_max_args(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_libUVVersion;
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
 lean_object* lean_max_small_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
-static lean_object* l_Lean_maxSmallNat___closed__0;
-LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
+lean_object* lean_libuv_version(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_libUVVersionFn___boxed(lean_object*);
 static lean_object* l_Lean_closureMaxArgs___closed__0;
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgs;
+static lean_object* l_Lean_maxSmallNat___closed__0;
+LEAN_EXPORT lean_object* l_Lean_maxSmallNat;
+static lean_object* l_Lean_libUVVersion___closed__0;
+LEAN_EXPORT lean_object* l_Lean_libUVVersion;
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object* x_1) {
 _start:
 {

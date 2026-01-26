@@ -13,39 +13,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_occurs___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_findExt_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_findExt_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_findExtImpl_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_find_x3f___boxed(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_occurs___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_occurs___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim___redArg___boxed(lean_object*);
-lean_object* lean_find_ext_expr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_find_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_occurs___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_occurs___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_visit_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim___redArg(lean_object*);
-lean_object* lean_find_expr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_found_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_done_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_find_ext_expr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findExtImpl_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findExt_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findExt_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_findImpl_x3f___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {

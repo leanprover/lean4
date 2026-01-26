@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object*, lean_object*);
-size_t lean_uint64_to_usize(uint64_t);
-LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx___redArg(lean_object*, uint64_t);
-LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx(lean_object*, lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_scrambleHash___boxed(lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_scrambleHash___boxed(lean_object*);
+size_t lean_uint64_to_usize(uint64_t);
+size_t lean_usize_of_nat(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_land(size_t, size_t);
+LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx___redArg(lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx(lean_object*, lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t x_1) {
 _start:
 {

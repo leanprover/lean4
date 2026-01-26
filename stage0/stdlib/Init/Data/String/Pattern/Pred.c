@@ -13,70 +13,73 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher_default(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher_default___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_finitenessRelation___boxed(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_finitenessRelation(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_finitenessRelation(lean_object*);
-lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_iter___boxed(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_finitenessRelation___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher___boxed(lean_object*);
-static lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1;
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_iter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharBool(lean_object*);
-static lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0;
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool(lean_object*);
-static lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_iter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_iter___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_finitenessRelation(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_finitenessRelation___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharBool(lean_object*);
+lean_object* l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharBool(lean_object*);
+LEAN_EXPORT uint8_t l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg___lam__0(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg___lam__0(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0(uint32_t);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed(lean_object*);
+static const lean_closure_object l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0 = (const lean_object*)&l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0_value;
+static const lean_ctor_object l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0_value)}};
+static const lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1 = (const lean_object*)&l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1_value;
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_iter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_iter___boxed(lean_object*, lean_object*);
+lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_finitenessRelation(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_finitenessRelation___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharBool(lean_object*);
+static const lean_closure_object l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0 = (const lean_object*)&l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0_value;
+lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharPropOfDecidablePred___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharPropOfDecidablePred(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharPropOfDecidablePred___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharPropOfDecidablePred(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pattern_ForwardPattern_defaultStartsWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharBool(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharBool(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharPropOfDecidablePred(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharPropOfDecidablePred___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher_default(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher(lean_object*);
-lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide___redArg___lam__0(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0(uint32_t);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_iter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher_default(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -529,31 +532,11 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1;
+x_2 = ((lean_object*)(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1));
 return x_2;
 }
 }
@@ -995,19 +978,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharPredSearcher_instIteratorIdSearchStep), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0;
+x_2 = ((lean_object*)(l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0));
 lean_inc_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardCharPredSearcher_iter___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_1);
@@ -1054,7 +1029,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBac
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0;
+x_2 = ((lean_object*)(l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0));
 x_3 = l_String_Slice_Pattern_BackwardCharPredSearcher_instToBackwardSearcherForallCharPropOfDecidablePred___redArg(x_1);
 lean_inc_ref(x_3);
 x_4 = lean_alloc_closure((void*)(l_String_Slice_Pattern_ToBackwardSearcher_defaultEndsWith___boxed), 6, 5);
@@ -1100,12 +1075,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0 = _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0();
-lean_mark_persistent(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0);
-l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1 = _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1();
-lean_mark_persistent(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1);
-l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0 = _init_l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0();
-lean_mark_persistent(l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

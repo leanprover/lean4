@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Std_Internal_UV_UDP_0__Std_Internal_UV_UDP_SocketImpl;
+lean_object* lean_uv_udp_new();
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_new___boxed(lean_object*);
+lean_object* lean_uv_udp_bind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_bind___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_udp_connect(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_connect___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setBroadcast___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_udp_bind(lean_object*, lean_object*);
-lean_object* lean_uv_udp_wait_readable(lean_object*);
-lean_object* lean_uv_udp_getsockname(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_waitReadable___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_udp_set_multicast_loop(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastInterface___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_getPeerName___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_udp_new();
-lean_object* lean_uv_udp_set_membership(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_send___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_recv___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_udp_recv(lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_cancelRecv___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastTTL___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setTTL___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_UV_UDP_0__Std_Internal_UV_UDP_SocketImpl;
-lean_object* lean_uv_udp_set_multicast_ttl(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMembership___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_new___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_getSockName___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_udp_send(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_send___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_recv(lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_recv___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_wait_readable(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_waitReadable___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_udp_cancel_recv(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_cancelRecv___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_udp_getpeername(lean_object*);
-lean_object* lean_uv_udp_set_ttl(lean_object*, uint32_t);
-lean_object* lean_uv_udp_set_multicast_interface(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_getPeerName___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_udp_getsockname(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_getSockName___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_udp_set_broadcast(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setBroadcast___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_set_multicast_loop(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastLoop___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_set_multicast_ttl(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastTTL___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_set_membership(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMembership___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_set_multicast_interface(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setMulticastInterface___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_udp_set_ttl(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_UDP_Socket_setTTL___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Std_Internal_UV_UDP_0__Std_Internal_UV_UDP_SocketImpl() {
 _start:
 {

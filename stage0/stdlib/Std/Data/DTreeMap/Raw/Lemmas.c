@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall__1(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall__1(lean_object* x_1) {
 _start:
 {

@@ -14,10 +14,10 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Meta_Simp_Arith_isDvdCnstr(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object*);
+uint8_t l_Lean_Meta_Simp_Arith_isLinearTerm(lean_object*);
 uint8_t l_Lean_Meta_Simp_Arith_isLinearCnstr(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object*);
-uint8_t l_Lean_Meta_Simp_Arith_isLinearTerm(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object* x_1) {
 _start:
 {

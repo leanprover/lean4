@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_stepSize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_stepSize___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -13,44 +13,44 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecZero___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___redArg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__1(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__0(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_BitVec_instDecidableForallBitVec___redArg___closed__0;
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object*, uint8_t);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecZero(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Bool_instDecidableForallOfDecidablePred___redArg(lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+static lean_object* l_BitVec_instDecidableForallBitVec___redArg___closed__0;
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___redArg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecZero(lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__1(lean_object*, lean_object*, uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero___redArg(uint8_t);
+uint8_t l_Bool_instDecidableForallOfDecidablePred___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__0(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc___redArg(uint8_t);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc___redArg(uint8_t);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__1(lean_object*, lean_object*, uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero___redArg(uint8_t x_1) {
 _start:
 {

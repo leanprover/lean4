@@ -13,23 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_instPowNat___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
+lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
-lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_mul___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_instPowNat___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

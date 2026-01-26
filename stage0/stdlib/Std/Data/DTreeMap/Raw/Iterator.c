@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_keysIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_valuesIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_iter___redArg(lean_object* x_1) {

@@ -13,29 +13,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_findLevelMVar_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1_spec__1___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1_spec__1___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 size_t lean_usize_sub(size_t, size_t);
-lean_object* lean_array_mk(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* lean_array_get_size(lean_object*);
-static lean_object* l_Lean_FindLevelMVar_main___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Lean_FindLevelMVar_main___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_FindLevelMVar_main___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_FindLevelMVar_main___closed__0 = (const lean_object*)&l_Lean_FindLevelMVar_main___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLevelMVar(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_findLevelMVar_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -260,14 +261,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_FindLevelMVar_main___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_FindLevelMVar_main___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -289,7 +282,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
 lean_dec_ref(x_2);
-x_13 = l_Lean_FindLevelMVar_main___closed__0;
+x_13 = ((lean_object*)(l_Lean_FindLevelMVar_main___closed__0));
 x_14 = l_List_foldrTR___at___00Lean_FindLevelMVar_main_spec__1(x_1, x_13, x_12, x_3);
 return x_14;
 }
@@ -430,8 +423,6 @@ _G_initialized = true;
 res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_FindLevelMVar_main___closed__0 = _init_l_Lean_FindLevelMVar_main___closed__0();
-lean_mark_persistent(l_Lean_FindLevelMVar_main___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLETransOfLawfulUpwardEnumerableLE___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succ___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succ(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succMany___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLETransOfLawfulUpwardEnumerableLE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLETransOfLawfulUpwardEnumerableLE___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLTTransOfLawfulUpwardEnumerableLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLTTransOfLawfulUpwardEnumerableLT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succ___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_instLETransOfLawfulUpwardEnumerableLE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succ(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_least___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_UpwardEnumerable_succ___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

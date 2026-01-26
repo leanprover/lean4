@@ -13,37 +13,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Json_compress(lean_object*);
-static lean_object* l_IO_FS_Stream_readUTF8___closed__0;
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readUTF8___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_IO_FS_Stream_readUTF8___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "invalid UTF-8"};
+static const lean_object* l_IO_FS_Stream_readUTF8___closed__0 = (const lean_object*)&l_IO_FS_Stream_readUTF8___closed__0_value;
+lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_IO_FS_Stream_readUTF8___closed__1;
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*);
-lean_object* lean_mk_io_user_error(lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readUTF8(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readUTF8___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_parse(lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_compress(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0(lean_object*, lean_object*);
-lean_object* lean_string_from_utf8_unchecked(lean_object*);
-lean_object* l_Lean_Json_parse(lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00IO_FS_Stream_readJson_spec__0___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readUTF8(lean_object*, lean_object*);
-static lean_object* _init_l_IO_FS_Stream_readUTF8___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid UTF-8", 13, 13);
-return x_1;
-}
-}
 static lean_object* _init_l_IO_FS_Stream_readUTF8___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_IO_FS_Stream_readUTF8___closed__0;
+x_1 = ((lean_object*)(l_IO_FS_Stream_readUTF8___closed__0));
 x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
@@ -354,8 +347,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Printer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_IO_FS_Stream_readUTF8___closed__0 = _init_l_IO_FS_Stream_readUTF8___closed__0();
-lean_mark_persistent(l_IO_FS_Stream_readUTF8___closed__0);
 l_IO_FS_Stream_readUTF8___closed__1 = _init_l_IO_FS_Stream_readUTF8___closed__1();
 lean_mark_persistent(l_IO_FS_Stream_readUTF8___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

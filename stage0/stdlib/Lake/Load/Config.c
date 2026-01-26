@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* x_1) {
 _start:
 {

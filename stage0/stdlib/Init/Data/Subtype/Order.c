@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Subtype_instLE(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subtype_instLT(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subtype_instMin___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subtype_instMin___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Subtype_instMin(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subtype_instMax___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_instMax(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_instTransLE(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instMin___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instLT(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instMax___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instMin(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instLE(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instMin___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subtype_instLE(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

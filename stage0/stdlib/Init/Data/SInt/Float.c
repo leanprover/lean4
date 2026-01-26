@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_ISize_toFloat___boxed(lean_object*);
-size_t lean_float_to_isize(double);
-double lean_int64_to_float(uint64_t);
-uint32_t lean_float_to_int32(double);
-LEAN_EXPORT lean_object* l_Float_toInt8___boxed(lean_object*);
 uint8_t lean_float_to_int8(double);
-double lean_isize_to_float(size_t);
+LEAN_EXPORT lean_object* l_Float_toInt8___boxed(lean_object*);
+uint16_t lean_float_to_int16(double);
+LEAN_EXPORT lean_object* l_Float_toInt16___boxed(lean_object*);
+uint32_t lean_float_to_int32(double);
+LEAN_EXPORT lean_object* l_Float_toInt32___boxed(lean_object*);
+uint64_t lean_float_to_int64(double);
+LEAN_EXPORT lean_object* l_Float_toInt64___boxed(lean_object*);
+size_t lean_float_to_isize(double);
+LEAN_EXPORT lean_object* l_Float_toISize___boxed(lean_object*);
+double lean_int8_to_float(uint8_t);
 LEAN_EXPORT lean_object* l_Int8_toFloat___boxed(lean_object*);
 double lean_int16_to_float(uint16_t);
-LEAN_EXPORT lean_object* l_Float_toInt64___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int32_toFloat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int64_toFloat___boxed(lean_object*);
-uint64_t lean_float_to_int64(double);
-LEAN_EXPORT lean_object* l_Float_toInt32___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Float_toISize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int16_toFloat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Float_toInt16___boxed(lean_object*);
-uint16_t lean_float_to_int16(double);
 double lean_int32_to_float(uint32_t);
-double lean_int8_to_float(uint8_t);
+LEAN_EXPORT lean_object* l_Int32_toFloat___boxed(lean_object*);
+double lean_int64_to_float(uint64_t);
+LEAN_EXPORT lean_object* l_Int64_toFloat___boxed(lean_object*);
+double lean_isize_to_float(size_t);
+LEAN_EXPORT lean_object* l_ISize_toFloat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_toInt8___boxed(lean_object* x_1) {
 _start:
 {

@@ -13,107 +13,115 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0(lean_object*, lean_object*, uint8_t, size_t);
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedFileMap_default;
-LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification___boxed(lean_object*);
-static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__0;
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Server_mkPublishDiagnosticsNotification_spec__0(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* l_System_FilePath_extension(lean_object*);
-lean_object* l_System_Uri_pathToUri(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0;
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkPublishDiagnosticsNotification(lean_object*, lean_object*);
-lean_object* l_String_crlfToLf(lean_object*);
-static lean_object* l_Lean_Server_documentUriFromModule_x3f___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta_default;
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
-static lean_object* l_Lean_Server_mkPublishDiagnosticsNotification___closed__0;
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_mkFileProgressNotification___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta;
-lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
-lean_object* l_Lean_getSrcSearchPath();
-LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_mkInputContext(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_mkFileProgressDoneNotification___closed__0;
 lean_object* lean_mk_io_user_error(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Syntax_Range_toLspRange(lean_object*, lean_object*);
-lean_object* l_Lean_SearchPath_findModuleWithExt(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_moduleFromDocumentUri___closed__0;
-lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_throwServerError___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0;
-LEAN_EXPORT lean_object* l_IO_throwServerError(lean_object*, lean_object*);
-lean_object* l_String_toFileMap(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*);
-static lean_object* l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_String_Slice_toString(lean_object*);
-static lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1;
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0(lean_object*, lean_object*);
-lean_object* lean_io_realpath(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges(lean_object*, lean_object*);
-lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_applyDocumentChange___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
-size_t lean_usize_add(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification___boxed(lean_object*, lean_object*);
-lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_throwServerError___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_throwServerError(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_throwServerError___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0(lean_object*, lean_object*, uint8_t, size_t);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight(lean_object*, lean_object*, uint8_t);
-static lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0;
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix(lean_object*, lean_object*);
+static const lean_string_object l_Lean_Server_instInhabitedDocumentMeta_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__0 = (const lean_object*)&l_Lean_Server_instInhabitedDocumentMeta_default___closed__0_value;
+extern lean_object* l_Lean_instInhabitedFileMap_default;
+static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta_default;
+LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta;
+lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_mkInputContext(lean_object*);
+lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_crlfToLf(lean_object*);
+lean_object* l_String_toFileMap(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_applyDocumentChange(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_applyDocumentChange___boxed(lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Server_mkPublishDiagnosticsNotification_spec__0(lean_object*);
+static const lean_string_object l_Lean_Server_mkPublishDiagnosticsNotification___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 32, .m_capacity = 32, .m_length = 31, .m_data = "textDocument/publishDiagnostics"};
+static const lean_object* l_Lean_Server_mkPublishDiagnosticsNotification___closed__0 = (const lean_object*)&l_Lean_Server_mkPublishDiagnosticsNotification___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_Server_mkPublishDiagnosticsNotification(lean_object*, lean_object*);
+static const lean_string_object l_Lean_Server_mkFileProgressNotification___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "$/lean/fileProgress"};
+static const lean_object* l_Lean_Server_mkFileProgressNotification___closed__0 = (const lean_object*)&l_Lean_Server_mkFileProgressNotification___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Server_mkFileProgressAtPosNotification___closed__0;
+lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_mkFileProgressDoneNotification___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification___boxed(lean_object*);
+static const lean_string_object l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "workspace/applyEdit"};
+static const lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0 = (const lean_object*)&l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0_value;
+static const lean_ctor_object l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0_value)}};
+static const lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1 = (const lean_object*)&l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1_value;
+LEAN_EXPORT lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest(lean_object*);
+static const lean_string_object l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "external:"};
+static const lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0 = (const lean_object*)&l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0_value;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___boxed(lean_object*);
+static lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0;
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___boxed(lean_object*, lean_object*);
+lean_object* l_String_Slice_toString(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f(lean_object*);
+static const lean_string_object l_Lean_Server_documentUriFromModule_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "lean"};
+static const lean_object* l_Lean_Server_documentUriFromModule_x3f___closed__0 = (const lean_object*)&l_Lean_Server_documentUriFromModule_x3f___closed__0_value;
+lean_object* l_Lean_getSrcSearchPath();
+lean_object* l_Lean_SearchPath_findModuleWithExt(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_realpath(lean_object*);
+lean_object* l_System_Uri_pathToUri(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f___boxed(lean_object*, lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
+static const lean_ctor_object l_Lean_Server_moduleFromDocumentUri___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Server_documentUriFromModule_x3f___closed__0_value)}};
+static const lean_object* l_Lean_Server_moduleFromDocumentUri___closed__0 = (const lean_object*)&l_Lean_Server_moduleFromDocumentUri___closed__0_value;
+lean_object* l_System_FilePath_extension(lean_object*);
+lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Syntax_Range_toLspRange(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_throwServerError___redArg(lean_object* x_1) {
 _start:
 {
@@ -946,14 +954,6 @@ return x_16;
 }
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1() {
 _start:
 {
@@ -962,7 +962,7 @@ x_1 = 0;
 x_2 = l_Lean_instInhabitedFileMap_default;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_box(0);
-x_5 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__0;
+x_5 = ((lean_object*)(l_Lean_Server_instInhabitedDocumentMeta_default___closed__0));
 x_6 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -1196,14 +1196,6 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_mkPublishDiagnosticsNotification___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("textDocument/publishDiagnostics", 31, 31);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkPublishDiagnosticsNotification(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1213,7 +1205,7 @@ lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_dec_ref(x_1);
-x_5 = l_Lean_Server_mkPublishDiagnosticsNotification___closed__0;
+x_5 = ((lean_object*)(l_Lean_Server_mkPublishDiagnosticsNotification___closed__0));
 x_6 = lean_nat_to_int(x_4);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -1227,21 +1219,13 @@ lean_ctor_set(x_9, 1, x_8);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Server_mkFileProgressNotification___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("$/lean/fileProgress", 19, 19);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 2);
-x_5 = l_Lean_Server_mkFileProgressNotification___closed__0;
+x_5 = ((lean_object*)(l_Lean_Server_mkFileProgressNotification___closed__0));
 lean_inc(x_4);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_4);
@@ -1337,30 +1321,12 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("workspace/applyEdit", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0;
-x_3 = l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1;
+x_2 = ((lean_object*)(l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0));
+x_3 = ((lean_object*)(l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1));
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -1368,20 +1334,12 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("external:", 9, 9);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_box(0);
-x_3 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0;
+x_3 = ((lean_object*)(l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0));
 x_4 = lean_string_append(x_3, x_1);
 x_5 = l_Lean_Name_str___override(x_2, x_4);
 return x_5;
@@ -1400,7 +1358,7 @@ static lean_object* _init_l_String_dropPrefix_x3f___at___00__private_Lean_Server
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0;
+x_1 = ((lean_object*)(l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0));
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
@@ -1409,7 +1367,7 @@ LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0;
+x_2 = ((lean_object*)(l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0));
 x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0;
 x_5 = lean_nat_dec_le(x_4, x_3);
@@ -1534,14 +1492,6 @@ return x_13;
 }
 }
 }
-static lean_object* _init_l_Lean_Server_documentUriFromModule_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lean", 4, 4);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object* x_1) {
 _start:
 {
@@ -1567,7 +1517,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec_ref(x_5);
-x_7 = l_Lean_Server_documentUriFromModule_x3f___closed__0;
+x_7 = ((lean_object*)(l_Lean_Server_documentUriFromModule_x3f___closed__0));
 x_8 = l_Lean_SearchPath_findModuleWithExt(x_6, x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -1873,16 +1823,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Server_moduleFromDocumentUri___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_documentUriFromModule_x3f___closed__0;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object* x_1) {
 _start:
 {
@@ -1898,7 +1838,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 x_6 = l_System_FilePath_extension(x_5);
-x_7 = l_Lean_Server_moduleFromDocumentUri___closed__0;
+x_7 = ((lean_object*)(l_Lean_Server_moduleFromDocumentUri___closed__0));
 x_8 = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(x_6, x_7);
 lean_dec(x_6);
 if (x_8 == 0)
@@ -2025,7 +1965,7 @@ lean_inc(x_28);
 lean_dec(x_3);
 lean_inc(x_28);
 x_29 = l_System_FilePath_extension(x_28);
-x_30 = l_Lean_Server_moduleFromDocumentUri___closed__0;
+x_30 = ((lean_object*)(l_Lean_Server_moduleFromDocumentUri___closed__0));
 x_31 = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(x_29, x_30);
 lean_dec(x_29);
 if (x_31 == 0)
@@ -2217,34 +2157,18 @@ lean_dec_ref(res);
 res = initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Server_instInhabitedDocumentMeta_default___closed__0 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__0();
-lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__0);
 l_Lean_Server_instInhabitedDocumentMeta_default___closed__1 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__1);
 l_Lean_Server_instInhabitedDocumentMeta_default = _init_l_Lean_Server_instInhabitedDocumentMeta_default();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default);
 l_Lean_Server_instInhabitedDocumentMeta = _init_l_Lean_Server_instInhabitedDocumentMeta();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta);
-l_Lean_Server_mkPublishDiagnosticsNotification___closed__0 = _init_l_Lean_Server_mkPublishDiagnosticsNotification___closed__0();
-lean_mark_persistent(l_Lean_Server_mkPublishDiagnosticsNotification___closed__0);
-l_Lean_Server_mkFileProgressNotification___closed__0 = _init_l_Lean_Server_mkFileProgressNotification___closed__0();
-lean_mark_persistent(l_Lean_Server_mkFileProgressNotification___closed__0);
 l_Lean_Server_mkFileProgressAtPosNotification___closed__0 = _init_l_Lean_Server_mkFileProgressAtPosNotification___closed__0();
 lean_mark_persistent(l_Lean_Server_mkFileProgressAtPosNotification___closed__0);
 l_Lean_Server_mkFileProgressDoneNotification___closed__0 = _init_l_Lean_Server_mkFileProgressDoneNotification___closed__0();
 lean_mark_persistent(l_Lean_Server_mkFileProgressDoneNotification___closed__0);
-l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0 = _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0();
-lean_mark_persistent(l_Lean_Server_mkApplyWorkspaceEditRequest___closed__0);
-l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1 = _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1();
-lean_mark_persistent(l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1);
-l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0 = _init_l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0();
-lean_mark_persistent(l___private_Lean_Server_Utils_0__Lean_Server_externalUriToName___closed__0);
 l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0 = _init_l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0();
 lean_mark_persistent(l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___redArg___closed__0);
-l_Lean_Server_documentUriFromModule_x3f___closed__0 = _init_l_Lean_Server_documentUriFromModule_x3f___closed__0();
-lean_mark_persistent(l_Lean_Server_documentUriFromModule_x3f___closed__0);
-l_Lean_Server_moduleFromDocumentUri___closed__0 = _init_l_Lean_Server_moduleFromDocumentUri___closed__0();
-lean_mark_persistent(l_Lean_Server_moduleFromDocumentUri___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

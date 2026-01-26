@@ -13,437 +13,461 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_CacheService_withRepoScope___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObj_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_System_instInhabitedFilePath_default;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_prim_handle_lock(lean_object*, uint8_t);
-lean_object* l_Lean_Json_compress(lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadService(lean_object*, lean_object*, lean_object*);
-static uint8_t l_Lake_CacheService_downloadArtifact___closed__6;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0;
-lean_object* l_Lean_JsonNumber_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_artifactUrl___closed__0;
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_withRepoScope(lean_object*, uint8_t);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_collectOutputDescrs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_artifactContentType;
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___redArg(uint64_t, lean_object*);
-lean_object* lean_io_remove_file(lean_object*);
-static lean_object* l_Lake_CacheService_downloadArtifacts___closed__0;
-static lean_object* l_Lake_Cache_getArtifact_x3f___closed__1;
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_revisionUrl___closed__1;
-static lean_object* l_Lake_Cache_readOutputs_x3f___closed__1;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0;
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_outputsFile___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadOutputArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t lean_uint64_to_usize(uint64_t);
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Cache_readOutputs_x3f___closed__0;
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___redArg(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_mk___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13;
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheMap_schemaVersion___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "2025-09-10"};
+static const lean_object* l_Lake_CacheMap_schemaVersion___closed__0 = (const lean_object*)&l_Lake_CacheMap_schemaVersion___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_CacheMap_schemaVersion = (const lean_object*)&l_Lake_CacheMap_schemaVersion___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 37, .m_capacity = 37, .m_length = 36, .m_data = ": invalid schema version on line 1: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = ": unknown schema version '"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = "'; may not parse correctly"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 36, .m_capacity = 36, .m_length = 35, .m_data = ": expected schema version on line 1"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3_value;
+lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_Lake_JsonObject_getJson_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedCache_default;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_metadata(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_outputsFile(lean_object*, lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l_Lake_Cache_artifactDir(lean_object*);
-lean_object* l_Lake_download(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_String_Slice_trimAscii(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputsCore(lean_object*, lean_object*, uint64_t, lean_object*);
-lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_downloadArtifact___closed__3;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_collectOutputDescrs_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lake_Reservoir_lakeHeaders;
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadOutputArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__28;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_artifactUrl(uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_revisionUrl___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_downloadArtifact___closed__4;
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8;
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore(uint64_t, lean_object*, lean_object*);
-static lean_object* l_Lake_Cache_revisionDir___closed__0;
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_parse___closed__0;
-static lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0;
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5;
-uint8_t l_System_FilePath_pathExists(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_mapContentType;
-lean_object* l_Lake_Hash_hex(uint64_t);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__25;
-static lean_object* l_Lake_CacheMap_updateFile___closed__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21;
-lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0;
-static lean_object* l_Lake_Cache_outputsFile___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___redArg(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_outputsDir(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_mapContentType___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___redArg___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadRevisionOutputs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Json_parse(lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
-static lean_object* l_Lake_CacheService_artifactUrl___closed__1;
-lean_object* l_Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_get_x3f___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instInhabitedCache;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_downloadArtifact___closed__2;
-lean_object* lean_st_ref_take(lean_object*);
-static lean_object* l_Lake_CacheService_downloadArtifact___closed__0;
-lean_object* l_Lake_createParentDirs(lean_object*);
-LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_parse___closed__1;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_Cache_writeMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "expected pair, got '"};
+static const lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0 = (const lean_object*)&l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0_value;
+static const lean_string_object l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "'"};
+static const lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1 = (const lean_object*)&l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1_value;
+lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
+lean_object* l_Lake_Hash_fromJson_x3f(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
-lean_object* l_IO_FS_Handle_putStrLn(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_schemaVersion___closed__0;
-static lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1;
+uint64_t lean_uint64_xor(uint64_t, uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
+size_t lean_usize_of_nat(lean_object*);
+size_t lean_usize_sub(size_t, size_t);
+size_t lean_usize_land(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5_spec__7___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_writeFile(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_artifactUrl___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f___boxed(lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4___redArg(lean_object*);
+uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__5___redArg(uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3;
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___redArg(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___redArg___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___redArg(lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = ": invalid JSON on line "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ": "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1_value;
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
+lean_object* l_String_Slice_trimAscii(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_updateFile(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_collectOutputDescrs___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_updateFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_writeFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService(lean_object*, uint8_t);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0;
-static lean_object* l_Lake_CacheService_downloadArtifact___closed__1;
-static lean_object* l_Lake_Cache_outputsDir___closed__0;
-lean_object* lean_st_mk_ref(lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__22;
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_Hash_instHashable___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29;
-LEAN_EXPORT lean_object* l_Lake_CacheMap_schemaVersion;
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f(uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f(lean_object*, lean_object*, uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_revisionDir(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Cache_artifactDir___closed__0;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__23;
-static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1;
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___redArg(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2(lean_object*, lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3(lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__5(lean_object*, uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16;
-LEAN_EXPORT lean_object* l_Lake_Cache_writeMap(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Cache_revisionPath___closed__0;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_Cache_writeMap_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3(lean_object*, uint64_t, lean_object*);
-lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Cache_writeMap_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Lake_captureProc_x27(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__26;
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1(lean_object*);
-static lean_object* l_Lake_CacheService_uploadArtifact___closed__0;
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_load___closed__0;
-static lean_object* l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1;
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___at___00Lake_CacheService_downloadArtifacts___elam__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_Cache_revisionPath(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_reservoirService___closed__0;
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
-static lean_object* l_Lake_CacheService_artifactUrl___closed__2;
-static lean_object* l_Lake_CacheService_uploadRevisionOutputs___closed__0;
-lean_object* lean_io_prim_handle_get_line(lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3___redArg(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_Hash_ofJsonNumber_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_mk(lean_object*);
-lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2(lean_object*, lean_object*, uint64_t, lean_object*);
-lean_object* l_IO_FS_readFile(lean_object*);
-static lean_object* l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadService(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14;
-static lean_object* l_Lake_CacheMap_writeFile___closed__1;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0(lean_object*, lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__24;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___redArg(uint64_t, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___at___00Lake_CacheService_downloadArtifacts___elam__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_updateFile___closed__0;
-static lean_object* l_Lake_Cache_getArtifactPaths___closed__0;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__3___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2;
-static lean_object* l_Lake_Cache_artifactPath___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___at___00Lake_CacheService_downloadOutputArtifacts_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtsService(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheMap_writeFile___closed__0;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27;
-LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___at___00Lake_CacheService_downloadOutputArtifacts_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_insert(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___redArg(lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go(lean_object*, lean_object*, lean_object*);
-uint64_t lean_uint64_xor(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2___redArg(lean_object*, uint64_t, lean_object*);
-lean_object* l_Lake_uriEncode(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_collectOutputDescrs_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2;
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadRevisionOutputs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0;
-lean_object* l_Lean_Json_getNat_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___redArg(lean_object*, uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_writeMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_load(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService___boxed(lean_object*, lean_object*);
-static size_t l_Lake_CacheService_downloadArtifact___closed__7;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Cache_getArtifact___closed__0;
-size_t lean_usize_sub(size_t, size_t);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4___redArg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__4_spec__5_spec__7(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___redArg(lean_object*, lean_object*, lean_object*, uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_load_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-size_t lean_usize_add(size_t, size_t);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2;
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_uget(lean_object*, size_t);
-static lean_object* l_Lake_Cache_getArtifact_x3f___closed__0;
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_error_to_string(lean_object*);
-static uint8_t l_Lake_CacheService_downloadArtifact___closed__5;
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1;
-LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs(lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_load_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Cache_writeMap_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0;
-LEAN_EXPORT lean_object* l_Lake_CacheMap_collectOutputDescrs___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_FS_writeFile(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
-lean_object* l_Lake_computeBinFileHash(lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_collectOutputDescrs_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_get_x3f(uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath(lean_object*, uint64_t, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Lean_Json_parse(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lake_instDecidableEqHash___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6;
-LEAN_EXPORT lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__3(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* lean_io_prim_handle_rewind(lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__2_spec__5___redArg(uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lake_Hash_fromJson_x3f(lean_object*);
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9;
-static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1;
-size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_insert(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheMap_load___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_revisionUrl___closed__2;
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___redArg(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___redArg(lean_object*, uint64_t, lean_object*, lean_object*);
-lean_object* l_Lake_getUrl_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_CacheMap_parse___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lake_CacheMap_parse___closed__1;
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_parse___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_parse_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_CacheMap_parse_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_prim_handle_get_line(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_error_to_string(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheMap_load___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = ": failed to open file: "};
+static const lean_object* l_Lake_CacheMap_load___closed__0 = (const lean_object*)&l_Lake_CacheMap_load___closed__0_value;
+lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t);
+lean_object* lean_io_prim_handle_lock(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_load(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_load___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_load_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_load_x3f___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0___closed__0;
+lean_object* l_Lake_Hash_hex(uint64_t);
+LEAN_EXPORT lean_object* l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_compress(lean_object*);
+lean_object* l_IO_FS_Handle_putStrLn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_updateFile_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_Hash_instHashable___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Lake_CacheMap_updateFile___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_Hash_instHashable___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_CacheMap_updateFile___closed__0 = (const lean_object*)&l_Lake_CacheMap_updateFile___closed__0_value;
+lean_object* l_Lake_instDecidableEqHash___boxed(lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_CacheMap_updateFile___closed__1;
+lean_object* l_Lake_createParentDirs(lean_object*);
+lean_object* lean_io_prim_handle_rewind(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_updateFile(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_updateFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_updateFile_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l_Lake_CacheMap_writeFile___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lake_CacheMap_schemaVersion___closed__0_value)}};
+static const lean_object* l_Lake_CacheMap_writeFile___closed__0 = (const lean_object*)&l_Lake_CacheMap_writeFile___closed__0_value;
+static lean_object* l_Lake_CacheMap_writeFile___closed__1;
+LEAN_EXPORT lean_object* l_Lake_CacheMap_writeFile(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_writeFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___redArg(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___redArg(lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_get_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0(lean_object*, lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0(lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lake_CacheMap_get_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore(uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___redArg(lean_object*, uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insert(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheMap_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "unsupported output: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "false"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "true"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "unsupported output; "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "art"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4_value;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_Hash_ofJsonNumber_x3f(lean_object*);
+lean_object* l_Lean_JsonNumber_toString(lean_object*);
+lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_collectOutputDescrs_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_CacheMap_collectOutputDescrs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_collectOutputDescrs_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheMap_collectOutputDescrs_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_CacheMap_collectOutputDescrs___closed__0;
 LEAN_EXPORT lean_object* l_Lake_CacheMap_collectOutputDescrs(lean_object*, lean_object*);
-static lean_object* l_Lake_CacheService_artifactContentType___closed__0;
-static lean_object* _init_l_Lake_CacheMap_schemaVersion___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("2025-09-10", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheMap_schemaVersion() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_CacheMap_schemaVersion___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": invalid schema version on line 1: ", 36, 36);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": unknown schema version '", 26, 26);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'; may not parse correctly", 26, 26);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": expected schema version on line 1", 35, 35);
-return x_1;
-}
-}
+LEAN_EXPORT lean_object* l_Lake_CacheMap_collectOutputDescrs___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_mk(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_mk___boxed(lean_object*, lean_object*);
+lean_object* lean_st_ref_take(lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_get_x3f(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_get_x3f___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___redArg(lean_object*, uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_insert(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheRef_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_System_instInhabitedFilePath_default;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedCache_default;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedCache;
+static const lean_string_object l_Lake_Cache_artifactDir___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "artifacts"};
+static const lean_object* l_Lake_Cache_artifactDir___closed__0 = (const lean_object*)&l_Lake_Cache_artifactDir___closed__0_value;
+lean_object* l_System_FilePath_join(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_artifactDir(lean_object*);
+static const lean_string_object l_Lake_Cache_artifactPath___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "."};
+static const lean_object* l_Lake_Cache_artifactPath___closed__0 = (const lean_object*)&l_Lake_Cache_artifactPath___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath(lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Lake_Cache_getArtifact_x3f___closed__0;
+static lean_object* l_Lake_Cache_getArtifact_x3f___closed__1;
+lean_object* lean_io_metadata(lean_object*);
+uint8_t l_System_FilePath_pathExists(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact_x3f___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_Cache_getArtifact___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 30, .m_capacity = 30, .m_length = 29, .m_data = "artifact not found in cache: "};
+static const lean_object* l_Lake_Cache_getArtifact___closed__0 = (const lean_object*)&l_Lake_Cache_getArtifact___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_Cache_getArtifactPaths___closed__0;
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_getArtifactPaths___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__Vector_mapM_go___at___00Lake_Cache_getArtifactPaths_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_Cache_outputsDir___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "outputs"};
+static const lean_object* l_Lake_Cache_outputsDir___closed__0 = (const lean_object*)&l_Lake_Cache_outputsDir___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_outputsDir(lean_object*);
+static const lean_string_object l_Lake_Cache_outputsFile___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = ".json"};
+static const lean_object* l_Lake_Cache_outputsFile___closed__0 = (const lean_object*)&l_Lake_Cache_outputsFile___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_outputsFile(lean_object*, lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Lake_Cache_outputsFile___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_FS_writeFile(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputsCore(lean_object*, lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___redArg(lean_object*, lean_object*, lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs(lean_object*, lean_object*, lean_object*, lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_Cache_writeMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lake_Cache_writeMap_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Cache_writeMap_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Cache_writeMap_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeMap(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_writeMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_Cache_readOutputs_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = ": invalid JSON: "};
+static const lean_object* l_Lake_Cache_readOutputs_x3f___closed__0 = (const lean_object*)&l_Lake_Cache_readOutputs_x3f___closed__0_value;
+static const lean_string_object l_Lake_Cache_readOutputs_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = ": read failed: "};
+static const lean_object* l_Lake_Cache_readOutputs_x3f___closed__1 = (const lean_object*)&l_Lake_Cache_readOutputs_x3f___closed__1_value;
+lean_object* l_IO_FS_readFile(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f(lean_object*, lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_Cache_revisionDir___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "revisions"};
+static const lean_object* l_Lake_Cache_revisionDir___closed__0 = (const lean_object*)&l_Lake_Cache_revisionDir___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_revisionDir(lean_object*);
+static const lean_string_object l_Lake_Cache_revisionPath___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = ".jsonl"};
+static const lean_object* l_Lake_Cache_revisionPath___closed__0 = (const lean_object*)&l_Lake_Cache_revisionPath___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_Cache_revisionPath(lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0 = (const lean_object*)&l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0_value;
+lean_object* l_Lean_Json_getNat_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0(lean_object*);
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 36, .m_capacity = 36, .m_length = 35, .m_data = "curl produced invalid JSON output: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 51, .m_capacity = 51, .m_length = 50, .m_data = "curl's JSON output did not contain a response code"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1_value;
+static const lean_ctor_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1_value),LEAN_SCALAR_PTR_LITERAL(3, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "failed to upload artifact, error "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "; received:\n"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 61, .m_capacity = 61, .m_length = 60, .m_data = "curl's JSON output contained an invalid JSON response code: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "http_code"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "http_code: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7_value;
+static const lean_ctor_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(1, 1, 1, 0, 0, 0, 0, 0)}};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "curl"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "-s"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "-w"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "%{stderr}%{json}\n"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "--aws-sigv4"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "aws:amz:auto:s3"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "--user"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "-X"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "PUT"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "-T"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "-H"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "Content-Type: "};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20_value;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__22;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__23;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__24;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__25;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__26;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27;
+static lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__28;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "response_code"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29_value;
+lean_object* l_Lake_JsonObject_getJson_x3f(lean_object*, lean_object*);
+lean_object* l_Lake_captureProc_x27(lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObj_x3f(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_reservoirService___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lake_CacheService_reservoirService___closed__0 = (const lean_object*)&l_Lake_CacheService_reservoirService___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadService(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadService(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtsService(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_withRepoScope(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_CacheService_withRepoScope___boxed(lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_artifactContentType___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 35, .m_capacity = 35, .m_length = 34, .m_data = "application/vnd.reservoir.artifact"};
+static const lean_object* l_Lake_CacheService_artifactContentType___closed__0 = (const lean_object*)&l_Lake_CacheService_artifactContentType___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_CacheService_artifactContentType = (const lean_object*)&l_Lake_CacheService_artifactContentType___closed__0_value;
+static const lean_ctor_object l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0 = (const lean_object*)&l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0_value;
+LEAN_EXPORT lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___boxed(lean_object*);
+lean_object* l_Lake_uriEncode(lean_object*, lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___redArg(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "/"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = ".art"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1_value;
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_artifactUrl___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "artifacts/"};
+static const lean_object* l_Lake_CacheService_artifactUrl___closed__0 = (const lean_object*)&l_Lake_CacheService_artifactUrl___closed__0_value;
+static const lean_string_object l_Lake_CacheService_artifactUrl___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "/packages/"};
+static const lean_object* l_Lake_CacheService_artifactUrl___closed__1 = (const lean_object*)&l_Lake_CacheService_artifactUrl___closed__1_value;
+static const lean_string_object l_Lake_CacheService_artifactUrl___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 15, .m_capacity = 15, .m_length = 14, .m_data = "/repositories/"};
+static const lean_object* l_Lake_CacheService_artifactUrl___closed__2 = (const lean_object*)&l_Lake_CacheService_artifactUrl___closed__2_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_artifactUrl(uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_artifactUrl___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_downloadArtifact___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 54, .m_capacity = 54, .m_length = 53, .m_data = ": downloaded artifact does not have the expected hash"};
+static const lean_object* l_Lake_CacheService_downloadArtifact___closed__0 = (const lean_object*)&l_Lake_CacheService_downloadArtifact___closed__0_value;
+static const lean_string_object l_Lake_CacheService_downloadArtifact___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = ": downloading artifact "};
+static const lean_object* l_Lake_CacheService_downloadArtifact___closed__1 = (const lean_object*)&l_Lake_CacheService_downloadArtifact___closed__1_value;
+static const lean_string_object l_Lake_CacheService_downloadArtifact___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "\n  local path: "};
+static const lean_object* l_Lake_CacheService_downloadArtifact___closed__2 = (const lean_object*)&l_Lake_CacheService_downloadArtifact___closed__2_value;
+static const lean_string_object l_Lake_CacheService_downloadArtifact___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 16, .m_capacity = 16, .m_length = 15, .m_data = "\n  remote URL: "};
+static const lean_object* l_Lake_CacheService_downloadArtifact___closed__3 = (const lean_object*)&l_Lake_CacheService_downloadArtifact___closed__3_value;
+static lean_object* l_Lake_CacheService_downloadArtifact___closed__4;
+static uint8_t l_Lake_CacheService_downloadArtifact___closed__5;
+static uint8_t l_Lake_CacheService_downloadArtifact___closed__6;
+static size_t l_Lake_CacheService_downloadArtifact___closed__7;
+lean_object* l_Lake_computeBinFileHash(lean_object*);
+lean_object* lean_io_remove_file(lean_object*);
+lean_object* l_Lake_download(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___at___00Lake_CacheService_downloadArtifacts___elam__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifact___at___00Lake_CacheService_downloadArtifacts___elam__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_CacheService_downloadArtifacts_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_downloadArtifacts___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 36, .m_capacity = 36, .m_length = 35, .m_data = ": failed to download some artifacts"};
+static const lean_object* l_Lake_CacheService_downloadArtifacts___closed__0 = (const lean_object*)&l_Lake_CacheService_downloadArtifacts___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___at___00Lake_CacheService_downloadOutputArtifacts_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts___at___00Lake_CacheService_downloadOutputArtifacts_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadOutputArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadOutputArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_uploadArtifact___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = ": uploading artifact "};
+static const lean_object* l_Lake_CacheService_uploadArtifact___closed__0 = (const lean_object*)&l_Lake_CacheService_uploadArtifact___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact___at___00Lake_CacheService_uploadArtifacts___elam__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifacts___elam__0___at___00__private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lake_CacheService_uploadArtifacts_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_mapContentType___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 45, .m_capacity = 45, .m_length = 44, .m_data = "application/vnd.reservoir.outputs+json-lines"};
+static const lean_object* l_Lake_CacheService_mapContentType___closed__0 = (const lean_object*)&l_Lake_CacheService_mapContentType___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_CacheService_mapContentType = (const lean_object*)&l_Lake_CacheService_mapContentType___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "tc/"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0_value;
+static const lean_string_object l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "pt/"};
+static const lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1 = (const lean_object*)&l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1_value;
+lean_object* l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_revisionUrl___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = "&toolchain="};
+static const lean_object* l_Lake_CacheService_revisionUrl___closed__0 = (const lean_object*)&l_Lake_CacheService_revisionUrl___closed__0_value;
+static const lean_string_object l_Lake_CacheService_revisionUrl___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "build-outputs\?rev="};
+static const lean_object* l_Lake_CacheService_revisionUrl___closed__1 = (const lean_object*)&l_Lake_CacheService_revisionUrl___closed__1_value;
+static const lean_string_object l_Lake_CacheService_revisionUrl___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "&platform="};
+static const lean_object* l_Lake_CacheService_revisionUrl___closed__2 = (const lean_object*)&l_Lake_CacheService_revisionUrl___closed__2_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = ": output lookup failed"};
+static const lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0 = (const lean_object*)&l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0_value;
+static const lean_string_object l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 42, .m_capacity = 42, .m_length = 41, .m_data = ": downloading build outputs for revision "};
+static const lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1 = (const lean_object*)&l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1_value;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2;
+lean_object* l_Lake_getUrl_x3f(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lake_Reservoir_lakeHeaders;
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_CacheService_uploadRevisionOutputs___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 40, .m_capacity = 40, .m_length = 39, .m_data = ": uploading build outputs for revision "};
+static const lean_object* l_Lake_CacheService_uploadRevisionOutputs___closed__0 = (const lean_object*)&l_Lake_CacheService_uploadRevisionOutputs___closed__0_value;
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadRevisionOutputs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_CacheService_uploadRevisionOutputs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -486,7 +510,7 @@ lean_object* x_23; lean_object* x_35; uint8_t x_36;
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec_ref(x_21);
-x_35 = l_Lake_CacheMap_schemaVersion___closed__0;
+x_35 = ((lean_object*)(l_Lake_CacheMap_schemaVersion___closed__0));
 x_36 = lean_string_dec_eq(x_23, x_35);
 if (x_36 == 0)
 {
@@ -513,11 +537,11 @@ goto block_34;
 block_34:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_24 = l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1;
+x_24 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1));
 x_25 = lean_string_append(x_1, x_24);
 x_26 = lean_string_append(x_25, x_23);
 lean_dec(x_23);
-x_27 = l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2;
+x_27 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2));
 x_28 = lean_string_append(x_26, x_27);
 x_29 = 2;
 x_30 = lean_alloc_ctor(0, 1, 1);
@@ -537,7 +561,7 @@ else
 {
 lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 lean_dec_ref(x_2);
-x_39 = l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3;
+x_39 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3));
 x_40 = lean_string_append(x_1, x_39);
 x_41 = 3;
 x_42 = lean_alloc_ctor(0, 1, 1);
@@ -553,7 +577,7 @@ return x_45;
 block_14:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0;
+x_6 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0));
 x_7 = lean_string_append(x_1, x_6);
 x_8 = lean_string_append(x_7, x_5);
 lean_dec_ref(x_5);
@@ -576,22 +600,6 @@ _start:
 lean_object* x_5; 
 x_5 = l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion(x_1, x_2, x_3);
 return x_5;
-}
-}
-static lean_object* _init_l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("expected pair, got '", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1(lean_object* x_1) {
@@ -683,12 +691,12 @@ goto block_10;
 block_10:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0;
+x_3 = ((lean_object*)(l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0));
 x_4 = lean_unsigned_to_nat(80u);
 x_5 = l_Lean_Json_pretty(x_2, x_4);
 x_6 = lean_string_append(x_3, x_5);
 lean_dec_ref(x_5);
-x_7 = l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1;
+x_7 = ((lean_object*)(l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1));
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -1156,22 +1164,6 @@ x_5 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lake_Config_Ca
 return x_5;
 }
 }
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": invalid JSON on line ", 23, 23);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": ", 2, 2);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1237,14 +1229,14 @@ return x_9;
 block_32:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_21 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0;
+x_21 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0));
 lean_inc_ref(x_2);
 x_22 = lean_string_append(x_2, x_21);
 lean_inc(x_3);
 x_23 = l_Nat_reprFast(x_3);
 x_24 = lean_string_append(x_22, x_23);
 lean_dec_ref(x_23);
-x_25 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
+x_25 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1));
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_string_append(x_26, x_20);
 lean_dec_ref(x_20);
@@ -1461,7 +1453,7 @@ return x_9;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_33; uint32_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_33; uint32_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 
 x_64 = 10;
 x_65 = lean_string_utf8_byte_size(x_4);
 lean_inc(x_5);
@@ -1518,14 +1510,14 @@ return x_10;
 block_32:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_21 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0;
+x_21 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0));
 lean_inc_ref(x_1);
 x_22 = lean_string_append(x_1, x_21);
 lean_inc(x_2);
 x_23 = l_Nat_reprFast(x_2);
 x_24 = lean_string_append(x_22, x_23);
 lean_dec_ref(x_23);
-x_25 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
+x_25 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1));
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_string_append(x_26, x_20);
 lean_dec_ref(x_20);
@@ -1538,8 +1530,8 @@ x_30 = lean_apply_2(x_6, x_29, lean_box(0));
 lean_inc_ref(x_3);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_3);
-x_8 = x_18;
-x_9 = x_19;
+x_8 = x_19;
+x_9 = x_18;
 x_10 = x_31;
 x_11 = x_3;
 x_12 = lean_box(0);
@@ -1584,8 +1576,8 @@ lean_object* x_46;
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 lean_dec_ref(x_45);
-x_18 = x_34;
-x_19 = x_43;
+x_18 = x_43;
+x_19 = x_34;
 x_20 = x_46;
 goto block_32;
 }
@@ -1602,8 +1594,8 @@ lean_object* x_49;
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 lean_dec_ref(x_48);
-x_18 = x_34;
-x_19 = x_43;
+x_18 = x_43;
+x_19 = x_34;
 x_20 = x_49;
 goto block_32;
 }
@@ -2035,23 +2027,23 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_unsigned_to_nat(2u);
 x_14 = l_Lake_CacheMap_parse___closed__0;
 x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_9);
+lean_ctor_set(x_15, 0, x_11);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = lean_string_utf8_next_fast(x_2, x_11);
-lean_dec(x_11);
+x_16 = lean_string_utf8_next_fast(x_2, x_9);
+lean_dec(x_9);
 x_17 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0(x_3, x_1, x_13, x_15, x_2, x_16);
 return x_17;
 }
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_11);
+lean_dec(x_9);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_18 = l_Lake_CacheMap_parse___closed__0;
 x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_9);
+lean_ctor_set(x_19, 0, x_11);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -2133,9 +2125,9 @@ x_44 = lean_nat_dec_lt(x_31, x_43);
 if (x_44 == 0)
 {
 lean_dec(x_42);
-x_9 = x_31;
+x_9 = x_30;
 x_10 = x_41;
-x_11 = x_30;
+x_11 = x_31;
 x_12 = lean_box(0);
 goto block_21;
 }
@@ -2149,9 +2141,9 @@ if (x_46 == 0)
 if (x_44 == 0)
 {
 lean_dec(x_42);
-x_9 = x_31;
+x_9 = x_30;
 x_10 = x_41;
-x_11 = x_30;
+x_11 = x_31;
 x_12 = lean_box(0);
 goto block_21;
 }
@@ -2166,17 +2158,17 @@ lean_dec(x_42);
 if (lean_obj_tag(x_49) == 0)
 {
 lean_dec_ref(x_49);
-x_9 = x_31;
+x_9 = x_30;
 x_10 = x_41;
-x_11 = x_30;
+x_11 = x_31;
 x_12 = lean_box(0);
 goto block_21;
 }
 else
 {
-x_22 = x_31;
+x_22 = x_30;
 x_23 = x_41;
-x_24 = x_30;
+x_24 = x_31;
 x_25 = x_49;
 goto block_29;
 }
@@ -2193,17 +2185,17 @@ lean_dec(x_42);
 if (lean_obj_tag(x_52) == 0)
 {
 lean_dec_ref(x_52);
-x_9 = x_31;
+x_9 = x_30;
 x_10 = x_41;
-x_11 = x_30;
+x_11 = x_31;
 x_12 = lean_box(0);
 goto block_21;
 }
 else
 {
-x_22 = x_31;
+x_22 = x_30;
 x_23 = x_41;
-x_24 = x_30;
+x_24 = x_31;
 x_25 = x_52;
 goto block_29;
 }
@@ -2268,9 +2260,9 @@ goto block_8;
 }
 else
 {
-x_22 = x_31;
+x_22 = x_30;
 x_23 = x_41;
-x_24 = x_30;
+x_24 = x_31;
 x_25 = x_62;
 goto block_29;
 }
@@ -2296,9 +2288,9 @@ goto block_8;
 }
 else
 {
-x_22 = x_31;
+x_22 = x_30;
 x_23 = x_41;
-x_24 = x_30;
+x_24 = x_31;
 x_25 = x_65;
 goto block_29;
 }
@@ -2434,14 +2426,14 @@ return x_40;
 block_23:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_10 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0;
+x_10 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0));
 lean_inc_ref(x_2);
 x_11 = lean_string_append(x_2, x_10);
 lean_inc(x_3);
 x_12 = l_Nat_reprFast(x_3);
 x_13 = lean_string_append(x_11, x_12);
 lean_dec_ref(x_12);
-x_14 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
+x_14 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1));
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_string_append(x_15, x_9);
 lean_dec_ref(x_9);
@@ -2580,14 +2572,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_CacheMap_load___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": failed to open file: ", 23, 23);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheMap_load(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2700,7 +2684,7 @@ lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean
 x_34 = lean_ctor_get(x_5, 0);
 lean_inc(x_34);
 lean_dec_ref(x_5);
-x_35 = l_Lake_CacheMap_load___closed__0;
+x_35 = ((lean_object*)(l_Lake_CacheMap_load___closed__0));
 x_36 = lean_string_append(x_1, x_35);
 x_37 = lean_io_error_to_string(x_34);
 x_38 = lean_string_append(x_36, x_37);
@@ -2963,7 +2947,7 @@ return x_61;
 else
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_62 = l_Lake_CacheMap_load___closed__0;
+x_62 = ((lean_object*)(l_Lake_CacheMap_load___closed__0));
 x_63 = lean_string_append(x_1, x_62);
 x_64 = lean_io_error_to_string(x_59);
 x_65 = lean_string_append(x_63, x_64);
@@ -3214,14 +3198,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-static lean_object* _init_l_Lake_CacheMap_updateFile___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_Hash_instHashable___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_CacheMap_updateFile___closed__1() {
 _start:
 {
@@ -3307,7 +3283,7 @@ goto block_51;
 else
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-x_55 = l_Lake_CacheMap_updateFile___closed__0;
+x_55 = ((lean_object*)(l_Lake_CacheMap_updateFile___closed__0));
 x_56 = l_Lake_CacheMap_updateFile___closed__1;
 x_57 = lean_nat_dec_le(x_53, x_53);
 if (x_57 == 0)
@@ -3516,7 +3492,7 @@ lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean
 x_81 = lean_ctor_get(x_14, 0);
 lean_inc(x_81);
 lean_dec_ref(x_14);
-x_82 = l_Lake_CacheMap_load___closed__0;
+x_82 = ((lean_object*)(l_Lake_CacheMap_load___closed__0));
 x_83 = lean_string_append(x_1, x_82);
 x_84 = lean_io_error_to_string(x_81);
 x_85 = lean_string_append(x_83, x_84);
@@ -3609,21 +3585,11 @@ lean_dec_ref(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_CacheMap_writeFile___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_CacheMap_schemaVersion___closed__0;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_CacheMap_writeFile___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_CacheMap_writeFile___closed__0;
+x_1 = ((lean_object*)(l_Lake_CacheMap_writeFile___closed__0));
 x_2 = l_Lean_Json_compress(x_1);
 return x_2;
 }
@@ -3826,7 +3792,7 @@ lean_dec_ref(x_2);
 x_55 = lean_ctor_get(x_7, 0);
 lean_inc(x_55);
 lean_dec_ref(x_7);
-x_56 = l_Lake_CacheMap_load___closed__0;
+x_56 = ((lean_object*)(l_Lake_CacheMap_load___closed__0));
 x_57 = lean_string_append(x_1, x_56);
 x_58 = lean_io_error_to_string(x_55);
 x_59 = lean_string_append(x_57, x_58);
@@ -4064,46 +4030,6 @@ x_7 = l_Lake_CacheMap_insert(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unsupported output: ", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("false", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("true", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unsupported output; ", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("art", 3, 3);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4180,18 +4106,18 @@ case 1:
 uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get_uint8(x_2, 0);
 lean_dec_ref(x_2);
-x_7 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0;
+x_7 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0));
 if (x_6 == 0)
 {
 lean_object* x_15; 
-x_15 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1;
+x_15 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1));
 x_8 = x_15;
 goto block_14;
 }
 else
 {
 lean_object* x_16; 
-x_16 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2;
+x_16 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2));
 x_8 = x_16;
 goto block_14;
 }
@@ -4224,10 +4150,10 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec_ref(x_18);
-x_20 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3;
+x_20 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3));
 x_21 = lean_string_append(x_20, x_19);
 lean_dec(x_19);
-x_22 = l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1;
+x_22 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1));
 x_23 = lean_string_append(x_21, x_22);
 x_24 = l_Lean_JsonNumber_toString(x_17);
 x_25 = lean_string_append(x_23, x_24);
@@ -4249,7 +4175,7 @@ lean_dec_ref(x_17);
 x_30 = lean_ctor_get(x_18, 0);
 lean_inc(x_30);
 lean_dec_ref(x_18);
-x_31 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4;
+x_31 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4));
 x_32 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_32, 0, x_31);
 x_33 = lean_unbox_uint64(x_30);
@@ -4275,7 +4201,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_obje
 x_38 = lean_ctor_get(x_37, 0);
 lean_inc(x_38);
 lean_dec_ref(x_37);
-x_39 = l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0;
+x_39 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0));
 x_40 = lean_string_append(x_39, x_38);
 lean_dec(x_38);
 x_41 = 3;
@@ -4771,36 +4697,20 @@ x_1 = l_System_instInhabitedFilePath_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Cache_artifactDir___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("artifacts", 9, 9);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Cache_artifactDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lake_Cache_artifactDir___closed__0;
+x_2 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_3 = l_System_FilePath_join(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_Cache_artifactPath___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".", 1, 1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Cache_artifactPath(lean_object* x_1, uint64_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = l_Lake_Cache_artifactDir___closed__0;
+x_4 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_5 = l_System_FilePath_join(x_1, x_4);
 x_6 = lean_string_utf8_byte_size(x_3);
 x_7 = lean_unsigned_to_nat(0u);
@@ -4809,7 +4719,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = l_Lake_Hash_hex(x_2);
-x_10 = l_Lake_Cache_artifactPath___closed__0;
+x_10 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_3);
 x_13 = l_System_FilePath_join(x_5, x_12);
@@ -4862,7 +4772,7 @@ _start:
 uint64_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_4 = lean_ctor_get_uint64(x_2, sizeof(void*)*1);
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Lake_Cache_artifactDir___closed__0;
+x_6 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_7 = l_System_FilePath_join(x_1, x_6);
 x_31 = lean_string_utf8_byte_size(x_5);
 x_32 = lean_unsigned_to_nat(0u);
@@ -4871,7 +4781,7 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_34 = l_Lake_Hash_hex(x_4);
-x_35 = l_Lake_Cache_artifactPath___closed__0;
+x_35 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_36 = lean_string_append(x_34, x_35);
 x_37 = lean_string_append(x_36, x_5);
 x_8 = x_37;
@@ -5003,21 +4913,13 @@ x_4 = l_Lake_Cache_getArtifact_x3f(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_Cache_getArtifact___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("artifact not found in cache: ", 29, 29);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Cache_getArtifact(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint64_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_34; lean_object* x_35; uint8_t x_36; 
 x_4 = lean_ctor_get_uint64(x_2, sizeof(void*)*1);
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Lake_Cache_artifactDir___closed__0;
+x_6 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_7 = l_System_FilePath_join(x_1, x_6);
 x_34 = lean_string_utf8_byte_size(x_5);
 x_35 = lean_unsigned_to_nat(0u);
@@ -5026,7 +4928,7 @@ if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_37 = l_Lake_Hash_hex(x_4);
-x_38 = l_Lake_Cache_artifactPath___closed__0;
+x_38 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_39 = lean_string_append(x_37, x_38);
 x_40 = lean_string_append(x_39, x_5);
 x_8 = x_40;
@@ -5098,7 +5000,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 lean_dec_ref(x_2);
-x_22 = l_Lake_Cache_getArtifact___closed__0;
+x_22 = ((lean_object*)(l_Lake_Cache_getArtifact___closed__0));
 x_23 = lean_string_append(x_22, x_9);
 lean_dec_ref(x_9);
 lean_ctor_set(x_10, 0, x_23);
@@ -5128,7 +5030,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec_ref(x_2);
-x_27 = l_Lake_Cache_getArtifact___closed__0;
+x_27 = ((lean_object*)(l_Lake_Cache_getArtifact___closed__0));
 x_28 = lean_string_append(x_27, x_9);
 lean_dec_ref(x_9);
 x_29 = lean_alloc_ctor(1, 1, 0);
@@ -5168,7 +5070,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint64_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_10 = lean_ctor_get_uint64(x_2, sizeof(void*)*1);
 x_11 = lean_ctor_get(x_2, 0);
-x_12 = l_Lake_Cache_artifactDir___closed__0;
+x_12 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_13 = l_System_FilePath_join(x_1, x_12);
 x_23 = lean_string_utf8_byte_size(x_11);
 x_24 = lean_unsigned_to_nat(0u);
@@ -5177,7 +5079,7 @@ if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_26 = l_Lake_Hash_hex(x_10);
-x_27 = l_Lake_Cache_artifactPath___closed__0;
+x_27 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_string_append(x_28, x_11);
 x_14 = x_29;
@@ -5206,7 +5108,7 @@ x_16 = l_System_FilePath_pathExists(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = l_Lake_Cache_getArtifact___closed__0;
+x_17 = ((lean_object*)(l_Lake_Cache_getArtifact___closed__0));
 x_18 = lean_string_append(x_17, x_15);
 x_19 = 3;
 x_20 = lean_alloc_ctor(0, 1, 1);
@@ -5408,40 +5310,24 @@ lean_dec(x_3);
 return x_11;
 }
 }
-static lean_object* _init_l_Lake_Cache_outputsDir___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("outputs", 7, 7);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Cache_outputsDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lake_Cache_outputsDir___closed__0;
+x_2 = ((lean_object*)(l_Lake_Cache_outputsDir___closed__0));
 x_3 = l_System_FilePath_join(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_Cache_outputsFile___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".json", 5, 5);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Cache_outputsFile(lean_object* x_1, lean_object* x_2, uint64_t x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = l_Lake_Cache_outputsDir___closed__0;
+x_4 = ((lean_object*)(l_Lake_Cache_outputsDir___closed__0));
 x_5 = l_System_FilePath_join(x_1, x_4);
 x_6 = l_System_FilePath_join(x_5, x_2);
 x_7 = l_Lake_Hash_hex(x_3);
-x_8 = l_Lake_Cache_outputsFile___closed__0;
+x_8 = ((lean_object*)(l_Lake_Cache_outputsFile___closed__0));
 x_9 = lean_string_append(x_7, x_8);
 x_10 = l_System_FilePath_join(x_6, x_9);
 return x_10;
@@ -5461,11 +5347,11 @@ LEAN_EXPORT lean_object* l_Lake_Cache_writeOutputsCore(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = l_Lake_Cache_outputsDir___closed__0;
+x_6 = ((lean_object*)(l_Lake_Cache_outputsDir___closed__0));
 x_7 = l_System_FilePath_join(x_1, x_6);
 x_8 = l_System_FilePath_join(x_7, x_2);
 x_9 = l_Lake_Hash_hex(x_3);
-x_10 = l_Lake_Cache_outputsFile___closed__0;
+x_10 = ((lean_object*)(l_Lake_Cache_outputsFile___closed__0));
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_System_FilePath_join(x_8, x_11);
 lean_inc_ref(x_12);
@@ -5709,31 +5595,15 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_Cache_readOutputs_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": invalid JSON: ", 16, 16);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Cache_readOutputs_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": read failed: ", 15, 15);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Cache_readOutputs_x3f(lean_object* x_1, lean_object* x_2, uint64_t x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_6 = l_Lake_Cache_outputsDir___closed__0;
+x_6 = ((lean_object*)(l_Lake_Cache_outputsDir___closed__0));
 x_7 = l_System_FilePath_join(x_1, x_6);
 x_8 = l_System_FilePath_join(x_7, x_2);
 x_9 = l_Lake_Hash_hex(x_3);
-x_10 = l_Lake_Cache_outputsFile___closed__0;
+x_10 = ((lean_object*)(l_Lake_Cache_outputsFile___closed__0));
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_System_FilePath_join(x_8, x_11);
 x_13 = l_IO_FS_readFile(x_12);
@@ -5750,7 +5620,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lake_Cache_readOutputs_x3f___closed__0;
+x_17 = ((lean_object*)(l_Lake_Cache_readOutputs_x3f___closed__0));
 x_18 = lean_string_append(x_12, x_17);
 x_19 = lean_string_append(x_18, x_16);
 lean_dec(x_16);
@@ -5813,7 +5683,7 @@ return x_32;
 else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_33 = l_Lake_Cache_readOutputs_x3f___closed__1;
+x_33 = ((lean_object*)(l_Lake_Cache_readOutputs_x3f___closed__1));
 x_34 = lean_string_append(x_12, x_33);
 x_35 = lean_io_error_to_string(x_30);
 x_36 = lean_string_append(x_34, x_35);
@@ -5842,52 +5712,26 @@ x_7 = l_Lake_Cache_readOutputs_x3f(x_1, x_2, x_6, x_4);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_Cache_revisionDir___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("revisions", 9, 9);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Cache_revisionDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lake_Cache_revisionDir___closed__0;
+x_2 = ((lean_object*)(l_Lake_Cache_revisionDir___closed__0));
 x_3 = l_System_FilePath_join(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_Cache_revisionPath___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".jsonl", 6, 6);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Cache_revisionPath(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_4 = l_Lake_Cache_revisionDir___closed__0;
+x_4 = ((lean_object*)(l_Lake_Cache_revisionDir___closed__0));
 x_5 = l_System_FilePath_join(x_1, x_4);
 x_6 = l_System_FilePath_join(x_5, x_2);
-x_7 = l_Lake_Cache_revisionPath___closed__0;
+x_7 = ((lean_object*)(l_Lake_Cache_revisionPath___closed__0));
 x_8 = lean_string_append(x_3, x_7);
 x_9 = l_System_FilePath_join(x_6, x_8);
 return x_9;
-}
-}
-static lean_object* _init_l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0(lean_object* x_1) {
@@ -5896,7 +5740,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0;
+x_2 = ((lean_object*)(l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0));
 return x_2;
 }
 else
@@ -5951,182 +5795,6 @@ return x_12;
 }
 }
 }
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("curl produced invalid JSON output: ", 35, 35);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("curl's JSON output did not contain a response code", 50, 50);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1;
-x_2 = 3;
-x_3 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to upload artifact, error ", 33, 33);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("; received:\n", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("curl's JSON output contained an invalid JSON response code: ", 60, 60);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("http_code", 9, 9);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("http_code: ", 11, 11);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_alloc_ctor(0, 0, 3);
-lean_ctor_set_uint8(x_2, 0, x_1);
-lean_ctor_set_uint8(x_2, 1, x_1);
-lean_ctor_set_uint8(x_2, 2, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("curl", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-s", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-w", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("%{stderr}%{json}\n", 17, 17);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("--aws-sigv4", 11, 11);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("aws:amz:auto:s3", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("--user", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-X", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("PUT", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-T", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-H", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Content-Type: ", 14, 14);
-return x_1;
-}
-}
 static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21() {
 _start:
 {
@@ -6140,7 +5808,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6150,7 +5818,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__22;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6160,7 +5828,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__23;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6170,7 +5838,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__24;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6180,7 +5848,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__25;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6190,7 +5858,7 @@ static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15;
+x_1 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15));
 x_2 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__26;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
@@ -6205,25 +5873,17 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("response_code", 13, 13);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_17; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_60; lean_object* x_61; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_83; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; uint8_t x_107; uint8_t x_108; lean_object* x_109; lean_object* x_110; 
-x_87 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8;
-x_88 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9;
-x_89 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16;
-x_90 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17;
-x_91 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18;
-x_92 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19;
-x_93 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20;
+x_87 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8));
+x_88 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9));
+x_89 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16));
+x_90 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17));
+x_91 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18));
+x_92 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19));
+x_93 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20));
 x_94 = lean_string_append(x_93, x_2);
 x_95 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27;
 x_96 = lean_array_push(x_95, x_4);
@@ -6362,7 +6022,7 @@ lean_object* x_120; lean_object* x_121; lean_object* x_122;
 x_120 = lean_ctor_get(x_118, 0);
 lean_inc(x_120);
 lean_dec_ref(x_118);
-x_121 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29;
+x_121 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29));
 x_122 = l_Lake_JsonObject_getJson_x3f(x_120, x_121);
 if (lean_obj_tag(x_122) == 0)
 {
@@ -6488,7 +6148,7 @@ return x_149;
 block_16:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0;
+x_9 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0));
 x_10 = lean_string_append(x_9, x_8);
 lean_dec_ref(x_8);
 x_11 = 3;
@@ -6504,7 +6164,7 @@ return x_15;
 block_22:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_18 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2;
+x_18 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2));
 x_19 = lean_apply_2(x_5, x_18, lean_box(0));
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(1, 1, 0);
@@ -6535,11 +6195,11 @@ lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_30);
 lean_dec_ref(x_23);
-x_31 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
+x_31 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3));
 x_32 = l_Nat_reprFast(x_27);
 x_33 = lean_string_append(x_31, x_32);
 lean_dec_ref(x_32);
-x_34 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
+x_34 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4));
 x_35 = lean_string_append(x_33, x_34);
 x_36 = lean_string_append(x_35, x_30);
 lean_dec_ref(x_30);
@@ -6578,11 +6238,11 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean
 x_45 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_45);
 lean_dec_ref(x_23);
-x_46 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
+x_46 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3));
 x_47 = l_Nat_reprFast(x_42);
 x_48 = lean_string_append(x_46, x_47);
 lean_dec_ref(x_47);
-x_49 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
+x_49 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4));
 x_50 = lean_string_append(x_48, x_49);
 x_51 = lean_string_append(x_50, x_45);
 lean_dec_ref(x_45);
@@ -6613,7 +6273,7 @@ return x_58;
 block_69:
 {
 lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-x_62 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5;
+x_62 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5));
 x_63 = lean_string_append(x_62, x_61);
 lean_dec_ref(x_61);
 x_64 = 3;
@@ -6629,7 +6289,7 @@ return x_68;
 block_82:
 {
 lean_object* x_73; lean_object* x_74; 
-x_73 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6;
+x_73 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6));
 x_74 = l_Lake_JsonObject_getJson_x3f(x_72, x_73);
 lean_dec(x_72);
 if (lean_obj_tag(x_74) == 0)
@@ -6652,7 +6312,7 @@ lean_dec_ref(x_70);
 x_77 = lean_ctor_get(x_76, 0);
 lean_inc(x_77);
 lean_dec_ref(x_76);
-x_78 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7;
+x_78 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7));
 x_79 = lean_string_append(x_78, x_77);
 lean_dec(x_77);
 x_60 = lean_box(0);
@@ -6705,19 +6365,11 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_CacheService_reservoirService___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheService_reservoirService(lean_object* x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = l_Lake_CacheService_reservoirService___closed__0;
+x_3 = ((lean_object*)(l_Lake_CacheService_reservoirService___closed__0));
 x_4 = 1;
 x_5 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_5, 0, x_3);
@@ -6743,7 +6395,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = 0;
-x_5 = l_Lake_CacheService_reservoirService___closed__0;
+x_5 = ((lean_object*)(l_Lake_CacheService_reservoirService___closed__0));
 x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
@@ -6758,7 +6410,7 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_downloadService(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = l_Lake_CacheService_reservoirService___closed__0;
+x_3 = ((lean_object*)(l_Lake_CacheService_reservoirService___closed__0));
 x_4 = 0;
 x_5 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_5, 0, x_3);
@@ -6774,7 +6426,7 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtsService(lean_object* x_
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lake_CacheService_reservoirService___closed__0;
+x_2 = ((lean_object*)(l_Lake_CacheService_reservoirService___closed__0));
 x_3 = 0;
 x_4 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_4, 0, x_2);
@@ -6829,38 +6481,11 @@ x_4 = l_Lake_CacheService_withRepoScope(x_1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_CacheService_artifactContentType___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("application/vnd.reservoir.artifact", 34, 34);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_artifactContentType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_CacheService_artifactContentType___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0;
+x_2 = ((lean_object*)(l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0));
 return x_2;
 }
 }
@@ -7077,22 +6702,6 @@ lean_dec_ref(x_3);
 return x_12;
 }
 }
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("/", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".art", 4, 4);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(uint64_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -7100,11 +6709,11 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_4);
 lean_dec_ref(x_2);
-x_5 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0;
+x_5 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0));
 x_6 = lean_string_append(x_4, x_5);
 x_7 = l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(x_6, x_3);
 x_8 = l_Lake_Hash_hex(x_1);
-x_9 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1;
+x_9 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1));
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_7, x_10);
 lean_dec_ref(x_10);
@@ -7119,30 +6728,6 @@ x_4 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_5 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(x_4, x_2, x_3);
 return x_5;
-}
-}
-static lean_object* _init_l_Lake_CacheService_artifactUrl___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("artifacts/", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_artifactUrl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("/packages/", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_artifactUrl___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("/repositories/", 14, 14);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_CacheService_artifactUrl(uint64_t x_1, lean_object* x_2, lean_object* x_3) {
@@ -7166,7 +6751,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_16);
 lean_dec_ref(x_2);
-x_17 = l_Lake_CacheService_artifactUrl___closed__1;
+x_17 = ((lean_object*)(l_Lake_CacheService_artifactUrl___closed__1));
 x_18 = lean_string_append(x_16, x_17);
 x_4 = x_18;
 goto block_12;
@@ -7177,7 +6762,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 x_19 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_19);
 lean_dec_ref(x_2);
-x_20 = l_Lake_CacheService_artifactUrl___closed__2;
+x_20 = ((lean_object*)(l_Lake_CacheService_artifactUrl___closed__2));
 x_21 = lean_string_append(x_19, x_20);
 x_4 = x_21;
 goto block_12;
@@ -7187,11 +6772,11 @@ block_12:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(x_4, x_3);
-x_6 = l_Lake_CacheService_artifactUrl___closed__0;
+x_6 = ((lean_object*)(l_Lake_CacheService_artifactUrl___closed__0));
 x_7 = l_Lake_Hash_hex(x_1);
 x_8 = lean_string_append(x_6, x_7);
 lean_dec_ref(x_7);
-x_9 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1;
+x_9 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1));
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_5, x_10);
 lean_dec_ref(x_10);
@@ -7207,38 +6792,6 @@ x_4 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_5 = l_Lake_CacheService_artifactUrl(x_4, x_2, x_3);
 return x_5;
-}
-}
-static lean_object* _init_l_Lake_CacheService_downloadArtifact___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": downloaded artifact does not have the expected hash", 53, 53);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_downloadArtifact___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": downloading artifact ", 23, 23);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_downloadArtifact___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n  local path: ", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_downloadArtifact___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n  remote URL: ", 15, 15);
-return x_1;
 }
 }
 static lean_object* _init_l_Lake_CacheService_downloadArtifact___closed__4() {
@@ -7286,7 +6839,7 @@ x_12 = lean_ctor_get_uint64(x_1, sizeof(void*)*1);
 x_13 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_84 = l_Lake_CacheService_artifactUrl(x_12, x_3, x_4);
-x_134 = l_Lake_Cache_artifactDir___closed__0;
+x_134 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_135 = l_System_FilePath_join(x_2, x_134);
 x_150 = lean_string_utf8_byte_size(x_13);
 x_151 = lean_unsigned_to_nat(0u);
@@ -7295,7 +6848,7 @@ if (x_152 == 0)
 {
 lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 x_153 = l_Lake_Hash_hex(x_12);
-x_154 = l_Lake_Cache_artifactPath___closed__0;
+x_154 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_155 = lean_string_append(x_153, x_154);
 x_156 = lean_string_append(x_155, x_13);
 x_136 = x_156;
@@ -7335,7 +6888,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_free_object(x_16);
-x_21 = l_Lake_CacheService_downloadArtifact___closed__0;
+x_21 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__0));
 lean_inc_ref(x_14);
 x_22 = lean_string_append(x_14, x_21);
 x_23 = 3;
@@ -7428,7 +6981,7 @@ x_47 = lean_uint64_dec_eq(x_46, x_12);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_48 = l_Lake_CacheService_downloadArtifact___closed__0;
+x_48 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__0));
 lean_inc_ref(x_14);
 x_49 = lean_string_append(x_14, x_48);
 x_50 = 3;
@@ -7556,15 +7109,15 @@ return x_82;
 block_127:
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; uint8_t x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
-x_87 = l_Lake_CacheService_downloadArtifact___closed__1;
+x_87 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__1));
 x_88 = lean_string_append(x_4, x_87);
 x_89 = l_Lake_Hash_hex(x_12);
 x_90 = lean_string_append(x_88, x_89);
 lean_dec_ref(x_89);
-x_91 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_91 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_92 = lean_string_append(x_90, x_91);
 x_93 = lean_string_append(x_92, x_86);
-x_94 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_94 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_95 = lean_string_append(x_93, x_94);
 x_96 = lean_string_append(x_95, x_84);
 x_97 = 1;
@@ -7866,7 +7419,7 @@ x_12 = lean_ctor_get_uint64(x_2, sizeof(void*)*1);
 x_13 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_5);
 x_84 = l_Lake_CacheService_artifactUrl(x_12, x_4, x_5);
-x_134 = l_Lake_Cache_artifactDir___closed__0;
+x_134 = ((lean_object*)(l_Lake_Cache_artifactDir___closed__0));
 x_135 = l_System_FilePath_join(x_3, x_134);
 x_150 = lean_string_utf8_byte_size(x_13);
 x_151 = lean_unsigned_to_nat(0u);
@@ -7875,7 +7428,7 @@ if (x_152 == 0)
 {
 lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
 x_153 = l_Lake_Hash_hex(x_12);
-x_154 = l_Lake_Cache_artifactPath___closed__0;
+x_154 = ((lean_object*)(l_Lake_Cache_artifactPath___closed__0));
 x_155 = lean_string_append(x_153, x_154);
 x_156 = lean_string_append(x_155, x_13);
 x_136 = x_156;
@@ -7915,7 +7468,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_free_object(x_16);
-x_21 = l_Lake_CacheService_downloadArtifact___closed__0;
+x_21 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__0));
 lean_inc_ref(x_14);
 x_22 = lean_string_append(x_14, x_21);
 x_23 = 3;
@@ -8008,7 +7561,7 @@ x_47 = lean_uint64_dec_eq(x_46, x_12);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_48 = l_Lake_CacheService_downloadArtifact___closed__0;
+x_48 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__0));
 lean_inc_ref(x_14);
 x_49 = lean_string_append(x_14, x_48);
 x_50 = 3;
@@ -8136,15 +7689,15 @@ return x_82;
 block_127:
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; uint8_t x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
-x_87 = l_Lake_CacheService_downloadArtifact___closed__1;
+x_87 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__1));
 x_88 = lean_string_append(x_5, x_87);
 x_89 = l_Lake_Hash_hex(x_12);
 x_90 = lean_string_append(x_88, x_89);
 lean_dec_ref(x_89);
-x_91 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_91 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_92 = lean_string_append(x_90, x_91);
 x_93 = lean_string_append(x_92, x_86);
-x_94 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_94 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_95 = lean_string_append(x_93, x_94);
 x_96 = lean_string_append(x_95, x_84);
 x_97 = 1;
@@ -8639,14 +8192,6 @@ lean_dec_ref(x_5);
 return x_15;
 }
 }
-static lean_object* _init_l_Lake_CacheService_downloadArtifacts___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": failed to download some artifacts", 35, 35);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheService_downloadArtifacts(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6) {
 _start:
 {
@@ -8725,7 +8270,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_16 = l_Lake_CacheService_downloadArtifacts___closed__0;
+x_16 = ((lean_object*)(l_Lake_CacheService_downloadArtifacts___closed__0));
 x_17 = lean_string_append(x_4, x_16);
 x_18 = 3;
 x_19 = lean_alloc_ctor(0, 1, 1);
@@ -8757,7 +8302,7 @@ lean_dec(x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_24 = l_Lake_CacheService_downloadArtifacts___closed__0;
+x_24 = ((lean_object*)(l_Lake_CacheService_downloadArtifacts___closed__0));
 x_25 = lean_string_append(x_4, x_24);
 x_26 = 3;
 x_27 = lean_alloc_ctor(0, 1, 1);
@@ -8890,7 +8435,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_16 = l_Lake_CacheService_downloadArtifacts___closed__0;
+x_16 = ((lean_object*)(l_Lake_CacheService_downloadArtifacts___closed__0));
 x_17 = lean_string_append(x_5, x_16);
 x_18 = 3;
 x_19 = lean_alloc_ctor(0, 1, 1);
@@ -8922,7 +8467,7 @@ lean_dec(x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_24 = l_Lake_CacheService_downloadArtifacts___closed__0;
+x_24 = ((lean_object*)(l_Lake_CacheService_downloadArtifacts___closed__0));
 x_25 = lean_string_append(x_5, x_24);
 x_26 = 3;
 x_27 = lean_alloc_ctor(0, 1, 1);
@@ -9394,13 +8939,13 @@ LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_uploadS3___at___0
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_17; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_60; lean_object* x_61; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_83; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; uint8_t x_107; uint8_t x_108; lean_object* x_109; lean_object* x_110; 
-x_87 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8;
-x_88 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9;
-x_89 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16;
-x_90 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17;
-x_91 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18;
-x_92 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19;
-x_93 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20;
+x_87 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8));
+x_88 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9));
+x_89 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16));
+x_90 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17));
+x_91 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18));
+x_92 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19));
+x_93 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20));
 x_94 = lean_string_append(x_93, x_3);
 x_95 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27;
 x_96 = lean_array_push(x_95, x_5);
@@ -9539,7 +9084,7 @@ lean_object* x_120; lean_object* x_121; lean_object* x_122;
 x_120 = lean_ctor_get(x_118, 0);
 lean_inc(x_120);
 lean_dec_ref(x_118);
-x_121 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29;
+x_121 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29));
 x_122 = l_Lake_JsonObject_getJson_x3f(x_120, x_121);
 if (lean_obj_tag(x_122) == 0)
 {
@@ -9665,7 +9210,7 @@ return x_149;
 block_16:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0;
+x_9 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0));
 x_10 = lean_string_append(x_9, x_8);
 lean_dec_ref(x_8);
 x_11 = 3;
@@ -9681,7 +9226,7 @@ return x_15;
 block_22:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_18 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2;
+x_18 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2));
 x_19 = lean_apply_2(x_1, x_18, lean_box(0));
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(1, 1, 0);
@@ -9712,11 +9257,11 @@ lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean
 x_30 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_30);
 lean_dec_ref(x_24);
-x_31 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
+x_31 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3));
 x_32 = l_Nat_reprFast(x_27);
 x_33 = lean_string_append(x_31, x_32);
 lean_dec_ref(x_32);
-x_34 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
+x_34 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4));
 x_35 = lean_string_append(x_33, x_34);
 x_36 = lean_string_append(x_35, x_30);
 lean_dec_ref(x_30);
@@ -9755,11 +9300,11 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean
 x_45 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_45);
 lean_dec_ref(x_24);
-x_46 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3;
+x_46 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3));
 x_47 = l_Nat_reprFast(x_42);
 x_48 = lean_string_append(x_46, x_47);
 lean_dec_ref(x_47);
-x_49 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4;
+x_49 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4));
 x_50 = lean_string_append(x_48, x_49);
 x_51 = lean_string_append(x_50, x_45);
 lean_dec_ref(x_45);
@@ -9790,7 +9335,7 @@ return x_58;
 block_69:
 {
 lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-x_62 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5;
+x_62 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5));
 x_63 = lean_string_append(x_62, x_61);
 lean_dec_ref(x_61);
 x_64 = 3;
@@ -9806,7 +9351,7 @@ return x_68;
 block_82:
 {
 lean_object* x_73; lean_object* x_74; 
-x_73 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6;
+x_73 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6));
 x_74 = l_Lake_JsonObject_getJson_x3f(x_72, x_73);
 lean_dec(x_72);
 if (lean_obj_tag(x_74) == 0)
@@ -9829,7 +9374,7 @@ lean_dec_ref(x_71);
 x_77 = lean_ctor_get(x_76, 0);
 lean_inc(x_77);
 lean_dec_ref(x_76);
-x_78 = l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7;
+x_78 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7));
 x_79 = lean_string_append(x_78, x_77);
 lean_dec(x_77);
 x_60 = lean_box(0);
@@ -9882,14 +9427,6 @@ lean_dec_ref(x_3);
 return x_7;
 }
 }
-static lean_object* _init_l_Lake_CacheService_uploadArtifact___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": uploading artifact ", 21, 21);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadArtifact(uint64_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -9897,15 +9434,15 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
 x_7 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(x_1, x_3, x_4);
-x_8 = l_Lake_CacheService_uploadArtifact___closed__0;
+x_8 = ((lean_object*)(l_Lake_CacheService_uploadArtifact___closed__0));
 x_9 = lean_string_append(x_4, x_8);
 x_10 = l_Lake_Hash_hex(x_1);
 x_11 = lean_string_append(x_9, x_10);
 lean_dec_ref(x_10);
-x_12 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_12 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_string_append(x_13, x_2);
-x_15 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_15 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_string_append(x_16, x_7);
 x_18 = 1;
@@ -9917,7 +9454,7 @@ x_20 = lean_apply_2(x_5, x_19, lean_box(0));
 x_21 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_21);
 lean_dec_ref(x_3);
-x_22 = l_Lake_CacheService_artifactContentType___closed__0;
+x_22 = ((lean_object*)(l_Lake_CacheService_artifactContentType___closed__0));
 x_23 = l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0(x_5, x_2, x_22, x_7, x_21);
 return x_23;
 }
@@ -9939,15 +9476,15 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 x_7 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl(x_2, x_4, x_5);
-x_8 = l_Lake_CacheService_uploadArtifact___closed__0;
+x_8 = ((lean_object*)(l_Lake_CacheService_uploadArtifact___closed__0));
 x_9 = lean_string_append(x_5, x_8);
 x_10 = l_Lake_Hash_hex(x_2);
 x_11 = lean_string_append(x_9, x_10);
 lean_dec_ref(x_10);
-x_12 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_12 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_string_append(x_13, x_3);
-x_15 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_15 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_string_append(x_16, x_7);
 x_18 = 1;
@@ -9959,7 +9496,7 @@ x_20 = lean_apply_2(x_1, x_19, lean_box(0));
 x_21 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_21);
 lean_dec_ref(x_4);
-x_22 = l_Lake_CacheService_artifactContentType___closed__0;
+x_22 = ((lean_object*)(l_Lake_CacheService_artifactContentType___closed__0));
 x_23 = l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0(x_1, x_3, x_22, x_7, x_21);
 return x_23;
 }
@@ -10157,38 +9694,6 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-static lean_object* _init_l_Lake_CacheService_mapContentType___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("application/vnd.reservoir.outputs+json-lines", 44, 44);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_mapContentType() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_CacheService_mapContentType___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tc/", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("pt/", 3, 3);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -10197,7 +9702,7 @@ x_23 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_23);
 x_24 = lean_ctor_get_uint8(x_2, sizeof(void*)*4 + 1);
 lean_dec_ref(x_2);
-x_25 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0;
+x_25 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0));
 x_26 = lean_string_append(x_23, x_25);
 x_27 = l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(x_26, x_3);
 if (x_24 == 0)
@@ -10215,7 +9720,7 @@ x_30 = lean_nat_dec_eq(x_28, x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint32_t x_34; lean_object* x_35; 
-x_31 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1;
+x_31 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1));
 x_32 = lean_string_append(x_27, x_31);
 x_33 = l_Lake_uriEncode(x_4, x_32);
 x_34 = 47;
@@ -10234,7 +9739,7 @@ block_10:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_string_append(x_6, x_1);
-x_8 = l_Lake_Cache_revisionPath___closed__0;
+x_8 = ((lean_object*)(l_Lake_Cache_revisionPath___closed__0));
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -10247,9 +9752,9 @@ x_14 = lean_nat_dec_eq(x_12, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint32_t x_20; lean_object* x_21; 
-x_15 = l_Lake_CacheService_reservoirService___closed__0;
+x_15 = ((lean_object*)(l_Lake_CacheService_reservoirService___closed__0));
 x_16 = l___private_Lake_Config_InstallPath_0__Lake_toolchain2Dir_go(x_5, x_15, x_13);
-x_17 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0;
+x_17 = ((lean_object*)(l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0));
 x_18 = lean_string_append(x_11, x_17);
 x_19 = l_Lake_uriEncode(x_16, x_18);
 x_20 = 47;
@@ -10275,30 +9780,6 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lake_CacheService_revisionUrl___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("&toolchain=", 11, 11);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_revisionUrl___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("build-outputs\?rev=", 18, 18);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_revisionUrl___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("&platform=", 10, 10);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheService_revisionUrl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -10321,7 +9802,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31;
 x_29 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_29);
 lean_dec_ref(x_2);
-x_30 = l_Lake_CacheService_artifactUrl___closed__1;
+x_30 = ((lean_object*)(l_Lake_CacheService_artifactUrl___closed__1));
 x_31 = lean_string_append(x_29, x_30);
 x_14 = x_31;
 goto block_25;
@@ -10332,7 +9813,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34;
 x_32 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_32);
 lean_dec_ref(x_2);
-x_33 = l_Lake_CacheService_artifactUrl___closed__2;
+x_33 = ((lean_object*)(l_Lake_CacheService_artifactUrl___closed__2));
 x_34 = lean_string_append(x_32, x_33);
 x_14 = x_34;
 goto block_25;
@@ -10347,7 +9828,7 @@ x_9 = lean_nat_dec_eq(x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Lake_CacheService_revisionUrl___closed__0;
+x_10 = ((lean_object*)(l_Lake_CacheService_revisionUrl___closed__0));
 x_11 = lean_string_append(x_6, x_10);
 x_12 = l_Lake_uriEncode(x_5, x_11);
 return x_12;
@@ -10362,7 +9843,7 @@ block_25:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_15 = l___private_Lake_Config_Cache_0__Lake_CacheService_appendScope(x_14, x_3);
-x_16 = l_Lake_CacheService_revisionUrl___closed__1;
+x_16 = ((lean_object*)(l_Lake_CacheService_revisionUrl___closed__1));
 x_17 = lean_string_append(x_16, x_1);
 x_18 = lean_string_append(x_15, x_17);
 lean_dec_ref(x_17);
@@ -10372,7 +9853,7 @@ x_21 = lean_nat_dec_eq(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lake_CacheService_revisionUrl___closed__2;
+x_22 = ((lean_object*)(l_Lake_CacheService_revisionUrl___closed__2));
 x_23 = lean_string_append(x_18, x_22);
 x_24 = l_Lake_uriEncode(x_4, x_23);
 x_6 = x_24;
@@ -10396,22 +9877,6 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": output lookup failed", 22, 22);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": downloading build outputs for revision ", 41, 41);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2() {
 _start:
 {
@@ -10425,11 +9890,11 @@ LEAN_EXPORT lean_object* l_Lake_CacheService_downloadRevisionOutputs_x3f(lean_ob
 _start:
 {
 lean_object* x_11; lean_object* x_15; lean_object* x_16; lean_object* x_20; lean_object* x_24; lean_object* x_25; lean_object* x_29; lean_object* x_30; lean_object* x_38; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_199; uint8_t x_217; lean_object* x_218; lean_object* x_260; uint8_t x_261; 
-x_41 = l_Lake_Cache_revisionDir___closed__0;
+x_41 = ((lean_object*)(l_Lake_Cache_revisionDir___closed__0));
 x_42 = l_System_FilePath_join(x_2, x_41);
 lean_inc_ref(x_4);
 x_43 = l_System_FilePath_join(x_42, x_4);
-x_44 = l_Lake_Cache_revisionPath___closed__0;
+x_44 = ((lean_object*)(l_Lake_Cache_revisionPath___closed__0));
 lean_inc_ref(x_1);
 x_45 = lean_string_append(x_1, x_44);
 x_46 = l_System_FilePath_join(x_43, x_45);
@@ -10574,7 +10039,7 @@ return x_27;
 block_37:
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_31 = l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0;
+x_31 = ((lean_object*)(l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0));
 x_32 = lean_string_append(x_5, x_31);
 x_33 = 3;
 x_34 = lean_alloc_ctor(0, 1, 1);
@@ -11332,14 +10797,14 @@ lean_object* x_200; lean_object* x_201; lean_object* x_202; lean_object* x_203; 
 lean_inc_ref(x_5);
 lean_inc_ref(x_3);
 x_200 = l_Lake_CacheService_revisionUrl(x_1, x_3, x_5, x_6, x_7);
-x_201 = l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1;
+x_201 = ((lean_object*)(l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1));
 x_202 = lean_string_append(x_4, x_201);
 x_203 = lean_string_append(x_202, x_1);
 lean_dec_ref(x_1);
-x_204 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_204 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_205 = lean_string_append(x_203, x_204);
 x_206 = lean_string_append(x_205, x_46);
-x_207 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_207 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_208 = lean_string_append(x_206, x_207);
 x_209 = lean_string_append(x_208, x_200);
 x_210 = 1;
@@ -11616,14 +11081,6 @@ x_12 = l_Lake_CacheService_downloadRevisionOutputs_x3f(x_1, x_2, x_3, x_4, x_5, 
 return x_12;
 }
 }
-static lean_object* _init_l_Lake_CacheService_uploadRevisionOutputs___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(": uploading build outputs for revision ", 39, 39);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_CacheService_uploadRevisionOutputs(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -11631,13 +11088,13 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
 x_9 = l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl(x_1, x_3, x_4, x_5, x_6);
-x_10 = l_Lake_CacheService_uploadRevisionOutputs___closed__0;
+x_10 = ((lean_object*)(l_Lake_CacheService_uploadRevisionOutputs___closed__0));
 x_11 = lean_string_append(x_4, x_10);
 x_12 = lean_string_append(x_11, x_1);
-x_13 = l_Lake_CacheService_downloadArtifact___closed__2;
+x_13 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__2));
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_14, x_2);
-x_16 = l_Lake_CacheService_downloadArtifact___closed__3;
+x_16 = ((lean_object*)(l_Lake_CacheService_downloadArtifact___closed__3));
 x_17 = lean_string_append(x_15, x_16);
 x_18 = lean_string_append(x_17, x_9);
 x_19 = 1;
@@ -11649,7 +11106,7 @@ x_21 = lean_apply_2(x_7, x_20, lean_box(0));
 x_22 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_22);
 lean_dec_ref(x_3);
-x_23 = l_Lake_CacheService_mapContentType___closed__0;
+x_23 = ((lean_object*)(l_Lake_CacheService_mapContentType___closed__0));
 x_24 = l___private_Lake_Config_Cache_0__Lake_uploadS3___at___00Lake_CacheService_uploadArtifact_spec__0(x_7, x_2, x_23, x_9, x_22);
 return x_24;
 }
@@ -11713,128 +11170,30 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_CacheMap_schemaVersion___closed__0 = _init_l_Lake_CacheMap_schemaVersion___closed__0();
-lean_mark_persistent(l_Lake_CacheMap_schemaVersion___closed__0);
-l_Lake_CacheMap_schemaVersion = _init_l_Lake_CacheMap_schemaVersion();
-lean_mark_persistent(l_Lake_CacheMap_schemaVersion);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__1);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__2);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_checkSchemaVersion___closed__3);
-l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0 = _init_l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0();
-lean_mark_persistent(l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__0);
-l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1 = _init_l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1();
-lean_mark_persistent(l_Prod_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__1___closed__1);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop___at___00__private_Lake_Config_Cache_0__Lake_CacheMap_parse_loop_spec__0___closed__1);
 l_Lake_CacheMap_parse___closed__0 = _init_l_Lake_CacheMap_parse___closed__0();
 lean_mark_persistent(l_Lake_CacheMap_parse___closed__0);
 l_Lake_CacheMap_parse___closed__1 = _init_l_Lake_CacheMap_parse___closed__1();
 lean_mark_persistent(l_Lake_CacheMap_parse___closed__1);
 l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__0();
 lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore___closed__0);
-l_Lake_CacheMap_load___closed__0 = _init_l_Lake_CacheMap_load___closed__0();
-lean_mark_persistent(l_Lake_CacheMap_load___closed__0);
 l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0___closed__0 = _init_l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0___closed__0();
 lean_mark_persistent(l_Prod_toJson___at___00Lake_CacheMap_updateFile_spec__0___closed__0);
-l_Lake_CacheMap_updateFile___closed__0 = _init_l_Lake_CacheMap_updateFile___closed__0();
-lean_mark_persistent(l_Lake_CacheMap_updateFile___closed__0);
 l_Lake_CacheMap_updateFile___closed__1 = _init_l_Lake_CacheMap_updateFile___closed__1();
 lean_mark_persistent(l_Lake_CacheMap_updateFile___closed__1);
-l_Lake_CacheMap_writeFile___closed__0 = _init_l_Lake_CacheMap_writeFile___closed__0();
-lean_mark_persistent(l_Lake_CacheMap_writeFile___closed__0);
 l_Lake_CacheMap_writeFile___closed__1 = _init_l_Lake_CacheMap_writeFile___closed__1();
 lean_mark_persistent(l_Lake_CacheMap_writeFile___closed__1);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__1);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__2);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__3);
-l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4 = _init_l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheMap_collectOutputDescrs_go___closed__4);
 l_Lake_CacheMap_collectOutputDescrs___closed__0 = _init_l_Lake_CacheMap_collectOutputDescrs___closed__0();
 lean_mark_persistent(l_Lake_CacheMap_collectOutputDescrs___closed__0);
 l_Lake_instInhabitedCache_default = _init_l_Lake_instInhabitedCache_default();
 lean_mark_persistent(l_Lake_instInhabitedCache_default);
 l_Lake_instInhabitedCache = _init_l_Lake_instInhabitedCache();
 lean_mark_persistent(l_Lake_instInhabitedCache);
-l_Lake_Cache_artifactDir___closed__0 = _init_l_Lake_Cache_artifactDir___closed__0();
-lean_mark_persistent(l_Lake_Cache_artifactDir___closed__0);
-l_Lake_Cache_artifactPath___closed__0 = _init_l_Lake_Cache_artifactPath___closed__0();
-lean_mark_persistent(l_Lake_Cache_artifactPath___closed__0);
 l_Lake_Cache_getArtifact_x3f___closed__0 = _init_l_Lake_Cache_getArtifact_x3f___closed__0();
 lean_mark_persistent(l_Lake_Cache_getArtifact_x3f___closed__0);
 l_Lake_Cache_getArtifact_x3f___closed__1 = _init_l_Lake_Cache_getArtifact_x3f___closed__1();
 lean_mark_persistent(l_Lake_Cache_getArtifact_x3f___closed__1);
-l_Lake_Cache_getArtifact___closed__0 = _init_l_Lake_Cache_getArtifact___closed__0();
-lean_mark_persistent(l_Lake_Cache_getArtifact___closed__0);
 l_Lake_Cache_getArtifactPaths___closed__0 = _init_l_Lake_Cache_getArtifactPaths___closed__0();
 lean_mark_persistent(l_Lake_Cache_getArtifactPaths___closed__0);
-l_Lake_Cache_outputsDir___closed__0 = _init_l_Lake_Cache_outputsDir___closed__0();
-lean_mark_persistent(l_Lake_Cache_outputsDir___closed__0);
-l_Lake_Cache_outputsFile___closed__0 = _init_l_Lake_Cache_outputsFile___closed__0();
-lean_mark_persistent(l_Lake_Cache_outputsFile___closed__0);
-l_Lake_Cache_readOutputs_x3f___closed__0 = _init_l_Lake_Cache_readOutputs_x3f___closed__0();
-lean_mark_persistent(l_Lake_Cache_readOutputs_x3f___closed__0);
-l_Lake_Cache_readOutputs_x3f___closed__1 = _init_l_Lake_Cache_readOutputs_x3f___closed__1();
-lean_mark_persistent(l_Lake_Cache_readOutputs_x3f___closed__1);
-l_Lake_Cache_revisionDir___closed__0 = _init_l_Lake_Cache_revisionDir___closed__0();
-lean_mark_persistent(l_Lake_Cache_revisionDir___closed__0);
-l_Lake_Cache_revisionPath___closed__0 = _init_l_Lake_Cache_revisionPath___closed__0();
-lean_mark_persistent(l_Lake_Cache_revisionPath___closed__0);
-l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0 = _init_l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0();
-lean_mark_persistent(l_Option_fromJson_x3f___at___00__private_Lake_Config_Cache_0__Lake_uploadS3_spec__0___closed__0);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__0);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__1);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__2);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__3);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__4);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__5);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__6);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__7);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__8);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__9);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__10);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__11);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__12);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__13);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__14);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__15);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__16);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__17);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__18);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__19);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__20);
 l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21();
 lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__21);
 l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__22 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__22();
@@ -11851,65 +11210,13 @@ l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27 = _init_l___private_
 lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__27);
 l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__28 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__28();
 lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__28);
-l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29 = _init_l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_uploadS3___closed__29);
-l_Lake_CacheService_reservoirService___closed__0 = _init_l_Lake_CacheService_reservoirService___closed__0();
-lean_mark_persistent(l_Lake_CacheService_reservoirService___closed__0);
-l_Lake_CacheService_artifactContentType___closed__0 = _init_l_Lake_CacheService_artifactContentType___closed__0();
-lean_mark_persistent(l_Lake_CacheService_artifactContentType___closed__0);
-l_Lake_CacheService_artifactContentType = _init_l_Lake_CacheService_artifactContentType();
-lean_mark_persistent(l_Lake_CacheService_artifactContentType);
-l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0 = _init_l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0();
-lean_mark_persistent(l_String_Slice_split___at___00__private_Lake_Config_Cache_0__Lake_CacheService_appendScope_spec__0___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheService_s3ArtifactUrl___closed__1);
-l_Lake_CacheService_artifactUrl___closed__0 = _init_l_Lake_CacheService_artifactUrl___closed__0();
-lean_mark_persistent(l_Lake_CacheService_artifactUrl___closed__0);
-l_Lake_CacheService_artifactUrl___closed__1 = _init_l_Lake_CacheService_artifactUrl___closed__1();
-lean_mark_persistent(l_Lake_CacheService_artifactUrl___closed__1);
-l_Lake_CacheService_artifactUrl___closed__2 = _init_l_Lake_CacheService_artifactUrl___closed__2();
-lean_mark_persistent(l_Lake_CacheService_artifactUrl___closed__2);
-l_Lake_CacheService_downloadArtifact___closed__0 = _init_l_Lake_CacheService_downloadArtifact___closed__0();
-lean_mark_persistent(l_Lake_CacheService_downloadArtifact___closed__0);
-l_Lake_CacheService_downloadArtifact___closed__1 = _init_l_Lake_CacheService_downloadArtifact___closed__1();
-lean_mark_persistent(l_Lake_CacheService_downloadArtifact___closed__1);
-l_Lake_CacheService_downloadArtifact___closed__2 = _init_l_Lake_CacheService_downloadArtifact___closed__2();
-lean_mark_persistent(l_Lake_CacheService_downloadArtifact___closed__2);
-l_Lake_CacheService_downloadArtifact___closed__3 = _init_l_Lake_CacheService_downloadArtifact___closed__3();
-lean_mark_persistent(l_Lake_CacheService_downloadArtifact___closed__3);
 l_Lake_CacheService_downloadArtifact___closed__4 = _init_l_Lake_CacheService_downloadArtifact___closed__4();
 lean_mark_persistent(l_Lake_CacheService_downloadArtifact___closed__4);
 l_Lake_CacheService_downloadArtifact___closed__5 = _init_l_Lake_CacheService_downloadArtifact___closed__5();
 l_Lake_CacheService_downloadArtifact___closed__6 = _init_l_Lake_CacheService_downloadArtifact___closed__6();
 l_Lake_CacheService_downloadArtifact___closed__7 = _init_l_Lake_CacheService_downloadArtifact___closed__7();
-l_Lake_CacheService_downloadArtifacts___closed__0 = _init_l_Lake_CacheService_downloadArtifacts___closed__0();
-lean_mark_persistent(l_Lake_CacheService_downloadArtifacts___closed__0);
-l_Lake_CacheService_uploadArtifact___closed__0 = _init_l_Lake_CacheService_uploadArtifact___closed__0();
-lean_mark_persistent(l_Lake_CacheService_uploadArtifact___closed__0);
-l_Lake_CacheService_mapContentType___closed__0 = _init_l_Lake_CacheService_mapContentType___closed__0();
-lean_mark_persistent(l_Lake_CacheService_mapContentType___closed__0);
-l_Lake_CacheService_mapContentType = _init_l_Lake_CacheService_mapContentType();
-lean_mark_persistent(l_Lake_CacheService_mapContentType);
-l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0 = _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__0);
-l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1 = _init_l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1();
-lean_mark_persistent(l___private_Lake_Config_Cache_0__Lake_CacheService_s3RevisionUrl___closed__1);
-l_Lake_CacheService_revisionUrl___closed__0 = _init_l_Lake_CacheService_revisionUrl___closed__0();
-lean_mark_persistent(l_Lake_CacheService_revisionUrl___closed__0);
-l_Lake_CacheService_revisionUrl___closed__1 = _init_l_Lake_CacheService_revisionUrl___closed__1();
-lean_mark_persistent(l_Lake_CacheService_revisionUrl___closed__1);
-l_Lake_CacheService_revisionUrl___closed__2 = _init_l_Lake_CacheService_revisionUrl___closed__2();
-lean_mark_persistent(l_Lake_CacheService_revisionUrl___closed__2);
-l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0 = _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0();
-lean_mark_persistent(l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__0);
-l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1 = _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1();
-lean_mark_persistent(l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__1);
 l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2 = _init_l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2();
 lean_mark_persistent(l_Lake_CacheService_downloadRevisionOutputs_x3f___closed__2);
-l_Lake_CacheService_uploadRevisionOutputs___closed__0 = _init_l_Lake_CacheService_uploadRevisionOutputs___closed__0();
-lean_mark_persistent(l_Lake_CacheService_uploadRevisionOutputs___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

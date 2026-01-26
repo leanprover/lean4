@@ -13,30 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_zpad(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(uint32_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lake_lpad___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lake_lpad___closed__0 = (const lean_object*)&l_Lake_lpad___closed__0_value;
+lean_object* lean_string_length(lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_lpad(lean_object*, uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_lpad___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_rpad(lean_object*, uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_rpad___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_zpad(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_zpad___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
+uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_isHex(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
-lean_object* l_Nat_reprFast(lean_object*);
-uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_rpad___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_lpad___closed__0;
 LEAN_EXPORT lean_object* l_Lake_isHex___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_zpad___boxed(lean_object*, lean_object*);
-lean_object* lean_string_length(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_rpad(lean_object*, uint32_t, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_lpad___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(uint32_t, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(uint32_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -71,19 +72,11 @@ x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_sp
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_lpad___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_lpad(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = l_Lake_lpad___closed__0;
+x_4 = ((lean_object*)(l_Lake_lpad___closed__0));
 x_5 = lean_string_length(x_1);
 x_6 = lean_nat_sub(x_3, x_5);
 x_7 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(x_2, x_6, x_4);
@@ -288,8 +281,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Fold(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_lpad___closed__0 = _init_l_Lake_lpad___closed__0();
-lean_mark_persistent(l_Lake_lpad___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

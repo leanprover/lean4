@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BundledIterM_ofIterM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_BundledIterM_ofIterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instIterator_u03b1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instIterator_u03b1___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instIterator_u03b1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instIterator_u03b1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_BundledIterM_ofIterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_BundledIterM_ofIterM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instIterator_u03b1___redArg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Equivalence_Basic_0__Std_quotOfQuot___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BundledIterM_ofIterM___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

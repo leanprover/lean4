@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object* x_1) {
 _start:
 {

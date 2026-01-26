@@ -13,61 +13,65 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_new(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0___boxed(lean_object*);
-lean_object* lean_io_basesharedmutex_unlock_read(lean_object*);
-static lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0;
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__2___boxed(lean_object*, lean_object*);
-uint8_t lean_io_basesharedmutex_try_read(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_read___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_tryRead___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_tryWrite___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_basesharedmutex_unlock_write(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_SharedMutex_0__Std_SharedMutexImpl;
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_SharedMutex_atomically___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__2(lean_object*, lean_object*);
-static lean_object* l_Std_SharedMutex_tryAtomically___redArg___closed__1;
-lean_object* lean_st_ref_get(lean_object*);
+lean_object* lean_io_basesharedmutex_new();
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_new___boxed(lean_object*);
+lean_object* lean_io_basesharedmutex_write(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_write___boxed(lean_object*, lean_object*);
+uint8_t lean_io_basesharedmutex_try_write(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_tryWrite___boxed(lean_object*, lean_object*);
+lean_object* lean_io_basesharedmutex_unlock_write(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_unlockWrite___boxed(lean_object*, lean_object*);
+lean_object* lean_io_basesharedmutex_read(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_read___boxed(lean_object*, lean_object*);
+uint8_t lean_io_basesharedmutex_try_read(lean_object*);
+LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_tryRead___boxed(lean_object*, lean_object*);
+lean_object* lean_io_basesharedmutex_unlock_read(lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_unlockRead___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0 = (const lean_object*)&l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_new___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_new___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_new(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_new___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_write___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__2(lean_object*);
-lean_object* lean_io_basesharedmutex_new();
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_unlockWrite___boxed(lean_object*, lean_object*);
-lean_object* lean_io_basesharedmutex_write(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__1(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__2(lean_object*, lean_object*);
-static lean_object* l_Std_SharedMutex_tryAtomically___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_BaseSharedMutex_new___boxed(lean_object*);
-uint8_t lean_io_basesharedmutex_try_write(lean_object*);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg___lam__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex(lean_object*);
-lean_object* lean_io_basesharedmutex_read(lean_object*);
+static const lean_closure_object l_Std_SharedMutex_atomically___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_SharedMutex_atomically___redArg___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_SharedMutex_atomically___redArg___closed__0 = (const lean_object*)&l_Std_SharedMutex_atomically___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__1(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_SharedMutex_tryAtomically___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_SharedMutex_tryAtomically___redArg___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_SharedMutex_tryAtomically___redArg___closed__0 = (const lean_object*)&l_Std_SharedMutex_tryAtomically___redArg___closed__0_value;
+static const lean_closure_object l_Std_SharedMutex_tryAtomically___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_SharedMutex_tryAtomically___redArg___lam__1, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_SharedMutex_tryAtomically___redArg___closed__1 = (const lean_object*)&l_Std_SharedMutex_tryAtomically___redArg___closed__1_value;
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__0(lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__2(lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_atomicallyRead(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomicallyRead(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Std_Sync_SharedMutex_0__Std_SharedMutexImpl() {
 _start:
 {
@@ -156,19 +160,11 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instCoeOutSharedMutexBaseSharedMutex___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instCoeOutSharedMutexBaseSharedMutex(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0;
+x_2 = ((lean_object*)(l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0));
 return x_2;
 }
 }
@@ -251,14 +247,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_SharedMutex_atomically___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_SharedMutex_atomically___redArg___lam__1___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_SharedMutex_atomically___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -285,7 +273,7 @@ x_13 = lean_apply_2(x_2, lean_box(0), x_12);
 x_14 = lean_alloc_closure((void*)(l_Std_SharedMutex_atomically___redArg___lam__0), 3, 2);
 lean_closure_set(x_14, 0, x_5);
 lean_closure_set(x_14, 1, x_9);
-x_15 = l_Std_SharedMutex_atomically___redArg___closed__0;
+x_15 = ((lean_object*)(l_Std_SharedMutex_atomically___redArg___closed__0));
 x_16 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_13, x_14);
 x_17 = lean_alloc_closure((void*)(l_Std_BaseSharedMutex_unlockWrite___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_10);
@@ -401,22 +389,6 @@ x_11 = l_Std_SharedMutex_tryAtomically___redArg___lam__3(x_1, x_2, x_3, x_4, x_5
 return x_11;
 }
 }
-static lean_object* _init_l_Std_SharedMutex_tryAtomically___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_SharedMutex_tryAtomically___redArg___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_SharedMutex_tryAtomically___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_SharedMutex_tryAtomically___redArg___lam__1), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_SharedMutex_tryAtomically___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -431,8 +403,8 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
 lean_dec_ref(x_4);
-x_10 = l_Std_SharedMutex_tryAtomically___redArg___closed__0;
-x_11 = l_Std_SharedMutex_tryAtomically___redArg___closed__1;
+x_10 = ((lean_object*)(l_Std_SharedMutex_tryAtomically___redArg___closed__0));
+x_11 = ((lean_object*)(l_Std_SharedMutex_tryAtomically___redArg___closed__1));
 lean_inc(x_2);
 lean_inc(x_9);
 x_12 = lean_alloc_closure((void*)(l_Std_SharedMutex_tryAtomically___redArg___lam__3___boxed), 9, 8);
@@ -520,7 +492,7 @@ lean_inc(x_2);
 x_13 = lean_apply_2(x_2, lean_box(0), x_12);
 x_14 = lean_alloc_closure((void*)(l_Std_SharedMutex_atomicallyRead___redArg___lam__0), 2, 1);
 lean_closure_set(x_14, 0, x_5);
-x_15 = l_Std_SharedMutex_atomically___redArg___closed__0;
+x_15 = ((lean_object*)(l_Std_SharedMutex_atomically___redArg___closed__0));
 lean_inc(x_8);
 lean_inc(x_2);
 x_16 = lean_alloc_closure((void*)(l_Std_SharedMutex_atomicallyRead___redArg___lam__1), 5, 4);
@@ -628,8 +600,8 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
 lean_dec_ref(x_4);
-x_10 = l_Std_SharedMutex_tryAtomically___redArg___closed__1;
-x_11 = l_Std_SharedMutex_tryAtomically___redArg___closed__0;
+x_10 = ((lean_object*)(l_Std_SharedMutex_tryAtomically___redArg___closed__1));
+x_11 = ((lean_object*)(l_Std_SharedMutex_tryAtomically___redArg___closed__0));
 x_12 = lean_alloc_closure((void*)(l_Std_SharedMutex_atomicallyRead___redArg___lam__2___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_8);
 lean_inc(x_9);
@@ -670,14 +642,6 @@ res = initialize_Std_Sync_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Std_Sync_SharedMutex_0__Std_SharedMutexImpl = _init_l___private_Std_Sync_SharedMutex_0__Std_SharedMutexImpl();
-l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0 = _init_l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0();
-lean_mark_persistent(l_Std_instCoeOutSharedMutexBaseSharedMutex___closed__0);
-l_Std_SharedMutex_atomically___redArg___closed__0 = _init_l_Std_SharedMutex_atomically___redArg___closed__0();
-lean_mark_persistent(l_Std_SharedMutex_atomically___redArg___closed__0);
-l_Std_SharedMutex_tryAtomically___redArg___closed__0 = _init_l_Std_SharedMutex_tryAtomically___redArg___closed__0();
-lean_mark_persistent(l_Std_SharedMutex_tryAtomically___redArg___closed__0);
-l_Std_SharedMutex_tryAtomically___redArg___closed__1 = _init_l_Std_SharedMutex_tryAtomically___redArg___closed__1();
-lean_mark_persistent(l_Std_SharedMutex_tryAtomically___redArg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

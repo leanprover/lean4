@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode(lean_object*, lean_object*, lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg(lean_object*, lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode(lean_object*, lean_object*, lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Lake_exitIfErrorCode___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadExitOfMonadLift___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint32_t x_4) {
 _start:
 {

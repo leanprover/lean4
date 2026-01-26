@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq___redArg(lean_object* x_1) {
 _start:
 {

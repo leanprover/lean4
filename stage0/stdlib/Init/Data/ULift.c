@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_instDecidableEqULift_decEq(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_instDecidableEqULift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqULift_decEq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqULift_decEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instDecidableEqULift_decEq(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqULift_decEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instDecidableEqULift___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqULift___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqULift___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instDecidableEqULift(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instDecidableEqULift___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqULift_decEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

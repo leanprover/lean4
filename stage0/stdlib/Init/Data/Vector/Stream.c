@@ -13,12 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object*, lean_object*);
-lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___lam__0(lean_object*);
+static const lean_closure_object l_Vector_instToStreamSubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Vector_instToStreamSubarray___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Vector_instToStreamSubarray___closed__0 = (const lean_object*)&l_Vector_instToStreamSubarray___closed__0_value;
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object*, lean_object*);
-static lean_object* l_Vector_instToStreamSubarray___closed__0;
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___lam__0(lean_object* x_1) {
 _start:
 {
@@ -29,19 +30,11 @@ x_4 = l_Array_toSubarray___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Vector_instToStreamSubarray___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Vector_instToStreamSubarray___lam__0), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Vector_instToStreamSubarray___closed__0;
+x_3 = ((lean_object*)(l_Vector_instToStreamSubarray___closed__0));
 return x_3;
 }
 }
@@ -67,8 +60,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Vector_instToStreamSubarray___closed__0 = _init_l_Vector_instToStreamSubarray___closed__0();
-lean_mark_persistent(l_Vector_instToStreamSubarray___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

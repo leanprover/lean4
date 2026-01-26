@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_dropWhile___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___redArg(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_dropWhile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_dropWhile___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_dropWhile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Intermediate_dropWhile___redArg(uint8_t x_1, lean_object* x_2) {
 _start:
 {

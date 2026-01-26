@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Equiv_instTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

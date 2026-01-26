@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_lengthTR___redArg(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* lean_list_to_array(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toArrayAux___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toArrayImpl___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_toArrayAux(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_lengthTR___redArg(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l_List_toArrayImpl___redArg(lean_object*);
+LEAN_EXPORT lean_object* lean_list_to_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toArrayAux___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

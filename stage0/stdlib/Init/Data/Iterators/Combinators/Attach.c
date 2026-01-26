@@ -15,8 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iter_attachWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_attachWith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_attachWith___redArg(lean_object* x_1) {
 _start:
 {

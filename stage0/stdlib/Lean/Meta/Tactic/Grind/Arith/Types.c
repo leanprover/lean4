@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_State_toCtorIdx(lean_object* x_1) {
 _start:
 {

@@ -13,27 +13,30 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Int_instHShiftRightNat;
-static lean_object* l_Int_not___closed__0;
-LEAN_EXPORT lean_object* l_Int_instHShiftLeftNat;
-static lean_object* l_Int_instComplement___closed__0;
-LEAN_EXPORT lean_object* l_Int_not(lean_object*);
-lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Int_shiftLeft___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_shiftLeft(lean_object*, lean_object*);
-static lean_object* l_Int_instHShiftRightNat___closed__0;
-LEAN_EXPORT lean_object* l_Int_shiftRight___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_shiftRight(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-lean_object* lean_nat_shiftl(lean_object*, lean_object*);
+static lean_object* l_Int_not___closed__0;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_not(lean_object*);
 LEAN_EXPORT lean_object* l_Int_not___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_instComplement;
-static lean_object* l_Int_instHShiftLeftNat___closed__0;
+static const lean_closure_object l_Int_instComplement___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_not___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_instComplement___closed__0 = (const lean_object*)&l_Int_instComplement___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_instComplement = (const lean_object*)&l_Int_instComplement___closed__0_value;
+lean_object* lean_nat_shiftr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_shiftRight(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_shiftRight___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Int_instHShiftRightNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_shiftRight___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_instHShiftRightNat___closed__0 = (const lean_object*)&l_Int_instHShiftRightNat___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_instHShiftRightNat = (const lean_object*)&l_Int_instHShiftRightNat___closed__0_value;
+lean_object* lean_nat_shiftl(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_shiftLeft(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_shiftLeft___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Int_instHShiftLeftNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_shiftLeft___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_instHShiftLeftNat___closed__0 = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_instHShiftLeftNat = (const lean_object*)&l_Int_instHShiftLeftNat___closed__0_value;
 static lean_object* _init_l_Int_not___closed__0() {
 _start:
 {
@@ -77,22 +80,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_instComplement___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_not___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instComplement() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instComplement___closed__0;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Int_shiftRight(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -130,22 +117,6 @@ x_3 = l_Int_shiftRight(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Int_instHShiftRightNat___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instHShiftRightNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instHShiftRightNat___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int_shiftLeft(lean_object* x_1, lean_object* x_2) {
@@ -191,22 +162,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instHShiftLeftNat___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instHShiftLeftNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instHShiftLeftNat___closed__0;
-return x_1;
-}
-}
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -222,18 +177,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_not___closed__0 = _init_l_Int_not___closed__0();
 lean_mark_persistent(l_Int_not___closed__0);
-l_Int_instComplement___closed__0 = _init_l_Int_instComplement___closed__0();
-lean_mark_persistent(l_Int_instComplement___closed__0);
-l_Int_instComplement = _init_l_Int_instComplement();
-lean_mark_persistent(l_Int_instComplement);
-l_Int_instHShiftRightNat___closed__0 = _init_l_Int_instHShiftRightNat___closed__0();
-lean_mark_persistent(l_Int_instHShiftRightNat___closed__0);
-l_Int_instHShiftRightNat = _init_l_Int_instHShiftRightNat();
-lean_mark_persistent(l_Int_instHShiftRightNat);
-l_Int_instHShiftLeftNat___closed__0 = _init_l_Int_instHShiftLeftNat___closed__0();
-lean_mark_persistent(l_Int_instHShiftLeftNat___closed__0);
-l_Int_instHShiftLeftNat = _init_l_Int_instHShiftLeftNat();
-lean_mark_persistent(l_Int_instHShiftLeftNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

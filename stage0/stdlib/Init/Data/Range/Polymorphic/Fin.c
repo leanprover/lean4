@@ -13,33 +13,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat(lean_object*, lean_object*);
-static lean_object* l_Fin_instHasSize__1___closed__0;
-LEAN_EXPORT lean_object* l_Fin_instHasSize__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNatNat;
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instHasSize___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instHasSize___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___redArg(lean_object*);
-static lean_object* l_Fin_instHasSize___closed__0;
-LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize__2___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize__2___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize__1___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___redArg___boxed(lean_object*);
+static const lean_closure_object l_Fin_instHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Fin_instHasSize___closed__0 = (const lean_object*)&l_Fin_instHasSize___closed__0_value;
 LEAN_EXPORT lean_object* l_Fin_instHasSize(lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize__1(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instHasSize__2(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instLeast_x3fOfNeZeroNat___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize__1___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instHasSize__1___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Fin_instHasSize__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instHasSize__1___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Fin_instHasSize__1___closed__0 = (const lean_object*)&l_Fin_instHasSize__1___closed__0_value;
+LEAN_EXPORT lean_object* l_Fin_instHasSize__1(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize__1___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize__2___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize__2___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instHasSize__2(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instUpwardEnumerable___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -187,19 +189,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Fin_instHasSize___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Fin_instHasSize___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Fin_instHasSize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Fin_instHasSize___closed__0;
+x_2 = ((lean_object*)(l_Fin_instHasSize___closed__0));
 return x_2;
 }
 }
@@ -235,19 +229,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Fin_instHasSize__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Fin_instHasSize__1___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Fin_instHasSize__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Fin_instHasSize__1___closed__0;
+x_2 = ((lean_object*)(l_Fin_instHasSize__1___closed__0));
 return x_2;
 }
 }
@@ -306,10 +292,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Fin_instLeast_x3fOfNatNat = _init_l_Fin_instLeast_x3fOfNatNat();
 lean_mark_persistent(l_Fin_instLeast_x3fOfNatNat);
-l_Fin_instHasSize___closed__0 = _init_l_Fin_instHasSize___closed__0();
-lean_mark_persistent(l_Fin_instHasSize___closed__0);
-l_Fin_instHasSize__1___closed__0 = _init_l_Fin_instHasSize__1___closed__0();
-lean_mark_persistent(l_Fin_instHasSize__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

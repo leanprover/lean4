@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_iunfoldr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_hIterate___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_iunfoldr(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_cons(lean_object*, uint8_t, lean_object*);
 static lean_object* l_BitVec_iunfoldr___redArg___closed__0;
+lean_object* l_Fin_hIterate___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_iunfoldr(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_iunfoldr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_iunfoldr___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

@@ -13,81 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Lean_Grind_instBEqConfig_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedConfig_default;
-LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig_beq___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_instInhabitedConfig_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig;
-LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedConfig;
-static lean_object* l_Lean_Grind_instBEqConfig___closed__0;
+static const lean_ctor_object l_Lean_Grind_instInhabitedConfig_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*10 + 32, .m_other = 10, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_object* l_Lean_Grind_instInhabitedConfig_default___closed__0 = (const lean_object*)&l_Lean_Grind_instInhabitedConfig_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Grind_instInhabitedConfig_default = (const lean_object*)&l_Lean_Grind_instInhabitedConfig_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Grind_instInhabitedConfig = (const lean_object*)&l_Lean_Grind_instInhabitedConfig_default___closed__0_value;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Grind_instInhabitedConfig_default___closed__0() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 10, 31);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_1);
-lean_ctor_set(x_3, 6, x_1);
-lean_ctor_set(x_3, 7, x_1);
-lean_ctor_set(x_3, 8, x_1);
-lean_ctor_set(x_3, 9, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 2, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 3, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 4, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 5, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 6, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 7, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 8, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 9, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 10, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 11, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 12, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 13, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 14, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 15, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 16, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 17, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 18, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 19, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 20, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 21, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 22, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 23, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 24, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 25, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 26, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 27, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 28, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 29, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*10 + 30, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Grind_instInhabitedConfig_default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Grind_instInhabitedConfig_default___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Grind_instInhabitedConfig() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Grind_instInhabitedConfig_default;
-return x_1;
-}
-}
+LEAN_EXPORT uint8_t l_Lean_Grind_instBEqConfig_beq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig_beq___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Grind_instBEqConfig___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Grind_instBEqConfig_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Grind_instBEqConfig___closed__0 = (const lean_object*)&l_Lean_Grind_instBEqConfig___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Grind_instBEqConfig = (const lean_object*)&l_Lean_Grind_instBEqConfig___closed__0_value;
 LEAN_EXPORT uint8_t l_Lean_Grind_instBEqConfig_beq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1056,22 +991,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_instBEqConfig___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instBEqConfig_beq___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Grind_instBEqConfig() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Grind_instBEqConfig___closed__0;
-return x_1;
-}
-}
 lean_object* initialize_Init_Core(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Config(uint8_t builtin) {
@@ -1081,16 +1000,6 @@ _G_initialized = true;
 res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_instInhabitedConfig_default___closed__0 = _init_l_Lean_Grind_instInhabitedConfig_default___closed__0();
-lean_mark_persistent(l_Lean_Grind_instInhabitedConfig_default___closed__0);
-l_Lean_Grind_instInhabitedConfig_default = _init_l_Lean_Grind_instInhabitedConfig_default();
-lean_mark_persistent(l_Lean_Grind_instInhabitedConfig_default);
-l_Lean_Grind_instInhabitedConfig = _init_l_Lean_Grind_instInhabitedConfig();
-lean_mark_persistent(l_Lean_Grind_instInhabitedConfig);
-l_Lean_Grind_instBEqConfig___closed__0 = _init_l_Lean_Grind_instBEqConfig___closed__0();
-lean_mark_persistent(l_Lean_Grind_instBEqConfig___closed__0);
-l_Lean_Grind_instBEqConfig = _init_l_Lean_Grind_instBEqConfig();
-lean_mark_persistent(l_Lean_Grind_instBEqConfig);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

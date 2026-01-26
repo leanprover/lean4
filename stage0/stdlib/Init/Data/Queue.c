@@ -13,51 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Array_reverse___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_toArray___redArg(lean_object*);
-uint8_t l_List_isEmpty___redArg(lean_object*);
-lean_object* l_List_filterAuxM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l_Std_Queue_empty___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Std_Queue_empty___closed__0 = (const lean_object*)&l_Std_Queue_empty___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueue___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
-static lean_object* l_Std_Queue_empty___closed__0;
-LEAN_EXPORT uint8_t l_Std_Queue_isEmpty(lean_object*, lean_object*);
 static lean_object* l_Std_Queue_instEmptyCollection___closed__0;
-lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_filterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_reverse___redArg(lean_object*);
-lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*, lean_object*);
-lean_object* lean_array_mk(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*, lean_object*, lean_object*);
+uint8_t l_List_isEmpty___redArg(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Std_Queue_isEmpty(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueue___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*, lean_object*);
-static lean_object* _init_l_Std_Queue_empty___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
+lean_object* lean_array_mk(lean_object*);
+lean_object* l_Array_reverse___redArg(lean_object*);
+lean_object* l_Array_append___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_toArray___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__1(lean_object*, lean_object*);
+lean_object* l_List_filterAuxM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_filterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Queue_empty___closed__0;
+x_2 = ((lean_object*)(l_Std_Queue_empty___closed__0));
 return x_2;
 }
 }
@@ -527,8 +517,6 @@ _G_initialized = true;
 res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Queue_empty___closed__0 = _init_l_Std_Queue_empty___closed__0();
-lean_mark_persistent(l_Std_Queue_empty___closed__0);
 l_Std_Queue_instEmptyCollection___closed__0 = _init_l_Std_Queue_instEmptyCollection___closed__0();
 lean_mark_persistent(l_Std_Queue_instEmptyCollection___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

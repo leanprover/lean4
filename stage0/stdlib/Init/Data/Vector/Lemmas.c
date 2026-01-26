@@ -13,42 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc___redArg(uint8_t);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___redArg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
-uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc___redArg(uint8_t);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero___redArg(uint8_t);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero___redArg(uint8_t);
-LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableMemOfLawfulBEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Nat_decidableExistsLT_x27___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorSucc___redArg___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Nat_decidableBallLT___redArg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Nat_decidableExistsLT_x27___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instDecidableMemOfLawfulBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableMemOfLawfulBEq___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instDecidableMemOfLawfulBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc___redArg(uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorSucc___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorSucc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

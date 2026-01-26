@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_byte_array_data(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Lemmas_0__ByteArray_set_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:

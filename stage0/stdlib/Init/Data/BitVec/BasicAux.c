@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instOfNat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instAdd(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instOfNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_add(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instSub(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instAdd(lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_sub(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instSub(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instOfNat(lean_object* x_1, lean_object* x_2) {
 _start:
 {

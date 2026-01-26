@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT lean_object* l_Char_numCodePoints;
-LEAN_EXPORT lean_object* l_Char_ordinal(uint32_t);
-LEAN_EXPORT lean_object* l_Char_succMany_x3f(lean_object*, uint32_t);
-uint32_t lean_uint32_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Char_succ_x3f___closed__0___boxed__const__1;
-LEAN_EXPORT lean_object* l_Char_succMany_x3f___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_ofOrdinal___boxed(lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_Char_succ_x3f___closed__0;
-LEAN_EXPORT lean_object* l_Char_ordinal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_numSurrogates;
-LEAN_EXPORT uint32_t l_Char_ofOrdinal(lean_object*);
+LEAN_EXPORT lean_object* l_Char_numCodePoints;
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Char_succ_x3f(uint32_t);
-uint32_t lean_uint32_add(uint32_t, uint32_t);
+lean_object* lean_uint32_to_nat(uint32_t);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_ordinal(uint32_t);
+LEAN_EXPORT lean_object* l_Char_ordinal___boxed(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+uint32_t lean_uint32_of_nat(lean_object*);
+LEAN_EXPORT uint32_t l_Char_ofOrdinal(lean_object*);
+LEAN_EXPORT lean_object* l_Char_ofOrdinal___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_succ_x3f___closed__0___boxed__const__1;
+static lean_object* l_Char_succ_x3f___closed__0;
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+uint32_t lean_uint32_add(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_succ_x3f(uint32_t);
 LEAN_EXPORT lean_object* l_Char_succ_x3f___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_succMany_x3f(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Char_succMany_x3f___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Char_numSurrogates() {
 _start:
 {

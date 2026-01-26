@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_byte_array_mk(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_append(lean_object*, lean_object*);
+lean_object* lean_byte_array_data(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_byte_array_data(lean_object*);
 lean_object* lean_array_mk(lean_object*);
+lean_object* lean_byte_array_mk(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Bootstrap_0__List_toByteArray_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_append(lean_object* x_1, lean_object* x_2) {
 _start:
 {

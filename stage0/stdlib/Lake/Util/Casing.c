@@ -13,51 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lake_toUpperCamelCaseString___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+static const lean_ctor_object l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0 = (const lean_object*)&l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0_value;
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0(lean_object*);
-lean_object* lean_array_to_list(lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___boxed(lean_object*);
-lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-static lean_object* l_Lake_toUpperCamelCaseString___closed__0;
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-static lean_object* l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0;
-lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_Lake_toUpperCamelCase(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString(lean_object*);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
+lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lake_toUpperCamelCaseString___closed__0;
+static const lean_string_object l_Lake_toUpperCamelCaseString___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_Lake_toUpperCamelCaseString___closed__1 = (const lean_object*)&l_Lake_toUpperCamelCaseString___closed__1_value;
+lean_object* lean_string_utf8_byte_size(lean_object*);
+lean_object* lean_array_to_list(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
+LEAN_EXPORT lean_object* l_Lake_toUpperCamelCase(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0;
+x_2 = ((lean_object*)(l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0));
 return x_2;
 }
 }
@@ -272,14 +263,6 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_toUpperCamelCaseString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_toUpperCamelCaseString(lean_object* x_1) {
 _start:
 {
@@ -295,7 +278,7 @@ x_5 = l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0(x_4);
 x_6 = l_Lake_toUpperCamelCaseString___closed__0;
 x_7 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___redArg(x_4, x_1, x_3, x_5, x_6);
 x_8 = lean_array_to_list(x_7);
-x_9 = l_Lake_toUpperCamelCaseString___closed__1;
+x_9 = ((lean_object*)(l_Lake_toUpperCamelCaseString___closed__1));
 x_10 = l_List_foldl___at___00Lake_toUpperCamelCaseString_spec__2(x_9, x_8);
 lean_dec(x_8);
 return x_10;
@@ -357,12 +340,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0 = _init_l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0();
-lean_mark_persistent(l_String_Slice_split___at___00Lake_toUpperCamelCaseString_spec__0___closed__0);
 l_Lake_toUpperCamelCaseString___closed__0 = _init_l_Lake_toUpperCamelCaseString___closed__0();
 lean_mark_persistent(l_Lake_toUpperCamelCaseString___closed__0);
-l_Lake_toUpperCamelCaseString___closed__1 = _init_l_Lake_toUpperCamelCaseString___closed__1();
-lean_mark_persistent(l_Lake_toUpperCamelCaseString___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView;
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView_default;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView;
 static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView_default___closed__0() {
 _start:
 {

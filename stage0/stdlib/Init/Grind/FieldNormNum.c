@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Field_NormNum_ofRat___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {

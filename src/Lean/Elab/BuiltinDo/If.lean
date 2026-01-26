@@ -45,39 +45,34 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
   elabNestedActions cond fun cond => do
   match cond with
   | `(doIfCond|$cond) => elabIte cond thenSeq elseSeq dec
-  | `(doIfCond|_ : $cond) => elabDite none cond thenSeq elseSeq dec
-  | `(doIfCond|$h:ident : $cond) => elabDite (some h.getId) cond thenSeq elseSeq dec
+  | `(doIfCond|$h : $cond) => elabDite h cond thenSeq elseSeq dec
   | _ => throwUnsupportedSyntax
 where
   elabIte cond thenSeq elseSeq dec := do
     -- It turned out to be far more reliable to offload as much work as possible to the App
     -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
-    Term.tryPostponeIfMVar (← inferType (← Term.elabTerm cond none))
+    doElabToSyntax "then branch of if with condition {cond}" (elabDoSeq thenSeq dec) fun then_ => do
+    doElabToSyntax "else branch of if with condition {cond}" (elabDoSeq elseSeq dec) fun else_ => do
     let mγ ← mkMonadicType (← read).doBlockResultType
-    let then_ ← elabDoSeq thenSeq dec
-    let else_ ← elabDoSeq elseSeq dec
-    let then_ ← Term.exprToSyntax then_
-    let else_ ← Term.exprToSyntax else_
-    Term.elabTermEnsuringType (← `(ite $cond $then_ $else_)) mγ
+    Term.elabTermEnsuringType (← `(if $cond then $then_ else $else_)) mγ
 
-  elabDite h? cond thenSeq elseSeq dec := do
+  elabDite h cond thenSeq elseSeq dec := do
     -- It turned out to be far more reliable to offload as much work as possible to the App
     -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
-    Term.tryPostponeIfMVar (← inferType (← Term.elabTerm cond none))
+    -- let h ← h?.getDM (mkFreshUserName `h)
+    let elabDiteBranch (then_ : Bool) : DoElabM Expr := do
+      -- Term.tryPostponeIfNoneOrMVar ty?
+      -- let some ty ← pure ty? | throwError "expected type must be known"
+      -- let .forallE _ (.forallE _ cond _ _) _ _ := ty
+      --   | Term.tryPostpone
+      --     throwError "Internal error of `do` `dite` elaborator: expected a type of the form `(c → α) → (¬c → α) → α` but got {ty}"
+      -- withLocalDeclD h (if then_ then cond else mkNot cond) fun h => do
+      --   mkLambdaFVars #[h] (← elabDoSeq (if then_ then thenSeq else elseSeq) dec)
+      elabDoSeq (if then_ then thenSeq else elseSeq) dec
+    doElabToSyntax "then branch of if with condition {cond}" (elabDiteBranch true) fun then_ => do
+    doElabToSyntax "else branch of if with condition {cond}" (elabDiteBranch false) fun else_ => do
     let mγ ← mkMonadicType (← read).doBlockResultType
-    let mγ ← Term.exprToSyntax mγ
-    let dite ← Term.elabTerm (← `(@dite $mγ $cond _)) none
-    let ty ← inferType dite
-    let cond ←
-      match ← instantiateMVars ty with
-      | .forallE _ (.forallE _ cond _ _) _ _ =>
-        pure cond
-      | _ =>
-        Term.tryPostpone
-        throwError "Internal error of `do` `dite` elaborator: expected a type of the form `(c → α) → (¬c → α) → α` but got {ty}"
-    let h ← h?.getDM (mkFreshUserName `h)
-    let then_ ← withLocalDeclD h cond fun h => do
-      mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
-    let else_ ← withLocalDeclD h (mkApp (mkConst ``Not) cond) fun h => do
-      mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
-    return mkApp2 dite then_ else_
+    match h with
+    | `(_%$tk) => Term.elabTermEnsuringType (← `(if $(⟨tk⟩):hole : $cond then $then_ else $else_)) mγ
+    | `($h:ident) => Term.elabTermEnsuringType (← `(if $h:ident : $cond then $then_ else $else_)) mγ
+    | _ => throwUnsupportedSyntax

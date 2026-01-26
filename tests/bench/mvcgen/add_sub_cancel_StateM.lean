@@ -62,26 +62,26 @@ def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
     let ([], _) ← runTactic mvarId (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
 
 def runBenchUsingMeta (sizes : List Nat) : MetaM Unit := do
-  IO.println "=== Symbolic Simulation Tests ==="
+  IO.println "=== VCGen tests ==="
   IO.println ""
   for n in sizes do
     solveUsingMeta n
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
-/-
-info: === Symbolic Simulation Tests ===
+/--
+info: === VCGen tests ===
 
-goal_10: 245.576221 ms, kernel: 134.134182 ms
-goal_20: 613.945320 ms, kernel: 115.453811 ms
-goal_30: 1074.053596 ms, kernel: 179.076070 ms
-goal_40: 1680.678302 ms, kernel: 252.066677 ms
-goal_50: 2457.209584 ms, kernel: 293.974096 ms
-goal_60: 3271.773330 ms, kernel: 368.394386 ms
-goal_70: 3981.247921 ms, kernel: 434.297822 ms
-goal_80: 5077.300540 ms, kernel: 507.047772 ms
-goal_90: 6486.990060 ms, kernel: 556.952095 ms
-goal_100: 7791.399986 ms, kernel: 623.605163 ms
+goal_10: 181.910200 ms, kernel: 37.241050 ms
+goal_20: 386.540215 ms, kernel: 83.497428 ms
+goal_30: 648.282057 ms, kernel: 117.038447 ms
+goal_40: 946.733191 ms, kernel: 168.369124 ms
+goal_50: 1325.846873 ms, kernel: 223.838786 ms
+goal_60: 1734.175705 ms, kernel: 285.594486 ms
+goal_70: 2199.522317 ms, kernel: 351.659865 ms
+goal_80: 2700.077802 ms, kernel: 428.303337 ms
+goal_90: 3260.446641 ms, kernel: 515.976499 ms
+goal_100: 3865.503733 ms, kernel: 600.229962 ms
 -/
 #guard_msgs in
 #eval runBenchUsingMeta [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]

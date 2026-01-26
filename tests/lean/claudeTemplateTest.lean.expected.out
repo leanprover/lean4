@@ -1,0 +1,48 @@
+Claude prompt:
+You are a Lean 4 proof assistant. Your task is to suggest tactics to replace the `sorry` placeholder in the proof below.
+
+File context (preceding the current declaration):
+```lean
+/-
+Test that the claude tactic works with template variable extraction,
+including tactic steps before the claude call.
+-/
+import Lean -- remove after update-stage0
+
+-- Use mock to avoid actually calling Claude
+set_option tactic.claude.mock "{\"tactics\": [\"omega\"]}"
+
+-- Enable prompt tracing to verify template variables
+set_option trace.claude.prompt true
+
+-- A helper definition to test file context capture
+def helper : Nat := 42
+
+-- Test that claude tactic includes prior tactic steps in the declaration
+```
+
+Declaration with proof so far (replace the sorry):
+```lean
+theorem myTheorem (n m : Nat) : n + m = m + n := by
+  have h : n = n := rfl
+  sorry
+```
+
+Current goal at sorry:
+```lean
+n m : Nat
+h : n = n
+⊢ n + m = m + n
+```
+
+Provide your response as ONLY the raw JSON, with no explanation, no markdown code fences, no backticks:
+{"tactics": ["tactic1", "tactic2", "tactic3"]}
+
+Requirements:
+- Suggest 1-5 tactics to replace the sorry, ordered by likelihood of success
+- Each tactic must be valid Lean 4 syntax
+- Tactics should be concrete and actionable
+- Prefer simpler tactics when applicable
+- You may include newlines in a tactic string for multi-step sequences (e.g., "intro x\napply foo")
+Try this:
+  [apply] omega

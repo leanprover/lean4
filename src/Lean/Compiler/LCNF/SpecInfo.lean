@@ -157,7 +157,7 @@ and `k` is tagged as `.user`, `.fixedHO`, or `.fixedInst`.
 
 See comment at `.fixedNeutral`.
 -/
-private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
+private def hasFwdDeps (decl : Decl .pure) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
   let param := decl.params[j]!
   for h : k in (j+1)...decl.params.size do
     if paramsInfo[k]!.causesSpecialization then
@@ -175,7 +175,7 @@ computationally relevant declarations. Furthermore this function takes:
 - `alreadySpecialized` which is a mask that says whether a decl is already a specialized declaration
   itself.
 -/
-def computeSpecEntries (decls : Array Decl) (autoSpecialize : Name → Option (Array Nat) → Bool)
+def computeSpecEntries (decls : Array (Decl .pure)) (autoSpecialize : Name → Option (Array Nat) → Bool)
     (alreadySpecialized : Array Bool) : CompilerM (Array SpecEntry) := do
   let mut declsInfo := #[]
   for decl in decls do
@@ -245,7 +245,7 @@ def computeSpecEntries (decls : Array Decl) (autoSpecialize : Name → Option (A
 Compute and save specialization information for `decls`. Assumes that `decls` is an SCC of user
 defined declarations.
 -/
-def saveSpecEntries (decls : Array Decl) : CompilerM Unit := do
+def saveSpecEntries (decls : Array (Decl .pure)) : CompilerM Unit := do
   let entries ← computeSpecEntries
     decls
     (fun _ specArgs? => specArgs? == some #[])

@@ -22,8 +22,8 @@ let _x.2 := _f.1
 ```
 `findFunDecl? _x.2` returns `none`, but `findFunDecl'? _x.2` returns the declaration for `_f.1`.
 -/
-partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option FunDecl) := do
-  if let some decl ← findFunDecl? fvarId then
+partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option (FunDecl ph)) := do
+  if let some decl ← findFunDecl? (ph := ph) fvarId then
     return decl
   else if let some (.fvar fvarId' #[]) ← findLetValue? fvarId then
     findFunDecl'? fvarId'

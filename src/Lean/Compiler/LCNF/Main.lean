@@ -14,6 +14,7 @@ import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
 public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.LCNF.CompilerM
+
 public section
 namespace Lean.Compiler.LCNF
 /--
@@ -50,7 +51,7 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array (Decl ph)) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.set `pp.motives.pi false) do
@@ -74,6 +75,12 @@ def isValidMainType (type : Expr) : Bool :=
   | _ => false
 
 namespace PassManager
+
+-- TODO remove me
+structure Aux where
+  ph : IRPhase
+  decls : Array (Decl ph)
+  deriving Inhabited
 
 def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLeastMaxRecDepth 8192 do
   /-
@@ -101,12 +108,12 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
-  let decls ← runPassManagerPart "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
-  let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
   let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
     splitScc decls
   sccs.mapM fun decls => do
-    let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
+    let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     if (← Lean.isTracingEnabledFor `Compiler.result) then
       for decl in decls do
         let decl ← normalizeFVarIds decl
@@ -115,14 +122,19 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
       let irDecls ← IR.toIR decls
       IR.compile irDecls
 where
-  runPassManagerPart (profilerName : String) (passes : Array Pass) (decls : Array Decl)
-      (isCheckEnabled : Bool) : CompilerM (Array Decl) := do
+  runPassManagerPart (inPhase outPhase : IRPhase) (profilerName : String)
+      (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
+      CompilerM (Array (Decl outPhase)) := do
     profileitM Exception profilerName (← getOptions) do
-      let mut decls := decls
+      let mut state : Aux := ⟨inPhase, decls⟩
       for pass in passes do
-        decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-          withPhase pass.phase <| pass.run decls
-        withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+        state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+          withPhase pass.phase do
+            state.ph.withAssertPhase! pass.phase.toIRPhase fun h => do
+              let decls ← pass.run (h ▸ state.decls)
+              pure ⟨_, decls⟩
+        withPhase pass.phaseOut <| checkpoint pass.name state.decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+      let decls := state.ph.withAssertPhase! outPhase fun h => h ▸ state.decls
       return decls
 
 end PassManager
@@ -130,7 +142,7 @@ end PassManager
 def compile (declNames : Array Name) : CoreM (Array (Array IR.Decl)) :=
   CompilerM.run <| PassManager.run declNames
 
-def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
+def showDecl (phase : PassPhase) (declName : Name) : CoreM Format := do
   let some decl ← getDeclAt? declName phase | return "<not-available>"
   ppDecl' decl
 

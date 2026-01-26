@@ -316,7 +316,27 @@ Common errors and fixes:
 
 ## Creating the PR
 
-Create a separate PR for the release notes (don't bundle with the toolchain bump PR):
+**Important: Timing with the reference-manual tag**
+
+The reference-manual repository deploys documentation when a version tag is pushed. If you merge
+release notes AFTER the tag is created, the deployed documentation won't include them.
+
+You have two options:
+
+1. **Preferred**: Include the release notes in the same PR as the toolchain bump (or merge the
+   release notes PR before creating the tag). This ensures the tag includes the release notes.
+
+2. **If release notes are merged after the tag**: You must regenerate the tag to trigger a new deployment:
+   ```bash
+   cd /path/to/reference-manual
+   git fetch origin
+   git tag -d v4.7.0-rc1  # Delete local tag
+   git tag v4.7.0-rc1 origin/main  # Create tag at current main (which has release notes)
+   git push origin :refs/tags/v4.7.0-rc1  # Delete remote tag
+   git push origin v4.7.0-rc1  # Push new tag (triggers Deploy workflow)
+   ```
+
+If creating a separate PR for release notes:
 ```bash
 git checkout -b v4.7.0-release-notes
 git add Manual/Releases/v4_7_0.lean Manual/Releases.lean

@@ -102,6 +102,20 @@ public def getSimpleGroundExpr (env : Environment) (declName : Name) : Option Si
   (simpleGroundDeclExt.getState env).constNames.find? declName
 
 /--
+Like `getSimpleGroundExpr` but recursively traverses `reference` exprs to get to actual ground
+values.
+-/
+public def getSimpleGroundExprWithResolvedRefs (env : Environment) (declName : Name) :
+    Option SimpleGroundExpr := Id.run do
+  let mut declName := declName
+  while true do
+    let val := getSimpleGroundExpr env declName
+    match val with
+    | some (.reference ref) => declName := ref
+    | other => return other
+  return none
+
+/--
 Check if `declName` is recorded as being a `SimpleGroundExpr`.
 -/
 public def isSimpleGroundDecl (env : Environment) (declName : Name) : Bool :=
@@ -295,19 +309,19 @@ where
   compileStrArg (arg : Arg) : M (Name × String) := do
     let .var var := arg | failure
     let (.arg (.reference ref)) := (← get).groundMap[var]! | failure
-    let some (.string val) := getSimpleGroundExpr (← getEnv) ref | failure
+    let some (.string val) := getSimpleGroundExprWithResolvedRefs (← getEnv) ref | failure
     return (ref, val)
 
   interpStringLiteral (arg : SimpleGroundArg) : M String := do
     let .reference ref := arg | failure
-    let some (.string val) := getSimpleGroundExpr (← getEnv) ref | failure
+    let some (.string val) := getSimpleGroundExprWithResolvedRefs (← getEnv) ref | failure
     return val
 
   interpNameLiteral (arg : SimpleGroundArg) : M Name := do
     match arg with
     | .tagged 0 => return .anonymous
     | .reference ref =>
-      match getSimpleGroundExpr (← getEnv) ref with
+      match getSimpleGroundExprWithResolvedRefs (← getEnv) ref with
       | some (.ctor 1 #[pre, .reference ref] _ _) =>
         let pre ← interpNameLiteral pre
         let str ← interpStringLiteral (.reference ref)

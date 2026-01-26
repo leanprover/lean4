@@ -218,6 +218,11 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
 
 # Writing the release notes
 
+Release notes are only needed for the first release candidate (`-rc1`). For subsequent RCs and stable releases,
+just update the version number in the title of the existing release notes file.
+
+## Generating the release notes
+
 Release notes are automatically generated from the commit history, using `script/release_notes.py`.
 
 Run this as `script/release_notes.py --since v4.6.0`, where `v4.6.0` is the *previous* release version.
@@ -232,4 +237,93 @@ Some judgement is required here: ignore commits which look minor,
 but manually add items to the release notes for significant PRs that were rebase-merged.
 
 There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.
+
+## Reviewing and fixing the generated markdown
+
+Before adding the release notes to the reference manual, carefully review the generated markdown for these common issues:
+
+1. **Unterminated code blocks**: PR descriptions sometimes have unclosed code fences. Look for code blocks
+   that don't have a closing ` ``` `. If found, fetch the original PR description with `gh pr view <number>`
+   and repair the code block with the complete content.
+
+2. **Truncated descriptions**: Some PR descriptions may end abruptly mid-sentence. Review these and complete
+   the descriptions based on the original PR.
+
+3. **Markdown syntax issues**: Check for other markdown problems that could cause parsing errors.
+
+## Creating the release notes file
+
+The release notes go in `Manual/Releases/v4_7_0.lean` in the reference-manual repository.
+
+The file structure must follow the Verso format:
+
+```lean
+/-
+Copyright (c) 2025 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: <Your Name>
+-/
+
+import VersoManual
+import Manual.Meta
+import Manual.Meta.Markdown
+
+open Manual
+open Verso.Genre
+open Verso.Genre.Manual
+open Verso.Genre.Manual.InlineLean
+
+#doc (Manual) "Lean 4.7.0-rc1 (YYYY-MM-DD)" =>
+%%%
+tag := "release-v4.7.0"
+file := "v4.7.0"
+%%%
+
+<release notes content here>
+```
+
+**Important formatting rules for Verso:**
+- Use `#` for section headers inside the document, not `##` (Verso uses header level 1 for subsections)
+- Use plain ` ``` ` for code blocks, not ` ```lean ` (the latter will cause Lean to execute the code)
+- Identifiers with underscores like `bv_decide` should be wrapped in backticks: `` `bv_decide` ``
+  (otherwise the underscore may be interpreted as markdown emphasis)
+
+## Updating Manual/Releases.lean
+
+After creating the release notes file, update `Manual/Releases.lean` to include it:
+
+1. Add the import near the top with other version imports:
+   ```lean
+   import Manual.Releases.«v4_7_0»
+   ```
+
+2. Add the include statement after the other includes:
+   ```lean
+   {include 0 Manual.Releases.«v4_7_0»}
+   ```
+
+## Building and verifying
+
+Build the release notes to check for errors:
+```bash
+lake build Manual.Releases.v4_7_0
+```
+
+Common errors and fixes:
+- "Wrong header nesting - got ## but expected at most #": Change `##` to `#`
+- "Tactic 'X' failed" or similar: Code is being executed; change ` ```lean ` to ` ``` `
+- "'_'" errors: Underscore in identifier being parsed as emphasis; wrap in backticks
+
+## Creating the PR
+
+Create a separate PR for the release notes (don't bundle with the toolchain bump PR):
+```bash
+git checkout -b v4.7.0-release-notes
+git add Manual/Releases/v4_7_0.lean Manual/Releases.lean
+git commit -m "doc: add v4.7.0 release notes"
+git push -u origin v4.7.0-release-notes
+gh pr create --title "doc: add v4.7.0 release notes" --body "This PR adds the release notes for Lean v4.7.0."
+```
+
+See `./releases_drafts/README.md` for more information about pre-written release note entries.
 See `./releases_drafts/README.md` for more information.

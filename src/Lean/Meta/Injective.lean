@@ -139,7 +139,68 @@ private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
       return acc.push e
   go e (← inferType e) #[]
 
-private def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : Expr) : MetaM Expr := do
+private def withIntroN (n : Nat) (t : Expr) (k : Array Expr → Expr → MetaM Expr) : MetaM Expr := do
+  forallBoundedTelescope t n fun xs body => do
+    unless xs.size = n do
+      throwError "withIntroN failed, expeced {n} binders:{indentExpr t}"
+    mkLambdaFVars xs (← k xs body)
+
+private def withIntro1 (t : Expr) (k : Expr → Expr → MetaM Expr) : MetaM Expr := do
+  let .forallE n d b bi ← whnfForall t |
+      throwError "withIntro failed:{indentExpr t}"
+  withLocalDecl n bi d fun x => do
+    let e ← k x (b.instantiate1 x)
+    mkLambdaFVars #[x] e
+
+private def withRevertCore (toRevert : Array Expr) (exptType : Expr)
+  (k : Nat → Expr → MetaM Expr) : MetaM Expr := do
+  let t ← mkForallFVars toRevert exptType
+  withErasedFVars (toRevert.map (·.fvarId!)) do
+    let e ← k toRevert.size t
+    return mkAppN e toRevert
+
+private def withRevert (fvars : Array Expr) (exptType : Expr)
+  (k : Nat → Expr → MetaM Expr) : MetaM Expr := do
+  let toRevert ← collectForwardDeps fvars (preserveOrder := true)
+  let t ← mkForallFVars toRevert exptType
+  withErasedFVars (toRevert.map (·.fvarId!)) do
+    let e ← k toRevert.size t
+    return mkAppN e toRevert
+
+-- Assumes an expected type of `x = y → goal` with `y` being an fvar.
+-- Does not revert context
+private def withSubstCore (expectedType : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  let some (h, goal) := expectedType.arrow?
+    | throwError "withSubst: expected implication from an equality, but got:{indentExpr expectedType}"
+  let some (α, x, y) := (← whnf h).eq?
+    | throwError "withSubst: expected implication from an equality, but got:{indentExpr expectedType}"
+  let motive ← mkLambdaFVars #[y] goal
+  let goal := motive.beta #[x]
+  let u1 ← getLevel goal
+  let u2 ← getLevel α
+  let e ← withErasedFVars #[y.fvarId!] do
+    k goal
+  return mkApp5 (mkConst ``Eq.ndrec [u1, u2]) α x motive e y
+
+-- Assumes an expected type of `x = y → goal` with `y` being an fvar.
+private def withSubst (expectedType : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  unless expectedType.isArrow do
+    throwError "withSubst: expected implication from an equality, but got:{indentExpr expectedType}"
+  let some (_, _, y) := (← whnf expectedType.bindingDomain!).eq?
+    | throwError "withSubst: expected implication from an equality, but got:{indentExpr expectedType}"
+  let yWithDeps ← collectForwardDeps #[y] (preserveOrder := true)
+  assert! yWithDeps[0]! == y
+  if yWithDeps.size = 1 then
+    withSubstCore expectedType k
+  else
+    withIntro1 expectedType fun heq expectedType => do
+      let toRevert := #[heq] ++ yWithDeps[1:]
+      withRevertCore toRevert expectedType fun _ expectedType =>
+        withSubstCore expectedType fun expectedType =>
+          withIntroN (toRevert.size - 1) expectedType fun _ expectedType =>
+            k expectedType
+
+private partial def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
     let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
@@ -147,20 +208,45 @@ private def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : E
     let injPrf := mkConst (mkInjectiveTheoremNameFor ctorVal.name) (ctorVal.levelParams.map mkLevelParam)
     let injPrf := mkAppN injPrf xs
     mvarId₁.assign injPrf
-    let mut mvarId₂ := mvarId₂
-    while true do
-      let t ← mvarId₂.getType
-      let some (conj, body) := t.arrow?  | break
+    mvarId₂.assign (← go (← mvarId₂.getType))
+    mkLambdaFVars xs mvar
+  where
+    go (t : Expr) : MetaM Expr := do
+    withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} mkInjectiveEqTheoremValue.go")) do
+    trace[Meta.injective] "expected:{indentExpr t}"
+    if let some (conj, body) := t.arrow? then
       match_expr conj with
       | And lhs rhs =>
-        let [mvarId₂'] ← mvarId₂.applyN (mkApp3 (mkConst `Lean.injEq_helper) lhs rhs body) 1
-            | throwError "unexpected number of goals after applying `Lean.and_imp`"
-        mvarId₂ := mvarId₂'
-      | _ => pure ()
-      let (h, mvarId₂') ← mvarId₂.intro1
-      (_, mvarId₂) ← substEq mvarId₂' h
-    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorVal.name)
-    mkLambdaFVars xs mvar
+        let t' ← mkArrow lhs (← mkArrow rhs body)
+        let e ← go t'
+        return mkApp4 (mkConst `Lean.injEq_helper) lhs rhs body e
+      -- | Eq α a b =>
+      | Eq _α _a _b =>
+        withSubst t fun t =>
+          go t
+        -- withIntro1 t fun heq _ => do
+        --   let motive ← mkLambdaFVars #[b] body
+        --   let goal := motive.beta #[a]
+        --   let e ← withErasedFVars #[b.fvarId!] do go goal
+        --   let u1 ← getLevel goal
+        --   let u2 ← getLevel α
+        --   return mkApp6 (mkConst ``Eq.ndrec [u1, u2]) α a motive e b heq
+        --   -- return mkApp5 (mkConst ``Eq.ndrec [u1, u2]) α a motive e b
+      | HEq α a β b =>
+        unless (← isDefEq α β) do
+          throwError "Could not eliminiate heterogeneous equality:{inlineExpr α}=/={inlineExpr β}"
+        let u ← getLevel α
+        let eqType := mkApp3 (mkConst ``Eq [u]) α a b
+        let e ← go (← mkArrow eqType body)
+        return mkLambda `h default conj <|
+          mkApp e (mkApp4 (mkConst ``eq_of_heq [u]) α a b (.bvar 0))
+      | _ =>
+        throwError "Unexpected expected type:{indentExpr t}"
+    else
+      if let some (_, a, _) := t.eq? then
+        mkEqRefl a
+      else
+        throwError "Unexpected expected type:{indentExpr t}"
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let name := mkInjectiveEqTheoremNameFor ctorVal.name

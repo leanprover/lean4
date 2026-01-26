@@ -1988,6 +1988,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
+  -- let lctx' := fvarIds.foldr (fun fvarId lctx => lctx.erase fvarId) lctx
   let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
   withLCtx lctx' localInsts' k
 

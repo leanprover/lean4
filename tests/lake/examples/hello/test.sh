@@ -10,7 +10,7 @@ $LAKE exe hello Bob Bill
 .lake/build/bin/hello
 
 # Tests that quiet mode (-q) produces no output on no-op build
-$LAKE -q build hello 2>&1 | diff - /dev/null
+$LAKE -q build hello 2>&1 | diff -I "^task_manager:.*" - /dev/null
 
 # Tests that build produces a manifest if there is none.
 # Related: https://github.com/leanprover/lean4/issues/2549

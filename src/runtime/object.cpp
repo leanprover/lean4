@@ -689,6 +689,25 @@ class task_manager {
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
+    void internal_trace(char const * reason) {
+        size_t tid_hash = std::hash<thread::id>{}(this_thread::get_id());
+        fprintf(g_saved_stderr,
+            "task_manager: %s: tm=%p tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u dedicated=%u\n",
+            reason,
+            static_cast<void*>(this),
+            tid_hash,
+            static_cast<void*>(&m_mutex),
+            static_cast<void*>(&m_queue_cv),
+            static_cast<int>(m_shutting_down),
+            m_queues_size,
+            m_idle_std_workers,
+            m_std_workers.size(),
+            m_max_std_workers,
+            m_max_prio,
+            m_num_dedicated_workers);
+        fflush(g_saved_stderr);
+    }
+
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
         std::deque<lean_task_object *> & q = m_queues[m_max_prio];
@@ -723,8 +742,12 @@ class task_manager {
         m_queues_size++;
         if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
             spawn_worker();
-        else
+        else {
             m_queue_cv.notify_one();
+            if (m_shutting_down) {
+                internal_trace("enqueue_core (just notified)");
+            }
+        }
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -762,7 +785,17 @@ class task_manager {
                         // maximum was decreased by `task_get`), wait for someone else to become
                         // idle before picking up new work.
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
-                    m_queue_cv.wait(lock);
+                    if (m_shutting_down) {
+                            internal_trace("waiting during shutdown");
+                    }
+                    auto status = m_queue_cv.wait_for(lock, chrono::seconds(600));
+                    if (status == std::cv_status::timeout) {
+                        if (m_shutting_down) {
+                            internal_trace("timeout after shutdown");
+                        }
+                        // Assume for simplicity that shutdown does not happen at this instant
+                        m_queue_cv.wait(lock);
+                    }
                     continue;
                 }
 
@@ -784,6 +817,9 @@ class task_manager {
             run_task(lock, t);
             m_num_dedicated_workers--;
             m_dedicated_finished_cv.notify_all();
+            if (m_shutting_down) {
+                internal_trace("spawn_dedicated_worker (just notified)");
+            }
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -839,6 +875,9 @@ class task_manager {
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
+        if (m_shutting_down) {
+            internal_trace("resolve_core (just notified)");
+        }
     }
 
     void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
@@ -881,6 +920,7 @@ public:
             // we can assume that `m_std_workers` will not be changed after this line
         }
         m_queue_cv.notify_all();
+        internal_trace("shutdown called");
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
         for (auto & t : m_std_workers)
@@ -942,8 +982,12 @@ public:
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
                 spawn_worker();
-            else
+            else {
                 m_queue_cv.notify_one();
+                if (m_shutting_down) {
+                    internal_trace("wait_for (just notified)");
+                }
+            }
         }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {

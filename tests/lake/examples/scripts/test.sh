@@ -24,4 +24,4 @@ $LAKE scripts | tee -a produced.out
 $LAKE run | tee -a produced.out
 
 # FIXME: Figure out why indent in USAGE disappears in the CI
-diff --ignore-all-space --strip-trailing-cr expected.out produced.out
+diff -I "^task_manager:.*" --ignore-all-space --strip-trailing-cr expected.out produced.out

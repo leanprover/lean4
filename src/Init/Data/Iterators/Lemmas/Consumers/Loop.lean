@@ -915,4 +915,19 @@ theorem Iter.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
   · simp [ihs ‹_›]
   · simp
 
+theorem Iter.first?_eq_first?_toIterM {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    {it : Iter (α := α) β} :
+  it.first? = it.toIterM.first?.run := (rfl)
+
+theorem Iter.first?_eq_match_step {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Productive α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.first? = match it.step.val with
+      | .yield _ out => some out
+      | .skip it' => it'.first?
+      | .done => none := by
+  rw [Iter.first?_eq_first?_toIterM, IterM.first?_eq_match_step]
+  simp only [Id.run_bind, step]
+  generalize it.toIterM.step.run.inflate = s
+  rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.first?_eq_first?_toIterM]
+
 end Std

@@ -185,8 +185,8 @@ instance instLawfulIteratorLoopDefaultImplementation (α : Type w) (m : Type w �
   constructor; simp
 
 theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
-    {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] :
-    WellFounded α m (γ := γ) fun _ _ _ => True := by
+    {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] {P : β → γ → ForInStep γ → Prop} :
+    WellFounded α m (γ := γ) P := by
   apply Subrelation.wf
     (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
   · intro p' p h
@@ -196,6 +196,16 @@ theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
     · exact ⟨.skip p'.fst, rfl, h⟩
   · apply InvImage.wf
     exact WellFoundedRelation.wf
+
+theorem IteratorLoop.wellFounded_of_productive {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] [IteratorLoop α m m] [Productive α m] {P : β → γ → ForInStep γ → Prop}
+    (hp : ∀ {b g s}, P b g s → s matches ForInStep.done ..) :
+    WellFounded α m (γ := γ) P := by
+  rw [WellFounded]
+  unfold IteratorLoop.rel
+  have {b g q} : ¬ P b g (ForInStep.yield q) := fun h => by simpa using hp h
+  simp only [and_false, exists_false, false_or, this]
+  exact Subrelation.wf And.left (InvImage.wf Prod.fst Productive.wf)
 
 /--
 This `ForIn'`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.
@@ -901,6 +911,44 @@ def IterM.Total.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Itera
     [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β) (f : β → Bool) :
     m (Option β) :=
   it.it.find? f
+
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this funtion might run forever. The variant
+`it.ensureTermination.first?` always terminates after finitely many steps.
+
+Examples:
+* `([7, 6].iterM Id).first? = pure (some 7)`
+* `([].iterM Id).first? = pure none`
+-/
+@[inline]
+def IterM.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (Option β) :=
+  IteratorLoop.forIn (fun _ _ => flip Bind.bind) _ (fun b _ s => s = ForInStep.done (some b)) it
+    none (fun b _ _ => pure ⟨ForInStep.done (some b), rfl⟩)
+
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. The elements in `it` are examined in order of
+iteration.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `IterM.first?`.
+
+Examples:
+* `([7, 6].iterM Id).first? = pure (some 7)`
+* `([].iterM Id).first? = pure none`
+-/
+@[inline]
+def IterM.Total.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) : m (Option β) :=
+  it.it.first?
 
 section Count
 

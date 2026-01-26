@@ -9,8 +9,8 @@ def f (a : Nat) : Bool :=
 -- This is only required until the new code generator is enabled.
 run_meta Lean.Compiler.compile #[``f]
 
-def countCalls : Probe Decl Nat :=
-  Probe.getLetValues >=>
+def countCalls : Probe (Decl .pure) Nat :=
+  Probe.getLetValues .pure >=>
   Probe.filter (fun e => return e matches .const `Decidable.decide ..) >=>
   Probe.count
 

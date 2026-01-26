@@ -16,47 +16,47 @@ namespace Lean.Compiler.LCNF
 LCNF local context.
 -/
 structure LCtx where
-  params   : Std.HashMap FVarId Param := {}
-  letDecls : Std.HashMap FVarId LetDecl := {}
-  funDecls : Std.HashMap FVarId FunDecl := {}
+  params   : Std.HashMap FVarId ((ph : IRPhase) × Param ph) := {}
+  letDecls : Std.HashMap FVarId ((ph : IRPhase) × LetDecl ph) := {}
+  funDecls : Std.HashMap FVarId ((ph : IRPhase) × FunDecl ph) := {}
   deriving Inhabited
 
-def LCtx.addParam (lctx : LCtx) (param : Param) : LCtx :=
-  { lctx with params := lctx.params.insert param.fvarId param }
+def LCtx.addParam (lctx : LCtx) (param : Param ph) : LCtx :=
+  { lctx with params := lctx.params.insert param.fvarId ⟨ph, param⟩ }
 
-def LCtx.addLetDecl (lctx : LCtx) (letDecl : LetDecl) : LCtx :=
-  { lctx with letDecls := lctx.letDecls.insert letDecl.fvarId letDecl }
+def LCtx.addLetDecl (lctx : LCtx) (letDecl : LetDecl ph) : LCtx :=
+  { lctx with letDecls := lctx.letDecls.insert letDecl.fvarId ⟨ph, letDecl⟩ }
 
-def LCtx.addFunDecl (lctx : LCtx) (funDecl : FunDecl) : LCtx :=
-  { lctx with funDecls := lctx.funDecls.insert funDecl.fvarId funDecl }
+def LCtx.addFunDecl (lctx : LCtx) (funDecl : FunDecl ph) : LCtx :=
+  { lctx with funDecls := lctx.funDecls.insert funDecl.fvarId ⟨ph, funDecl⟩ }
 
-def LCtx.eraseParam (lctx : LCtx) (param : Param) : LCtx :=
+def LCtx.eraseParam (lctx : LCtx) (param : Param ph) : LCtx :=
   { lctx with params := lctx.params.erase param.fvarId }
 
-def LCtx.eraseParams (lctx : LCtx) (ps : Array Param) : LCtx :=
+def LCtx.eraseParams (lctx : LCtx) (ps : Array (Param ph)) : LCtx :=
   { lctx with params := ps.foldl (init := lctx.params) fun params p => params.erase p.fvarId }
 
-def LCtx.eraseLetDecl (lctx : LCtx) (decl : LetDecl) : LCtx :=
+def LCtx.eraseLetDecl (lctx : LCtx) (decl : LetDecl ph) : LCtx :=
   { lctx with letDecls := lctx.letDecls.erase decl.fvarId }
 
 mutual
-  partial def LCtx.eraseFunDecl (lctx : LCtx) (decl : FunDecl) (recursive := true) : LCtx :=
+  partial def LCtx.eraseFunDecl (lctx : LCtx) (decl : FunDecl ph) (recursive := true) : LCtx :=
     let lctx := { lctx with funDecls := lctx.funDecls.erase decl.fvarId }
     if recursive then
       eraseCode decl.value <| eraseParams lctx decl.params
     else
       lctx
 
-  partial def LCtx.eraseAlts (alts : Array Alt) (lctx : LCtx) : LCtx :=
+  partial def LCtx.eraseAlts (alts : Array (Alt ph)) (lctx : LCtx) : LCtx :=
     alts.foldl (init := lctx) fun lctx alt =>
       match alt with
       | .default k => eraseCode k lctx
-      | .alt _ ps k => eraseCode k <| eraseParams lctx ps
+      | .alt _ ps k _ => eraseCode k <| eraseParams lctx ps
 
-  partial def LCtx.eraseCode (code : Code) (lctx : LCtx) : LCtx :=
+  partial def LCtx.eraseCode (code : Code ph) (lctx : LCtx) : LCtx :=
     match code with
     | .let decl k => eraseCode k <| lctx.eraseLetDecl decl
-    | .jp decl k | .fun decl k => eraseCode k <| eraseFunDecl lctx decl
+    | .jp decl k | .fun decl k _ => eraseCode k <| eraseFunDecl lctx decl
     | .cases c => eraseAlts c.alts lctx
     | _ => lctx
 end
@@ -66,11 +66,11 @@ Convert a LCNF local context into a regular Lean local context.
 -/
 def LCtx.toLocalContext (lctx : LCtx) : LocalContext := Id.run do
   let mut result := {}
-  for (_, param) in lctx.params.toArray do
+  for (_, ⟨_, param⟩) in lctx.params.toArray do
     result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default .default)
-  for (_, decl) in lctx.letDecls.toArray do
+  for (_, ⟨_, decl⟩) in lctx.letDecls.toArray do
     result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value.toExpr true .default)
-  for (_, decl) in lctx.funDecls.toArray do
+  for (_, ⟨_, decl⟩) in lctx.funDecls.toArray do
     result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default .default)
   return result
 

@@ -1146,7 +1146,7 @@ static lean_object* _init_l___private_Lean_Meta_InferType_0__Lean_Expr_instantia
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Expr.instantiateBetaRevRange.visit", 39, 39);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.InferType.0.Lean.Expr.instantiateBetaRevRange.visit", 70, 70);
 return x_1;
 }
 }

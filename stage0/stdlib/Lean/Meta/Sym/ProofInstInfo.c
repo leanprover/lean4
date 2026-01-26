@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__14;
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_getProofInstInfo_x3f_spec__1_spec__2___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,6 +46,7 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2___redArg___closed__0;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__10;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -63,7 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknow
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkProofInstInfo_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Sym_getProofInstInfo_x3f_spec__1_spec__2_spec__5___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkProofInstArgInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__12;
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__13;
@@ -162,7 +164,7 @@ lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getProofInstInfo_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Sym_mkProofInstInfo_x3f_spec__0_spec__0_spec__2_spec__3_spec__4_spec__5___redArg___closed__19;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getProofInstInfo_x3f_spec__0_spec__0___redArg(lean_object*, size_t, lean_object*);
 extern lean_object* l_Lean_Options_empty;
@@ -2403,7 +2405,7 @@ x_7 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert_
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -2554,13 +2556,31 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_Meta_Sym_getProofInstInfo_x3f(x_1, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Lean_Meta_Sym_getProofInstInfo_x3f___redArg(x_1, x_3, x_4, x_5, x_6, x_7);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Sym_getProofInstInfo_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Lean_Meta_Sym_getProofInstInfo_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Sym_getProofInstInfo_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

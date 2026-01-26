@@ -19439,7 +19439,7 @@ static lean_object* _init_l___private_Lean_PrettyPrinter_Delaborator_Builtins_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.PrettyPrinter.Delaborator.delabAppImplicitCore.tryAppUnexpanders", 69, 69);
+x_1 = lean_mk_string_unchecked("_private.Lean.PrettyPrinter.Delaborator.Builtins.0.Lean.PrettyPrinter.Delaborator.delabAppImplicitCore.tryAppUnexpanders", 120, 120);
 return x_1;
 }
 }
@@ -61034,7 +61034,7 @@ static lean_object* _init_l___private_Lean_PrettyPrinter_Delaborator_Builtins_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.PrettyPrinter.Delaborator.delabForallParamsWithSignature.delabParamsAux", 76, 76);
+x_1 = lean_mk_string_unchecked("_private.Lean.PrettyPrinter.Delaborator.Builtins.0.Lean.PrettyPrinter.Delaborator.delabForallParamsWithSignature.delabParamsAux", 127, 127);
 return x_1;
 }
 }

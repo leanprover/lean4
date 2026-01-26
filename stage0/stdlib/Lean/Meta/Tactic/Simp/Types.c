@@ -21075,7 +21075,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_S
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Simp.simpAppUsingCongr.visit", 38, 38);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Tactic.Simp.Types.0.Lean.Meta.Simp.simpAppUsingCongr.visit", 77, 77);
 return x_1;
 }
 }

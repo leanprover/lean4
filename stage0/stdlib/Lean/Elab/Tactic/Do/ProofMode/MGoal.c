@@ -2556,7 +2556,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Do.ProofMode.MGoal.findHyp\?.go", 47, 47);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.Tactic.Do.ProofMode.MGoal.0.Lean.Elab.Tactic.Do.ProofMode.MGoal.findHyp\?.go", 94, 94);
 return x_1;
 }
 }

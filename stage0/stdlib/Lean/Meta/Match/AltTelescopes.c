@@ -720,7 +720,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_AltTelescopes_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Match.forallAltVarsTelescope.go", 41, 41);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Match.AltTelescopes.0.Lean.Meta.Match.forallAltVarsTelescope.go", 82, 82);
 return x_1;
 }
 }

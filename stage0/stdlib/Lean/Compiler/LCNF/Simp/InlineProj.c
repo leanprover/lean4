@@ -1018,7 +1018,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_InlineProj_0__Lean
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Simp.inlineProjInst\?.visit", 45, 45);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Simp.InlineProj.0.Lean.Compiler.LCNF.Simp.inlineProjInst\?.visit", 91, 91);
 return x_1;
 }
 }

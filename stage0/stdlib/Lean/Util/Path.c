@@ -489,7 +489,7 @@ static lean_object* _init_l___private_Lean_Util_Path_0__Lean_modToFilePath_go___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.modToFilePath.go", 21, 21);
+x_1 = lean_mk_string_unchecked("_private.Lean.Util.Path.0.Lean.modToFilePath.go", 47, 47);
 return x_1;
 }
 }

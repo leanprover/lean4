@@ -34295,7 +34295,7 @@ static lean_object* _init_l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppArg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Term.elabAppArgs.elabAsElim\?", 38, 38);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.App.0.Lean.Elab.Term.elabAppArgs.elabAsElim\?", 63, 63);
 return x_1;
 }
 }

@@ -1560,7 +1560,7 @@ static lean_object* _init_l___private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.withSharedCtorIndices.go", 34, 34);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.SameCtorUtils.0.Lean.Meta.withSharedCtorIndices.go", 69, 69);
 return x_1;
 }
 }

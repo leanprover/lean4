@@ -274,7 +274,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Code.containsConst.goExpr", 44, 44);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Testing.0.Lean.Compiler.LCNF.Code.containsConst.goExpr", 82, 82);
 return x_1;
 }
 }

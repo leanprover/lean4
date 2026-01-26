@@ -10168,7 +10168,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIR_0__Lean_IR_ToIR_lowe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.ToIR.lowerAlt.loop", 26, 26);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.IR.ToIR.0.Lean.IR.ToIR.lowerAlt.loop", 59, 59);
 return x_1;
 }
 }
@@ -12394,7 +12394,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ToIR_0__Lean_IR_ToIR_lowe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.ToIR.lowerResultType.resultTypeForArity", 47, 47);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.IR.ToIR.0.Lean.IR.ToIR.lowerResultType.resultTypeForArity", 80, 80);
 return x_1;
 }
 }

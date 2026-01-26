@@ -13924,7 +13924,7 @@ static lean_object* _init_l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Expr.getAppArgsN.loop", 26, 26);
+x_1 = lean_mk_string_unchecked("_private.Lean.Expr.0.Lean.Expr.getAppArgsN.loop", 47, 47);
 return x_1;
 }
 }

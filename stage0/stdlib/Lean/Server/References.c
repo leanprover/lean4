@@ -9525,7 +9525,7 @@ static lean_object* _init_l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTre
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.InfoTree.visitM.go", 28, 28);
+x_1 = lean_mk_string_unchecked("_private.Lean.Server.InfoUtils.0.Lean.Elab.InfoTree.visitM.go", 61, 61);
 return x_1;
 }
 }

@@ -14394,7 +14394,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Match.getEquationsForImpl.go", 38, 38);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Match.MatchEqs.0.Lean.Meta.Match.getEquationsForImpl.go", 74, 74);
 return x_1;
 }
 }
@@ -20219,7 +20219,7 @@ static lean_object* _init_l_WellFounded_opaqueFix_u2083___at___00__private_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Match.genMatchCongrEqnsImpl.go", 40, 40);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.Match.MatchEqs.0.Lean.Meta.Match.genMatchCongrEqnsImpl.go", 76, 76);
 return x_1;
 }
 }

@@ -14087,7 +14087,7 @@ static lean_object* _init_l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_toParse
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Term.toParserDescr.processAlias", 41, 41);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.Syntax.0.Lean.Elab.Term.toParserDescr.processAlias", 69, 69);
 return x_1;
 }
 }

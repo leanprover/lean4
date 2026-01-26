@@ -128,6 +128,7 @@ lean_object* l_Lean_LocalContext_getFVar_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_suggestInvariant___lam__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_suggestInvariant_postCondWithMultipleConditions___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_collectInvariantHints_spec__0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_punit_elim___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_suggestInvariant_postCondWithMultipleConditions___closed__22;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_suggestInvariant_postCondWithMultipleConditions___closed__24;
@@ -224,7 +225,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Le
 static lean_object* l_Lean_Elab_Tactic_Do_suggestInvariant___lam__5___closed__4;
 LEAN_EXPORT uint8_t l_String_Slice_contains___at___00__private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_eraseQuoteMacroScopesFromSyntax_spec__1(uint32_t, lean_object*);
 LEAN_EXPORT uint8_t l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_eraseQuoteMacroScopesFromSyntax_spec__1_spec__1___redArg(uint8_t, lean_object*, uint32_t, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_unit_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_Do_suggestInvariant_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at___00__private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_revertFVarsInTypeExcept_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -414,11 +414,11 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Meta_mkProjection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_suggestInvariant___lam__5___closed__9;
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_punit_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_getSPredGoalHypsAndTarget_getULiftDownLevel___boxed(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_tryHoistPure_go___closed__0;
 lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_unit_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_suggestInvariant___lam__7___closed__5;
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_suggestInvariant_postCondWithMultipleConditions___closed__3;
@@ -3780,7 +3780,7 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_unit_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_punit_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -3788,7 +3788,7 @@ x_3 = l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_unit_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_SuggestInvariant_0__Lean_Elab_Tactic_Do_ExceptCondsDefault_punit_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -4078,7 +4078,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Unit", 4, 4);
+x_1 = lean_mk_string_unchecked("PUnit", 5, 5);
 return x_1;
 }
 }

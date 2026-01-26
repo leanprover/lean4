@@ -16411,7 +16411,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitCases", 43, 43);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitCases", 80, 80);
 return x_1;
 }
 }
@@ -20651,7 +20651,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitAppDefaultConst", 53, 53);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitAppDefaultConst", 90, 90);
 return x_1;
 }
 }
@@ -20853,7 +20853,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitProjFn", 44, 44);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitProjFn", 81, 81);
 return x_1;
 }
 }
@@ -21187,7 +21187,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitNoConfusion", 49, 49);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitNoConfusion", 86, 86);
 return x_1;
 }
 }
@@ -21468,7 +21468,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitQuotLift", 46, 46);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitQuotLift", 83, 83);
 return x_1;
 }
 }
@@ -23574,7 +23574,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.ToLCNF.toLCNF.visitCore", 42, 42);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.ToLCNF.0.Lean.Compiler.LCNF.ToLCNF.toLCNF.visitCore", 79, 79);
 return x_1;
 }
 }

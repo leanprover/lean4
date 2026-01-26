@@ -34364,7 +34364,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___00__private_Lean_Environm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Environment.replayConsts.replayKernel", 42, 42);
+x_1 = lean_mk_string_unchecked("_private.Lean.Environment.0.Lean.Environment.replayConsts.replayKernel", 70, 70);
 return x_1;
 }
 }

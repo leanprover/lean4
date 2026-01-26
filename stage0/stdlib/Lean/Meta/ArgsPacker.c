@@ -793,7 +793,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Unary.pack.go", 34, 34);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.ArgsPacker.0.Lean.Meta.ArgsPacker.Unary.pack.go", 66, 66);
 return x_1;
 }
 }
@@ -4026,7 +4026,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Ar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.pack.go", 35, 35);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.ArgsPacker.0.Lean.Meta.ArgsPacker.Mutual.pack.go", 67, 67);
 return x_1;
 }
 }
@@ -4600,7 +4600,7 @@ static lean_object* _init_l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPack
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.ArgsPacker.Mutual.mkCodomain.go", 41, 41);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.ArgsPacker.0.Lean.Meta.ArgsPacker.Mutual.mkCodomain.go", 73, 73);
 return x_1;
 }
 }

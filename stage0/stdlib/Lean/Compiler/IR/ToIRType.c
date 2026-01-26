@@ -2987,7 +2987,7 @@ static lean_object* _init_l_List_forIn_x27_loop___at___00__private_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.nameToIRType.fillCache", 30, 30);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.IR.ToIRType.0.Lean.IR.nameToIRType.fillCache", 67, 67);
 return x_1;
 }
 }
@@ -5530,7 +5530,7 @@ static lean_object* _init_l_WellFounded_opaqueFix_u2083___at___00__private_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.getCtorLayout.fillCache", 31, 31);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.IR.ToIRType.0.Lean.IR.getCtorLayout.fillCache", 68, 68);
 return x_1;
 }
 }

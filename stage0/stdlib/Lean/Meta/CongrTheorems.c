@@ -8064,7 +8064,7 @@ static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.mkCongrSimpCore\?.mkProof.go", 37, 37);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.CongrTheorems.0.Lean.Meta.mkCongrSimpCore\?.mkProof.go", 72, 72);
 return x_1;
 }
 }
@@ -9004,7 +9004,7 @@ static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCon
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.mkCongrSimpCore\?.mk\?.go", 33, 33);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.CongrTheorems.0.Lean.Meta.mkCongrSimpCore\?.mk\?.go", 68, 68);
 return x_1;
 }
 }

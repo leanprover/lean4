@@ -12902,7 +12902,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normali
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.BVDecide.Frontend.Normalize.typeAnalysisPass.analyzeType", 73, 73);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis.0.Lean.Elab.Tactic.BVDecide.Frontend.Normalize.typeAnalysisPass.analyzeType", 142, 142);
 return x_1;
 }
 }

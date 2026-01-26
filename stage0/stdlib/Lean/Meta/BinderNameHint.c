@@ -1325,7 +1325,7 @@ static lean_object* _init_l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_reso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Expr.resolveBinderNameHint.go", 34, 34);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.BinderNameHint.0.Lean.Expr.resolveBinderNameHint.go", 70, 70);
 return x_1;
 }
 }

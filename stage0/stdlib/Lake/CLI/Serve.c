@@ -198,7 +198,7 @@ static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_print_x21
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lake.setupFile.print!", 21, 21);
+x_1 = lean_mk_string_unchecked("_private.Lake.CLI.Serve.0.Lake.setupFile.print!", 47, 47);
 return x_1;
 }
 }
@@ -277,7 +277,7 @@ static lean_object* _init_l___private_Lake_CLI_Serve_0__Lake_setupFile_eprint_x2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lake.setupFile.eprint!", 22, 22);
+x_1 = lean_mk_string_unchecked("_private.Lake.CLI.Serve.0.Lake.setupFile.eprint!", 48, 48);
 return x_1;
 }
 }

@@ -16616,7 +16616,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.BVDecide.Frontend.Normalize.enumsPass.postprocess", 66, 66);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums.0.Lean.Elab.Tactic.BVDecide.Frontend.Normalize.enumsPass.postprocess", 128, 128);
 return x_1;
 }
 }

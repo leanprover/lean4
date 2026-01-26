@@ -442,6 +442,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     auto stdout_pipe = setup_stdio(stdout_mode);
     auto stderr_pipe = setup_stdio(stderr_mode);
 
+    // It is crucial to not allocate between `fork` and `execvp` for ASAN to work.
+    buffer<char *> pargs;
+    pargs.push_back(strdup(proc_name.data()));
+    for (auto & arg : args)
+        pargs.push_back(strdup(arg.data()));
+    pargs.push_back(NULL);
+
     int pid = fork();
 
     if (pid == 0) {
@@ -495,18 +502,18 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
             lean_always_assert(setsid() >= 0);
         }
 
-        buffer<char *> pargs;
-        pargs.push_back(strdup(proc_name.data()));
-        for (auto & arg : args)
-            pargs.push_back(strdup(arg.data()));
-        pargs.push_back(NULL);
-
         if (execvp(pargs[0], pargs.data()) < 0) {
             std::cerr << "could not execute external process '" << pargs[0] << "'" << std::endl;
             exit(-1);
         }
     } else if (pid == -1) {
         throw errno;
+    }
+
+    for (char* parg : pargs) {
+        if (parg != NULL) {
+            free(parg);
+        }
     }
 
     object * parent_stdin  = box(0);

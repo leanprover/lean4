@@ -15865,7 +15865,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_FixedParams_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.FixedParamPerm.instantiateForall.go", 45, 45);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PreDefinition.FixedParams.0.Lean.Elab.FixedParamPerm.instantiateForall.go", 92, 92);
 return x_1;
 }
 }
@@ -16251,7 +16251,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_FixedParams_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.FixedParamPerm.instantiateLambda.go", 45, 45);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PreDefinition.FixedParams.0.Lean.Elab.FixedParamPerm.instantiateLambda.go", 92, 92);
 return x_1;
 }
 }
@@ -16648,7 +16648,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_FixedParams_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.FixedParamPerm.pickFixed.go", 37, 37);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PreDefinition.FixedParams.0.Lean.Elab.FixedParamPerm.pickFixed.go", 84, 84);
 return x_1;
 }
 }
@@ -17046,7 +17046,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_FixedParams_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.FixedParamPerm.buildArgs.go", 37, 37);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PreDefinition.FixedParams.0.Lean.Elab.FixedParamPerm.buildArgs.go", 84, 84);
 return x_1;
 }
 }

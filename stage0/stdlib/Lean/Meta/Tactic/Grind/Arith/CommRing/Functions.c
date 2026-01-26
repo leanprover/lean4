@@ -126,7 +126,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getSubFn___redArg___la
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_mkBinHomoFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getAddFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_mkNatCastFn___redArg___closed__2;
-lean_object* l_Lean_Meta_Grind_internalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_internalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getInvFn___redArg___lam__4___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getPowFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getOne___redArg___lam__0(lean_object*, lean_object*);
@@ -3206,7 +3206,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_box(0);
-x_8 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_internalize___boxed), 13, 3);
+x_8 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_internalize___boxed), 14, 3);
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_6);
 lean_closure_set(x_8, 2, x_7);

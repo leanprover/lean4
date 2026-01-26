@@ -9158,7 +9158,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_InferType_0__Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.isErasedCompatible.go", 40, 40);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.InferType.0.Lean.Compiler.LCNF.isErasedCompatible.go", 80, 80);
 return x_1;
 }
 }

@@ -2382,7 +2382,7 @@ static lean_object* _init_l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.ACLt.main.lexSameCtor", 31, 31);
+x_1 = lean_mk_string_unchecked("_private.Lean.Meta.ACLt.0.Lean.Meta.ACLt.main.lexSameCtor", 57, 57);
 return x_1;
 }
 }

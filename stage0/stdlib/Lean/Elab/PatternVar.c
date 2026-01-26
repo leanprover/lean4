@@ -11078,7 +11078,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Term.CollectPatternVars.collect.processCtorApp", 56, 56);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PatternVar.0.Lean.Elab.Term.CollectPatternVars.collect.processCtorApp", 88, 88);
 return x_1;
 }
 }
@@ -13846,7 +13846,7 @@ static lean_object* _init_l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_Col
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Term.CollectPatternVars.collect.pushNewArg", 52, 52);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.PatternVar.0.Lean.Elab.Term.CollectPatternVars.collect.pushNewArg", 84, 84);
 return x_1;
 }
 }

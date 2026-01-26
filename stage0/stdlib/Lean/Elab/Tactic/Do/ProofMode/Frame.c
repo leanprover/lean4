@@ -1205,7 +1205,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_Frame_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Elab.Tactic.Do.ProofMode.transferHypNames.label", 52, 52);
+x_1 = lean_mk_string_unchecked("_private.Lean.Elab.Tactic.Do.ProofMode.Frame.0.Lean.Elab.Tactic.Do.ProofMode.transferHypNames.label", 99, 99);
 return x_1;
 }
 }

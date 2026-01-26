@@ -11,6 +11,8 @@ import Init.NotationExtra
 import Init.Control.Basic
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 import Lake.Util.JsonObject
+import Lean.Elab.Tactic.Do.ProofMode.MGoal
+import Lean.Elab.Tactic.Do.ProofMode.Pure
 
 open Lean Parser Meta Elab Do
 
@@ -199,8 +201,7 @@ example {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
-example : Id (Array String) := do
-  let xs : Array Nat := #[]
+example (xs : Array Nat) : Id (Array String) := do
   let mut res := #[]
   for x in xs do
     if res.size > 0 then
@@ -242,6 +243,50 @@ where go range? s := do
   | .inherit => pure ()
   | .skip => pure ()
   s.children.toList.forM fun c => go c.reportingRange c.get
+
+-- Extracted from Lean.Compiler.LCNF.Specialize.lean. Tests that we default when elaborating the
+-- return argument.
+example (paramsInfo : Array Nat) (args : Array Nat) : Array Nat := Id.run do
+  let mut result := #[]
+  for info in paramsInfo, arg in args do
+    result := result.push arg
+  pure <| result ++ args[paramsInfo.size...*]
+
+-- Extracted from Lake.Config.Artifact. Tests that we allow pending instance resolution problems in
+-- match discriminants which can be resolved when elaborating the match RHS.
+example (data : Json) (k : String → Except String α) : Except String α := do
+  match fromJson? data with
+  | .ok out => k out
+  | .error e => throw s!"artifact in unexpected JSON format: {e}"
+
+-- Reproducer from Paul for testing that we elaborate the ρ synthesizing default instances.
+example : Id Unit := do
+  for x in 1...5 do
+    pure ()
+  return
+
+structure MatchAltView' where
+  patterns : Array Nat
+
+open Lean Meta in
+example (alt : MatchAltView') (collect : Nat → MetaM Nat) : MetaM (MatchAltView') := do
+  let patterns ← alt.patterns.mapM fun p => do
+    trace[Elab.match] "{p}"
+    collect p
+  return { alt with patterns := patterns }
+
+set_option trace.Elab.do true in
+set_option trace.Elab.match true in
+example (tf : Float) (qf? : Option Float) : Id Unit := do
+  if match qf? with | none => true | some qf => tf < qf then
+    pure ()
+
+set_option backward.do.legacy true in
+set_option trace.Elab.match true in
+example (tf : Float) (qf? : Option Float) : Id Unit := do
+  if match qf? with | none => true | some qf => tf < qf then
+    pure ()
+
 
 end Repros
 
@@ -560,7 +605,7 @@ has type
 but is expected to have type
   iter1 ≠ str1.endPos
 in the application
-  iter1.next h1
+  iter1.get h1
 ---
 error: Application type mismatch: The argument
   h1
@@ -569,7 +614,7 @@ has type
 but is expected to have type
   iter1 ≠ str1.endPos
 in the application
-  iter1.get h1
+  iter1.next h1
 -/
 #guard_msgs (error) in
 example (str1 str2 : String) : Unit := Id.run do

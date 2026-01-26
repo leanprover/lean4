@@ -18,6 +18,7 @@ import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.Offset
+import Lean.Meta.Sym.Eta
 namespace Lean.Meta.Sym
 open Internal
 
@@ -323,7 +324,11 @@ def isAssignedMVar (e : Expr) : MetaM Bool :=
   | _            => return false
 
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
-  match p with
+  let e' := etaReduce e
+  if !isSameExpr e e' then
+    -- **Note**: We eagerly eta reduce patterns
+    process p e'
+  else match p with
   | .bvar bidx => assignExpr bidx e
   | .mdata _ p => process p e
   | .const declName us =>
@@ -723,7 +728,12 @@ def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEq
 @[export lean_sym_def_eq]
 def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   if isSameExpr t s then return true
-  match t, s with
+  -- **Note**: `etaReduce` is supposed to be fast, and does not allocate memory
+  let t' := etaReduce t
+  let s' := etaReduce s
+  if !isSameExpr t t' || !isSameExpr s s' then
+    isDefEqMain t' s'
+  else match t, s with
   | .lit  l₁,      .lit l₂       => return l₁ == l₂
   | .sort u,       .sort v       => isLevelDefEqS u v
   | .lam ..,       .lam ..       => isDefEqBindingS t s

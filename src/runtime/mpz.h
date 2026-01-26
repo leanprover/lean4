@@ -284,6 +284,8 @@ public:
     */
     size_t log2() const;
 
+    bool test_bit(size_t n) const;
+
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }

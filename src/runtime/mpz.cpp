@@ -222,6 +222,10 @@ size_t mpz::log2() const {
     return r - 1;
 }
 
+bool mpz::test_bit(size_t n) const {
+    return mpz_tstbit(m_val, n) != 0;
+}
+
 mpz & mpz::operator&=(mpz const & o) {
     mpz_and(m_val, m_val, o.m_val);
     return *this;

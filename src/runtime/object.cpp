@@ -1509,6 +1509,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lea
     return mpz_to_nat(r);
 }
 
+extern "C" LEAN_EXPORT bool lean_nat_big_test_bit(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (!lean_is_scalar(a2)) {
+        return false; // This large of an exponent must be 0.
+    }
+    // lean_is_scalar(a1) must be false now
+    return mpz_value(a1).test_bit(lean_unbox(a2));
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
         lean_internal_panic("Nat.pow exponent is too big");

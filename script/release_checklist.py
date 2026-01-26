@@ -185,6 +185,30 @@ def get_release_notes(tag_name):
     except Exception:
         return None
 
+def check_release_notes_file_exists(toolchain, github_token):
+    """Check if the release notes file exists in the reference-manual repository.
+
+    For -rc1 releases, this checks that the release notes have been created.
+    For subsequent RCs and stable releases, release notes should already exist.
+
+    Returns tuple (exists: bool, is_rc1: bool) where is_rc1 indicates if this is
+    the first release candidate (when release notes need to be written).
+    """
+    # Determine the release notes file path
+    # e.g., v4.28.0-rc1 -> Manual/Releases/v4_28_0.lean
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))  # "4.28.0"
+    file_name = f"v{base_version.replace('.', '_')}.lean"  # "v4_28_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    is_rc1 = toolchain.endswith("-rc1")
+
+    repo_url = "https://github.com/leanprover/reference-manual"
+
+    # Check if the file exists on main branch
+    content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    return (content is not None, is_rc1)
+
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -713,6 +737,27 @@ def main():
         print(f"  ⚠️  Release notes page title mismatch. Expected prefix '{expected_title_prefix}', got '{actual_title}'. Check {release_notes_url}")
     else:
         print(f"  ✅ Release notes page title looks good ('{actual_title}').")
+
+    # Check if release notes file exists in reference-manual repository
+    # For -rc1 releases, this is when release notes need to be written
+    # For subsequent RCs and stable releases, they should already exist
+    release_notes_exists, is_rc1 = check_release_notes_file_exists(toolchain, github_token)
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))
+    release_notes_file = f"Manual/Releases/v{base_version.replace('.', '_')}.lean"
+
+    if not release_notes_exists:
+        if is_rc1:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     This is an -rc1 release, so release notes need to be written.")
+            print(f"     Run `script/release_notes.py --since <previous_version>` to generate them.")
+            print(f"     See doc/dev/release_checklist.md section 'Writing the release notes' for details.")
+            lean4_success = False
+        else:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     Release notes should have been created for -rc1. Check the reference-manual repository.")
+            lean4_success = False
+    else:
+        print(f"  ✅ Release notes file exists: {release_notes_file}")
 
     repo_status["lean4"] = lean4_success
 

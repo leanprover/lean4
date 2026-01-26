@@ -658,7 +658,6 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
     return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'
   | _ =>
 
-
   -- Check for unreachable cases. We look for the kind of expressions that `by contradiction`
   -- produces
   if e.isAppOf ``False.elim && 1 < e.getAppNumArgs then
@@ -846,7 +845,7 @@ where doRealize (inductName : Name) := do
             throwError "Function {name} defined via WellFounded.fix with unexpected arity {funBody.getAppNumArgs}:{indentExpr funBody}"
           else
             throwError "Function {name} not defined via WellFounded.fix:{indentExpr funBody}"
-      check e'
+
       let (body', mvars) ← M2.run do
         forallTelescope (← inferType e').bindingDomain! fun xs goal => do
           if xs.size ≠ 2 then
@@ -875,10 +874,6 @@ where doRealize (inductName : Name) := do
       let (paramMask, e') ← mkLambdaFVarsMasked fixedParamPerms e'
       let e' ← instantiateMVars e'
       return (e', paramMask)
-
-  unless (← isTypeCorrect e') do
-    logError m!"failed to derive a type-correct induction principle:{indentExpr e'}"
-    check e'
 
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
@@ -1066,13 +1061,9 @@ where doRealize inductName := do
         let value ← mkLambdaFVars alts value
         let value ← mkLambdaFVars motives value
         let value ← mkLambdaFVars params value
-        check value
         let value ← cleanPackedArgs eqnInfo value
         return value
 
-  unless ← isTypeCorrect value do
-    logError m!"final term is type incorrect:{indentExpr value}"
-    check value
   let type ← inferType value
   let type ← elimOptParam type
   let type ← letToHave type
@@ -1302,10 +1293,6 @@ where doRealize inductName := do
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
           pure (e', paramMask, motiveArities)
 
-  unless (← isTypeCorrect e') do
-    logError m!"constructed induction principle is not type correct:{indentExpr e'}"
-    check e'
-
   let eTyp ← inferType e'
   let eTyp ← elimTypeAnnotations eTyp
   let eTyp ← letToHave eTyp
@@ -1443,9 +1430,6 @@ def deriveCases (unfolding : Bool) (name : Name) : MetaM Unit := do
             let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
             let e' ← mkLambdaFVars #[motive] e'
             mkLambdaFVarsMasked params e'
-
-    mapError (f := (m!"constructed functional cases principle is not type correct:{indentExpr e'}\n{indentD ·}")) do
-      check e'
 
     let eTyp ← inferType e'
     let eTyp ← elimTypeAnnotations eTyp

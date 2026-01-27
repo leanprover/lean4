@@ -374,7 +374,7 @@ structure ExtractLetsConfig where
   /-- If true (default: false), eliminate unused lets rather than extract them. -/
   usedOnly : Bool := false
   /-- If true (default: true), reuse local declarations that have syntactically equal values.
-  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  Note that even when false, the caching strategy for `extract_lets` may result in fewer extracted let bindings than expected. -/
   merge : Bool := true
   /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
   useContext : Bool := true

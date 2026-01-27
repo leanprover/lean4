@@ -905,17 +905,29 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         } else if (c > 0) {
             s_n = whnf_core(*unfold_definition(s_n), false, true);
         } else {
-            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && d_t->get_hints().is_regular()) {
+            if (is_eqp(*d_t, *d_s) && d_t->get_hints().is_regular()) {
                 // Optimization:
-                // We try to check if their arguments are definitionally equal.
+                // If both terms are the same definition (possibly with different but defeq universes),
+                // we check if their universe levels and arguments are definitionally equal.
                 // If they are, then t_n and s_n must be definitionally equal, and we can
                 // skip the delta-reduction step.
                 if (!failed_before(t_n, s_n)) {
-                    if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n))) &&
-                        is_def_eq_args(t_n, s_n)) {
-                        return reduction_status::DefEqual;
-                    } else {
-                        cache_failure(t_n, s_n);
+                    if (is_app(t_n) && is_app(s_n)) {
+                        if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n))) &&
+                            is_def_eq_args(t_n, s_n)) {
+                            return reduction_status::DefEqual;
+                        } else {
+                            cache_failure(t_n, s_n);
+                        }
+                    } else if (is_constant(t_n) && is_constant(s_n)) {
+                        // Handle the case where both are plain constants (not applications)
+                        // with the same name but potentially different (but defeq) universes.
+                        // This avoids expensive unfolding when e.g. comparing c.{max u v} with c.{max v u}.
+                        if (is_def_eq(const_levels(t_n), const_levels(s_n))) {
+                            return reduction_status::DefEqual;
+                        } else {
+                            cache_failure(t_n, s_n);
+                        }
                     }
                 }
             }

@@ -134,9 +134,9 @@ open Lean.Meta
     let continueCont := do
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kcontinue tuple
-    let break? ← IO.mkRef false
+    -- let break? ← IO.mkRef false
     let breakCont := do
-      break?.set true
+      -- break?.set true
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kbreak tuple
 
@@ -157,7 +157,7 @@ open Lean.Meta
     unless ← breakRhsMVar.mvarId!.checkedAssign breakRhs do
       throwError "Failed to assign break continuation"
 
-    let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
+    let needBreakJoin := dec.kind matches .nonDuplicable -- && (← break?.get)
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
     let knil := if needBreakJoin then kbreak else breakRhs
     let app := mkApp3 app preS kcons knil

@@ -916,19 +916,32 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostp
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
 
-partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
+partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   if h : doElems.size = 0 then
     throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
   let back := doElems.back
   let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
   let mkCont el k := { initCont with ref := el, k := fun _ref => k }
-  let (_, res) := doElems.pop.foldr (init := (back, elabDoElem back cont)) fun el (prev, k) => (el, elabDoElem el (mkCont prev k))
+  let init := (back, elabDoElem back cont catchExPostpone)
+  let (_, res) := doElems.pop.foldr (init := init) fun el (prev, k) =>
+    (el, elabDoElem el (mkCont prev k) catchExPostpone)
   res
 end
 
-def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) : DoElabM Expr := do
-  elabDoElems1 (getDoElems doSeq) cont
+partial def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
+  let s ← saveState
+  try
+    elabDoElems1 (getDoElems doSeq) cont catchExPostpone
+  catch ex => match ex with
+    | .internal id _ =>
+      if catchExPostpone && id == postponeExceptionId then
+        s.restore
+        let expectedType ← mkMonadicType (← read).doBlockResultType
+        doElabToSyntax m!"do sequence {doSeq}" (elabDoSeq doSeq cont) (Term.postponeElabTerm · expectedType)
+      else
+        throw ex
+    | _ => throw ex
 
 @[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
   let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax

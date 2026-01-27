@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree
+public import Lean.Meta.Eqns
 import Lean.Meta.Sym.Simp.DiscrTree
 public section
 namespace Lean.Meta.Sym.Simp
@@ -44,5 +45,9 @@ def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × 
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, rhs) ← mkEqPatternFromDecl declName
   return { expr := mkConst declName, pattern, rhs }
+
+def mkTheoremsFromEquations (declName : Name) : MetaM <| Option Theorem := do
+  let some eqn ← getUnfoldEqnFor? declName (nonRec := true) | return .none
+  mkTheoremFromDecl eqn
 
 end Lean.Meta.Sym.Simp

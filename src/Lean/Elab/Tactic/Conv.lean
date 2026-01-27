@@ -15,3 +15,4 @@ public import Lean.Elab.Tactic.Conv.Simp
 public import Lean.Elab.Tactic.Conv.Pattern
 public import Lean.Elab.Tactic.Conv.Delta
 public import Lean.Elab.Tactic.Conv.Unfold
+public import Lean.Elab.Tactic.Conv.Cbv

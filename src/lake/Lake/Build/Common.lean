@@ -455,6 +455,8 @@ public def Cache.saveArtifact
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
     IO.FS.writeFile cacheFile normalized
+    let r := {read := true, write := false, execution := false}
+    IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
     let path := if useLocalFile then file else cacheFile
@@ -466,9 +468,8 @@ public def Cache.saveArtifact
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
     IO.FS.writeBinFile cacheFile contents
-    if exe then
-      let r := ⟨true, true, true⟩
-      IO.setAccessRights cacheFile ⟨r, r, r⟩ -- 777
+    let r := {read := true, write := false, execution := exe}
+    IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
     let path := if useLocalFile then file else cacheFile
@@ -537,6 +538,33 @@ public def computeArtifact (path : FilePath) (ext := "art") (text := false) : Jo
   return {descr := artifactWithExt hash ext, name := path.toString, path, mtime}
 
 /--
+Makes an artifact from the cache, `art`, available at the local path, `file` and returns an
+altered artifact using `file` as the preferred path.
+
+If `file` already exists, it is used. Otherwise, the function first attempts to create `file`
+as hard link to the artifact. If this fails (e.g., because the artifact and path are on differets
+drives and/or file systems), falls back to copying the artifact to the new path.
+
+**For internal use.**
+-/
+public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : LogIO Artifact := do
+  unless (← file.pathExists) do
+    logVerbose s!"found artifact in cache: {art.path}"
+    try
+      IO.FS.hardLink art.path file
+    catch _ =>
+      logVerbose s!"could not hard link artifact, copying from cache instead..."
+      createParentDirs file
+      copyFile art.path file
+      -- make the local file unwritable where possible to discourage users from
+      -- writing to such paths as this can corrupt the cache if the file was hard linked instead
+      let r := {read := true, write := false, execution := exe}
+      IO.setAccessRights file ⟨r, r, r⟩
+    logVerbose s!"restored artifact from cache to: {file}"
+    writeFileHash file art.hash
+  return art.useLocalFile file
+
+/--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
 with a matching extension (`ext`) and content hash. If one is found, use it.
 Otherwise, builds `file` using `build` and saves it to the cache. If Lake's
@@ -565,15 +593,7 @@ public def buildArtifactUnlessUpToDate
         removeFileIfExists file
         writeFetchTrace traceFile inputHash (toJson art.descr)
       if restore then
-        if !(← file.pathExists) then
-          logVerbose s!"restored artifact from cache to: {file}"
-          createParentDirs file
-          copyFile art.path file
-          if exe then
-            let r := ⟨true, true, true⟩
-            IO.setAccessRights file ⟨r, r, r⟩ -- 777
-          writeFileHash file art.hash
-        return some (art.useLocalFile file)
+        some <$> restoreArtifact file art exe
       else
         return some art
     let art ← id do
@@ -613,6 +633,7 @@ public def buildArtifactUnlessUpToDate
 where
   doBuild depTrace traceFile :=
     inline <| buildAction depTrace traceFile do
+      removeFileIfExists file
       build
       clearFileHash file
       removeFileIfExists traceFile

@@ -643,14 +643,6 @@ where
   @[inline] cacheIf? c art ext := do
     if c then return some (← cache art ext) else return none
 
-private def restoreModuleArtifact (file : FilePath) (art : Artifact) : JobM Artifact := do
-  unless (← file.pathExists) do
-    logVerbose s!"restored artifact from cache to: {file}"
-    createParentDirs file
-    copyFile art.path file
-    writeFileHash file art.hash
-  return art.useLocalFile file
-
 /--
 Some module build artifacts must be located in the build directory (e.g., ILeans).
 This copies the required artifacts from the local Lake cache to the build directory and
@@ -658,22 +650,21 @@ updates the data structure with the new paths.
 -/
 private def Module.restoreNeededArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    ilean := ← restoreModuleArtifact mod.ileanFile cached.ilean
+    ilean := ← restoreArtifact mod.ileanFile cached.ilean
   }
 
 private def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    olean := ← restoreModuleArtifact mod.oleanFile cached.olean
+    olean := ← restoreArtifact mod.oleanFile cached.olean
     oleanServer? := ← restoreSome mod.oleanServerFile cached.oleanServer?
     oleanPrivate? := ← restoreSome mod.oleanPrivateFile cached.oleanPrivate?
-    ilean := ← restoreModuleArtifact mod.ileanFile cached.ilean
+    ilean := ← restoreArtifact mod.ileanFile cached.ilean
     ir? := ← restoreSome mod.irFile cached.ir?
-    c := ← restoreModuleArtifact mod.cFile cached.c
+    c := ← restoreArtifact mod.cFile cached.c
     bc? := ← restoreSome mod.bcFile cached.bc?
   }
 where
-  @[inline] restoreSome file art? :=
-    art?.mapM (restoreModuleArtifact file)
+  @[inline] restoreSome file art? := art?.mapM (restoreArtifact file ·)
 
 
 private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : ModuleArtifacts where
@@ -714,6 +705,7 @@ private def Module.buildLean
   let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
   let setup := {setup with importArts := transImpArts}
   let arts := mod.mkArtifacts srcFile setup.isModule
+  mod.clearOutputArtifacts
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
   mod.clearOutputHashes

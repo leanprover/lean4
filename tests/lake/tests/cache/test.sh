@@ -124,17 +124,17 @@ test_out "Replayed Test.ImportIgnored" -v build Test.ImportIgnored --no-build --
 test_err 'Unknown identifier `bar`' -v build Test.ImportIgnored
 
 # Test that truly up-to-date files are still cached with `--old`
-test_cmd rm .lake/build/lib/lean/Ignored.*
+test_cmd rm -f .lake/build/lib/lean/Ignored.*
 test_out "restored artifact from cache" -v build +Ignored --no-build
 
 # Verify module ileans are restored from the cache
 test_run build +Test --no-build
-test_cmd rm .lake/build/lib/lean/Test.ilean
+test_cmd rm -f .lake/build/lib/lean/Test.ilean
 test_out "restored artifact from cache" -v build +Test --no-build
 test_exp -f .lake/build/lib/lean/Test.ilean
 
 # Verify that things work properly if the cached artifact is removed
-test_cmd rm "$cache_art"
+test_cmd rm -f "$cache_art"
 test_out "⚠ [4/4] Replayed Test:c.o" build +Test:o -v --no-build
 test_exp -f "$cache_art" # artifact should be re-cached
 test_cmd rm -r "$CACHE_DIR/outputs"
@@ -147,18 +147,18 @@ ls .lake/backup-outputs > .lake/backup-outputs.txt
 check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 
 # Verify that things work properly if the local artifact is removed
-test_cmd rm "$local_art"
+test_cmd rm -f "$local_art"
 test_out "Replayed Test:c.o" build +Test:o -v --no-build
-test_cmd rm "$local_art.trace"
+test_cmd rm -f "$local_art.trace"
 test_out "Fetched Test:c.o" build +Test:o -v --no-build
 
 # Verify that if the input cache is missing,
 # the cached artifact is still used via the output hash in the trace
-test_cmd rm -r "$CACHE_DIR/outputs" .lake/build/ir/Test.c
+test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/ir/Test.c
 test_run -v build +Test:c --no-build
 
 # Verify that the olean does need to be present in the build directory
-test_cmd rm .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
+test_cmd rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
 test_run -v build +Test.Imported --no-build --wfail
 test_run -v build +Test
 

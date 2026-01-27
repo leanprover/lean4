@@ -973,5 +973,4 @@ def foldSubInt (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
   else foldInt x 0#l BitVec.sub (by omega)
 
-
 end BitVec

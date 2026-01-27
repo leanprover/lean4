@@ -165,7 +165,6 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
     DoElabM Expr := do
   nondupDec.withDuplicableCont fun dec => do
   let doBlockResultType := (← read).doBlockResultType
-  let mγ ← mkMonadicType doBlockResultType
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   Term.tryPostponeIfDiscrTypeIsMVar motive? discrs
   let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
@@ -331,7 +330,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       let r := mkAppN r rhss
       trace[Elab.match] "result: {r}"
       return r
-  Term.elabToSyntax finishMatchExpr (Term.elabTerm · mγ)
+  finishMatchExpr (← mkPUnit)
 
 def isSyntaxMatch (alts : Array (TSyntax ``matchAlt)) : Bool :=
   alts.any (fun alt =>

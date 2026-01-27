@@ -283,6 +283,11 @@ def ParamInfo.isStrictImplicit (p : ParamInfo) : Bool :=
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   p.binderInfo == BinderInfo.default
 
+/-- Returns `true` if the corresponding parameter is an instance. -/
+def ParamInfo.isInstance (p : ParamInfo) : Bool :=
+  -- Approximation for now
+  p.binderInfo == BinderInfo.instImplicit
+
 /--
   Function information cache. See `ParamInfo`.
 -/

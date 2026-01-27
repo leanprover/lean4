@@ -300,7 +300,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
-    if info.isInstImplicit then
+    if info.isInstance then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
     unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
@@ -309,7 +309,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
-    if info.isInstImplicit then
+    if info.isInstance then
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
        return false
     else

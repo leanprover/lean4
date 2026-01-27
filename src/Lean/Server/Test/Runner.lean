@@ -273,13 +273,13 @@ def patchUri (s : String) : IO String := do
     catch _ =>
       return s
   let c := path.components.toArray
-  if let some srcIdx := c.findIdx? (· == "src") then
+  if let some (_, srcIdx) := c.zipIdx.filter (·.1 == "src") |>.back? then
     if ! c[srcIdx + 1]?.any (fun dir => dir == "Init" || dir == "Lean" || dir == "Std") then
       return s
     let c := c.drop <| srcIdx
     let path := System.mkFilePath c.toList
     return System.Uri.pathToUri path
-  if let some testIdx := c.findIdx? (· == "tests") then
+  if let some (_, testIdx) := c.zipIdx.filter (·.1 == "tests") |>.back? then
     let c := c.drop <| testIdx
     let path := System.mkFilePath c.toList
     return System.Uri.pathToUri path

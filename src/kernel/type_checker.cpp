@@ -1089,9 +1089,16 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_fvar(t_n) && is_fvar(s_n) && fvar_name(t_n) == fvar_name(s_n))
         return true;
 
-    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n)) {
+    if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n) && proj_sname(t_n) == proj_sname(s_n)) {
         expr t_c = proj_expr(t_n);
         expr s_c = proj_expr(s_n);
+        // Early check: if both are projections of the same constant, just check universe levels
+        // instead of entering the expensive lazy_delta_proj_reduction loop.
+        // This handles cases like `bar.toA` vs `bar.toA` where `bar` has universe `max u v` vs `max v u`.
+        if (is_constant(t_c) && is_constant(s_c) && const_name(t_c) == const_name(s_c)) {
+            if (is_def_eq(const_levels(t_c), const_levels(s_c)))
+                return true;
+        }
         if (lazy_delta_proj_reduction(t_c, s_c, proj_idx(t_n)))
             return true;
     }

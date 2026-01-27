@@ -707,14 +707,14 @@ section MessageHandling
       : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
-    let mod := st.doc.meta.mod
+    let uri := st.doc.meta.uri
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -724,7 +724,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find  mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 

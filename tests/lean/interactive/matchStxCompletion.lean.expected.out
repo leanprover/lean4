@@ -3,26 +3,26 @@
 {"items":
  [{"label": "f1",
    "kind": 5,
-   "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.f1"]},
+   "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.f1"]},
   {"label": "b1",
    "kind": 5,
-   "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.b1"]},
+   "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.b1"]},
   {"label": "f2",
    "kind": 5,
-   "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.f2"]}],
+   "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.f2"]}],
  "isIncomplete": false}
 Resolution of f1:
 {"label": "f1",
  "kind": 5,
  "detail": "C → Nat",
- "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.f1"]}
+ "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.f1"]}
 Resolution of b1:
 {"label": "b1",
  "kind": 5,
  "detail": "C → String",
- "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.b1"]}
+ "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.b1"]}
 Resolution of f2:
 {"label": "f2",
  "kind": 5,
  "detail": "C → Bool",
- "data": ["«external:file:///matchStxCompletion.lean»", 8, 9, 1, "cC.f2"]}
+ "data": ["file:///matchStxCompletion.lean", 8, 9, 1, "cC.f2"]}

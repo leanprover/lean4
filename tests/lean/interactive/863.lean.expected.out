@@ -3,39 +3,38 @@
 {"items":
  [{"label": "MonadRef.getRef",
    "kind": 5,
-   "data": ["«external:file:///863.lean»", 9, 12, 0, "cLean.MonadRef.getRef"]},
+   "data": ["file:///863.lean", 9, 12, 0, "cLean.MonadRef.getRef"]},
   {"label": "getRef",
    "kind": 5,
-   "data": ["«external:file:///863.lean»", 9, 12, 0, "cLean.MonadRef.getRef"]}],
+   "data": ["file:///863.lean", 9, 12, 0, "cLean.MonadRef.getRef"]}],
  "isIncomplete": false}
 Resolution of MonadRef.getRef:
 {"label": "MonadRef.getRef",
  "kind": 5,
  "detail": "[self : MonadRef] → Type",
- "data": ["«external:file:///863.lean»", 9, 12, 0, "cLean.MonadRef.getRef"]}
+ "data": ["file:///863.lean", 9, 12, 0, "cLean.MonadRef.getRef"]}
 Resolution of getRef:
 {"label": "getRef",
  "kind": 5,
  "detail": "[self : MonadRef] → Type",
- "data": ["«external:file:///863.lean»", 9, 12, 0, "cLean.MonadRef.getRef"]}
+ "data": ["file:///863.lean", 9, 12, 0, "cLean.MonadRef.getRef"]}
 {"textDocument": {"uri": "file:///863.lean"},
  "position": {"line": 13, "character": 12}}
 {"items":
  [{"label": "MonadRef.getRef",
    "kind": 5,
-   "data": ["«external:file:///863.lean»", 13, 12, 0, "cLean.MonadRef.getRef"]},
+   "data": ["file:///863.lean", 13, 12, 0, "cLean.MonadRef.getRef"]},
   {"label": "getRef",
    "kind": 5,
-   "data":
-   ["«external:file:///863.lean»", 13, 12, 0, "cLean.MonadRef.getRef"]}],
+   "data": ["file:///863.lean", 13, 12, 0, "cLean.MonadRef.getRef"]}],
  "isIncomplete": false}
 Resolution of MonadRef.getRef:
 {"label": "MonadRef.getRef",
  "kind": 5,
  "detail": "[self : MonadRef] → Type",
- "data": ["«external:file:///863.lean»", 13, 12, 0, "cLean.MonadRef.getRef"]}
+ "data": ["file:///863.lean", 13, 12, 0, "cLean.MonadRef.getRef"]}
 Resolution of getRef:
 {"label": "getRef",
  "kind": 5,
  "detail": "[self : MonadRef] → Type",
- "data": ["«external:file:///863.lean»", 13, 12, 0, "cLean.MonadRef.getRef"]}
+ "data": ["file:///863.lean", 13, 12, 0, "cLean.MonadRef.getRef"]}

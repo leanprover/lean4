@@ -2365,7 +2365,7 @@ Postponing Monad instance resolution appropriately
 
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.9
+  Pure ?m.8
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 

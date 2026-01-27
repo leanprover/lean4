@@ -834,7 +834,14 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx
-  Term.synthesizeSyntheticMVarsUsingDefault
+  -- Synthesizing default instances here is harmful for expressions such as
+  -- ```
+  -- withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do
+  --   ... (g.apply e cfg) ...
+  -- ```
+  -- Doing so will default the type of `e` to `MessageData` as part of elaborating the `return`
+  -- expression before elaboration can propagate that `e : Expr` in the `apply` call.
+  -- Term.synthesizeSyntheticMVarsUsingDefault
   trace[Elab.do] "{← instantiateMVars res}"
   pure res
 

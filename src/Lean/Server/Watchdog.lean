@@ -498,15 +498,10 @@ section ServerM
     let r? ← eraseGetPendingRequest uri id
     return r?.isSome
 
-  def handleILeanHeaderInfo (fw : FileWorker) (params : LeanILeanHeaderInfoParams) : ServerM Unit := do
-    let module := fw.doc.mod
-    let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerImports module uri params.version params.directImports)
-
   def handleILeanHeaderSetupInfo (fw : FileWorker) (params : LeanILeanHeaderSetupInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
     let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.isSetupFailure)
+    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.directImports params.isSetupFailure)
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
@@ -824,9 +819,6 @@ section ServerM
               let globalID ← (← read).serverRequestData.modifyGet
                 (·.trackOutboundRequest fw.doc.uri id)
               writeMessage (Message.request globalID method params?)
-        | .notification "$/lean/ileanHeaderInfo" =>
-          if let .ok params := parseNotificationParams? LeanILeanHeaderInfoParams msg then
-            handleILeanHeaderInfo fw params
         | .notification "$/lean/ileanHeaderSetupInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
             handleILeanHeaderSetupInfo fw params

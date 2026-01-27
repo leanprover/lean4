@@ -66,7 +66,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
     | .app f a           =>
       let fi ← getFunInfo f (some 1)
       if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
+        -- Don't visit instance implicit arguments.
         visit f acc
       else
         visit a (← visit f acc)

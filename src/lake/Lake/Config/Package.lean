@@ -43,13 +43,15 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
   targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/
@@ -165,7 +167,7 @@ public def id? (self : Package) : Option PkgId :=
   if self.bootstrap then none else some <| self.origName.toString (escape := false)
 
 /-- The package version. -/
-@[inline] public def version (self : Package) : LeanVer  :=
+@[inline] public def version (self : Package) : StdVer  :=
   self.config.version
 
 /-- The package's `versionTags` configuration. -/

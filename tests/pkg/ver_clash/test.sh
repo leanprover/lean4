@@ -16,11 +16,14 @@ source ../../lake/tests/common.sh
 # across the versions, but they both privately make use of changed API (i.e.,
 # `poorly_named_lemma` and its rename, `add_left_comm`).
 #
-# Currently, this causes a version clash, which is tested here.
+# Without multi-version workspaces, this causes a version clash. With them,
+# Lake can automagically make this work. This test verifies that behavior.
 
 # ---
 # Setup
 # ---
+
+echo "# SETUP"
 
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repositories on each test.
@@ -38,6 +41,7 @@ popd
 pushd DiamondExample-B
 $LAKE update
 init_git
+B_REV=`git rev-parse HEAD`
 popd
 
 pushd DiamondExample-C
@@ -51,9 +55,11 @@ sed_i s/poorly_named_lemma/add_left_comm/ DiamondExampleC/MainResult.lean
 $LAKE update
 git commit -am "use v2"
 git tag v2
+C_REV=`git rev-parse HEAD`
 popd
 
 pushd DiamondExample-D
+sed_i '/experimentalMultiVersion/ s/true/false/' lakefile.toml
 sed_i s/v2/v1/ lakefile.toml
 $LAKE update
 init_git
@@ -68,18 +74,30 @@ popd
 # Main tests
 # ---
 
+echo "# TESTS"
+
 cd DiamondExample-D
 
-# Test build succeeds on v1
-git switch v1 --detach
+echo "# multiVersion = false"
+
+# Test v1 build succeeds w/o mult-version workspaces
+test_cmd git switch v1 --detach
 test_run build
 
-# Test build fails on v2
-git switch v2 --detach
+# Test v2 build fails w/o multi-version workspaces
+test_cmd git switch v2 --detach
 test_err 'Unknown identifier `poorly_named_lemma`' build
 
-# Test build with different package names
-sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/lakefile.toml
-sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/lakefile.toml
+echo "# multiVersion = true"
+
+# Test v2 build succeeds w/ multi-version workspaces
+sed_i '/experimentalMultiVersion/ s/false/true/' lakefile.toml
 test_run update
-test_err 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`' build
+test_run build
+
+# Test v2 build with different package names
+# (multi-version workspaces are still required for module disambiguation)
+sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/$B_REV/lakefile.toml
+sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/$C_REV/lakefile.toml
+test_run update
+test_run build

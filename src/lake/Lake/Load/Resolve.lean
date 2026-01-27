@@ -25,37 +25,43 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
+/-- Returns the load configuration of a materialized dependency. -/
+@[inline] def mkDepLoadConfig
+  (ws : Workspace) (dep : MaterializedDep)
+  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+: LoadConfig where
+  lakeEnv := ws.lakeEnv
+  wsDir := ws.dir
+  pkgIdx := ws.packages.size
+  pkgName := dep.name
+  pkgDir := dep.pkgDir
+  relPkgDir := dep.relPkgDir
+  relConfigFile := dep.relConfigFile
+  relManifestFile := dep.relManifestFile
+  lakeOpts; leanOpts; reconfigure
+  scope := dep.scope
+  remoteUrl := dep.remoteUrl
+
+def Workspace.addFacetDecls (decls : Array FacetDecl) (self : Workspace) : Workspace :=
+  decls.foldl (·.addFacetConfig ·.config) self
+
 /--
 Loads the package configuration of a materialized dependency.
-Adds the facets defined in the package to the `Workspace`.
+Adds the package and the facets defined within it to the `Workspace`.
 -/
-def loadDepPackage
-  (wsIdx : Nat)
+def addDepPackage
   (dep : MaterializedDep)
   (lakeOpts : NameMap String)
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
-  let name := dep.name.toString (escape := false)
-  let pkgDir := ws.dir / dep.relPkgDir
-  let some pkgDir ← resolvePath? pkgDir
-    | error s!"{name}: package directory not found: {pkgDir}"
-  let (pkg, env?) ← loadPackageCore name {
-    lakeEnv := ws.lakeEnv
-    wsDir := ws.dir
-    pkgIdx := wsIdx
-    pkgName := dep.name
-    pkgDir
-    relPkgDir := dep.relPkgDir
-    relConfigFile := dep.configFile
-    lakeOpts, leanOpts, reconfigure
-    scope := dep.scope
-    remoteUrl := dep.remoteUrl
-  }
-  if let some env := env? then
-    let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
-    return (pkg, ws)
-  else
-    return (pkg, ws)
+  let wsIdx := ws.packages.size
+  let loadCfg := mkDepLoadConfig ws dep lakeOpts leanOpts reconfigure
+  let ⟨loadCfg, h⟩ ← resolveConfigFile dep.prettyName loadCfg
+  let fileCfg ← loadConfigFile loadCfg h
+  let pkg := mkPackage loadCfg fileCfg wsIdx
+  let ws := ws.addPackage' pkg wsIdx_mkPackage
+  let ws := ws.addFacetDecls fileCfg.facetDecls
+  return (pkg, ws)
 
 /--
 The resolver's call stack of dependencies.
@@ -97,10 +103,21 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
     inline <| recFetchAcyclic (·.baseName) go root
   return ws
 
+private def Workspace.setDepPkgs
+  (self : Workspace) (wsIdx : Nat) (depPkgs : Array Package)
+: Workspace := {self with
+  packages := self.packages.modify wsIdx ({· with depPkgs})
+  packages_wsIdx {i} := by
+    if h : wsIdx = i then
+      simp [h, Array.getElem_modify_self, self.packages_wsIdx]
+    else
+      simp [Array.getElem_modify_of_ne h, self.packages_wsIdx]
+}
+
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
-resolved using the `load` function and added into the workspace.
+added to the workspace using the `resolve` function.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
@@ -108,42 +125,90 @@ resolved in reverse order before recursing to the dependencies' dependencies.
 See `Workspace.updateAndMaterializeCore` for more details.
 -/
 @[inline] private def Workspace.resolveDepsCore
-  [Monad m] [MonadError m] (ws : Workspace)
-  (load : Package → Dependency → Nat → StateT Workspace m Package)
+  [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
+  (resolve : Package → Dependency → Workspace → m MaterializedDep)
   (root : Package := ws.root) (stack : DepStack := {})
+  (leanOpts : Options := {}) (reconfigure := true)
 : m Workspace := do
   ws.runResolveT go root stack
 where
   @[specialize] go pkg recurse : ResolveT m Unit := do
     let start := (← getWorkspace).packages.size
     -- Materialize and load the missing direct dependencies of `pkg`
-    pkg.depConfigs.forRevM fun dep => do
-      let ws ← getWorkspace
-      if ws.packages.any (·.baseName == dep.name) then
-        return -- already handled in another branch
+    let depIdxs ← pkg.depConfigs.foldrM (init := Array.mkEmpty pkg.depConfigs.size) fun dep deps => do
+      let isMultiVersion := (← getWorkspace).isMultiVersion
+      unless isMultiVersion do
+        if let some pkg ← findPackageByName? dep.name then
+          return deps.push pkg.wsIdx -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
-      let depPkg ← load pkg dep ws.packages.size
-      modifyThe Workspace (·.addPackage depPkg)
+      let matDep ← resolve pkg dep (← getWorkspace)
+      if isMultiVersion then
+        if let some pkg := (← getWorkspace).packages.find? (·.dir == matDep.pkgDir) then
+          return deps.push pkg.wsIdx
+      let depPkg ← addDepPackage matDep dep.opts leanOpts reconfigure
+      return deps.push depPkg.wsIdx
     -- Recursively load the dependencies' dependencies
     (← getWorkspace).packages.forM recurse start
+    -- Add the package's dependencies to the package
+    modifyThe Workspace fun ws => ws.setDepPkgs pkg.wsIdx <| depIdxs.map (ws.packages[·]!)
+
+/-- A map of locked dependencies. -/
+abbrev EntryMap := NameMap (Array PackageEntry)
 
 /--
-Adds monad state used to update the manifest.
+Monad transformer used to update the manifest.
 It equips the monad with a map of locked dependencies.
 -/
-abbrev UpdateT := StateT (NameMap PackageEntry)
+abbrev UpdateT := StateT EntryMap
 
-@[inline] nonrec def UpdateT.run (x : UpdateT m α) (init : NameMap PackageEntry := {}) : m (α × NameMap PackageEntry) :=
+@[inline] nonrec def UpdateT.run (x : UpdateT m α) (init : EntryMap := {}) : m (α × EntryMap) :=
   x.run init
+
+/-- Monad used to update the manifest. -/
+abbrev UpdateM := UpdateT LoggerIO
+
+def EntryMap.resolve?
+  (dep : Dependency) (multiVersion inherit : Bool) (self : EntryMap)
+: Option PackageEntry :=
+  if let some entries := self.get? dep.name then
+    if multiVersion then
+      match dep.version with
+      | .none => entries[0]?
+      | .git rev => entries.find? (·.inputRev?.any (· == rev))
+      | .ver ver => entries.find? (ver.test ·.version)
+    else if inherit then
+      entries[0]?
+    else
+      entries[0]?.filter (!·.inherited)
+  else
+    none
+
+@[inline] def getEntry?
+  (ws : Workspace) (dep : Dependency) (inherit : Bool)
+: UpdateM (Option PackageEntry) :=
+  return (← getThe EntryMap).resolve? dep ws.isMultiVersion inherit
+
+def EntryMap.add (entry : PackageEntry) (multiVersion : Bool) (self : EntryMap) : EntryMap :=
+  self.alter entry.name fun es? =>
+    if let some es := es? then
+      if multiVersion then
+        some <| es.push entry
+      else if entry.inherited then -- inherited do not take precedence
+        some es
+      else
+        some #[entry]
+    else
+      some #[entry]
+
+@[inline] def addEntry (ws : Workspace) (entry : PackageEntry) : UpdateM Unit := do
+  modifyThe EntryMap (·.add entry ws.isMultiVersion)
 
 /--
 Reuse manifest versions of root packages that should not be updated.
 Also, move the packages directory if its location has changed.
 -/
-private def reuseManifest
-  (ws : Workspace) (toUpdate : NameSet)
-: UpdateT LoggerIO PUnit := do
+private def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateM PUnit := do
   let rootName := ws.root.prettyName
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
@@ -151,57 +216,62 @@ private def reuseManifest
     unless toUpdate.isEmpty do
       manifest.packages.forM fun entry => do
         unless entry.inherited || toUpdate.contains entry.name do
-          store entry.name entry
-    -- Move packages directory
+          addEntry ws entry
+    -- Reuse or delete packages directory
     if let some oldRelPkgsDir := manifest.packagesDir? then
       let oldPkgsDir := ws.dir / oldRelPkgsDir
-      if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
-        logInfo s!"workspace packages directory changed; \
-          renaming '{oldPkgsDir}' to '{ws.pkgsDir}'"
-        let doRename : IO Unit := do
-          createParentDirs ws.pkgsDir
-          IO.FS.rename oldPkgsDir ws.pkgsDir
-        if let .error e ← doRename.toBaseIO then
-          error s!"could not rename workspace packages directory: {e}"
+      if (← oldPkgsDir.pathExists) then
+        if manifest.multiVersion != ws.isMultiVersion then
+          tryDeletePackagesDir oldPkgsDir
+        -- Rename it
+        else if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize then
+          logInfo s!"workspace packages directory changed, \
+            renaming\n  {oldPkgsDir}\nto\n  {ws.pkgsDir}"
+          let doRename : IO Unit := do
+            createParentDirs ws.pkgsDir
+            IO.FS.rename oldPkgsDir ws.pkgsDir
+          if let .error e ← doRename.toBaseIO then
+            error s!"could not rename workspace packages directory: {e}"
+      else if manifest.multiVersion != ws.isMultiVersion then
+        tryDeletePackagesDir ws.pkgsDir
   | .error (.noFileOrDirectory ..) =>
     logInfo s!"{rootName}: no previous manifest, creating one from scratch"
   | .error e =>
     unless toUpdate.isEmpty do
       liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
+where
+  tryDeletePackagesDir pkgsDir : LoggerIO PUnit := do
+    if System.Platform.isWindows then
+      -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on windows
+      logInfo s!"mutli-version workspace setting changed; \
+        you may need to delete the packages directory manually:\n  {pkgsDir}"
+    else
+      logInfo s!"mutli-version workspace setting changed, \
+        deleting packages directory:\n  {pkgsDir}"
+      IO.FS.removeDirAll pkgsDir
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) : UpdateT LoggerIO PUnit := do
-  match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
+private def addDependencyEntries (ws : Workspace) (dep : MaterializedDep) : UpdateM PUnit := do
+  match (← Manifest.load dep.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
-      unless (← getThe (NameMap PackageEntry)).contains entry.name do
-        let entry := entry.setInherited.inDirectory pkg.relDir
-        store entry.name entry
+      addEntry ws <| entry.setInherited.inDirectory dep.relPkgDir
   | .error (.noFileOrDirectory ..) =>
-    logWarning s!"{pkg.prettyName}: ignoring missing manifest '{pkg.manifestFile}'"
+    logWarning s!"{dep.prettyName}: ignoring missing manifest:\n  {dep.manifestFile}"
   | .error e =>
-    logWarning s!"{pkg.prettyName}: ignoring manifest because it failed to load: {e}"
+    logWarning s!"{dep.prettyName}: ignoring manifest because it failed to load: {e}"
 
 /-- Materialize a single dependency, updating it if desired. -/
 private def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
-: UpdateT LoggerIO MaterializedDep := do
-  if let some entry ← fetch? dep.name then
-    entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
+: UpdateM MaterializedDep := do
+  if let some entry ← getEntry? ws dep !pkg.isRoot then
+    entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir ws.isMultiVersion
   else
-    let inherited := !pkg.isRoot
-    /-
-    NOTE: A path dependency inherited from another dependency's manifest
-    will always be of the form a `./<relPath>` (i.e., be relative to its
-    workspace).  Thus, when relativized to this workspace, it will have the
-    path  `<relPkgDir>/./<relPath>`. However, if defining dependency lacks
-    a manifest, it will instead be locked as `<relPkgDir>/<relPath>`.
-    Adding a `.` here eliminates this difference.
-    -/
-    let relPkgDir := if pkg.relDir == "." then pkg.relDir else pkg.relDir / "."
-    let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir relPkgDir
-    store matDep.name matDep.manifestEntry
+    let matDep ← dep.materialize (!pkg.isRoot)
+      ws.lakeEnv ws.dir ws.relPkgsDir pkg.relDir ws.isMultiVersion
+    addEntry ws matDep.manifestEntry
     return matDep
 
 /--
@@ -309,45 +379,44 @@ def Workspace.updateAndMaterializeCore
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
-: LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
+: LoggerIO (Workspace × EntryMap) := UpdateT.run do
   reuseManifest ws toUpdate
-  let ws := ws.addPackage ws.root
   if updateToolchain then
     let deps := ws.root.depConfigs.reverse
     let matDeps ← deps.mapM fun dep => do
-      logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
-      updateAndMaterializeDep ws ws.root dep
+      if ws.root.baseName = dep.name then
+        error s!"{ws.root.prettyName}: package requires itself (or a package with the same name)"
+      updateAndAddDep ws.root dep ws
     ws.updateToolchain matDeps
     let start := ws.packages.size
     let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (depPkg, ws) ← loadUpdatedDep ws.packages.size dep matDep ws
-      let ws := ws.addPackage depPkg
-      return ws
-    ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
-      ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndLoadDep pkg
+      (·.2) <$> addDepPackage matDep dep.opts leanOpts true ws
+    let stop := ws.packages.size
+    let ws ← ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
+      ws.resolveDepsCore updateAndAddDep pkg [ws.root.baseName] leanOpts true
+    return ws.setDepPkgs ws.root.wsIdx <| (start...<stop).toArray.map (ws.packages[·]!)
   else
-    ws.resolveDepsCore updateAndLoadDep
+    ws.resolveDepsCore updateAndAddDep (leanOpts := leanOpts) (reconfigure := true)
 where
-  @[inline] updateAndLoadDep pkg dep wsIdx := do
-    let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
-    loadUpdatedDep wsIdx dep matDep
-  @[inline] loadUpdatedDep wsIdx dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
-    let depPkg ← loadDepPackage wsIdx matDep dep.opts leanOpts true
-    addDependencyEntries depPkg
-    return depPkg
+  @[inline] updateAndAddDep pkg dep ws : UpdateM MaterializedDep := do
+    logVerbose s!"{ws.root.prettyName}: updating `{dep.resolverDescr}` with {toJson dep.opts}"
+    let matDep ← updateAndMaterializeDep ws pkg dep
+    addDependencyEntries ws matDep
+    return matDep
 
 /-- Write package entries to the workspace manifest. -/
 def Workspace.writeManifest
-  (ws : Workspace) (entries : NameMap PackageEntry)
+  (ws : Workspace) (entries : EntryMap)
 : IO PUnit := do
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
-    match entries.find? pkg.baseName with
-    | some entry => arr.push <|
-      entry.setManifestFile pkg.relManifestFile |>.setConfigFile pkg.relConfigFile
+    match entries.get? pkg.baseName with
+    | some entries => entries.foldl (init := arr) fun arr entry =>
+      arr.push <| entry.finalize pkg.version pkg.relConfigFile pkg.relManifestFile
     | none => arr -- should only be the case for the root
   let manifest : Manifest := {
     name := ws.root.baseName
     lakeDir := ws.relLakeDir
+    multiVersion := ws.isMultiVersion
     packagesDir? := ws.relPkgsDir
     packages := manifestEntries
   }
@@ -381,7 +450,7 @@ Check whether entries in the manifest are up-to-date,
 reporting warnings and/or errors as appropriate.
 -/
 def validateManifest
-  (pkgEntries : NameMap PackageEntry) (deps : Array Dependency)
+  (pkgEntries : EntryMap) (deps : Array Dependency) (multiVersion : Bool)
 : LoggerIO PUnit := do
   deps.forM fun dep => do
     let warnOutOfDate (what : String) :=
@@ -389,7 +458,7 @@ def validateManifest
         s!"manifest out of date: {what} of dependency '{dep.name}' changed; \
         use `lake update {dep.name}` to update it"
     let some src := dep.src? | return
-    let some entry := pkgEntries.find? dep.name | return
+    let some entry := pkgEntries.resolve? dep multiVersion false | return
     match src, entry.src with
     | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
       if url ≠ url' then warnOutOfDate "git url"
@@ -406,31 +475,36 @@ public def Workspace.materializeDeps
   (leanOpts : Options := {}) (reconfigure := false)
   (overrides : Array PackageEntry := #[])
 : LoggerIO Workspace := do
-  -- Load locked dependencies
+  -- Check locked configuration
   if !manifest.packages.isEmpty && manifest.packagesDir? != some (mkRelPathString ws.relPkgsDir) then
-    logWarning <|
-      "manifest out of date: packages directory changed; \
+    logWarning s!"manifest out of date: packages directory changed; \
       use `lake update` to rebuild the manifest \
       (warning: this will update ALL workspace dependencies)"
+  if manifest.multiVersion != ws.isMultiVersion then
+    logWarning s!"manifest out of date: multi-version setting changed \
+      (from `{manifest.multiVersion}` to `{ws.isMultiVersion}`); \
+      use `lake update` to rebuild the manifest \
+      (warning: this will update ALL workspace dependencies)"
+  let multiVersion := manifest.multiVersion
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
-  let mut pkgEntries := mkNameMap PackageEntry
-  pkgEntries := manifest.packages.foldl (init := pkgEntries) fun map entry =>
-    map.insert entry.name entry
-  validateManifest pkgEntries ws.root.depConfigs
-  let wsOverrides ← Manifest.tryLoadEntries ws.packageOverridesFile
-  pkgEntries := wsOverrides.foldl (init := pkgEntries) fun map entry =>
-    map.insert entry.name entry
-  pkgEntries := overrides.foldl (init := pkgEntries) fun map entry =>
-    map.insert entry.name entry
+  -- Collect locked dependencies from the manifest and overides
+  let pkgEntries ← id do
+    let pkgEntries : EntryMap := {}
+    let pkgEntries := manifest.packages.foldl (init := pkgEntries) fun map entry =>
+      map.add entry multiVersion
+    validateManifest pkgEntries ws.root.depConfigs multiVersion
+    let wsOverrides ← Manifest.tryLoadEntries ws.packageOverridesFile
+    let pkgEntries := wsOverrides.foldl (init := pkgEntries) fun map entry =>
+      map.add entry multiVersion
+    let pkgEntries := overrides.foldl (init := pkgEntries) fun map entry =>
+      map.add entry multiVersion
+    return pkgEntries
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  let ws := ws.addPackage ws.root
-  ws.resolveDepsCore fun pkg dep wsIdx => do
-    let ws ← getWorkspace
-    if let some entry := pkgEntries.find? dep.name then
-      let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
-      loadDepPackage wsIdx result dep.opts leanOpts reconfigure
+  ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
+    if let some entry := pkgEntries.resolve? dep multiVersion (!pkg.isRoot) then
+      entry.materialize ws.lakeEnv ws.dir relPkgsDir multiVersion
     else
       if pkg.isRoot then
         error <|

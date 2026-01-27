@@ -60,6 +60,7 @@ test_manifest v6
 test_manifest v7
 test_manifest v1.0.0
 test_manifest v1.1.0
+test_manifest v1.2.0
 
 # cleanup
 rm -f produced.out

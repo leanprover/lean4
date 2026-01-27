@@ -20,4 +20,11 @@ public configuration WorkspaceConfig where
   Defaults to `defaultPackagesDir` (i.e., `.lake/packages`).
   -/
   packagesDir : FilePath := defaultPackagesDir
+  /--
+  Enables **experimental** multi-version workspaces.
+
+  When enabled, Lake supports including different versions of a package (all with the same name)
+  in the workspace depedency tree.
+  -/
+  experimentalMultiVersion : Option Bool := .none
   deriving Inhabited, Repr

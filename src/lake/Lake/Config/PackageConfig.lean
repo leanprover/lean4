@@ -27,16 +27,6 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
-  /--
-  **This field is deprecated.**
-
-  The path of a package's manifest file, which stores the exact versions
-  of its resolved dependencies.
-
-  Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
-  -/
-  manifestFile : Option FilePath := none
-
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
 
@@ -331,11 +321,16 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
 deriving Inhabited
 
 /-- The package's name as specified by the author. -/
+@[deprecated "Deprecated without replacement" (since := "2025-12-10")]
 public abbrev PackageConfig.origName (_ : PackageConfig p n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
-  name : Name
+  baseName : Name
+  keyName : Name
   origName : Name
-  config : PackageConfig name origName
+  config : PackageConfig keyName origName
   deriving TypeName
+
+@[deprecated PackageDecl.keyName (since := "2025-12-10")]
+public abbrev PackageDecl.name := @keyName

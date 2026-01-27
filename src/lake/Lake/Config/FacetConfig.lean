@@ -27,6 +27,20 @@ public structure FacetConfig (name : Name) : Type where
   memoize : Bool := true
   deriving Inhabited
 
+/-- A mapping of facet names to the configuration for that name. -/
+public abbrev FacetConfigMap := DNameMap FacetConfig
+
+/--
+Tries to retrieve the facet configuration for the given {lean}`name`,
+returning {lean}`none` if no such mapping is present.
+-/
+public nonrec def FacetConfigMap.get? (name : Name) (self : FacetConfigMap) : Option (FacetConfig name) :=
+  self.get? name -- specializes `get?`
+
+/-- Inserts the facet configuration {lean}`cfg` into the map (overwriting any existing configuration). -/
+public nonrec def FacetConfigMap.insert {name} (cfg : FacetConfig name) (self : FacetConfigMap) : FacetConfigMap :=
+  self.insert name cfg -- should specialize `insert`
+
 public protected abbrev FacetConfig.name (_ : FacetConfig name) := name
 
 public structure KFacetConfig (k : Name) (name : Name) extends FacetConfig name where
@@ -69,6 +83,9 @@ public def FacetConfig.toKind? (kind : Name) (self : FacetConfig name) : Option 
 public structure NamedConfigDecl (β : Name → Type u) where
   name : Name
   config : β name
+
+/-- A facet declaration from a configuration file. -/
+public abbrev FacetDecl := NamedConfigDecl FacetConfig
 
 /-- A module facet's declarative configuration. -/
 public abbrev ModuleFacetConfig := KFacetConfig Module.facetKind

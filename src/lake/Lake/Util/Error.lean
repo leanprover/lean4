@@ -28,15 +28,25 @@ public instance : MonadError (Except String) where
   error msg := throw msg
 
 /--
+Perform an `Except` action.
+If it throws an error, invoke `error` with its string representation.
+-/
+@[inline] public def MonadError.runExcept
+  [Pure m] [MonadError m] [ToString ε] (x : Except ε α)
+: m α :=
+  match x with
+  | .ok a => pure a
+  | .error e => error (toString e)
+
+public instance[Pure m] [MonadError m] : MonadLift (Except String) m := ⟨MonadError.runExcept⟩
+
+/--
 Perform an EIO action.
 If it throws an error, invoke `error` with its string representation.
 -/
 @[inline] public def MonadError.runEIO
   [Monad m] [MonadError m] [MonadLiftT BaseIO m] [ToString ε] (x : EIO ε α)
-: m α := do
-  match (← x.toBaseIO) with
-  | .ok a => pure a
-  | .error e => error (toString e)
+: m α := do runExcept (← x.toBaseIO)
 
 /--
 Perform an IO action.

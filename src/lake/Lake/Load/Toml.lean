@@ -8,10 +8,12 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
 public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
+import Lake.Build.Infos
 meta import Lake.Config.Package
 
 open Lean Parser
@@ -295,30 +297,31 @@ public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decod
 public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
-  let src? : Option DependencySrc ← id do
-    if let some dir ← t.tryDecode? `path then
+  let src? : Option DependencySrc ← tryDecode do
+    if let some dir ← t.decode? `path then
       return some <| .path dir
     else if let some g := t.find? `git then
       match g with
-      | .string _ url =>
+      | .string _ url => ensureDecode do
         return some <| .git url rev? (← t.tryDecode? `subDir)
-      | .table ref t =>
+      | .table ref t => ensureDecode do
         return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
-      | _ =>
-        modify (·.push <| .mk g.ref "expected string or table")
-        return default
+      | _ => throwDecodeErrorAt g.ref "expected string or table"
     else
-      t.tryDecode? `source
+      t.decode? `source
   let scope ← t.tryDecodeD `scope ""
-  let version? ← id do
-    if let some ver ← t.tryDecode? `version then
-      return some ver
+  let version : InputVer ← tryDecode do
+    if let some val := t.find? `version then
+      let ver ← val.decodeString
+      match InputVer.parse ver with
+      | .ok ver => return ver
+      | .error e =>  throwDecodeErrorAt val.ref s!"invalid dependency version range: {e}"
     else if let some rev := rev? then
-      return if src?.isSome then none else some s!"git#{rev}"
+      return .git rev
     else
-      return none
+      return .none
   let opts ← t.tryDecodeD `options {}
-  return {name, scope, version?, src?, opts}
+  return {name, scope, version, src?, opts}
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
@@ -408,7 +411,8 @@ private def decodeTargetDecls
   let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
   return r
 where
-  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n))
+      (h : DataType kind = OpaqueConfigTarget kind := by simp) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
@@ -424,14 +428,16 @@ where
       else
         let config ← @decode name t
         let decl : NConfigDecl pkg name :=
-          -- Safety: By definition, config kind = facet kind for declarative configurations.
-          unsafe {pkg, name, kind, config, wf_data := lcProof}
+          -- Safety: By definition, for declarative configurations, the type of a package target
+          -- is its configuration's data kind (i.e., `CustomData pkg name = DataType kind`).
+          -- In the equivalent Lean configuration, this would hold by type family axiom.
+          unsafe {pkg, name, kind, config, wf_data := fun _ => ⟨lcProof, h⟩}
         return (decls.push decl.toPConfigDecl, map.insert name decl)
 
 /-! ## Root Loader -/
 
-/-- Load a `Package` from a Lake configuration file written in TOML. -/
-public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+/-- Load a Lake configuration from a file written in TOML. -/
+public def loadTomlConfig (cfg : LoadConfig) : LogIO LakefileConfig := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -442,21 +448,12 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
       let keyName := baseName.num wsIdx
       let config ← @PackageConfig.decodeToml keyName origName table
+      let pkgDecl := {baseName, keyName, origName, config : PackageDecl}
       let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
-      return {
-        wsIdx, baseName, keyName, origName
-        dir := cfg.pkgDir
-        relDir := cfg.relPkgDir
-        configFile := cfg.configFile
-        relConfigFile := cfg.relConfigFile
-        scope := cfg.scope
-        remoteUrl := cfg.remoteUrl
-        config, depConfigs, targetDecls, targetDeclMap
-        defaultTargets
-      }
+      return {pkgDecl, depConfigs, targetDecls, targetDeclMap, defaultTargets}
     if errs.isEmpty then
       return pkg
     else

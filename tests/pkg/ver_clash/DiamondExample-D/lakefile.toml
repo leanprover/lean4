@@ -1,5 +1,6 @@
 name = "DiamondExample-D"
 defaultTargets = ["DiamondExampleD"]
+experimentalMultiVersion = true
 
 [[require]]
 name = "DiamondExample-B"

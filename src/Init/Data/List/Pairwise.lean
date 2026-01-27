@@ -370,8 +370,6 @@ theorem Nodup.count_of_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : N
 
 grind_pattern Nodup.count => count a l, Nodup l
 
-grind_pattern Nodup.count_of_mem => count a l, Nodup l, a ∈ l
-
 theorem nodup_iff_count [BEq α] [LawfulBEq α] {l : List α} : l.Nodup ↔ ∀ a, count a l ≤ 1 := by
   simp only [nodup_iff_count_of_mem, Nat.le_iff_lt_or_eq, Nat.lt_one_iff, count_eq_zero]
   exact forall_congr' fun _ => Decidable.imp_iff_not_or

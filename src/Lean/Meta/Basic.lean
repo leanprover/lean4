@@ -241,6 +241,8 @@ structure ParamInfo where
     This information affects the generation of congruence theorems.
   -/
   isDecInst      : Bool       := false
+  /-- `isInstance` is true if the parameter type is a class instance. -/
+  isInstance     : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.
@@ -282,11 +284,6 @@ def ParamInfo.isStrictImplicit (p : ParamInfo) : Bool :=
 
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   p.binderInfo == BinderInfo.default
-
-/-- Returns `true` if the corresponding parameter is an instance. -/
-def ParamInfo.isInstance (p : ParamInfo) : Bool :=
-  -- Approximation for now
-  p.binderInfo == BinderInfo.instImplicit
 
 /--
   Function information cache. See `ParamInfo`.

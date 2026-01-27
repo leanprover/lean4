@@ -90,6 +90,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
             backDeps, dependsOnHigherOrderOutParam
             binderInfo := decl.binderInfo
             isProp     := (← isProp decl.type)
+            isInstance := (← isClass? decl.type).isSome
             isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
           if decl.binderInfo == .instImplicit then

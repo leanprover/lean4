@@ -410,29 +410,32 @@ def setupImports
       message    := stderrLine
     }
     chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
-  let isSetupError := fileSetupResult.kind matches .importsOutOfDate
-    || fileSetupResult.kind matches .error ..
+  let isSetupError := fileSetupResult matches .importsOutOfDate
+    || fileSetupResult matches .error ..
   chanOut.sync.send <| .ofMsg <| mkIleanHeaderSetupInfoNotification doc isSetupError
   -- clear progress notifications in the end
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
-  match fileSetupResult.kind with
-  | .importsOutOfDate =>
-    return .error {
-      diagnostics := (← Language.diagnosticsOfHeaderError
-        "Imports are out of date and must be rebuilt; \
-          use the \"Restart File\" command in your editor.")
-      result? := none
-      metaSnap := default
-    }
-  | .error msg =>
-    return .error {
-      diagnostics := (← diagnosticsOfHeaderError msg)
-      result? := none
-      metaSnap := default
-    }
-  | _ => pure ()
-
-  let setup := fileSetupResult.setup
+  let setup ← do
+    match fileSetupResult with
+    | .importsOutOfDate =>
+      return .error {
+        diagnostics := (← Language.diagnosticsOfHeaderError
+          "Imports are out of date and must be rebuilt; \
+            use the \"Restart File\" command in your editor.")
+        result? := none
+        metaSnap := default
+        : Language.Lean.HeaderProcessedSnapshot
+      }
+    | .error msg =>
+      return .error {
+        diagnostics := (← diagnosticsOfHeaderError msg)
+        result? := none
+        metaSnap := default
+      }
+    | .noLakefile =>
+      pure { name := doc.mod, isModule := header.isModule }
+    | .success setup =>
+      pure setup
 
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions

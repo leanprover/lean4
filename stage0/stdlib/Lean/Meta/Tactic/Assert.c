@@ -2613,8 +2613,8 @@ block_34:
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
 x_20 = l_Lean_MVarId_assign___at___00Lean_MVarId_assert_spec__0___redArg(x_1, x_19, x_6);
 lean_dec_ref(x_20);
-x_21 = l_Lean_Expr_mvarId_x21(x_17);
-lean_dec_ref(x_17);
+x_21 = l_Lean_Expr_mvarId_x21(x_18);
+lean_dec_ref(x_18);
 x_22 = lean_box(0);
 x_23 = 1;
 lean_inc(x_6);
@@ -2678,8 +2678,8 @@ x_38 = lean_nat_dec_lt(x_16, x_15);
 if (x_38 == 0)
 {
 lean_inc(x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_37;
 goto block_34;
 }
@@ -2692,8 +2692,8 @@ if (x_39 == 0)
 if (x_38 == 0)
 {
 lean_inc(x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_37;
 goto block_34;
 }
@@ -2704,8 +2704,8 @@ x_40 = 0;
 x_41 = lean_usize_of_nat(x_15);
 lean_inc(x_37);
 x_42 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_assertHypotheses_spec__2(x_3, x_40, x_41, x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_42;
 goto block_34;
 }
@@ -2717,8 +2717,8 @@ x_43 = 0;
 x_44 = lean_usize_of_nat(x_15);
 lean_inc(x_37);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_assertHypotheses_spec__2(x_3, x_43, x_44, x_37);
-x_17 = x_37;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_37;
 x_19 = x_45;
 goto block_34;
 }

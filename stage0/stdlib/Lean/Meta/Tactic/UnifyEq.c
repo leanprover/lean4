@@ -1602,7 +1602,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-x_17 = l_Lean_Meta_mkEq(x_15, x_14, x_9, x_10, x_11, x_12);
+x_17 = l_Lean_Meta_mkEq(x_16, x_14, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -1778,8 +1778,8 @@ lean_dec(x_45);
 lean_dec_ref(x_8);
 lean_dec(x_4);
 x_14 = x_50;
-x_15 = x_48;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_48;
 goto block_43;
 }
 else
@@ -1792,8 +1792,8 @@ if (x_52 == 0)
 lean_dec(x_45);
 lean_dec(x_4);
 x_14 = x_50;
-x_15 = x_48;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_48;
 goto block_43;
 }
 else

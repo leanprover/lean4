@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.ProofInstInfo
-// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.Util import Lean.Meta.Transform
+// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.Util import Lean.Meta.Transform import Lean.Meta.Sym.Eta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Meta_Sym_unfoldReducible(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_betaReduce(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_zetaReduce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_etaReduceAll(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_preprocessType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_preprocessType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -207,8 +208,28 @@ lean_object* x_10; lean_object* x_11;
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
+lean_inc(x_5);
+lean_inc_ref(x_4);
+lean_inc(x_3);
+lean_inc_ref(x_2);
 x_11 = l_Lean_Meta_zetaReduce(x_10, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec_ref(x_11);
+x_13 = l_Lean_Meta_Sym_etaReduceAll(x_12, x_2, x_3, x_4, x_5);
+return x_13;
+}
+else
+{
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
 return x_11;
+}
 }
 else
 {
@@ -301,8 +322,8 @@ block_30:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; size_t x_27; size_t x_28; 
 x_23 = lean_alloc_ctor(0, 0, 2);
-lean_ctor_set_uint8(x_23, 0, x_20);
-lean_ctor_set_uint8(x_23, 1, x_19);
+lean_ctor_set_uint8(x_23, 0, x_19);
+lean_ctor_set_uint8(x_23, 1, x_20);
 x_24 = lean_array_push(x_16, x_23);
 x_25 = lean_box(x_21);
 if (lean_is_scalar(x_18)) {
@@ -342,8 +363,8 @@ x_35 = lean_unbox(x_33);
 lean_dec(x_33);
 x_36 = lean_unbox(x_17);
 lean_dec(x_17);
-x_19 = x_31;
-x_20 = x_35;
+x_19 = x_35;
+x_20 = x_31;
 x_21 = x_36;
 x_22 = lean_box(0);
 goto block_30;
@@ -354,8 +375,8 @@ uint8_t x_37;
 lean_dec(x_17);
 x_37 = lean_unbox(x_33);
 lean_dec(x_33);
-x_19 = x_31;
-x_20 = x_37;
+x_19 = x_37;
+x_20 = x_31;
 x_21 = x_11;
 x_22 = lean_box(0);
 goto block_30;
@@ -370,8 +391,8 @@ lean_inc(x_38);
 lean_dec_ref(x_32);
 x_39 = lean_unbox(x_38);
 lean_dec(x_38);
-x_19 = x_31;
-x_20 = x_39;
+x_19 = x_39;
+x_20 = x_31;
 x_21 = x_11;
 x_22 = lean_box(0);
 goto block_30;
@@ -2636,6 +2657,7 @@ lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_IsClass(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Transform(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_ProofInstInfo(uint8_t builtin) {
 lean_object * res;
@@ -2651,6 +2673,9 @@ res = initialize_Lean_Meta_Sym_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Transform(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_Eta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Sym_mkProofInstArgInfo_x3f___closed__0 = _init_l_Lean_Meta_Sym_mkProofInstArgInfo_x3f___closed__0();

@@ -85,7 +85,7 @@ theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b �
 
 theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
     (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
-  simp only [instLT, List.lt]
+  simp only [LT.lt, List.lt]
   simp [cons_lex_cons_iff]
 
 @[simp] theorem cons_lt_cons_self [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] {l₁ l₂ : List α} :
@@ -101,7 +101,7 @@ theorem cons_le_cons_iff [LT α]
     [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
     {a b} {l₁ l₂ : List α} :
     (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
-  simp only [instLE, instLT, List.le, List.lt]
+  simp only [LE.le, LT.lt, List.le, List.lt]
   open Classical in
   simp only [not_cons_lex_cons_iff, ne_eq]
   constructor

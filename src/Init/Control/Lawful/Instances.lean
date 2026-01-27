@@ -469,13 +469,13 @@ namespace EStateM
 
 instance : LawfulMonad (EStateM ε σ) := .mk'
   (id_map := fun x => funext <| fun s => by
-    simp only [EStateM.instMonad, EStateM.map]
+    simp only [Functor.map, EStateM.map]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun x _ _ => funext <| fun s => by
-    simp only [EStateM.instMonad, EStateM.bind]
+    simp only [bind, EStateM.bind]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)

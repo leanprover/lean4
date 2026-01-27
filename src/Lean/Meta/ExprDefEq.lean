@@ -1897,6 +1897,10 @@ private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
         unfoldBoth t s
 where
   unfoldBoth (t s : Expr) : MetaM DeltaStepResult := do
+    -- Check universe equality for plain constants before unfolding (cf. kernel PR #12175)
+    if t.isConst && s.isConst then
+      if (← isListLevelDefEqAux t.constLevels! s.constLevels!) then
+        return .eq
     unfold t
       (unfold s (return .unknown) (k t ·))
       (fun t => unfold s (k t s) (k t ·))

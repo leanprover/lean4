@@ -138,7 +138,13 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
     let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
     doElabToSyntax m!"let body of {pattern}" contElab fun body => do
-    let term ← `(match (motive := ∀_, $(← Term.exprToSyntax mγ)) $rhs:term with | $pattern:term => $body)
+    -- The infamous MVar postponement trick below popularized by `if` is necessary in Lake.CLI.Main.
+    -- We need it because we specify a constant motive, otherwise the `match` elaborator would have postponed.
+    let mvar ← Lean.withRef rhs `(?m)
+    let term ← `(let_mvar% ?m := $rhs;
+                 wait_if_type_mvar% ?m;
+                 match (motive := ∀_, $(← Term.exprToSyntax mγ)) $mvar:term with
+                 | $pattern:term => $body)
     Term.withMacroExpansion (← getRef) term do Term.elabTermEnsuringType term (some mγ)
   | `(letDecl| $decl:letIdDecl) =>
     let { id, binders, type, value } := Term.mkLetIdDeclView decl

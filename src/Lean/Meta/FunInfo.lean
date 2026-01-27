@@ -85,27 +85,27 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
           let dependsOnHigherOrderOutParam :=
             !higherOrderOutParams.isEmpty
             && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
+          let className? ← isClass? decl.type
           paramInfo := updateHasFwdDeps paramInfo backDeps
           paramInfo := paramInfo.push {
             backDeps, dependsOnHigherOrderOutParam
             binderInfo := decl.binderInfo
             isProp     := (← isProp decl.type)
-            isInstance := (← isClass? decl.type).isSome
+            isInstance := className?.isSome
             isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
-          if decl.binderInfo == .instImplicit then
-            /- Collect higher order output parameters of this class -/
-            if let some className ← isClass? decl.type then
-              if let some outParamPositions := getOutParamPositions? (← getEnv) className then
-                unless outParamPositions.isEmpty do
-                  let args := decl.type.getAppArgs
-                  for h2 : i in *...args.size do
-                    if outParamPositions.contains i then
-                      let arg := args[i]
-                      if let some idx := fvars.idxOf? arg then
-                        if (← whnf (← inferType arg)).isForall then
-                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
-                          higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
+          if let some className := className? then
+            /- Collect higher order output parameters of this class IF `isInstance` is `true` -/
+            if let some outParamPositions := getOutParamPositions? (← getEnv) className then
+              unless outParamPositions.isEmpty do
+                let args := decl.type.getAppArgs
+                for h2 : i in *...args.size do
+                  if outParamPositions.contains i then
+                    let arg := args[i]
+                    if let some idx := fvars.idxOf? arg then
+                      if (← whnf (← inferType arg)).isForall then
+                        paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
+                        higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
         let resultDeps := collectDeps fvars type
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }

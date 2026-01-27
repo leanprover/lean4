@@ -1939,6 +1939,12 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
     else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
       pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
     else if i == j && m == n then
+      -- Early check: if both are projections of the same constant, just check universe levels
+      -- instead of entering the expensive isDefEqProjDelta loop.
+      -- This handles cases like `bar.toA` vs `bar.toA` where `bar` has universe `max u v` vs `max v u`.
+      if t.isConst && s.isConst && t.constName! == s.constName! then
+        if (← isListLevelDefEqAux t.constLevels! s.constLevels!) then
+          return true
       isDefEqProjDelta t s i
     else
       return false

@@ -1478,6 +1478,29 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 /-! # Dependent products -/
 
+instance {α : Type u} {β : α → Type v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] :
+    DecidableEq (Sigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        Sigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      Sigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
+
+instance {α : Sort u} {β : α → Sort v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] : DecidableEq (PSigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        PSigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      PSigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
+
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
 

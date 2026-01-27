@@ -877,74 +877,101 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 @[suggest_for BitVec.popcount BitVec.popcnt]
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
-/-!
-I started from this definition:
 
-def foldNat (x : BitVec w) (l : Nat) (f : BitVec l → BitVec l → BitVec l)
-    (acc : BitVec l): BitVec l :=
-  match h : w with
-  | 0 => acc
-  | n + 1 =>
-    let acc' := f acc (x.extractLsb' 0 l)
-    let x' := x.extractLsb' 0 (w - l)
-    foldNat x' l f acc'
-
-and discarded because I could not prove termination.
-To prove termination with this def I think we need a generalized induction principle that works over
-`l`-long chunks of bitvectors.
-
-So here comes my next proposal:
--/
 /--
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, zero-extending if necessary.
   In this folding operation, we interpret each `l`-long word as a natural number.
 -/
-def foldNat (start : Nat) (x : BitVec w)
-    (f : BitVec l → BitVec l → BitVec l) (acc : BitVec l) (hl : 0 < l) : BitVec l :=
-  if _ : w ≤ start then acc
-  else foldNat (start + l) x f (f acc (x.extractLsb' start l)) hl
+def foldNat (x : BitVec w) (acc : BitVec l) (f : BitVec l → BitVec l → BitVec l)
+    (h : 0 < l) : BitVec l :=
+  match h : w with
+  | 0 => acc
+  | n + 1 => foldNat (x.extractLsb' l (w - l)) (f acc (x.extractLsb' 0 l)) f (by omega)
+
+#eval foldNat (73#9) 0#3 BitVec.add (by omega)
+#eval foldNat (17#6) 0#3 BitVec.add (by omega)
+#eval foldNat (33#6) 0#3 BitVec.add (by omega)
+
+/--
+  In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+-/
+def foldNat' (x : BitVec w) (start : Nat) (acc : BitVec l)
+    (f : BitVec l → BitVec l → BitVec l) (h : 0 < l) : BitVec l :=
+  match h : w - start with
+  | 0 => acc
+  | n + 1 => foldNat' x (start + l) (f acc (x.extractLsb' start l)) f (by omega)
+termination_by w - start
+
+#eval foldNat' (73#9) 0 0#3 BitVec.add (by omega)
+#eval foldNat' (17#6) 0 0#3 BitVec.add (by omega)
+#eval foldNat' (33#6) 0 0#3 BitVec.add (by omega)
 
 /--
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, zero-extending if necessary.
   In this folding operation, we interpret each `l`-long word as an integer number.
 -/
-def foldInt (start : Nat) (x : BitVec w)
-    (f : BitVec l → BitVec l → BitVec l) (acc : BitVec l) (hl : 0 < l) : BitVec l :=
-  if _ : w ≤ start then acc
-  else if _ : start + l < w then
-      foldInt (start + l) x f (f acc (x.extractLsb' start l)) hl
-    else
-      foldInt (start + l) x f (f acc ((x.extractLsb' start (w - (start + l))).signExtend l)) hl
+def foldInt (x : BitVec w) (acc : BitVec l) (f : BitVec l → BitVec l → BitVec l)
+    (h : 0 < l) : BitVec l :=
+  match h : w with
+  | 0 => acc
+  | n + 1 => foldInt (x.extractLsb' l (w - l)) (f acc ((x.extractLsb' 0 (w - l)).signExtend l)) f (by omega)
 
-/-! Based on this, we can define more specific functions which are the ones ultimately exposed
+/--
+  In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+-/
+def foldInt' (x : BitVec w) (start : Nat) (acc : BitVec l)
+    (f : BitVec l → BitVec l → BitVec l) (h : 0 < l) : BitVec l :=
+  match h : w - start with
+  | 0 => acc
+  | n + 1 => foldInt' x (start + l) (f acc ((x.extractLsb' 0 (w - l)).signExtend l)) f (by omega)
+termination_by w - start
+
+/-! Based on the definitions above we can define more specific functions which are the ones ultimately exposed
   to the user: -/
 
 /-- Recursively add `l`-long chunks of `x`, treating the chunks as natural numbers. -/
-def foldAdd (l : Nat) (x : BitVec w) : BitVec l :=
+def foldAddNat (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
-  else foldNat 0 x BitVec.add 0#l (by omega)
+  else foldNat x 0#l BitVec.add (by omega)
 
-/-- Recursively multiply `l`-long chunks of `x`, treating the chunks as natural numbers. -/
-def foldMul (l : Nat) (x : BitVec w) : BitVec l :=
+/-- Recursively add `l`-long chunks of `x`, treating the chunks as integer numbers. -/
+def foldAddInt (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
-  else foldNat 0 x BitVec.mul 0#l (by omega)
+  else foldInt x 0#l BitVec.add (by omega)
+
+/-- Recursively add `l`-long chunks of `x`, treating the chunks as natural numbers. -/
+def foldMulNat (l : Nat) (x : BitVec w) : BitVec l :=
+  if h : l = 0 then 0#l
+  else foldNat x 0#l BitVec.mul (by omega)
+
+/-- Recursively add `l`-long chunks of `x`, treating the chunks as integer numbers. -/
+def foldMulInt (l : Nat) (x : BitVec w) : BitVec l :=
+  if h : l = 0 then 0#l
+  else foldInt x 0#l BitVec.mul (by omega)
 
 /-- Recursively unsignedly-divide `l`-long chunks of `x`, treating the chunks as natural numbers. -/
 def foldUdiv (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
-  /- We start with a non-zero accumulator to avoid trivial zero-division. -/
-  else foldNat l x BitVec.udiv (x.extractLsb' 0 l) (by omega)
+  /- We start with a non-zero accumulator to avoid `(0#l).udiv x.extractLsb' l = 0#l` at the first iteration,
+    which would then propagate to all iterations. -/
+  else foldNat (x.extractLsb' l (w - l)) (x.extractLsb' 0 l) BitVec.udiv (by omega)
 
-/-- Recursively signedly-divide `l`-long chunks of `x`, treating the chunks as integer numbers. -/
+/-- Recursively unsignedly-divide `l`-long chunks of `x`, treating the chunks as integer numbers. -/
 def foldSdiv (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
-  /- We start with a non-zero accumulator to avoid trivial zero-division. -/
-  else foldInt l x BitVec.sdiv (x.extractLsb' 0 l) (by omega)
+  /- We start with a non-zero accumulator to avoid `(0#l).sdiv x.extractLsb' l = 0#l` at the first iteration,
+    which would then propagate to all iterations. -/
+  else foldInt (x.extractLsb' l (w - l)) (x.extractLsb' 0 l) BitVec.sdiv (by omega)
+
+/-- Recursively subtract `l`-long chunks of `x`, treating the chunks as natural numbers. -/
+def foldSubNat (l : Nat) (x : BitVec w) : BitVec l :=
+  if h : l = 0 then 0#l
+  else foldNat x 0#l BitVec.sub (by omega)
 
 /-- Recursively subtract `l`-long chunks of `x`, treating the chunks as integer numbers. -/
-def foldSub (l : Nat) (x : BitVec w) : BitVec l :=
+def foldSubInt (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
-  /- We start with a non-zero accumulator to avoid trivial zero-division. -/
-  else foldInt l x BitVec.sub (x.extractLsb' 0 l) (by omega)
+  else foldInt x 0#l BitVec.sub (by omega)
+
 
 end BitVec

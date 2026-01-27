@@ -2661,7 +2661,6 @@ static inline size_t lean_isize_mul(size_t a1, size_t a2) {
     return (size_t)(lhs * rhs);
 }
 
-
 static inline size_t lean_isize_div(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;

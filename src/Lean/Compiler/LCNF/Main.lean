@@ -5,13 +5,15 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Compiler.Options
-public import Lean.Compiler.IR
-public import Lean.Compiler.LCNF.Passes
-public import Lean.Compiler.LCNF.ToDecl
-public import Lean.Compiler.LCNF.Check
+import Lean.Compiler.Options
+import Lean.Compiler.IR
+import Lean.Compiler.LCNF.Passes
+import Lean.Compiler.LCNF.ToDecl
+import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.LCNF.CompilerM
 public section
 namespace Lean.Compiler.LCNF
 /--

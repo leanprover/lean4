@@ -292,6 +292,11 @@ example (x : Nat) : Id (Bool × Bool) := do
   let 42 := x | { fst := true, snd := false } |> pure
   { fst := true, snd := false } |> pure
 
+-- Test that `_ ← e` is allowed to discard results. (Implication: Can't expand to `x ← e`).
+example (x : Nat) : Id Nat := do
+  _ ← pure true
+  return 0
+
 end Repros
 
 -- test case doLetElse

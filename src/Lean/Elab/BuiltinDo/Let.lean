@@ -175,6 +175,9 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | _, _ => pure xType?
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x ∘ dec.continueWithUnit)
       (kind := dec.kind) (contRef := dec.ref)
+  | `(doPatDecl| _%$pattern ← $rhs) =>
+    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)

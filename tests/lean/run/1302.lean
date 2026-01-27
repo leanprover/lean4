@@ -10,4 +10,8 @@ example (a : Bool) : (a :: as).get ⟨0, by simp +arith⟩ = a := by
   simp
 
 example (a b c : α) : [a, b, c].get ⟨0, by simp (config := { decide := true })⟩ = a := by
-  rw [Fin.zero_eta, get_cons_zero]
+  erw [Fin.zero_eta]
+  rw [get_cons_zero]
+
+example (a b c : α) : [a, b, c].get ⟨0, by simp (config := { decide := true })⟩ = a := by
+  rw [List.get]

@@ -12,6 +12,8 @@ import Init.Grind.Ordered.Ring
 # Inversion for dyadic numbers
 -/
 
+@[expose] public section
+
 namespace Dyadic
 
 /--

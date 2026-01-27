@@ -956,7 +956,7 @@ def foldUdiv (l : Nat) (x : BitVec w) : BitVec l :=
     which would then propagate to all iterations. -/
   else foldNat (x.extractLsb' l (w - l)) (x.extractLsb' 0 l) BitVec.udiv (by omega)
 
-/-- Recursively unsignedly-divide `l`-long chunks of `x`, treating the chunks as integer numbers. -/
+/-- Recursively signedly-divide `l`-long chunks of `x`, treating the chunks as integer numbers. -/
 def foldSdiv (l : Nat) (x : BitVec w) : BitVec l :=
   if h : l = 0 then 0#l
   /- We start with a non-zero accumulator to avoid `(0#l).sdiv x.extractLsb' l = 0#l` at the first iteration,

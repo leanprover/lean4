@@ -23,6 +23,11 @@ register_builtin_option backward.dsimp.proofs : Bool := {
     descr    := "Let `dsimp` simplify proof terms"
   }
 
+register_builtin_option backward.dsimp.instances : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` simplify instance terms"
+  }
+
 register_builtin_option debug.simp.check.have : Bool := {
     defValue := false
     descr    := "(simp) enable consistency checks for `have` telescope simplification"
@@ -497,7 +502,11 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit >> doNotVisitProofs
   let post := m.dpost >> dsimpReduce
   withInDSimpWithCache fun cache => do
-    transformWithCache e cache (usedLetOnly := cfg.zeta || cfg.zetaUnused) (pre := pre) (post := post)
+    transformWithCache e cache
+      (usedLetOnly := cfg.zeta || cfg.zetaUnused)
+      (skipInstances := !backward.dsimp.instances.get (← getOptions))
+      (pre := pre)
+      (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn

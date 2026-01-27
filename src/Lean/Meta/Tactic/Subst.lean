@@ -236,6 +236,18 @@ def introSubstEq (mvarId : MVarId) : MetaM MVarId := do
       let u2 ← getLevel α
       mvarId.assign <| mkApp4 (mkConst ``Eq.ndrec [u1, u2]) α a motive e
       return e.mvarId!
+    | HEq α a β b =>
+      unless b.isFVar do throwError "equality rhs not a free variable"
+      unless (← isDefEq α β) do throwError "hetereogenenous equality isn't homogeneous"
+      let (reverted, mvarId) ← mvarId.revert #[b.fvarId!]
+      unless reverted.size = 1 do throwError "variable {b} has forward dependencies"
+      let motive ← mkLambdaFVars #[b] body
+      let goal := motive.beta #[a]
+      let e ← mkFreshExprSyntheticOpaqueMVar goal (tag := (← mvarId.getTag))
+      let u1 ← getLevel goal
+      let u2 ← getLevel α
+      mvarId.assign <| mkApp4 (mkConst `HEq.homo_ndrec [u1, u2]) α a motive e
+      return e.mvarId!
     | _ => throwError "not an equality"
   catch e =>
     trace[Meta.Tactic.subst] "introSubstEq falling back to intro\n{e.toMessageData}\n{mvarId}"

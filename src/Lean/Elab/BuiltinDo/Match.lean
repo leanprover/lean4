@@ -167,7 +167,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
   let doBlockResultType := (← read).doBlockResultType
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   Term.tryPostponeIfDiscrTypeIsMVar motive? discrs
-  let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
+  let (discrs, matchType, lhss, rhss, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
     let ⟨discrs, resultMotive, isDep⟩ ← Term.withSynthesize <|
        Term.elabMatchTypeAndDiscrs discrs motive? nondupDec.resultType
     trace[Elab.do.match] "initial resultMotive: {resultMotive}"
@@ -250,7 +250,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
 
     let mutVars := (← read).mutVars
     let contFVars := (← read).contFVars
-    let (discrs, matchType, alts, refined) ←
+    let (discrs, matchType, lhss, rhss, refined) ←
       controlAtTermElabM fun runInBase => do
       Term.elabMatchAlts discrs matchMotive alts
       -- Term.elabMatchAlts discrs matchType alts
@@ -258,78 +258,9 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
         (elabRhs := (runInBase <| elabDoMatchRhs · · · ·))
     trace[Elab.do.match] "refined: {refined}, discrs after generalization: {discrs.map (·.expr)}"
     let isDep := isDep || refined
-    return (discrs, matchType, alts, isDep)
-
-  let finishMatchExpr : Term.FixedTermElab := fun _ => do
-    /-
-     We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
-     able to elaborate examples such as:
-     ```
-     def f (x : Nat) : Option Nat := none
-
-     def g (xs : List (Nat × Nat)) : IO Unit :=
-     xs.forM fun x =>
-       match f x.fst with
-       | _ => pure ()
-     ```
-     If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
-     the type of `x` is only available after we process the last argument of `List.forM`.
-
-     We apply pending default types to make sure we can process examples such as
-     ```
-     let (a, b) := (0, 0)
-     ```
-    -/
-    Term.synthesizeSyntheticMVarsUsingDefault
-    let rhss := alts.map Prod.snd
-    trace[Elab.do.match] "matchType: {matchType}"
-    let altLHSS ← alts.toList.mapM fun alt => do
-      let altLHS ← Match.instantiateAltLHSMVars alt.1
-      /- Remark: we try to postpone before throwing an error.
-         The combinator `commitIfDidNotPostpone` ensures we backtrack any updates that have been performed.
-         The quick-check `waitExpectedTypeAndDiscrs` minimizes the number of scenarios where we have to postpone here.
-         Here is an example that passes the `waitExpectedTypeAndDiscrs` test, but postpones here.
-         ```
-          def bad (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
-            (ps.filter fun (p : Prod _ _) =>
-              match p with
-              | (x, y) => x == 0)
-            ++
-            ps
-         ```
-         When we try to elaborate `fun (p : Prod _ _) => ...` for the first time, we haven't propagated the type of `ps` yet
-         because `Array.filter` has type `{α : Type u_1} → (α → Bool) → (as : Array α) → optParam Nat 0 → optParam Nat (Array.size as) → Array α`
-         However, the partial type annotation `(p : Prod _ _)` makes sure we succeed at the quick-check `waitExpectedTypeAndDiscrs`.
-      -/
-      withRef altLHS.ref do
-        for d in altLHS.fvarDecls do
-          if d.hasExprMVar then
-            Term.tryPostpone
-            withExistingLocalDecls altLHS.fvarDecls do
-              Term.runPendingTacticsAt d.type
-              if (← instantiateMVars d.type).hasExprMVar then
-                Term.throwMVarError m!"Invalid match expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
-        for p in altLHS.patterns do
-          if (← Match.instantiatePatternMVars p).hasExprMVar then
-            Term.tryPostpone
-            withExistingLocalDecls altLHS.fvarDecls do
-              Term.throwMVarError m!"Invalid match expression: This pattern contains metavariables:{indentExpr (← p.toExpr)}"
-        pure altLHS
-    if let some r ← if isDep then pure none else Term.isMatchUnit? altLHSS rhss then
-      return r
-    else
-      let numDiscrs := discrs.size
-      let matcherName ← Term.mkAuxName `match
-      let matcherResult ← Meta.Match.mkMatcher { matcherName, matchType, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) }, lhss := altLHSS }
-      Term.reportMatcherResultErrors altLHSS matcherResult
-      matcherResult.addMatcher
-      let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-      let r := mkApp matcherResult.matcher motive
-      let r := mkAppN r (discrs.map (·.expr))
-      let r := mkAppN r rhss
-      trace[Elab.match] "result: {r}"
-      return r
-  finishMatchExpr (← mkPUnit)
+    let (matchType, lhss) ← Term.synthesizeAndInstantiate matchType lhss
+    return (discrs, matchType, lhss, rhss, isDep)
+  Term.compileMatch discrs matchType lhss rhss isDep
 
 def isSyntaxMatch (alts : Array (TSyntax ``matchAlt)) : Bool :=
   alts.any (fun alt =>

@@ -349,54 +349,31 @@ theorem getElem?_inj {xs : List α}
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
 
+theorem nodup_iff_count_of_mem [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a ∈ l, count a l = 1 := by
+  induction l with | nil => simp | cons b l ihl =>
+  simp only [nodup_cons, mem_cons, forall_eq_or_imp, count_cons_self,
+    succ_inj, count_eq_zero, and_congr_right_iff, ihl]
+  exact fun hb => forall₂_congr fun a ha => count_cons_of_ne (hb <| · ▸ ha : b ≠ a) ▸ Iff.rfl
+
+@[grind =]
+theorem nodup_iff_count_eq_ite [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a, count a l = if a ∈ l then 1 else 0 := by
+  rw [nodup_iff_count_of_mem]
+  exact forall_congr' fun a => by if ha : a ∈ l then simp [ha] else simp [ha, count_eq_zero]
+
 theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) :
-    count a l = if a ∈ l then 1 else 0 := by
-  induction l with
-  | nil => rfl
-  | cons b l ihl =>
-    rw [List.count_cons, ihl (nodup_cons.mp h).2]
-    cases hba : (b == a)
-    · have hab := (ne_of_beq_false hba).symm
-      simp only [Bool.false_eq_true, if_false, Nat.add_zero]
-      exact ite_cond_congr (by simp only [mem_cons, hab, false_or])
-    · have hba := eq_of_beq hba
-      simp only [if_true, hba, mem_cons, true_or, succ_inj,
-        ite_eq_right_iff, succ_ne_self, imp_false]
-      exact hba ▸ (nodup_cons.mp h).1
+    l.count a = if a ∈ l then 1 else 0 := nodup_iff_count_eq_ite.mp h _
+
+theorem Nodup.count_of_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) (ha : a ∈ l) :
+    l.count a = 1 := h.count ▸ if_pos ha
 
 grind_pattern Nodup.count => count a l, Nodup l
 
-theorem nodup_of_forall_count_le [BEq α] [LawfulBEq α] {l : List α}
-    (h : ∀ a, count a l ≤ 1) : l.Nodup := by
-  induction l with
-  | nil => simp
-  | cons x l ih =>
-    rw [nodup_cons]
-    constructor
-    · have hx := Nat.eq_zero_of_le_zero <| Nat.le_of_succ_le_succ <| count_cons_self (a := x) ▸ h x
-      exact not_mem_of_count_eq_zero hx
-    · exact ih fun a => le_of_add_right_le (count_cons (a := a) ▸ h a)
+grind_pattern Nodup.count_of_mem => count a l, Nodup l, a ∈ l
 
-theorem nodup_of_forall_count_eq_of_mem [BEq α] [LawfulBEq α] {l : List α}
-    (h : ∀ a ∈ l, count a l = 1) : l.Nodup :=
-  nodup_of_forall_count_le fun a =>
-  if ha : a ∈ l then Nat.le_of_eq <| h a ha else count_eq_zero_of_not_mem ha ▸ zero_le _
-
-@[grind =]
 theorem nodup_iff_count [BEq α] [LawfulBEq α] {l : List α} : l.Nodup ↔ ∀ a, count a l ≤ 1 := by
-  constructor
-  · intro hl a
-    rw [hl.count]
-    split
-    · exact Nat.le_refl _
-    · exact zero_le _
-  · exact nodup_of_forall_count_le
-
-theorem nodup_iff_count_eq [BEq α] [LawfulBEq α] {l : List α} :
-    l.Nodup ↔ ∀ a ∈ l, count a l = 1 := by
-  constructor
-  · intro hl a ha
-    rw [hl.count, if_pos ha]
-  · exact nodup_of_forall_count_eq_of_mem
+  simp only [nodup_iff_count_of_mem, Nat.le_iff_lt_or_eq, Nat.lt_one_iff, count_eq_zero]
+  exact forall_congr' fun _ => Decidable.imp_iff_not_or
 
 end List

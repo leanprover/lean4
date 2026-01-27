@@ -665,6 +665,14 @@ example (url : String) (headers : Array String := #[]) (thing : Except String La
   | .error e =>
     panic s!"curl produced invalid JSON output: {e}"
 
+open Lean.Server in
+example (handler : LspResponse respType → RequestM α)
+    (r : SerializedLspResponse) (response : Json) [FromJson respType] : RequestM α := do
+  let .ok response := fromJson? response
+    | throw <| RequestError.internalError "Failed to convert response of previous request handler when chaining stateful LSP request handlers"
+  let r := { r with response := response }
+  handler r
+
 example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat :=
   match thing with
   | .ok data =>

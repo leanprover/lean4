@@ -47,28 +47,22 @@ private def expandToTermMatch : DoElab := fun stx dec => do
   loop 0 alts
 
 -- cf. Term.expandNonAtomicDiscrs?
-private def elabNonAtomicDiscrs (motive? : Option (TSyntax ``motive)) (discrs : TSyntaxArray ``matchDiscr) (k : TSyntaxArray ``matchDiscr → DoElabM α) : DoElabM α := do
-  if motive?.isSome then
-    -- We do not pull non atomic discriminants when match type is provided explicitly by the user
-    return ← k discrs
+private def expandNonAtomicDiscrs? (discrs : TSyntaxArray ``matchDiscr) : DoElabM (Option (TSyntaxArray ``matchDiscr)) := do
   -- Recall that
   -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
   if ← discrs.allM fun discr => Term.isAtomicDiscr discr.raw[1] then
-    return ← k discrs
-  let rec loop (i : Nat) (newDiscrs : TSyntaxArray ``matchDiscr) : DoElabM α := do
-    if h : i < discrs.size then
-      let discr := discrs[i]
-      let `(matchDiscr| $[$h? :]? $term) := discr | throwUnsupportedSyntax
-      if (← Term.isAtomicDiscr term) then
-        loop (i + 1) (newDiscrs.push discr)
-      else
-        withFreshMacroScope do
-          let e ← Term.withSynthesize (postpone := .yes) <| Term.elabTerm term none
-          let discrNew ← `(matchDiscr| $[$h? :]? $(← Term.exprToSyntax e))
-          loop (i + 1) (newDiscrs.push discrNew)
+    return none
+  let mut newDiscrs := #[]
+  for discr in discrs do
+    let `(matchDiscr| $[$h? :]? $term) := discr | throwUnsupportedSyntax
+    if (← Term.isAtomicDiscr term) then
+      newDiscrs := newDiscrs.push discr
     else
-      k newDiscrs
-  loop 0 #[]
+      trace[Elab.do.match] "elabNonAtomicDiscrs: {term}"
+      let e ← Term.elabTerm term none
+      let discrNew ← `(matchDiscr| $[$h? :]? $(← Term.exprToSyntax e))
+      newDiscrs := newDiscrs.push discrNew
+  return some newDiscrs
 
 private abbrev DoMatchAltView := Term.MatchAltView ``doSeq
 
@@ -173,8 +167,6 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
   nondupDec.withDuplicableCont fun dec => do
   let doBlockResultType := (← read).doBlockResultType
   let mγ ← mkMonadicType doBlockResultType
-  elabNestedActionsArray discrs fun discrs => do
-  elabNonAtomicDiscrs motive? discrs fun discrs => do
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   Term.tryPostponeIfDiscrTypeIsMVar motive? discrs
   let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
@@ -370,6 +362,11 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
       if alts.size == 1 && (← Term.isPatternVar y) then
         let newStx ← `(doSeq| let $y:ident := $discr; do $(⟨seq⟩))
         return ← Term.withMacroExpansion stx newStx <| elabDoSeq ⟨newStx⟩ dec
+
+  elabNestedActionsArray discrs fun discrs => do
+  if let some discrs ← expandNonAtomicDiscrs? discrs then
+    let newStx ← `(doElem| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*)
+    return ← Term.withMacroExpansion stx newStx <| elabDoElem ⟨newStx⟩ dec
 
   if let some motive? := motive? then
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."

@@ -242,21 +242,3 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doReassignArrow| $decl:doPatDecl) =>
     elabDoArrow .reassign decl dec
   | _ => throwUnsupportedSyntax
-
-@[builtin_macro Lean.Parser.Term.doLetExpr] def expandDoLetExpr : Macro := fun stx => match stx with
-  | `(doElem| let_expr $pat:matchExprPat := $discr:term
-                | $elseBranch:doSeq
-              $thenBranch) =>
-    `(doElem| match_expr (meta := false) $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
-  | _ => Macro.throwUnsupported
-
-@[builtin_macro Lean.Parser.Term.doLetMetaExpr] def expandDoLetMetaExpr : Macro := fun stx => match stx with
-  | `(doElem| let_expr $pat:matchExprPat ← $discr:term
-                | $elseBranch:doSeq
-              $thenBranch) =>
-    `(doElem| match_expr $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
-  | _ => Macro.throwUnsupported

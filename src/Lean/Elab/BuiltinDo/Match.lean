@@ -372,31 +372,3 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
   let doGeneralize := gen?.getD true
   checkMutVarsForShadowing (← getAltsPatternVars alts)
   elabDoMatchCore doGeneralize motive? discrs (alts.filterMap (Term.getMatchAlt ``doSeq)) dec
-
-@[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do
-  let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr with $alts) := stx | throwUnsupportedSyntax
-  if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
-    let x ← Term.mkFreshIdent discr
-    elabDoIdDecl x none (← `(doElem| instantiateMVars $discr)) (contRef := dec.ref) (declKind := .implDetail) fun _ref => do
-      elabDoMatchExprNoMeta x alts dec
-  else
-    elabDoMatchExprNoMeta discr alts dec
-where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``matchExprAlts) (dec : DoElemCont) : DoElabM Expr := do
-  dec.withDuplicableCont fun dec => do
-    let rec elabMatch i (altsArr : Array (TSyntax ``matchExprAlt)) := do
-      if h : i < altsArr.size then
-        match altsArr[i] with
-        | `(matchExprAltExpr| | $pattern => $seq) =>
-          let vars ← getExprPatternVarsEx pattern
-          checkMutVarsForShadowing vars
-          doElabToSyntax m!"match_expr alternative {pattern}" (ref := seq) (elabDoSeq ⟨seq⟩ dec) fun rhs => do
-            elabMatch (i + 1) (altsArr.set i (← `(matchExprAltExpr| | $pattern => $rhs)))
-        | _ => throwUnsupportedSyntax
-      else
-        let elseSeq := alts.raw[1][3]
-        doElabToSyntax m!"match_expr else alternative" (ref := elseSeq) (elabDoSeq ⟨elseSeq⟩ dec) fun rhs => do
-          let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
-          let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
-          let mγ ← mkMonadicType (← read).doBlockResultType
-          Term.elabTerm (← `(match_expr $discr with $alts)) mγ
-    elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))

@@ -139,6 +139,14 @@ else
 endif
 endif
 
+ifeq "${CMAKE_BUILD_TYPE}" "Release"
+ifeq "${CMAKE_SYSTEM_NAME}" "Linux"
+# We only strip like this on Linux for now as our other platforms already seem to exclude the
+# unexported symbols by default
+	strip --strip-unneeded $@
+endif
+endif
+
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_2${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/lean/libLean.a.export ${LIB}/lean/libLake.a.export

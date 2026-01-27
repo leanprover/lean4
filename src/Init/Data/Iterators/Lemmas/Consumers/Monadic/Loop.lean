@@ -15,6 +15,15 @@ public section
 namespace Std
 open Std.Iterators
 
+theorem IterM.DefaultConsumers.forIn_eq {α β : Type w} {m : Type w → Type w'}
+    {n : Type x → Type x'} [Monad n] [Iterator α m β]
+    {lift : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ}
+    {plausible_forInStep : β → γ → ForInStep γ → Prop} {it : IterM (α := α) m β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))} :
+    letI : IteratorLoop α m n := .defaultImplementation
+    IteratorLoop.forIn lift γ plausible_forInStep it init f =
+      IterM.DefaultConsumers.forIn' lift γ plausible_forInStep it init _ (fun _ => id) f := rfl
+
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β] {n : Type x → Type x'} [Monad n] [LawfulMonad n]
     {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
@@ -731,7 +740,7 @@ theorem IterM.findSomeM?_eq_match_step {α β γ : Type w} {m : Type w → Type 
   · simp
 
 theorem IterM.findSome?_eq_findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    [Iterator α m β] [IteratorLoop α m m]
     {it : IterM (α := α) m β} {f : β → Option γ} :
     it.findSome? f = it.findSomeM? (pure <| f ·) :=
   (rfl)
@@ -831,5 +840,25 @@ theorem IterM.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
     · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
+
+theorem IterM.first?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Productive α m]
+    [LawfulIteratorLoop α m m] {it : IterM (α := α) m β} :
+    it.first? = (do
+      match (← it.step).inflate.val with
+      | .yield _ out => return (some out)
+      | .skip it' => it'.first?
+      | .done => return none) := by
+  simp only [first?]
+  have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
+    (P := fun b g s => s = ForInStep.done (some b)) (by simp)
+  simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
+  rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
+  simp only [flip, pure_bind]
+  congr
+  ext s
+  split <;> try (simp [*]; done)
+  simp only [DefaultConsumers.forIn_eq, *]
+  exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
 
 end Std

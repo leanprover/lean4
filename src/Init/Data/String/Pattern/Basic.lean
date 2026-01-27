@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Basic
 public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Loop
 
 set_option doc.verso true
 
@@ -129,23 +130,24 @@ variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable (pat : ρ) [ToForwardSearcher pat σ]
 
 @[specialize pat]
-def defaultStartsWith (s : Slice) : Bool :=
+def defaultStartsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
   let searcher := ToForwardSearcher.toSearcher pat s
-  match searcher.step with
-  | .yield _ (.matched start ..) _ => s.startPos = start
+  match searcher.first? with
+  | some (.matched start ..) => s.startPos = start
   | _ => false
 
 @[specialize pat]
-def defaultDropPrefix? (s : Slice) : Option s.Pos :=
+def defaultDropPrefix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher pat s
-  match searcher.step with
-  | .yield _ (.matched _ endPos) _ => some endPos
+  match searcher.first? with
+  | some (.matched _ endPos) => some endPos
   | _ => none
 
 @[always_inline, inline]
-def defaultImplementation {pat : ρ} [ToForwardSearcher pat σ] : ForwardPattern pat where
-  startsWith := defaultStartsWith pat
-  dropPrefix? := defaultDropPrefix? pat
+def defaultImplementation {pat : ρ} [ToForwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
+    ForwardPattern pat where
+  startsWith s := defaultStartsWith pat s
+  dropPrefix? s := defaultDropPrefix? pat s
 
 end ForwardPattern
 
@@ -188,23 +190,24 @@ variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable (pat : ρ) [ToBackwardSearcher pat σ]
 
 @[specialize pat]
-def defaultEndsWith (s : Slice) : Bool :=
+def defaultEndsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
   let searcher := ToBackwardSearcher.toSearcher pat s
-  match searcher.step with
-  | .yield _ (.matched _ endPos) _ => s.endPos = endPos
+  match searcher.first? with
+  | some (.matched _ endPos) => s.endPos = endPos
   | _ => false
 
 @[specialize pat]
-def defaultDropSuffix? (s : Slice) : Option s.Pos :=
+def defaultDropSuffix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher pat s
-  match searcher.step with
-  | .yield _ (.matched startPos _) _ => some startPos
+  match searcher.first? with
+  | some (.matched startPos _) => some startPos
   | _ => none
 
 @[always_inline, inline]
-def defaultImplementation {pat : ρ} [ToBackwardSearcher pat σ] : BackwardPattern pat where
-  endsWith := defaultEndsWith pat
-  dropSuffix? := defaultDropSuffix? pat
+def defaultImplementation {pat : ρ} [ToBackwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
+    BackwardPattern pat where
+  endsWith s := defaultEndsWith pat s
+  dropSuffix? s := defaultDropSuffix? pat s
 
 end ToBackwardSearcher
 

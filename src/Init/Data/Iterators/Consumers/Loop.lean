@@ -631,6 +631,43 @@ def Iter.Total.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id
   it.it.find? f
 
 /--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+`it.ensureTermination.first?` always terminates after finitely many steps.
+
+Examples:
+* `[7, 6].iter.first? = some 7`
+* `[].iter.first? = none`
+-/
+@[inline]
+def Iter.first? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Option β :=
+  it.toIterM.first?.run
+
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. The elements in `it` are examined in order of
+iteration.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `Iter.first?`.
+
+Examples:
+* `[7, 6].iter.first? = some 7`
+* `[].iter.first? = none`
+-/
+@[inline]
+def Iter.Total.first? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id] [Productive α Id]
+    (it : Iter.Total (α := α) β) : Option β :=
+  it.it.first?
+
+/--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:

@@ -218,8 +218,18 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
 
 # Writing the release notes
 
-Release notes are only needed for the first release candidate (`-rc1`). For subsequent RCs and stable releases,
-just update the version number in the title of the existing release notes file.
+Release notes content is only written for the first release candidate (`-rc1`). For subsequent RCs and stable releases,
+just update the title in the existing release notes file (see "Release notes title format" below).
+
+## Release notes title format
+
+The title in the `#doc (Manual)` line must follow these formats:
+
+- **For -rc1**: `"Lean 4.7.0-rc1 (2024-03-15)"` — Include the RC suffix and the release date
+- **For -rc2, -rc3, etc.**: `"Lean 4.7.0-rc2 (2024-03-20)"` — Update the RC number and date
+- **For stable release**: `"Lean 4.7.0 (2024-04-01)"` — Remove the RC suffix but keep the date
+
+The date should be the actual date when the tag was pushed (or when CI completed and created the release page).
 
 ## Generating the release notes
 
@@ -273,7 +283,7 @@ open Verso.Genre
 open Verso.Genre.Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Lean 4.7.0-rc1 (YYYY-MM-DD)" =>
+#doc (Manual) "Lean 4.7.0-rc1 (2024-03-15)" =>
 %%%
 tag := "release-v4.7.0"
 file := "v4.7.0"

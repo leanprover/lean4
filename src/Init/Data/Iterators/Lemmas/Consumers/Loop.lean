@@ -930,4 +930,11 @@ theorem Iter.first?_eq_match_step {α β : Type w} [Iterator α Id β] [Iterator
   generalize it.toIterM.step.run.inflate = s
   rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.first?_eq_first?_toIterM]
 
+theorem Iter.first?_eq_head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.first? = it.toList.head? := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [first?_eq_match_step, toList_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn <;> simp [*]
+
 end Std

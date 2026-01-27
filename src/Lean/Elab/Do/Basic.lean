@@ -721,137 +721,6 @@ private def checkUnchangedResultType (ty? : Option Expr) (k : DoElabM α) : DoEl
       throwError "The monadic type changed from {oldTy} to {ty}. This is not supported by the `do` elaborator."
   k
 
-unsafe def mkDoElemElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute DoElab) :=
-  mkElabAttribute DoElab `builtin_doElem_elab `doElem_elab `Lean.Parser.Term.doElem ``Lean.Elab.Do.DoElab "do element" ref
-
-@[implemented_by mkDoElemElabAttributeUnsafe]
-opaque mkDoElemElabAttribute (ref : Name) : IO (KeyedDeclsAttribute DoElab)
-
-/--
-Registers a `do` element elaborator for the given syntax node kind.
-
-A `do` element elaborator should have type `DoElab` (which is
-`Lean.Syntax → DoElemCont → DoElabM Expr`), i.e. should take syntax of the given syntax node kind
-and a `DoElemCont` as parameters and produce an expression.
-
-When elaborating a `do` block `do e; rest`, the elaborator for `e` is invoked with the syntax of `e`
-and the `DoElemCont` representing `rest`.
-
-The `elab_rules` and `elab` commands should usually be preferred over using this attribute
-directly.
--/
-@[builtin_doc]
-builtin_initialize doElemElabAttribute : KeyedDeclsAttribute DoElab ← mkDoElemElabAttribute decl_name%
-
-/--
-An auxiliary syntax node expressing that a `doElem` has no nested actions to lift.
-This purely to make lifting nested actions more efficient.
--/
-def doElemNoNestedAction : Lean.Parser.Parser := leading_parser
-  Lean.Parser.doElemParser
-
-builtin_initialize Lean.Parser.registerBuiltinNodeKind ``doElemNoNestedAction
-
-private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedType : Expr) (x : DoElabM Expr) : DoElabM Expr :=
-  controlAtTermElabM fun runInBase =>
-    Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
-
-private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
-    (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) (catchExPostpone : Bool := true) : DoElabM Expr := do
-  let s ← saveState
-  match fns with
-  | [] => throwError "unexpected `do` element syntax{indentD stx}"
-  | elabFn :: elabFns =>
-    let expectedType ← mkMonadicType (← read).doBlockResultType
-    withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
-      try
-        elabFn.value stx cont
-      catch ex => match ex with
-        | .internal id _ =>
-          if id == unsupportedSyntaxExceptionId then
-            s.restore
-            elabDoElemFns stx cont elabFns
-          else if catchExPostpone && id == postponeExceptionId then
-            s.restore
-            doElabToSyntax m!"do element {stx}" (elabFn.value stx cont) (Term.postponeElabTerm · expectedType)
-          else
-            throw ex
-        | _ => throw ex
-
-private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoElabM DoElemCont := do
-  let unit ← mkPUnit
-  let r ← mkFreshUserName `__r
-  return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
-
-mutual
-partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
-  let k := stx.raw.getKind
-  trace[Elab.do.step] "do element: {stx}"
-  checkSystem "do element elaborator"
-  profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
-  withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  if (← read).deadCode matches .deadSyntactically then
-    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
-    return ← mkFreshExprMVar mγ (userName := `deadCode)
-  if (← read).deadCode matches .deadSemantically then
-    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
-  let env ← getEnv
-  let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-  | some (decl, stxNew?) =>
-    let stxNew ← liftMacroM <| liftExcept stxNew?
-    withTermInfoContext' decl stx mγ <|
-      Term.withMacroExpansion stx stxNew <|
-        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
-  | none =>
-    match doElemElabAttribute.getEntries (← getEnv) k with
-    | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
-    | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
-  return result
-
-partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
-  if h : doElems.size = 0 then
-    throwError "Empty array of `do` elements passed to `elabDoElems1`."
-  else
-  let back := doElems.back
-  let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
-  let mkCont el k := { initCont with ref := el, k := fun _ref => k }
-  let (_, res) := doElems.pop.foldr (init := (back, elabDoElem back cont)) fun el (prev, k) => (el, elabDoElem el (mkCont prev k))
-  res
-end
-
-def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) : DoElabM Expr := do
-  elabDoElems1 (getDoElems doSeq) cont
-
-@[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
-  let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
-  elabDoElem e cont
-
--- @[builtin_term_elab «do»] -- once the legacy `do` elaborator has been phased out
-def elabDo : Term.TermElab := fun e expectedType? => do
-  let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
-  Term.tryPostponeIfNoneOrMVar expectedType?
-  let ctx ← mkContext expectedType?
-  let cont ← DoElemCont.mkPure ctx.doBlockResultType
-  let res ← elabDoSeq doSeq cont |>.run ctx
-  -- Synthesizing default instances here is harmful for expressions such as
-  -- ```
-  -- withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do
-  --   ... (g.apply e cfg) ...
-  -- ```
-  -- Doing so will default the type of `e` to `MessageData` as part of elaborating the `return`
-  -- expression before elaboration can propagate that `e : Expr` in the `apply` call.
-  -- Term.synthesizeSyntheticMVarsUsingDefault
-  trace[Elab.do] "{← instantiateMVars res}"
-  pure res
-
-syntax:arg (name := dooBlock) "doo" doSeq : term
-
-@[builtin_term_elab «dooBlock»]
-def elabDooBlock : Term.TermElab := fun e expectedType? => do
-  let `(doo $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
-  elabDo (← `(do $doSeq)) expectedType?
-
 section NestedActions
 
 -- @[builtin_term_elab liftMethod]
@@ -957,18 +826,135 @@ def expandNestedActions (stx : TSyntax kind) : DoElabM (Array (TSyntax `doElem) 
 
 end NestedActions
 
-def elabNestedActions (stx : TSyntax kind) (k : TSyntax kind → DoElabM Expr) : DoElabM Expr := do
-  let (doElems, stx) ← expandNestedActions stx
-  if doElems.isEmpty then
-    k stx
-  else
-    elabDoElems1 doElems (← DoElemCont.mkUnit stx (fun _ref => k stx))
+unsafe def mkDoElemElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute DoElab) :=
+  mkElabAttribute DoElab `builtin_doElem_elab `doElem_elab `Lean.Parser.Term.doElem ``Lean.Elab.Do.DoElab "do element" ref
 
-def elabNestedActionsArray (stxs : Array (TSyntax kind)) (k : Array (TSyntax kind) → DoElabM Expr) : DoElabM Expr := do
-  let pairs ← stxs.mapM expandNestedActions
-  let doElems := pairs.map (·.1) |>.flatten
-  let stxs := pairs.map (·.2)
-  if doElems.isEmpty then
-    k stxs
+@[implemented_by mkDoElemElabAttributeUnsafe]
+opaque mkDoElemElabAttribute (ref : Name) : IO (KeyedDeclsAttribute DoElab)
+
+/--
+Registers a `do` element elaborator for the given syntax node kind.
+
+A `do` element elaborator should have type `DoElab` (which is
+`Lean.Syntax → DoElemCont → DoElabM Expr`), i.e. should take syntax of the given syntax node kind
+and a `DoElemCont` as parameters and produce an expression.
+
+When elaborating a `do` block `do e; rest`, the elaborator for `e` is invoked with the syntax of `e`
+and the `DoElemCont` representing `rest`.
+
+The `elab_rules` and `elab` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
+builtin_initialize doElemElabAttribute : KeyedDeclsAttribute DoElab ← mkDoElemElabAttribute decl_name%
+
+/--
+An auxiliary syntax node expressing that a `doElem` has no nested actions to lift.
+This purely to make lifting nested actions more efficient.
+-/
+def doElemNoNestedAction : Lean.Parser.Parser := leading_parser
+  Lean.Parser.doElemParser
+
+builtin_initialize Lean.Parser.registerBuiltinNodeKind ``doElemNoNestedAction
+
+private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedType : Expr) (x : DoElabM Expr) : DoElabM Expr :=
+  controlAtTermElabM fun runInBase =>
+    Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
+
+private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
+    (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) (catchExPostpone : Bool := true) : DoElabM Expr := do
+  let s ← saveState
+  match fns with
+  | [] => throwError "unexpected `do` element syntax{indentD stx}"
+  | elabFn :: elabFns =>
+    let expectedType ← mkMonadicType (← read).doBlockResultType
+    withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
+      try
+        elabFn.value stx cont
+      catch ex => match ex with
+        | .internal id _ =>
+          if id == unsupportedSyntaxExceptionId then
+            s.restore
+            elabDoElemFns stx cont elabFns
+          else if catchExPostpone && id == postponeExceptionId then
+            s.restore
+            doElabToSyntax m!"do element {stx}" (elabFn.value stx cont) (Term.postponeElabTerm · expectedType)
+          else
+            throw ex
+        | _ => throw ex
+
+private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoElabM DoElemCont := do
+  let unit ← mkPUnit
+  let r ← mkFreshUserName `__r
+  return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
+
+mutual
+partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
+  let k := stx.raw.getKind
+  trace[Elab.do.step] "do element: {stx}"
+  checkSystem "do element elaborator"
+  profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
+  withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  if (← read).deadCode matches .deadSyntactically then
+    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
+    return ← mkFreshExprMVar mγ (userName := `deadCode)
+  if (← read).deadCode matches .deadSemantically then
+    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
+  let env ← getEnv
+  if let some (decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
+    let stxNew ← liftMacroM <| liftExcept stxNew?
+    return ← withTermInfoContext' decl stx mγ <|
+      Term.withMacroExpansion stx stxNew <|
+        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
+
+  let (doElems, stx) ← expandNestedActions stx
+  if !doElems.isEmpty then
+    return ← elabDoElems1 (doElems.push stx) cont
+
+  match doElemElabAttribute.getEntries (← getEnv) k with
+  | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
+  | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
+
+partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
+  if h : doElems.size = 0 then
+    throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
-    elabDoElems1 doElems (← DoElemCont.mkUnit (stxs[0]?.getD (TSyntax.mk .missing)).raw (fun _ref => k stxs))
+  let back := doElems.back
+  let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
+  let mkCont el k := { initCont with ref := el, k := fun _ref => k }
+  let (_, res) := doElems.pop.foldr (init := (back, elabDoElem back cont)) fun el (prev, k) => (el, elabDoElem el (mkCont prev k))
+  res
+end
+
+def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) : DoElabM Expr := do
+  elabDoElems1 (getDoElems doSeq) cont
+
+@[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
+  let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
+  elabDoElem e cont
+
+-- @[builtin_term_elab «do»] -- once the legacy `do` elaborator has been phased out
+def elabDo : Term.TermElab := fun e expectedType? => do
+  let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
+  Term.tryPostponeIfNoneOrMVar expectedType?
+  let ctx ← mkContext expectedType?
+  let cont ← DoElemCont.mkPure ctx.doBlockResultType
+  let res ← elabDoSeq doSeq cont |>.run ctx
+  -- Synthesizing default instances here is harmful for expressions such as
+  -- ```
+  -- withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do
+  --   ... (g.apply e cfg) ...
+  -- ```
+  -- Doing so will default the type of `e` to `MessageData` as part of elaborating the `return`
+  -- expression before elaboration can propagate that `e : Expr` in the `apply` call.
+  -- Term.synthesizeSyntheticMVarsUsingDefault
+  trace[Elab.do] "{← instantiateMVars res}"
+  pure res
+
+syntax:arg (name := dooBlock) "doo" doSeq : term
+
+@[builtin_term_elab «dooBlock»]
+def elabDooBlock : Term.TermElab := fun e expectedType? => do
+  let `(doo $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
+  elabDo (← `(do $doSeq)) expectedType?

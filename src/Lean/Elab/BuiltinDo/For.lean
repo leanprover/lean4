@@ -79,7 +79,6 @@ open Lean.Meta
   let uρ ← mkFreshLevelMVar
   let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α) -- assigned by outParam
   let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ) -- assigned in the next line
-  elabNestedActions xs fun xs => do
   let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
   let mutVars := (← read).mutVars

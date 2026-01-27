@@ -129,7 +129,6 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
       pure decl
 
   let mγ ← mkMonadicType (← read).doBlockResultType
-  elabNestedActions decl fun decl => do
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
     let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
@@ -212,7 +211,6 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     -- Let recs may never have nested actions. We expand just for the sake of error messages.
     -- This suppresses error messages for the let body. Not sure if this is a good call, but it was
     -- the status quo of the legacy `do` elaborator.
-    elabNestedActions decls fun decls => do
     Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do

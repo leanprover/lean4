@@ -42,7 +42,6 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
     return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
   let `(doIf|if $cond:doIfCond then $thenSeq else $elseSeq) := stx | throwUnsupportedSyntax
   dec.withDuplicableCont fun dec => do
-  elabNestedActions cond fun cond => do
   match cond with
   | `(doIfCond|$cond) => elabIte cond thenSeq elseSeq dec
   | `(doIfCond|$h : $cond) => elabDite h cond thenSeq elseSeq dec

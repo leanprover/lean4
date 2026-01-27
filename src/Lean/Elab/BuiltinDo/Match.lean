@@ -42,7 +42,6 @@ private def expandToTermMatch : DoElab := fun stx dec => do
           loop (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
       | _ => throwUnsupportedSyntax
     else
-      elabNestedActionsArray discrs.getElems fun discrs => do
       Term.elabTerm (← `(match $[$discrs],* with $alts:matchAlt*)) mγ
   loop 0 alts
 
@@ -363,7 +362,6 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
         let newStx ← `(doSeq| let $y:ident := $discr; do $(⟨seq⟩))
         return ← Term.withMacroExpansion stx newStx <| elabDoSeq ⟨newStx⟩ dec
 
-  elabNestedActionsArray discrs fun discrs => do
   if let some discrs ← expandNonAtomicDiscrs? discrs then
     let newStx ← `(doElem| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*)
     return ← Term.withMacroExpansion stx newStx <| elabDoElem ⟨newStx⟩ dec
@@ -382,7 +380,6 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
     elabDoIdDecl x none (← `(doElem| instantiateMVars $discr)) (contRef := dec.ref) (declKind := .implDetail) fun _ref => do
       elabDoMatchExprNoMeta x alts dec
   else
-    elabNestedActions discr fun discr => do
     elabDoMatchExprNoMeta discr alts dec
 where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``matchExprAlts) (dec : DoElemCont) : DoElabM Expr := do
   dec.withDuplicableCont fun dec => do
@@ -401,6 +398,5 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``matchExprAlts) (dec
           let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
           let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
           let mγ ← mkMonadicType (← read).doBlockResultType
-          elabNestedActions discr fun discrs => do
           Term.elabTerm (← `(match_expr $discr with $alts)) mγ
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))

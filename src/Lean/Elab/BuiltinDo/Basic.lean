@@ -38,7 +38,6 @@ def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (con
   let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
-  elabNestedActions rhs fun rhs => do
   elabDoElem rhs <| .mk (kind := kind) (declKind := declKind) (ref := contRef) x.getId xType fun ref => do
     withLCtxKeepingMutVarDefs lctx ctx x.getId do
       Term.addLocalVarInfo x (← getFVarFromUserName x.getId)

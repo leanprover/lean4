@@ -770,17 +770,17 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
   If the given syntax is a `doLetExpr` or `doLetMetaExpr`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoLetExpr? (stx : Syntax) (doElems : List Syntax) : MacroM (Option Syntax) := match stx with
   | `(doElem| let_expr $pat:matchExprPat := $discr:term
-                | $elseBranch:doSeq
+                | $elseBranch
               $thenBranch) =>
     return some (← `(doElem| match_expr (meta := false) $discr:term with
                              | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
-                             | _ => $elseBranch))
+                             | _ => $elseBranch:doSeqIndent))
   | `(doElem| let_expr $pat:matchExprPat ← $discr:term
-                | $elseBranch:doSeq
+                | $elseBranch
               $thenBranch) =>
     return some (← `(doElem| match_expr $discr:term with
                              | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
-                             | _ => $elseBranch))
+                             | _ => $elseBranch:doSeqIndent))
   | _ => return none
 
 structure DoIfView where

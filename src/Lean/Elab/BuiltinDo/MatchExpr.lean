@@ -17,20 +17,20 @@ open Lean.Meta
 
 @[builtin_macro Lean.Parser.Term.doLetExpr] def expandDoLetExpr : Macro := fun stx => match stx with
   | `(doElem| let_expr $pat:matchExprPat := $discr:term
-                | $elseBranch:doSeq
+                | $elseBranch
               $thenBranch) =>
     `(doElem| match_expr (meta := false) $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
+              | $pat:matchExprPat => $thenBranch:doSeqIndent
+              | _ => $elseBranch:doSeqIndent)
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.doLetMetaExpr] def expandDoLetMetaExpr : Macro := fun stx => match stx with
   | `(doElem| let_expr $pat:matchExprPat ← $discr:term
-                | $elseBranch:doSeq
+                | $elseBranch
               $thenBranch) =>
     `(doElem| match_expr $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
+              | $pat:matchExprPat => $thenBranch:doSeqIndent
+              | _ => $elseBranch:doSeqIndent)
   | _ => Macro.throwUnsupported
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

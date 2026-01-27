@@ -175,13 +175,13 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | _, _ => pure xType?
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x ∘ dec.continueWithUnit)
       (kind := dec.kind) (contRef := dec.ref)
-  | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?:doSeq $(rest?)?]?) =>
+  | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) fun _ref => do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
-        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise:doSeq $(rest?)?)) dec
+        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
       | .let mutTk?, _ =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
       | .have, some _otherwise =>
@@ -224,12 +224,12 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let letOrReassign := LetOrReassign.let mutTk?
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
-  let mut body ← body?.getDM `(doSeq|pure PUnit.unit)
+  let mut body ← body?.getDM `(doSeqIndent|pure PUnit.unit)
   -- In case of `let mut`, we need to re-declare the pattern variables as `let mut`s inside `body`.
   if mutTk?.isSome then
     for var in vars do
-      body ← `(doSeq| let mut $var := $var; do $body)
-  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body | _ => $otherwise)) dec
+      body ← `(doSeqIndent| let mut $var := $var; do $body:doSeqIndent)
+  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
   let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax

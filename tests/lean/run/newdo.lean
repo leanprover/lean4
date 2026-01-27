@@ -287,6 +287,10 @@ example (tf : Float) (qf? : Option Float) : Id Unit := do
   if match qf? with | none => true | some qf => tf < qf then
     pure ()
 
+-- This test ensures that `doLetElse` does not interpret the structure as a `doSeqBracketed`.
+example (x : Nat) : Id (Bool × Bool) := do
+  let 42 := x | { fst := true, snd := false } |> pure
+  { fst := true, snd := false } |> pure
 
 end Repros
 

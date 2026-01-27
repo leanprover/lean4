@@ -218,14 +218,17 @@ Given a goal `(a = b) → goal[b]`, produces `goal[a]`, clearing `b`.
 This is essentially `intro h; subst h`, but in the case that `b` is a free variable and has no
 forward dependencies implements this without introducing the equality, which can make a difference
 in terms of performance.
+
+If `substLHS = true`, assume `(a = b) → goal[a]` and produce `goal[b]` instead, clearing `a`.
 -/
-def introSubstEq (mvarId : MVarId) : MetaM MVarId := do
+def introSubstEq (mvarId : MVarId) (substLHS := false) : MetaM (FVarSubst × MVarId) := do
   mvarId.checkNotAssigned  `introSubstEq
   try commitIfNoEx do mvarId.withContext do
     let goalType ← mvarId.getType'
     let some (heq, body) := goalType.arrow? | throwError "not an arrow type"
     match_expr heq with
     | Eq α a b =>
+      let (a, b, ndrec) := if substLHS then (b, a, ``Eq.ndrec_symm) else (a, b, ``Eq.ndrec)
       unless b.isFVar do throwError "equality rhs not a free variable"
       let (reverted, mvarId) ← mvarId.revert #[b.fvarId!]
       unless reverted.size = 1 do throwError "variable {b} has forward dependencies"
@@ -234,8 +237,9 @@ def introSubstEq (mvarId : MVarId) : MetaM MVarId := do
       let e ← mkFreshExprSyntheticOpaqueMVar goal (tag := (← mvarId.getTag))
       let u1 ← getLevel goal
       let u2 ← getLevel α
-      mvarId.assign <| mkApp4 (mkConst ``Eq.ndrec [u1, u2]) α a motive e
-      return e.mvarId!
+      mvarId.assign <| mkApp4 (mkConst ndrec [u1, u2]) α a motive e
+      let subst : FVarSubst := FVarSubst.empty.insert b.fvarId! a
+      return (subst, e.mvarId!)
     | HEq α a β b =>
       unless b.isFVar do throwError "equality rhs not a free variable"
       unless (← isDefEq α β) do throwError "hetereogenenous equality isn't homogeneous"
@@ -246,15 +250,16 @@ def introSubstEq (mvarId : MVarId) : MetaM MVarId := do
       let e ← mkFreshExprSyntheticOpaqueMVar goal (tag := (← mvarId.getTag))
       let u1 ← getLevel goal
       let u2 ← getLevel α
-      mvarId.assign <| mkApp4 (mkConst `HEq.homo_ndrec [u1, u2]) α a motive e
-      return e.mvarId!
+      mvarId.assign <| mkApp4 (mkConst ``HEq.homo_ndrec [u1, u2]) α a motive e
+      let subst : FVarSubst := FVarSubst.empty.insert b.fvarId! a
+      return (subst, e.mvarId!)
     | _ => throwError "not an equality"
   catch e =>
     trace[Meta.Tactic.subst] "introSubstEq falling back to intro\n{e.toMessageData}\n{mvarId}"
     if (← mvarId.isAssigned) then throwError "introSubstEq: now assigned?"
     let (h, mvarId) ← mvarId.intro1
-    let (_, mvarId) ← substEq mvarId h
-    return mvarId
+    let (subst, mvarId) ← substEq mvarId h
+    return (subst, mvarId)
 
 /--
 Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,

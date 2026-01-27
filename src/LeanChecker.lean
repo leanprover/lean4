@@ -22,7 +22,7 @@ unsafe def replayFromImports (module : Name) : IO Unit := do
     let pFile := OLeanLevel.private.adjustFileName mFile
     if (← pFile.pathExists) then
       fnames := fnames.push pFile
-  let parts ← readModuleDataParts fnames
+  let parts ← readModuleDataParts (α := ModuleData) fnames
   if h : parts.size = 0 then throw <| IO.userError "failed to read module data" else
   let (mod, _) := parts[0]
   let (_, s) ← importModulesCore mod.imports |>.run

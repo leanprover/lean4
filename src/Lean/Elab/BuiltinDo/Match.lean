@@ -178,7 +178,6 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       throwError "Invalid match expression: monad {mi.m} depends on one of the discriminants. \
         This is not supported by the `do` elaborator."
 
-    Term.synthesizeSyntheticMVars -- using default would be too strong here; omitting it would be too weak to provoke the bad discrminant refinement error. Even (postpone := .partial) is too strong for the cache example.
     -- We do not support custom motives or `generalizing := false`. We always produce our own motive
     -- by abstracting the expected type (`dec.resultType`) over the discriminants.
     -- We *do* take the instantiated motive produced by `elabMatchTypeAndDiscrs` though because it

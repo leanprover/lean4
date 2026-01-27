@@ -387,9 +387,9 @@ example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
   return ⟨y + 1, by grind⟩
 
 -- It would be too tedious to fix the following example.
--- We would need to abstract the new discriminant `3` in any of the join point types
--- and if so, generalize. It's like collecting forward dependencies but with arbitrary patterns.
--- We don't support this; the user should instead specify `x` as a discriminant.
+-- We would need to kabstract the new discriminant `z + z` in any of the join point types in order
+-- to determine whether we need to generalize. It's like collecting forward dependencies but with
+-- arbitrary patterns. We don't support this; the user should instead specify `x` as a discriminant.
 /--
 error: The inferred match motive ⏎
   Fin (x + x)
@@ -399,8 +399,8 @@ had occurrences of free variables that depend on the discriminants, but no conti
 This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
 -/
 #guard_msgs (error) in
-example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do
-  let y : Fin (x + 3) <- match h with | rfl => pure ⟨0, by grind⟩
+example (x z : Nat) (h : x = z + z) := Id.run (α := Fin (x + (z + z))) do
+  let y : Fin (x + z + z) <- match h with | rfl => pure ⟨0, by grind⟩
   return ⟨y - 1, by grind⟩
 
 -- Full-blown dependent match + try/catch + early return

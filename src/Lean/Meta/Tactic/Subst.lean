@@ -226,7 +226,7 @@ def introSubstEq (mvarId : MVarId) : MetaM MVarId := do
     let some (heq, body) := goalType.arrow? | throwError "not an arrow type"
     match_expr heq with
     | Eq α a b =>
-      unless b.isFVar do throwError "equality rhs not a free vriable"
+      unless b.isFVar do throwError "equality rhs not a free variable"
       let (reverted, mvarId) ← mvarId.revert #[b.fvarId!]
       unless reverted.size = 1 do throwError "variable {b} has forward dependencies"
       let motive ← mkLambdaFVars #[b] body

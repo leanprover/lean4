@@ -713,9 +713,10 @@ example [Monad m] : ForIn' m (Option α) α inferInstance where
 elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
     --trace[Elab.do] "cursorBinder: {cursorBinder}"
-    let call ← elabDoElem (← `(doElem| for $x:ident in $xs do $doSeq)) dec
+    let call ← elabDoElem (← `(doElem| for $x:ident in $xs do $doSeq)) dec (catchExPostpone := false)
+    mapLetTelescope call fun _xs call => do -- ForIn may introduce a break join point
     let_expr ForInNew.forInNew m ρ α instForIn σ γ xs s kcons knil := call
-      | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.foldr`."
+      | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.foldr`; got {call}."
     call.withApp fun head args => do
     let [u, v, w, x] := head.constLevels!
       | throwError "`Foldable.foldrEta` had wrong number of levels {head.constLevels!}"

@@ -1541,5 +1541,36 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
   HashMap.getKeyD_filter_key
 
 end filter
+
+variable {m : HashSet α}
+
+@[simp]
+theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} :
+    (m.partition f).1.size + (m.partition f).2.size = m.size :=
+  HashMap.size_fst_partition_add_size_snd_partition_eq_size
+
+@[simp]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} :
+    (m.partition (fun a => ! f a)).fst = (m.partition f).snd := by
+  simp [partition, HashMap.fst_partition_not_eq_snd_partition]
+
+@[simp]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} :
+    (m.partition (fun a => ! f a)).snd = (m.partition f).fst := by
+  simp [partition, HashMap.snd_partition_not_eq_fst_partition]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} :
+    (m.partition f).fst ~m m.filter f :=
+  ⟨HashMap.fst_partition_equiv_filter⟩
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool}  :
+    (m.partition f).snd ~m m.filter (fun a => ! f a) :=
+  ⟨HashMap.snd_partition_equiv_filter_not⟩
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashSet

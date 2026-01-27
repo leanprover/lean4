@@ -141,6 +141,7 @@ example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Na
 example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
   post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
 
+set_option backward.dsimp.instances true in -- **Note**: Ask Sebastian Graf about this.
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
   throwing_loop

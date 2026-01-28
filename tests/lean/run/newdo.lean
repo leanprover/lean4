@@ -297,6 +297,42 @@ example (x : Nat) : Id Nat := do
   _ ← pure true
   return 0
 
+-- This test documents a regression wrt. the old do elaborator. Note that the result type of the
+-- match (i.e., the type of `mvar'`) will be a metavariable `?m.7` (which *might* depend on `e`).
+-- Since `?m.7` occurs in the type of `jp : MVarId → MetaM ?m.7` and `?m.7` is weakly dependent on
+-- `e`, we generalize the match to include `jp` as a discriminant. But the type of `jp` contains a
+-- metavariable which leads to indefinite postponement before calling the match compiler.
+-- The old elaborator did not generalize over `jp` because it was let-bound, not have-bound.
+-- The workaround is to turn off generalization (`(generalizing := false)`) or to provide an
+-- expected type for `mvar'`.
+/--
+error: Invalid field notation: Type of
+  mvar'
+is not known; cannot resolve field `withContext`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `MVarId.withContext`
+  • `MessageData.withContext`
+  • `Grind.Goal.withContext`
+-/
+#guard_msgs(error) in
+open Lean Meta in
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' ← match e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
+open Lean Meta in
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' : MVarId ← match e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' ← match (generalizing := false) e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
 end Repros
 
 -- test case doLetElse

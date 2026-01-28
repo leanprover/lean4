@@ -281,19 +281,22 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] partial def elabDoMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
+  -- Expand alts
   if let some stxNew ← liftMacroM <| Term.expandMatchAlts? stx then
     return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
-  if isSyntaxMatch alts then
-    return ← expandToTermMatch stx dec
-  if let `(matchAltExpr| | $y:ident => $seq) := alts.getD 0 ⟨.missing⟩ then
-    if let `(matchDiscr| $[$_ :]? $discr) := discrs.getElems.getD 0 ⟨.missing⟩ then
-      if alts.size == 1 && (← Term.isPatternVar y) then
-        let newStx ← `(doSeq| let $y:ident := $discr; do $(⟨seq⟩))
-        return ← Term.withMacroExpansion stx newStx <| elabDoSeq ⟨newStx⟩ dec
-
+  -- Expand non-atomic discriminants for independent elaboration problems
   if let some discrs ← expandNonAtomicDiscrs? discrs then
     let newStx ← `(doElem| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*)
     return ← Term.withMacroExpansion stx newStx <| elabDoElem ⟨newStx⟩ dec
+  -- Expand simple matches to `let`
+  if let `(matchAltExpr| | $y:ident => $seq) := alts.getD 0 ⟨.missing⟩ then
+    if let `(matchDiscr| $discr:term) := discrs.getElems.getD 0 ⟨.missing⟩ then
+      if alts.size == 1 && (← Term.isPatternVar y) then
+        let newStx ← `(doSeq| let $y:ident := $discr; do $(⟨seq⟩))
+        return ← Term.withMacroExpansion stx newStx <| elabDoSeq ⟨newStx⟩ dec
+  -- Expand syntax_match to a term match. This is OK because it is never dependent.
+  if isSyntaxMatch alts then
+    return ← expandToTermMatch stx dec
 
   if let some motive? := motive? then
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."

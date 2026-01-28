@@ -21,44 +21,46 @@ If possible, takes `n` steps with the iterator `it` and
 returns the `n`-th emitted value, or `none` if `it` finished
 before emitting `n` values.
 
-This function requires a `Productive` instance proving that the iterator will always emit a value
-after a finite number of skips. If the iterator is not productive or such an instance is not
-available, consider using `it.allowNontermination.atIdxSlow?` instead of `it.atIdxSlow?`. However,
-it is not possible to formally verify the behavior of the partial variant.
+If the iterator is not productive, this function might run forever in an endless loop of iterator
+steps. The variant `it.ensureTermination.atIdxSlow?` is guaranteed to terminate after finitely many
+steps.
 -/
 @[specialize]
-def Iter.atIdxSlow? {α β} [Iterator α Id β] [Productive α Id]
+def Iter.atIdxSlow? {α β} [Iterator α Id β]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
-  match it.step with
-  | .yield it' out _ =>
-    match n with
-    | 0 => some out
-    | k + 1 => it'.atIdxSlow? k
-  | .skip it' _ => it'.atIdxSlow? n
-  | .done _ => none
-termination_by (n, it.finitelyManySkips)
+  WellFounded.extrinsicFix₂ (C₂ := fun _ _ => Option β) (α := Iter (α := α) β) (β := fun _ => Nat)
+    (InvImage
+      (Prod.Lex WellFoundedRelation.rel IterM.TerminationMeasures.Productive.Rel)
+      (fun p => (p.2, p.1.finitelyManySkips!)))
+    (fun it n recur =>
+      match it.step with
+      | .yield it' out _ =>
+        match n with
+        | 0 => some out
+        | k + 1 => recur it' k (by decreasing_tactic)
+      | .skip it' _ => recur it' n (by decreasing_tactic)
+      | .done _ => none) it n
 
 /--
 If possible, takes `n` steps with the iterator `it` and
 returns the `n`-th emitted value, or `none` if `it` finished
 before emitting `n` values.
 
-This is a partial, potentially nonterminating, function. It is not possible to formally verify
-its behavior. If the iterator has a `Productive` instance, consider using `Iter.atIdxSlow?` instead.
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.toArray`.
 -/
-@[specialize]
-partial def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
-    (n : Nat) (it : Iter.Partial (α := α) β) : Option β := do
-  match it.it.step with
-  | .yield it' out _ =>
-    match n with
-    | 0 => some out
-    | k + 1 => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? k
-  | .skip it' _ => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? n
-  | .done _ => none
+@[inline]
+def Iter.Total.atIdxSlow? {α β} [Iterator α Id β] [Monad Id] [Productive α Id]
+    (n : Nat) (it : Iter.Total (α := α) β) : Option β :=
+  it.it.atIdxSlow? n
+
+@[inline, inherit_doc Iter.atIdxSlow?, deprecated Iter.atIdxSlow? (since := "2026-01-28")]
+def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
+    (n : Nat) (it : Iter.Partial (α := α) β) : Option β :=
+  it.it.atIdxSlow? n
 
 @[always_inline, inline, inherit_doc IterM.atIdx?]
-def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id]
+def Iter.atIdx? {α β} [Iterator α Id β] [IteratorAccess α Id]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
   match (IteratorAccess.nextAtIdx? it.toIterM n).run.val with
   | .yield _ out => some out

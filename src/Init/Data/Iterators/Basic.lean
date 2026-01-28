@@ -756,8 +756,8 @@ def IterM.finitelyManySteps {α : Type w} {m : Type w → Type w'} {β : Type w}
   ⟨it⟩
 
 /--
-Termination measure to be used in well-founded recursive functions recursing over a finite iterator
-(see also `Finite`).
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a finite iterator without requiring a proof of finiteness (see also `Finite`).
 -/
 @[expose]
 def IterM.finitelyManySteps! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
@@ -797,6 +797,11 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
 def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Finite α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
   it.toIterM.finitelyManySteps
+
+@[inherit_doc IterM.finitelyManySteps, expose]
+def Iter.finitelyManySteps! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
+  it.toIterM.finitelyManySteps!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
@@ -905,6 +910,16 @@ def IterM.finitelyManySkips {α : Type w} {m : Type w → Type w'} {β : Type w}
   ⟨it⟩
 
 /--
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a productive iterator without requiring a proof of productiveness
+(see also `Productive`).
+-/
+@[expose]
+def IterM.finitelyManySkips! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : IterM.TerminationMeasures.Productive α m :=
+  ⟨it⟩
+
+/--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
 with `IterM.finitelyManySkips`.
 -/
@@ -923,6 +938,11 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
 def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Productive α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
   it.toIterM.finitelyManySkips
+
+@[inherit_doc IterM.finitelyManySkips, expose]
+def Iter.finitelyManySkips! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
+  it.toIterM.finitelyManySkips!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs

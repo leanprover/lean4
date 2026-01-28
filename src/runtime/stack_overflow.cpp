@@ -19,6 +19,7 @@ Port of the corresponding Rust code (see links below).
 #include <cstring>
 #include <lean/lean.h>
 #include <initializer_list>
+#include "runtime/object.h"
 #include "runtime/stack_overflow.h"
 
 namespace lean {
@@ -72,6 +73,7 @@ extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
     if (is_within_stack_guard(info->si_addr)) {
         char const msg[] = "\nStack overflow detected. Aborting.\n";
         write(STDERR_FILENO, msg, sizeof(msg) - 1);
+        maybe_print_backtrace(/* force_stderr */ true);
         abort();
     } else {
         // reset signal handler and return; see comments in Rust code

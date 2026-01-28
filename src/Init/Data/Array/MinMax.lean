@@ -108,7 +108,7 @@ public theorem _root_.List.min?_toArray [Min α] {l : List α} :
     l.toArray.min? = l.min? := by
   rw [Array.min?]
   split
-  · simp [List.min_toArray, List.min_eq_get_min?]
+  · simp [List.min_toArray, List.min_eq_get_min?, - List.get_min?]
   · simp_all
 
 @[simp, grind =]
@@ -148,7 +148,7 @@ public theorem _root_.List.max?_toArray [Max α] {l : List α} :
     l.toArray.max? = l.max? := by
   rw [Array.max?]
   split
-  · simp [List.max_toArray, List.max_eq_get_max?]
+  · simp [List.max_toArray, List.max_eq_get_max?, - List.get_max?]
   · simp_all
 
 @[simp, grind =]
@@ -158,11 +158,11 @@ public theorem max?_toList [Max α] {xs : Array α} :
 
 /-! ### Lemmas about `min?` -/
 
-@[simp]
+@[simp, grind =]
 public theorem min?_empty [Min α] : (#[] : Array α).min? = none :=
   (rfl)
 
-@[simp]
+@[simp, grind =]
 public theorem min?_singleton [Min α] {x : α} : #[x].min? = some x :=
   (rfl)
 
@@ -177,11 +177,17 @@ public theorem min?_singleton_append [Min α] [Std.Associative (min : α → α 
     (#[x] ++ xs).min? = some (xs.min?.elim x (min x)) := by
   simp [← min?_toList, toList_append, List.min?_cons]
 
-@[simp]
-public theorem min?_eq_none_iff {xs : Array α} [Min α] : xs.min? = none ↔ xs.isEmpty := by
+@[simp, grind =]
+public theorem min?_eq_none_iff {xs : Array α} [Min α] : xs.min? = none ↔ xs = #[] := by
   rcases xs with ⟨l⟩
   simp
 
+@[simp, grind =]
+public theorem isSome_min?_iff {xs : Array α} [Min α] : xs.min?.isSome ↔ xs ≠ #[] := by
+  rcases xs with ⟨l⟩
+  simp
+
+@[grind .]
 public theorem isSome_min?_of_mem {xs : Array α} [Min α] {a : α} (h : a ∈ xs) :
     xs.min?.isSome := by
   rw [← min?_toList]
@@ -212,23 +218,24 @@ public theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α
     (replicate n a).min? = if n = 0 then none else some a := by
   rw [← List.toArray_replicate, List.min?_toArray, List.min?_replicate]
 
-@[simp]
+@[simp, grind =]
 public theorem min?_replicate_of_pos [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).min? = some a := by
   simp [min?_replicate, Nat.ne_of_gt h]
 
-public theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
-    {xs : Array α} {a : α} : xs.foldl (init := a) min = min a (xs.min?.getD a) := by
+public theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)]
+    [Std.Associative (min : α → α → α)] {xs : Array α} {a : α} :
+    xs.foldl (init := a) min = min a (xs.min?.getD a) := by
   rcases xs with ⟨l⟩
   simp [List.foldl_min]
 
 /-! ### Lemmas about `max?` -/
 
-@[simp]
+@[simp, grind =]
 public theorem max?_empty [Max α] : (#[] : Array α).max? = none :=
   (rfl)
 
-@[simp]
+@[simp, grind =]
 public theorem max?_singleton [Max α] {x : α} : #[x].max? = some x :=
   (rfl)
 
@@ -242,11 +249,17 @@ public theorem max?_singleton_append [Max α] [Std.Associative (max : α → α 
     (#[x] ++ xs).max? = some (xs.max?.elim x (max x)) := by
   simp [← max?_toList, toList_append, List.max?_cons]
 
-@[simp]
-public theorem max?_eq_none_iff {xs : Array α} [Max α] : xs.max? = none ↔ xs.isEmpty := by
+@[simp, grind =]
+public theorem max?_eq_none_iff {xs : Array α} [Max α] : xs.max? = none ↔ xs = #[] := by
   rcases xs with ⟨l⟩
   simp
 
+@[simp, grind =]
+public theorem isSome_max?_iff {xs : Array α} [Max α] : xs.max?.isSome ↔ xs ≠ #[] := by
+  rcases xs with ⟨l⟩
+  simp
+
+@[grind .]
 public theorem isSome_max?_of_mem {xs : Array α} [Max α] {a : α} (h : a ∈ xs) :
     xs.max?.isSome := by
   rw [← max?_toList]
@@ -277,7 +290,8 @@ public theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α
     (replicate n a).max? = if n = 0 then none else some a := by
   rw [← List.toArray_replicate, List.max?_toArray, List.max?_replicate]
 
-@[simp] public theorem max?_replicate_of_pos [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : 0 < n) :
+@[simp, grind =]
+public theorem max?_replicate_of_pos [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).max? = some a := by
   simp [max?_replicate, Nat.ne_of_gt h]
 
@@ -288,6 +302,11 @@ public theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [S
 
 /-! ### Lemmas about `min` -/
 
+@[simp, grind =]
+theorem min_singleton [Min α] {x : α} :
+    #[x].min (ne_empty_of_size_eq_add_one rfl) = x := by
+  (rfl)
+
 public theorem min?_eq_some_min [Min α] : {xs : Array α} → (h : xs ≠ #[]) →
     xs.min? = some (xs.min h)
   | ⟨a::as⟩, _ => by simp [Array.min, Array.min?]
@@ -296,9 +315,16 @@ public theorem min_eq_get_min? [Min α] : (xs : Array α) → (h : xs ≠ #[]) �
     xs.min h = xs.min?.get (xs.isSome_min?_of_ne_empty h)
   | ⟨a::as⟩, _ => by simp [Array.min, Array.min?]
 
+@[simp, grind =]
+public theorem get_min? [Min α] {xs : Array α} {h : xs.min?.isSome} :
+    xs.min?.get h = xs.min (isSome_min?_iff.mp h) := by
+  simp [min?_eq_some_min (isSome_min?_iff.mp h)]
+
+@[grind .]
 public theorem min_mem [Min α] [Std.MinEqOr α] {xs : Array α} (h : xs ≠ #[]) : xs.min h ∈ xs :=
   xs.min?_mem (min?_eq_some_min h)
 
+@[grind .]
 public theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMin α]
     {xs : Array α} {a : α} (ha : a ∈ xs) :
     xs.min (ne_empty_of_mem ha) ≤ a :=
@@ -312,7 +338,7 @@ public theorem min_eq_iff [Min α] [LE α] {xs : Array α} [Std.IsLinearOrder α
     (h : xs ≠ #[]) : xs.min h = a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   simpa [min?_eq_some_min h] using (min?_eq_some_iff (xs := xs))
 
-@[simp]
+@[simp, grind =]
 public theorem min_replicate [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
     (replicate n a).min h = a := by
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h
@@ -325,6 +351,11 @@ public theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → 
 
 /-! ### Lemmas about `max` -/
 
+@[simp, grind =]
+theorem max_singleton [Max α] {x : α} :
+    #[x].max (ne_empty_of_size_eq_add_one rfl) = x := by
+  (rfl)
+
 public theorem max?_eq_some_max [Max α] : {xs : Array α} → (h : xs ≠ #[]) →
     xs.max? = some (xs.max h)
   | ⟨a::as⟩, _ => by simp [Array.max, Array.max?]
@@ -333,6 +364,12 @@ public theorem max_eq_get_max? [Max α] : (xs : Array α) → (h : xs ≠ #[]) �
     xs.max h = xs.max?.get (xs.isSome_max?_of_ne_empty h)
   | ⟨a::as⟩, _ => by simp [Array.max, Array.max?]
 
+@[simp, grind =]
+public theorem get_max? [Max α] {xs : Array α} {h : xs.max?.isSome} :
+    xs.max?.get h = xs.max (isSome_max?_iff.mp h) := by
+  simp [max?_eq_some_max (isSome_max?_iff.mp h)]
+
+@[grind .]
 public theorem max_mem [Max α] [Std.MaxEqOr α] {xs : Array α} (h : xs ≠ #[]) : xs.max h ∈ xs :=
   xs.max?_mem (max?_eq_some_max h)
 
@@ -344,12 +381,13 @@ public theorem max_eq_iff [Max α] [LE α] {xs : Array α} [Std.IsLinearOrder α
     (h : xs ≠ #[]) : xs.max h = a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
   simpa [max?_eq_some_max h] using (max?_eq_some_iff (xs := xs))
 
+@[grind .]
 public theorem le_max_of_mem [Max α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMax α]
     {xs : Array α} {a : α} (ha : a ∈ xs) :
     a ≤ xs.max (ne_empty_of_mem ha) :=
   (Array.max?_eq_some_iff.mp (max?_eq_some_max (ne_empty_of_mem ha))).right a ha
 
-@[simp]
+@[simp, grind =]
 public theorem max_replicate [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
     (replicate n a).max h = a := by
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h

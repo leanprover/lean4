@@ -94,8 +94,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `Iter` for a more convenient interface in case that no monadic effects are needed (`m = Id`).
@@ -139,8 +140,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `IterM` for iterators that operate in a monad.

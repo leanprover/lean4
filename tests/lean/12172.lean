@@ -20,6 +20,7 @@ This pattern is used in Mathlib's MeasureTheory.Function.ConditionalExpectation.
 -/
 
 set_option autoImplicit false
+set_option linter.unusedVariables false
 
 universe u
 

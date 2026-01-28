@@ -31,7 +31,7 @@ Fails with a recoverable error.
 protected def failure [Alternative m] : ReaderT ρ m α :=
   fun _ => failure
 
-instance [Alternative m] [Monad m] : Alternative (ReaderT ρ m) where
+instance [Alternative m] : Alternative (ReaderT ρ m) where
   failure := ReaderT.failure
   orElse  := ReaderT.orElse
 

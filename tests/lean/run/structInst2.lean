@@ -39,13 +39,11 @@ def optMonad2 {m} [Monad m] : Monad (OptionT m) :=
 
 def optAlt1 {m} [Monad m] : Alternative (OptionT m) :=
 { failure       := OptionT.fail,
-  orElse        := OptionT.orElse,
-  toApplicative := Monad.toApplicative }
+  orElse        := OptionT.orElse }
 
 def optAlt2 {m} [Monad m] : Alternative (OptionT m) :=
-⟨OptionT.fail, OptionT.orElse⟩ -- it works because it treats `toApplicative` as an instance implicit argument
+⟨OptionT.fail, OptionT.orElse⟩
 
 def optAlt3 {m} [Monad m] : Alternative (OptionT2 m) :=
 { failure       := OptionT2.fail,
-  orElse        := OptionT2.orelse,
-  toApplicative := Monad.toApplicative }
+  orElse        := OptionT2.orelse }

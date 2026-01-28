@@ -80,34 +80,6 @@ constructor:
 #guard_msgs in
 #print PrivCtor
 
-/-! Extended class -/
-/--
-info: class Alternative.{u, v} (f : Type u → Type v) : Type (max (u + 1) v)
-number of parameters: 1
-parents:
-  Alternative.toApplicative : Applicative f
-fields:
-  Functor.map : {α β : Type u} → (α → β) → f α → f β :=
-    fun {α β} x y => pure x <*> y
-  Functor.mapConst : {α β : Type u} → α → f β → f α :=
-    fun {α β} => Functor.map ∘ Function.const β
-  Pure.pure : {α : Type u} → α → f α
-  Seq.seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-  SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α :=
-    fun {α β} a b => Function.const β <$> a <*> b ()
-  SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β :=
-    fun {α β} a b => Function.const α id <$> a <*> b ()
-  Alternative.failure : {α : Type u} → f α
-  Alternative.orElse : {α : Type u} → f α → (Unit → f α) → f α
-constructor:
-  Alternative.mk.{u, v} {f : Type u → Type v} [toApplicative : Applicative f] (failure : {α : Type u} → f α)
-    (orElse : {α : Type u} → f α → (Unit → f α) → f α) : Alternative f
-field notation resolution order:
-  Alternative, Applicative, Functor, Pure, Seq, SeqLeft, SeqRight
--/
-#guard_msgs in
-#print Alternative
-
 /-! Multiply extended class -/
 /--
 info: class Applicative.{u, v} (f : Type u → Type v) : Type (max (u + 1) v)

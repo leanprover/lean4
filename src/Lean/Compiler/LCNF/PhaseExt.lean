@@ -186,6 +186,7 @@ def getDeclAt? (declName : Name) (phase : PassPhase) : CoreM (Option (Decl phase
   | .mono => getMonoDecl? declName
   | .impure => getImpureDecl? declName
 
+@[inline]
 def getDecl? (declName : Name) : CompilerM (Option ((ph : IRPhase) × Decl ph)) := do
   let some decl ← getDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
@@ -196,6 +197,7 @@ def getLocalDeclAt? (declName : Name) (phase : PassPhase) : CompilerM (Option (D
   | .mono => return monoExt.getState (← getEnv) |>.find? declName
   | .impure => return impureExt.getState (← getEnv) |>.find? declName
 
+@[inline]
 def getLocalDecl? (declName : Name) : CompilerM (Option ((ph : IRPhase) × Decl ph)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩

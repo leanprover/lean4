@@ -1,4 +1,6 @@
 12172.lean:50:18: warning: unused variable `hs`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-12172.lean:59:25: warning: unused variable `hs`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+12172.lean:58:26: warning: unused variable `hs`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

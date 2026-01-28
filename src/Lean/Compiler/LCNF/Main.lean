@@ -76,12 +76,6 @@ def isValidMainType (type : Expr) : Bool :=
 
 namespace PassManager
 
--- TODO remove me
-structure Aux where
-  ph : IRPhase
-  decls : Array (Decl ph)
-  deriving Inhabited
-
 def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
@@ -126,15 +120,15 @@ where
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
       CompilerM (Array (Decl outPhase)) := do
     profileitM Exception profilerName (← getOptions) do
-      let mut state : Aux := ⟨inPhase, decls⟩
+      let mut state : (ph : IRPhase) × Array (Decl ph) := ⟨inPhase, decls⟩
       for pass in passes do
         state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-          withPhase pass.phase do
-            state.ph.withAssertPhase! pass.phase.toIRPhase fun h => do
-              let decls ← pass.run (h ▸ state.decls)
-              pure ⟨_, decls⟩
-        withPhase pass.phaseOut <| checkpoint pass.name state.decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
-      let decls := state.ph.withAssertPhase! outPhase fun h => h ▸ state.decls
+          let decls ← withPhase pass.phase do
+            state.fst.withAssertPhase! pass.phase.toIRPhase fun h => do
+              pass.run (h ▸ state.snd)
+          pure ⟨_, decls⟩
+        withPhase pass.phaseOut <| checkpoint pass.name state.snd (isCheckEnabled || pass.shouldAlwaysRunCheck)
+      let decls := state.fst.withAssertPhase! outPhase fun h => h ▸ state.snd
       return decls
 
 end PassManager

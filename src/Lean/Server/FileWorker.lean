@@ -155,13 +155,12 @@ section Elab
     let param := { version := m.version, references, decls }
     return { method, param }
 
-  private def mkIleanHeaderInfoNotification (m : DocumentMeta)
-      (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
-    { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
-
   private def mkIleanHeaderSetupInfoNotification (m : DocumentMeta)
-      (isSetupFailure : Bool) : JsonRpc.Notification Lsp.LeanILeanHeaderSetupInfoParams :=
-    { method := "$/lean/ileanHeaderSetupInfo", param := { version := m.version, isSetupFailure } }
+      (directImports : Array ImportInfo) (isSetupFailure : Bool) :
+      JsonRpc.Notification Lsp.LeanILeanHeaderSetupInfoParams := {
+    method := "$/lean/ileanHeaderSetupInfo"
+    param := { version := m.version, directImports, isSetupFailure }
+  }
 
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
@@ -400,7 +399,6 @@ def setupImports
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
   let header := stx.toModuleHeader
-  chanOut.sync.send <| .ofMsg <| mkIleanHeaderInfoNotification doc <| collectImports stx
   let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
@@ -412,7 +410,8 @@ def setupImports
     chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
   let isSetupError := fileSetupResult matches .importsOutOfDate
     || fileSetupResult matches .error ..
-  chanOut.sync.send <| .ofMsg <| mkIleanHeaderSetupInfoNotification doc isSetupError
+  chanOut.sync.send <| .ofMsg <|
+    mkIleanHeaderSetupInfoNotification doc (collectImports stx) isSetupError
   -- clear progress notifications in the end
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
   let setup ← do
@@ -707,14 +706,14 @@ section MessageHandling
       : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
-    let mod := st.doc.meta.mod
+    let uri := st.doc.meta.uri
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -724,7 +723,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find  mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 

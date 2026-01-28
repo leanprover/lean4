@@ -674,6 +674,39 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
 
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  cases xs
+  simp [List.find?_eq_map_findFinIdx?_getElem]
+  rfl
+
+theorem find?_eq_bind_findIdx?_getElem? {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findIdx? p).bind (xs[·]?) := by
+  cases xs
+  simp [List.find?_eq_bind_findIdx?_getElem?]
+
+theorem find?_eq_getElem?_findIdx {xs : Array α} {p : α → Bool} :
+    xs.find? p = xs[xs.findIdx p]? := by
+  cases xs
+  simp [List.find?_eq_getElem?_findIdx]
+
+theorem findIdx?_eq_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx? p = (xs.find? p).bind (xs.idxOf? ·) := by
+  cases xs
+  simp [List.findIdx?_eq_bind_find?_idxOf?]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  cases xs
+  simp [List.findFinIdx?_eq_bind_find?_finIdxOf?]
+
+theorem findIdx_eq_getD_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx p = ((xs.find? p).bind (xs.idxOf? ·)).getD xs.size := by
+  cases xs
+  simp [List.findIdx_eq_getD_bind_find?_idxOf?]
+
 /-! ### idxOf
 
 The verification API for `idxOf` is still incomplete.

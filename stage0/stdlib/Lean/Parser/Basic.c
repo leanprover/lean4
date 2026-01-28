@@ -6982,8 +6982,8 @@ goto block_19;
 block_30:
 {
 lean_object* x_29; 
-x_29 = lean_string_utf8_next(x_27, x_28);
-lean_dec(x_28);
+x_29 = lean_string_utf8_next(x_28, x_27);
+lean_dec(x_27);
 x_20 = x_29;
 goto block_26;
 }
@@ -7006,15 +7006,15 @@ goto block_26;
 }
 else
 {
-x_27 = x_8;
-x_28 = x_31;
+x_27 = x_31;
+x_28 = x_8;
 goto block_30;
 }
 }
 else
 {
-x_27 = x_8;
-x_28 = x_31;
+x_27 = x_31;
+x_28 = x_8;
 goto block_30;
 }
 }

@@ -3806,8 +3806,8 @@ if (lean_is_scalar(x_10)) {
  x_14 = x_10;
 }
 lean_ctor_set(x_14, 0, x_5);
-lean_ctor_set(x_14, 1, x_11);
-lean_ctor_set(x_14, 2, x_12);
+lean_ctor_set(x_14, 1, x_12);
+lean_ctor_set(x_14, 2, x_11);
 lean_ctor_set(x_14, 3, x_8);
 lean_ctor_set(x_14, 4, x_13);
 if (lean_is_scalar(x_4)) {
@@ -3824,8 +3824,8 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_19; 
 x_19 = lean_box(0);
-x_11 = x_17;
-x_12 = x_18;
+x_11 = x_18;
+x_12 = x_17;
 x_13 = x_19;
 goto block_16;
 }
@@ -3835,8 +3835,8 @@ uint8_t x_20;
 x_20 = !lean_is_exclusive(x_9);
 if (x_20 == 0)
 {
-x_11 = x_17;
-x_12 = x_18;
+x_11 = x_18;
+x_12 = x_17;
 x_13 = x_9;
 goto block_16;
 }
@@ -3848,8 +3848,8 @@ lean_inc(x_21);
 lean_dec(x_9);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
-x_11 = x_17;
-x_12 = x_18;
+x_11 = x_18;
+x_12 = x_17;
 x_13 = x_22;
 goto block_16;
 }

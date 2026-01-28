@@ -99,11 +99,19 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   return some idx
 
 /-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessPattern (declName : Name) : MetaM (List Name × Expr) := do
+def preprocessDeclPattern (declName : Name) : MetaM (List Name × Expr) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
+  let type ← preprocessType type
+  return (levelParams, type)
+
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) : MetaM (List Name × Expr) := do
+  let type ← inferType e
+  let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.map mkLevelParam
+  let type := type.instantiateLevelParams levelParams₀ us
   let type ← preprocessType type
   return (levelParams, type)
 
@@ -167,6 +175,16 @@ def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr
     mkProofInstArgInfo? xs
   return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
 
+def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat) : MetaM Pattern := do
+  let hugeNumber := 10000000
+  let num := num?.getD hugeNumber
+  let rec go (i : Nat) (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
+    if i < num then
+      if let .forallE _ d b _ := pattern then
+        return (← go (i+1) b (varTypes.push d))
+    mkPatternCore type levelParams varTypes pattern
+  go 0 type #[]
+
 /--
 Creates a `Pattern` from the type of a theorem.
 
@@ -181,15 +199,22 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessPattern declName
-  let hugeNumber := 10000000
-  let num := num?.getD hugeNumber
-  let rec go (i : Nat) (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
-    if i < num then
-      if let .forallE _ d b _ := pattern then
-        return (← go (i+1) b (varTypes.push d))
-    mkPatternCore type levelParams varTypes pattern
-  go 0 type #[]
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkPatternFromType levelParams type num?
+
+public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams
+  mkPatternFromType levelParams type num?
+
+def mkEqPatternFromType (levelParams : List Name) (type : Expr) : MetaM (Pattern × Expr) := do
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
+    if let .forallE _ d b _ := pattern then
+      return (← go b (varTypes.push d))
+    else
+      let_expr Eq _ lhs rhs := pattern | throwError "conclusion is not a equality{indentExpr type}"
+      let pattern ← mkPatternCore type levelParams varTypes lhs
+      return (pattern, rhs)
+  go type #[]
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
@@ -203,15 +228,8 @@ For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` w
 Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
-  let (levelParams, type) ← preprocessPattern declName
-  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
-    if let .forallE _ d b _ := pattern then
-      return (← go b (varTypes.push d))
-    else
-      let_expr Eq _ lhs rhs := pattern | throwError "resulting type for `{.ofConstName declName}` is not an equality"
-      let pattern ← mkPatternCore type levelParams varTypes lhs
-      return (pattern, rhs)
-  go type #[]
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkEqPatternFromType levelParams type
 
 structure UnifyM.Context where
   pattern   : Pattern

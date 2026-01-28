@@ -1267,13 +1267,13 @@ return x_14;
 block_22:
 {
 uint8_t x_19; 
-x_19 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_18, x_17);
-lean_dec(x_17);
+x_19 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_18, x_16);
+lean_dec(x_16);
 if (x_19 == 0)
 {
 lean_object* x_20; 
 x_20 = lean_unsigned_to_nat(3u);
-x_3 = x_16;
+x_3 = x_17;
 x_4 = x_20;
 goto block_15;
 }
@@ -1281,7 +1281,7 @@ else
 {
 lean_object* x_21; 
 x_21 = lean_unsigned_to_nat(1u);
-x_3 = x_16;
+x_3 = x_17;
 x_4 = x_21;
 goto block_15;
 }
@@ -1314,8 +1314,8 @@ if (lean_obj_tag(x_29) == 0)
 {
 uint32_t x_30; 
 x_30 = 65;
-x_16 = x_23;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_23;
 x_18 = x_30;
 goto block_22;
 }
@@ -1327,8 +1327,8 @@ lean_inc(x_31);
 lean_dec_ref(x_29);
 x_32 = lean_unbox_uint32(x_31);
 lean_dec(x_31);
-x_16 = x_23;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_23;
 x_18 = x_32;
 goto block_22;
 }

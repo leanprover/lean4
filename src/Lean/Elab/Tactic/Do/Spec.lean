@@ -199,7 +199,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   let_expr f@Triple m ps instWP α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
   let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
-  unless (← withAssignableSyntheticOpaque <| isDefEqGuarded wp wp') do
+  unless (← isDefEqGuarded wp wp') do
     Term.throwTypeMismatchError none wp wp' spec
 
   -- Try synthesizing synthetic MVars. We don't have the convenience of `TermElabM`, hence

@@ -1617,7 +1617,7 @@ block_48:
 {
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_box(0);
-x_43 = lean_grind_internalize(x_29, x_41, x_42, x_32, x_37, x_33, x_40, x_36, x_34, x_38, x_30, x_39, x_35);
+x_43 = lean_grind_internalize(x_29, x_41, x_42, x_40, x_36, x_33, x_31, x_39, x_38, x_37, x_35, x_32, x_34);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; 
@@ -1682,34 +1682,34 @@ x_64 = lean_nat_dec_le(x_61, x_63);
 if (x_64 == 0)
 {
 lean_dec(x_63);
-x_30 = x_56;
-x_31 = lean_box(0);
-x_32 = x_49;
+x_30 = lean_box(0);
+x_31 = x_52;
+x_32 = x_57;
 x_33 = x_51;
-x_34 = x_54;
-x_35 = x_58;
-x_36 = x_53;
-x_37 = x_50;
-x_38 = x_55;
-x_39 = x_57;
-x_40 = x_52;
+x_34 = x_58;
+x_35 = x_56;
+x_36 = x_50;
+x_37 = x_55;
+x_38 = x_54;
+x_39 = x_53;
+x_40 = x_49;
 x_41 = x_61;
 goto block_48;
 }
 else
 {
 lean_dec(x_61);
-x_30 = x_56;
-x_31 = lean_box(0);
-x_32 = x_49;
+x_30 = lean_box(0);
+x_31 = x_52;
+x_32 = x_57;
 x_33 = x_51;
-x_34 = x_54;
-x_35 = x_58;
-x_36 = x_53;
-x_37 = x_50;
-x_38 = x_55;
-x_39 = x_57;
-x_40 = x_52;
+x_34 = x_58;
+x_35 = x_56;
+x_36 = x_50;
+x_37 = x_55;
+x_38 = x_54;
+x_39 = x_53;
+x_40 = x_49;
 x_41 = x_63;
 goto block_48;
 }
@@ -11125,12 +11125,12 @@ goto block_81;
 block_93:
 {
 uint8_t x_92; 
-x_92 = lean_nat_dec_le(x_91, x_88);
+x_92 = lean_nat_dec_le(x_91, x_89);
 if (x_92 == 0)
 {
-lean_dec(x_88);
+lean_dec(x_89);
 lean_inc(x_91);
-x_82 = x_89;
+x_82 = x_88;
 x_83 = x_91;
 x_84 = x_90;
 x_85 = x_91;
@@ -11138,10 +11138,10 @@ goto block_87;
 }
 else
 {
-x_82 = x_89;
+x_82 = x_88;
 x_83 = x_91;
 x_84 = x_90;
-x_85 = x_88;
+x_85 = x_89;
 goto block_87;
 }
 }
@@ -11159,16 +11159,16 @@ x_99 = lean_nat_dec_le(x_25, x_98);
 if (x_99 == 0)
 {
 lean_inc(x_98);
-x_88 = x_98;
-x_89 = x_95;
+x_88 = x_95;
+x_89 = x_98;
 x_90 = x_94;
 x_91 = x_98;
 goto block_93;
 }
 else
 {
-x_88 = x_98;
-x_89 = x_95;
+x_88 = x_95;
+x_89 = x_98;
 x_90 = x_94;
 x_91 = x_25;
 goto block_93;
@@ -11669,12 +11669,12 @@ goto block_241;
 block_253:
 {
 uint8_t x_252; 
-x_252 = lean_nat_dec_le(x_251, x_248);
+x_252 = lean_nat_dec_le(x_251, x_249);
 if (x_252 == 0)
 {
-lean_dec(x_248);
+lean_dec(x_249);
 lean_inc(x_251);
-x_242 = x_249;
+x_242 = x_248;
 x_243 = x_251;
 x_244 = x_250;
 x_245 = x_251;
@@ -11682,10 +11682,10 @@ goto block_247;
 }
 else
 {
-x_242 = x_249;
+x_242 = x_248;
 x_243 = x_251;
 x_244 = x_250;
-x_245 = x_248;
+x_245 = x_249;
 goto block_247;
 }
 }
@@ -11703,16 +11703,16 @@ x_259 = lean_nat_dec_le(x_25, x_258);
 if (x_259 == 0)
 {
 lean_inc(x_258);
-x_248 = x_258;
-x_249 = x_255;
+x_248 = x_255;
+x_249 = x_258;
 x_250 = x_254;
 x_251 = x_258;
 goto block_253;
 }
 else
 {
-x_248 = x_258;
-x_249 = x_255;
+x_248 = x_255;
+x_249 = x_258;
 x_250 = x_254;
 x_251 = x_25;
 goto block_253;
@@ -12234,12 +12234,12 @@ goto block_339;
 block_351:
 {
 uint8_t x_350; 
-x_350 = lean_nat_dec_le(x_349, x_346);
+x_350 = lean_nat_dec_le(x_349, x_347);
 if (x_350 == 0)
 {
-lean_dec(x_346);
+lean_dec(x_347);
 lean_inc(x_349);
-x_340 = x_347;
+x_340 = x_346;
 x_341 = x_349;
 x_342 = x_348;
 x_343 = x_349;
@@ -12247,10 +12247,10 @@ goto block_345;
 }
 else
 {
-x_340 = x_347;
+x_340 = x_346;
 x_341 = x_349;
 x_342 = x_348;
-x_343 = x_346;
+x_343 = x_347;
 goto block_345;
 }
 }
@@ -12268,16 +12268,16 @@ x_357 = lean_nat_dec_le(x_25, x_356);
 if (x_357 == 0)
 {
 lean_inc(x_356);
-x_346 = x_356;
-x_347 = x_353;
+x_346 = x_353;
+x_347 = x_356;
 x_348 = x_352;
 x_349 = x_356;
 goto block_351;
 }
 else
 {
-x_346 = x_356;
-x_347 = x_353;
+x_346 = x_353;
+x_347 = x_356;
 x_348 = x_352;
 x_349 = x_25;
 goto block_351;
@@ -12899,12 +12899,12 @@ goto block_459;
 block_471:
 {
 uint8_t x_470; 
-x_470 = lean_nat_dec_le(x_469, x_466);
+x_470 = lean_nat_dec_le(x_469, x_467);
 if (x_470 == 0)
 {
-lean_dec(x_466);
+lean_dec(x_467);
 lean_inc(x_469);
-x_460 = x_467;
+x_460 = x_466;
 x_461 = x_469;
 x_462 = x_468;
 x_463 = x_469;
@@ -12912,10 +12912,10 @@ goto block_465;
 }
 else
 {
-x_460 = x_467;
+x_460 = x_466;
 x_461 = x_469;
 x_462 = x_468;
-x_463 = x_466;
+x_463 = x_467;
 goto block_465;
 }
 }
@@ -12933,16 +12933,16 @@ x_477 = lean_nat_dec_le(x_418, x_476);
 if (x_477 == 0)
 {
 lean_inc(x_476);
-x_466 = x_476;
-x_467 = x_473;
+x_466 = x_473;
+x_467 = x_476;
 x_468 = x_472;
 x_469 = x_476;
 goto block_471;
 }
 else
 {
-x_466 = x_476;
-x_467 = x_473;
+x_466 = x_473;
+x_467 = x_476;
 x_468 = x_472;
 x_469 = x_418;
 goto block_471;
@@ -13625,12 +13625,12 @@ goto block_586;
 block_598:
 {
 uint8_t x_597; 
-x_597 = lean_nat_dec_le(x_596, x_593);
+x_597 = lean_nat_dec_le(x_596, x_594);
 if (x_597 == 0)
 {
-lean_dec(x_593);
+lean_dec(x_594);
 lean_inc(x_596);
-x_587 = x_594;
+x_587 = x_593;
 x_588 = x_596;
 x_589 = x_595;
 x_590 = x_596;
@@ -13638,10 +13638,10 @@ goto block_592;
 }
 else
 {
-x_587 = x_594;
+x_587 = x_593;
 x_588 = x_596;
 x_589 = x_595;
-x_590 = x_593;
+x_590 = x_594;
 goto block_592;
 }
 }
@@ -13659,16 +13659,16 @@ x_604 = lean_nat_dec_le(x_545, x_603);
 if (x_604 == 0)
 {
 lean_inc(x_603);
-x_593 = x_603;
-x_594 = x_600;
+x_593 = x_600;
+x_594 = x_603;
 x_595 = x_599;
 x_596 = x_603;
 goto block_598;
 }
 else
 {
-x_593 = x_603;
-x_594 = x_600;
+x_593 = x_600;
+x_594 = x_603;
 x_595 = x_599;
 x_596 = x_545;
 goto block_598;

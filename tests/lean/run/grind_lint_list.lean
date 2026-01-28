@@ -23,6 +23,18 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 #guard_msgs in
 #grind_lint inspect (min := 25) List.Sublist.middle
 
+-- `List.getLast_attach` is reasonable at 21.
+#guard_msgs in
+#grind_lint inspect (min := 25) List.getLast_attach
+
+-- `List.getLast_attachWith` is reasonable at 22.
+#guard_msgs in
+#grind_lint inspect (min := 25) List.getLast_attachWith
+
+-- `List.head_attachWith` is reasonable at 21.
+#guard_msgs in
+#grind_lint inspect (min := 25) List.head_attachWith
+
 /-! Check List namespace: -/
 
 #guard_msgs in

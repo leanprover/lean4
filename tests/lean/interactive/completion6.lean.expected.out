@@ -3,94 +3,94 @@
 {"items":
  [{"label": "f1",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f1"]},
+   "data": ["file:///completion6.lean", 12, 15, 1, "cC.f1"]},
   {"label": "f3",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.f3"]},
+   "data": ["file:///completion6.lean", 12, 15, 1, "cD.f3"]},
   {"label": "toC",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.toC"]},
+   "data": ["file:///completion6.lean", 12, 15, 1, "cD.toC"]},
   {"label": "b1",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.b1"]},
+   "data": ["file:///completion6.lean", 12, 15, 1, "cC.b1"]},
   {"label": "f2",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f2"]}],
+   "data": ["file:///completion6.lean", 12, 15, 1, "cC.f2"]}],
  "isIncomplete": false}
 Resolution of f1:
 {"label": "f1",
  "kind": 5,
  "detail": "C → Nat",
- "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f1"]}
+ "data": ["file:///completion6.lean", 12, 15, 1, "cC.f1"]}
 Resolution of f3:
 {"label": "f3",
  "kind": 5,
  "detail": "D → Bool",
- "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.f3"]}
+ "data": ["file:///completion6.lean", 12, 15, 1, "cD.f3"]}
 Resolution of toC:
 {"label": "toC",
  "kind": 5,
  "detail": "D → C",
- "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cD.toC"]}
+ "data": ["file:///completion6.lean", 12, 15, 1, "cD.toC"]}
 Resolution of b1:
 {"label": "b1",
  "kind": 5,
  "detail": "C → String",
- "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.b1"]}
+ "data": ["file:///completion6.lean", 12, 15, 1, "cC.b1"]}
 Resolution of f2:
 {"label": "f2",
  "kind": 5,
  "detail": "C → Bool",
- "data": ["«external:file:///completion6.lean»", 12, 15, 1, "cC.f2"]}
+ "data": ["file:///completion6.lean", 12, 15, 1, "cC.f2"]}
 {"textDocument": {"uri": "file:///completion6.lean"},
  "position": {"line": 21, "character": 4}}
 {"items":
  [{"label": "f1",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f1"]},
+   "data": ["file:///completion6.lean", 21, 4, 1, "cC.f1"]},
   {"label": "f3",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.f3"]},
+   "data": ["file:///completion6.lean", 21, 4, 1, "cD.f3"]},
   {"label": "toC",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.toC"]},
+   "data": ["file:///completion6.lean", 21, 4, 1, "cD.toC"]},
   {"label": "b1",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.b1"]},
+   "data": ["file:///completion6.lean", 21, 4, 1, "cC.b1"]},
   {"label": "doubleF1",
    "kind": 3,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cE.doubleF1"]},
+   "data": ["file:///completion6.lean", 21, 4, 1, "cE.doubleF1"]},
   {"label": "f2",
    "kind": 5,
-   "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f2"]}],
+   "data": ["file:///completion6.lean", 21, 4, 1, "cC.f2"]}],
  "isIncomplete": false}
 Resolution of f1:
 {"label": "f1",
  "kind": 5,
  "detail": "C → Nat",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f1"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cC.f1"]}
 Resolution of f3:
 {"label": "f3",
  "kind": 5,
  "detail": "D → Bool",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.f3"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cD.f3"]}
 Resolution of toC:
 {"label": "toC",
  "kind": 5,
  "detail": "D → C",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cD.toC"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cD.toC"]}
 Resolution of b1:
 {"label": "b1",
  "kind": 5,
  "detail": "C → String",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.b1"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cC.b1"]}
 Resolution of doubleF1:
 {"label": "doubleF1",
  "kind": 3,
  "detail": "E → Nat",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cE.doubleF1"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cE.doubleF1"]}
 Resolution of f2:
 {"label": "f2",
  "kind": 5,
  "detail": "C → Bool",
- "data": ["«external:file:///completion6.lean»", 21, 4, 1, "cC.f2"]}
+ "data": ["file:///completion6.lean", 21, 4, 1, "cC.f2"]}

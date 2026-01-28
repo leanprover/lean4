@@ -465,6 +465,12 @@
     <<: *time
     cmd: lean big_struct.lean
 - attributes:
+    description: big_struct_dep1
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct_dep1.lean
+- attributes:
     description: big_struct_dep
     tags: [other]
   run_config:

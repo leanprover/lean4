@@ -62,9 +62,8 @@ public def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) 
       let (thenMVarId, elseMVarId) ← caseValue mvarId fvarId v (hNamePrefix.appendIndexAfter i)
       appendTagSuffix thenMVarId ((`case).appendIndexAfter i)
       let thenMVarId ← thenMVarId.tryClearMany hs
-      let (thenH, thenMVarId) ← thenMVarId.intro1P
-      let (subst, thenMVarId) ← substCore thenMVarId thenH (symm := false) {} (clearH := true)
-      let subgoals := subgoals.push { mvarId := thenMVarId, newHs := #[], subst := subst }
+      let (subst, thenMVarId) ← introSubstEq thenMVarId (substLHS := true)
+      let subgoals := subgoals.push { mvarId := thenMVarId, newHs := #[], subst }
       let (hs', elseMVarId) ←
         if needHyps then
           let (elseH, elseMVarId) ← elseMVarId.intro1P

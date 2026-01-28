@@ -54,6 +54,15 @@ theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := b
   rw [le_iff_lt_add_one, Nat.div_lt_iff_lt_mul h, Nat.add_one_mul]
   omega
 
+theorem le_mul_iff_le_left (hz : 0 < z) :
+    x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
+  rw [Nat.div_le_iff_le_mul hz]
+  omega
+
+theorem le_mul_iff_le_right (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Nat.mul_comm]
+
 -- TODO: reprove `div_eq_of_lt_le` in terms of this:
 protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ y * k ≤ x ∧ x ≤ y * k + k - 1 := by
   rw [Nat.eq_iff_le_and_ge, and_comm, le_div_iff_mul_le h, Nat.div_le_iff_le_mul h]
@@ -94,6 +103,12 @@ protected theorem div_le_div {a b c d : Nat} (h1 : a ≤ b) (h2 : d ≤ c) (h3 :
 theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
   div_le_div_left (Nat.le_add_left z y) h
+
+theorem div_add_div_le_add_div {x y z : Nat} : x / z + y / z ≤ (x + y) / z := by
+  by_cases hc : z > 0
+  · rw [Nat.le_div_iff_mul_le hc, Nat.add_mul]
+    apply Nat.add_le_add <;> apply Nat.div_mul_le_self
+  · simp_all
 
 theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
     (a + 1) / b = a / b + 1 := by

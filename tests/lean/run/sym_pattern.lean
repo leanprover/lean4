@@ -84,3 +84,58 @@ def test4 : SymM Unit := do
 /-- info: pFoo (3 + y) -/
 #guard_msgs in
 #eval SymM.run test4
+
+def ex₂ := ∃ x : Nat, True ∧ x = .zero
+
+def test5 : SymM Unit := do
+  let ruleEx   ← mkBackwardRuleFromExpr <| mkApp (mkConst ``Exists.intro [1]) Nat.mkType
+  let ruleAnd  ← mkBackwardRuleFromExpr <| mkApp (mkConst ``And.intro) (mkConst ``True)
+  let ruleTrue ← mkBackwardRuleFromExpr <| (mkConst ``True.intro)
+  let ruleRefl ← mkBackwardRuleFromDecl ``Eq.refl
+  let mvar ← mkFreshExprMVar (← getConstInfo ``ex₂).value!
+  let mvarId ← preprocessMVar mvar.mvarId!
+  let .goals [mvarId, _] ← ruleEx.apply mvarId | failure
+  let .goals [mvarId₁, mvarId₂] ← ruleAnd.apply mvarId | failure
+  let .goals [] ← ruleTrue.apply mvarId₁ | failure
+  let .goals [] ← ruleRefl.apply mvarId₂ | failure
+  logInfo mvar
+
+/--
+info: @Exists.intro Nat (fun x => And True (@Eq Nat x Nat.zero)) Nat.zero
+  (@And.intro True (@Eq Nat Nat.zero Nat.zero) True.intro (@Eq.refl Nat Nat.zero))
+-/
+#guard_msgs in
+set_option pp.explicit true in
+#eval SymM.run test5
+
+def ex₃ := (Nat × Type) × (Nat × Prop)
+
+def test6 : SymM Unit := do
+  let ruleProd ← mkBackwardRuleFromDecl ``Prod.mk
+  -- `u` is universe parameter in the following rule
+  let ruleProdNat ← mkBackwardRuleFromExpr (mkApp (mkConst ``Prod.mk [0, mkLevelParam `u]) Nat.mkType) [`u]
+  let mvar ← mkFreshExprMVar (← getConstInfo ``ex₃).value!
+  let mvarId ← preprocessMVar mvar.mvarId!
+  let .goals [mvarId₁, mvarId₂] ← ruleProd.apply mvarId | failure
+  logInfo mvarId₁
+  logInfo mvarId₂
+  -- **Note**: `ruleProdNat` is applied with different `u`s in the following two applications
+  let .goals [mvarId₁₁, mvarId₁₂] ← ruleProdNat.apply mvarId₁ | failure
+  let .goals [mvarId₂₁, mvarId₂₂] ← ruleProdNat.apply mvarId₂ | failure
+  mvarId₁₁.assign (mkNatLit 0)
+  mvarId₂₁.assign (mkNatLit 1)
+  mvarId₁₂.assign Nat.mkType
+  mvarId₂₂.assign (mkConst ``True)
+  logInfo mvar
+  check (← instantiateMVars mvar)
+
+/--
+info: ⊢ Prod.{0, 1} Nat Type
+---
+info: ⊢ Prod.{0, 0} Nat Prop
+---
+info: Prod.mk.{1, 0} (Prod.mk.{0, 1} 0 Nat) (Prod.mk.{0, 0} 1 True)
+-/
+#guard_msgs in
+set_option pp.universes true in
+#eval SymM.run test6

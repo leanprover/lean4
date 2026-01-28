@@ -575,42 +575,18 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
 Replaces the direct imports of a worker for the module `name` in `self` with
 a new set of direct imports.
 -/
-def updateWorkerImports
-    (self          : References)
-    (name          : Name)
-    (moduleUri     : DocumentUri)
-    (version       : Nat)
-    (directImports : Array ImportInfo)
-    : IO References := do
-  let directImports ← DirectImports.convertImportInfos directImports
-  let some workerRefs := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure? := none, refs := ∅, decls := ∅} }
-  match compare version workerRefs.version with
-  | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure? := none, refs := ∅, decls := ∅} }
-  | .eq =>
-    let isSetupFailure? := workerRefs.isSetupFailure?
-    let refs := workerRefs.refs
-    let decls := workerRefs.decls
-    return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls }
-    }
-
-/--
-Replaces the direct imports of a worker for the module `name` in `self` with
-a new set of direct imports.
--/
 def updateWorkerSetupInfo
     (self           : References)
     (name           : Name)
     (moduleUri      : DocumentUri)
     (version        : Nat)
+    (directImports  : Array ImportInfo)
     (isSetupFailure : Bool)
     : IO References := do
+  let directImports ← DirectImports.convertImportInfos directImports
   let isSetupFailure? := some isSetupFailure
   let some workerRefs := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure?, refs := ∅, decls := ∅} }
-  let directImports := workerRefs.directImports
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := ∅, decls := ∅} }
   match compare version workerRefs.version with
   | .lt => return self
   | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := ∅, decls := ∅} }
@@ -702,7 +678,8 @@ def allDirectImports (self : References) : AllDirectImportsMap := Id.run do
   for (name, ilean) in self.ileans do
     allDirectImports := allDirectImports.insert name (ilean.moduleUri, ilean.directImports)
   for (name, worker) in self.workers do
-    allDirectImports := allDirectImports.insert name (worker.moduleUri, worker.directImports)
+    if worker.hasRefs then
+      allDirectImports := allDirectImports.insert name (worker.moduleUri, worker.directImports)
   return allDirectImports
 
 /--
@@ -723,7 +700,8 @@ The current imports in a file worker take precedence over those in .ilean files.
 -/
 def getDirectImports? (self : References) (mod : Name) : Option DirectImports := do
   if let some worker := self.workers[mod]? then
-    return worker.directImports
+    if worker.hasRefs then
+      return worker.directImports
   if let some ilean := self.ileans[mod]? then
     return ilean.directImports
   none

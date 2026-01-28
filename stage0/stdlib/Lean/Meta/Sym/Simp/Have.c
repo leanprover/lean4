@@ -800,21 +800,21 @@ block_15:
 {
 uint8_t x_12; 
 lean_dec(x_10);
-x_12 = lean_nat_dec_le(x_11, x_9);
+x_12 = lean_nat_dec_le(x_11, x_8);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_9);
+lean_dec(x_8);
 lean_inc(x_11);
-x_13 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(x_2, x_3, x_8, x_11, x_11);
+x_13 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(x_2, x_3, x_9, x_11, x_11);
 lean_dec(x_11);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
-x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(x_2, x_3, x_8, x_11, x_9);
-lean_dec(x_9);
+x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(x_2, x_3, x_9, x_11, x_8);
+lean_dec(x_8);
 return x_14;
 }
 }
@@ -832,16 +832,16 @@ x_21 = lean_nat_dec_le(x_3, x_20);
 if (x_21 == 0)
 {
 lean_inc(x_20);
-x_8 = x_16;
-x_9 = x_20;
+x_8 = x_20;
+x_9 = x_16;
 x_10 = x_17;
 x_11 = x_20;
 goto block_15;
 }
 else
 {
-x_8 = x_16;
-x_9 = x_20;
+x_8 = x_20;
+x_9 = x_16;
 x_10 = x_17;
 x_11 = x_3;
 goto block_15;

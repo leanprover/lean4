@@ -53,11 +53,17 @@ example [CommRing α] (a b c : α)
 trace: [facts] Asserted facts
   [_] (bs.set i₂ v₂ ⋯).size = bs.size
   [_] (as.set i₁ v₁ ⋯).size = as.size
+  [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
+  [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
   [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
 ---
 trace: [props] True propositions
   [_] j < (bs.set i₂ v₂ ⋯).size
   [_] j < bs.size
+  [_] cs[j]? = some cs[j]
+  [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
+  [_] as[j]? = some as[j]
+  [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
 ---
 trace: [eqc] Equivalence classes
   [eqc] {bs, as.set i₁ v₁ ⋯}
@@ -65,6 +71,7 @@ trace: [eqc] Equivalence classes
   [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
   [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
     [eqc] {if i₂ = j then v₂ else bs[j]}
+  [eqc] {some as[j], as[j]?}
   [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
   [eqc] others
     [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
@@ -142,14 +149,22 @@ trace: [grind] Grind state
   [facts] Asserted facts
     [_] (bs.set i₂ v₂ ⋯).size = bs.size
     [_] (as.set i₁ v₁ ⋯).size = as.size
+    [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
+    [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
     [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
   [props] True propositions
     [_] j < (bs.set i₂ v₂ ⋯).size
     [_] j < bs.size
+    [_] cs[j]? = some cs[j]
+    [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
+    [_] as[j]? = some as[j]
+    [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
   [eqc] Equivalence classes
     [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
     [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
       [eqc] {if i₂ = j then v₂ else bs[j]}
+    [eqc] {some as[j], as[j]?}
+    [eqc] {some cs[j], cs[j]?}
     [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
     [eqc] others
       [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
@@ -435,6 +450,12 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 
 /--
 trace: [grind.ematch.instance] Array.getElem_set: (as.set i₁ v₁ ⋯)[j] = if i₁ = j then v₁ else as[j]
+[grind.ematch.instance] Array.getElem?_set: (bs.set i₂ v₂ ⋯)[j]? = if i₂ = j then some v₂ else bs[j]?
+[grind.ematch.instance] getElem?_neg: ¬j < cs.size → cs[j]? = none
+[grind.ematch.instance] getElem?_neg: ¬j < as.size → as[j]? = none
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < cs.size), cs[j]? = some cs[j]
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < as.size), as[j]? = some as[j]
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < bs.size), bs[j]? = some bs[j]
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)

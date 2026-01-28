@@ -1844,7 +1844,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; size_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
+lean_object* x_2; lean_object* x_3; size_t x_4; lean_object* x_5; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
 x_2 = lean_unsigned_to_nat(0u);
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
@@ -1895,7 +1895,7 @@ block_8:
 {
 size_t x_6; lean_object* x_7; 
 x_6 = lean_array_size(x_5);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__2(x_2, x_5, x_6, x_3, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__2(x_2, x_5, x_6, x_4, x_3);
 lean_dec_ref(x_5);
 return x_7;
 }
@@ -1912,8 +1912,8 @@ x_20 = lean_array_get_size(x_16);
 x_21 = lean_nat_dec_lt(x_2, x_20);
 if (x_21 == 0)
 {
-x_3 = x_13;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_13;
 x_5 = x_19;
 goto block_8;
 }
@@ -1925,8 +1925,8 @@ if (x_22 == 0)
 {
 if (x_21 == 0)
 {
-x_3 = x_13;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_13;
 x_5 = x_19;
 goto block_8;
 }
@@ -1935,8 +1935,8 @@ else
 size_t x_23; lean_object* x_24; 
 x_23 = lean_usize_of_nat(x_20);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__4(x_16, x_13, x_23, x_19);
-x_3 = x_13;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_13;
 x_5 = x_24;
 goto block_8;
 }
@@ -1946,8 +1946,8 @@ else
 size_t x_25; lean_object* x_26; 
 x_25 = lean_usize_of_nat(x_20);
 x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_LCtx_toLocalContext_spec__4(x_16, x_13, x_25, x_19);
-x_3 = x_13;
-x_4 = x_18;
+x_3 = x_18;
+x_4 = x_13;
 x_5 = x_26;
 goto block_8;
 }

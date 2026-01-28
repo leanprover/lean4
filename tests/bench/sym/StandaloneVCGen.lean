@@ -129,10 +129,13 @@ def _root_.Lean.Elab.Tactic.Do.SpecAttr.SpecProof.mkBackwardRule (proof : SpecPr
   | .global declName => mkBackwardRuleFromDecl declName
   | _ => throwError "mkBackwardRule: {proof} not supported yet"
 
-def _root_.Lean.Elab.Tactic.Do.SpecAttr.SpecProof.mkPattern (proof : SpecProof) : MetaM Pattern := do
+def _root_.Lean.Elab.Tactic.Do.SpecAttr.SpecProof.mkProofWithLevelParams (proof : SpecProof) : MetaM (Expr × List Level) := do
   match proof with
-  | .global declName => mkPatternFromDecl declName
-  | _ => throwError "mkBackwardRule: {proof} not supported yet"
+  | .global declName =>
+    let e ← mkConstWithLevelParams declName
+    return (e, e.constLevels!)
+  | .local h => return (mkFVar h, [])
+  | .stx _ _ proof => return (proof, [])
 
 /--
 Creates a value to assign to input goal metavariable using unification result.
@@ -155,14 +158,44 @@ def _root_.Lean.Elab.Tactic.Do.SpecAttr.SpecProof.mkValue (proof : SpecProof) (r
   Returns the proof and the list of new unassigned MVars.
 -/
 def mSpecSimple (goal : MGoal) (specThm : SpecTheorem) : SymM Expr := do
-  let T := goal.target.consumeMData
+  /-
+  We build a proof of the form
+  ```
+  theorem ext2 [WP m (.arg σ₁ (.arg σ₂ ps))] {α : Type u} {x : m α} {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))} {Q Q' : PostCond α (.arg σ₁ (.arg σ₂ ps))}
+      (h : Triple x P' Q') (hpre : P ⊢ₛ P' s₁ s₂) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ := by
+    apply SPred.entails.trans hpre
+    apply SPred.entails.trans (Triple.iff.mp h s₁ s₂)
+    apply (wp x).mono _ _ hpost s₁ s₂
+  ```
+  Where `s₁` and `s₂` are the excess arguments to the target `wp⟦x⟧ Q` application.
+  -/
+  let T := goal.target.consumeMData  -- `wp⟦x⟧ Q s₁ s₂`
   unless T.getAppFn.constName! == ``PredTrans.apply do
     liftMetaM (throwError "target not a PredTrans.apply application {indentExpr T}")
   let wp := T.getArg! 2
+  let args := T.getAppArgs
+  let P := goal.hyps
+  let Q := args[3]!
+  let excessArgs := (args.extract 4 args.size).reverse  -- `#[s₁, s₂]`
 
-  -- Create a backward rule for the spec we looked up in the database
-  -- In the future, perhaps we could store the BackwardRule in the DB as well.
-  let specPat ← specThm.proof.mkPattern
+  -- Create a backward rule for the spec we look up in the database
+  let (spec, specUs) ← specThm.proof.mkProofWithLevelParams
+  forallTelescope (← Meta.inferType spec) fun schematicVars specTy => do
+    let spec := mkAppN spec schematicVars
+    let_expr f@Triple m ps instWP α prog P' Q' := specTy
+      | liftMetaM <| throwError "The type of spec `{spec}` is not a Triple application: {indentExpr specTy}"
+    let u := f.constLevels![0]! -- TODO this is wrong when it's a level parameter of the spec. It should be instantiated to goal.u
+    let P'args := mkAppN P' excessArgs
+    withLocalDeclD (← mkFreshUserName `hpre) (mkApp3 (mkConst ``SPred.entails [u]) goal.σs P P'args) fun hpre => do
+    withLocalDeclD (← mkFreshUserName `hpost) (mkApp4 (mkConst ``PostCond.entails [u]) ps α Q' Q) fun hpost => do
+    let prf := mkApp6 (mkConst ``PredTrans.mono [u]) ps α wp Q Q' hpost
+    let specPrf := mkApp4 (mkConst ``Triple.iff [u]) ps α wp Q Q' hpost
+    return mkApp6 (mkConst ``SPred.entails.trans [u]) goal.σs P (mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog) (mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog) hpre hpost
+    -- prog should be x
+    let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
+    let wpPat := { specPat with pattern := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog }
+    let PPat := { specPat with pattern := P }
+    let QPat := { specPat with pattern := Q }
 
 
   -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
@@ -174,12 +207,6 @@ def mSpecSimple (goal : MGoal) (specThm : SpecTheorem) : SymM Expr := do
   -- for mvar in mvars do
   --   let ty ← mvar.mvarId!.getType
   --   if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
-
-  -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
-  let T := goal.target.consumeMData
-  let args := T.getAppArgs
-  let Q' := args[3]!
-  let excessArgs := (args.extract 4 args.size).reverse
 
   -- Actually instantiate the specThm using the expected type computed from `wp`.
   let_expr f@Triple m ps instWP α prog P Q := specPat.pattern

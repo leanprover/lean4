@@ -46,19 +46,10 @@ theorem Rcc.length_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Rcc.length_iter (since := "2026-01-28")]
-theorem Rcc.count_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α] {r : Rcc α} :
-    r.iter.length = r.size :=
-  length_iter
+def Rcc.count_iter := @Rcc.length_iter
 
 @[deprecated Rcc.length_iter (since := "2025-11-13")]
-theorem Rcc.count_iter_eq_size [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    {r : Rcc α} :
-    r.iter.length = r.size :=
-  length_iter
+def Rcc.count_iter_eq_size := @Rcc.length_iter
 
 @[simp]
 theorem Rco.toList_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -93,20 +84,10 @@ theorem Rco.length_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Rco.length_iter (since := "2026-01-28")]
-theorem Rco.count_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Rco α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rco.count_iter := @Rco.length_iter
 
 @[deprecated Rco.length_iter (since := "2025-11-13")]
-theorem Rco.count_iter_eq_size [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Rco α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rco.count_iter_eq_size := @Rco.length_iter
 
 @[simp]
 theorem Rci.toList_iter [UpwardEnumerable α]
@@ -141,20 +122,10 @@ theorem Rci.length_iter [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
 @[deprecated Rci.length_iter (since := "2026-01-28")]
-theorem Rci.count_iter [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Rci α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Rci.count_iter := @Rci.length_iter
 
 @[deprecated Rci.length_iter (since := "2025-11-13")]
-theorem Rci.count_iter_eq_size [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Rci α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Rci.count_iter_eq_size := @Rci.length_iter
 
 @[simp]
 theorem Roc.toList_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -189,20 +160,10 @@ theorem Roc.length_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
 @[deprecated Roc.length_iter (since := "2026-01-28")]
-theorem Roc.count_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    {r : Roc α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Roc.count_iter := @Roc.length_iter
 
 @[deprecated Roc.length_iter (since := "2025-11-13")]
-theorem Roc.count_iter_eq_size [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    {r : Roc α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Roc.count_iter_eq_size := @Roc.length_iter
 
 @[simp]
 theorem Roo.toList_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -237,20 +198,10 @@ theorem Roo.length_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
 
 @[deprecated Roo.length_iter (since := "2026-01-28")]
-theorem Roo.count_iter [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Roo α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Roo.count_iter := @Roo.length_iter
 
 @[deprecated Roo.length_iter (since := "2025-11-13")]
-theorem Roo.count_iter_eq_size [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Roo α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter_eq_toArray, Iter.size_toArray_eq_length]
+def Roo.count_iter_eq_size := @Roo.length_iter
 
 @[simp]
 theorem Roi.toList_iter [UpwardEnumerable α]
@@ -285,20 +236,10 @@ theorem Roi.length_iter [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Roi.length_iter (since := "2026-01-28")]
-theorem Roi.count_iter [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Roi α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Roi.count_iter := @Roi.length_iter
 
 @[deprecated Roi.length_iter (since := "2025-11-13")]
-theorem Roi.count_iter_eq_size [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Roi α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Roi.count_iter_eq_size := @Roi.length_iter
 
 @[simp]
 theorem Ric.toList_iter [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -333,20 +274,10 @@ theorem Ric.length_iter [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable �
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Ric.length_iter (since := "2026-01-28")]
-theorem Ric.count_iter [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    {r : Ric α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Ric.count_iter := @Ric.length_iter
 
 @[deprecated Ric.length_iter (since := "2025-11-13")]
-theorem Ric.count_iter_eq_size [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxc.HasSize α] [Rxc.LawfulHasSize α]
-    {r : Ric α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Ric.count_iter_eq_size := @Ric.length_iter
 
 @[simp]
 theorem Rio.toList_iter [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
@@ -381,20 +312,10 @@ theorem Rio.length_iter [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable �
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Rio.length_iter (since := "2026-01-28")]
-theorem Rio.count_iter [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Rio α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rio.count_iter := @Rio.length_iter
 
 @[deprecated Rio.length_iter (since := "2025-11-13")]
-theorem Rio.count_iter_eq_size [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α]
-    [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxo.HasSize α] [Rxo.LawfulHasSize α]
-    {r : Rio α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rio.count_iter_eq_size := @Rio.length_iter
 
 @[simp]
 theorem Rii.toList_iter [Least? α] [UpwardEnumerable α]
@@ -429,19 +350,9 @@ theorem Rii.length_iter [Least? α] [UpwardEnumerable α]
   rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
 
 @[deprecated Rii.length_iter (since := "2026-01-28")]
-theorem Rii.count_iter [Least? α] [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Rii α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rii.count_iter := @Rii.length_iter
 
 @[deprecated Rii.length_iter (since := "2025-11-13")]
-theorem Rii.count_iter_eq_size [Least? α] [UpwardEnumerable α]
-    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
-    [Rxi.HasSize α] [Rxi.LawfulHasSize α]
-    {r : Rii α} :
-    r.iter.length = r.size := by
-  rw [← size_toArray, ← toArray_iter, Iter.size_toArray_eq_length]
+def Rii.count_iter_eq_size := @Rii.length_iter
 
 end Std

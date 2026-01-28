@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0054 NEW)
 cmake_policy(SET CMP0110 NEW)
-if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
+if(NOT CMAKE_GENERATOR MATCHES "Unix Makefiles")
   message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
 endif()
-if(NOT (DEFINED STAGE))
+if(NOT DEFINED STAGE)
   message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
 endif()
 include(ExternalProject)
@@ -15,19 +15,19 @@ set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
-if (LEAN_SPECIAL_VERSION_DESC)
+if(LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
-elseif (NOT LEAN_VERSION_IS_RELEASE)
+elseif(NOT LEAN_VERSION_IS_RELEASE)
   string(APPEND LEAN_VERSION_STRING "-pre")
 endif()
-if (LEAN_VERSION_IS_RELEASE)
+if(LEAN_VERSION_IS_RELEASE)
   set(LEAN_MANUAL_ROOT "https://lean-lang.org/doc/reference/${LEAN_VERSION_STRING}/")
 else()
   set(LEAN_MANUAL_ROOT "")
 endif()
 
 set(LEAN_PLATFORM_TARGET "" CACHE STRING "LLVM triple of the target platform")
-if (NOT LEAN_PLATFORM_TARGET)
+if(NOT LEAN_PLATFORM_TARGET)
   # this may fail when the compiler is not clang, but this should only happen in local builds where
   # the value of the variable is not of immediate relevance
   execute_process(COMMAND ${CMAKE_C_COMPILER} --print-target-triple
@@ -40,7 +40,7 @@ find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
 endif()
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # Create space in install names so they can be patched later in Nix.
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
 endif()
@@ -49,7 +49,7 @@ set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Add
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler. Unlike `CMAKE_CXX_FLAGS`, these will not be used to build e.g. cadical.")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
-if (NOT CMAKE_BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
@@ -98,16 +98,16 @@ option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
 
-if ("${LAZY_RC}" MATCHES "ON")
+if(LAZY_RC MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()
 
-if (USE_MIMALLOC)
+if(USE_MIMALLOC)
   set(SMALL_ALLOCATOR OFF)
   set(LEAN_MIMALLOC "#define LEAN_MIMALLOC")
 endif()
 
-if ("${SMALL_ALLOCATOR}" MATCHES "ON")
+if(SMALL_ALLOCATOR MATCHES "ON")
   set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
 endif()
 
@@ -119,20 +119,20 @@ else()
   set(NumBits 32)
 endif()
 
-if ("${MMAP}" MATCHES "ON")
+if(MMAP MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MMAP")
 endif()
 
-if ("${RUNTIME_STATS}" MATCHES "ON")
+if(RUNTIME_STATS MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
 
-if ("${CHECK_OLEAN_VERSION}" MATCHES "ON")
+if(CHECK_OLEAN_VERSION MATCHES "ON")
   set(USE_GITHASH ON)
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_CHECK_OLEAN_VERSION")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     # TODO(WN): code size/performance tradeoffs
     # - we're using -O3; it's /okay/
     # - -Oz produces quite slow code
@@ -151,10 +151,10 @@ endif()
 include(CTest)
 
 # Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   message(STATUS "Windows detected")
   set(LEAN_WIN_STACK_SIZE "104857600")
-  if (MSVC)
+  if(MSVC)
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " /STACK:${LEAN_WIN_STACK_SIZE}")
   else()
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
@@ -173,9 +173,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_RELATIVE_LIBRARY
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
-if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+if((MULTI_THREAD MATCHES "ON") AND (CMAKE_SYSTEM_NAME MATCHES "Darwin"))
   string(APPEND LEAN_EXTRA_MAKE_OPTS " -s40000")
-endif ()
+endif()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
 string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
@@ -203,8 +203,8 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHASSERT  "-DLEAN_DEBUG")
 
 # SPLIT_STACK
-if (SPLIT_STACK)
-  if ((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
+if(SPLIT_STACK)
+  if((CMAKE_SYSTEM_NAME MATCHES "Linux") AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
      string(APPEND CMAKE_CXX_FLAGS " -fsplit-stack -D LEAN_USE_SPLIT_STACK")
      message(STATUS "Using split-stacks")
   else()
@@ -213,15 +213,15 @@ if (SPLIT_STACK)
 endif()
 
 # Compiler-specific C++14 activation.
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     execute_process(
         COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (NOT (GCC_VERSION VERSION_GREATER 4.9 OR GCC_VERSION VERSION_EQUAL 4.9))
+    if(NOT (GCC_VERSION VERSION_GREATER 4.9 OR GCC_VERSION VERSION_EQUAL 4.9))
         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.9 or greater.")
-    endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   string(APPEND CMAKE_CXX_FLAGS " -D__CLANG__")
-elseif (MSVC)
+elseif(MSVC)
     # All good. Maybe enforce a recent version?
     set(CMAKE_CXX_FLAGS                "/GL /EHsc /W2 /Zc:implicitNoexcept- -D_SCL_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "/Od /Zi ${CMAKE_CXX_FLAGS_DEBUG}")
@@ -231,35 +231,35 @@ elseif (MSVC)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Oi /Zi ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
     set(LEAN_EXTRA_LINKER_FLAGS        "/LTCG:INCREMENTAL ${LEAN_EXTRA_LINKER_FLAGS}")
     set(CMAKE_STATIC_LINKER_FLAGS      "${CMAKE_STATIC_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     message(STATUS "Emscripten is detected: Make sure the wrapped compiler supports C++14")
 else()
     message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
-endif ()
+endif()
 
-if (NOT MSVC)
+if(NOT MSVC)
     set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+    if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
       set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Oz ${CMAKE_CXX_FLAGS_MINSIZEREL}")
     else ()
       set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-    endif ()
+    endif()
     set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
     set(CMAKE_CXX_FLAGS_RELWITHASSERT  "-O3 ${CMAKE_CXX_FLAGS_RELWITHASSERT}")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-elseif (MULTI_THREAD)
+elseif(MULTI_THREAD)
     set(CMAKE_CXX_FLAGS_DEBUG          "/MTd ${CMAKE_CXX_FLAGS_DEBUG}")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "/MT ${CMAKE_CXX_FLAGS_MINSIZEREL}")
     set(CMAKE_CXX_FLAGS_RELEASE        "/MT ${CMAKE_CXX_FLAGS_RELEASE}")
     set(CMAKE_CXX_FLAGS_RELWITHASSERT  "/MT ${CMAKE_CXX_FLAGS_RELWITHASSERT}")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-endif ()
+endif()
 
-if("${USE_GMP}" MATCHES "ON")
+if(USE_GMP MATCHES "ON")
   set(CMAKE_CXX_FLAGS                "-D LEAN_USE_GMP ${CMAKE_CXX_FLAGS}")
-  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     include_directories(${GMP_INSTALL_PREFIX}/include)
     set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
   else()
@@ -273,7 +273,7 @@ if("${USE_GMP}" MATCHES "ON")
 endif()
 
 # LibUV
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # Only on WebAssembly we compile LibUV ourselves
   set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
 
@@ -328,7 +328,7 @@ if(NOT LEAN_STANDALONE)
 endif()
 
 # Windows SDK (for ICU)
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
   find_package(WindowsSDK REQUIRED COMPONENTS tools)
 
@@ -374,7 +374,7 @@ if(LLVM)
   execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY OUTPUT_VARIABLE LLVM_CONFIG_VERSION ECHO_OUTPUT_VARIABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
   string(REGEX MATCH "^[0-9]*" LLVM_CONFIG_MAJOR_VERSION ${LLVM_CONFIG_VERSION})
   message(STATUS "Found 'llvm-config' at '${LLVM_CONFIG}' with version '${LLVM_CONFIG_VERSION}', major version '${LLVM_CONFIG_MAJOR_VERSION}'")
-  if (NOT LLVM_CONFIG_MAJOR_VERSION STREQUAL "19")
+  if(NOT LLVM_CONFIG_MAJOR_VERSION STREQUAL "19")
     message(FATAL_ERROR "Unable to find llvm-config version 19. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
   endif()
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
@@ -395,7 +395,7 @@ endif()
 # the linker flags necessary on other platforms.
 # Furthermore, add LLVM flags into the list of flags we need when linking.
 # when using shared libraries, set the `rpath` to help the dynamic loader
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   if(LLVM) # link to Zlib because LLVM depends on it.
     find_package(ZLIB REQUIRED)
     message(STATUS "ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
@@ -403,7 +403,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     string(APPEND LEANSHARED_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
   endif()
   string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lleanrt")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
   string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -lStd -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
@@ -411,7 +411,7 @@ endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
@@ -426,18 +426,18 @@ endif()
 
 # flags for user binaries = flags for toolchain binaries + Lake
 set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
 else()
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -lLake_shared")
 endif()
 
-if (LLVM)
+if(LLVM)
   string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
   string(APPEND CMAKE_CXX_FLAGS " -I${LLVM_CONFIG_INCLUDEDIR}")
 endif()
 
-if(LLVM AND ${STAGE} GREATER 0)
+if(LLVM AND STAGE GREATER 0)
     # Here, we perform a replacement of `llvm-host` with `llvm`. This is necessary for our cross-compile
     #   builds in `script/prepare-llvm-*.sh`.
     # - Recall that the host's copy of LLVM binaries and libraries is at
@@ -458,19 +458,19 @@ endif()
 
 # We always strip away unused declarations to reduce binary sizes as the time cost is small and the
 # potential benefit can be huge, especially when stripping `meta import`s.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
-elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+elseif(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lm")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if(BSYMBOLIC)
     string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
     string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
@@ -480,7 +480,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
@@ -488,18 +488,18 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -ldl")
 endif()
 
-if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND NOT(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten"))
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
@@ -509,17 +509,17 @@ if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND NOT(${CMAKE_SYSTEM_NAME} MATC
 endif()
 
 # On Windows, add bcrypt for random number generation
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lbcrypt")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
 # executable or `leanshared`, plugins would try to look them up at load time (even though they
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   # import libraries created by the stdlib.make targets
   string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
-elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # The second flag is necessary to even *load* dylibs without resolved symbols, as can happen
   # if a Lake `extern_lib` depends on a symbols defined by the Lean library but is loaded even
   # before definition.
@@ -527,7 +527,7 @@ elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 endif()
 # Linux ignores undefined symbols in shared libraries by default
 
-if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
+if(MULTI_THREAD AND NOT MSVC AND NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " -pthread")
 endif()
 
@@ -535,14 +535,14 @@ endif()
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
   get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
-  if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
+  if(GIT_SHA1 MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")
   else()
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
-  if(USE_LAKE AND ${STAGE} EQUAL 0)
+  if(USE_LAKE AND STAGE EQUAL 0)
     # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
     execute_process(
         COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
@@ -558,14 +558,14 @@ else()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
-if(USE_LAKE AND ${STAGE} EQUAL 0)
+if(USE_LAKE AND STAGE EQUAL 0)
   # Now that we've prepared the information for the next stage, we can forget that we will use
   # Lake in the future as we won't use it in this stage
   set(USE_LAKE OFF)
 endif()
 
 # Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   set(LEAN_PATH_SEPARATOR ";")
 else()
   set(LEAN_PATH_SEPARATOR ":")
@@ -573,13 +573,13 @@ endif()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
-if (${STAGE} EQUAL 0)
+if(STAGE EQUAL 0)
   set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 1")
 else()
   set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 0")
 endif()
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
-if (USE_MIMALLOC)
+if(USE_MIMALLOC)
   file(COPY "${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include/mimalloc.h" DESTINATION "${LEAN_BINARY_DIR}/include/lean")
 endif()
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/ DESTINATION include)
@@ -615,11 +615,11 @@ add_library(leanshell STATIC util/shell.cpp)
 set_target_properties(leanshell PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/temp
   OUTPUT_NAME leanshell)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
-if(${STAGE} GREATER 1)
+if(STAGE GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
   set_target_properties(leanrt_initial-exec PROPERTIES
@@ -649,7 +649,7 @@ if(${STAGE} GREATER 1)
   endif()
 else()
   add_subdirectory(runtime)
-  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_dependencies(leanrt libuv)
     add_dependencies(leanrt_initial-exec libuv)
   endif()
@@ -673,7 +673,7 @@ else()
     OUTPUT_NAME leancpp)
 endif()
 
-if((${STAGE} GREATER 0) AND CADICAL AND INSTALL_CADICAL)
+if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_custom_target(copy-cadical
     COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}")
   add_dependencies(leancpp copy-cadical)
@@ -686,7 +686,7 @@ string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 # (also looks nicer in the build log)
 file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # We do not use dynamic linking via leanshared for Emscripten to keep things
   # simple. (And we are not interested in `Lake` anyway.) To use dynamic
   # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
@@ -699,12 +699,12 @@ endif()
 
 # Build the compiler using the bootstrapped C sources for stage0, and use
 # the LLVM build for stage1 and further.
-if (LLVM AND ${STAGE} GREATER 0)
+if(LLVM AND STAGE GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
 set(STDLIBS Init Std Lean Leanc)
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
@@ -718,14 +718,14 @@ add_custom_target(make_stdlib ALL
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode
 # of Lean runtime to be built.
-if (LLVM AND ${STAGE} EQUAL 1)
+if(LLVM AND STAGE EQUAL 1)
    add_dependencies(make_stdlib runtime_bc)
 endif()
 
 # We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
 # (e.g. `libLean.a`) are now newer than the target file
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # dummy targets, see `MAIN_MODULE` discussion above
   add_custom_target(Init_shared ALL
     DEPENDS make_stdlib leanrt_initial-exec
@@ -757,7 +757,7 @@ else()
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
 endif()
 
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   add_custom_target(lake_shared
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
@@ -789,7 +789,7 @@ endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(STAGE GREATER 0 AND EXISTS "${LEAN_SOURCE_DIR}/Leanc.lean" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc
@@ -802,7 +802,7 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
-if (${STAGE} GREATER 0 AND CADICAL AND INSTALL_CADICAL)
+if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 
@@ -824,7 +824,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 # get rid of all files in `src/lean` that may have been loaded from the cache
 # (at the time of writing this, this is the case for some lake test .c files)
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/src/lean)
-if(${STAGE} EQUAL 0)
+if(STAGE EQUAL 0)
   file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
 else()
   file(CREATE_LINK ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
@@ -836,7 +836,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION src/lean
         PATTERN "*.md"
         PATTERN examples EXCLUDE)
 
-if(${STAGE} GREATER 0 AND INSTALL_LICENSE)
+if(STAGE GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")
 endif()
 
@@ -851,7 +851,7 @@ if(LEAN_INSTALL_PREFIX)
 endif()
 
 
-if (USE_LAKE_CACHE AND STAGE EQUAL 1)
+if(USE_LAKE_CACHE AND STAGE EQUAL 1)
   set(LAKE_ARTIFACT_CACHE_TOML "true")
 else()
   # The build of stage2+ may depend on local changes made to src/ that are not reflected by the
@@ -877,7 +877,7 @@ string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC
 
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
 
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
+if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
 else()
   set(CMAKE_BUILD_TYPE_TOML "Release")

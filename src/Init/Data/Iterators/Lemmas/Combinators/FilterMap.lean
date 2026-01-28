@@ -722,11 +722,14 @@ end Fold
 section Count
 
 @[simp]
-theorem Iter.count_map {α β β' : Type w} [Iterator α Id β]
+theorem Iter.length_map {α β β' : Type w} [Iterator α Id β]
     [IteratorLoop α Id Id] [Finite α Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} {f : β → β'} :
-    (it.map f).count = it.count := by
-  simp [map_eq_toIter_map_toIterM, count_eq_count_toIterM]
+    (it.map f).length = it.length := by
+  simp [map_eq_toIter_map_toIterM, length_eq_length_toIterM]
+
+@[deprecated Iter.length_map (since := "2026-01-28")]
+def Iter.count_map := @Iter.length_map
 
 end Count
 

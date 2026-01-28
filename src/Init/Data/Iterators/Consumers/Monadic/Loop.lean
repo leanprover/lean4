@@ -912,21 +912,15 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.length {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2026-01-28"), expose]
+def IterM.count := @IterM.length
 
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
-def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
-  it.count
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2025-10-29"), expose]
+def IterM.size := @IterM.length
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -935,7 +929,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.count (since := "2025-12-04")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-12-04")]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
   it.it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
@@ -947,10 +941,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-10-29")]
 def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
-  it.it.count
+  it.it.length
 
 end Count
 

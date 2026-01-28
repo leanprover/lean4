@@ -12,6 +12,8 @@ import Lean.Meta.Check
 import Lean.Meta.PProdN
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.Tactic.Refl
 
 open Lean Meta
 
@@ -111,6 +113,8 @@ def brecOnToRec' (e : Expr) : MetaM Expr := e.withApp fun fn args => do
   let recApp := mkAppN recApp minors
   unless minors.size = indInfo.ctors.length do
     throwError "brecOnToRec: unexpected number of minor premises"
+  let recApp := mkAppN recApp indices
+  let recApp := mkApp recApp major
 
   -- Create a defeq task for each constructor
   for ctorName in indInfo.ctors, recMinor in minors do
@@ -138,11 +142,21 @@ def brecOnToRec' (e : Expr) : MetaM Expr := e.withApp fun fn args => do
         unless (← isDefEq lhs rhs) do
           throwError "brecOnToRec: could not solve defeq for ctor {ctorName}, probably not structurally recursive"
 
-  let recApp := mkAppN recApp indices
-  let recApp := mkApp recApp major
+  -- Create the `alternativeReduction` gadget
+  let aRedApp ← mkAppM ``alternativeReduction #[e, recApp]
+  let (#[mvarId], _, _) ← forallMetaBoundedTelescope (← inferType aRedApp) 1
+    | throwError "brecOnToRec: unexpected number of metavariables in alternativeReduction"
+  let aRedApp := mkApp aRedApp mvarId
+  let mvarId := mvarId.mvarId!
+  trace[Elab.definition.structural.brecOnToRec] "equality proof obligation:\n{mvarId}"
+  let mvarIds ← casesOnStuckLHS mvarId
+  mvarIds.forM fun mvarId =>
+    withTransparency .all do
+    withOptions (smartUnfolding.set · false) do mvarId.refl
+
   trace[Elab.definition.structural.brecOnToRec] "final recApp:{indentExpr recApp}"
-  check recApp -- TODO: remove in final ode
-  return recApp
+  check aRedApp -- TODO: remove in final ode
+  return aRedApp
 
 public def brecOnToRec (e : Expr) : MetaM Expr := do
   try

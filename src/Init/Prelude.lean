@@ -696,6 +696,15 @@ set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
+set_option linter.unusedVariables.funArgs false in
+/--
+Auxiliary declaration to associated a user-facing expression with a kernel-reduction friendly expression.
+-/
+def alternativeReduction {α : Sort u} (a b : α) (h : Eq b a) : α := b
+
+theorem alternativeReduction.eq_left {α : Sort u} (a b : α) (h : Eq b a) :
+  Eq (alternativeReduction a b h) a := h
+
 /--
 Auxiliary axiom used to implement the `sorry` term and tactic.
 

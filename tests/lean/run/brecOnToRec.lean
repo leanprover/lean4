@@ -9,6 +9,7 @@ inductive N where
 -- #check N.rec
 -- #print N.below
 
+-- set_option trace.Elab.definition.structural.brecOnToRec true in
 def N.id : N → N
   | N.zero => .zero
   | N.succ a => N.succ (N.id a)
@@ -16,6 +17,18 @@ termination_by structural n => n
 
 /-- N.rec -/
 #guard_msgs (substring := true) in #print N.id
+
+
+example (a : N) :
+   N.rec (motive := fun n => N) zero (fun a => N.succ) a =
+        N.brecOn a fun x f =>
+          (match (motive := (x : N) → N.below  (motive := fun x => N) x → N) x with
+            | .zero => fun x => zero
+            | .succ a => fun x => N.succ x.1)
+            f := by
+  induction a
+  · rfl
+  · simp [*]
 
 -- set_option trace.Elab.definition.structural.brecOnToRec true in
 def N.add : N → N → N

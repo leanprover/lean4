@@ -4,7 +4,7 @@ stackinfo.cpp compact.cpp init_module.cpp io.cpp hash.cpp byteslice.cpp
 platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
 process.cpp object_ref.cpp mpn.cpp mutex.cpp libuv.cpp uv/net_addr.cpp uv/event_loop.cpp
 uv/timer.cpp uv/tcp.cpp uv/udp.cpp uv/dns.cpp uv/system.cpp uv/signal.cpp)
-if (USE_MIMALLOC)
+if(USE_MIMALLOC)
   list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
   # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
   include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
@@ -29,16 +29,16 @@ set_target_properties(leanrt_initial-exec PROPERTIES
 add_library(leanrt STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-if (NOT MSVC)
+if(NOT MSVC)
 target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
 endif()
 # We do not export Lean symbols when statically linking on Windows.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 target_compile_options(leanrt PRIVATE -ULEAN_EXPORTING)
 endif()
 
 if(LLVM)
-  if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       message(FATAL_ERROR "building 'lean.h.bc', need CMAKE_CXX_COMPILER_ID to match Clang to build LLVM bitcode file of Lean runtime.")
   endif()
   FILE(READ "${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h" LEAN_H)

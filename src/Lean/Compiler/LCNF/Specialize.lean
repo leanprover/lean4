@@ -199,7 +199,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array (Arg .pure)) :
   let lctx := (← getThe CompilerM.State).lctx
   let abstract (fvarId : FVarId) : Bool :=
     -- We convert let-declarations that are not ground into parameters
-    !lctx.funDecls.contains fvarId &&
+    !(lctx.funDecls .pure).contains fvarId &&
     !ctx.underApplied.contains fvarId &&
     !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do

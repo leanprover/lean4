@@ -147,11 +147,8 @@ structure DoElemCont where
   The continuation to elaborate the `rest` of the block. It assumes that the result of the `do`
   block is bound to `resultName` with the correct type (that is, `resultType`, potentially refined
   by a dependent `match`).
-  It takes a `Syntax` argument to identify the syntactic jump site by source position.
-  This is important for counting the number of jumps after elaboration in order to omit
-  unnecessary join points.
   -/
-  k : Syntax → DoElabM Expr
+  k : DoElabM Expr
   /--
   Whether we are OK with generating the code of the continuation multiple times, e.g. in different
   branches of a `match` or `if`.
@@ -237,7 +234,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   return {
     resultName := r,
     resultType,
-    k _ := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
+    k := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
     kind := .duplicable
     ref := .missing
     declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
@@ -404,7 +401,7 @@ def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resul
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
 the bind if `$(← dec.k)` is `pure $dec.resultName` or `e` is some `pure` computation.
 -/
-def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
+def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
   let x := dec.resultName
   let eResultTy := dec.resultType
   let k := dec.k
@@ -412,7 +409,7 @@ def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : D
   let declKind := if dec.declKind matches .default then .ofBinderName x else dec.declKind
   withRef? dec.ref do
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
-    let body ← k ref
+    let body ← k
     let body' := body.consumeMData
     -- First try to contract `e >>= pure` into `e`.
     -- Reason: for `pure e >>= pure`, we want to get `pure e` and not `have xFVar := e; pure xFVar`.
@@ -434,7 +431,7 @@ def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : D
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
         -- else -- would be too aggressive
         --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
@@ -447,11 +444,11 @@ def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : D
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
 is `PUnit` and then immediately zeta-reduce the `let`.
 -/
-def DoElemCont.continueWithUnit (ref : Syntax) (dec : DoElemCont) : DoElabM Expr := do
+def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
-    withRef? dec.ref (dec.k ref)
+    withRef? dec.ref dec.k
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
 def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
@@ -460,7 +457,7 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
   withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
     let s ← Term.saveState
     let log ← Core.getAndEmptyMessageLog
-    try discard <| dec.k .missing catch _ => pure ()
+    try discard <| dec.k catch _ => pure ()
     let warnings := MessageLog.getWarningMessages (← Core.getMessageLog)
     s.restore
     Core.setMessageLog (log ++ warnings)
@@ -570,9 +567,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
   withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
   withContFVar joinName do
-  let calls : IO.Ref (Std.HashMap String.Pos.Raw Bool) ← IO.mkRef {}
   let deadCode : IO.Ref CodeLiveness ← IO.mkRef .deadSyntactically
-  let mkJump ref : DoElabM Expr := do
+  let mkJump : DoElabM Expr := do
     let jp' ← getFVarFromUserName joinName
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
@@ -581,8 +577,6 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
       Term.addTermInfo' x newX
       e := mkApp e (← getFVarFromUserName x.getId)
     let refined := jp' != jp  -- whether we have generalized `jp` in a `match`
-    if let some pos := ref.getPos? then
-      calls.modify (·.insert pos refined)
     deadCode.modify (·.lub (← read).deadCode)
     return e
 
@@ -599,7 +593,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
     -- let live ← deadCode.get
     -- (if body?.isSome then withDeadCode live else id) do
-    let e ← nondupDec.k .missing
+    let e ← nondupDec.k
     -- trace[Elab.do] "join body: {e}, nondupDec.resultType: {nondupDec.resultType}, u: {(← read).monadInfo.u}, abstracting over {r} and {muts}"
     mkLambdaFVars (#[r] ++ muts) e
   discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
@@ -609,14 +603,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     | some body => pure body
     | none => doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
 
-  let calls ← calls.get
-  -- TODO: This will not be conservative when we have postponement... fix this with a post pass.
-  if true || calls.size > 1 || calls.any (fun _ refined => refined) || body?.isNone then
-    mkLetFVars (generalizeNondepLet := false) #[jp] body
-  else
-    -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
-    -- of `jp` (e.g., in MVar contexts) are considered dead code.
-    inlineJoinPointM body jp
+  mkLetFVars (generalizeNondepLet := false) #[jp] body
 
 /--
 Create syntax standing in for an unelaborated metavariable.
@@ -885,7 +872,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
             throw ex
         | _ => throw ex
 
-private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoElabM DoElemCont := do
+private def DoElemCont.mkUnit (ref : Syntax) (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
   return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
@@ -924,7 +911,7 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   else
   let back := doElems.back
   let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
-  let mkCont el k := { initCont with ref := el, k := fun _ref => k }
+  let mkCont el k := { initCont with ref := el, k }
   let init := (back, elabDoElem back cont catchExPostpone)
   let (_, res) := doElems.pop.foldr (init := init) fun el (prev, k) =>
     (el, elabDoElem el (mkCont prev k) catchExPostpone)

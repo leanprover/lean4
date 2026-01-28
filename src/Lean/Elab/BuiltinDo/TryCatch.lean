@@ -75,4 +75,4 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
         let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
         pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
           mi.m lifter.liftedDoBlockResultType β instMonadFinally instFunctor body fin
-  (← lifter.restoreCont).mkBindUnlessPure stx body
+  (← lifter.restoreCont).mkBindUnlessPure body

@@ -135,7 +135,7 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign letOrReassign declNew dec
   | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
     let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
-    let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
+    let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
     doElabToSyntax m!"let body of {pattern}" contElab fun body => do
     -- The infamous MVar postponement trick below popularized by `if` is necessary in Lake.CLI.Main.
     -- We need it because we specify a constant motive, otherwise the `match` elaborator would have postponed.
@@ -155,7 +155,7 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     controlAtTermElabM fun runInBase => do
     Term.withElabLetDeclAux config id binders type value fun x val => runInBase do
       elabWithReassignments letOrReassign vars do
-      let body ← dec.continueWithUnit decl >>= instantiateMVars
+      let body ← dec.continueWithUnit >>= instantiateMVars
       if config.zeta then
         body.replaceFVarsM #[x] #[val]
       else
@@ -173,15 +173,17 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         let decl ← getLocalDeclFromUserName x.getId
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x ∘ dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x <| dec.continueWithUnit)
       (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| _%$pattern ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    trace[Elab.do] "wildcard arrow: {rhs}, dec.ref: {dec.ref}"
     elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) fun _ref => do
+    trace[Elab.do] "pattern let arrow: {pattern} <- {rhs}, dec.ref: {dec.ref}"
+    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
@@ -210,7 +212,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
-  doElabToSyntax m!"let rec body of group {vars}" (dec.continueWithUnit decls) fun body => do
+  doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
     -- Let recs may never have nested actions. We expand just for the sake of error messages.
     -- This suppresses error messages for the let body. Not sure if this is a good call, but it was
     -- the status quo of the legacy `do` elaborator.

@@ -144,7 +144,7 @@ open Lean.Meta
     let body ←
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-      elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
+      elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
     -- Elaborate the `break` continuation.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
@@ -153,7 +153,7 @@ open Lean.Meta
     let breakRhs ← breakRhsMVar.mvarId!.withContext do
       withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-          dec.continueWithUnit .missing
+          dec.continueWithUnit
     unless ← breakRhsMVar.mvarId!.checkedAssign breakRhs do
       throwError "Failed to assign break continuation"
 

@@ -37,7 +37,7 @@ open Lean.Meta
   let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr with $alts) := stx | throwUnsupportedSyntax
   if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
     let x ← Term.mkFreshIdent discr
-    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) (contRef := dec.ref) (declKind := .implDetail) fun _ref => do
+    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) (contRef := dec.ref) (declKind := .implDetail) do
       elabDoMatchExprNoMeta x alts dec
   else
     elabDoMatchExprNoMeta discr alts dec

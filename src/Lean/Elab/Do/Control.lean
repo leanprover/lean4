@@ -57,10 +57,10 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (mutVars : Array Name) (σ :
     -- before calling `dec.k`. See also `StateT.monadControl.restoreM`.
     let resultName ← mkFreshUserName `p
     let resultType ← stM dec.resultType
-    let k ref : DoElabM Expr := do
+    let k : DoElabM Expr := do
       let p ← getFVarFromUserName resultName
       bindMutVarsFromTuple (dec.resultName :: mutVars.toList) p.fvarId! do
-        dec.k ref
+        dec.k
     base.restoreCont { resultName, resultType, k }
 where
   getσ := do mkProdN (← mutVars.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) baseMonadInfo.u
@@ -81,13 +81,13 @@ def ControlStack.optionT (baseMonadInfo : MonadInfo) (optionTWrapper casesOnWrap
     -- See also `instMonadControlOptionTOfMonad.restoreM`.
     let resultName ← mkFreshUserName `e
     let resultType := stM dec.resultType
-    let k ref : DoElabM Expr := do
+    let k : DoElabM Expr := do
       let e ← getFVarFromUserName resultName
       let outerCont ← getCont
       let kexit ← withLocalDeclD (← mkFreshUserName `r) (mkConst ``Unit) fun r => do
         mkLambdaFVars #[r] (← outerCont)
       let ksuccess ← withLocalDeclD dec.resultName dec.resultType fun r => do
-        mkLambdaFVars #[r] (← dec.k ref)
+        mkLambdaFVars #[r] (← dec.k)
       let β ← mkMonadicType (← read).doBlockResultType
       return mkApp5 (mkConst casesOnWrapper [baseMonadInfo.u, baseMonadInfo.v]) dec.resultType β e kexit ksuccess
     base.restoreCont { resultName, resultType, k }
@@ -107,13 +107,13 @@ def ControlStack.exceptT (baseMonadInfo : MonadInfo) (exceptTWrapper casesOnWrap
     -- Wrap `dec` such that the result type is `Except ε dec.resultType` by unpacking the exception,
     -- calling `dec.k` in the success case. See also `instMonadControlExceptTOfMonad.restoreM`.
     let resultName ← mkFreshUserName `e
-    let k ref := do
+    let k := do
       let e ← getFVarFromUserName resultName
       let outerCont ← getCont
       let kexit ← withLocalDeclD (← mkFreshUserName `r) outerCont.resultType fun r => do
         mkLambdaFVars #[r] (← outerCont.k r)
       let (ksuccess, β) ← withLocalDeclD dec.resultName dec.resultType fun r => do
-        let body ← dec.k ref
+        let body ← dec.k
         let ksuccess ← mkLambdaFVars #[r] body
         let β ← inferType body
         return (ksuccess, β)
@@ -263,7 +263,7 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
     | some returnBase => { oldReturnCont with k := returnBase.mkReturn }
     | _ => oldReturnCont
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
-  let pureCont := { l.origCont with k _ := l.pureBase.mkPure l.pureDeadCode l.origCont.resultName, kind := .duplicable }
+  let pureCont := { l.origCont with k := l.pureBase.mkPure l.pureDeadCode l.origCont.resultName, kind := .duplicable }
   withReader (fun ctx => { ctx with contInfo, doBlockResultType := l.liftedDoBlockResultType }) do
     elabElem pureCont
 
@@ -271,4 +271,4 @@ def ControlLifter.restoreCont (l : ControlLifter) : DoElabM DoElemCont := do
   -- The success continuation `l.origCont` is dead code iff `l.pureKVar` is.
   -- However, we need to generate code for it, so we relax its flag to `.deadSemantically`.
   let deadCode := (← l.pureDeadCode.get).lub .deadSemantically
-  l.pureBase.restoreCont { l.origCont with k ref := withDeadCode deadCode (l.origCont.k ref) }
+  l.pureBase.restoreCont { l.origCont with k := withDeadCode deadCode l.origCont.k }

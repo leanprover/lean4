@@ -60,12 +60,15 @@ theorem IterM.map_unattach_toArray_attachWith [Iterator α m β] [Monad m] [Mona
   simp [-map_unattach_toList_attachWith, -IterM.toArray_toList]
 
 @[simp]
-theorem IterM.count_attachWith [Iterator α m β] [Monad m] [Monad n]
+theorem IterM.length_attachWith [Iterator α m β] [Monad m] [Monad n]
     {it : IterM (α := α) m β} {hP}
     [Finite α m] [IteratorLoop α m m] [LawfulMonad m] [LawfulIteratorLoop α m m] :
-    (it.attachWith P hP).count = it.count := by
-  rw [← up_length_toList_eq_count, ← up_length_toList_eq_count,
+    (it.attachWith P hP).length = it.length := by
+  rw [← up_length_toList_eq_length, ← up_length_toList_eq_length,
     ← map_unattach_toList_attachWith (it := it) (P := P) (hP := hP)]
   simp only [Functor.map_map, List.length_unattach]
+
+@[deprecated IterM.length_attachWith (since := "2026-01-28")]
+def IterM.count_attachWith := @IterM.length_attachWith
 
 end Std

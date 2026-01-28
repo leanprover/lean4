@@ -45,7 +45,7 @@ class LawfulSliceSize (γ : Type u) [SliceSize γ] [ToIterator (Slice γ) Id α 
   /-- The iterator of a slice `s` of type `Slice γ` emits exactly `SliceSize.size s` elements. -/
   lawful :
       letI : IteratorLoop α Id Id := .defaultImplementation
-      ∀ s : Slice γ, SliceSize.size s = (ToIterator.iter (γ := Slice γ) s).count
+      ∀ s : Slice γ, SliceSize.size s = (ToIterator.iter (γ := Slice γ) s).length
 
 /--
 Returns the number of elements with distinct indices in the given slice.

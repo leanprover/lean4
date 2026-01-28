@@ -27,21 +27,27 @@ theorem iter_eq_toIteratorIter {γ : Type u} {s : Slice γ}
     s.iter = ToIterator.iter s := by
   simp [Internal.iter_eq_iter, Internal.iter_eq_toIteratorIter]
 
-theorem size_eq_count_iter [ToIterator (Slice γ) Id α β]
+theorem size_eq_length_iter [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] {s : Slice γ}
     [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     [SliceSize γ] [LawfulSliceSize γ] :
-    s.size = s.iter.count := by
-  simp [Internal.iter_eq_iter, Internal.size_eq_count_iter]
+    s.size = s.iter.length := by
+  simp [Internal.iter_eq_iter, Internal.size_eq_length_iter]
 
-theorem count_iter_eq_size [ToIterator (Slice γ) Id α β]
+@[deprecated size_eq_length_iter (since := "2026-01-28")]
+def size_eq_count_iter := @size_eq_length_iter
+
+theorem length_iter_eq_size [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] {s : Slice γ}
     [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     [SliceSize γ] [LawfulSliceSize γ] :
-    s.iter.count = s.size :=
-  size_eq_count_iter.symm
+    s.iter.length = s.size :=
+  size_eq_length_iter.symm
+
+@[deprecated length_iter_eq_size (since := "2026-01-28")]
+def count_iter_eq_size := @length_iter_eq_size
 
 @[simp]
 theorem toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]

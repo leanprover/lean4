@@ -79,12 +79,15 @@ theorem Iter.toArray_attachWith [Iterator α Id β]
   simp [Iter.toList_toArray]
 
 @[simp]
-theorem Iter.count_attachWith [Iterator α Id β]
+theorem Iter.length_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] [IteratorLoop α Id Id]
     [LawfulIteratorLoop α Id Id] :
-    (it.attachWith P hP).count = it.count := by
-  rw [← Iter.length_toList_eq_count, toList_attachWith]
+    (it.attachWith P hP).length = it.length := by
+  rw [← Iter.length_toList_eq_length, toList_attachWith]
   simp
+
+@[deprecated Iter.length_attachWith (since := "2026-01-28")]
+def Iter.count_attachWith := @Iter.length_attachWith
 
 end Std

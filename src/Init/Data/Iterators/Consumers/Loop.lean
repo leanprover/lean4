@@ -675,9 +675,15 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose]
-def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+def Iter.length {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
-  it.toIterM.count.run.down
+  it.toIterM.length.run.down
+
+@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2026-01-28"), expose]
+def Iter.count := @Iter.length
+
+@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2025-10-29"), expose]
+def Iter.size := @Iter.length
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -686,22 +692,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
-def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter (α := α) β) : Nat :=
-   it.count
-
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
-
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-12-04")]
+@[always_inline, inline, expose, deprecated Iter.length (since := "2025-12-04")]
 def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.toIterM.count.run.down
+  it.it.toIterM.length.run.down
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -710,9 +704,9 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
+@[always_inline, inline, expose, deprecated Iter.length (since := "2025-10-29")]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.count
+  it.it.length
 
 end Std

@@ -60,7 +60,7 @@ public theorem toList_toArray {xs : ListSlice α} :
 @[simp, grind =]
 public theorem length_toList {xs : ListSlice α} :
     xs.toList.length = xs.size := by
-  simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_count,
+  simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_length,
     toList_internalIter]; rfl
 
 @[grind =]

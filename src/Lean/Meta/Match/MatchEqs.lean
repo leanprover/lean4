@@ -72,8 +72,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
     for _ in *...heqNum do
-      let (h, mvarId') ← mvarId.intro1
-      mvarId ← subst mvarId' h
+      (_, mvarId) ← introSubstEq mvarId
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl

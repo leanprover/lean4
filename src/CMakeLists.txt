@@ -180,10 +180,6 @@ endif()
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
 string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 
-# This makes signed integer overflow guaranteed to match 2's complement.
-string(APPEND CMAKE_CXX_FLAGS " -fwrapv")
-string(APPEND LEANC_EXTRA_CC_FLAGS " -fwrapv")
-
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)

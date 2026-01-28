@@ -47,15 +47,15 @@ returns the `n`-th emitted value, or `none` if `it` finished
 before emitting `n` values.
 
 This variant terminates after finitely many steps and requires a proof that the iterator is
-finite. If such a proof is not available, consider using `Iter.toArray`.
+productive. If such a proof is not available, consider using `Iter.toArray`.
 -/
 @[inline]
-def Iter.Total.atIdxSlow? {α β} [Iterator α Id β] [Monad Id] [Productive α Id]
+def Iter.Total.atIdxSlow? {α β} [Iterator α Id β] [Productive α Id]
     (n : Nat) (it : Iter.Total (α := α) β) : Option β :=
   it.it.atIdxSlow? n
 
 @[inline, inherit_doc Iter.atIdxSlow?, deprecated Iter.atIdxSlow? (since := "2026-01-28")]
-def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
+def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β]
     (n : Nat) (it : Iter.Partial (α := α) β) : Option β :=
   it.it.atIdxSlow? n
 

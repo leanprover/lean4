@@ -798,7 +798,7 @@ def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Iter
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
   it.toIterM.finitelyManySteps
 
-@[inherit_doc IterM.finitelyManySteps, expose]
+@[inherit_doc IterM.finitelyManySteps!, expose]
 def Iter.finitelyManySteps! {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
   it.toIterM.finitelyManySteps!
@@ -939,7 +939,7 @@ def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Iter
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
   it.toIterM.finitelyManySkips
 
-@[inherit_doc IterM.finitelyManySkips, expose]
+@[inherit_doc IterM.finitelyManySkips!, expose]
 def Iter.finitelyManySkips! {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
   it.toIterM.finitelyManySkips!

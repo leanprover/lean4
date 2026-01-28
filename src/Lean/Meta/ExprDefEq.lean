@@ -300,7 +300,13 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
-    if info.isInstance then
+    /-
+    **Note**: We use `binderInfo.isInstImplicit` (the `[..]` annotation) rather than
+    `info.isInstance` (whether the type is a class). Type class synthesis should only
+    be triggered for parameters explicitly marked for instance resolution, not merely
+    for parameters whose types happen to be class types.
+    -/
+    if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
     unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do

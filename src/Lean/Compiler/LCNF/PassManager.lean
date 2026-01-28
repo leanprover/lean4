@@ -17,10 +17,6 @@ namespace Lean.Compiler.LCNF
   | .mono => 1
   | .impure => 2
 
-@[expose, reducible] def PassPhase.toIRPhase : PassPhase → IRPhase
-  | .base | .mono => .pure
-  | .impure => .impure
-
 instance : ToString PassPhase where
   toString
     | .base => "base"

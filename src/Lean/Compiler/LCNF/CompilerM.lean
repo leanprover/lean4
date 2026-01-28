@@ -24,6 +24,10 @@ inductive PassPhase where
   | impure
   deriving Inhabited, DecidableEq
 
+@[expose, reducible] def PassPhase.toIRPhase : PassPhase → IRPhase
+  | .base | .mono => .pure
+  | .impure => .impure
+
 /--
 The state managed by the `CompilerM` `Monad`.
 -/
@@ -53,58 +57,51 @@ instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure
 def getPhase : CompilerM PassPhase :=
   return (← read).phase
 
+def getIRPhase : CompilerM IRPhase :=
+  return (← getPhase).toIRPhase
+
 def inBasePhase : CompilerM Bool :=
   return (← getPhase) matches .base
 
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
     let env ← getEnv
-    let lctx := (← get).lctx.toLocalContext
+    let lctx := (← get).lctx.toLocalContext (← getIRPhase)
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
 def getType (fvarId : FVarId) : CompilerM Expr := do
   let lctx := (← get).lctx
-  if let some ⟨_, decl⟩ := lctx.letDecls[fvarId]? then
+  let ph ← getIRPhase
+  if let some decl := (lctx.letDecls ph)[fvarId]? then
     return decl.type
-  else if let some ⟨_, decl⟩ := lctx.params[fvarId]? then
+  else if let some decl := (lctx.params ph)[fvarId]? then
     return decl.type
-  else if let some ⟨_, decl⟩ := lctx.funDecls[fvarId]? then
+  else if let some decl := (lctx.funDecls ph)[fvarId]? then
     return decl.type
   else
     throwError "unknown free variable {fvarId.name}"
 
 def getBinderName (fvarId : FVarId) : CompilerM Name := do
   let lctx := (← get).lctx
-  if let some ⟨_, decl⟩ := lctx.letDecls[fvarId]? then
+  let ph ← getIRPhase
+  if let some decl := (lctx.letDecls ph)[fvarId]? then
     return decl.binderName
-  else if let some ⟨_, decl⟩ := lctx.params[fvarId]? then
+  else if let some decl := (lctx.params ph)[fvarId]? then
     return decl.binderName
-  else if let some ⟨_, decl⟩ := lctx.funDecls[fvarId]? then
+  else if let some decl := (lctx.funDecls ph)[fvarId]? then
     return decl.binderName
   else
     throwError "unknown free variable {fvarId.name}"
 
 def findParam? (fvarId : FVarId) : CompilerM (Option (Param ph)) := do
-  let some ⟨ph', p⟩ := (← get).lctx.params[fvarId]? | return none
-  if h : ph' = ph then
-    return some (h ▸ p)
-  else
-    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
+  return ((← get).lctx.params ph)[fvarId]?
 
 def findLetDecl? (fvarId : FVarId) : CompilerM (Option (LetDecl ph)) := do
-  let some ⟨ph', d⟩ := (← get).lctx.letDecls[fvarId]? | return none
-  if h : ph' = ph then
-    return some (h ▸ d)
-  else
-    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
+  return ((← get).lctx.letDecls ph)[fvarId]?
 
 def findFunDecl? (fvarId : FVarId) : CompilerM (Option (FunDecl ph)) := do
-  let some ⟨ph', d⟩ := (← get).lctx.funDecls[fvarId]? | return none
-  if h : ph' = ph then
-    return some (h ▸ d)
-  else
-    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
+  return ((← get).lctx.funDecls ph)[fvarId]?
 
 def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue ph)) := do
   let some { value, .. } ← findLetDecl? fvarId | return none

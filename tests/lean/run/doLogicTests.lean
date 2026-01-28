@@ -94,6 +94,7 @@ theorem sum_loop_spec :
   simp_all +decide
   omega
 
+set_option trace.Meta.isDefEq true in
 theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   ⦃fun p => ⌜p.1 = n ∧ p.2 = o⌝⦄
   (mkFreshNat : StateT (Nat × Nat) m Nat)
@@ -101,7 +102,9 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   mintro _
   dsimp only [mkFreshNat, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift, modify, modifyGet]
   mspec
-  mspec
+  apply Triple.Tactic.mspec0 (m := StateT (Nat × Nat) m) Spec.get_StateT _ .rfl
+  mintro _ ∀s
+  dsimp only
   mspec
   mspec
   simp [*]

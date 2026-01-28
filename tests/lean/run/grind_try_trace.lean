@@ -61,12 +61,12 @@ example : f (f 0) > 0 := by
 /--
 info: Try these:
   [apply] grind [= f.eq_def]
-  [apply] grind only [= f.eq_def, #bb96]
+  [apply] grind only [= f.eq_def, #6818]
   [apply] grind only [= f.eq_def]
   [apply] grind =>
     instantiate only [= f.eq_def]
     instantiate only
-    cases #bb96 <;> instantiate only
+    cases #6818 <;> instantiate only
 -/
 #guard_msgs (info) in
 example : f x > 0 := by

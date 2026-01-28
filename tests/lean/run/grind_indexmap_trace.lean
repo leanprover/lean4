@@ -149,22 +149,22 @@ info: Try these:
   [apply] ⏎
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
-    cases #4ed2
-    · cases #ffdf
+    cases #bd4f
+    · cases #54dd
       · instantiate only
       · instantiate only
         instantiate only [= HashMap.contains_insert]
-    · cases #10d8
-      · cases #2688
+    · cases #2eb4
+      · cases #cc2e
         · instantiate only
         · instantiate only
           instantiate only [= HashMap.contains_insert]
-      · cases #ffdf
+      · cases #54dd
         · instantiate only
         · instantiate only
           instantiate only [= HashMap.contains_insert]
   [apply] finish only [= mem_indices_of_mem, insert, =_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos,
-    = HashMap.contains_insert, #4ed2, #ffdf, #10d8, #2688]
+    = HashMap.contains_insert, #bd4f, #54dd, #2eb4, #cc2e]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) :
@@ -176,22 +176,22 @@ info: Try these:
   [apply] ⏎
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
-    cases #4ed2
-    · cases #ffdf
+    cases #bd4f
+    · cases #54dd
       · instantiate only
       · instantiate only
         instantiate only [= HashMap.contains_insert]
-    · cases #10d8
-      · cases #2688
+    · cases #2eb4
+      · cases #cc2e
         · instantiate only
         · instantiate only
           instantiate only [= HashMap.contains_insert]
-      · cases #ffdf
+      · cases #54dd
         · instantiate only
         · instantiate only
           instantiate only [= HashMap.contains_insert]
   [apply] finish only [= mem_indices_of_mem, insert, =_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos,
-    = HashMap.contains_insert, #4ed2, #ffdf, #10d8, #2688]
+    = HashMap.contains_insert, #bd4f, #54dd, #2eb4, #cc2e]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) :
@@ -203,40 +203,33 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
   grind =>
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
-    cases #4ed2
-    · cases #ffdf
+    cases #bd4f
+    · cases #54dd
       · instantiate only
       · instantiate only
         instantiate only [= HashMap.contains_insert]
-    · cases #10d8
-      · cases #2688 <;> finish only [= HashMap.contains_insert]
-      · cases #ffdf <;> finish only [= HashMap.contains_insert]
+    · cases #2eb4
+      · cases #cc2e <;> finish only [= HashMap.contains_insert]
+      · cases #54dd <;> finish only [= HashMap.contains_insert]
 
 example (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
   grind =>
     instantiate only [= mem_indices_of_mem, insert]
     instantiate only [=_ HashMap.contains_iff_mem, = getElem?_neg, = getElem?_pos]
-    cases #4ed2
-    next =>
-      cases #ffdf
-      next => instantiate only
-      next =>
-        instantiate only
+    cases #bd4f
+    · cases #54dd
+      · instantiate only
+      · instantiate only
         instantiate only [= HashMap.contains_insert]
-    next =>
-      cases #95a0
-      next =>
-        cases #2688
-        next => instantiate only
-        next =>
-          instantiate only
+    · cases #2eb4
+      · cases #cc2e
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
-      next =>
-        cases #ffdf
-        next => instantiate only
-        next =>
-          instantiate only
+      · cases #54dd
+        · instantiate only
+        · instantiate only
           instantiate only [= HashMap.contains_insert]
 
 /--
@@ -247,9 +240,9 @@ info: Try these:
     instantiate only [=_ WF]
     instantiate only [= getElem?_neg, = getElem?_pos, = WF]
     instantiate only [= getElem?_neg, = getElem?_pos, = size_keys]
-    cases #f590
+    cases #dbaf
     · instantiate only [size]
-      cases #ffdf
+      cases #54dd
       · instantiate only
         instantiate only [= Array.getElem_set]
       · instantiate only
@@ -257,14 +250,14 @@ info: Try these:
     · instantiate only [= mem_indices_of_mem, = getElem_def, size]
       instantiate only [usr getElem_indices_lt, =_ WF]
       instantiate only [= getElem?_pos]
-      cases #ffdf
+      cases #54dd
       · instantiate only [WF']
         instantiate only [= Array.getElem_set]
       · instantiate only
         instantiate only [= HashMap.getElem?_insert, = Array.getElem_push]
   [apply] finish only [= mem_indices_of_mem, insert, = getElem_def, usr getElem?_pos, = getElem?_neg, = getElem?_pos,
     =_ WF, = WF, = size_keys, size, = Array.getElem_set, = HashMap.getElem?_insert, = Array.getElem_push,
-    usr getElem_indices_lt, WF', #f590, #ffdf]
+    usr getElem_indices_lt, WF', #dbaf, #54dd]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
@@ -276,8 +269,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
   grind =>
     instantiate only [= mem_indices_of_mem, insert, = getElem_def]
     instantiate only [= getElem?_neg, = getElem?_pos]
-    cases #f590
-    · cases #ffdf
+    cases #dbaf
+    · cases #54dd
       · instantiate only
         instantiate only [= Array.getElem_set]
       · instantiate only
@@ -286,7 +279,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     · instantiate only [= mem_indices_of_mem, = getElem_def]
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
-      cases #ffdf
+      cases #54dd
       · instantiate only [usr getElem_indices_lt, =_ WF]
         instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set,
           = Array.getElem_set]
@@ -298,7 +291,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
 info: Try these:
   [apply] grind only [= mem_indices_of_mem, insert, = getElem_def, usr getElem?_pos, = getElem?_neg, = getElem?_pos,
     =_ WF, = WF, = size_keys, size, = Array.getElem_set, = HashMap.getElem?_insert, = Array.getElem_push,
-    usr getElem_indices_lt, WF', #f590, #ffdf]
+    usr getElem_indices_lt, WF', #dbaf, #54dd]
   [apply] grind only [= mem_indices_of_mem, insert, = getElem_def, usr getElem?_pos, = getElem?_neg, = getElem?_pos,
     =_ WF, = WF, = size_keys, size, = Array.getElem_set, = HashMap.getElem?_insert, = Array.getElem_push,
     usr getElem_indices_lt, WF']
@@ -308,9 +301,9 @@ info: Try these:
     instantiate only [=_ WF]
     instantiate only [= getElem?_neg, = getElem?_pos, = WF]
     instantiate only [= getElem?_neg, = getElem?_pos, = size_keys]
-    cases #f590
+    cases #dbaf
     · instantiate only [size]
-      cases #ffdf
+      cases #54dd
       · instantiate only
         instantiate only [= Array.getElem_set]
       · instantiate only
@@ -318,7 +311,7 @@ info: Try these:
     · instantiate only [= mem_indices_of_mem, = getElem_def, size]
       instantiate only [usr getElem_indices_lt, =_ WF]
       instantiate only [= getElem?_pos]
-      cases #ffdf
+      cases #54dd
       · instantiate only [WF']
         instantiate only [= Array.getElem_set]
       · instantiate only
@@ -334,8 +327,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
   grind =>
     instantiate only [= mem_indices_of_mem, insert, = getElem_def]
     instantiate only [= getElem?_neg, = getElem?_pos]
-    cases #f590
-    · cases #ffdf
+    cases #dbaf
+    · cases #54dd
       · instantiate only
         instantiate only [= Array.getElem_set]
       · instantiate only
@@ -344,7 +337,7 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     · instantiate only [= mem_indices_of_mem, = getElem_def]
       instantiate only [usr getElem_indices_lt]
       instantiate only [size]
-      cases #ffdf
+      cases #54dd
       · instantiate only [usr getElem_indices_lt, =_ WF]
         instantiate only [= mem_indices_of_mem, = getElem?_pos, = Array.size_set,
           = Array.getElem_set]
@@ -356,7 +349,8 @@ example (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
   grind only [= mem_indices_of_mem, insert, = getElem_def, = getElem?_neg, = getElem?_pos,
     = Array.getElem_set, size, = HashMap.mem_insert, = HashMap.getElem_insert, = Array.getElem_push,
-    usr getElem_indices_lt, =_ WF, = Array.size_set, WF', #f590, #ffdf]
+    usr getElem_indices_lt, usr Array.eq_empty_of_size_eq_zero, =_ WF, = Array.size_set, WF', #dbaf,
+    #54dd]
 
 /--
 info: Try these:
@@ -366,12 +360,12 @@ info: Try these:
     instantiate only [=_ WF]
     instantiate only [= getElem?_neg]
     instantiate only [= size_keys]
-    cases #1bba
+    cases #ffde
     · instantiate only [findIdx]
     · instantiate only
       instantiate only [= HashMap.getElem?_insert]
   [apply] finish only [findIdx, insert, = mem_indices_of_mem, usr getElem?_pos, = getElem?_neg, = getElem?_pos, =_ WF,
-    = size_keys, = HashMap.getElem?_insert, #1bba]
+    = size_keys, = HashMap.getElem?_insert, #ffde]
 -/
 #guard_msgs in
 example (m : IndexMap α β) (a : α) (b : β) :
@@ -382,7 +376,7 @@ example (m : IndexMap α β) (a : α) (b : β) :
 info: Try these:
   [apply] grind
   [apply] grind only [findIdx, insert, = mem_indices_of_mem, usr getElem?_pos, = getElem?_neg, = getElem?_pos, =_ WF,
-    = size_keys, = HashMap.getElem?_insert, #1bba]
+    = size_keys, = HashMap.getElem?_insert, #ffde]
   [apply] grind only [findIdx, insert, = mem_indices_of_mem, usr getElem?_pos, = getElem?_neg, = getElem?_pos, =_ WF,
     = size_keys, = HashMap.getElem?_insert]
   [apply] grind =>
@@ -391,7 +385,7 @@ info: Try these:
     instantiate only [=_ WF]
     instantiate only [= getElem?_neg]
     instantiate only [= size_keys]
-    cases #1bba
+    cases #ffde
     · instantiate only [findIdx]
     · instantiate only
       instantiate only [= HashMap.getElem?_insert]
@@ -410,7 +404,7 @@ example (m : IndexMap α β) (a : α) (b : β) :
   grind =>
     instantiate only [findIdx, insert, = mem_indices_of_mem]
     instantiate only [= getElem?_neg, = getElem?_pos]
-    cases #1bba
+    cases #acc3
     · instantiate only [findIdx]
     · finish only [= HashMap.mem_insert, = HashMap.getElem_insert]
 
@@ -419,7 +413,7 @@ example (m : IndexMap α β) (a : α) (b : β) :
   grind =>
     instantiate only [findIdx, insert, = mem_indices_of_mem]
     instantiate only [= getElem?_neg, = getElem?_pos]
-    cases #1bba <;>
+    cases #acc3 <;>
       finish only [findIdx, = HashMap.mem_insert, = HashMap.getElem_insert]
 
 end IndexMap

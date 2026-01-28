@@ -402,39 +402,6 @@ def IterM.Total.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Typ
 
 set_option doc.verso true in
 /--
-Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
-
-{lit}`O(|it|)`. More precisely, steps through the iterator until, short-circuiting upon encountering
-the first output. The worst-case linear cost is attained if the iterator skips many times.
-The outputs of {name}`it` are examined in order of iteration.
-
-If the iterator is not productive, this function might run forever. The variant
-`it.ensureTermination.findSomeM?` always terminates after finitely many steps.
--/
-@[always_inline]
-def IterM.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (ULift Bool) :=
-  IteratorLoop.
-
-set_option doc.verso true in
-/--
-Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
-
-{lit}`O(|it|)`. More precisely, steps through the iterator until, short-circuiting upon encountering
-the first output. The worst-case linear cost is attained if the iterator skips many times.
-The outputs of {name}`it` are examined in order of iteration.
-
-This variant terminates after finitely many steps and requires a proof that the iterator is
-finite. If such a proof is not available, consider using {name}`IterM.isEmpty`.
--/
-@[always_inline, inline]
-def IterM.Total.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) :
-    m (ULift Bool) :=
-  it.it.isEmpty
-
-set_option doc.verso true in
-/--
 Returns {lean}`ULift.up true` if the monadic predicate {name}`p` returns {lean}`ULift.up true` for
 any element emitted by the iterator {name}`it`.
 
@@ -982,6 +949,38 @@ Examples:
 def IterM.Total.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) : m (Option β) :=
   it.it.first?
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+{lit}`it.ensureTermination.isEmpty` always terminates after finitely many steps.
+-/
+@[always_inline]
+def IterM.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (ULift Bool) :=
+  IteratorLoop.forIn (fun _ _ => flip Bind.bind) _ (fun _ _ s => s = ForInStep.done (.up false)) it
+    (.up true) (fun _ _ _ => pure ⟨ForInStep.done (.up false), rfl⟩)
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using {name}`IterM.isEmpty`.
+-/
+@[always_inline, inline]
+def IterM.Total.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) :
+    m (ULift Bool) :=
+  it.it.isEmpty
 
 section Count
 

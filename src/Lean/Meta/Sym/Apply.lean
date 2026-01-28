@@ -88,6 +88,21 @@ public def mkBackwardRuleFromDecl (declName : Name) (num? : Option Nat := none) 
   return { expr := mkConst declName, pattern, resultPos }
 
 /--
+Creates a `BackwardRule` from an expression.
+
+`levelParams` is not `[]` if the expression is supposed to be
+universe polymorphic.
+
+The `num?` parameter optionally limits how many arguments are included in the pattern
+(useful for partially applying theorems).
+-/
+public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM BackwardRule := do
+  let pattern ← mkPatternFromExpr e levelParams num?
+  let resultPos := mkResultPos pattern
+  let e := e.instantiateLevelParams levelParams (pattern.levelParams.map mkLevelParam)
+  return { expr := e, pattern, resultPos }
+
+/--
 Creates a value to assign to input goal metavariable using unification result.
 
 Handles both constant expressions (common case, avoids `instantiateLevelParams`)

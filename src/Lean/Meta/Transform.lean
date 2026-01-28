@@ -140,7 +140,7 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
             let arg := args[i]
             if h : i < infos.size then
               let info := infos[i]
-              if skipInstances && info.isInstImplicit then -- **TODO** Replace with `isInstance`
+              if skipInstances && info.isInstance then
                 continue
               args := args.set i (← visit arg)
             else

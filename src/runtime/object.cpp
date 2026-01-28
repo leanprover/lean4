@@ -148,10 +148,7 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-// Morally, `{msg, size}` is an `std::string_view`.
-static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
-    if (g_panic_messages) {
-        panic_eprintln(msg, size, force_stderr);
+LEAN_EXPORT void maybe_print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -159,6 +156,13 @@ static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = f
             print_backtrace(force_stderr);
         }
 #endif
+}
+
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
+    if (g_panic_messages) {
+        panic_eprintln(msg, size, force_stderr);
+        maybe_print_backtrace(force_stderr);
     }
 
     abort_on_panic();

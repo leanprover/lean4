@@ -481,6 +481,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(obj_arg promise);
 extern "C" LEAN_EXPORT obj_res lean_get_or_block(obj_arg opt);
 
+LEAN_EXPORT void maybe_print_backtrace(bool force_stderr);
+
 // =======================================
 // Module initialization/finalization
 void initialize_object();

@@ -930,11 +930,35 @@ theorem Iter.first?_eq_match_step {α β : Type w} [Iterator α Id β] [Iterator
   generalize it.toIterM.step.run.inflate = s
   rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.first?_eq_first?_toIterM]
 
-theorem Iter.first?_eq_head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+@[simp, grind =]
+theorem Iter.head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
-    it.first? = it.toList.head? := by
+    it.toList.head? = it.first? := by
   induction it using Iter.inductSteps with | step it ihy ihs
   rw [first?_eq_match_step, toList_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn <;> simp [*]
+
+theorem Iter.isEmpty_eq_isEmpty_toIterM {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    {it : Iter (α := α) β} :
+  it.isEmpty = it.toIterM.isEmpty.run.down := (rfl)
+
+theorem Iter.isEmpty_eq_match_step {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Productive α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.isEmpty = match it.step.val with
+      | .yield _ _ => false
+      | .skip it' => it'.isEmpty
+      | .done => true := by
+  rw [Iter.isEmpty_eq_isEmpty_toIterM, IterM.isEmpty_eq_match_step]
+  simp only [Id.run_bind, step]
+  generalize it.toIterM.step.run.inflate = s
+  rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.isEmpty_eq_isEmpty_toIterM]
+
+@[simp, grind =]
+theorem Iter.isEmpty_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.toList.isEmpty = it.isEmpty := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [isEmpty_eq_match_step, toList_eq_match_step]
   cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
 end Std

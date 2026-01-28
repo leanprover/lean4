@@ -861,4 +861,24 @@ theorem IterM.first?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Mo
   simp only [DefaultConsumers.forIn_eq, *]
   exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
 
+theorem IterM.isEmpty_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Productive α m]
+    [LawfulIteratorLoop α m m] {it : IterM (α := α) m β} :
+    it.isEmpty = (do
+      match (← it.step).inflate.val with
+      | .yield _ _ => return .up false
+      | .skip it' => it'.isEmpty
+      | .done => return .up true) := by
+  simp only [isEmpty]
+  have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
+    (P := fun _ _ s => s = ForInStep.done (ULift.up false)) (by simp)
+  simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
+  rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
+  simp only [flip, pure_bind]
+  congr
+  ext s
+  split <;> try (simp [*]; done)
+  simp only [DefaultConsumers.forIn_eq, *]
+  exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
+
 end Std

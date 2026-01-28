@@ -53,7 +53,7 @@ open TSyntax.Compat in
 def expandMatchAlt (stx : TSyntax ``matchAlt) : MacroM (Array (TSyntax ``matchAlt)) := do
   -- Not using syntax quotations here to keep source location
   -- of the pattern sequence (`$term,*`) intact
-  stx.raw[1].getSepArgs.mapM fun pats => return stx.raw.setArg 1 (mkNullNode #[← expandMacros pats])
+  stx.raw[1].getSepArgs.mapM fun pats => return stx.raw.setArg 1 (mkNullNode #[pats])
 
 def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
   | `(matchAltExpr| | $[$patss,*]|* => $_) => patss.size > 1

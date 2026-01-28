@@ -22,6 +22,63 @@ open Std.Do Do.SpecAttr Do.ProofMode
 
 builtin_initialize registerTraceClass `Elab.Tactic.Do.spec
 
+/-
+The idea for `mspec` is to apply a `h : ∀ ..., Triple x P' Q'` to a target `P s₁ s₂ ⊢ₛ wp⟦x⟧ Q s₁ s₂`
+such that we get proofs like the following. Challenges:
+
+* Omit `trans` when the proof for `hpre` or `hpost` can be rfl. This can happen due to
+  * `h` being schematic in the pre or post condition, that is, it `∀` quantifies it.
+  * The involved post conditions are syntactically defeq.
+* Support excess state arguments `s₁` and `s₂`, which should be available to the proof for `hpre`.
+
+Example proofs produced by `mspec h`:
+```
+theorem pre_post [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps}
+    (h : Triple x ⌜True⌝ (⇓_ => ⌜True⌝)) (hpre : P ⊢ₛ ⌜True⌝) (hpost : (⇓_ => ⌜True⌝) ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem pre_schematic [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps}
+    (h : ∀ Q', Triple x ⌜True⌝ Q') (hpre : P ⊢ₛ ⌜True⌝) : P ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp (h _)) .rfl
+
+theorem pre_lucky [WP m ps] {α : Type u} {x : m α} {P : Assertion ps}
+    (h : Triple x ⌜True⌝ (⇓_ => ⌜True⌝)) (hpre : P ⊢ₛ ⌜True⌝) : P ⊢ₛ wp⟦x⟧ (⇓_ => ⌜True⌝) := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h) .rfl
+
+theorem post_schematic [WP m ps] {α : Type u} {x : m α} {P : Assertion ps} {Q : PostCond α ps}
+    (h : ∀ P', Triple x P' (⇓_ => ⌜True⌝)) (hpost : (⇓_ => ⌜True⌝) ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans (Triple.iff.mp (h _))
+  apply (wp x).mono _ _ hpost
+
+theorem post_lucky [WP m ps] {α : Type u} {x : m α} {Q : PostCond α ps}
+    (h : Triple x ⌜True⌝ (⇓_ => ⌜True⌝)) (hpost : (⇓_ => ⌜True⌝) ⊢ₚ Q) : ⌜True⌝ ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem ext0 [WP m ps] {α : Type u} {x : m α} {P P' : Assertion ps} {Q Q' : PostCond α ps}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P') (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem ext1 [WP m (.arg σ ps)] {α : Type u} {x : m α} {P : Assertion ps} {P' : Assertion (.arg σ ps)} {Q Q' : PostCond α (.arg σ ps)}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h s)
+  apply (wp x).mono _ _ hpost s
+
+theorem ext2 [WP m (.arg σ₁ (.arg σ₂ ps))] {α : Type u} {x : m α} {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))} {Q Q' : PostCond α (.arg σ₁ (.arg σ₂ ps))}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s₁ s₂) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h s₁ s₂)
+  apply (wp x).mono _ _ hpost s₁ s₂
+```
+-/
+
 public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem := do
   let_expr WP.wp _m _ps _instWP _α prog := wp | throwError "target not a wp application {wp}"
   let prog ← instantiateMVarsIfMVarApp prog

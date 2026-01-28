@@ -52,7 +52,7 @@ example (α β : Type) (p q : Prop) : q → β → p → α → True := by
   sym_simp []
 
 /--
-trace: α✝ : Sort ?u.1893
+trace: α✝ : Sort ?u.1921
 x : α✝
 α : Type
 p : Prop

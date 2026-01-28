@@ -40,8 +40,15 @@ def IndGroupInfo.ofInductiveVal (indInfo : InductiveVal) : IndGroupInfo where
 def IndGroupInfo.numMotives (group : IndGroupInfo) : Nat :=
   group.all.size + group.numNested
 
-/-- Instantiates the right `.brecOn` for the given type former index,
-including universe parameters and fixed prefix.  -/
+/-- The `.rec` for the given type former index -/
+partial def IndGroupInfo.recName (info : IndGroupInfo) (idx : Nat) : Name :=
+  if let .some n := info.all[idx]? then
+      mkRecName n
+    else
+      let j := idx - info.all.size + 1
+      info.recName 0 |>.appendIndexAfter j
+
+/-- The `.brecOn` for the given type former index -/
 partial def IndGroupInfo.brecOnName (info : IndGroupInfo) (idx : Nat) : Name :=
   if let .some n := info.all[idx]? then
       mkBRecOnName n
@@ -79,6 +86,13 @@ def IndGroupInst.isDefEq (igi1 igi2 : IndGroupInst) : MetaM Bool := do
 including universe parameters and fixed prefix.  -/
 def IndGroupInst.brecOn (group : IndGroupInst) (lvl : Level) (idx : Nat) : Expr :=
   let n := group.brecOnName idx
+  let us := lvl :: group.levels
+  mkAppN (.const n us) group.params
+
+/-- Instantiates the right `.rec` for the given type former index,
+including universe parameters and fixed prefix.  -/
+def IndGroupInst.rec_ (group : IndGroupInst) (lvl : Level) (idx : Nat) : Expr :=
+  let n := group.recName idx
   let us := lvl :: group.levels
   mkAppN (.const n us) group.params
 

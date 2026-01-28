@@ -46,8 +46,12 @@ theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
   cases l <;> simp_all [min?_cons']
 
-theorem isSome_min?_of_ne_nil [Min α] : {l : List α} → (hl : l ≠ []) → l.min?.isSome
-  | x::xs, h => by simp [min?_cons']
+theorem isSome_min?_iff [Min α] : {l : List α} → l.min?.isSome ↔ l ≠ []
+  | [] => by simp
+  | x::xs => by simp [min?_cons']
+
+theorem isSome_min?_of_ne_nil [Min α] {l : List α} (hl : l ≠ []) : l.min?.isSome := by
+  rwa [isSome_min?_iff]
 
 theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
     (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
@@ -182,6 +186,7 @@ theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMi
     l.min (ne_nil_of_mem ha) ≤ a :=
   (min?_eq_some_iff.mp (min?_eq_some_min (List.ne_nil_of_mem ha))).right a ha
 
+@[grind =]
 protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
   le_min?_iff (min?_eq_some_min hl)
@@ -219,8 +224,12 @@ theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
     l.max?.isSome := by
   cases l <;> simp_all [max?_cons']
 
-theorem isSome_max?_of_ne_nil [Max α] : {l : List α} → (hl : l ≠ []) → l.max?.isSome
-  | x::xs, h => by simp [max?_cons']
+theorem isSome_max?_iff [Max α] : {l : List α} → l.max?.isSome ↔ l ≠ []
+  | [] => by simp
+  | x::xs => by simp [max?_cons']
+
+theorem isSome_max?_of_ne_nil [Max α] {l : List α} (hl : l ≠ []) : l.max?.isSome := by
+  rwa [isSome_max?_iff]
 
 theorem max?_eq_head? {α : Type u} [Max α] {l : List α}
     (h : l.Pairwise (fun a b => max a b = a)) : l.max? = l.head? := by
@@ -363,6 +372,7 @@ theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=
   max?_mem (max?_eq_some_max hl)
 
+@[grind =]
 protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x :=
   max?_le_iff (max?_eq_some_max hl)

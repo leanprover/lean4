@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Lemmas.Basic
 
 namespace Std.Iter
 open Std.Iterators
@@ -21,6 +22,6 @@ public theorem atIdxSlow?_eq_match [Iterator α Id β] [Productive α Id]
         | n + 1 => it'.atIdxSlow? n
       | .skip it' => it'.atIdxSlow? n
       | .done => none) := by
-  fun_induction it.atIdxSlow? n <;> simp_all
+  induction n, it using Iter.atIdxSlow?.induct_unfolding <;> simp_all
 
 end Std.Iter

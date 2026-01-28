@@ -399,7 +399,7 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
 structure Slice where
-  /-- The underlying strings. -/
+  /-- The underlying string. -/
   str : String
   /-- The byte position of the start of the string slice. -/
   startInclusive : str.Pos

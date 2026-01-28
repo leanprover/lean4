@@ -11,6 +11,7 @@ public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Termination
+public import Init.Data.String.Subslice
 
 set_option doc.verso true
 
@@ -97,6 +98,13 @@ instance : LE Slice where
 instance : DecidableLE Slice :=
   fun x y => inferInstanceAs (Decidable (¬x < y))
 
+namespace Subslice
+
+instance {s : Slice} : BEq s.Subslice where
+  beq sl sl' := sl.toSlice == sl'.toSlice
+
+end Subslice
+
 section ForwardPatternUsers
 
 variable {ρ : Type} {σ : Slice → Type}
@@ -131,7 +139,7 @@ variable {pat : ρ} [ToForwardSearcher pat σ]
 
 inductive PlausibleStep
 
-instance : Std.Iterator (SplitIterator pat s) Id Slice where
+instance : Std.Iterator (SplitIterator pat s) Id s.Subslice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -145,7 +153,7 @@ instance : Std.Iterator (SplitIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.slice! currPos startPos
+        let slice := s.subslice! currPos startPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -155,7 +163,7 @@ instance : Std.Iterator (SplitIterator pat s) Id Slice where
         pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
-        let slice := s.sliceFrom currPos
+        let slice := s.subsliceFrom currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
@@ -190,6 +198,11 @@ instance [Monad n] : Std.IteratorLoop (SplitIterator pat s) Id n :=
 
 end SplitIterator
 
+@[specialize pat]
+def splitToSubslice (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitIterator pat s) s.Subslice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+
 /--
 Splits a slice at each subslice that matches the pattern {name}`pat`.
 
@@ -205,9 +218,9 @@ Examples:
  * {lean}`("ababababa".toSlice.split "aba").toList == ["coffee".toSlice, "water".toSlice]`
  * {lean}`("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
-@[specialize pat]
-def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Std.Iter (α := SplitIterator pat s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+@[inline]
+def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :=
+  (s.splitToSubslice pat |>.map Subslice.toSlice : Std.Iter Slice)
 
 inductive SplitInclusiveIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
@@ -218,7 +231,7 @@ namespace SplitInclusiveIterator
 
 variable {pat : ρ} [ToForwardSearcher pat σ]
 
-instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
+instance : Std.Iterator (SplitInclusiveIterator pat s) Id s.Subslice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -232,7 +245,7 @@ instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
-        let slice := s.slice! currPos endPos
+        let slice := s.subslice! currPos endPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
           by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
@@ -244,7 +257,7 @@ instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos != s.endPos then
-          let slice := s.sliceFrom currPos
+          let slice := s.subsliceFrom currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -283,6 +296,11 @@ instance [Monad n] {s} :
 
 end SplitInclusiveIterator
 
+@[specialize pat]
+def splitToSubsliceInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitInclusiveIterator pat s) s.Subslice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+
 /--
 Splits a slice at each subslice that matches the pattern {name}`pat`. Unlike {name}`split` the
 matched subslices are included at the end of each subslice.
@@ -295,10 +313,9 @@ Examples:
  * {lean}`("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]`
  * {lean}`("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
 -/
-@[specialize pat]
-def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
-    Std.Iter (α := SplitInclusiveIterator pat s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+@[inline]
+def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :=
+  (s.splitToSubsliceInclusive pat |>.map Subslice.toSlice : Std.Iter Slice)
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.

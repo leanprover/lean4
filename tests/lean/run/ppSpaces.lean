@@ -87,4 +87,9 @@ example : True := by {
   trivial
 }
 
+/-- info: grind_pattern A => B, C -/
+#guard_msgs in
+#pp
+grind_pattern A => B, C
+
 end Damiano1

@@ -581,8 +581,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     return e
 
   let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
-  -- we seem to need the observingPostpone for one example in newdo: when we need to elab the
-  -- continuation before being able to instantiate discriminants of a match.
+  -- We need observingPostpone to decouple elaboration problems from the RHS and the body.
   let body? : Option Expr ← observingPostpone elabBody
 
   -- trace[Elab.do] "body?: {body?}"

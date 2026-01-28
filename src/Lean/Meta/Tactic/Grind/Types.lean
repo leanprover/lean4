@@ -1679,6 +1679,9 @@ def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (gener
     modify fun s => { s with
       ematch.delayedThmInsts := s.ematch.delayedThmInsts.insert { expr := guard } thms
       ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
+      -- Bump numInstances for delayed instances too, so that uniqueId generation
+      -- in EMatch.instantiateTheorem' doesn't produce collisions.
+      ematch.numInstances := s.ematch.numInstances + 1
     }
 
 def DelayedTheoremInstance.check (delayed : DelayedTheoremInstance) : GoalM Unit := do

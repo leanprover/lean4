@@ -270,10 +270,11 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
       let mut r := if impl.preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
-        m.foldl (fun a n p => a.push (n, p)) #[]
+        let r := m.foldl (fun a n p => a.push (n, p)) #[]
+        r.qsort (fun a b => Name.quickLt a.1 b.1)
       if lvl != .private then
         r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+      r
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
   let attrImpl : AttributeImpl := {

@@ -77,7 +77,6 @@ def builtinPassManager : PassManager := {
     -- Check meta accesses now before optimizations may obscure references. This check should stay in
     -- `lean` if some compilation is moved out.
     Pass.checkMeta,
-    checkNoncomputable,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,

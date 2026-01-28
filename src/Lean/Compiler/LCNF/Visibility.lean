@@ -167,26 +167,5 @@ def inferVisibility (phase : Phase) : Pass where
           markDeclPublicRec phase decl
     return decls
 
-def checkNoncomputable : Pass where
-  phase := .base
-  name  := `checkNoncomputable
-  run decls := do
-    for decl in decls do
-      if !isNoncomputable (← getEnv) decl.name then
-        go decl |>.run' {}
-    return decls
-where go (decl : Decl) : StateT NameSet CompilerM Unit := do
-  decl.value.forCodeM fun code =>
-    for ref in collectUsedDecls code do
-      if (← get).contains ref then
-        continue
-      modify (·.insert ref)
-      if ref matches ``Quot.mk | ``Quot.lcInv || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
-        continue
-      if isNoncomputable (← getEnv) ref then
-        throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
-      else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
-        throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
-
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

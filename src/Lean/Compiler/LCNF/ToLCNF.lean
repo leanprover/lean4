@@ -12,6 +12,8 @@ public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
 import Lean.Meta.CasesInfo
 import Lean.Meta.WHNF
+import Lean.Compiler.NoncomputableAttr
+import Lean.AddDecl
 public section
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
@@ -390,6 +392,14 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
     Meta.forallBoundedTelescope (← Meta.inferType e) n fun xs _ =>
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
+private def checkComputable (ref : Name) : M Unit := do
+  if ref matches ``Quot.mk | ``Quot.lcInv || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
+    return
+  if isNoncomputable (← getEnv) ref then
+    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
+  else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
+    throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
+
 /--
 Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
 where it generates terms such as `fun {α} => ReaderT.pure`
@@ -722,6 +732,7 @@ where
 
   visitApp (e : Expr) : M Arg := do
     if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
+      checkComputable declName
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then

@@ -11,10 +11,7 @@ def basic : True := by
               --^ sync
               --^ insert: ".5"
 
-/-!
-Ideally trailing whitespace should be ignored. CURRENTLY NOT WORKING as we use `Syntax.eqWithInfo`;
-we will need to patch old syntax info stored in the info tree to go back to `Syntax.structRangeEq`.
--/
+/-!  Trailing whitespace should be ignored. -/
 -- RESET
 def trailingWhitespace : True := by
   dbg_trace "t 0"

@@ -50,6 +50,7 @@ partial def bench1 (n : Nat) : MetaM Unit := do
 
 run_meta do
   IO.println "Example (n = 5):"
-  IO.println (← m!"{← mkBench1 5}".toString)
+  let ex ← (← mkBench1 5).getType
+  IO.println s!"{← ppExpr ex}"
   for i in [10, 20, 40, 80, 100, 200, 300, 400, 500] do
     bench1 i

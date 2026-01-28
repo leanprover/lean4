@@ -403,6 +403,7 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
   let d ← mkDecide expectedType
   let levels := (collectLevelParams {} expectedType).params.toList
   let auxDeclName ← Term.mkAuxName `_nativeDecide
+  let auxAxiomName ← Term.mkAuxName `_native.native_decide.ax
   let decl := Declaration.defnDecl {
     name := auxDeclName
     levelParams := levels
@@ -419,34 +420,33 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
   catch ex =>
     throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
 
+  -- Now evaluate the constant, and check that it is true.
+  let r ←
+    try
+      evalConst Bool auxDeclName
+    catch ex =>
+      throwError m!"\
+        Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
+        Error: {ex.toMessageData}"
+  if !r then
+    throwError m!"\
+      Tactic `{tacticName}` evaluated that the proposition\
+      {indentExpr expectedType}\n\
+      is false"
+
+  let levelParams := levels.map .param
+  let axDecl := Declaration.axiomDecl {
+    name := auxAxiomName
+    levelParams := levels
+    type := (← mkEq (mkConst auxDeclName levelParams) (toExpr true))
+    isUnsafe := false
+  }
+  addDecl axDecl
+
   -- get instance from `d`
   let s := d.appArg!
-  let rflPrf ← mkEqRefl (toExpr true)
-  let levelParams := levels.map .param
-  let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
-    mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
-  try
-    -- disable async TC so we can catch its exceptions
-    withOptions (Elab.async.set · false) do
-      let lemmaName ← mkAuxLemma levels expectedType pf
-      return .const lemmaName levelParams
-  catch ex =>
-    -- Diagnose error
-    throwError MessageData.ofLazyM (es := #[expectedType]) do
-      let r ←
-        try
-          evalConst Bool auxDeclName
-        catch ex =>
-          return m!"\
-            Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
-            Error: {ex.toMessageData}"
-      if !r then
-        return m!"\
-          Tactic `{tacticName}` evaluated that the proposition\
-          {indentExpr expectedType}\n\
-          is false"
-      else
-        return m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
+  return mkApp3 (mkConst ``of_decide_eq_true) expectedType s (mkConst auxAxiomName levelParams)
+
 
 @[implemented_by elabNativeDecideCoreUnsafe]
 private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr

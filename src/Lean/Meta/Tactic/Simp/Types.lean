@@ -627,7 +627,7 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
       if h : i < infos.size then
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
-        if cfg.ground && info.isInstImplicit then
+        if cfg.ground && info.isInstance then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
           -- Motivation: many instance implicit arguments are ground, and it does not make sense
           -- to reduce them if the parent term is not ground.
@@ -713,7 +713,7 @@ def simpAppUsingCongr (e : Expr) : SimpM Result := do
       if h : i < infos.size then
         let info := infos[i]
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {a} hasFwdDeps: {info.hasFwdDeps}"
-        if cfg.ground && info.isInstImplicit then
+        if cfg.ground && info.isInstance then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
           -- Motivation: many instance implicit arguments are ground, and it does not make sense
           -- to reduce them if the parent term is not ground.
@@ -788,7 +788,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
     if h : config.ground ∧ i < infos.size then
-      if (infos[i]'h.2).isInstImplicit then
+      if (infos[i]'h.2).isInstance then
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
         argsNew := argsNew.push arg

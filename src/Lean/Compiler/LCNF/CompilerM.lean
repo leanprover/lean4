@@ -85,17 +85,26 @@ def getBinderName (fvarId : FVarId) : CompilerM Name := do
   else
     throwError "unknown free variable {fvarId.name}"
 
-def findParam? (fvarId : FVarId) : CompilerM (Option (Param ph)) :=
-  return (← get).lctx.params[fvarId]? |>.bind fun ⟨ph', p⟩ =>
-    if h : ph' = ph then some (h ▸ p) else none
+def findParam? (fvarId : FVarId) : CompilerM (Option (Param ph)) := do
+  let some ⟨ph', p⟩ := (← get).lctx.params[fvarId]? | return none
+  if h : ph' = ph then
+    return some (h ▸ p)
+  else
+    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
 
-def findLetDecl? (fvarId : FVarId) : CompilerM (Option (LetDecl ph)) :=
-  return (← get).lctx.letDecls[fvarId]? |>.bind fun ⟨ph', d⟩ =>
-    if h : ph' = ph then some (h ▸ d) else none
+def findLetDecl? (fvarId : FVarId) : CompilerM (Option (LetDecl ph)) := do
+  let some ⟨ph', d⟩ := (← get).lctx.letDecls[fvarId]? | return none
+  if h : ph' = ph then
+    return some (h ▸ d)
+  else
+    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
 
-def findFunDecl? (fvarId : FVarId) : CompilerM (Option (FunDecl ph)) :=
-  return (← get).lctx.funDecls[fvarId]? |>.bind fun ⟨ph', d⟩ =>
-    if h : ph' = ph then some (h ▸ d) else none
+def findFunDecl? (fvarId : FVarId) : CompilerM (Option (FunDecl ph)) := do
+  let some ⟨ph', d⟩ := (← get).lctx.funDecls[fvarId]? | return none
+  if h : ph' = ph then
+    return some (h ▸ d)
+  else
+    throwError m!"Phase mismatch in local context for {mkFVar fvarId}, this is a bug"
 
 def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue ph)) := do
   let some { value, .. } ← findLetDecl? fvarId | return none

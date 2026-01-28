@@ -24,8 +24,24 @@ and the approach described in the paper
 
 -/
 
+/--
+This type is used to index the fundamental LCNF IR data structures. Depending on its value different
+constructors are available for the different semantic phases of LCNF.
+
+Notably in order to save memory we never index the IR types over `IRPhase`. Instead the type is
+parametrized by the phase and the individual constructors might carry a proof (that will be erased)
+that they are only allowed in a certain phase.
+-/
 inductive IRPhase where
+  /--
+  The code we are acting on is still pure, things like reordering up to value dependencies are
+  acceptable.
+  -/
   | pure
+  /--
+  The code we are acting on is to be considered generally impure, doing reorderings is potentially
+  no longer legal.
+  -/
   | impure
   deriving Inhabited, DecidableEq, Hashable
 

@@ -196,6 +196,13 @@ where
     else
       return c
 
+structure Context where
+  /--
+  Whether uses of `noncomputable` defs should be ignored; used in contexts that will be erased
+  eventually.
+  -/
+  ignoreNoncomputable : Bool := false
+
 structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
@@ -221,7 +228,7 @@ structure State where
   -/
   toAny : FVarIdSet := {}
 
-abbrev M := StateRefT State CompilerM
+abbrev M := ReaderT Context <| StateRefT State CompilerM
 
 @[inline] def liftMetaM (x : MetaM α) : M α := do
   x.run' { lctx := (← get).lctx }
@@ -255,7 +262,7 @@ def toCode (result : Arg) : M Code := do
     seqToCode (← get).seq (.return fvarId)
 
 def run (x : M α) : CompilerM α :=
-  x |>.run' {}
+  x.run {} |>.run' {}
 
 /--
 Return true iff `type` is `Sort _` or `As → Sort _`.
@@ -393,6 +400,8 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
 private def checkComputable (ref : Name) : M Unit := do
+  if (← read).ignoreNoncomputable then
+    return
   if ref matches ``Quot.mk | ``Quot.lcInv || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
     return
   if isNoncomputable (← getEnv) ref then
@@ -615,7 +624,20 @@ where
 
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do
-      visitAppDefaultConst e.getAppFn e.getAppArgs
+      let f := e.getAppFn
+      let args := e.getAppArgs
+      let env ← getEnv
+      let .const declName us := CSimp.replaceConstants env f | unreachable!
+      let ctorInfo? ← isCtor? declName
+      let args ← args.mapIdxM fun idx arg =>
+        -- We can rely on `toMono` erasing ctor params eventually; we do not do so here so that type
+        -- inference on the value is preserved.
+        withReader (fun ctx =>
+            { ignoreNoncomputable := ctx.ignoreNoncomputable || ctorInfo?.any (idx < ·.numParams) }) do
+          visitAppArg arg
+      if hasNeverExtractAttribute env declName then
+        modify fun s => {s with shouldCache := false }
+      letValueToArg <| .const declName us args
 
   visitQuotLift (e : Expr) : M Arg := do
     let arity := 6

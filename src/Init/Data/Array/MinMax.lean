@@ -1,8 +1,7 @@
 /-
 Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
-  Paul Reichert
+Authors: Paul Reichert
 -/
 module
 
@@ -75,113 +74,7 @@ public protected def max? [Max α] (arr : Array α) : Option α :=
   else
     none
 
-/-! ### Prerequisite lemmas -/
-
-theorem foldlM.loop.normalize_stop [Monad m] {f : β → α → m β} {xs : Array α} {s hs i j b} :
-    foldlM.loop f xs s hs i j b = foldlM.loop f xs xs.size (Nat.le_refl _) (min i (s - j)) j b := by
-  induction i generalizing j b
-  · simp [foldlM.loop]
-  · rename_i i ih
-    simp +singlePass only [foldlM.loop.eq_def (i := i + 1)]
-    split
-    · have : min (i + 1) (s - j) = min i (s - j - 1) + 1 := by omega
-      rw [this]
-      rw [foldlM.loop, dif_pos (by omega)]
-      apply bind_congr; intro
-      rw [ih]
-      rfl
-    · rw [foldlM.loop]
-      split
-      · have : min (i + 1) (s - j) = 0 := by omega
-        rw [this]
-      · rfl
-
-theorem foldlM.loop.shift_one [Monad m]
-    {f : β → α → m β} {xs : Array α} {i j} {b} :
-    foldlM.loop f xs xs.size (Nat.le_refl _) i (j + 1) b = foldlM.loop f (xs.toList.drop 1).toArray (xs.size - 1) (by simp) i j b := by
-  induction i generalizing j b
-  · simp only [loop, dite_eq_ite, ite_self]
-  · rename_i i ih
-    simp +singlePass only [foldlM.loop.eq_def (i := i + 1)]
-    split <;> rename_i h
-    · rw [dif_pos (by omega)]
-      simp only [List.drop_one, List.getElem_toArray, List.getElem_tail, getElem_toList]
-      apply bind_congr; intro
-      simp [ih]
-    · rw [dif_neg (by omega)]
-
-theorem foldlM.loop.shift [Monad m]
-    {f : β → α → m β} {xs : Array α} {i j} {b} :
-    foldlM.loop f xs xs.size (Nat.le_refl _) i j b = foldlM.loop f (xs.toList.drop j).toArray (xs.size - j) (by simp) i 0 b := by
-  induction j generalizing xs
-  · simp
-  · rename_i j ih
-    rw [shift_one]
-    specialize ih (xs := (xs.toList.drop 1).toArray)
-    simp only [List.drop_drop, Nat.add_comm 1, List.size_toArray, List.length_drop, Array.length_toList] at ih
-    rw [ih]
-    congr 1; omega
-
-theorem foldlM.loop_eq_foldlM_take [Monad m]
-    {f : β → α → m β} {xs : Array α} {i} {b} :
-    foldlM.loop f xs xs.size (Nat.le_refl _) i 0 b = (xs.toList.take i).foldlM (init := b) f := by
-  conv => lhs; rw [← Array.toArray_toList (xs := xs)]
-  generalize xs.toList = xs
-  induction i generalizing xs b
-  · simp [foldlM.loop]
-  · rename_i i ih
-    simp +singlePass only [foldlM.loop.eq_def (i := i + 1)]
-    split
-    · simp only [Nat.zero_add]
-      match xs with
-      | x :: xs =>
-        simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray,
-          List.length_cons, List.take_succ_cons, List.foldlM_cons]
-        apply bind_congr; intro b'
-        simp only [List.size_toArray] at ih
-        rw [← ih]
-        clear ih
-        simpa using loop.shift_one (xs := (x :: xs).toArray) (f := f) (b := b') (i := i) (j := 0)
-    · simp_all
-
-theorem foldlM.loop_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs : Array α} {i b} :
-    foldlM.loop f xs xs.size (Nat.le_refl _) i j b = (xs.extract j (i + j)).foldlM (init := b) f := by
-  rw [loop.shift]
-  have := loop_eq_foldlM_take (xs := (xs.toList.drop j).toArray) (f := f) (b := b) (i := i)
-  simp only [List.size_toArray, List.length_drop, length_toList] at this
-  simp only [this, List.take_drop, Nat.add_comm j, ← Array.foldlM_toList, Array.toList_extract]
-  simp
-
-public theorem foldlM_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs : Array α} {b} :
-    xs.foldlM (init := b) f (start := start) (stop := stop) =
-      (xs.extract start stop).foldlM (init := b) f := by
-  simp only [foldlM]
-  split
-  · rw [dif_pos (by omega)]
-    rw [foldlM.loop.normalize_stop, foldlM.loop_eq_foldlM_extract, foldlM.loop_eq_foldlM_extract]
-    simp only [Nat.le_refl, Nat.min_eq_left, size_extract, Nat.sub_zero, Nat.add_zero]
-    congr 1
-    · rw [← Array.toArray_toList (xs := xs)]
-      simp only [List.extract_toArray, List.extract_eq_drop_take]
-      simp only [toArray_toList, List.drop_zero, List.take_take, mk.injEq, List.take_eq_take_iff]
-      omega
-    · omega
-  · simp only [size_extract, Nat.le_refl, ↓reduceDIte, Nat.sub_zero]
-    rw [foldlM.loop_eq_foldlM_extract, foldlM.loop.normalize_stop,  foldlM.loop_eq_foldlM_extract]
-    simp only [size_extract, Nat.sub_zero, Nat.le_refl, Nat.min_eq_left, Nat.add_zero]
-    congr 1
-    · rw [← Array.toArray_toList (xs := xs)]
-      simp only [List.extract_toArray, List.extract_eq_drop_take]
-      simp only [toArray_toList, List.drop_zero, List.take_take, mk.injEq, List.take_eq_take_iff]
-      omega
-    · omega
-
 /-! ### Compatibility with `List` -/
-
-public theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
-    xs.foldl (init := init) (start := start) (stop := stop) f = (xs.extract start stop).foldl (init := init) f := by
-  simp only [foldl_eq_foldlM]
-  rw [foldlM_eq_foldlM_extract]
 
 @[simp, grind =]
 public theorem _root_.List.min_toArray [Min α] {l : List α} {h} :

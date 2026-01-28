@@ -668,6 +668,42 @@ def Iter.Total.first? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id I
   it.it.first?
 
 /--
+Returns `true` if the iterator yields no values.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+`it.ensureTermination.isEmpty` always terminates after finitely many steps.
+
+Examples:
+* `[].iter.isEmpty = true`
+* `[1].iter.isEmpty = false`
+-/
+@[inline]
+def Iter.isEmpty {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Bool :=
+  it.toIterM.isEmpty.run.down
+
+/--
+Returns `true` if the iterator yields no values.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `Iter.isEmpty`.
+
+Examples:
+* `[].iter.isEmpty = true`
+* `[1].iter.isEmpty = false`
+-/
+@[inline]
+def Iter.Total.isEmpty {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id] [Productive α Id]
+    (it : Iter.Total (α := α) β) : Bool :=
+  it.it.isEmpty
+
+/--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:

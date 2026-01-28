@@ -577,6 +577,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
     for x in mutVars do
+      let newX ← getFVarFromUserName x.getId
+      Term.addTermInfo' x newX
       e := mkApp e (← getFVarFromUserName x.getId)
     let refined := jp' != jp  -- whether we have generalized `jp` in a `match`
     if let some pos := ref.getPos? then

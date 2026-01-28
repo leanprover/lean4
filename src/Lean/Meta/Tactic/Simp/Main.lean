@@ -504,7 +504,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   withInDSimpWithCache fun cache => do
     transformWithCache e cache
       (usedLetOnly := cfg.zeta || cfg.zetaUnused)
-      (skipInstances := !backward.dsimp.instances.get (← getOptions))
+      (skipInstances := !cfg.instances)
       (pre := pre)
       (post := post)
 

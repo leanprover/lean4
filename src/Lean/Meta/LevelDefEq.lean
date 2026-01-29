@@ -67,6 +67,7 @@ private def tryApproxMaxMax (u v : Level) : MetaM Bool := do
   match u, v with
   | .max u₁ u₂, .max v' (.mvar mvarId) => solve u₁ u₂ v' mvarId
   | .max u₁ u₂, .max (.mvar mvarId) v' => solve u₁ u₂ v' mvarId
+  | .max (.succ u₁) (.succ u₂), .max (.succ v₁) (.succ v₂) => tryApproxMaxMax (.max u₁ u₂) (.max v₁ v₂)
   | _, _ => return false
 where
   solve (u₁ u₂ v' : Level) (mvarId : LMVarId) : MetaM Bool := do

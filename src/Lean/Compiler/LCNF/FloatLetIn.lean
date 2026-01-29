@@ -337,7 +337,7 @@ end FloatLetIn
 def Decl.floatLetIn (decl : Decl .pure) : CompilerM (Decl .pure) := do
   FloatLetIn.floatLetIn decl
 
-def floatLetIn (phase := PassPhase.base) (occurrence := 0) : Pass :=
+def floatLetIn (phase := Phase.base) (occurrence := 0) : Pass :=
   phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `floatLetIn phase (h ▸ Decl.floatLetIn) occurrence
 

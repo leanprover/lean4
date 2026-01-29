@@ -44,7 +44,7 @@ private def shouldExportBody (decl : Decl ph) : CompilerM Bool := do
 Marks the given declaration as to be exported and recursively infers the correct visibility of its
 body and referenced declarations based on that.
 -/
-partial def markDeclPublicRec (phase : PassPhase) (decl : Decl ph) : CompilerM Unit := do
+partial def markDeclPublicRec (phase : Phase) (decl : Decl ph) : CompilerM Unit := do
   modifyEnv (setDeclPublic · decl.name)
   if (← shouldExportBody decl) && !isDeclTransparent (← getEnv) phase decl.name then
     trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
@@ -153,7 +153,7 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
           -- record as public meta use
           withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref
 
-def inferVisibility (phase : PassPhase) : Pass where
+def inferVisibility (phase : Phase) : Pass where
   occurrence := 0
   phase
   name := `inferVisibility

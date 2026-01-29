@@ -15,7 +15,7 @@ namespace Lean.Compiler.LCNF
 /--
 The pipeline phase a certain `Pass` is supposed to happen in.
 -/
-inductive PassPhase where
+inductive Phase where
   /-- Here we still carry most of the original type information, most
   of the dependent portion is already (partially) erased though. -/
   | base
@@ -24,7 +24,7 @@ inductive PassPhase where
   | impure
   deriving Inhabited, DecidableEq
 
-@[expose, reducible] def PassPhase.toPurity : PassPhase → Purity
+@[expose, reducible] def Phase.toPurity : Phase → Purity
   | .base | .mono => .pure
   | .impure => .impure
 
@@ -42,7 +42,7 @@ structure CompilerM.State where
   deriving Inhabited
 
 structure CompilerM.Context where
-  phase : PassPhase
+  phase : Phase
   config : ConfigOptions
   deriving Inhabited
 
@@ -51,10 +51,10 @@ abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 @[always_inline]
 instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure := i.pure, bind := i.bind }
 
-@[inline] def withPhase (phase : PassPhase) (x : CompilerM α) : CompilerM α :=
+@[inline] def withPhase (phase : Phase) (x : CompilerM α) : CompilerM α :=
   withReader (fun ctx => { ctx with phase }) x
 
-def getPhase : CompilerM PassPhase :=
+def getPhase : CompilerM Phase :=
   return (← read).phase
 
 def getPurity : CompilerM Purity :=
@@ -488,7 +488,7 @@ def mkAuxParam (type : Expr) (borrow := false) : CompilerM (Param ph) := do
 def getConfig : CompilerM ConfigOptions :=
   return (← read).config
 
-def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : PassPhase := .base) : CoreM α := do
+def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α := do
   x { phase, config := toConfigOptions (← getOptions) } |>.run' s
 
 /-- Environment extension for local caching of key-value pairs, not persisted in .olean files. -/

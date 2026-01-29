@@ -123,7 +123,7 @@ def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl .pure) : CompilerM (Decl .
   let value ← decl.value.mapCodeM (·.cse shouldElimFunDecls)
   return { decl with value }
 
-def cse (phase : PassPhase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
+def cse (phase : Phase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
   phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `cse phase (h ▸ Decl.cse shouldElimFunDecls) occurrence
 

@@ -174,7 +174,7 @@ def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 @[inline]
 def head (n : Nat) : Probe α α := fun data => return data[*...n]
 
-def runOnDeclsNamed (declNames : Array Name) (phase : PassPhase := PassPhase.base)
+def runOnDeclsNamed (declNames : Array Name) (phase : Phase := Phase.base)
     (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
@@ -183,7 +183,7 @@ def runOnDeclsNamed (declNames : Array Name) (phase : PassPhase := PassPhase.bas
     return decl
   probe decls |>.run (phase := phase)
 
-def runOnModule (moduleName : Name) (phase : PassPhase := PassPhase.base)
+def runOnModule (moduleName : Name) (phase : Phase := Phase.base)
     (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
@@ -191,7 +191,7 @@ def runOnModule (moduleName : Name) (phase : PassPhase := PassPhase.base)
   let decls := ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 
-def runGlobally  (phase : PassPhase := PassPhase.base) (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
+def runGlobally  (phase : Phase := Phase.base) (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
   let mut decls := #[]
@@ -199,7 +199,7 @@ def runGlobally  (phase : PassPhase := PassPhase.base) (probe : Probe (Decl phas
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 
-def toPass [ToString β] (phase : PassPhase) (probe : Probe (Decl phase.toPurity) β) : Pass where
+def toPass [ToString β] (phase : Phase) (probe : Probe (Decl phase.toPurity) β) : Pass where
   phase := phase
   name := `probe
   run := fun decls => do

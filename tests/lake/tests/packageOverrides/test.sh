@@ -41,4 +41,4 @@ test_out "bar2" exe bar
 test_out "foo" exe foo
 
 # Cleanup
-rm -f produced.out
+rm -rf bar1/.git produced.out

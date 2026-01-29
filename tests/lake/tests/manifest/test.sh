@@ -62,4 +62,4 @@ test_manifest v1.0.0
 test_manifest v1.1.0
 
 # cleanup
-rm -f produced.out
+rm -rf bar/.git produced.out

@@ -191,9 +191,13 @@ instance : Inhabited (SimpM α) where
 
 abbrev Simproc := Expr → SimpM Result
 
+@[extern "lean_sym_simp_step"] -- Forward declaration
+opaque simpStepDefault : Simproc
+
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
-  post       : Simproc  := fun _ => return .rfl
+  post       : Simproc  := simpStepDefault
+  step       : Simproc  := fun _ => return .rfl
   /--
   `wellBehavedMethods` must **not** be set to `true` IF their behavior
   depends on new hypotheses in the local context. For example, for applying
@@ -239,6 +243,9 @@ abbrev getCache : SimpM Cache :=
 
 abbrev pre : Simproc := fun e => do
   (← getMethods).pre e
+
+abbrev step : Simproc := fun e => do
+  (← getMethods).step e
 
 abbrev post : Simproc := fun e => do
   (← getMethods).post e

@@ -16,6 +16,7 @@ import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 open Internal
 
+@[export lean_sym_simp_step]
 def simpStep : Simproc := fun e => do
   match e with
   | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl

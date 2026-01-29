@@ -88,3 +88,4 @@ popd
 
 # Cleanup
 rm -rf DiamondExample-*/.git
+rm -f produced.out

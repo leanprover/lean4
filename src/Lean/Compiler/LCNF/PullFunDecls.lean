@@ -17,23 +17,23 @@ namespace PullFunDecls
 /--
 Local function declaration and join point being pulled.
 -/
-structure ToPull (pu : Purity) where
+structure ToPull where
   isFun : Bool
-  decl  : FunDecl pu
+  decl  : FunDecl .pure
   used  : FVarIdHashSet
   deriving Inhabited
 
 /--
 The `PullM` state contains the local function declarations and join points being pulled.
 -/
-abbrev PullM (pu : Purity) := StateRefT (List (ToPull pu)) CompilerM
+abbrev PullM := StateRefT (List ToPull) CompilerM
 
 /--
 Extract from the state any local function declarations that depends on the given
 free variable. The idea is that we have to stop pulling these declarations because they
 depend on `fvarId`.
 -/
-def findFVarDirectDeps (fvarId : FVarId) : PullM pu (List (ToPull pu)) := do
+def findFVarDirectDeps (fvarId : FVarId) : PullM (List ToPull) := do
   let s ← get
   unless s.any fun info => info.used.contains fvarId do
     return []
@@ -41,7 +41,7 @@ def findFVarDirectDeps (fvarId : FVarId) : PullM pu (List (ToPull pu)) := do
   set s₁
   return s₂
 where
-  go (as keep dep : List (ToPull pu)) : CoreM (List (ToPull pu) × List (ToPull pu)) := do
+  go (as keep dep : List ToPull) : CoreM (List ToPull × List ToPull) := do
     match as with
     | [] => return (keep, dep)
     | a :: as =>
@@ -50,15 +50,15 @@ where
       else
         go as (a :: keep) dep
 
-partial def findFVarDepsFixpoint (todo : List (ToPull pu)) (acc : Array (ToPull pu) := #[]) :
-    PullM pu (Array (ToPull pu)) := do
+partial def findFVarDepsFixpoint (todo : List ToPull) (acc : Array ToPull := #[]) :
+    PullM (Array ToPull) := do
   match todo with
   | [] => return acc
   | p :: ps =>
     let psNew ← findFVarDirectDeps p.decl.fvarId
     findFVarDepsFixpoint (psNew ++ ps) (acc.push p)
 
-partial def findFVarDeps (fvarId : FVarId) : PullM pu (Array (ToPull pu)) := do
+partial def findFVarDeps (fvarId : FVarId) : PullM (Array ToPull) := do
   let ps ← findFVarDirectDeps fvarId
   findFVarDepsFixpoint ps
 
@@ -66,7 +66,7 @@ partial def findFVarDeps (fvarId : FVarId) : PullM pu (Array (ToPull pu)) := do
 Similar to `findFVarDeps`. Extract from the state any local function declarations that depends on the given
 parameters.
 -/
-def findParamsDeps (params : Array (Param pu)) : PullM pu (Array (ToPull pu)) := do
+def findParamsDeps (params : Array (Param pu)) : PullM (Array ToPull) := do
   let mut acc := #[]
   for param in params do
     acc := acc ++ (← findFVarDeps param.fvarId)
@@ -75,29 +75,28 @@ def findParamsDeps (params : Array (Param pu)) : PullM pu (Array (ToPull pu)) :=
 /--
 Construct the code `fun p.decl k` or `jp p.decl k`.
 -/
-def ToPull.attach (p : ToPull pu) (k : Code pu) : Code pu :=
+def ToPull.attach (p : ToPull) (k : Code .pure) : Code .pure :=
   if p.isFun then
-    pu.withAssertPurity .pure fun h =>
-      .fun p.decl k h
+    .fun p.decl k
   else
     .jp p.decl k
 
 /--
 Attach the given array of local function declarations and join points to `k`.
 -/
-partial def attach (ps : Array (ToPull pu)) (k : Code pu) : Code pu := Id.run do
+partial def attach (ps : Array ToPull) (k : Code .pure) : Code .pure := Id.run do
   let visited := ps.map fun _ => false
   let (_, (k, _)) := go |>.run (k, visited)
   return k
 where
-  go : StateM (Code pu × Array Bool) Unit := do
+  go : StateM (Code .pure × Array Bool) Unit := do
     for i in *...ps.size do
       visit i
 
-  visited (i : Nat) : StateM (Code pu × Array Bool) Bool :=
+  visited (i : Nat) : StateM (Code .pure × Array Bool) Bool :=
     return (← get).2[i]!
 
-  visit (i : Nat) : StateM (Code pu × Array Bool) Unit := do
+  visit (i : Nat) : StateM (Code .pure × Array Bool) Unit := do
     unless (← visited i) do
       modify fun (k, visited) => (k, visited.set! i true)
       let pi := ps[i]!
@@ -112,7 +111,7 @@ where
 Extract from the state any local function declarations that depends on the given
 free variable, **and** attach to code `k`.
 -/
-partial def attachFVarDeps (fvarId : FVarId) (k : Code pu) : PullM pu (Code pu) := do
+partial def attachFVarDeps (fvarId : FVarId) (k : Code .pure) : PullM (Code .pure) := do
   let ps ← findFVarDeps fvarId
   return attach ps k
 
@@ -120,11 +119,11 @@ partial def attachFVarDeps (fvarId : FVarId) (k : Code pu) : PullM pu (Code pu) 
 Similar to `attachFVarDeps`. Extract from the state any local function declarations that depends on the given
 parameters, **and** attach to code `k`.
 -/
-def attachParamsDeps (params : Array (Param pu)) (k : Code pu) : PullM pu (Code pu) := do
+def attachParamsDeps (params : Array (Param .pure)) (k : Code .pure) : PullM (Code .pure) := do
   let ps ← findParamsDeps params
   return attach ps k
 
-def attachJps (k : Code pu) : PullM pu (Code pu) := do
+def attachJps (k : Code .pure) : PullM (Code .pure) := do
   let jps := (← get).filter fun info => !info.isFun
   modify fun s => s.filter fun info => info.isFun
   let jps ← findFVarDepsFixpoint jps
@@ -134,7 +133,7 @@ mutual
 /--
 Add local function declaration (or join point if `isFun = false`) to the state.
 -/
-partial def addToPull (isFun : Bool) (decl : FunDecl pu) : PullM pu Unit := do
+partial def addToPull (isFun : Bool) (decl : FunDecl .pure) : PullM Unit := do
   let saved ← get
   modify fun _ => []
   let mut value ← pull decl.value
@@ -149,7 +148,7 @@ partial def addToPull (isFun : Bool) (decl : FunDecl pu) : PullM pu Unit := do
 Pull local function declarations and join points in `code`.
 The state contains the declarations being pulled.
 -/
-partial def pull (code : Code pu) : PullM pu (Code pu) := do
+partial def pull (code : Code .pure) : PullM (Code .pure) := do
   match code with
   | .let decl k =>
     let k ← pull k
@@ -176,7 +175,7 @@ open PullFunDecls
 /--
 Pull local function declarations and join points in the given declaration.
 -/
-def Decl.pullFunDecls (decl : Decl pu) : CompilerM (Decl pu) := do
+def Decl.pullFunDecls (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let (value, ps) ← decl.value.mapCodeM pull |>.run []
   let value := value.mapCode (attach ps.toArray)
   return { decl with value }

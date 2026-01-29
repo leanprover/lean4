@@ -70,7 +70,6 @@ theorem startInclusive_subslice {s : Slice} {newStart newEnd : s.Pos} {h} :
 theorem endExclusive_subslice {s : Slice} {newStart newEnd : s.Pos} {h} :
     (s.subslice newStart newEnd h).endExclusive = newEnd := (rfl)
 
-@[inline]
 def subslice! (s : Slice) (newStart newEnd : s.Pos) : s.Subslice :=
   if h : newStart ≤ newEnd then s.subslice _ _ h else panic! "Trying to construct a degenerate subslice"
 

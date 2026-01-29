@@ -85,9 +85,12 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
   · rw [dif_neg]; rotate_left; exact h
     simp_all [it.internalState.xs.stop_le_array_size]
 
-theorem count_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
-    it.count = it.internalState.xs.stop - it.internalState.xs.start := by
-  simp [← Iter.length_toList_eq_count, toList_eq, it.internalState.xs.stop_le_array_size]
+theorem length_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
+    it.length = it.internalState.xs.stop - it.internalState.xs.start := by
+  simp [← Iter.length_toList_eq_length, toList_eq, it.internalState.xs.stop_le_array_size]
+
+@[deprecated length_eq (since := "2026-01-28")]
+def count_eq := @length_eq
 
 end SubarrayIterator
 
@@ -105,7 +108,7 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM,
-      ← Iter.length_toList_eq_count, SubarrayIterator.toList_eq,
+      ← Iter.length_toList_eq_length, SubarrayIterator.toList_eq,
       s.internalRepresentation.stop_le_array_size, start, stop, array]
 
 public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :

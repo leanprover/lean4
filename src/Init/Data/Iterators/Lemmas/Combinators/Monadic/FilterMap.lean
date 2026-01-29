@@ -1620,17 +1620,20 @@ end Fold
 section Count
 
 @[simp]
-theorem IterM.count_map {α β β' : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
+theorem IterM.length_map {α β β' : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
     [IteratorLoop α m m] [Finite α m] [LawfulMonad m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {f : β → β'} :
-    (it.map f).count = it.count := by
+    (it.map f).length = it.length := by
   induction it using IterM.inductSteps with | step it ihy ihs
-  rw [count_eq_match_step, count_eq_match_step, step_map, bind_assoc]
+  rw [length_eq_match_step, length_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
   cases step.inflate using PlausibleIterStep.casesOn
   · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
+
+@[deprecated IterM.length_map (since := "2026-01-28")]
+def IterM.count_map := @IterM.length_map
 
 end Count
 

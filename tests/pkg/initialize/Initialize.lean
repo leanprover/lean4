@@ -1,5 +1,2 @@
-import Initialize.Basic
-
-/-- info: 42 -/
-#guard_msgs in
-#eval initNat
+import Initialize.Module
+import Initialize.NoModule

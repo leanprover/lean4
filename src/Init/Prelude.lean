@@ -3815,6 +3815,15 @@ class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqL
   seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
   seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
 
+instance {α : Type u} {f : Type u → Type v} [Applicative f] : Inhabited (α → f α) where
+  default := pure
+
+instance {α : Type u} {f : Type u → Type v} [Applicative f] [Inhabited α] : Inhabited (f α) where
+  default := pure default
+
+instance [Pure f] : [Nonempty α] → Nonempty (f α)
+  | ⟨x⟩ => ⟨pure x⟩
+
 /--
 [Monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)) are an abstraction of
 sequential control flow and side effects used in functional programming. Monads allow both
@@ -3834,15 +3843,6 @@ class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, 
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
   seqRight x y := bind x fun _ => y ()
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
-  default := pure
-
-instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
-  default := pure default
-
-instance [Monad m] : [Nonempty α] → Nonempty (m α)
-  | ⟨x⟩ => ⟨pure x⟩
 
 /--
 Computations in the monad `m` can be run in the monad `n`. These translations are inserted

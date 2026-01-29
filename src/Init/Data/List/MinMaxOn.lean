@@ -30,6 +30,10 @@ namespace List
 /--
 Returns an element of the non-empty list {name}`l` that minimizes {name}`f`. If {given}`x, y` are
 such that {lean}`f x = f y`, it returns whichever comes first in the list.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
+The property that {name}`List.minOn` is the first minimizer in the list is guaranteed by the lemma
+{name (scope := "Init.Data.List.MinMaxIdx")}`List.getElem_minIdxOn`.
 -/
 @[inline, suggest_for List.argmin]
 protected def minOn [LE β] [DecidableLE β] (f : α → β) (l : List α) (h : l ≠ []) : α :=
@@ -39,6 +43,10 @@ protected def minOn [LE β] [DecidableLE β] (f : α → β) (l : List α) (h : 
 /--
 Returns an element of the non-empty list {name}`l` that maximizes {name}`f`. If {given}`x, y` are
 such that {lean}`f x = f y`, it returns whichever comes first in the list.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
+The property that {name}`List.maxOn` is the first maximizer in the list is guaranteed by the lemma
+{name (scope := "Init.Data.List.MinMaxIdx")}`List.getElem_maxIdxOn`.
 -/
 @[inline, suggest_for List.argmax]
 protected def maxOn [i : LE β] [DecidableLE β] (f : α → β) (l : List α) (h : l ≠ []) : α :=
@@ -49,6 +57,10 @@ protected def maxOn [i : LE β] [DecidableLE β] (f : α → β) (l : List α) (
 Returns an element of {name}`l` that minimizes {name}`f`. If {given}`x, y` are such that
 {lean}`f x = f y`, it returns whichever comes first in the list. Returns {name}`none` if the list is
 empty.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
+The property that {name}`List.minOn?` is the first minimizer in the list is guaranteed by the lemma
+{name (scope := "Init.Data.List.MinMaxIdx")}`List.getElem_get_minIdxOn?`
 -/
 @[inline, suggest_for List.argmin? List.argmin] -- Mathlib's `List.argmin` returns an `Option α`
 protected def minOn? [LE β] [DecidableLE β] (f : α → β) (l : List α) : Option α :=
@@ -60,6 +72,10 @@ protected def minOn? [LE β] [DecidableLE β] (f : α → β) (l : List α) : Op
 Returns an element of {name}`l` that maximizes {name}`f`. If {given}`x, y` are such that
 {lean}`f x = f y`, it returns whichever comes first in the list. Returns {name}`none` if the list is
 empty.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
+The property that {name}`List.maxOn?` is the first minimizer in the list is guaranteed by the lemma
+{name (scope := "Init.Data.List.MinMaxIdx")}`List.getElem_get_maxIdxOn?`.
 -/
 @[inline, suggest_for List.argmax? List.argmax] -- Mathlib's `List.argmax` returns an `Option α`
 protected def maxOn? [i : LE β] [DecidableLE β] (f : α → β) (l : List α) : Option α :=

@@ -13,7 +13,7 @@ public import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.Order.Opposite
-public import Init.Data.Slice.List
+import Init.Data.Nat.Order
 
 public section
 

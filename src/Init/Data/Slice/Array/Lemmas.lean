@@ -107,7 +107,7 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
-    simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM,
+    simp [SliceSize.size, ToIterator.iter_eq,
       ← Iter.length_toList_eq_length, SubarrayIterator.toList_eq,
       s.internalRepresentation.stop_le_array_size, start, stop, array]
 

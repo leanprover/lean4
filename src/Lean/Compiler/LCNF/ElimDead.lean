@@ -19,16 +19,16 @@ Collect set of (let) free variables in a LCNF value.
 This code exploits the LCNF property that local declarations do not occur in types.
 -/
 
-def collectLocalDeclsArg (s : UsedLocalDecls) (arg : Arg) : UsedLocalDecls :=
+def collectLocalDeclsArg (s : UsedLocalDecls) (arg : Arg .pure) : UsedLocalDecls :=
   match arg with
   | .fvar fvarId => s.insert fvarId
   -- Locally declared variables do not occur in types.
   | .type _ | .erased => s
 
-def collectLocalDeclsArgs (s : UsedLocalDecls) (args : Array Arg) : UsedLocalDecls :=
+def collectLocalDeclsArgs (s : UsedLocalDecls) (args : Array (Arg .pure)) : UsedLocalDecls :=
   args.foldl (init := s) collectLocalDeclsArg
 
-def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue) : UsedLocalDecls :=
+def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue .pure) : UsedLocalDecls :=
   match e with
   | .erased  | .lit .. => s
   | .proj _ _ fvarId => s.insert fvarId
@@ -39,21 +39,22 @@ namespace ElimDead
 
 abbrev M := StateRefT UsedLocalDecls CompilerM
 
-private abbrev collectArgM (arg : Arg) : M Unit :=
+private abbrev collectArgM (arg : Arg .pure) : M Unit :=
   modify (collectLocalDeclsArg · arg)
 
-private abbrev collectLetValueM (e : LetValue) : M Unit :=
+private abbrev collectLetValueM (e : LetValue .pure) : M Unit :=
   modify (collectLocalDeclsLetValue · e)
 
 private abbrev collectFVarM (fvarId : FVarId) : M Unit :=
   modify (·.insert fvarId)
 
 mutual
-partial def visitFunDecl (funDecl : FunDecl) : M FunDecl := do
+
+partial def visitFunDecl (funDecl : FunDecl .pure) : M (FunDecl .pure) := do
   let value ← elimDead funDecl.value
   funDecl.updateValue value
 
-partial def elimDead (code : Code) : M Code := do
+partial def elimDead (code : Code .pure) : M (Code .pure) := do
   match code with
   | .let decl k =>
     let k ← elimDead k
@@ -84,10 +85,11 @@ end
 
 end ElimDead
 
-def Code.elimDead (code : Code) : CompilerM Code :=
+-- TODO: Generalize this to arbitrary phases, keep in mind that in impure elim dead is not as easy though
+def Code.elimDead (code : Code .pure) : CompilerM (Code .pure) :=
   ElimDead.elimDead code |>.run' {}
 
-def Decl.elimDead (decl : Decl) : CompilerM Decl := do
+def Decl.elimDead (decl : Decl .pure) : CompilerM (Decl .pure) := do
   return { decl with value := (← decl.value.mapCodeM Code.elimDead) }
 
 end Lean.Compiler.LCNF

@@ -12,7 +12,6 @@ public import Lean.Compiler.LCNF.JoinPoints
 public import Lean.Compiler.LCNF.Specialize
 public import Lean.Compiler.LCNF.ToMono
 public import Lean.Compiler.LCNF.LambdaLifting
-public import Lean.Compiler.LCNF.FloatLetIn
 public import Lean.Compiler.LCNF.ReduceArity
 public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
@@ -80,7 +79,6 @@ def builtinPassManager : PassManager := {
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,
-    floatLetIn,
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
@@ -109,11 +107,9 @@ def builtinPassManager : PassManager := {
     reduceJpArity (phase := .mono),
     structProjCases,
     extendJoinPointContext (phase := .mono) (occurrence := 0),
-    floatLetIn (phase := .mono) (occurrence := 1),
     reduceArity,
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
-    floatLetIn (phase := .mono) (occurrence := 2),
     lambdaLifting,
   ]
   monoPassesNoLambda := #[

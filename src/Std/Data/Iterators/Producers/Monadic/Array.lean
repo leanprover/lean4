@@ -54,7 +54,7 @@ The pure version of this iterator is `Array.iterFromIdx`.
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayIterator α) m α :=
-  .mk { array := array, pos := pos } m α
+  ⟨{ array := array, pos := pos }⟩
 
 /--
 Returns a finite monadic iterator for the given array.

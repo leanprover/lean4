@@ -30,7 +30,7 @@ theorem List.step_iterM_nil :
 @[simp]
 theorem List.step_iterM_cons {x : β} {xs : List β} :
     ((x :: xs).iterM m).step = pure (.deflate ⟨.yield (xs.iterM m) x, rfl⟩) := by
-  simp only [List.iterM, IterM.step, Iterator.step]; rfl
+  simp only [List.iterM, IterM.step, Iterator.step]
 
 theorem List.step_iterM {l : List β} :
     (l.iterM m).step = match l with

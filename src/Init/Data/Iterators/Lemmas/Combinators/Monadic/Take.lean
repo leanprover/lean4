@@ -37,7 +37,7 @@ theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
         | .yield it' out h => pure <| .deflate <| .yield (it'.take k) out (Take.isPlausibleStep_take_yield h)
         | .skip it' h => pure <| .deflate <| .skip (it'.take (k + 1)) (Take.isPlausibleStep_take_skip h)
         | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [take, step, Iterator.step, internalState_toIterM]
+  simp only [take, step, Iterator.step, IterM.internalState_mk]
   cases n
   case zero => rfl
   case succ k =>
@@ -59,7 +59,7 @@ theorem IterM.step_toTake {α m β} [Monad m] [Iterator α m β] [Finite α m]
         | .yield it' out h => pure <| .deflate <| .yield it'.toTake out (.yield h Nat.zero_ne_one)
         | .skip it' h => pure <| .deflate <| .skip it'.toTake (.skip h Nat.zero_ne_one)
         | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [toTake, step, Iterator.step, internalState_toIterM]
+  simp only [toTake, step, Iterator.step, IterM.internalState_mk]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn <;> rfl

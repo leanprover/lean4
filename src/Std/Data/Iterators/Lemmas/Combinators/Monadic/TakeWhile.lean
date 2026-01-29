@@ -23,7 +23,7 @@ theorem IterM.step_takeWhileWithPostcondition {α m β} [Monad m] [Iterator α m
         | ⟨.up false, h'⟩ => pure <| .deflate <| .done (.rejected h h')
       | .skip it' h => pure <| .deflate <| .skip (it'.takeWhileWithPostcondition P) (.skip h)
       | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [takeWhileWithPostcondition, step, Iterator.step, internalState_toIterM]
+  simp only [takeWhileWithPostcondition, step, Iterator.step, IterM.internalState_mk]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn <;> rfl

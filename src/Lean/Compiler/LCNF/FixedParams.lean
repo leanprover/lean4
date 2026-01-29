@@ -45,7 +45,7 @@ inductive AbsValue where
   deriving Inhabited, BEq, Hashable
 
 structure Context where
-  ph : IRPhase
+  ph : Purity
   /-- Declaration in the same mutual block. -/
   decls : Array (Decl ph)
   /--

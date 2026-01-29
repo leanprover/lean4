@@ -23,9 +23,9 @@ instance : ToString PassPhase where
     | .mono => "mono"
     | .impure => "impure"
 
-def PassPhase.withIRPhaseCheck [Inhabited α] (pp : PassPhase) (ip : IRPhase)
-    (x : pp.toIRPhase = ip → α) : α :=
-  if h : pp.toIRPhase = ip then
+def PassPhase.withPurityCheck [Inhabited α] (pp : PassPhase) (ip : Purity)
+    (x : pp.toPurity = ip → α) : α :=
+  if h : pp.toPurity = ip then
     x h
   else
     panic! s!"Compiler error: {pp} is not equivalent to IR phase {ip}, this is a bug"
@@ -74,7 +74,7 @@ structure Pass where
   /--
   The actual pass function, operating on the `Decl`s.
   -/
-  run : Array (Decl phase.toIRPhase) → CompilerM (Array (Decl phase.toIRPhase))
+  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phase.toPurity))
 
 instance : Inhabited Pass where
   default := { phase := .base, name := default, run := fun decls => return decls }
@@ -107,7 +107,7 @@ structure PassManager where
 namespace Pass
 
 def mkPerDeclaration (name : Name) (phase : PassPhase)
-    (run : Decl phase.toIRPhase → CompilerM (Decl phase.toIRPhase)) (occurrence : Nat := 0) : Pass where
+    (run : Decl phase.toPurity → CompilerM (Decl phase.toPurity)) (occurrence : Nat := 0) : Pass where
   occurrence := occurrence
   phase := phase
   name := name

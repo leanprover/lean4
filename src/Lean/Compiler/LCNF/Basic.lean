@@ -28,11 +28,11 @@ and the approach described in the paper
 This type is used to index the fundamental LCNF IR data structures. Depending on its value different
 constructors are available for the different semantic phases of LCNF.
 
-Notably in order to save memory we never index the IR types over `IRPhase`. Instead the type is
+Notably in order to save memory we never index the IR types over `Purity`. Instead the type is
 parametrized by the phase and the individual constructors might carry a proof (that will be erased)
 that they are only allowed in a certain phase.
 -/
-inductive IRPhase where
+inductive Purity where
   /--
   The code we are acting on is still pure, things like reordering up to value dependencies are
   acceptable.
@@ -45,21 +45,21 @@ inductive IRPhase where
   | impure
   deriving Inhabited, DecidableEq, Hashable
 
-instance : ToString IRPhase where
+instance : ToString Purity where
   toString
     | .pure => "pure"
     | .impure => "impure"
 
-def IRPhase.withAssertPhase! [Inhabited α] (ph : IRPhase) (should : IRPhase)
-    (k : (ph = should) → α) : α :=
-  if h : ph = should then
+def Purity.withAssertPurity [Inhabited α] (is : Purity) (should : Purity)
+    (k : (is = should) → α) : α :=
+  if h : is = should then
     k h
   else
-    panic! s!"IRPhase should be {should} but is {ph}, this is a bug"
+    panic! s!"Purity should be {should} but is {is}, this is a bug"
 
-scoped macro "phase_tac" : tactic => `(tactic| first | with_reducible rfl | assumption)
+scoped macro "purity_tac" : tactic => `(tactic| first | with_reducible rfl | assumption)
 
-structure Param (ph : IRPhase) where
+structure Param (ph : Purity) where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
@@ -90,10 +90,10 @@ def LitValue.toExpr : LitValue → Expr
   | .uint64 v => .app (.const ``UInt64.ofNat []) (.lit (.natVal (UInt64.toNat v)))
   | .usize v => .app (.const ``USize.ofNat []) (.lit (.natVal (UInt64.toNat v)))
 
-inductive Arg (ph : IRPhase) where
+inductive Arg (ph : Purity) where
   | erased
   | fvar (fvarId : FVarId)
-  | type (expr : Expr) (h : ph = .pure := by phase_tac)
+  | type (expr : Expr) (h : ph = .pure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Param.toArg (p : Param ph) : Arg ph :=
@@ -119,12 +119,12 @@ private unsafe def Arg.updateFVarImp (arg : Arg ph) (fvarId' : FVarId) : Arg ph 
 
 @[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg ph) (fvarId' : FVarId) : Arg ph
 
-inductive LetValue (ph : IRPhase) where
+inductive LetValue (ph : Purity) where
   | lit (value : LitValue)
   | erased
-  | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : ph = .pure := by phase_tac)
-  | const (declName : Name) (us : List Level) (args : Array (Arg ph)) (h : ph = .pure := by phase_tac)
-  | fvar (fvarId : FVarId) (args : Array (Arg ph)) (h : ph = .pure := by phase_tac)
+  | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : ph = .pure := by purity_tac)
+  | const (declName : Name) (us : List Level) (args : Array (Arg ph)) (h : ph = .pure := by purity_tac)
+  | fvar (fvarId : FVarId) (args : Array (Arg ph)) (h : ph = .pure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg .pure) : LetValue .pure :=
@@ -169,7 +169,7 @@ def LetValue.toExpr (e : LetValue ph) : Expr :=
   | .const n us as _ => mkAppN (.const n us) (as.map Arg.toExpr)
   | .fvar fvarId as _ => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
 
-structure LetDecl (ph : IRPhase) where
+structure LetDecl (ph : Purity) where
   fvarId : FVarId
   binderName : Name
   type : Expr
@@ -178,20 +178,20 @@ structure LetDecl (ph : IRPhase) where
 
 mutual
 
-inductive Alt (ph : IRPhase) where
-  | alt (ctorName : Name) (params : Array (Param ph)) (code : Code ph) (h : ph = .pure := by phase_tac)
+inductive Alt (ph : Purity) where
+  | alt (ctorName : Name) (params : Array (Param ph)) (code : Code ph) (h : ph = .pure := by purity_tac)
   | default (code : Code ph)
 
-inductive FunDecl (ph : IRPhase) where
+inductive FunDecl (ph : Purity) where
   | mk (fvarId : FVarId) (binderName : Name) (params : Array (Param ph)) (type : Expr) (value : Code ph)
 
-inductive Cases (ph : IRPhase) where
+inductive Cases (ph : Purity) where
   | mk (typeName : Name) (resultType : Expr) (discr : FVarId) (alts : Array (Alt ph))
   deriving Inhabited
 
-inductive Code (ph : IRPhase) where
+inductive Code (ph : Purity) where
   | let (decl : LetDecl ph) (k : Code ph)
-  | fun (decl : FunDecl ph) (k : Code ph) (h : ph = .pure := by phase_tac)
+  | fun (decl : FunDecl ph) (k : Code ph) (h : ph = .pure := by purity_tac)
   | jp (decl : FunDecl ph) (k : Code ph)
   | jmp (fvarId : FVarId) (args : Array (Arg ph))
   | cases (cases : Cases ph)
@@ -267,9 +267,9 @@ def Cases.getCtorNames (c : Cases ph) : NameSet :=
     | .default _ => ctorNames
     | .alt ctorName .. => ctorNames.insert ctorName
 
-inductive CodeDecl (ph : IRPhase) where
+inductive CodeDecl (ph : Purity) where
   | let (decl : LetDecl ph)
-  | fun (decl : FunDecl ph) (h : ph = .pure := by phase_tac)
+  | fun (decl : FunDecl ph) (h : ph = .pure := by purity_tac)
   | jp (decl : FunDecl ph)
   deriving Inhabited
 
@@ -567,7 +567,7 @@ where
     | .return .. => code
     | .unreach type => code.updateUnreach! (instExpr type)
 
-inductive DeclValue (ph : IRPhase) where
+inductive DeclValue (ph : Purity) where
   | code (code : Code ph)
   | extern (externAttrData : ExternAttrData)
   deriving Inhabited, BEq
@@ -601,7 +601,7 @@ def DeclValue.isCodeAndM [Monad m] (v : DeclValue ph) (f : Code ph → m Bool) :
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/
-structure Decl (ph : IRPhase) where
+structure Decl (ph : Purity) where
   /--
   The name of the declaration from the `Environment` it came from
   -/
@@ -691,11 +691,11 @@ def Decl.inlineable (decl : Decl ph) : Bool :=
   | some _ => true
   | none => false
 
-def Decl.castPhase! (decl : Decl ph1) (ph2 : IRPhase) : Decl ph2 :=
-  if h : ph1 = ph2 then
+def Decl.castPurity! (decl : Decl pu1) (pu2 : Purity) : Decl pu2 :=
+  if h : pu1 = pu2 then
     h ▸ decl
   else
-    panic! s!"IRPhase {ph1} does not match {ph2}, this is a bug"
+    panic! s!"Purity {pu1} does not match {pu2}, this is a bug"
 
 /--
 Return `some i` if `decl` is of the form
@@ -715,7 +715,7 @@ def Decl.isCasesOnParam? (decl : Decl ph) : Option Nat :=
   | .code c => go c
   | .extern .. => none
 where
-  go {ph : IRPhase} (code : Code ph) : Option Nat :=
+  go {ph : Purity} (code : Code ph) : Option Nat :=
     match code with
     | .let _ k | .jp _ k | .fun _ k _ => go k
     | .cases c => decl.params.findIdx? fun param => param.fvarId == c.discr
@@ -820,7 +820,7 @@ partial def markRecDecls (decls : Array (Decl ph)) : Array (Decl ph)  :=
     else
       decl
 where
-  visit {ph : IRPhase} (code : Code ph) : StateM NameSet Unit := do
+  visit {ph : Purity} (code : Code ph) : StateM NameSet Unit := do
     match code with
     | .jp decl k | .fun decl k _ => visit decl.value; visit k
     | .cases c => c.alts.forM fun alt => visit alt.getCode

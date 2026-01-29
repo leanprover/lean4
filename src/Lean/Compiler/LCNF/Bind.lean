@@ -14,7 +14,7 @@ namespace Lean.Compiler.LCNF
 
 /-- Helper class for lifting `CompilerM.codeBind` -/
 class MonadCodeBind (m : Type → Type) where
-  codeBind : {ph : IRPhase} → (c : Code ph) → (f : FVarId → m (Code ph)) → m (Code ph)
+  codeBind : {ph : Purity} → (c : Code ph) → (f : FVarId → m (Code ph)) → m (Code ph)
 
 /--
 Return code that is equivalent to `c >>= f`. That is, executes `c`, and then `f x`, where

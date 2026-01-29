@@ -80,19 +80,19 @@ mutual
 end
 
 @[inline]
-def LCtx.params (lctx : LCtx) (ph : IRPhase) : Std.HashMap FVarId (Param ph) :=
+def LCtx.params (lctx : LCtx) (ph : Purity) : Std.HashMap FVarId (Param ph) :=
   match ph with
   | .pure => lctx.paramsPure
   | .impure => lctx.paramsImpure
 
 @[inline]
-def LCtx.letDecls (lctx : LCtx) (ph : IRPhase) : Std.HashMap FVarId (LetDecl ph) :=
+def LCtx.letDecls (lctx : LCtx) (ph : Purity) : Std.HashMap FVarId (LetDecl ph) :=
   match ph with
   | .pure => lctx.letDeclsPure
   | .impure => lctx.letDeclsImpure
 
 @[inline]
-def LCtx.funDecls (lctx : LCtx) (ph : IRPhase) : Std.HashMap FVarId (FunDecl ph) :=
+def LCtx.funDecls (lctx : LCtx) (ph : Purity) : Std.HashMap FVarId (FunDecl ph) :=
   match ph with
   | .pure => lctx.funDeclsPure
   | .impure => lctx.funDeclsImpure
@@ -100,7 +100,7 @@ def LCtx.funDecls (lctx : LCtx) (ph : IRPhase) : Std.HashMap FVarId (FunDecl ph)
 /--
 Convert a LCNF local context into a regular Lean local context.
 -/
-def LCtx.toLocalContext (lctx : LCtx) (ph : IRPhase) : LocalContext := Id.run do
+def LCtx.toLocalContext (lctx : LCtx) (ph : Purity) : LocalContext := Id.run do
   let mut result := {}
   for (_, param) in lctx.params ph do
     result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default .default)

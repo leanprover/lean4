@@ -113,7 +113,7 @@ where go (isMeta isPublic : Bool) (decl : Decl ph) : StateT NameSet CompilerM Un
         -- public meta def tries to use a private meta import via a local private meta def :/ .
         if irPhases == .all || isPublic && isPrivateName ref then
           if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
-            go isMeta isPublic (refDecl.castPhase! ph)
+            go isMeta isPublic (refDecl.castPurity! ph)
 
 /--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into

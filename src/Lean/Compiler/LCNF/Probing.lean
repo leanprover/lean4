@@ -26,7 +26,7 @@ def filter (f : α → CompilerM Bool) : Probe α α := fun data => data.filterM
 def sorted [Inhabited α] [LT α] [DecidableLT α] : Probe α α := fun data => return data.qsort (· < ·)
 
 @[inline]
-def sortedBySize (ph : IRPhase) : Probe (Decl ph) (Nat × Decl ph) := fun decls =>
+def sortedBySize (ph : Purity) : Probe (Decl ph) (Nat × Decl ph) := fun decls =>
   let decls := decls.map fun decl => (decl.size, decl)
   return decls.qsort fun (sz₁, decl₁) (sz₂, decl₂) =>
     if sz₁ == sz₂ then Name.lt decl₁.name decl₂.name else sz₁ < sz₂
@@ -44,7 +44,7 @@ def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := f
 def countUniqueSorted [ToString α] [BEq α] [Hashable α] [Inhabited α] : Probe α (α × Nat) :=
   countUnique >=> fun data => return data.qsort (fun l r => l.snd < r.snd)
 
-partial def getLetValues (ph : IRPhase) : Probe (Decl ph) (LetValue ph) := fun decls => do
+partial def getLetValues (ph : Purity) : Probe (Decl ph) (LetValue ph) := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
@@ -61,7 +61,7 @@ where
   start (decls : Array (Decl ph)) : StateRefT (Array (LetValue ph)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
-partial def getJps (ph : IRPhase) : Probe (Decl ph) (FunDecl ph) := fun decls => do
+partial def getJps (ph : Purity) : Probe (Decl ph) (FunDecl ph) := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
@@ -76,7 +76,7 @@ where
   start (decls : Array (Decl ph)) : StateRefT (Array (FunDecl ph)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
-partial def filterByLet (ph : IRPhase) (f : LetDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByLet (ph : Purity) (f : LetDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -85,7 +85,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByFun (ph : IRPhase) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByFun (ph : Purity) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -94,7 +94,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByJp (ph : IRPhase) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByJp (ph : Purity) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -104,7 +104,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByFunDecl (ph : IRPhase) (f : FunDecl ph → CompilerM Bool) :
+partial def filterByFunDecl (ph : Purity) (f : FunDecl ph → CompilerM Bool) :
     Probe (Decl ph) (Decl ph):=
   filter (·.value.isCodeAndM go)
 where
@@ -114,7 +114,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByCases (ph : IRPhase) (f : Cases ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByCases (ph : Purity) (f : Cases ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -123,7 +123,7 @@ where
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByJmp (ph : IRPhase) (f : FVarId → Array (Arg ph) → CompilerM Bool) :
+partial def filterByJmp (ph : Purity) (f : FVarId → Array (Arg ph) → CompilerM Bool) :
     Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
@@ -134,7 +134,7 @@ where
   | .jmp fn var => f fn var
   | .return .. | .unreach .. => return false
 
-partial def filterByReturn (ph : IRPhase) (f : FVarId → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByReturn (ph : Purity) (f : FVarId → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -144,7 +144,7 @@ where
   | .jmp .. | .unreach .. => return false
   | .return var  => f var
 
-partial def filterByUnreach (ph : IRPhase) (f : Expr → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByUnreach (ph : Purity) (f : Expr → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
   filter (·.value.isCodeAndM go)
 where
   go : Code ph → CompilerM Bool
@@ -155,7 +155,7 @@ where
   | .unreach typ  => f typ
 
 @[inline]
-def declNames (ph : IRPhase) : Probe (Decl ph) Name :=
+def declNames (ph : Purity) : Probe (Decl ph) Name :=
   Probe.map (fun decl => return decl.name)
 
 @[inline]
@@ -175,7 +175,7 @@ def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 def head (n : Nat) : Probe α α := fun data => return data[*...n]
 
 def runOnDeclsNamed (declNames : Array Name) (phase : PassPhase := PassPhase.base)
-    (probe : Probe (Decl phase.toIRPhase) β) : CoreM (Array β) := do
+    (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
   let decls ← declNames.mapM fun name => do
@@ -184,14 +184,14 @@ def runOnDeclsNamed (declNames : Array Name) (phase : PassPhase := PassPhase.bas
   probe decls |>.run (phase := phase)
 
 def runOnModule (moduleName : Name) (phase : PassPhase := PassPhase.base)
-    (probe : Probe (Decl phase.toIRPhase) β) : CoreM (Array β) := do
+    (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
   let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
   let decls := ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 
-def runGlobally  (phase : PassPhase := PassPhase.base) (probe : Probe (Decl phase.toIRPhase) β) : CoreM (Array β) := do
+def runGlobally  (phase : PassPhase := PassPhase.base) (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv
   let mut decls := #[]
@@ -199,7 +199,7 @@ def runGlobally  (phase : PassPhase := PassPhase.base) (probe : Probe (Decl phas
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 
-def toPass [ToString β] (phase : PassPhase) (probe : Probe (Decl phase.toIRPhase) β) : Pass where
+def toPass [ToString β] (phase : PassPhase) (probe : Probe (Decl phase.toPurity) β) : Pass where
   phase := phase
   name := `probe
   run := fun decls => do

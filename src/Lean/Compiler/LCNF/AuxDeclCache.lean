@@ -14,7 +14,7 @@ public section
 namespace Lean.Compiler.LCNF
 
 structure  AuxDeclCacheKey where
-  ph : IRPhase
+  ph : Purity
   decl : Decl ph
   deriving BEq, Hashable
 

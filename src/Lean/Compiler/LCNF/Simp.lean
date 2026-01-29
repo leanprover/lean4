@@ -62,7 +62,7 @@ where
       return decl
 
 def simp (config : Config := {}) (occurrence : Nat := 0) (phase := PassPhase.base) : Pass :=
-  phase.withIRPhaseCheck .pure fun h =>
+  phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `simp phase (h ▸ (Decl.simp · config)) (occurrence := occurrence)
 
 builtin_initialize

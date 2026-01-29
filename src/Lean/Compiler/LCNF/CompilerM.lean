@@ -24,7 +24,7 @@ inductive PassPhase where
   | impure
   deriving Inhabited, DecidableEq
 
-@[expose, reducible] def PassPhase.toIRPhase : PassPhase → IRPhase
+@[expose, reducible] def PassPhase.toPurity : PassPhase → Purity
   | .base | .mono => .pure
   | .impure => .impure
 
@@ -57,8 +57,8 @@ instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure
 def getPhase : CompilerM PassPhase :=
   return (← read).phase
 
-def getIRPhase : CompilerM IRPhase :=
-  return (← getPhase).toIRPhase
+def getPurity : CompilerM Purity :=
+  return (← getPhase).toPurity
 
 def inBasePhase : CompilerM Bool :=
   return (← getPhase) matches .base
@@ -66,13 +66,13 @@ def inBasePhase : CompilerM Bool :=
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
     let env ← getEnv
-    let lctx := (← get).lctx.toLocalContext (← getIRPhase)
+    let lctx := (← get).lctx.toLocalContext (← getPurity)
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
 def getType (fvarId : FVarId) : CompilerM Expr := do
   let lctx := (← get).lctx
-  let ph ← getIRPhase
+  let ph ← getPurity
   if let some decl := (lctx.letDecls ph)[fvarId]? then
     return decl.type
   else if let some decl := (lctx.params ph)[fvarId]? then
@@ -84,7 +84,7 @@ def getType (fvarId : FVarId) : CompilerM Expr := do
 
 def getBinderName (fvarId : FVarId) : CompilerM Name := do
   let lctx := (← get).lctx
-  let ph ← getIRPhase
+  let ph ← getPurity
   if let some decl := (lctx.letDecls ph)[fvarId]? then
     return decl.binderName
   else if let some decl := (lctx.params ph)[fvarId]? then
@@ -176,7 +176,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst (ph : IRPhase) := Std.HashMap FVarId (Arg ph)
+abbrev FVarSubst (ph : Purity) := Std.HashMap FVarId (Arg ph)
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -285,7 +285,7 @@ private partial def normLetValueImp (s : FVarSubst ph) (e : LetValue ph) (transl
 /--
 Interface for monads that have a free substitutions.
 -/
-class MonadFVarSubst (m : Type → Type) (ph : outParam IRPhase) (translator : outParam Bool) where
+class MonadFVarSubst (m : Type → Type) (ph : outParam Purity) (translator : outParam Bool) where
   getSubst : m (FVarSubst ph)
 
 export MonadFVarSubst (getSubst)
@@ -293,7 +293,7 @@ export MonadFVarSubst (getSubst)
 instance (m n) [MonadLift m n] [MonadFVarSubst m ph t] : MonadFVarSubst n ph t where
   getSubst := liftM (getSubst : m _)
 
-class MonadFVarSubstState (m : Type → Type) (ph : outParam IRPhase) where
+class MonadFVarSubstState (m : Type → Type) (ph : outParam Purity) where
   modifySubst : (FVarSubst ph → FVarSubst ph) → m Unit
 
 export MonadFVarSubstState (modifySubst)
@@ -428,7 +428,7 @@ def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (ps : 
 def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (decl : LetDecl ph) : m (LetDecl ph) := do
   decl.update (← normExpr decl.type) (← normLetValue decl.value)
 
-abbrev NormalizerM (ph : IRPhase) (_translator : Bool) := ReaderT (FVarSubst ph) CompilerM
+abbrev NormalizerM (ph : Purity) (_translator : Bool) := ReaderT (FVarSubst ph) CompilerM
 
 instance : MonadFVarSubst (NormalizerM ph t) ph t where
   getSubst := read

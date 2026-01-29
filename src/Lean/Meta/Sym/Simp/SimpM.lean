@@ -196,8 +196,8 @@ opaque simpStepDefault : Simproc
 
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
-  post       : Simproc  := simpStepDefault
-  step       : Simproc  := fun _ => return .rfl
+  post       : Simproc  := fun _ => return .rfl
+  step       : Simproc  := simpStepDefault
   /--
   `wellBehavedMethods` must **not** be set to `true` IF their behavior
   depends on new hypotheses in the local context. For example, for applying

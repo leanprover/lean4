@@ -31,6 +31,8 @@ namespace List
 Returns the index of an element of the non-empty list {name}`xs` that minimizes {name}`f`.
 If {given}`x, y` are such that {lean}`f x = f y`, it returns the index of whichever comes first
 in the list.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
 -/
 @[inline]
 def minIdxOn [LE β] [DecidableLE β] (f : α → β) (xs : List α) (h : xs ≠ []) : Nat :=
@@ -51,6 +53,8 @@ where
 Returns the index of an element of {name}`xs` that minimizes {name}`f`. If {given}`x, y`
 are such that {lean}`f x = f y`, it returns the index of whichever comes first in the list.
 Returns {name}`none` if the list is empty.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
 -/
 @[inline]
 def minIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option Nat :=
@@ -62,6 +66,8 @@ def minIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option N
 Returns the index of an element of the non-empty list {name}`xs` that maximizes {name}`f`.
 If {given}`x, y` are such that {lean}`f x = f y`, it returns the index of whichever comes first
 in the list.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
 -/
 @[inline]
 def maxIdxOn [LE β] [DecidableLE β] (f : α → β) (xs : List α) (h : xs ≠ []) : Nat :=
@@ -72,6 +78,8 @@ def maxIdxOn [LE β] [DecidableLE β] (f : α → β) (xs : List α) (h : xs ≠
 Returns the index of an element of {name}`xs` that maximizes {name}`f`. If {given}`x, y`
 are such that {lean}`f x = f y`, it returns the index of whichever comes first in the list.
 Returns {name}`none` if the list is empty.
+
+The correctness of this function assumes {name}`β` to be linearly pre-ordered.
 -/
 @[inline]
 def maxIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option Nat :=

@@ -142,7 +142,7 @@ example : type_of% @List.toArray_mkSlice_roc := by grind
 example : type_of% @List.toList_mkSlice_ric := by grind
 
 example (xs : List Nat) : xs[1...=4][2...3].toList = xs[3...4].toList := by
-  grind [List.take_drop, List.drop_drop]
+  grind
 
 example : type_of% @Array.toArray_mkSlice_rcc := by grind
 example : type_of% @Array.toArray_mkSlice_rcc := by grind
@@ -155,6 +155,6 @@ example : type_of% @Array.toArray_mkSlice_roc := by grind
 example : type_of% @Array.toArray_mkSlice_ric := by grind
 
 example (xs : Array Nat) : xs[1...=4][2...3].toList = xs[3...4].toList := by
-  grind [List.take_drop, List.drop_drop]
+  grind
 
 example (xs : Array Nat) : xs[1...=4][2...3].toArray = xs[3...4].toArray := by grind

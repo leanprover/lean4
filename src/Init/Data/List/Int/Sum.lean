@@ -21,11 +21,9 @@ namespace List
 theorem sum_replicate_int {n : Nat} {a : Int} : (replicate n a).sum = n * a := by
   induction n <;> simp_all [replicate_succ, Int.add_mul, Int.add_comm]
 
-@[simp, grind =]
 theorem sum_append_int {l₁ l₂ : List Int} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
   simp [sum_append]
 
-@[simp, grind =]
 theorem sum_reverse_int (xs : List Int) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

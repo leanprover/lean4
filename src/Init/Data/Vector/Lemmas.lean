@@ -3037,11 +3037,13 @@ theorem sum_eq_foldr [Add α] [Zero α] {xs : Vector α n} :
     xs.sum = xs.foldr (b := 0) (· + ·) :=
   rfl
 
+@[simp, grind =]
 theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
     {as₁ as₂ : Vector α n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [← sum_toList, List.sum_append]
 
+@[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Vector α n) : xs.reverse.sum = xs.sum := by

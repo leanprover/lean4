@@ -4299,11 +4299,13 @@ theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum :
 @[deprecated sum_toList (since := "2026-01-14")]
 def sum_eq_sum_toList := @sum_toList
 
+@[simp, grind =]
 theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
     {as₁ as₂ : Array α} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [← sum_toList, List.sum_append]
 
+@[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by

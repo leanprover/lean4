@@ -23,11 +23,9 @@ namespace Array
   rw [← List.toArray_replicate, List.sum_toArray]
   simp
 
-@[simp, grind =]
 theorem sum_append_int {as₁ as₂ : Array Int} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [sum_append]
 
-@[simp, grind =]
 theorem sum_reverse_int (xs : Array Int) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

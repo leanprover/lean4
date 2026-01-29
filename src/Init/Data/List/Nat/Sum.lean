@@ -39,11 +39,9 @@ protected def _root_.Nat.sum_eq_zero_iff_forall_eq := @List.sum_eq_zero_iff_fora
 theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
   induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
 
-@[simp, grind =]
 theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
   simp [sum_append]
 
-@[simp, grind =]
 theorem sum_reverse_nat (xs : List Nat) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

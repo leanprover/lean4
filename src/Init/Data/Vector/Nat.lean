@@ -27,11 +27,9 @@ protected theorem sum_eq_zero_iff_forall_eq_nat {xs : Vector Nat n} :
 @[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
   simp [← sum_toArray, Array.sum_replicate_nat]
 
-@[simp, grind =]
 theorem sum_append_nat {as₁ as₂ : Vector Nat n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
-  simp [← sum_toArray, Array.sum_append_nat]
+  simp [← sum_toArray]
 
-@[simp, grind =]
 theorem sum_reverse_nat (xs : Vector Nat n) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

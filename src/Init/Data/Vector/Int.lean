@@ -20,11 +20,9 @@ namespace Vector
 @[simp] theorem sum_replicate_int {n : Nat} {a : Int} : (replicate n a).sum = n * a := by
   simp [← sum_toArray, Array.sum_replicate_int]
 
-@[simp, grind =]
 theorem sum_append_int {as₁ as₂ : Vector Int n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
-  simp [← sum_toArray, Array.sum_append_int]
+  simp [← sum_toArray]
 
-@[simp, grind =]
 theorem sum_reverse_int (xs : Vector Int n) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

@@ -163,12 +163,14 @@ theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     {it : Iter (α := α) β} {k : Nat} :
     it.toList[k]? = it.atIdxSlow? k := by
   induction it using Iter.inductSteps generalizing k with | step it ihy ihs
-  rw [toList_eq_match_step, atIdxSlow?]
-  obtain ⟨step, h⟩ := it.step
-  cases step
-  · cases k <;> simp [ihy h]
-  · simp [ihs h]
-  · simp
+  rw [toList_eq_match_step, atIdxSlow?, WellFounded.extrinsicFix₂_eq_apply]
+  · obtain ⟨step, h⟩ := it.step
+    cases step
+    · cases k <;> simp [ihy h, atIdxSlow?]
+    · simp [ihs h, atIdxSlow?]
+    · simp
+  · apply InvImage.wf
+    exact WellFoundedRelation.wf
 
 theorem Iter.toList_eq_of_atIdxSlow?_eq {α₁ α₂ β}
     [Iterator α₁ Id β] [Finite α₁ Id]

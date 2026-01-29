@@ -6,8 +6,31 @@ Authors: Joachim Breitner
 
 module
 prelude
-
 public import Lean.Meta.Basic
+
+/-!
+This alternative to `instantiateMVars` does *not* update the assignments of the meta variables
+it visits. The benefit is that it carries a substitution of free variables as it traverses
+the metavariables (in particular the delayed-assigned metavariabes), avoiding some of the overhead of
+repeated substitution. This can make a big difference in terms with many metavarialbes under
+`mkLambdaFVars`/`mkForallFVars`, or terms produced by tactics with lots of uses of `intro`.
+
+Implementation notes:
+
+* We traverse open terms (with loose bvars).
+* The reader context carries the current binder depth. This is bumped when going under a binder.
+* The fvar substitution values are not lifted when we go under binder.
+  Instead, we remember at which depth we inserted the value into the map, and do invoke
+  `liftLooseBVars` with the difference when we lookup the value.
+* We cache the main instantiation loop.
+  This also means that the lifting done during substitution, and metavariable lookup, is cached.
+* However, we use a fresh cache when we go under a binder.
+  Rationale: we'd have to lift the values in the cache when going under binder or when using a value.
+  That is already linear in the size of the expression, so we might as well just re-read the whole
+  value from the metavariable graph.
+
+
+-/
 
 namespace Lean.Meta
 
@@ -148,6 +171,13 @@ partial def go (e : Expr) : M Expr := do
 
 end IntantiateMVars
 
+/--
+This alternative to `instantiateMVars` does *not* update the assignments of the meta variables
+it visits. The benefit is that it carries a substitution of free variables as it traverses
+the metavariables (in particular the delayed-assigned metavariabes), avoiding some of the overhead of
+repeated substitution. This can make a big difference in terms with many metavarialbes under
+`mkLambdaFVars`/`mkForallFVars`, or terms produced by tactics with lots of uses of `intro`.
+-/
 public def instantiateMVarsNoUpdate (e : Expr) : MetaM Expr := do
   (IntantiateMVars.go e).run {} |>.run' {}
 

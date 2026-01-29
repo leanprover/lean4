@@ -311,6 +311,10 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
 | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
 | "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
+| "--only" => do
+  let mod ← takeOptArg "--only" "minimize only this module"
+  modifyThe LakeOptions fun opts =>
+    {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=

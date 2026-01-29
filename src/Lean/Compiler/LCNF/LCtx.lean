@@ -70,6 +70,7 @@ mutual
       match alt with
       | .default k => eraseCode k lctx
       | .alt _ ps k _ => eraseCode k <| eraseParams lctx ps
+      | .ctorAlt _ k _ => eraseCode k lctx
 
   partial def LCtx.eraseCode (code : Code pu) (lctx : LCtx) : LCtx :=
     match code with

@@ -402,7 +402,7 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
 private def checkComputable (ref : Name) : M Unit := do
   if (← read).ignoreNoncomputable then
     return
-  if ref matches ``Quot.mk | ``Quot.lcInv || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
+  if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
     return
   if isNoncomputable (← getEnv) ref then
     throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"

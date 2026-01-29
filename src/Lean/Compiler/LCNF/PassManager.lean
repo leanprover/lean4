@@ -74,7 +74,7 @@ structure Pass where
   /--
   The actual pass function, operating on the `Decl`s.
   -/
-  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phase.toPurity))
+  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phaseOut.toPurity))
 
 instance : Inhabited Pass where
   default := { phase := .base, name := default, run := fun decls => return decls }

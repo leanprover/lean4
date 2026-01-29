@@ -23,15 +23,18 @@ where
   goCode (c : Code pu) : StateRefT (Std.HashSet Name) BaseIO Unit := do
     match c with
     | .let decl k =>
-      if let .const name .. := decl.value then
+      match decl.value with
+      | .const name .. | .fap name .. | .pap name .. =>
         if scc.contains name then
           modify fun s => s.insert name
+      | _ => pure ()
       goCode k
     | .fun decl k _ | .jp decl k =>
       goCode decl.value
       goCode k
     | .cases cases => cases.alts.forM (·.forCodeM goCode)
     | .jmp .. | .return .. | .unreach .. => return ()
+    | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => goCode k
 
 end SplitScc
 

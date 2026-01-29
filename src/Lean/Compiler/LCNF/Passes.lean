@@ -19,6 +19,7 @@ public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
 public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.ToImpure
 
 public section
 
@@ -52,6 +53,7 @@ def trace (phase := Phase.base) : Pass where
 def saveBase : Pass where
   occurrence := 0
   phase := .base
+  phaseOut := .base
   name := `saveBase
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveBase
@@ -61,6 +63,7 @@ def saveBase : Pass where
 def saveMono : Pass where
   occurrence := 0
   phase := .mono
+  phaseOut := .mono
   name := `saveMono
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveMono
@@ -124,6 +127,7 @@ def builtinPassManager : PassManager := {
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),
     extractClosed,
+    toImpure,
   ]
 }
 

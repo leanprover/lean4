@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.LCNF.ToImpureType
 
 public section
 

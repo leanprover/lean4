@@ -107,14 +107,17 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
     splitScc decls
   sccs.mapM fun decls => do
-    let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
-    if (← Lean.isTracingEnabledFor `Compiler.result) then
-      for decl in decls do
-        let decl ← normalizeFVarIds decl
-        Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
-    profileitM Exception "compilation (IR)" (← getOptions) do
-      let irDecls ← IR.toIR decls
-      IR.compile irDecls
+    let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
+    withPhase .impure do
+      if (← Lean.isTracingEnabledFor `Compiler.result) then
+        for decl in decls do
+          let decl ← normalizeFVarIds decl
+          Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
+      -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
+      -- or consider running clear? unclear
+      profileitM Exception "compilation (IR)" (← getOptions) do
+        let irDecls ← IR.toIR decls
+        IR.compile irDecls
 where
   runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :

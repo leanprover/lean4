@@ -99,7 +99,4 @@ def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
     monoTypeExt.insert declName type
     return type
 
-def getOtherDeclImpureType (_declName : Name) : CoreM Expr := do
-  panic! "Other decl impure type unimplemented" -- TODO
-
 end Lean.Compiler.LCNF

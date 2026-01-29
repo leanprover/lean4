@@ -235,9 +235,9 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         char *new_envp = new_env.get();
 
         if (env.size()) {
-            std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
+            std::unordered_map<std::string, option_ref<string_ref>> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
             for (auto & entry : env) {
-                new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
+                new_env_vars[entry.fst().data()] = entry.snd();
             }
 
             // First copy old evars not in new evars.
@@ -257,12 +257,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
             // Then copy new evars if nonempty
             for(const auto & ev : new_env_vars) {
-                if (ev.second.empty()) continue;
+                if (!ev.second) continue;
+                std::string val = ev.second.get()->data();
                 // Check if the destination buffer has enough room.
-                if (new_envp + ev.first.length() + 1 + ev.second.length() + 1 > new_env.get() + env_buf_size - 1) break;
+                if (new_envp + ev.first.length() + 1 + val.length() + 1 > new_env.get() + env_buf_size - 1) break;
                 new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
                 *new_envp++ = '=';
-                new_envp = std::copy(ev.second.cbegin(), ev.second.cend(), new_envp);
+                new_envp = std::copy(val.cbegin(), val.cend(), new_envp);
                 *new_envp++ = '\0';
             }
         }

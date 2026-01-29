@@ -474,13 +474,23 @@ protected theorem maxIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {x
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_lt_length h
 
-protected theorem maxIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPreorder β]
+protected theorem maxIdxOn_le_of_apply_getElem_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ [])
     {k : Nat} (hi : k < xs.length) (hle : f (xs.maxOn f h) ≤ f xs[k]) :
     xs.maxIdxOn f h ≤ k := by
   simp only [List.maxIdxOn_eq_minIdxOn, List.maxOn_eq_minOn] at hle ⊢
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.minIdxOn_le_of_apply_getElem_le_apply_minOn h hi (by simpa [LE.le_opposite_iff] using hle)
+
+protected theorem apply_maxOn_lt_apply_getElem_of_lt_maxIdxOn [LE β] [DecidableLE β] [LT β] [IsLinearPreorder β]
+    [LawfulOrderLT β]
+    {f : α → β} {xs : List α} (h : xs ≠ [])
+    {k : Nat} (hk : k < xs.maxIdxOn f h) :
+    f (xs[k]'(by haveI := List.maxIdxOn_lt_length (f := f) h; omega)) < f (xs.maxOn f h) := by
+  simp only [List.maxIdxOn_eq_minIdxOn, List.maxOn_eq_minOn] at hk ⊢
+  letI : LE β := LE.opposite inferInstance
+  letI : LT β := LT.opposite inferInstance
+  simpa [LT.lt_opposite_iff] using List.apply_minOn_lt_apply_getElem_of_lt_minIdxOn (f := f) h hk
 
 @[simp]
 protected theorem getElem_maxIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
@@ -490,13 +500,44 @@ protected theorem getElem_maxIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.getElem_minIdxOn h
 
-protected theorem maxIdxOn_eq_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
+protected theorem le_maxIdxOn_of_apply_getElem_lt_apply_getElem [LE β] [DecidableLE β] [LT β]
+    [IsLinearPreorder β] [LawfulOrderLT β] {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat}
+    (hi : i < xs.length) (hi' : ∀ j, (_ : j < i) → f xs[j] < f xs[i]) :
+    i ≤ xs.maxIdxOn f h := by
+  simp only [List.maxIdxOn_eq_minIdxOn]
+  letI : LE β := LE.opposite inferInstance
+  letI : LT β := LT.opposite inferInstance
+  simpa [LE.le_opposite_iff] using List.le_minIdxOn_of_apply_getElem_lt_apply_getElem h hi
+      (by simpa [LT.lt_opposite_iff] using hi')
+
+protected theorem maxIdxOn_le_of_apply_getElem_le_apply_getElem [LE β] [DecidableLE β] [IsLinearPreorder β]
+    {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat} (hi : i < xs.length)
+    (hi' : ∀ j, (_ : j < xs.length) → f xs[j] ≤ f xs[i]) :
+    xs.maxIdxOn f h ≤ i := by
+  simp only [List.maxIdxOn_eq_minIdxOn]
+  letI : LE β := LE.opposite inferInstance
+  simpa [LE.le_opposite_iff] using List.minIdxOn_le_of_apply_getElem_le_apply_getElem (f := f) h hi
+      (by simpa [LE.le_opposite_iff] using hi')
+
+protected theorem maxIdxOn_eq_iff [LE β] [DecidableLE β] [LT β] [IsLinearPreorder β]
+    [LawfulOrderLT β]
     {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat} :
+    xs.maxIdxOn f h = i ↔ ∃ (h : i < xs.length),
+        (∀ j, (_ : j < xs.length) → f xs[j] ≤ f xs[i]) ∧
+        (∀ j, (_ : j < i) → f xs[j] < f xs[i]) := by
+  simp only [List.maxIdxOn_eq_minIdxOn]
+  letI : LE β := LE.opposite inferInstance
+  letI : LT β := LT.opposite inferInstance
+  simpa [LE.le_opposite_iff, LT.lt_opposite_iff] using List.minIdxOn_eq_iff (f := f) h
+
+protected theorem maxIdxOn_eq_iff_eq_maxOn [LE β] [DecidableLE β] [LT β] [IsLinearPreorder β]
+    [LawfulOrderLT β] {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat} :
     xs.maxIdxOn f h = i ↔ ∃ hi : i < xs.length, xs[i] = xs.maxOn f h ∧
-      ∀ (j : Nat) (hj : j < i), ¬ f (xs.maxOn f h) ≤ f xs[j] := by
+      ∀ (j : Nat) (hj : j < i), f xs[j] < f (xs.maxOn f h) := by
   simp only [List.maxIdxOn_eq_minIdxOn, List.maxOn_eq_minOn]
-  letI : LE β := (inferInstanceAs (LE β)).opposite
-  simpa [LE.le_opposite_iff] using List.minIdxOn_eq_iff (f := f) h
+  letI : LE β := LE.opposite inferInstance
+  letI : LT β := LT.opposite inferInstance
+  simpa [LT.lt_opposite_iff] using List.minIdxOn_eq_iff_eq_minOn (f := f) h
 
 protected theorem maxIdxOn_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :

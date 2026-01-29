@@ -27,11 +27,9 @@ protected theorem sum_eq_zero_iff_forall_eq_nat {xs : Array Nat} :
   rw [← List.toArray_replicate, List.sum_toArray]
   simp
 
-@[simp, grind =]
 theorem sum_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
   simp [sum_append]
 
-@[simp, grind =]
 theorem sum_reverse_nat (xs : Array Nat) : xs.reverse.sum = xs.sum := by
   simp [sum_reverse]
 

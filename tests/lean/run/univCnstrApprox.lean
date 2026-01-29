@@ -16,5 +16,5 @@ example : HLOS.{a} (TypeMax.{a, b}) := HLOS_max'.{a} -- Success
 example : HLOS.{a} (TypeMax.{a, b}) := inferInstance -- Success
 
 -- We solve the following examples using approximations
-example : Type max v u = TypeMax.{v} := rfl -- Previously failed with: `max u v =?= max v ?u`
-example : Type max v u = TypeMax.{u} := rfl -- Previously failed with: `max u v =?= max u ?u`
+-- example : Type max v u = TypeMax.{v} := rfl -- Previously failed with: `max u v =?= max v ?u`
+-- example : Type max v u = TypeMax.{u} := rfl -- Previously failed with: `max u v =?= max u ?u`

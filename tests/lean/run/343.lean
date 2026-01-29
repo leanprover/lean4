@@ -43,9 +43,9 @@ with
 error: failed to solve universe constraint
   max (_+1) (_+1) =?= max (_+1) (_+1)
 while trying to unify
-  Catish.Obj : Type (max ((max (u_1 + 1) (u_2 + 1)) + 1) ((max u_3 u_4) + 1))
+  Catish.Obj : Type (max (max (max (u_1 + 2) (u_2 + 2)) (u_3 + 1)) (u_4 + 1))
 with
-  CatIsh : Type (max ((max u_4 u_3) + 1) ((max (u_4 + 1) (u_3 + 1)) + 1))
+  CatIsh : Type (max ((max u_3 u_4) + 1) ((max (u_3 + 1) (u_4 + 1)) + 1))
 -/
 #guard_msgs in
 def CtxSyntaxLayerTy := CtxSyntaxLayerParams ~> Catish

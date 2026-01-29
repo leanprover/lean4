@@ -116,19 +116,19 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
       let irDecls ← IR.toIR decls
       IR.compile irDecls
 where
-  runPassManagerPart (inPhase outPhase : IRPhase) (profilerName : String)
+  runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
       CompilerM (Array (Decl outPhase)) := do
     profileitM Exception profilerName (← getOptions) do
-      let mut state : (ph : IRPhase) × Array (Decl ph) := ⟨inPhase, decls⟩
+      let mut state : (ph : Purity) × Array (Decl ph) := ⟨inPhase, decls⟩
       for pass in passes do
         state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
           let decls ← withPhase pass.phase do
-            state.fst.withAssertPhase! pass.phase.toIRPhase fun h => do
+            state.fst.withAssertPurity pass.phase.toPurity fun h => do
               pass.run (h ▸ state.snd)
           pure ⟨_, decls⟩
         withPhase pass.phaseOut <| checkpoint pass.name state.snd (isCheckEnabled || pass.shouldAlwaysRunCheck)
-      let decls := state.fst.withAssertPhase! outPhase fun h => h ▸ state.snd
+      let decls := state.fst.withAssertPurity outPhase fun h => h ▸ state.snd
       return decls
 
 end PassManager

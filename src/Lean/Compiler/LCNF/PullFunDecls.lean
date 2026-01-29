@@ -17,7 +17,7 @@ namespace PullFunDecls
 /--
 Local function declaration and join point being pulled.
 -/
-structure ToPull (ph : IRPhase) where
+structure ToPull (ph : Purity) where
   isFun : Bool
   decl  : FunDecl ph
   used  : FVarIdHashSet
@@ -26,7 +26,7 @@ structure ToPull (ph : IRPhase) where
 /--
 The `PullM` state contains the local function declarations and join points being pulled.
 -/
-abbrev PullM (ph : IRPhase) := StateRefT (List (ToPull ph)) CompilerM
+abbrev PullM (ph : Purity) := StateRefT (List (ToPull ph)) CompilerM
 
 /--
 Extract from the state any local function declarations that depends on the given
@@ -77,7 +77,7 @@ Construct the code `fun p.decl k` or `jp p.decl k`.
 -/
 def ToPull.attach (p : ToPull ph) (k : Code ph) : Code ph :=
   if p.isFun then
-    ph.withAssertPhase! .pure fun h =>
+    ph.withAssertPurity .pure fun h =>
       .fun p.decl k h
   else
     .jp p.decl k

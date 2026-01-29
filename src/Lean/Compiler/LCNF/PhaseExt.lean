@@ -86,7 +86,7 @@ def setDeclTransparent (env : Environment) (phase : PassPhase) (declName : Name)
     getTransparencyExt phase |>.modifyState env fun s =>
       (declName :: s.1, s.2.insert declName)
 
-abbrev DeclExtState (ph : IRPhase) := PHashMap Name (Decl ph)
+abbrev DeclExtState (ph : Purity) := PHashMap Name (Decl ph)
 
 private abbrev declLt (a b : Decl ph) :=
   Name.quickLt a.name b.name
@@ -100,14 +100,14 @@ private abbrev findAtSorted? (decls : Array (Decl ph)) (declName : Name) : Optio
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-@[expose] def DeclExt (ph : IRPhase) :=
+@[expose] def DeclExt (ph : Purity) :=
    PersistentEnvExtension (Decl ph) (Decl ph) (DeclExtState ph)
 
 instance : Inhabited (DeclExt ph) :=
   inferInstanceAs (Inhabited (PersistentEnvExtension (Decl ph) (Decl ph) (DeclExtState ph)))
 
 def mkDeclExt (phase : PassPhase) (name : Name := by exact decl_name%) :
-    IO (DeclExt phase.toIRPhase) :=
+    IO (DeclExt phase.toPurity) :=
   registerPersistentEnvExtension {
     name,
     mkInitial := pure {},
@@ -173,36 +173,36 @@ def Decl.saveImpure (decl : Decl .impure) : CoreM Unit :=
 
 def Decl.save (decl : Decl ph) : CompilerM Unit := do
   match (← getPhase) with
-  | .base => PassPhase.withIRPhaseCheck .base ph fun h =>
+  | .base => PassPhase.withPurityCheck .base ph fun h =>
       (h.symm ▸ decl).saveBase
-  | .mono => PassPhase.withIRPhaseCheck .mono ph fun h =>
+  | .mono => PassPhase.withPurityCheck .mono ph fun h =>
       (h.symm ▸ decl).saveMono
-  | .impure => PassPhase.withIRPhaseCheck .impure ph fun h =>
+  | .impure => PassPhase.withPurityCheck .impure ph fun h =>
       (h.symm ▸ decl).saveImpure
 
-def getDeclAt? (declName : Name) (phase : PassPhase) : CoreM (Option (Decl phase.toIRPhase)) :=
+def getDeclAt? (declName : Name) (phase : PassPhase) : CoreM (Option (Decl phase.toPurity)) :=
   match phase with
   | .base => getBaseDecl? declName
   | .mono => getMonoDecl? declName
   | .impure => getImpureDecl? declName
 
 @[inline]
-def getDecl? (declName : Name) : CompilerM (Option ((ph : IRPhase) × Decl ph)) := do
+def getDecl? (declName : Name) : CompilerM (Option ((ph : Purity) × Decl ph)) := do
   let some decl ← getDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-def getLocalDeclAt? (declName : Name) (phase : PassPhase) : CompilerM (Option (Decl phase.toIRPhase)) := do
+def getLocalDeclAt? (declName : Name) (phase : PassPhase) : CompilerM (Option (Decl phase.toPurity)) := do
   match phase with
   | .base => return baseExt.getState (← getEnv) |>.find? declName
   | .mono => return monoExt.getState (← getEnv) |>.find? declName
   | .impure => return impureExt.getState (← getEnv) |>.find? declName
 
 @[inline]
-def getLocalDecl? (declName : Name) : CompilerM (Option ((ph : IRPhase) × Decl ph)) := do
+def getLocalDecl? (declName : Name) : CompilerM (Option ((ph : Purity) × Decl ph)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
-def getExt (phase : PassPhase) : DeclExt phase.toIRPhase :=
+def getExt (phase : PassPhase) : DeclExt phase.toPurity :=
   match phase with
   | .base => baseExt
   | .mono => monoExt

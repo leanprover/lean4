@@ -22,7 +22,7 @@ private def refreshBinderName (binderName : Name) : CompilerM Name := do
 
 namespace Internalize
 
-abbrev InternalizeM (ph : IRPhase) := StateRefT (FVarSubst ph) CompilerM
+abbrev InternalizeM (ph : Purity) := StateRefT (FVarSubst ph) CompilerM
 
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables

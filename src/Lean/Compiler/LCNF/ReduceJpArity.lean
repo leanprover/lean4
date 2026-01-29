@@ -73,9 +73,9 @@ def Decl.reduceJpArity (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let value ← decl.value.mapCodeM reduce |>.run {}
   return { decl with value }
 
--- TODO: This can be made IRPhase generic
+-- TODO: This can be made Purity generic
 def reduceJpArity (phase := PassPhase.base) : Pass :=
-  phase.withIRPhaseCheck .pure fun h =>
+  phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `reduceJpArity phase (h ▸ Decl.reduceJpArity)
 
 builtin_initialize

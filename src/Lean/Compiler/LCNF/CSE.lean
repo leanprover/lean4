@@ -124,7 +124,7 @@ def Decl.cse (shouldElimFunDecls : Bool) (decl : Decl .pure) : CompilerM (Decl .
   return { decl with value }
 
 def cse (phase : PassPhase := .base) (shouldElimFunDecls := false) (occurrence := 0) : Pass :=
-  phase.withIRPhaseCheck .pure fun h =>
+  phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `cse phase (h ▸ Decl.cse shouldElimFunDecls) occurrence
 
 builtin_initialize

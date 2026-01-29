@@ -125,7 +125,7 @@ end
 
 def run (x : M α) : CompilerM α :=
   withOptions (pp.sanitizeNames.set · false) do
-    x |>.run ((← get).lctx.toLocalContext (← getIRPhase))
+    x |>.run ((← get).lctx.toLocalContext (← getPurity))
 
 end PP
 

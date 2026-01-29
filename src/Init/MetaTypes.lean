@@ -137,6 +137,11 @@ structure Config where
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
@@ -308,6 +313,11 @@ structure Config where
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

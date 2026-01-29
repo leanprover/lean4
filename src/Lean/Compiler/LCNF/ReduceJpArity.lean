@@ -74,7 +74,7 @@ def Decl.reduceJpArity (decl : Decl .pure) : CompilerM (Decl .pure) := do
   return { decl with value }
 
 -- TODO: This can be made Purity generic
-def reduceJpArity (phase := PassPhase.base) : Pass :=
+def reduceJpArity (phase := Phase.base) : Pass :=
   phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `reduceJpArity phase (h ▸ Decl.reduceJpArity)
 

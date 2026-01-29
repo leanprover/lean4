@@ -136,7 +136,7 @@ end PassManager
 def compile (declNames : Array Name) : CoreM (Array (Array IR.Decl)) :=
   CompilerM.run <| PassManager.run declNames
 
-def showDecl (phase : PassPhase) (declName : Name) : CoreM Format := do
+def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   let some decl ← getDeclAt? declName phase | return "<not-available>"
   ppDecl' decl
 

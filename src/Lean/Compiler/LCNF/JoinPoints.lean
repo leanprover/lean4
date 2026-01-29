@@ -655,7 +655,7 @@ def Decl.extendJoinPointContext (decl : Decl .pure) : CompilerM (Decl .pure) := 
   JoinPointContextExtender.extend decl
 
 -- TODO: It might make sense to extend this to impure one day
-def extendJoinPointContext (occurrence : Nat := 0) (phase := PassPhase.mono) (_h : phase ≠ .base := by simp): Pass :=
+def extendJoinPointContext (occurrence : Nat := 0) (phase := Phase.mono) (_h : phase ≠ .base := by simp): Pass :=
   phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `extendJoinPointContext phase (h ▸ Decl.extendJoinPointContext) (occurrence := occurrence)
 

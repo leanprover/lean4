@@ -61,7 +61,7 @@ where
     else
       return decl
 
-def simp (config : Config := {}) (occurrence : Nat := 0) (phase := PassPhase.base) : Pass :=
+def simp (config : Config := {}) (occurrence : Nat := 0) (phase := Phase.base) : Pass :=
   phase.withPurityCheck .pure fun h =>
     .mkPerDeclaration `simp phase (h ▸ (Decl.simp · config)) (occurrence := occurrence)
 

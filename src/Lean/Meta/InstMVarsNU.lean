@@ -28,8 +28,6 @@ Implementation notes:
   Rationale: we'd have to lift the values in the cache when going under binder or when using a value.
   That is already linear in the size of the expression, so we might as well just re-read the whole
   value from the metavariable graph.
-
-
 -/
 
 namespace Lean.Meta

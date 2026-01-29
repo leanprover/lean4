@@ -67,6 +67,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+set(CMAKE_INSTALL_MESSAGE NEVER) # Make `make install` less verbose
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 

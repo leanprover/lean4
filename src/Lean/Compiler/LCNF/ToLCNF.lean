@@ -73,7 +73,7 @@ where
   findFun? (f : FVarId) : CompilerM (Option (FunDecl .pure)) := do
     if let some funDecl ← findFunDecl? (pu := .pure) f then
       return funDecl
-    else if let some (.fvar f' #[]) ← findLetValue? f then
+    else if let some (.fvar f' #[]) ← findLetValue? (pu := .pure) f then
       findFun? f'
     else
       return none

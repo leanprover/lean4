@@ -109,7 +109,7 @@ partial def evalLetValue (e : LetValue pu) : FixParamM Unit := do
   | _ => return ()
 
 partial def isEquivalentFunDecl? (decl : FunDecl pu) : FixParamM (Option Nat) := do
-  let .let { fvarId, value := (.fvar funFvarId args _), .. } k := decl.value | return none
+  let .let { fvarId, value := (.fvar funFvarId args), .. } k := decl.value | return none
   if args.size != decl.params.size then return none
   let .return retFVarId := k | return none
   if retFVarId != fvarId then return none

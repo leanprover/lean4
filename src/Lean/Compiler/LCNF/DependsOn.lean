@@ -31,7 +31,7 @@ private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
   | .proj _ _ fvarId _ => fvarDepOn fvarId
-  | .fvar fvarId args _ => fvarDepOn fvarId <||> args.anyM argDepOn
+  | .fvar fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args _ => args.anyM argDepOn
 
 private def LetDecl.depOn (decl : LetDecl pu) : M Bool :=

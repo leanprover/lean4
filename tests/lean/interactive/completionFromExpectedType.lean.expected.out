@@ -3,16 +3,10 @@
 {"items":
  [{"label": "mk",
    "kind": 4,
-   "data":
-   ["«external:file:///completionFromExpectedType.lean»",
-    3,
-    18,
-    0,
-    "cFoo.mk"]}],
+   "data": ["file:///completionFromExpectedType.lean", 3, 18, 0, "cFoo.mk"]}],
  "isIncomplete": false}
 Resolution of mk:
 {"label": "mk",
  "kind": 4,
  "detail": "Nat → Foo",
- "data":
- ["«external:file:///completionFromExpectedType.lean»", 3, 18, 0, "cFoo.mk"]}
+ "data": ["file:///completionFromExpectedType.lean", 3, 18, 0, "cFoo.mk"]}

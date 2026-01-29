@@ -341,4 +341,16 @@ theorem isNone_findFinIdx? {xs : Vector α n} {p : α → Bool} :
   rcases xs with ⟨xs, rfl⟩
   simp [hf, Function.comp_def]
 
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Vector α n} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.find?_eq_map_findFinIdx?_getElem]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Vector α n} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.findFinIdx?_eq_bind_find?_finIdxOf?]
+
 end Vector

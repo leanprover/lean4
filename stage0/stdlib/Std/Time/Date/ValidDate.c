@@ -13,68 +13,70 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__3;
-LEAN_EXPORT lean_object* l_Std_Time_ValidDate_ofOrdinal(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__18;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__8;
-LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__8;
-lean_object* l_Std_Time_Month_Ordinal_days(uint8_t, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__4;
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__5;
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__0;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__5;
-lean_object* lean_int_emod(lean_object*, lean_object*);
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__9;
-LEAN_EXPORT lean_object* l_Std_Time_ValidDate_ofOrdinal___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__9;
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__10;
-LEAN_EXPORT lean_object* l_Std_Time_ValidDate_dayOfYear___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate(uint8_t);
-uint8_t l_instDecidableEqProd___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__1;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Time_instOrdValidDate___lam__0(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
-lean_object* l_Std_Time_Day_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__13;
-LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate___redArg(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__15;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__2;
-LEAN_EXPORT lean_object* l_Std_Time_instInhabitedValidDate___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__7;
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__6;
-lean_object* lean_int_sub(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__16;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__0;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__19;
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__4;
+lean_object* l_instNatCastInt___lam__0(lean_object*);
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__1;
+lean_object* lean_int_add(lean_object*, lean_object*);
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__2;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__3;
+lean_object* lean_int_sub(lean_object*, lean_object*);
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__4;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__5;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__6;
+lean_object* lean_int_emod(lean_object*, lean_object*);
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__7;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__8;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__9;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__10;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__11;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__12;
-LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__2;
-lean_object* l_Std_Time_Month_Ordinal_cumulativeDays(uint8_t, lean_object*);
-LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate(uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__13;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__14;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__7;
-static lean_object* l_Std_Time_instInhabitedValidDate___closed__6;
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___boxed(lean_object*);
-lean_object* lean_int_add(lean_object*, lean_object*);
-uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-lean_object* lean_int_neg(lean_object*);
-static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__3;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__15;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__16;
 static lean_object* l_Std_Time_instInhabitedValidDate___closed__17;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__18;
+static lean_object* l_Std_Time_instInhabitedValidDate___closed__19;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedValidDate(uint8_t);
+LEAN_EXPORT lean_object* l_Std_Time_instInhabitedValidDate___boxed(lean_object*);
 lean_object* l_Std_Time_Month_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Time_Day_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
+uint8_t l_instDecidableEqProd___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate(uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Time_instOrdValidDate___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_Time_instOrdValidDate___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_instOrdValidDate___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Time_instOrdValidDate___closed__0 = (const lean_object*)&l_Std_Time_instOrdValidDate___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate(uint8_t);
+LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate___boxed(lean_object*);
+lean_object* l_Std_Time_Month_Ordinal_cumulativeDays(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ValidDate_dayOfYear___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Time_Month_Ordinal_days(uint8_t, lean_object*);
+uint8_t lean_int_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_neg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__0;
 static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__1;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__2;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__3;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__4;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__5;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__6;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__7;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__8;
+static lean_object* l_Std_Time_ValidDate_ofOrdinal___closed__9;
+LEAN_EXPORT lean_object* l_Std_Time_ValidDate_ofOrdinal(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_ValidDate_ofOrdinal___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Time_instInhabitedValidDate___closed__0() {
 _start:
 {
@@ -300,6 +302,15 @@ x_5 = l_instDecidableEqProd___redArg(x_3, x_4, x_1, x_2);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_instDecidableEqValidDate___redArg(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableEqValidDate(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -316,15 +327,6 @@ x_4 = lean_unbox(x_1);
 x_5 = l_Std_Time_instDecidableEqValidDate(x_4, x_2, x_3);
 x_6 = lean_box(x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Time_instDecidableEqValidDate___redArg(x_1, x_2);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Time_instOrdValidDate___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -398,7 +400,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instOrdValidDate(uint8_t x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Time_instOrdValidDate___lam__0___boxed), 2, 0);
+x_2 = ((lean_object*)(l_Std_Time_instOrdValidDate___closed__0));
 return x_2;
 }
 }
@@ -467,6 +469,16 @@ return x_13;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_1);
+x_6 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(x_5, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -483,16 +495,6 @@ x_7 = lean_unbox(x_1);
 x_8 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
-x_6 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(x_5, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_6;
 }
 }
 static lean_object* _init_l_Std_Time_ValidDate_ofOrdinal___closed__0() {

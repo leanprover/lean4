@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 28)
+set(LEAN_VERSION_MINOR 29)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -456,11 +456,14 @@ if(LLVM AND ${STAGE} GREATER 0)
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${CMAKE_CXX_FLAGS}'")
 endif()
 
-# get rid of unused parts of C++ stdlib
+# We always strip away unused declarations to reduce binary sizes as the time cost is small and the
+# potential benefit can be huge, especially when stripping `meta import`s.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-dead_strip")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

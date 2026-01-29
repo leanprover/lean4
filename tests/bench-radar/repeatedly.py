@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-# Repeatedly run a command that outputs radar measurements on stdout or stderr.
-# Average the results and re-emit them.
-
 import argparse
 import json
 import subprocess
 import sys
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-OUTPUT_PREFIX = "radar::measurement="
+REPO = Path()
+OUTFILE = REPO / "measurements.jsonl"
+OUTFILE_TMP = REPO / "measurements_repeated_tmp.jsonl"
 
 
 @dataclass
@@ -19,7 +19,12 @@ class Measurement:
     value: float
     unit: str | None
 
-    def fmt(self) -> str:
+    @classmethod
+    def from_json_str(cls, s: str) -> "Measurement":
+        data = json.loads(s.strip())
+        return cls(data["metric"], data["value"], data.get("unit"))
+
+    def to_json_str(self) -> str:
         if self.unit is None:
             return json.dumps({"metric": self.metric, "value": self.value})
         return json.dumps(
@@ -27,42 +32,47 @@ class Measurement:
         )
 
 
-def parse_measurement(line: str) -> Measurement | None:
-    start = line.find(OUTPUT_PREFIX)
-    if start < 0:
-        return
-    data = json.loads(line[start + len(OUTPUT_PREFIX) :].strip())
-    return Measurement(data["metric"], data["value"], data.get("unit"))
+@contextmanager
+def temporarily_move_outfile():
+    if OUTFILE_TMP.exists():
+        raise Exception(f"{OUTFILE_TMP} already exists")
+
+    OUTFILE.touch()
+    OUTFILE.rename(OUTFILE_TMP)
+    try:
+        yield
+    finally:
+        OUTFILE_TMP.rename(OUTFILE)
 
 
-def run_once(cmd: list[str], quiet: bool) -> list[Measurement]:
-    proc = subprocess.run(cmd, capture_output=True, encoding="utf-8")
-    if proc.returncode != 0:
-        print(proc.stdout, end="", file=sys.stdout)
-        print(proc.stderr, end="", file=sys.stderr)
-        sys.exit(proc.returncode)
-
-    # We must not print the lines containing the measurements, else radar will collect them.
+def read_measurements_from_outfile() -> list[Measurement]:
     measurements = []
-    for line in proc.stdout.splitlines():
-        if m := parse_measurement(line):
-            measurements.append(m)
-        elif not quiet:
-            print(line, file=sys.stdout)
-    for line in proc.stderr.splitlines():
-        if m := parse_measurement(line):
-            measurements.append(m)
-        elif not quiet:
-            print(line, file=sys.stderr)
-
+    with open(OUTFILE, "r") as f:
+        for line in f:
+            measurements.append(Measurement.from_json_str(line))
     return measurements
 
 
-def repeatedly(cmd: list[str], iterations: int, quiet: bool) -> list[Measurement]:
+def write_measurements_to_outfile(measurements: list[Measurement]) -> None:
+    with open(OUTFILE, "a") as f:
+        for measurement in measurements:
+            f.write(f"{measurement.to_json_str()}\n")
+
+
+def run_once(cmd: list[str]) -> list[Measurement]:
+    with temporarily_move_outfile():
+        proc = subprocess.run(cmd)
+        if proc.returncode != 0:
+            sys.exit(proc.returncode)
+
+        return read_measurements_from_outfile()
+
+
+def repeatedly(cmd: list[str], iterations: int) -> list[Measurement]:
     totals: dict[str, Measurement] = {}
 
     for i in range(iterations):
-        for measurement in run_once(cmd, quiet):
+        for measurement in run_once(cmd):
             if existing := totals.get(measurement.metric):
                 measurement.value += existing.value
             totals[measurement.metric] = measurement
@@ -74,24 +84,25 @@ def repeatedly(cmd: list[str], iterations: int, quiet: bool) -> list[Measurement
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--iterations", type=int, default=5)
-    parser.add_argument("-q", "--quiet", action="store_true")
-    parser.add_argument("-o", "--output", type=Path)
-    parser.add_argument("cmd", nargs="*")
+    parser = argparse.ArgumentParser(
+        description=f"Repeatedly run a command, averaging the resulting measurements in {OUTFILE.name}.",
+    )
+    parser.add_argument(
+        "-n",
+        "--iterations",
+        type=int,
+        default=5,
+        help="number of iterations",
+    )
+    parser.add_argument(
+        "cmd",
+        nargs="*",
+        help="command to repeatedly run",
+    )
     args = parser.parse_args()
 
     iterations: int = args.iterations
-    quiet: bool = args.quiet
-    output: Path | None = args.output
     cmd: list[str] = args.cmd
 
-    measurements = repeatedly(cmd, iterations, quiet)
-
-    if output:
-        with open(output, "a+") as f:
-            for result in measurements:
-                f.write(f"{result.fmt()}\n")
-    else:
-        for result in measurements:
-            print(f"{OUTPUT_PREFIX}{result.fmt()}")
+    measurements = repeatedly(cmd, iterations)
+    write_measurements_to_outfile(measurements)

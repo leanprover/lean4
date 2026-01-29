@@ -21,7 +21,7 @@ namespace Lean.Elab.Command
 
   match stx[1] with
   | Syntax.atom _ val =>
-    if getVersoModuleDocs (← getEnv) |>.isEmpty then
+    if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
       let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
@@ -456,7 +456,7 @@ where
       withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding false }) do
         let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
         logInfoAt tk e
 

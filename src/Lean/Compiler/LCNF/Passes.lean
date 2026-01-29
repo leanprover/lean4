@@ -115,6 +115,8 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     elimDeadBranches,

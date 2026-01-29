@@ -14,14 +14,72 @@ public section
 
 namespace Lean
 
-@[expose] def Options := KVMap
+structure Options where
+  private map : NameMap DataValue
+  /--
+  Whether any option with prefix `trace` is set. This does *not* imply that any of such option is
+  set to `true` but it does capture the most common case that no such option has ever been touched.
+  -/
+  hasTrace : Bool
 
-def Options.empty : Options  := {}
+namespace Options
+
+def empty : Options where
+  map := {}
+  hasTrace := false
+
+@[export lean_options_get_empty]
+private def getEmpty (_ : Unit) : Options := .empty
+
 instance : Inhabited Options where
-  default := {}
-instance : ToString Options := inferInstanceAs (ToString KVMap)
-instance [Monad m] : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
-instance : BEq Options := inferInstanceAs (BEq KVMap)
+  default := .empty
+instance : ToString Options where
+  toString o := private toString o.map.toList
+instance [Monad m] : ForIn m Options (Name × DataValue) where
+  forIn o init f := private forIn o.map init f
+instance : BEq Options where
+  beq o1 o2 := private o1.map.beq o2.map
+instance : EmptyCollection Options where
+  emptyCollection := .empty
+
+@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+  o.map.find? k
+
+@[deprecated find? (since := "2026-01-15")]
+def find := find?
+
+@[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
+  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+
+@[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
+  o.get? k |>.getD defVal
+
+@[inline] def getBool (o : Options) (k : Name) (defVal : Bool := false) : Bool :=
+  o.get k defVal
+
+@[inline] def contains (o : Options) (k : Name) : Bool :=
+  o.map.contains k
+
+@[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
+  map := o.map.insert k v
+  hasTrace := o.hasTrace || (`trace).isPrefixOf k
+
+def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
+  o.insert k (KVMap.Value.toDataValue v)
+
+@[inline] def setBool (o : Options) (k : Name) (v : Bool) : Options :=
+  o.set k v
+
+def erase (o : Options) (k : Name) : Options where
+  map := o.map.erase k
+  -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
+  hasTrace := o.map.keys.any (`trace).isPrefixOf
+
+def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
+  map := o1.map.mergeWith f o2.map
+  hasTrace := o1.hasTrace || o2.hasTrace
+
+end Options
 
 structure OptionDecl where
   name     : Name
@@ -90,11 +148,11 @@ variable [Monad m] [MonadOptions m]
 
 def getBoolOption (k : Name) (defValue := false) : m Bool := do
   let opts ← getOptions
-  return opts.getBool k defValue
+  return opts.get k defValue
 
 def getNatOption (k : Name) (defValue := 0) : m Nat := do
   let opts ← getOptions
-  return opts.getNat k defValue
+  return opts.get k defValue
 
 class MonadWithOptions (m : Type → Type) where
   withOptions (f : Options → Options) (x : m α) : m α
@@ -108,10 +166,10 @@ instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
    the term being delaborated should be treated as a pattern. -/
 
 def withInPattern [MonadWithOptions m] (x : m α) : m α :=
-  withOptions (fun o => o.setBool `_inPattern true) x
+  withOptions (fun o => o.set `_inPattern true) x
 
 def Options.getInPattern (o : Options) : Bool :=
-  o.getBool `_inPattern
+  o.get `_inPattern false
 
 /-- A strongly-typed reference to an option. -/
 protected structure Option (α : Type) where
@@ -131,11 +189,19 @@ protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Op
 protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
   opts.get opt.name opt.defValue
 
+@[export lean_options_get_bool]
+private def getBool (opts : Options) (name : Name) (defValue : Bool) : Bool :=
+  opts.get name defValue
+
 protected def getM [Monad m] [MonadOptions m] [KVMap.Value α] (opt : Lean.Option α) : m α :=
   return opt.get (← getOptions)
 
 protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
   opts.set opt.name val
+
+@[export lean_options_update_bool]
+private def updateBool (opts : Options) (name : Name) (val : Bool) : Options :=
+  opts.set name val
 
 /-- Similar to `set`, but update `opts` only if it doesn't already contains an setting for `opt.name` -/
 protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=

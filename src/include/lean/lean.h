@@ -2664,15 +2664,19 @@ static inline size_t lean_isize_mul(size_t a1, size_t a2) {
 static inline size_t lean_isize_div(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return (size_t)PTRDIFF_MIN;
+    return (size_t)(lhs / rhs);
 }
 
 static inline size_t lean_isize_mod(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (size_t)lhs;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return 0;
+    return (size_t)(lhs % rhs);
 }
 
 static inline size_t lean_isize_land(size_t a1, size_t a2) {
@@ -3174,6 +3178,12 @@ static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
 static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_MANUAL_ROOT);
 }
+
+#ifdef LEAN_EMSCRIPTEN
+#define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
+#else
+#define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))
+#endif
 
 #ifdef __cplusplus
 }

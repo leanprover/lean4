@@ -47,10 +47,10 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result 
   mvar.withContext <| withReducible do
     let (prf, state) ← StateRefT'.run (ReaderT.run (onGoal goal (← mvar.getTag)) ctx) { fuel }
     mvar.assign prf
-    for h : idx in [:state.invariants.size] do
+    for h : idx in *...state.invariants.size do
       let mv := state.invariants[idx]
       mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
-    for h : idx in [:state.vcs.size] do
+    for h : idx in *...state.vcs.size do
       let mv := state.vcs[idx]
       mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag).eraseMacroScopes)
     return { invariants := state.invariants, vcs := state.vcs }

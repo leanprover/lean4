@@ -8,9 +8,6 @@
         let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_3 x_2;
         ret x_4
 [Compiler.IR] [reset_reuse]
-    def Sigma.toProd (x_1 : ◾) (x_2 : ◾) (x_3 : obj) : obj :=
-      let x_4 : obj := Sigma.toProd._redArg x_3;
-      ret x_4
     def Sigma.toProd._redArg (x_1 : obj) : obj :=
       case x_1 : obj of
       Sigma.mk →
@@ -19,6 +16,10 @@
         let x_5 : tobj := reset[2] x_1;
         let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_2 x_3;
         ret x_4
+[Compiler.IR] [reset_reuse]
+    def Sigma.toProd (x_1 : ◾) (x_2 : ◾) (x_3 : obj) : obj :=
+      let x_4 : obj := Sigma.toProd._redArg x_3;
+      ret x_4
 [Compiler.IR] [reset_reuse]
     def foo (x_1 : tobj) : tobj :=
       case x_1 : tobj of

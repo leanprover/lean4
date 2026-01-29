@@ -13,39 +13,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_tcp_bind(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_getsockname(lean_object*);
-lean_object* lean_uv_tcp_cancel_recv(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl;
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_tryAccept___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_connect(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_cancel_accept(lean_object*);
-lean_object* lean_uv_tcp_getpeername(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_connect___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_recv_x3f___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_tcp_send(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_nodelay(lean_object*);
 lean_object* lean_uv_tcp_new();
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_listen(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_new___boxed(lean_object*);
-lean_object* lean_uv_tcp_wait_readable(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_bind___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_tcp_accept(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_listen___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_tcp_keepalive(lean_object*, uint8_t, uint32_t);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitReadable___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_accept___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_tcp_recv(lean_object*, uint64_t);
+lean_object* lean_uv_tcp_connect(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_connect___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_tcp_send(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_send___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_recv(lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_recv_x3f___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_tcp_wait_readable(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_waitReadable___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_cancel_recv(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelRecv___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_bind(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_bind___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_tcp_listen(lean_object*, uint32_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_listen___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_uv_tcp_accept(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_accept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_try_accept(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_tryAccept___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_cancel_accept(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_cancelAccept___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_tcp_shutdown(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_shutdown___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_getpeername(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getPeerName___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_getsockname(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_getSockName___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_nodelay(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_noDelay___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_tcp_keepalive(lean_object*, uint8_t, uint32_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_TCP_Socket_keepAlive___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Std_Internal_UV_TCP_0__Std_Internal_UV_TCP_SocketImpl() {
 _start:
 {

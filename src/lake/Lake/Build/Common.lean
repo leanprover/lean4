@@ -9,7 +9,7 @@ prelude
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
 public import Lake.Util.JsonObject
-import Lake.Util.IO
+public import Lake.Util.IO
 import Lake.Build.Target.Fetch
 public import Lake.Build.Actions
 
@@ -304,17 +304,20 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
   (action : JobAction := .build)
 : JobM α := do
+  updateAction action
+  let noBuildTraceFile := traceFile.addExtension "nobuild"
   if (← getNoBuild) then
-    updateAction .build
+    modify ({· with wantsRebuild := true})
+    writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
-    updateAction action
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
       let a ← build -- fatal errors will abort here
       let log := (← getLog).takeFrom iniPos
       writeBuildTrace traceFile depTrace (toOutputJson a) log
+      removeFileIfExists noBuildTraceFile
       return a
     finally
       let endTime ← IO.monoMsNow

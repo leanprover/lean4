@@ -10,7 +10,7 @@ open Lean Meta Sym Elab Tactic
 
 def test (mvarId : MVarId) : MetaM MVarId := do
   SymM.run do
-    let (_, mvarId) ← intros mvarId
+    let .goal _ mvarId ← intros mvarId | failure
     return mvarId
 
 /--

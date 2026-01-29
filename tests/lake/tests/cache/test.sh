@@ -131,7 +131,8 @@ test_exp -f "$cache_art" # artifact should be re-cached
 
 # Verify that upstream cache mappings are restored
 test_out "Replayed Test:c.o" build Test:static -v --no-build
-check_diff <(ls .lake/backup-outputs) <(ls "$CACHE_DIR/outputs")
+ls .lake/backup-outputs > .lake/backup-outputs.txt
+check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 
 # Verify that things work properly if the local artifact is removed
 test_cmd rm "$local_art"
@@ -150,11 +151,22 @@ test_run -v build +Test.Imported --no-build --wfail
 test_run -v build +Test
 
 # Test producing an output mappings file
+test_lines() {
+  expected=$1; file=$2
+  actual=$(wc -l < $file)
+  echo "? wc -l $file ($actual) = $expected"
+  if test $actual = $expected; then
+    return 0
+  else
+    cat "$file"
+    return 1
+  fi
+}
 test_run build Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
-test_cmd_eq 3 wc -l < .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
-test_cmd_eq 6 wc -l < .lake/outputs.jsonl
+test_lines 6 .lake/outputs.jsonl
 
 # Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup

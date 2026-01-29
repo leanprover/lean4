@@ -1,10 +1,4 @@
 [Compiler.IR] [result]
-    def isSomeWithInstanceNat (x_1 : @& obj) : u8 :=
-      let x_2 : usize := 0;
-      let x_3 : tobj := Array.uget ◾ x_1 x_2 ◾;
-      let x_4 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_3;
-      dec x_3;
-      ret x_4
     def MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 (x_1 : @& tobj) : u8 :=
       case x_1 : tobj of
       MyOption.none →
@@ -13,13 +7,20 @@
       MyOption.some →
         let x_3 : u8 := 1;
         ret x_3
-    def isSomeWithInstanceNat._boxed (x_1 : obj) : tagged :=
-      let x_2 : u8 := isSomeWithInstanceNat x_1;
+    def MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0._boxed (x_1 : tobj) : tagged :=
+      let x_2 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_1;
       dec x_1;
       let x_3 : tagged := box x_2;
       ret x_3
-    def MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0._boxed (x_1 : tobj) : tagged :=
-      let x_2 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_1;
+[Compiler.IR] [result]
+    def isSomeWithInstanceNat (x_1 : @& obj) : u8 :=
+      let x_2 : usize := 0;
+      let x_3 : tobj := Array.uget ◾ x_1 x_2 ◾;
+      let x_4 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_3;
+      dec x_3;
+      ret x_4
+    def isSomeWithInstanceNat._boxed (x_1 : obj) : tagged :=
+      let x_2 : u8 := isSomeWithInstanceNat x_1;
       dec x_1;
       let x_3 : tagged := box x_2;
       ret x_3

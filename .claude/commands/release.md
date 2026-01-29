@@ -13,12 +13,54 @@ These comments explain the scripts' behavior, which repositories get special han
 ## Arguments
 - `version`: The version to release (e.g., v4.24.0)
 
+## Release Notes (Required for -rc1 releases)
+
+For first release candidates (`-rc1`), you must create release notes BEFORE the reference-manual toolchain bump PR can be merged.
+
+**Steps to create release notes:**
+
+1. Generate the release notes:
+   ```bash
+   cd /path/to/lean4
+   python3 script/release_notes.py --since <previous_version> > /tmp/release-notes-<version>.md
+   ```
+   Replace `<previous_version>` with the last stable release (e.g., `v4.27.0` when releasing `v4.28.0-rc1`).
+
+2. Review `/tmp/release-notes-<version>.md` for common issues:
+   - **Unterminated code blocks**: Look for code fences that aren't closed. Fetch original PR with `gh pr view <number>` to repair.
+   - **Truncated descriptions**: Some may end mid-sentence. Complete them from the original PR.
+   - **Markdown issues**: Other syntax problems that could cause parsing errors.
+
+3. Create the release notes file in the reference-manual repository:
+   - File path: `Manual/Releases/v<version>.lean` (e.g., `v4_28_0.lean`)
+   - Use Verso format with proper imports and `#doc (Manual)` block
+   - **Use `#` for headers, not `##`** (Verso uses level 1 for subsections)
+   - **Use plain ` ``` ` not ` ```lean `** (the latter executes code)
+   - **Wrap underscore identifiers in backticks**: `` `bv_decide` `` not `bv_decide`
+
+4. Update `Manual/Releases.lean`:
+   - Add import: `import Manual.Releases.«v4_28_0»`
+   - Add include: `{include 0 Manual.Releases.«v4_28_0»}`
+
+5. Build to verify: `lake build Manual.Releases.v4_28_0`
+
+6. Create a **separate PR** for release notes (not bundled with toolchain bump):
+   ```bash
+   git checkout -b v<version>-release-notes
+   gh pr create --title "doc: add v<version> release notes"
+   ```
+
+For subsequent RCs (`-rc2`, etc.) and stable releases, just update the version number in the existing release notes file title.
+
+See `doc/dev/release_checklist.md` section "Writing the release notes" for full details.
+
 ## Process
 
 1. Run `script/release_checklist.py {version}` to check the current status
 2. **CRITICAL: If preliminary lean4 checks fail, STOP immediately and alert the user**
-   - Check for: release branch exists, CMake version correct, tag exists, release page exists, release notes exist
+   - Check for: release branch exists, CMake version correct, tag exists, release page exists, release notes file exists
    - **IMPORTANT**: The release page is created AUTOMATICALLY by CI after pushing the tag - DO NOT create it manually
+   - **IMPORTANT**: For -rc1 releases, release notes must be created before proceeding
    - Do NOT create any PRs or proceed with repository updates if these checks fail
 3. Create a todo list tracking all repositories that need updates
 4. **CRITICAL RULE: You can ONLY run `release_steps.py` for a repository if `release_checklist.py` explicitly says to do so**
@@ -60,6 +102,15 @@ Every time you run `release_checklist.py`, you MUST:
 
 This summary should be provided EVERY time you run the checklist, not just after creating new PRs.
 The user needs to see the complete picture of what's waiting for review.
+
+## Nightly Infrastructure
+
+The nightly build system uses branches and tags across two repositories:
+
+- `leanprover/lean4` has **branches** `nightly` and `nightly-with-mathlib` tracking the latest nightly builds
+- `leanprover/lean4-nightly` has **dated tags** like `nightly-2026-01-23`
+
+When a nightly succeeds with mathlib, all three should point to the same commit. Don't confuse these: branches are in the main lean4 repo, dated tags are in lean4-nightly.
 
 ## Error Handling
 

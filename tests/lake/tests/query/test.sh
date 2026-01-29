@@ -20,6 +20,10 @@ test_eq '"foo"' query foo --json
 test_eq "B" query +A:imports
 test_eq '["C","B"]' query +A:transImports --json
 
+# Test querying deps
+test_eq "dep" query :deps
+test_eq '["dep.1"]' query :transDeps --json
+
 echo "# UNCOMMON TESTS"
 set -x
 

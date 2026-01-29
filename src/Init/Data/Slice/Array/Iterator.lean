@@ -148,6 +148,7 @@ theorem Subarray.copy_eq_toArray {s : Subarray α} :
     s.copy = s.toArray :=
   (rfl)
 
+@[grind =]
 theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
     Slice.toArray s = s.toArray :=
   (rfl)

@@ -77,7 +77,11 @@ where
         else
           return .package (stringToLegalOrSimpleName pkg.copy)
       else if target.startsWith "+" then
-        return .module (stringToLegalOrSimpleName (target.drop 1).copy)
+        let mod := target.drop 1
+        if mod.isEmpty then
+          throw "ill-formed target: expected module name after '+'"
+        else
+          return .module (stringToLegalOrSimpleName mod.copy)
       else
         parsePackageTarget .anonymous target
     | [pkg, target] =>
@@ -241,5 +245,3 @@ public instance : Std.LawfulEqCmp quickCmp where
     · simp only [quickCmp]
       split <;> simp_all
     · simp_all [quickCmp]
-
-attribute [deprecated packageModule (since := "2025-11-13")] module

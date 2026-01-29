@@ -6,8 +6,8 @@ theorem bv0_eq (x : BitVec 0) : x = 0 := BitVec.of_length_zero
 set_option warn.sorry false
 
 elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
-  let declNames ← declNames.getElems.mapM resolveGlobalConstNoOverload
-  liftMetaTactic1 <| Sym.simpGoal declNames
+  let declNames ← declNames.getElems.mapM fun s => realizeGlobalConstNoOverload s.raw
+  liftMetaTactic1 <| Sym.simpGoalUsing declNames
 
 theorem heq_self : (x ≍ x) = True := by simp
 theorem forall_true {α : Sort u} : (∀ _ : α, True) = True := by simp
@@ -115,11 +115,25 @@ example (as : Array (Nat → Nat)) (i : Nat) (_ : i < as.size) (h : as[i] a = b)
 /--
 trace: c a : Nat
 g : Nat → Nat
-h : ite (c > 0) a = g
-⊢ ite (c > 0) a = g
+h : ite (0 < c) a = g
+⊢ ite (0 < c) a = g
 -/
 #guard_msgs in
 example (h : ite (c > 0) a = g) : ite (c > 0) (0 + a) = g := by
   sym_simp [Nat.zero_add]
   trace_state
   exact h
+
+example (f : Nat → Nat) : id f a = f a := by
+  sym_simp [id_eq, eq_self]
+
+example (f : Nat → Nat) : id f (0 + a) = f a := by
+  sym_simp [id_eq, eq_self, Nat.zero_add]
+
+def foo (x : Nat) :=
+  match x with
+  | 0 => true
+  | _+1 => false
+
+example : foo 0 = true := by
+  sym_simp [foo.eq_def, foo.match_1.eq_1, eq_self]

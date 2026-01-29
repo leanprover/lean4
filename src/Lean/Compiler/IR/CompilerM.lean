@@ -44,7 +44,7 @@ def log (entry : LogEntry) : CompilerM Unit :=
 def tracePrefixOptionName := `trace.compiler.ir
 
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
-  match opts.find optName with
+  match opts.get? optName with
   | some (DataValue.ofBool v) => v
   | _     => opts.getBool tracePrefixOptionName
 
@@ -186,7 +186,7 @@ def getDecl (n : Name) : CompilerM Decl := do
 def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
   return declMapExt.getState (← getEnv) |>.find? n
 
-/-- Returns the list of IR declarations in declaration order. -/
+/-- Returns the list of IR declarations in reverse declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 

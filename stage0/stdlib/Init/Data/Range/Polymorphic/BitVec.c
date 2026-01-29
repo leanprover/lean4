@@ -13,29 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable(lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
 lean_object* l_BitVec_add(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_pow(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_BitVec_instRxcHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_BitVec_instRxcHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_BitVec_instRxcHasSize___closed__0 = (const lean_object*)&l_BitVec_instRxcHasSize___closed__0_value;
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_BitVec_instRxoHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_BitVec_instRxoHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_BitVec_instRxoHasSize___closed__0 = (const lean_object*)&l_BitVec_instRxoHasSize___closed__0_value;
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -150,7 +154,7 @@ LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_BitVec_instRxcHasSize___lam__0___boxed), 2, 0);
+x_2 = ((lean_object*)(l_BitVec_instRxcHasSize___closed__0));
 return x_2;
 }
 }
@@ -190,7 +194,7 @@ LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_BitVec_instRxoHasSize___lam__0___boxed), 2, 0);
+x_2 = ((lean_object*)(l_BitVec_instRxoHasSize___closed__0));
 return x_2;
 }
 }

@@ -158,11 +158,17 @@ theorem Internal.any_not_isEmpty_iff_exists_mem {f : CNF α} :
     · rcases lit with ⟨_, ⟨_ | _⟩⟩ <;> simp_all
   · intro h
     rcases h with ⟨lit, clause, ⟨hclause1, hclause2⟩⟩
+    rw [Array.mem_iff_getElem] at hclause1
+    rcases hclause1 with ⟨i, h, hi⟩
     cases hclause2 with
     | inl hl =>
-      sorry
+      exists i, h, (lit, false)
+      rw [hi]
+      assumption
     | inr hr =>
-      sorry
+      exists i, h, (lit, true)
+      rw [hi]
+      assumption
 
 @[no_expose]
 instance {f : CNF α} [DecidableEq α] : Decidable (∃ v, VarMem v f) :=

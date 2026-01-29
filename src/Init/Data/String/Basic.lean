@@ -1966,6 +1966,7 @@ theorem Pos.ne_startPos_of_lt {s : String} {p q : s.Pos} :
     Pos.Raw.byteIdx_zero]
   omega
 
+@[simp]
 theorem Pos.next_ne_startPos {s : String} {p : s.Pos} {h} :
     p.next h ≠ s.startPos :=
   ne_startPos_of_lt p.lt_next

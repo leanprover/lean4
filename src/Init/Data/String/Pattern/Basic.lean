@@ -9,6 +9,10 @@ prelude
 public import Init.Data.String.Basic
 public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.String.Lemmas.SliceIsEmpty
+import Init.Data.String.Termination
+import Init.Data.String.Grind
+import Init.Data.String.Lemmas.Order
 
 set_option doc.verso true
 
@@ -83,6 +87,36 @@ theorem endPos_ofSliceFrom {s : Slice} {p : s.Pos} {st : SearchStep (s.sliceFrom
 end SearchStep
 
 /--
+Provides simple pattern matching capabilities from the start of a {name}`Slice`.
+
+-/
+class ForwardPattern {ρ : Type} (pat : ρ) where
+  /--
+  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
+  prefix removed; otherwise the result is {name}`none`.
+  -/
+  dropPrefix? : (s : Slice) →  Option s.Pos
+  /--
+  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
+  prefix removed; otherwise the result is {name}`none`.
+  -/
+  dropPrefixOfNonempty? : (s : Slice) → (h : s.isEmpty = false) → Option s.Pos := fun s _ => dropPrefix? s
+  /--
+  Checks whether the slice starts with the pattern.
+  -/
+  startsWith : (s : Slice) → Bool := fun s => (dropPrefix? s).isSome
+
+class LawfulForwardPattern {ρ : Type} (pat : ρ) [ForwardPattern pat] : Prop where
+  dropPrefixOfNonempty?_eq {s : Slice} (h) :
+    ForwardPattern.dropPrefixOfNonempty? pat s h = ForwardPattern.dropPrefix? pat s
+  startsWith_eq (s : Slice) :
+    ForwardPattern.startsWith pat s = (ForwardPattern.dropPrefix? pat s).isSome
+
+class StrictForwardPattern {ρ : Type} (pat : ρ) [ForwardPattern pat] : Prop where
+  ne_startPos {s : Slice} (h) (q) :
+    ForwardPattern.dropPrefixOfNonempty? pat s h = some q → q ≠ s.startPos
+
+/--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches
 of the pattern from the start towards the end of a {name}`Slice`.
 -/
@@ -94,25 +128,79 @@ class ToForwardSearcher {ρ : Type} (pat : ρ) (σ : outParam (Slice → Type)) 
   -/
   toSearcher : (s : Slice) → Std.Iter (α := σ s) (SearchStep s)
 
-/--
-Provides simple pattern matching capabilities from the start of a {name}`Slice`.
+namespace ToForwardSearcher
 
-While these operations can be implemented on top of {name}`ToForwardSearcher` some patterns allow
-for more efficient implementations. This class can be used to specialize for them. If there is no
-need to specialize in this fashion, then
-{name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern.defaultImplementation` can be used
-to automatically derive an instance.
--/
-class ForwardPattern {ρ : Type} (pat : ρ) where
-  /--
-  Checks whether the slice starts with the pattern.
-  -/
-  startsWith : Slice → Bool
-  /--
-  Checks whether the slice starts with the pattern. If it does, the slice is returned with the
-  prefix removed; otherwise the result is {name}`none`.
-  -/
-  dropPrefix? : (s : Slice) → Option s.Pos
+structure DefaultForwardSearcher {ρ : Type} (pat : ρ) (s : Slice) where
+  currPos : s.Pos
+deriving Inhabited
+
+namespace DefaultForwardSearcher
+
+variable {ρ : Type} (pat : ρ)
+
+@[inline]
+def iter (s : Slice) : Std.Iter (α := DefaultForwardSearcher pat s) (SearchStep s) :=
+  ⟨⟨s.startPos⟩⟩
+
+instance (s : Slice) [ForwardPattern pat] :
+    Std.Iterator (DefaultForwardSearcher pat s) Id (SearchStep s) where
+  IsPlausibleStep it
+    | .yield it' (.rejected p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.endPos),
+      ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = none ∧
+      p₁ = it.internalState.currPos ∧ p₂ = it.internalState.currPos.next h ∧
+      it'.internalState.currPos = it.internalState.currPos.next h
+    | .yield it' (.matched p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.endPos), ∃ pos,
+      ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) = some pos ∧
+      p₁ = it.internalState.currPos ∧ p₂ = Slice.Pos.ofSliceFrom pos ∧
+      it'.internalState.currPos = Slice.Pos.ofSliceFrom pos
+    | .done => it.internalState.currPos = s.endPos
+    | .skip _ => False
+  step it :=
+    if h : it.internalState.currPos = s.endPos then
+      pure (.deflate ⟨.done, by simp [h]⟩)
+    else
+      match h' : ForwardPattern.dropPrefixOfNonempty? pat (s.sliceFrom it.internalState.currPos) (by simpa) with
+      | some pos =>
+        pure (.deflate ⟨.yield ⟨⟨Slice.Pos.ofSliceFrom pos⟩⟩
+          (.matched it.internalState.currPos (Slice.Pos.ofSliceFrom pos)), by simp [h, h']⟩)
+      | none =>
+        pure (.deflate ⟨.yield ⟨⟨it.internalState.currPos.next h⟩⟩
+          (.rejected it.internalState.currPos (it.internalState.currPos.next h)), by simp [h, h']⟩)
+
+def finitenessRelation (s : Slice) [ForwardPattern pat] [StrictForwardPattern pat] :
+    Std.Iterators.FinitenessRelation (DefaultForwardSearcher pat s) Id where
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    match step with
+    | .yield it'' (.rejected p₁ p₂) =>
+      obtain ⟨_, ⟨-, -, -, h'⟩⟩ := h'
+      cases h
+      simp [h']
+    | .yield it'' (.matched p₁ p₂) =>
+      obtain ⟨_, pos, ⟨h₀, -, -, h'⟩⟩ := h'
+      cases h
+      have := StrictForwardPattern.ne_startPos _ _ h₀
+      rw [h']
+      exact Std.lt_of_le_of_lt Slice.Pos.le_ofSliceFrom
+        (Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff.2 ((Slice.Pos.startPos_lt_iff _).2 this))
+
+instance {s : Slice} [ForwardPattern pat] [StrictForwardPattern pat] :
+    Std.Iterators.Finite (DefaultForwardSearcher pat s) Id :=
+  .of_finitenessRelation (finitenessRelation pat s)
+
+instance [ForwardPattern pat] : Std.IteratorLoop (DefaultForwardSearcher pat s) Id Id :=
+  .defaultImplementation
+
+end DefaultForwardSearcher
+
+@[inline]
+def defaultImplementation [ForwardPattern pat] : ToForwardSearcher pat (DefaultForwardSearcher pat) where
+  toSearcher := DefaultForwardSearcher.iter pat
+
+end ToForwardSearcher
 
 namespace Internal
 
@@ -164,33 +252,33 @@ def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos
 
 end Internal
 
-namespace ForwardPattern
+-- namespace ForwardPattern
 
-variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
-variable (pat : ρ) [ToForwardSearcher pat σ]
+-- variable {ρ : Type} {σ : Slice → Type}
+-- variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+-- variable (pat : ρ) [ToForwardSearcher pat σ]
 
-@[specialize pat]
-def defaultStartsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
-  let searcher := ToForwardSearcher.toSearcher pat s
-  match searcher.first? with
-  | some (.matched start ..) => s.startPos = start
-  | _ => false
+-- @[specialize pat]
+-- def defaultStartsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
+--   let searcher := ToForwardSearcher.toSearcher pat s
+--   match searcher.first? with
+--   | some (.matched start ..) => s.startPos = start
+--   | _ => false
 
-@[specialize pat]
-def defaultDropPrefix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
-  let searcher := ToForwardSearcher.toSearcher pat s
-  match searcher.first? with
-  | some (.matched _ endPos) => some endPos
-  | _ => none
+-- @[specialize pat]
+-- def defaultDropPrefix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
+--   let searcher := ToForwardSearcher.toSearcher pat s
+--   match searcher.first? with
+--   | some (.matched _ endPos) => some endPos
+--   | _ => none
 
-@[always_inline, inline]
-def defaultImplementation {pat : ρ} [ToForwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
-    ForwardPattern pat where
-  startsWith s := defaultStartsWith pat s
-  dropPrefix? s := defaultDropPrefix? pat s
+-- @[always_inline, inline]
+-- def defaultImplementation {pat : ρ} [ToForwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
+--     ForwardPattern pat where
+--   startsWith s := defaultStartsWith pat s
+--   dropPrefix? s := defaultDropPrefix? pat s
 
-end ForwardPattern
+-- end ForwardPattern
 
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of

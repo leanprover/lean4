@@ -61,6 +61,11 @@ theorem Slice.Pos.ne_startPos_of_lt {s : Slice} {p q : s.Pos} : p < q → q ≠ 
   rintro h rfl
   simp at h
 
+@[simp]
+theorem Slice.Pos.next_ne_startPos {s : Slice} {p : s.Pos} {h} :
+    p.next h ≠ s.startPos :=
+  ne_startPos_of_lt lt_next
+
 theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q < Slice.Pos.ofSliceFrom r ↔ q < r := by
   simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]

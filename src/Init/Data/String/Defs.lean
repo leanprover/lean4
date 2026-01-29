@@ -441,6 +441,18 @@ def Slice.utf8ByteSize (s : Slice) : Nat :=
 theorem Slice.utf8ByteSize_eq {s : Slice} :
     s.utf8ByteSize = s.endExclusive.offset.byteIdx - s.startInclusive.offset.byteIdx := (rfl)
 
+/--
+Checks whether a slice is empty.
+
+Empty slices have {name}`utf8ByteSize` {lean}`0`.
+
+Examples:
+ * {lean}`"".toSlice.isEmpty = true`
+ * {lean}`" ".toSlice.isEmpty = false`
+-/
+@[inline]
+def Slice.isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
+
 instance : HAdd Pos.Raw Slice Pos.Raw where
   hAdd p s := { byteIdx := p.byteIdx + s.utf8ByteSize }
 

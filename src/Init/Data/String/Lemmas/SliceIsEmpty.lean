@@ -6,8 +6,8 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
-import all Init.Data.String.Slice
+public import Init.Data.String.Basic
+import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Grind
@@ -29,6 +29,13 @@ theorem Slice.startPos_eq_endPos_iff {s : Slice} :
   rw [eq_comm]
   simp [Slice.Pos.ext_iff, Pos.Raw.ext_iff, Slice.isEmpty_iff]
 
+theorem Slice.startPos_ne_endPos_iff {s : Slice} :
+    s.startPos ≠ s.endPos ↔ s.isEmpty = false := by
+  simp [Slice.startPos_eq_endPos_iff]
+
+theorem Slice.startPos_ne_endPos {s : Slice} : s.isEmpty = false → s.startPos ≠ s.endPos :=
+  Slice.startPos_ne_endPos_iff.2
+
 theorem Slice.isEmpty_iff_eq_endPos {s : Slice} :
     s.isEmpty ↔ ∀ (p q : s.Pos), p = q := by
   rw [← Slice.startPos_eq_endPos_iff]
@@ -45,5 +52,15 @@ theorem Slice.isEmpty_eq_false_of_lt {s : Slice} {p q : s.Pos} :
   intro h
   cases h p q
   apply Std.lt_irrefl
+
+@[simp]
+theorem Slice.isEmpty_sliceFrom {s : Slice} {p : s.Pos} :
+    (s.sliceFrom p).isEmpty ↔ p = s.endPos := by
+  simp [← startPos_eq_endPos_iff, ← Pos.ofSliceFrom_inj]
+
+@[simp]
+theorem Slice.isEmpty_sliceFrom_eq_false_iff {s : Slice} {p : s.Pos} :
+    (s.sliceFrom p).isEmpty = false ↔ p ≠ s.endPos :=
+  Decidable.not_iff_not.1 (by simp)
 
 end String

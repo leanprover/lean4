@@ -14,7 +14,7 @@ namespace Lean.Compiler.LCNF
 
 /-- Helper class for lifting `CompilerM.codeBind` -/
 class MonadCodeBind (m : Type → Type) where
-  codeBind : {ph : Purity} → (c : Code ph) → (f : FVarId → m (Code ph)) → m (Code ph)
+  codeBind : {pu : Purity} → (c : Code pu) → (f : FVarId → m (Code pu)) → m (Code pu)
 
 /--
 Return code that is equivalent to `c >>= f`. That is, executes `c`, and then `f x`, where
@@ -25,14 +25,14 @@ an invalid block would be generated. It would be invalid because `f` would not
 be applied to `jp_i`. Note that, we could have decided to create a copy of `jp_i` where we apply `f` to it,
 by we decided to not do it to avoid code duplication.
 -/
-abbrev Code.bind [MonadCodeBind m] (c : Code ph) (f : FVarId → m (Code ph)) : m (Code ph) :=
+abbrev Code.bind [MonadCodeBind m] (c : Code pu) (f : FVarId → m (Code pu)) : m (Code pu) :=
   MonadCodeBind.codeBind c f
 
-partial def CompilerM.codeBind (c : Code ph) (f : FVarId → CompilerM (Code ph)) :
-    CompilerM (Code ph) := do
+partial def CompilerM.codeBind (c : Code pu) (f : FVarId → CompilerM (Code pu)) :
+    CompilerM (Code pu) := do
   go c |>.run {}
 where
-  go (c : Code ph) : ReaderT FVarIdSet CompilerM (Code ph) := do
+  go (c : Code pu) : ReaderT FVarIdSet CompilerM (Code pu) := do
     match c with
     | .let decl k => return .let decl (← go k)
     | .fun decl k _ => return .fun decl (← go k)
@@ -61,7 +61,7 @@ where
       This code is not very efficient, we could ask caller to provide the type of `c >>= f`,
       but this is more convenient, and this case is seldom reached.
       -/
-      let auxParam ← mkAuxParam (ph := .pure) type
+      let auxParam ← mkAuxParam (pu := .pure) type
       let k ← f auxParam.fvarId
       let typeNew ← k.inferType
       eraseCode k
@@ -82,10 +82,10 @@ Create new parameters for the given arrow type.
 Example: if `type` is `Nat → Bool → Int`, the result is
 an array containing two new parameters with types `Nat` and `Bool`.
 -/
-partial def mkNewParams (type : Expr) : CompilerM (Array (Param ph)) :=
+partial def mkNewParams (type : Expr) : CompilerM (Array (Param pu)) :=
   go type #[] #[]
 where
-  go (type : Expr) (xs : Array Expr) (ps : Array (Param ph)) : CompilerM (Array (Param ph)) := do
+  go (type : Expr) (xs : Array Expr) (ps : Array (Param pu)) : CompilerM (Array (Param pu)) := do
     match type with
     | .forallE _ d b _ =>
       let d := d.instantiateRev xs

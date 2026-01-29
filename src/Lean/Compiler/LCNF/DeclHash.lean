@@ -12,22 +12,22 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-instance : Hashable (Param ph) where
+instance : Hashable (Param pu) where
   hash p := mixHash (hash p.fvarId) (hash p.type)
 
-def hashParams (ps : Array (Param ph)) : UInt64 :=
+def hashParams (ps : Array (Param pu)) : UInt64 :=
   hash ps
 
 mutual
-partial def hashAlt (alt : Alt ph) : UInt64 :=
+partial def hashAlt (alt : Alt pu) : UInt64 :=
   match alt with
   | .alt ctorName ps k _ => mixHash (mixHash (hash ctorName) (hash ps)) (hashCode k)
   | .default k => hashCode k
 
-partial def hashAlts (alts : Array (Alt ph)) : UInt64 :=
+partial def hashAlts (alts : Array (Alt pu)) : UInt64 :=
   alts.foldl (fun r a => mixHash r (hashAlt a)) 7
 
-partial def hashCode (code : Code ph) : UInt64 :=
+partial def hashCode (code : Code pu) : UInt64 :=
   match code with
   | .let decl k => mixHash (mixHash (hash decl.fvarId) (hash decl.type)) (mixHash (hash decl.value) (hashCode k))
   | .fun decl k _ | .jp decl k =>
@@ -39,7 +39,7 @@ partial def hashCode (code : Code ph) : UInt64 :=
 
 end
 
-instance : Hashable (Code ph) where
+instance : Hashable (Code pu) where
   hash c := hashCode c
 
 deriving instance Hashable for DeclValue

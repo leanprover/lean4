@@ -14,7 +14,7 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-private partial def collectUsedDecls (code : Code ph) (s : NameSet := {}) : NameSet :=
+private partial def collectUsedDecls (code : Code pu) (s : NameSet := {}) : NameSet :=
   match code with
   | .let decl k => collectUsedDecls k <| collectLetValue decl.value s
   | .jp decl k | .fun decl k _ => collectUsedDecls decl.value <| collectUsedDecls k s
@@ -25,12 +25,12 @@ private partial def collectUsedDecls (code : Code ph) (s : NameSet := {}) : Name
       | .alt _ _ k _ => collectUsedDecls k s
   | _ => s
 where
-  collectLetValue (e : LetValue ph) (s : NameSet) : NameSet :=
+  collectLetValue (e : LetValue pu) (s : NameSet) : NameSet :=
     match e with
     | .const declName .. => s.insert declName
     | _ => s
 
-private def shouldExportBody (decl : Decl ph) : CompilerM Bool := do
+private def shouldExportBody (decl : Decl pu) : CompilerM Bool := do
   -- Export body if template-like...
   decl.isTemplateLike <||>
   -- ...or it is below the (local) opportunistic inlining threshold and its `Expr` is exported
@@ -44,7 +44,7 @@ private def shouldExportBody (decl : Decl ph) : CompilerM Bool := do
 Marks the given declaration as to be exported and recursively infers the correct visibility of its
 body and referenced declarations based on that.
 -/
-partial def markDeclPublicRec (phase : Phase) (decl : Decl ph) : CompilerM Unit := do
+partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit := do
   modifyEnv (setDeclPublic · decl.name)
   if (← shouldExportBody decl) && !isDeclTransparent (← getEnv) phase decl.name then
     trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
@@ -57,7 +57,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl ph) : CompilerM Unit 
             markDeclPublicRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
-partial def checkMeta (origDecl : Decl ph) : CompilerM Unit := do
+partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
   if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
@@ -68,7 +68,7 @@ partial def checkMeta (origDecl : Decl ph) : CompilerM Unit := do
   -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
   go (irPhases == .comptime) isPublic origDecl |>.run' {}
-where go (isMeta isPublic : Bool) (decl : Decl ph) : StateT NameSet CompilerM Unit := do
+where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
@@ -113,7 +113,7 @@ where go (isMeta isPublic : Bool) (decl : Decl ph) : StateT NameSet CompilerM Un
         -- public meta def tries to use a private meta import via a local private meta def :/ .
         if irPhases == .all || isPublic && isPrivateName ref then
           if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
-            go isMeta isPublic (refDecl.castPurity! ph)
+            go isMeta isPublic (refDecl.castPurity! pu)
 
 /--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into

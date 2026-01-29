@@ -86,25 +86,25 @@ def setDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : E
     getTransparencyExt phase |>.modifyState env fun s =>
       (declName :: s.1, s.2.insert declName)
 
-abbrev DeclExtState (ph : Purity) := PHashMap Name (Decl ph)
+abbrev DeclExtState (pu : Purity) := PHashMap Name (Decl pu)
 
-private abbrev declLt (a b : Decl ph) :=
+private abbrev declLt (a b : Decl pu) :=
   Name.quickLt a.name b.name
 
-private def sortedDecls (s : DeclExtState ph) : Array (Decl ph) :=
+private def sortedDecls (s : DeclExtState pu) : Array (Decl pu) :=
   let decls := s.foldl (init := #[]) fun ps _ v => ps.push v
   decls.qsort declLt
 
-private abbrev findAtSorted? (decls : Array (Decl ph)) (declName : Name) : Option (Decl ph) :=
-  let tmpDecl : Decl ph := default
+private abbrev findAtSorted? (decls : Array (Decl pu)) (declName : Name) : Option (Decl pu) :=
+  let tmpDecl : Decl pu := default
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-@[expose] def DeclExt (ph : Purity) :=
-   PersistentEnvExtension (Decl ph) (Decl ph) (DeclExtState ph)
+@[expose] def DeclExt (pu : Purity) :=
+   PersistentEnvExtension (Decl pu) (Decl pu) (DeclExtState pu)
 
-instance : Inhabited (DeclExt ph) :=
-  inferInstanceAs (Inhabited (PersistentEnvExtension (Decl ph) (Decl ph) (DeclExtState ph)))
+instance : Inhabited (DeclExt pu) :=
+  inferInstanceAs (Inhabited (PersistentEnvExtension (Decl pu) (Decl pu) (DeclExtState pu)))
 
 def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     IO (DeclExt phase.toPurity) :=
@@ -139,7 +139,7 @@ builtin_initialize baseExt : DeclExt .pure ← mkDeclExt .base
 builtin_initialize monoExt : DeclExt .pure ← mkDeclExt .mono
 builtin_initialize impureExt : DeclExt .impure ← mkDeclExt .impure
 
-def getDeclCore? (env : Environment) (ext : DeclExt ph) (declName : Name) : Option (Decl ph) :=
+def getDeclCore? (env : Environment) (ext : DeclExt pu) (declName : Name) : Option (Decl pu) :=
   match env.getModuleIdxFor? declName with
   | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName
   | none        => ext.getState env |>.find? declName
@@ -171,13 +171,13 @@ def Decl.saveMono (decl : Decl .pure) : CoreM Unit :=
 def Decl.saveImpure (decl : Decl .impure) : CoreM Unit :=
   modifyEnv (saveImpureDeclCore · decl)
 
-def Decl.save (decl : Decl ph) : CompilerM Unit := do
+def Decl.save (decl : Decl pu) : CompilerM Unit := do
   match (← getPhase) with
-  | .base => Phase.withPurityCheck .base ph fun h =>
+  | .base => Phase.withPurityCheck .base pu fun h =>
       (h.symm ▸ decl).saveBase
-  | .mono => Phase.withPurityCheck .mono ph fun h =>
+  | .mono => Phase.withPurityCheck .mono pu fun h =>
       (h.symm ▸ decl).saveMono
-  | .impure => Phase.withPurityCheck .impure ph fun h =>
+  | .impure => Phase.withPurityCheck .impure pu fun h =>
       (h.symm ▸ decl).saveImpure
 
 def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option (Decl phase.toPurity)) :=
@@ -187,7 +187,7 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option (Decl phase.toP
   | .impure => getImpureDecl? declName
 
 @[inline]
-def getDecl? (declName : Name) : CompilerM (Option ((ph : Purity) × Decl ph)) := do
+def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
   let some decl ← getDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 
@@ -198,7 +198,7 @@ def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl 
   | .impure => return impureExt.getState (← getEnv) |>.find? declName
 
 @[inline]
-def getLocalDecl? (declName : Name) : CompilerM (Option ((ph : Purity) × Decl ph)) := do
+def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
 

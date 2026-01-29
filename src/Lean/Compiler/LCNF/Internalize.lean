@@ -22,40 +22,40 @@ private def refreshBinderName (binderName : Name) : CompilerM Name := do
 
 namespace Internalize
 
-abbrev InternalizeM (ph : Purity) := StateRefT (FVarSubst ph) CompilerM
+abbrev InternalizeM (pu : Purity) := StateRefT (FVarSubst pu) CompilerM
 
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables
 in the input expressions and `Code`, into new fresh free variables in the
 local context.
 -/
-instance : MonadFVarSubst (InternalizeM ph) ph true where
+instance : MonadFVarSubst (InternalizeM pu) pu true where
   getSubst := get
 
-instance : MonadFVarSubstState (InternalizeM ph) ph where
+instance : MonadFVarSubstState (InternalizeM pu) pu where
   modifySubst := modify
 
-private def mkNewFVarId (fvarId : FVarId) : InternalizeM ph FVarId := do
+private def mkNewFVarId (fvarId : FVarId) : InternalizeM pu FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
   addFVarSubst fvarId fvarId'
   return fvarId'
 
-private partial def internalizeExpr (e : Expr) : InternalizeM ph Expr :=
+private partial def internalizeExpr (e : Expr) : InternalizeM pu Expr :=
   go e
 where
-  goApp (e : Expr) : InternalizeM ph Expr := do
+  goApp (e : Expr) : InternalizeM pu Expr := do
     match e with
     | .app f a => return e.updateApp! (← goApp f) (← go a)
     | _ => go e
 
-  go (e : Expr) : InternalizeM ph Expr := do
+  go (e : Expr) : InternalizeM pu Expr := do
     if e.hasFVar then
       match e with
       | .fvar fvarId =>
         match (← get)[fvarId]? with
         | some (.fvar fvarId') =>
           -- In LCNF, types can't depend on let-bound fvars.
-          if (← findParam? (ph := ph) fvarId').isSome then
+          if (← findParam? (pu := pu) fvarId').isSome then
             return .fvar fvarId'
           else
             return anyExpr
@@ -71,7 +71,7 @@ where
     else
       return e
 
-def internalizeParam (p : Param ph) : InternalizeM ph (Param ph) := do
+def internalizeParam (p : Param pu) : InternalizeM pu (Param pu) := do
   let binderName ← refreshBinderName p.binderName
   let type ← internalizeExpr p.type
   let fvarId ← mkNewFVarId p.fvarId
@@ -79,7 +79,7 @@ def internalizeParam (p : Param ph) : InternalizeM ph (Param ph) := do
   modifyLCtx fun lctx => lctx.addParam p
   return p
 
-def internalizeArg (arg : Arg ph) : InternalizeM ph (Arg ph) := do
+def internalizeArg (arg : Arg pu) : InternalizeM pu (Arg pu) := do
   match arg with
   | .fvar fvarId =>
     match (← get)[fvarId]? with
@@ -89,10 +89,10 @@ def internalizeArg (arg : Arg ph) : InternalizeM ph (Arg ph) := do
   | .type e _ => return arg.updateType! (← internalizeExpr e)
   | .erased => return arg
 
-def internalizeArgs (args : Array (Arg ph)) : InternalizeM ph (Array (Arg ph)) :=
+def internalizeArgs (args : Array (Arg pu)) : InternalizeM pu (Array (Arg pu)) :=
   args.mapM internalizeArg
 
-private partial def internalizeLetValue (e : LetValue ph) : InternalizeM ph (LetValue ph) := do
+private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (LetValue pu) := do
   match e with
   | .erased | .lit .. => return e
   | .proj _ _ fvarId _ => match (← normFVar fvarId) with
@@ -103,7 +103,7 @@ private partial def internalizeLetValue (e : LetValue ph) : InternalizeM ph (Let
     | .fvar fvarId' => return e.updateFVar! fvarId' (← internalizeArgs args)
     | .erased => return .erased
 
-def internalizeLetDecl (decl : LetDecl ph) : InternalizeM ph (LetDecl ph) := do
+def internalizeLetDecl (decl : LetDecl pu) : InternalizeM pu (LetDecl pu) := do
   let binderName ← refreshBinderName decl.binderName
   let type ← internalizeExpr decl.type
   let value ← internalizeLetValue decl.value
@@ -114,7 +114,7 @@ def internalizeLetDecl (decl : LetDecl ph) : InternalizeM ph (LetDecl ph) := do
 
 mutual
 
-partial def internalizeFunDecl (decl : FunDecl ph) : InternalizeM ph (FunDecl ph) := do
+partial def internalizeFunDecl (decl : FunDecl pu) : InternalizeM pu (FunDecl pu) := do
   let type ← internalizeExpr decl.type
   let binderName ← refreshBinderName decl.binderName
   let params ← decl.params.mapM internalizeParam
@@ -124,7 +124,7 @@ partial def internalizeFunDecl (decl : FunDecl ph) : InternalizeM ph (FunDecl ph
   modifyLCtx fun lctx => lctx.addFunDecl decl
   return decl
 
-partial def internalizeCode (code : Code ph) : InternalizeM ph (Code ph) := do
+partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
   match code with
   | .let decl k => return .let (← internalizeLetDecl decl) (← internalizeCode k)
   | .fun decl k _ => return .fun (← internalizeFunDecl decl) (← internalizeCode k)
@@ -135,7 +135,7 @@ partial def internalizeCode (code : Code ph) : InternalizeM ph (Code ph) := do
   | .cases c =>
     withNormFVarResult (← normFVar c.discr) fun discr => do
       let resultType ← internalizeExpr c.resultType
-      let internalizeAltCode (k : Code ph) : InternalizeM ph (Code ph) :=
+      let internalizeAltCode (k : Code pu) : InternalizeM pu (Code pu) :=
         internalizeCode k
       let alts ← c.alts.mapM fun
         | .alt ctorName params k _ => return .alt ctorName (← params.mapM internalizeParam) (← internalizeAltCode k)
@@ -144,7 +144,7 @@ partial def internalizeCode (code : Code ph) : InternalizeM ph (Code ph) := do
 
 end
 
-partial def internalizeCodeDecl (decl : CodeDecl ph) : InternalizeM ph (CodeDecl ph) := do
+partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl pu) := do
   match decl with
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
@@ -155,14 +155,14 @@ end Internalize
 /--
 Refresh free variables ids in `code`, and store their declarations in the local context.
 -/
-partial def Code.internalize (code : Code ph) (s : FVarSubst ph := {}) : CompilerM (Code ph) :=
+partial def Code.internalize (code : Code pu) (s : FVarSubst pu := {}) : CompilerM (Code pu) :=
   Internalize.internalizeCode code |>.run' s
 
 open Internalize in
-def Decl.internalize (decl : Decl ph) (s : FVarSubst ph := {}): CompilerM (Decl ph) :=
+def Decl.internalize (decl : Decl pu) (s : FVarSubst pu := {}): CompilerM (Decl pu) :=
   go decl |>.run' s
 where
-  go (decl : Decl ph) : InternalizeM ph (Decl ph) := do
+  go (decl : Decl pu) : InternalizeM pu (Decl pu) := do
     let type ← internalizeExpr decl.type
     let params ← decl.params.mapM internalizeParam
     let value ← decl.value.mapCodeM internalizeCode
@@ -171,13 +171,13 @@ where
 /--
 Create a fresh local context and internalize the given decls.
 -/
-def cleanup (decl : Array (Decl ph)) : CompilerM (Array (Decl ph)) := do
+def cleanup (decl : Array (Decl pu)) : CompilerM (Array (Decl pu)) := do
   modify fun _ => {}
   decl.mapM fun decl => do
     modify fun s => { s with nextIdx := 1 }
     decl.internalize
 
-def normalizeFVarIds (decl : Decl ph) : CoreM (Decl ph) := do
+def normalizeFVarIds (decl : Decl pu) : CoreM (Decl pu) := do
   let ngenSaved ← getNGen
   setNGen {}
   try

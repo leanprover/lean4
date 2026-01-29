@@ -45,14 +45,14 @@ inductive AbsValue where
   deriving Inhabited, BEq, Hashable
 
 structure Context where
-  ph : Purity
+  pu : Purity
   /-- Declaration in the same mutual block. -/
-  decls : Array (Decl ph)
+  decls : Array (Decl pu)
   /--
   Function being analyzed. We check every recursive call to this function.
   Remark: `main` is in `decls`.
   -/
-  main : Decl ph
+  main : Decl pu
   /--
   The assignment maps free variable ids in the current code being analyzed to abstract values.
   We only track the abstract value assigned to parameters.
@@ -85,7 +85,7 @@ def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
   let some val := (← read).assignment.get? fvarId | return .top
   return val
 
-def evalArg (arg : Arg ph) : FixParamM AbsValue := do
+def evalArg (arg : Arg pu) : FixParamM AbsValue := do
   match arg with
   | .erased => return .erased
   | .type (.fvar fvarId) _ => evalFVar fvarId
@@ -95,7 +95,7 @@ def evalArg (arg : Arg ph) : FixParamM AbsValue := do
 def inMutualBlock (declName : Name) : FixParamM Bool :=
   return (← read).decls.any (·.name == declName)
 
-def mkAssignment (decl : Decl ph) (values : Array AbsValue) : FVarIdMap AbsValue := Id.run do
+def mkAssignment (decl : Decl pu) (values : Array AbsValue) : FVarIdMap AbsValue := Id.run do
   let mut assignment := {}
   for param in decl.params, value in values do
     assignment := assignment.insert param.fvarId value
@@ -103,12 +103,12 @@ def mkAssignment (decl : Decl ph) (values : Array AbsValue) : FVarIdMap AbsValue
 
 mutual
 
-partial def evalLetValue (e : LetValue ph) : FixParamM Unit := do
+partial def evalLetValue (e : LetValue pu) : FixParamM Unit := do
   match e with
   | .const declName _ args _ => evalApp declName args
   | _ => return ()
 
-partial def isEquivalentFunDecl? (decl : FunDecl ph) : FixParamM (Option Nat) := do
+partial def isEquivalentFunDecl? (decl : FunDecl pu) : FixParamM (Option Nat) := do
   let .let { fvarId, value := (.fvar funFvarId args _), .. } k := decl.value | return none
   if args.size != decl.params.size then return none
   let .return retFVarId := k | return none
@@ -121,7 +121,7 @@ partial def isEquivalentFunDecl? (decl : FunDecl ph) : FixParamM (Option Nat) :=
     if arg != .fvar param.fvarId && arg != .erased then return none
   return some funIdx
 
-partial def evalCode (code : Code ph) : FixParamM Unit := do
+partial def evalCode (code : Code pu) : FixParamM Unit := do
   match code with
   | .let decl k => evalLetValue decl.value; evalCode k
   | .fun decl k _ =>
@@ -136,7 +136,7 @@ partial def evalCode (code : Code ph) : FixParamM Unit := do
   | .cases c => c.alts.forM fun alt => evalCode alt.getCode
   | .unreach .. | .jmp .. | .return .. => return ()
 
-partial def evalApp (declName : Name) (args : Array (Arg ph)) : FixParamM Unit := do
+partial def evalApp (declName : Name) (args : Array (Arg pu)) : FixParamM Unit := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
@@ -189,7 +189,7 @@ applications.
 The function assumes that if a function `f` was declared in a mutual block, then `decls`
 contains all (computationally relevant) functions in the mutual block.
 -/
-def mkFixedParamsMap (decls : Array (Decl ph)) : NameMap (Array Bool) := Id.run do
+def mkFixedParamsMap (decls : Array (Decl pu)) : NameMap (Array Bool) := Id.run do
   let mut result := {}
   for decl in decls do
     let values := mkInitialValues decl.params.size
@@ -197,7 +197,7 @@ def mkFixedParamsMap (decls : Array (Decl ph)) : NameMap (Array Bool) := Id.run 
     let fixed := Array.replicate decl.params.size true
     match decl.value with
     | .code c =>
-      match evalCode c |>.run { ph, main := decl, decls, assignment } |>.run { fixed } with
+      match evalCode c |>.run { pu, main := decl, decls, assignment } |>.run { fixed } with
       | .ok _ s | .error _ s => result := result.insert decl.name s.fixed
     | .extern .. =>
       result := result.insert decl.name fixed

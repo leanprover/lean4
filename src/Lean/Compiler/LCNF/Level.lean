@@ -105,36 +105,36 @@ open Lean.CollectLevelParams
 abbrev visitType (type : Expr) : Visitor :=
   visitExpr type
 
-def visitArg (arg : Arg ph) : Visitor :=
+def visitArg (arg : Arg pu) : Visitor :=
   match arg with
   | .erased | .fvar .. => id
   | .type e _ => visitType e
 
-def visitArgs (args : Array (Arg ph)) : Visitor :=
+def visitArgs (args : Array (Arg pu)) : Visitor :=
   fun s => args.foldl (init := s) fun s arg => visitArg arg s
 
-def visitLetValue (e : LetValue ph) : Visitor :=
+def visitLetValue (e : LetValue pu) : Visitor :=
   match e with
   | .erased | .lit .. | .proj .. => id
   | .const _ us args _ => visitLevels us ∘ visitArgs args
   | .fvar _ args _ => visitArgs args
 
-def visitParam (p : Param ph) : Visitor :=
+def visitParam (p : Param pu) : Visitor :=
   visitType p.type
 
-def visitParams (ps : Array (Param ph)) : Visitor :=
+def visitParams (ps : Array (Param pu)) : Visitor :=
   fun s => ps.foldl (init := s) fun s p => visitParam p s
 
 mutual
-  partial def visitAlt (alt : Alt ph) : Visitor :=
+  partial def visitAlt (alt : Alt pu) : Visitor :=
     match alt with
     | .default k => visitCode k
     | .alt _ ps k _ => visitCode k ∘ visitParams ps
 
-  partial def visitAlts (alts : Array (Alt ph)) : Visitor :=
+  partial def visitAlts (alts : Array (Alt pu)) : Visitor :=
     fun s => alts.foldl (init := s) fun s alt => visitAlt alt s
 
-  partial def visitCode : Code ph → Visitor
+  partial def visitCode : Code pu → Visitor
     | .let decl k => visitCode k ∘ visitLetValue decl.value ∘ visitType decl.type
     | .fun decl k _ | .jp decl k => visitCode k ∘ visitCode decl.value ∘ visitParams decl.params ∘ visitType decl.type
     | .cases c => visitAlts c.alts ∘ visitType c.resultType
@@ -143,7 +143,7 @@ mutual
     | .jmp _ args => visitArgs args
 end
 
-def visitDeclValue : DeclValue ph → Visitor
+def visitDeclValue : DeclValue pu → Visitor
   | .code c => visitCode c
   | .extern .. => id
 
@@ -156,7 +156,7 @@ open CollectLevelParams
 Collect universe level parameters collecting in the type, parameters, and value, and then
 set `decl.levelParams` with the resulting value.
 -/
-def Decl.setLevelParams (decl : Decl ph) : Decl ph :=
+def Decl.setLevelParams (decl : Decl pu) : Decl pu :=
   let levelParams := (visitDeclValue decl.value ∘ visitParams decl.params ∘ visitType decl.type) {} |>.params.toList
   { decl with levelParams }
 

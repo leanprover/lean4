@@ -112,7 +112,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
       | some ⟨_, { params, .. }⟩ => pure ((args.size < params.size) : Bool)
       | none => pure false
     | .fvar fnFVarId args =>
-      match ← findFunDecl? (ph := .pure) fnFVarId with
+      match ← findFunDecl? (pu := .pure) fnFVarId with
       -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
       -- even with a type specified on the `let` binding.
       | some (.mk (params := params) ..) => pure ((args.size < params.size) : Bool)
@@ -249,7 +249,7 @@ def shouldSpecialize (specEntry : SpecEntry) (args : Array (Arg .pure)) : Specia
         -/
         match arg with
         | .erased | .type .. => return false
-        | .fvar fvar => return (← findParam? (ph := .pure) fvar).isNone
+        | .fvar fvar => return (← findParam? (pu := .pure) fvar).isNone
     else
       fun _ => pure true
   for paramInfo in specEntry.paramsInfo, arg in args do
@@ -423,7 +423,7 @@ mutual
         fun
           | .type .. | .erased => return false
           | .fvar fvar => do
-            if let some param ← findParam? (ph := .pure) fvar then
+            if let some param ← findParam? (pu := .pure) fvar then
               /-
               For now we only allow recursive specialization on non class parameters, reason:
               We can encounter situations where we repeatedly re-abstract over type classes

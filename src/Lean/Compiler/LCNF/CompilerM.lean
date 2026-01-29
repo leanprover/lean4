@@ -72,38 +72,38 @@ instance : AddMessageContext CompilerM where
 
 def getType (fvarId : FVarId) : CompilerM Expr := do
   let lctx := (← get).lctx
-  let ph ← getPurity
-  if let some decl := (lctx.letDecls ph)[fvarId]? then
+  let pu ← getPurity
+  if let some decl := (lctx.letDecls pu)[fvarId]? then
     return decl.type
-  else if let some decl := (lctx.params ph)[fvarId]? then
+  else if let some decl := (lctx.params pu)[fvarId]? then
     return decl.type
-  else if let some decl := (lctx.funDecls ph)[fvarId]? then
+  else if let some decl := (lctx.funDecls pu)[fvarId]? then
     return decl.type
   else
     throwError "unknown free variable {fvarId.name}"
 
 def getBinderName (fvarId : FVarId) : CompilerM Name := do
   let lctx := (← get).lctx
-  let ph ← getPurity
-  if let some decl := (lctx.letDecls ph)[fvarId]? then
+  let pu ← getPurity
+  if let some decl := (lctx.letDecls pu)[fvarId]? then
     return decl.binderName
-  else if let some decl := (lctx.params ph)[fvarId]? then
+  else if let some decl := (lctx.params pu)[fvarId]? then
     return decl.binderName
-  else if let some decl := (lctx.funDecls ph)[fvarId]? then
+  else if let some decl := (lctx.funDecls pu)[fvarId]? then
     return decl.binderName
   else
     throwError "unknown free variable {fvarId.name}"
 
-def findParam? (fvarId : FVarId) : CompilerM (Option (Param ph)) := do
-  return ((← get).lctx.params ph)[fvarId]?
+def findParam? (fvarId : FVarId) : CompilerM (Option (Param pu)) := do
+  return ((← get).lctx.params pu)[fvarId]?
 
-def findLetDecl? (fvarId : FVarId) : CompilerM (Option (LetDecl ph)) := do
-  return ((← get).lctx.letDecls ph)[fvarId]?
+def findLetDecl? (fvarId : FVarId) : CompilerM (Option (LetDecl pu)) := do
+  return ((← get).lctx.letDecls pu)[fvarId]?
 
-def findFunDecl? (fvarId : FVarId) : CompilerM (Option (FunDecl ph)) := do
-  return ((← get).lctx.funDecls ph)[fvarId]?
+def findFunDecl? (fvarId : FVarId) : CompilerM (Option (FunDecl pu)) := do
+  return ((← get).lctx.funDecls pu)[fvarId]?
 
-def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue ph)) := do
+def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue pu)) := do
   let some { value, .. } ← findLetDecl? fvarId | return none
   return some value
 
@@ -111,41 +111,41 @@ def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
   let some (.const declName _ _) ← findLetValue? fvarId | return false
   return (← getEnv).find? declName matches some (.ctorInfo ..)
 
-def Arg.isConstructorApp (arg : Arg ph) : CompilerM Bool := do
+def Arg.isConstructorApp (arg : Arg pu) : CompilerM Bool := do
   let .fvar fvarId := arg | return false
   LCNF.isConstructorApp fvarId
 
-def getParam (fvarId : FVarId) : CompilerM (Param ph) := do
+def getParam (fvarId : FVarId) : CompilerM (Param pu) := do
   let some param ← findParam? fvarId | throwError "unknown parameter {fvarId.name}"
   return param
 
-def getLetDecl (fvarId : FVarId) : CompilerM (LetDecl ph) := do
+def getLetDecl (fvarId : FVarId) : CompilerM (LetDecl pu) := do
   let some decl ← findLetDecl? fvarId | throwError "unknown let-declaration {fvarId.name}"
   return decl
 
-def getFunDecl (fvarId : FVarId) : CompilerM (FunDecl ph) := do
+def getFunDecl (fvarId : FVarId) : CompilerM (FunDecl pu) := do
   let some decl ← findFunDecl? fvarId | throwError "unknown local function {fvarId.name}"
   return decl
 
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
    modify fun s => { s with lctx := f s.lctx }
 
-def eraseLetDecl (decl : LetDecl ph) : CompilerM Unit := do
+def eraseLetDecl (decl : LetDecl pu) : CompilerM Unit := do
   modifyLCtx fun lctx => lctx.eraseLetDecl decl
 
-def eraseFunDecl (decl : FunDecl ph) (recursive := true) : CompilerM Unit := do
+def eraseFunDecl (decl : FunDecl pu) (recursive := true) : CompilerM Unit := do
   modifyLCtx fun lctx => lctx.eraseFunDecl decl recursive
 
-def eraseCode (code : Code ph) : CompilerM Unit := do
+def eraseCode (code : Code pu) : CompilerM Unit := do
   modifyLCtx fun lctx => lctx.eraseCode code
 
-def eraseParam (param : Param ph) : CompilerM Unit :=
+def eraseParam (param : Param pu) : CompilerM Unit :=
   modifyLCtx fun lctx => lctx.eraseParam param
 
-def eraseParams (params : Array (Param ph)) : CompilerM Unit :=
+def eraseParams (params : Array (Param pu)) : CompilerM Unit :=
   modifyLCtx fun lctx => lctx.eraseParams params
 
-def eraseCodeDecl (decl : CodeDecl ph) : CompilerM Unit := do
+def eraseCodeDecl (decl : CodeDecl pu) : CompilerM Unit := do
   match decl with
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl _ => eraseFunDecl decl
@@ -153,14 +153,14 @@ def eraseCodeDecl (decl : CodeDecl ph) : CompilerM Unit := do
 /--
 Erase all free variables occurring in `decls` from the local context.
 -/
-def eraseCodeDecls (decls : Array (CodeDecl ph)) : CompilerM Unit := do
+def eraseCodeDecls (decls : Array (CodeDecl pu)) : CompilerM Unit := do
   decls.forM fun decl => eraseCodeDecl decl
 
-def eraseDecl (decl : Decl ph) : CompilerM Unit := do
+def eraseDecl (decl : Decl pu) : CompilerM Unit := do
   eraseParams decl.params
   decl.value.forCodeM eraseCode
 
-abbrev Decl.erase (decl : Decl ph) : CompilerM Unit :=
+abbrev Decl.erase (decl : Decl pu) : CompilerM Unit :=
   eraseDecl decl
 
 /--
@@ -176,7 +176,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst (ph : Purity) := Std.HashMap FVarId (Arg ph)
+abbrev FVarSubst (pu : Purity) := Std.HashMap FVarId (Arg pu)
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -189,7 +189,7 @@ If `translator = false`, we assume the substitution contains free variable repla
 and given entries such as `x₁ ↦ x₂`, `x₂ ↦ x₃`, ..., `xₙ₋₁ ↦ xₙ`, and the expression `f x₁ x₂`, we want the resulting
 expression to be `f xₙ xₙ`. We use this setting, for example, in the simplifier.
 -/
-private partial def normExprImp (s : FVarSubst ph) (e : Expr) (translator : Bool) : Expr :=
+private partial def normExprImp (s : FVarSubst pu) (e : Expr) (translator : Bool) : Expr :=
   go e
 where
   goApp (e : Expr) : Expr :=
@@ -235,7 +235,7 @@ This function panics if the substitution is mapping `fvarId` to an expression th
 That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
 expressions that are free variables, `lcErased`, or type formers.
 -/
-partial def normFVarImp (s : FVarSubst ph) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
+partial def normFVarImp (s : FVarSubst pu) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
   match s[fvarId]? with
   | some (.fvar fvarId') =>
     if translator then
@@ -252,7 +252,7 @@ Replace the free variables in `arg` using the given substitution.
 
 See `normExprImp`
 -/
-private partial def normArgImp (s : FVarSubst ph) (arg : Arg ph) (translator : Bool) : Arg ph :=
+private partial def normArgImp (s : FVarSubst pu) (arg : Arg pu) (translator : Bool) : Arg pu :=
   match arg with
   | .erased => arg
   | .fvar fvarId =>
@@ -263,7 +263,7 @@ private partial def normArgImp (s : FVarSubst ph) (arg : Arg ph) (translator : B
     | none => arg
   | .type e _ => arg.updateType! (normExprImp s e translator)
 
-private def normArgsImp (s : FVarSubst ph) (args : Array (Arg ph)) (translator : Bool) : Array (Arg ph) :=
+private def normArgsImp (s : FVarSubst pu) (args : Array (Arg pu)) (translator : Bool) : Array (Arg pu) :=
   args.mapMono (normArgImp s · translator)
 
 /--
@@ -271,7 +271,7 @@ Replace the free variables in `e` using the given substitution.
 
 See `normExprImp`
 -/
-private partial def normLetValueImp (s : FVarSubst ph) (e : LetValue ph) (translator : Bool) : LetValue ph :=
+private partial def normLetValueImp (s : FVarSubst pu) (e : LetValue pu) (translator : Bool) : LetValue pu :=
   match e with
   | .erased | .lit .. => e
   | .proj _ _ fvarId _ => match normFVarImp s fvarId translator with
@@ -285,20 +285,20 @@ private partial def normLetValueImp (s : FVarSubst ph) (e : LetValue ph) (transl
 /--
 Interface for monads that have a free substitutions.
 -/
-class MonadFVarSubst (m : Type → Type) (ph : outParam Purity) (translator : outParam Bool) where
-  getSubst : m (FVarSubst ph)
+class MonadFVarSubst (m : Type → Type) (pu : outParam Purity) (translator : outParam Bool) where
+  getSubst : m (FVarSubst pu)
 
 export MonadFVarSubst (getSubst)
 
-instance (m n) [MonadLift m n] [MonadFVarSubst m ph t] : MonadFVarSubst n ph t where
+instance (m n) [MonadLift m n] [MonadFVarSubst m pu t] : MonadFVarSubst n pu t where
   getSubst := liftM (getSubst : m _)
 
-class MonadFVarSubstState (m : Type → Type) (ph : outParam Purity) where
-  modifySubst : (FVarSubst ph → FVarSubst ph) → m Unit
+class MonadFVarSubstState (m : Type → Type) (pu : outParam Purity) where
+  modifySubst : (FVarSubst pu → FVarSubst pu) → m Unit
 
 export MonadFVarSubstState (modifySubst)
 
-instance (m n) [MonadLift m n] [MonadFVarSubstState m ph] : MonadFVarSubstState n ph where
+instance (m n) [MonadLift m n] [MonadFVarSubstState m pu] : MonadFVarSubstState n pu where
   modifySubst f := liftM (modifySubst f : m _)
 
 /--
@@ -306,7 +306,7 @@ Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF `Arg`.
 
 See `Check.lean` for the free variable substitution checker.
 -/
-@[inline] def addSubst [MonadFVarSubstState m ph] (fvarId : FVarId) (arg : Arg ph) : m Unit :=
+@[inline] def addSubst [MonadFVarSubstState m pu] (fvarId : FVarId) (arg : Arg pu) : m Unit :=
   modifySubst fun s => s.insert fvarId arg
 
 /--
@@ -315,26 +315,26 @@ Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
 @[inline] def addFVarSubst [MonadFVarSubstState m ph] (fvarId : FVarId) (fvarId' : FVarId) : m Unit :=
   modifySubst fun s => s.insert fvarId (.fvar fvarId')
 
-@[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m ph t] [Monad m] (fvarId : FVarId) : m NormFVarResult :=
+@[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m pu t] [Monad m] (fvarId : FVarId) : m NormFVarResult :=
   return normFVarImp (← getSubst) fvarId t
 
-@[inline, inherit_doc normExprImp] def normExpr [MonadFVarSubst m ph t] [Monad m] (e : Expr) : m Expr :=
+@[inline, inherit_doc normExprImp] def normExpr [MonadFVarSubst m pu t] [Monad m] (e : Expr) : m Expr :=
   return normExprImp (← getSubst) e t
 
-@[inline, inherit_doc normArgImp] def normArg [MonadFVarSubst m ph t] [Monad m] (arg : Arg ph) : m (Arg ph) :=
+@[inline, inherit_doc normArgImp] def normArg [MonadFVarSubst m pu t] [Monad m] (arg : Arg pu) : m (Arg pu) :=
   return normArgImp (← getSubst) arg t
 
-@[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m ph t] [Monad m] (e : LetValue ph) : m (LetValue ph) :=
+@[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m pu t] [Monad m] (e : LetValue pu) : m (LetValue pu) :=
   return normLetValueImp (← getSubst) e t
 
 @[inherit_doc normExprImp, inline]
-def normExprCore (s : FVarSubst ph) (e : Expr) (translator : Bool) : Expr :=
+def normExprCore (s : FVarSubst pu) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--
 Normalize the given arguments using the current substitution.
 -/
-def normArgs [MonadFVarSubst m ph t] [Monad m] (args : Array (Arg ph)) : m (Array (Arg ph)) :=
+def normArgs [MonadFVarSubst m pu t] [Monad m] (args : Array (Arg pu)) : m (Array (Arg pu)) :=
   return normArgsImp (← getSubst) args t
 
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
@@ -352,35 +352,35 @@ def ensureNotAnonymous (binderName : Name) (baseName : Name) : CompilerM Name :=
 Helper functions for creating LCNF local declarations.
 -/
 
-def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM (Param ph) := do
+def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM (Param pu) := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_y
   let param := { fvarId, binderName, type, borrow }
   modifyLCtx fun lctx => lctx.addParam param
   return param
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : LetValue ph) : CompilerM (LetDecl ph) := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : LetValue pu) : CompilerM (LetDecl pu) := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_x
   let decl := { fvarId, binderName, type, value }
   modifyLCtx fun lctx => lctx.addLetDecl decl
   return decl
 
-def mkFunDecl (binderName : Name) (type : Expr) (params : Array (Param ph)) (value : Code ph) : CompilerM (FunDecl ph) := do
+def mkFunDecl (binderName : Name) (type : Expr) (params : Array (Param pu)) (value : Code pu) : CompilerM (FunDecl pu) := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_f
   let funDecl := ⟨fvarId, binderName, params, type, value⟩
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl
 
-def mkLetDeclErased : CompilerM (LetDecl ph) := do
+def mkLetDeclErased : CompilerM (LetDecl pu) := do
   mkLetDecl (← mkFreshBinderName `_x) erasedExpr .erased
 
-def mkReturnErased : CompilerM (Code ph) := do
+def mkReturnErased : CompilerM (Code pu) := do
   let auxDecl ← mkLetDeclErased
   return .let auxDecl (.return auxDecl.fvarId)
 
-private unsafe def updateParamImp (p : Param ph) (type : Expr) : CompilerM (Param ph) := do
+private unsafe def updateParamImp (p : Param pu) (type : Expr) : CompilerM (Param pu) := do
   if ptrEq type p.type then
     return p
   else
@@ -388,9 +388,9 @@ private unsafe def updateParamImp (p : Param ph) (type : Expr) : CompilerM (Para
     modifyLCtx fun lctx => lctx.addParam p
     return p
 
-@[implemented_by updateParamImp] opaque Param.update (p : Param ph) (type : Expr) : CompilerM (Param ph)
+@[implemented_by updateParamImp] opaque Param.update (p : Param pu) (type : Expr) : CompilerM (Param pu)
 
-private unsafe def updateLetDeclImp (decl : LetDecl ph) (type : Expr) (value : LetValue ph) : CompilerM (LetDecl ph) := do
+private unsafe def updateLetDeclImp (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : CompilerM (LetDecl pu) := do
   if ptrEq type decl.type && ptrEq value decl.value then
     return decl
   else
@@ -398,12 +398,12 @@ private unsafe def updateLetDeclImp (decl : LetDecl ph) (type : Expr) (value : L
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
 
-@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl ph) (type : Expr) (value : LetValue ph) : CompilerM (LetDecl ph)
+@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : CompilerM (LetDecl pu)
 
-def LetDecl.updateValue (decl : LetDecl ph) (value : LetValue ph) : CompilerM (LetDecl ph) :=
+def LetDecl.updateValue (decl : LetDecl pu) (value : LetValue pu) : CompilerM (LetDecl pu) :=
   decl.update decl.type value
 
-private unsafe def updateFunDeclImp (decl : FunDecl ph) (type : Expr) (params : Array (Param ph)) (value : Code ph) : CompilerM (FunDecl ph) := do
+private unsafe def updateFunDeclImp (decl : FunDecl pu) (type : Expr) (params : Array (Param pu)) (value : Code pu) : CompilerM (FunDecl pu) := do
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     return decl
   else
@@ -411,45 +411,45 @@ private unsafe def updateFunDeclImp (decl : FunDecl ph) (type : Expr) (params : 
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return decl
 
-@[implemented_by updateFunDeclImp] opaque FunDecl.update (decl : FunDecl ph) (type : Expr) (params : Array (Param ph)) (value : Code ph) : CompilerM (FunDecl ph)
+@[implemented_by updateFunDeclImp] opaque FunDecl.update (decl : FunDecl pu) (type : Expr) (params : Array (Param pu)) (value : Code pu) : CompilerM (FunDecl pu)
 
-abbrev FunDecl.update' (decl : FunDecl ph) (type : Expr) (value : Code ph) : CompilerM (FunDecl ph) :=
+abbrev FunDecl.update' (decl : FunDecl pu) (type : Expr) (value : Code pu) : CompilerM (FunDecl pu) :=
   decl.update type decl.params value
 
-abbrev FunDecl.updateValue (decl : FunDecl ph) (value : Code ph) : CompilerM (FunDecl ph) :=
+abbrev FunDecl.updateValue (decl : FunDecl pu) (value : Code pu) : CompilerM (FunDecl pu) :=
   decl.update decl.type decl.params value
 
-@[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (p : Param ph) : m (Param ph) := do
+@[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (p : Param pu) : m (Param pu) := do
   p.update (← normExpr p.type)
 
-def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (ps : Array (Param ph)) : m (Array (Param ph)) :=
+def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (ps : Array (Param pu)) : m (Array (Param pu)) :=
   ps.mapMonoM normParam
 
-def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (decl : LetDecl ph) : m (LetDecl ph) := do
+def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (decl : LetDecl pu) : m (LetDecl pu) := do
   decl.update (← normExpr decl.type) (← normLetValue decl.value)
 
-abbrev NormalizerM (ph : Purity) (_translator : Bool) := ReaderT (FVarSubst ph) CompilerM
+abbrev NormalizerM (pu : Purity) (_translator : Bool) := ReaderT (FVarSubst pu) CompilerM
 
-instance : MonadFVarSubst (NormalizerM ph t) ph t where
+instance : MonadFVarSubst (NormalizerM pu t) pu t where
   getSubst := read
 
 /--
 If `result` is `.fvar fvarId`, then return `x fvarId`. Otherwise, it is `.erased`,
 and method returns `let _x.i := .erased; return _x.i`.
 -/
-@[inline] def withNormFVarResult [MonadLiftT CompilerM m] [Monad m] (result : NormFVarResult) (x : FVarId → m (Code ph)) : m (Code ph) := do
+@[inline] def withNormFVarResult [MonadLiftT CompilerM m] [Monad m] (result : NormFVarResult) (x : FVarId → m (Code pu)) : m (Code pu) := do
   match result with
   | .fvar fvarId => x fvarId
   | .erased => mkReturnErased
 
 mutual
-  partial def normFunDeclImp (decl : FunDecl ph) : NormalizerM ph t (FunDecl ph) := do
+  partial def normFunDeclImp (decl : FunDecl pu) : NormalizerM pu t (FunDecl pu) := do
     let type ← normExpr decl.type
     let params ← normParams decl.params
     let value ← normCodeImp decl.value
     decl.update type params value
 
-  partial def normCodeImp (code : Code ph) : NormalizerM ph t (Code ph) := do
+  partial def normCodeImp (code : Code pu) : NormalizerM pu t (Code pu) := do
     match code with
     | .let decl k => return code.updateLet! (← normLetDecl decl) (← normCodeImp k)
     | .fun decl k _ | .jp decl k => return code.updateFun! (← normFunDeclImp decl) (← normCodeImp k)
@@ -466,23 +466,23 @@ mutual
         return code.updateCases! resultType discr alts
 end
 
-@[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (decl : FunDecl ph) : m (FunDecl ph) := do
+@[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (decl : FunDecl pu) : m (FunDecl pu) := do
   normFunDeclImp (t := t) decl (← getSubst)
 
 /-- Similar to `internalize`, but does not refresh `FVarId`s. -/
-@[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m ph t] (code : Code ph) : m (Code ph) := do
+@[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (code : Code pu) : m (Code pu) := do
   normCodeImp (t := t) code (← getSubst)
 
-def replaceExprFVars (e : Expr) (s : FVarSubst ph) (translator : Bool) : CompilerM Expr :=
-  (normExpr e : NormalizerM ph translator Expr).run s
+def replaceExprFVars (e : Expr) (s : FVarSubst pu) (translator : Bool) : CompilerM Expr :=
+  (normExpr e : NormalizerM pu translator Expr).run s
 
-def replaceFVars (code : Code ph) (s : FVarSubst ph) (translator : Bool) : CompilerM (Code ph) :=
-  (normCode code : NormalizerM ph translator (Code ph)).run s
+def replaceFVars (code : Code pu) (s : FVarSubst pu) (translator : Bool) : CompilerM (Code pu) :=
+  (normCode code : NormalizerM pu translator (Code pu)).run s
 
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp
 
-def mkAuxParam (type : Expr) (borrow := false) : CompilerM (Param ph) := do
+def mkAuxParam (type : Expr) (borrow := false) : CompilerM (Param pu) := do
   mkParam (← mkFreshBinderName `_y) type borrow
 
 def getConfig : CompilerM ConfigOptions :=

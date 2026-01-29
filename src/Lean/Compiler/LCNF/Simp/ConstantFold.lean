@@ -66,7 +66,7 @@ def mkAuxLit [Literal α] (x : α) (prefixName := `_x) : FolderM FVarId := do
   mkAuxLetDecl lit prefixName
 
 partial def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
-  let some (.lit (.nat n)) ← findLetValue? (ph := .pure) fvarId | return none
+  let some (.lit (.nat n)) ← findLetValue? (pu := .pure) fvarId | return none
   return n
 
 def mkNatLit (n : Nat) : FolderM (LetValue .pure) :=
@@ -77,7 +77,7 @@ instance : Literal Nat where
   mkLit := mkNatLit
 
 def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
-  let some (.lit (.str s)) ← findLetValue? (ph := .pure) fvarId | return none
+  let some (.lit (.str s)) ← findLetValue? (pu := .pure) fvarId | return none
   return s
 
 def mkStringLit (n : String) : FolderM (LetValue .pure) :=
@@ -115,7 +115,7 @@ instance : Literal Char := mkNatWrapperInstance Char.ofNat ``Char.ofNat Char.toN
 
 def mkUIntInstance (matchLit : LitValue → Option α) (litValueCtor : α → LitValue) : Literal α where
   getLit fvarId := do
-    let some (.lit litVal) ← findLetValue? (ph := .pure) fvarId | return none
+    let some (.lit litVal) ← findLetValue? (pu := .pure) fvarId | return none
     return matchLit litVal
   mkLit x :=
     return .lit <| litValueCtor x
@@ -354,7 +354,7 @@ def Folder.ofNat (f : Nat → LitValue) (args : Array (Arg .pure)) : FolderM (Op
 
 def Folder.toNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
   let #[.fvar fvarId] := args | return none
-  let some (.lit lit) ← findLetValue? (ph := .pure) fvarId | return none
+  let some (.lit lit) ← findLetValue? (pu := .pure) fvarId | return none
   match lit with
   | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return some (.lit (.nat v.toNat))
   | .nat _ | .str _ => return none

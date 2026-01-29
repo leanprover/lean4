@@ -21,23 +21,23 @@ private def typeDepOn (e : Expr) : M Bool := do
   let s ← read
   return e.hasAnyFVar fun fvarId => s.contains fvarId
 
-private def argDepOn (a : Arg ph) : M Bool := do
+private def argDepOn (a : Arg pu) : M Bool := do
   match a with
   | .erased => return false
   | .fvar fvarId => fvarDepOn fvarId
   | .type e _ => typeDepOn e
 
-private def letValueDepOn (e : LetValue ph) : M Bool :=
+private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
   | .proj _ _ fvarId _ => fvarDepOn fvarId
   | .fvar fvarId args _ => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args _ => args.anyM argDepOn
 
-private def LetDecl.depOn (decl : LetDecl ph) : M Bool :=
+private def LetDecl.depOn (decl : LetDecl pu) : M Bool :=
   typeDepOn decl.type <||> letValueDepOn decl.value
 
-private partial def depOn (c : Code ph) : M Bool :=
+private partial def depOn (c : Code pu) : M Bool :=
   match c with
   | .let decl k => decl.depOn <||> depOn k
   | .jp decl k | .fun decl k _ => typeDepOn decl.type <||> depOn decl.value <||> depOn k
@@ -46,13 +46,13 @@ private partial def depOn (c : Code ph) : M Bool :=
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
 
-@[inline] def LetDecl.dependsOn (decl : LetDecl ph) (s : FVarIdSet) :  Bool :=
+@[inline] def LetDecl.dependsOn (decl : LetDecl pu) (s : FVarIdSet) :  Bool :=
   decl.depOn s
 
-@[inline] def FunDecl.dependsOn (decl : FunDecl ph) (s : FVarIdSet) :  Bool :=
+@[inline] def FunDecl.dependsOn (decl : FunDecl pu) (s : FVarIdSet) :  Bool :=
   typeDepOn decl.type s || depOn decl.value s
 
-def CodeDecl.dependsOn (decl : CodeDecl ph) (s : FVarIdSet) : Bool :=
+def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
@@ -60,7 +60,7 @@ def CodeDecl.dependsOn (decl : CodeDecl ph) (s : FVarIdSet) : Bool :=
 /--
 Return `true` is `c` depends on a free variable in `s`.
 -/
-def Code.dependsOn (c : Code ph) (s : FVarIdSet) : Bool :=
+def Code.dependsOn (c : Code pu) (s : FVarIdSet) : Bool :=
   depOn c s
 
 end Lean.Compiler.LCNF

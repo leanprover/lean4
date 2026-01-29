@@ -142,6 +142,10 @@ public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· 
     (h : a < b) : ¬ b < a :=
   i.asymm a b h
 
+public theorem lt_irrefl {α : Type u} [LT α] [i : Std.Irrefl (α := α) (· < ·)] {a : α} :
+    ¬ a < a :=
+  i.irrefl a
+
 public theorem le_of_lt {α : Type u} [LT α] [LE α] [LawfulOrderLT α] {a b : α} (h : a < b) :
     a ≤ b := (lt_iff_le_and_not_ge.1 h).1
 

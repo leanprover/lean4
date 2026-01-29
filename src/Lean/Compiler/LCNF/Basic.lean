@@ -124,7 +124,7 @@ inductive LetValue (pu : Purity) where
   | erased
   | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : pu = .pure := by purity_tac)
   | const (declName : Name) (us : List Level) (args : Array (Arg pu)) (h : pu = .pure := by purity_tac)
-  | fvar (fvarId : FVarId) (args : Array (Arg pu)) (h : pu = .pure := by purity_tac)
+  | fvar (fvarId : FVarId) (args : Array (Arg pu))
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg .pure) : LetValue .pure :=
@@ -148,7 +148,7 @@ private unsafe def LetValue.updateConstImp (e : LetValue pu) (declName' : Name) 
 
 private unsafe def LetValue.updateFVarImp (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
-  | .fvar fvarId args h => if fvarId == fvarId' && ptrEq args args' then e else .fvar fvarId' args'
+  | .fvar fvarId args => if fvarId == fvarId' && ptrEq args args' then e else .fvar fvarId' args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu
@@ -156,7 +156,7 @@ private unsafe def LetValue.updateFVarImp (e : LetValue pu) (fvarId' : FVarId) (
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
-  | .fvar fvarId args h => if ptrEq args args' then e else .fvar fvarId args'
+  | .fvar fvarId args => if ptrEq args args' then e else .fvar fvarId args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu
@@ -167,7 +167,7 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .erased => erasedExpr
   | .proj n i s _ => .proj n i (.fvar s)
   | .const n us as _ => mkAppN (.const n us) (as.map Arg.toExpr)
-  | .fvar fvarId as _ => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
+  | .fvar fvarId as => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -549,7 +549,7 @@ where
   instLetValue (e : LetValue .pure) : LetValue .pure :=
     match e with
     | .const declName vs args _ => e.updateConst! declName (vs.mapMono instLevel) (args.mapMono instArg)
-    | .fvar fvarId args _ => e.updateFVar! fvarId (args.mapMono instArg)
+    | .fvar fvarId args => e.updateFVar! fvarId (args.mapMono instArg)
     | .proj .. | .lit .. | .erased => e
 
   instLetDecl (decl : LetDecl .pure) :=
@@ -773,7 +773,7 @@ private def collectArgs (args : Array (Arg pu)) (s : FVarIdHashSet) : FVarIdHash
 
 private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match e with
-  | .fvar fvarId args _ => collectArgs args <| s.insert fvarId
+  | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args _ => collectArgs args s
   | .proj _ _ fvarId _ => s.insert fvarId
   | .lit .. | .erased => s

@@ -62,7 +62,7 @@ def eqvLetValue (e₁ e₂ : LetValue pu) : EqvM Bool := do
   | .erased, .erased => return true
   | .proj s₁ i₁ x₁ _, .proj s₂ i₂ x₂ _ => pure (s₁ == s₂ && i₁ == i₂) <&&> eqvFVar x₁ x₂
   | .const n₁ us₁ as₁ _, .const n₂ us₂ as₂ _ => pure (n₁ == n₂ && us₁ == us₂) <&&> eqvArgs as₁ as₂
-  | .fvar f₁ as₁ _, .fvar f₂ as₂ _ => eqvFVar f₁ f₂ <&&> eqvArgs as₁ as₂
+  | .fvar f₁ as₁, .fvar f₂ as₂ => eqvFVar f₁ f₂ <&&> eqvArgs as₁ as₂
   | _, _ => return false
 
 @[inline] def withFVar (fvarId₁ fvarId₂ : FVarId) (x : EqvM α) : EqvM α :=

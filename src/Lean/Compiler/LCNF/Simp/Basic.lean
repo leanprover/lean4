@@ -25,7 +25,7 @@ let _x.2 := _f.1
 partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option (FunDecl pu)) := do
   if let some decl ← findFunDecl? (pu := pu) fvarId then
     return decl
-  else if let some (.fvar fvarId' #[]) ← findLetValue? fvarId then
+  else if let some (.fvar fvarId' #[]) ← findLetValue? (pu := pu) fvarId then
     findFunDecl'? fvarId'
   else
     return none

@@ -69,7 +69,7 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .erased => return "◾"
   | .lit v => ppLitValue v
   | .proj _ i fvarId _ => return f!"{← ppFVar fvarId} # {i}"
-  | .fvar fvarId args _ => return f!"{← ppFVar fvarId}{← ppArgs args}"
+  | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args _ => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
 
 def ppParam (param : Param pu) : M Format := do

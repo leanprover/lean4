@@ -99,7 +99,7 @@ private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (Let
     | .fvar fvarId' => return e.updateProj! fvarId'
     | .erased => return .erased
   | .const _ _ args _ => return e.updateArgs! (← internalizeArgs args)
-  | .fvar fvarId args _ => match (← normFVar fvarId) with
+  | .fvar fvarId args => match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateFVar! fvarId' (← internalizeArgs args)
     | .erased => return .erased
 

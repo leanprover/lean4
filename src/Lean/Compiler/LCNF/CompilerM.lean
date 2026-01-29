@@ -278,7 +278,7 @@ private partial def normLetValueImp (s : FVarSubst pu) (e : LetValue pu) (transl
     | .fvar fvarId' => e.updateProj! fvarId'
     | .erased => .erased
   | .const _ _ args _ => e.updateArgs! (normArgsImp s args translator)
-  | .fvar fvarId args _ => match normFVarImp s fvarId translator with
+  | .fvar fvarId args => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateFVar! fvarId' (normArgsImp s args translator)
     | .erased => .erased
 

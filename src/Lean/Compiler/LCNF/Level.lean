@@ -117,7 +117,7 @@ def visitLetValue (e : LetValue pu) : Visitor :=
   match e with
   | .erased | .lit .. | .proj .. => id
   | .const _ us args _ => visitLevels us ∘ visitArgs args
-  | .fvar _ args _ => visitArgs args
+  | .fvar _ args => visitArgs args
 
 def visitParam (p : Param pu) : Visitor :=
   visitType p.type

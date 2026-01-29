@@ -43,7 +43,7 @@ def ppFVar (fvarId : FVarId) : M Format :=
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }
 
-def ppArg (e : Arg ph) : M Format := do
+def ppArg (e : Arg pu) : M Format := do
   match e with
   | .erased => return "◾"
   | .fvar fvarId => ppFVar fvarId
@@ -56,7 +56,7 @@ def ppArg (e : Arg ph) : M Format := do
     else
       return "_"
 
-def ppArgs (args : Array (Arg ph)) : M Format := do
+def ppArgs (args : Array (Arg pu)) : M Format := do
   prefixJoin " " args ppArg
 
 def ppLitValue (lit : LitValue) : M Format := do
@@ -64,7 +64,7 @@ def ppLitValue (lit : LitValue) : M Format := do
   | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return format v
   | .str v => return format (repr v)
 
-def ppLetValue (e : LetValue ph) : M Format := do
+def ppLetValue (e : LetValue pu) : M Format := do
   match e with
   | .erased => return "◾"
   | .lit v => ppLitValue v
@@ -72,38 +72,38 @@ def ppLetValue (e : LetValue ph) : M Format := do
   | .fvar fvarId args _ => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args _ => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
 
-def ppParam (param : Param ph) : M Format := do
+def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""
   if pp.funBinderTypes.get (← getOptions) then
     return Format.paren f!"{param.binderName} : {borrow}{← ppExpr param.type}"
   else
     return format s!"{borrow}{param.binderName}"
 
-def ppParams (params : Array (Param ph)) : M Format := do
+def ppParams (params : Array (Param pu)) : M Format := do
   prefixJoin " " params ppParam
 
-def ppLetDecl (letDecl : LetDecl ph) : M Format := do
+def ppLetDecl (letDecl : LetDecl pu) : M Format := do
   if pp.letVarTypes.get (← getOptions) then
     return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetValue letDecl.value}"
   else
     return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
 
-def getFunType (ps : Array (Param ph)) (type : Expr) : CoreM Expr :=
+def getFunType (ps : Array (Param pu)) (type : Expr) : CoreM Expr :=
   if type.isErased then
     pure type
   else
     instantiateForall type (ps.map (mkFVar ·.fvarId))
 
 mutual
-  partial def ppFunDecl (funDecl : FunDecl ph) : M Format := do
+  partial def ppFunDecl (funDecl : FunDecl pu) : M Format := do
     return f!"{funDecl.binderName}{← ppParams funDecl.params} : {← ppExpr (← getFunType funDecl.params funDecl.type)} :={indentD (← ppCode funDecl.value)}"
 
-  partial def ppAlt (alt : Alt ph) : M Format := do
+  partial def ppAlt (alt : Alt pu) : M Format := do
     match alt with
     | .default k => return f!"| _ =>{indentD (← ppCode k)}"
     | .alt ctorName params k _ => return f!"| {ctorName}{← ppParams params} =>{indentD (← ppCode k)}"
 
-  partial def ppCode (c : Code ph) : M Format := do
+  partial def ppCode (c : Code pu) : M Format := do
     match c with
     | .let decl k => return (← ppLetDecl decl) ++ ";" ++ .line ++ (← ppCode k)
     | .fun decl k _ => return f!"fun " ++ (← ppFunDecl decl) ++ ";" ++ .line ++ (← ppCode k)
@@ -117,7 +117,7 @@ mutual
       else
         return "⊥"
 
-  partial def ppDeclValue (b : DeclValue ph) : M Format := do
+  partial def ppDeclValue (b : DeclValue pu) : M Format := do
     match b with
     | .code c => ppCode c
     | .extern .. => return "extern"
@@ -129,17 +129,17 @@ def run (x : M α) : CompilerM α :=
 
 end PP
 
-def ppCode (code : Code ph) : CompilerM Format :=
+def ppCode (code : Code pu) : CompilerM Format :=
   PP.run <| PP.ppCode code
 
-def ppLetValue (e : LetValue ph) : CompilerM Format :=
+def ppLetValue (e : LetValue pu) : CompilerM Format :=
   PP.run <| PP.ppLetValue e
 
-def ppDecl (decl : Decl ph) : CompilerM Format :=
+def ppDecl (decl : Decl pu) : CompilerM Format :=
   PP.run do
     return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppDeclValue decl.value)}"
 
-def ppFunDecl (decl : FunDecl ph) : CompilerM Format :=
+def ppFunDecl (decl : FunDecl pu) : CompilerM Format :=
   PP.run do
     return f!"fun {← PP.ppFunDecl decl}"
 
@@ -159,7 +159,7 @@ Similar to `ppDecl`, but in `CoreM`, and it does not assume
 `decl` has already been internalized.
 This function is used for debugging purposes.
 -/
-def ppDecl' (decl : Decl ph) : CoreM Format := do
+def ppDecl' (decl : Decl pu) : CoreM Format := do
   runCompilerWithoutModifyingState do
     ppDecl (← decl.internalize)
 
@@ -167,7 +167,7 @@ def ppDecl' (decl : Decl ph) : CoreM Format := do
 Similar to `ppCode`, but in `CoreM`, and it does not assume
 `code` has already been internalized.
 -/
-def ppCode' (code : Code ph) : CoreM Format := do
+def ppCode' (code : Code pu) : CoreM Format := do
   runCompilerWithoutModifyingState do
     ppCode (← code.internalize)
 

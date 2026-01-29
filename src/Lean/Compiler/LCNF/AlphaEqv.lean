@@ -40,14 +40,14 @@ def eqvTypes (es₁ es₂ : Array Expr) : EqvM Bool := do
   else
     return false
 
-def eqvArg (a₁ a₂ : Arg ph) : EqvM Bool := do
+def eqvArg (a₁ a₂ : Arg pu) : EqvM Bool := do
   match a₁, a₂ with
   | .type e₁ _, .type e₂ _ => eqvType e₁ e₂
   | .fvar x₁, .fvar x₂ => eqvFVar x₁ x₂
   | .erased, .erased => return true
   | _, _ => return false
 
-def eqvArgs (as₁ as₂ : Array (Arg ph)) : EqvM Bool := do
+def eqvArgs (as₁ as₂ : Array (Arg pu)) : EqvM Bool := do
   if as₁.size = as₂.size then
     for a₁ in as₁, a₂ in as₂ do
       unless (← eqvArg a₁ a₂) do
@@ -56,7 +56,7 @@ def eqvArgs (as₁ as₂ : Array (Arg ph)) : EqvM Bool := do
   else
     return false
 
-def eqvLetValue (e₁ e₂ : LetValue ph) : EqvM Bool := do
+def eqvLetValue (e₁ e₂ : LetValue pu) : EqvM Bool := do
   match e₁, e₂ with
   | .lit v₁, .lit v₂ => return v₁ == v₂
   | .erased, .erased => return true
@@ -68,7 +68,7 @@ def eqvLetValue (e₁ e₂ : LetValue ph) : EqvM Bool := do
 @[inline] def withFVar (fvarId₁ fvarId₂ : FVarId) (x : EqvM α) : EqvM α :=
   withReader (·.insert fvarId₂ fvarId₁) x
 
-@[inline] def withParams (params₁ params₂ : Array (Param ph)) (x : EqvM Bool) : EqvM Bool := do
+@[inline] def withParams (params₁ params₂ : Array (Param pu)) (x : EqvM Bool) : EqvM Bool := do
   if h : params₂.size = params₁.size then
     let rec @[specialize] go (i : Nat) : EqvM Bool := do
       if h : i < params₁.size then
@@ -85,7 +85,7 @@ def eqvLetValue (e₁ e₂ : LetValue ph) : EqvM Bool := do
   else
     return false
 
-def sortAlts (alts : Array (Alt ph)) : Array (Alt ph) :=
+def sortAlts (alts : Array (Alt pu)) : Array (Alt pu) :=
   alts.qsort fun
     | .alt .., .default .. => true
     | .alt ctorName₁ .., .alt ctorName₂ .. => Name.lt ctorName₁ ctorName₂
@@ -93,7 +93,7 @@ def sortAlts (alts : Array (Alt ph)) : Array (Alt ph) :=
 
 mutual
 
-partial def eqvAlts (alts₁ alts₂ : Array (Alt ph)) : EqvM Bool := do
+partial def eqvAlts (alts₁ alts₂ : Array (Alt pu)) : EqvM Bool := do
   if alts₁.size = alts₂.size then
     let alts₁ := sortAlts alts₁
     let alts₂ := sortAlts alts₂
@@ -108,7 +108,7 @@ partial def eqvAlts (alts₁ alts₂ : Array (Alt ph)) : EqvM Bool := do
   else
     return false
 
-partial def eqv (code₁ code₂ : Code ph) : EqvM Bool := do
+partial def eqv (code₁ code₂ : Code pu) : EqvM Bool := do
   match code₁, code₂ with
   | .let decl₁ k₁, .let decl₂ k₂ =>
     eqvType decl₁.type decl₂.type <&&>
@@ -135,7 +135,7 @@ end AlphaEqv
 /--
 Return `true` if `c₁` and `c₂` are alpha equivalent.
 -/
-def Code.alphaEqv (c₁ c₂ : Code ph) : Bool :=
+def Code.alphaEqv (c₁ c₂ : Code pu) : Bool :=
   AlphaEqv.eqv c₁ c₂ |>.run {}
 
 end Lean.Compiler.LCNF

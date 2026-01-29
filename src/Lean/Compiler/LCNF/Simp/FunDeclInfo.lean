@@ -101,7 +101,7 @@ where
   addArgOcc (arg : Arg .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match arg with
     | .fvar fvarId =>
-      let some funDecl ← findFunDecl'? (ph := .pure) fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.addHo funDecl.fvarId
     | .erased .. | .type .. => return ()
 
@@ -110,7 +110,7 @@ where
     | .erased | .lit .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
     | .fvar fvarId args =>
-      let some funDecl ← findFunDecl'? (ph := .pure) fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
 
@@ -126,7 +126,7 @@ where
     | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .jmp fvarId args =>
-      let funDecl ← getFunDecl (ph := .pure) fvarId
+      let funDecl ← getFunDecl (pu := .pure) fvarId
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
     | .return .. | .unreach .. => return ()

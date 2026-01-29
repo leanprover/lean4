@@ -205,7 +205,7 @@ partial def checkFunDeclCore (declName : Name) (params : Array (Param .pure)) (t
 
 partial def checkFunDecl (funDecl : FunDecl .pure) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.params funDecl.type funDecl.value
-  let decl ← getFunDecl (ph := .pure) funDecl.fvarId
+  let decl ← getFunDecl (pu := .pure) funDecl.fvarId
   unless decl.binderName == funDecl.binderName do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, binder name in local context `{decl.binderName}`"
   unless decl.type == funDecl.type do
@@ -243,7 +243,7 @@ partial def check (code : Code .pure) : CheckM Unit := do
   | .cases c => checkCases c
   | .jmp fvarId args =>
     checkJpInScope fvarId
-    let decl ← getFunDecl (ph := .pure) fvarId
+    let decl ← getFunDecl (pu := .pure) fvarId
     unless decl.getArity == args.size do
       throwError "invalid LCNF `goto`, join point {decl.binderName} has #{decl.getArity} parameters, but #{args.size} were provided"
     checkAppArgs (.fvar fvarId) args
@@ -258,8 +258,8 @@ def run (x : CheckM α) : CompilerM α :=
 end Pure
 end Check
 
-def Decl.check (decl : Decl ph) : CompilerM Unit := do
-  match ph with
+def Decl.check (decl : Decl pu) : CompilerM Unit := do
+  match pu with
   | .pure => Check.Pure.run do decl.value.forCodeM (Check.Pure.checkFunDeclCore decl.name decl.params decl.type)
   | .impure => panic! "Check for impure unimplemented" -- TODO
 

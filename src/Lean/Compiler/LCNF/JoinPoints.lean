@@ -571,7 +571,7 @@ where
           goAnalyze alt.getCode
       cs.alts.forM visitor
     | .jmp fn args =>
-      let decl ← getFunDecl (ph := .pure) fn
+      let decl ← getFunDecl (pu := .pure) fn
       if let some knownArgs := (← get).jpJmpArgs.get? fn then
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
@@ -613,7 +613,7 @@ where
         return Code.updateFun! code decl (← goReduce k)
     | .jmp fn args =>
       let reducibleArgs := (← read).jpJmpArgs.get! fn
-      let decl ← getFunDecl (ph := .pure) fn
+      let decl ← getFunDecl (pu := .pure) fn
       let newParams := decl.params.zip args
         |>.filter (!reducibleArgs.contains ·.fst.fvarId)
         |>.map Prod.snd

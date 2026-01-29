@@ -13,14 +13,14 @@ namespace Lean.Compiler.LCNF
 
 namespace SplitScc
 
-partial def findSccCalls (scc : Std.HashMap Name (Decl ph)) (decl : Decl ph) : BaseIO (Std.HashSet Name) := do
+partial def findSccCalls (scc : Std.HashMap Name (Decl pu)) (decl : Decl pu) : BaseIO (Std.HashSet Name) := do
   match decl.value with
   | .code code =>
     let (_, calls) ← goCode code |>.run {}
     return calls
   | .extern .. => return {}
 where
-  goCode (c : Code ph) : StateRefT (Std.HashSet Name) BaseIO Unit := do
+  goCode (c : Code pu) : StateRefT (Std.HashSet Name) BaseIO Unit := do
     match c with
     | .let decl k =>
       if let .const name .. := decl.value then
@@ -35,7 +35,7 @@ where
 
 end SplitScc
 
-public def splitScc (scc : Array (Decl ph)) : CompilerM (Array (Array (Decl ph))) := do
+public def splitScc (scc : Array (Decl pu)) : CompilerM (Array (Array (Decl pu))) := do
   if scc.size == 1 then
     return #[scc]
   let declMap := Std.HashMap.ofArray <| scc.map fun decl => (decl.name, decl)

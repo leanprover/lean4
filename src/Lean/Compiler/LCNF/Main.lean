@@ -51,7 +51,7 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array (Decl ph)) (shouldCheck : Bool) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.set `pp.motives.pi false) do
@@ -120,7 +120,7 @@ where
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
       CompilerM (Array (Decl outPhase)) := do
     profileitM Exception profilerName (← getOptions) do
-      let mut state : (ph : Purity) × Array (Decl ph) := ⟨inPhase, decls⟩
+      let mut state : (pu : Purity) × Array (Decl pu) := ⟨inPhase, decls⟩
       for pass in passes do
         state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
           let decls ← withPhase pass.phase do

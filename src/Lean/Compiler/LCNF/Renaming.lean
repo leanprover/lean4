@@ -16,7 +16,7 @@ A mapping from free variable id to binder name.
 -/
 abbrev Renaming := FVarIdMap Name
 
-def Param.applyRenaming (param : Param ph) (r : Renaming) : CompilerM (Param ph) := do
+def Param.applyRenaming (param : Param pu) (r : Renaming) : CompilerM (Param pu) := do
   if let some binderName := r.get? param.fvarId then
     let param := { param with binderName }
     modifyLCtx fun lctx => lctx.addParam param
@@ -24,7 +24,7 @@ def Param.applyRenaming (param : Param ph) (r : Renaming) : CompilerM (Param ph)
   else
     return param
 
-def LetDecl.applyRenaming (decl : LetDecl ph) (r : Renaming) : CompilerM (LetDecl ph) := do
+def LetDecl.applyRenaming (decl : LetDecl pu) (r : Renaming) : CompilerM (LetDecl pu) := do
   if let some binderName := r.get? decl.fvarId then
     let decl := { decl with binderName }
     modifyLCtx fun lctx => lctx.addLetDecl decl
@@ -33,7 +33,7 @@ def LetDecl.applyRenaming (decl : LetDecl ph) (r : Renaming) : CompilerM (LetDec
     return decl
 
 mutual
-partial def FunDecl.applyRenaming (decl : (FunDecl ph)) (r : Renaming) : CompilerM (FunDecl ph) := do
+partial def FunDecl.applyRenaming (decl : (FunDecl pu)) (r : Renaming) : CompilerM (FunDecl pu) := do
   if let some binderName := r.get? decl.fvarId then
     let decl := decl.updateBinderName binderName
     modifyLCtx fun lctx => lctx.addFunDecl decl
@@ -41,7 +41,7 @@ partial def FunDecl.applyRenaming (decl : (FunDecl ph)) (r : Renaming) : Compile
   else
     decl.updateValue (← decl.value.applyRenaming r)
 
-partial def Code.applyRenaming (code : Code ph) (r : Renaming) : CompilerM (Code ph) := do
+partial def Code.applyRenaming (code : Code pu) (r : Renaming) : CompilerM (Code pu) := do
   match code with
   | .let decl k => return code.updateLet! (← decl.applyRenaming r) (← k.applyRenaming r)
   | .fun decl k _ | .jp decl k => return code.updateFun! (← decl.applyRenaming r) (← k.applyRenaming r)
@@ -54,7 +54,7 @@ partial def Code.applyRenaming (code : Code ph) (r : Renaming) : CompilerM (Code
   | .jmp .. | .unreach .. | .return .. => return code
 end
 
-def Decl.applyRenaming (decl : Decl ph) (r : Renaming) : CompilerM (Decl ph) := do
+def Decl.applyRenaming (decl : Decl pu) (r : Renaming) : CompilerM (Decl pu) := do
   if r.isEmpty then
     return decl
   else

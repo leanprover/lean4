@@ -251,23 +251,23 @@ end InferType
 def inferType (e : Expr) : CompilerM Expr :=
   InferType.Pure.inferType e |>.run {}
 
-def inferAppType (fnType : Expr) (args : Array (Arg ph)) : CompilerM Expr :=
-  match ph with
+def inferAppType (fnType : Expr) (args : Array (Arg pu)) : CompilerM Expr :=
+  match pu with
   | .pure => InferType.Pure.inferAppTypeCore fnType args |>.run {}
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-def Arg.inferType (arg : Arg ph) : CompilerM Expr :=
-  match ph with
+def Arg.inferType (arg : Arg pu) : CompilerM Expr :=
+  match pu with
   | .pure => InferType.Pure.inferArgType arg |>.run {}
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-def LetValue.inferType (e : LetValue ph) : CompilerM Expr :=
-  match ph with
+def LetValue.inferType (e : LetValue pu) : CompilerM Expr :=
+  match pu with
   | .pure => InferType.Pure.inferLetValueType e |>.run {}
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-def Code.inferType (code : Code ph) : CompilerM Expr := do
-  match ph with
+def Code.inferType (code : Code pu) : CompilerM Expr := do
+  match pu with
   | .pure =>
     match code with
     | .let _ k | .fun _ k _ | .jp _ k => k.inferType
@@ -277,24 +277,24 @@ def Code.inferType (code : Code ph) : CompilerM Expr := do
     | .cases c => return c.resultType
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-def Code.inferParamType (params : Array (Param ph)) (code : Code ph) : CompilerM Expr := do
+def Code.inferParamType (params : Array (Param pu)) (code : Code pu) : CompilerM Expr := do
   let type ← code.inferType
   let xs := params.map fun p => .fvar p.fvarId
   InferType.Pure.mkForallFVars xs type |>.run {}
 
-def Alt.inferType (alt : Alt ph) : CompilerM Expr :=
+def Alt.inferType (alt : Alt pu) : CompilerM Expr :=
   alt.getCode.inferType
 
-def mkAuxLetDecl (e : LetValue ph) (prefixName := `_x) : CompilerM (LetDecl ph) := do
+def mkAuxLetDecl (e : LetValue pu) (prefixName := `_x) : CompilerM (LetDecl pu) := do
   mkLetDecl (← mkFreshBinderName prefixName) (← e.inferType) e
 
-def mkForallParams (params : Array (Param ph)) (type : Expr) : CompilerM Expr :=
-  match ph with
+def mkForallParams (params : Array (Param pu)) (type : Expr) : CompilerM Expr :=
+  match pu with
   | .pure => InferType.Pure.mkForallParams params type |>.run {}
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-private def mkAuxFunDeclAux (params : Array (Param ph)) (code : Code ph) (prefixName : Name) :
-    CompilerM (FunDecl ph) := do
+private def mkAuxFunDeclAux (params : Array (Param pu)) (code : Code pu) (prefixName : Name) :
+    CompilerM (FunDecl pu) := do
   let type ← mkForallParams params (← code.inferType)
   let binderName ← mkFreshBinderName prefixName
   mkFunDecl binderName type params code
@@ -303,16 +303,16 @@ def mkAuxFunDecl (params : Array (Param .pure)) (code : Code .pure) (prefixName 
     CompilerM (FunDecl .pure) := do
   mkAuxFunDeclAux params code prefixName
 
-def mkAuxJpDecl (params : Array (Param ph)) (code : Code ph) (prefixName := `_jp) :
-    CompilerM (FunDecl ph) := do
+def mkAuxJpDecl (params : Array (Param pu)) (code : Code pu) (prefixName := `_jp) :
+    CompilerM (FunDecl pu) := do
   mkAuxFunDeclAux params code prefixName
 
-def mkAuxJpDecl' (param : Param ph) (code : Code ph) (prefixName := `_jp) :
-    CompilerM (FunDecl ph) := do
+def mkAuxJpDecl' (param : Param pu) (code : Code pu) (prefixName := `_jp) :
+    CompilerM (FunDecl pu) := do
   let params := #[param]
   mkAuxFunDeclAux params code prefixName
 
-def mkCasesResultType (alts : Array (Alt ph)) : CompilerM Expr := do
+def mkCasesResultType (alts : Array (Alt pu)) : CompilerM Expr := do
   if alts.isEmpty then
     throwError "`Code.bind` failed, empty `cases` found"
   let mut resultType ← alts[0]!.inferType

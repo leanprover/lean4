@@ -26,7 +26,7 @@ def filter (f : α → CompilerM Bool) : Probe α α := fun data => data.filterM
 def sorted [Inhabited α] [LT α] [DecidableLT α] : Probe α α := fun data => return data.qsort (· < ·)
 
 @[inline]
-def sortedBySize (ph : Purity) : Probe (Decl ph) (Nat × Decl ph) := fun decls =>
+def sortedBySize (pu : Purity) : Probe (Decl pu) (Nat × Decl pu) := fun decls =>
   let decls := decls.map fun decl => (decl.size, decl)
   return decls.qsort fun (sz₁, decl₁) (sz₂, decl₂) =>
     if sz₁ == sz₂ then Name.lt decl₁.name decl₂.name else sz₁ < sz₂
@@ -44,11 +44,11 @@ def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := f
 def countUniqueSorted [ToString α] [BEq α] [Hashable α] [Inhabited α] : Probe α (α × Nat) :=
   countUnique >=> fun data => return data.qsort (fun l r => l.snd < r.snd)
 
-partial def getLetValues (ph : Purity) : Probe (Decl ph) (LetValue ph) := fun decls => do
+partial def getLetValues (pu : Purity) : Probe (Decl pu) (LetValue pu) := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
-  go (c : Code ph) : StateRefT (Array (LetValue ph)) CompilerM Unit := do
+  go (c : Code pu) : StateRefT (Array (LetValue pu)) CompilerM Unit := do
     match c with
     | .let decl k =>
       modify fun s => s.push decl.value
@@ -58,14 +58,14 @@ where
       go k
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
-  start (decls : Array (Decl ph)) : StateRefT (Array (LetValue ph)) CompilerM Unit :=
+  start (decls : Array (Decl pu)) : StateRefT (Array (LetValue pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
-partial def getJps (ph : Purity) : Probe (Decl ph) (FunDecl ph) := fun decls => do
+partial def getJps (pu : Purity) : Probe (Decl pu) (FunDecl pu) := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
-  go (code : Code ph) : StateRefT (Array (FunDecl ph)) CompilerM Unit := do
+  go (code : Code pu) : StateRefT (Array (FunDecl pu)) CompilerM Unit := do
     match code with
     | .let _ k => go k
     | .fun decl k _ => go decl.value; go k
@@ -73,81 +73,81 @@ where
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
 
-  start (decls : Array (Decl ph)) : StateRefT (Array (FunDecl ph)) CompilerM Unit :=
+  start (decls : Array (Decl pu)) : StateRefT (Array (FunDecl pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
-partial def filterByLet (ph : Purity) (f : LetDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByLet (pu : Purity) (f : LetDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let decl k => do if (← f decl) then return true else go k
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByFun (ph : Purity) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByFun (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k | .jp _ k  => go k
   | .fun decl k _ => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByJp (ph : Purity) (f : FunDecl ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByJp (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ => go decl.value <||> go k
   | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByFunDecl (ph : Purity) (f : FunDecl ph → CompilerM Bool) :
-    Probe (Decl ph) (Decl ph):=
+partial def filterByFunDecl (pu : Purity) (f : FunDecl pu → CompilerM Bool) :
+    Probe (Decl pu) (Decl pu):=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByCases (ph : Purity) (f : Cases ph → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByCases (pu : Purity) (f : Cases pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByJmp (ph : Purity) (f : FVarId → Array (Arg ph) → CompilerM Bool) :
-    Probe (Decl ph) (Decl ph) :=
+partial def filterByJmp (pu : Purity) (f : FVarId → Array (Arg pu) → CompilerM Bool) :
+    Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp fn var => f fn var
   | .return .. | .unreach .. => return false
 
-partial def filterByReturn (ph : Purity) (f : FVarId → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByReturn (pu : Purity) (f : FVarId → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .unreach .. => return false
   | .return var  => f var
 
-partial def filterByUnreach (ph : Purity) (f : Expr → CompilerM Bool) : Probe (Decl ph) (Decl ph) :=
+partial def filterByUnreach (pu : Purity) (f : Expr → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
 where
-  go : Code ph → CompilerM Bool
+  go : Code pu → CompilerM Bool
   | .let _ k => go k
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
@@ -155,7 +155,7 @@ where
   | .unreach typ  => f typ
 
 @[inline]
-def declNames (ph : Purity) : Probe (Decl ph) Name :=
+def declNames (pu : Purity) : Probe (Decl pu) Name :=
   Probe.map (fun decl => return decl.name)
 
 @[inline]

@@ -59,14 +59,14 @@ def Purity.withAssertPurity [Inhabited α] (is : Purity) (should : Purity)
 
 scoped macro "purity_tac" : tactic => `(tactic| first | with_reducible rfl | assumption)
 
-structure Param (ph : Purity) where
+structure Param (pu : Purity) where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
   borrow     : Bool
   deriving Inhabited, BEq
 
-def Param.toExpr (p : Param ph) : Expr :=
+def Param.toExpr (p : Param pu) : Expr :=
   .fvar p.fvarId
 
 inductive LitValue where
@@ -90,41 +90,41 @@ def LitValue.toExpr : LitValue → Expr
   | .uint64 v => .app (.const ``UInt64.ofNat []) (.lit (.natVal (UInt64.toNat v)))
   | .usize v => .app (.const ``USize.ofNat []) (.lit (.natVal (UInt64.toNat v)))
 
-inductive Arg (ph : Purity) where
+inductive Arg (pu : Purity) where
   | erased
   | fvar (fvarId : FVarId)
-  | type (expr : Expr) (h : ph = .pure := by purity_tac)
+  | type (expr : Expr) (h : pu = .pure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
-def Param.toArg (p : Param ph) : Arg ph :=
+def Param.toArg (p : Param pu) : Arg pu :=
   .fvar p.fvarId
 
-def Arg.toExpr (arg : Arg ph) : Expr :=
+def Arg.toExpr (arg : Arg pu) : Expr :=
   match arg with
   | .erased => erasedExpr
   | .fvar fvarId => .fvar fvarId
   | .type e _ => e
 
-private unsafe def Arg.updateTypeImp (arg : Arg ph) (type' : Expr) : Arg ph :=
+private unsafe def Arg.updateTypeImp (arg : Arg pu) (type' : Expr) : Arg pu :=
   match arg with
   | .type ty _ => if ptrEq ty type' then arg else .type type'
   | _ => unreachable!
 
-@[implemented_by Arg.updateTypeImp] opaque Arg.updateType! (arg : Arg ph) (type : Expr) : Arg ph
+@[implemented_by Arg.updateTypeImp] opaque Arg.updateType! (arg : Arg pu) (type : Expr) : Arg pu
 
-private unsafe def Arg.updateFVarImp (arg : Arg ph) (fvarId' : FVarId) : Arg ph :=
+private unsafe def Arg.updateFVarImp (arg : Arg pu) (fvarId' : FVarId) : Arg pu :=
   match arg with
   | .fvar fvarId => if fvarId' == fvarId then arg else .fvar fvarId'
   | _ => unreachable!
 
-@[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg ph) (fvarId' : FVarId) : Arg ph
+@[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg pu) (fvarId' : FVarId) : Arg pu
 
-inductive LetValue (ph : Purity) where
+inductive LetValue (pu : Purity) where
   | lit (value : LitValue)
   | erased
-  | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : ph = .pure := by purity_tac)
-  | const (declName : Name) (us : List Level) (args : Array (Arg ph)) (h : ph = .pure := by purity_tac)
-  | fvar (fvarId : FVarId) (args : Array (Arg ph)) (h : ph = .pure := by purity_tac)
+  | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : pu = .pure := by purity_tac)
+  | const (declName : Name) (us : List Level) (args : Array (Arg pu)) (h : pu = .pure := by purity_tac)
+  | fvar (fvarId : FVarId) (args : Array (Arg pu)) (h : pu = .pure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg .pure) : LetValue .pure :=
@@ -132,36 +132,36 @@ def Arg.toLetValue (arg : Arg .pure) : LetValue .pure :=
   | .fvar fvarId => .fvar fvarId #[]
   | .erased | .type .. => .erased
 
-private unsafe def LetValue.updateProjImp (e : LetValue ph) (fvarId' : FVarId) : LetValue ph :=
+private unsafe def LetValue.updateProjImp (e : LetValue pu) (fvarId' : FVarId) : LetValue pu :=
   match e with
   | .proj s i fvarId _ => if fvarId == fvarId' then e else .proj s i fvarId'
   | _ => unreachable!
 
-@[implemented_by LetValue.updateProjImp] opaque LetValue.updateProj! (e : LetValue ph) (fvarId' : FVarId) : LetValue ph
+@[implemented_by LetValue.updateProjImp] opaque LetValue.updateProj! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
 
-private unsafe def LetValue.updateConstImp (e : LetValue ph) (declName' : Name) (us' : List Level) (args' : Array (Arg ph)) : LetValue ph :=
+private unsafe def LetValue.updateConstImp (e : LetValue pu) (declName' : Name) (us' : List Level) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if declName == declName' && ptrEq us us' && ptrEq args args' then e else .const declName' us' args'
   | _ => unreachable!
 
-@[implemented_by LetValue.updateConstImp] opaque LetValue.updateConst! (e : LetValue ph) (declName' : Name) (us' : List Level) (args' : Array (Arg ph)) : LetValue ph
+@[implemented_by LetValue.updateConstImp] opaque LetValue.updateConst! (e : LetValue pu) (declName' : Name) (us' : List Level) (args' : Array (Arg pu)) : LetValue pu
 
-private unsafe def LetValue.updateFVarImp (e : LetValue ph) (fvarId' : FVarId) (args' : Array (Arg ph)) : LetValue ph :=
+private unsafe def LetValue.updateFVarImp (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .fvar fvarId args h => if fvarId == fvarId' && ptrEq args args' then e else .fvar fvarId' args'
   | _ => unreachable!
 
-@[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue ph) (fvarId' : FVarId) (args' : Array (Arg ph)) : LetValue ph
+@[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu
 
-private unsafe def LetValue.updateArgsImp (e : LetValue ph) (args' : Array (Arg ph)) : LetValue ph :=
+private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
   | .fvar fvarId args h => if ptrEq args args' then e else .fvar fvarId args'
   | _ => unreachable!
 
-@[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue ph) (args' : Array (Arg ph)) : LetValue ph
+@[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu
 
-def LetValue.toExpr (e : LetValue ph) : Expr :=
+def LetValue.toExpr (e : LetValue pu) : Expr :=
   match e with
   | .lit v => v.toExpr
   | .erased => erasedExpr
@@ -169,32 +169,32 @@ def LetValue.toExpr (e : LetValue ph) : Expr :=
   | .const n us as _ => mkAppN (.const n us) (as.map Arg.toExpr)
   | .fvar fvarId as _ => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
 
-structure LetDecl (ph : Purity) where
+structure LetDecl (pu : Purity) where
   fvarId : FVarId
   binderName : Name
   type : Expr
-  value : LetValue ph
+  value : LetValue pu
   deriving Inhabited, BEq
 
 mutual
 
-inductive Alt (ph : Purity) where
-  | alt (ctorName : Name) (params : Array (Param ph)) (code : Code ph) (h : ph = .pure := by purity_tac)
-  | default (code : Code ph)
+inductive Alt (pu : Purity) where
+  | alt (ctorName : Name) (params : Array (Param pu)) (code : Code pu) (h : pu = .pure := by purity_tac)
+  | default (code : Code pu)
 
-inductive FunDecl (ph : Purity) where
-  | mk (fvarId : FVarId) (binderName : Name) (params : Array (Param ph)) (type : Expr) (value : Code ph)
+inductive FunDecl (pu : Purity) where
+  | mk (fvarId : FVarId) (binderName : Name) (params : Array (Param pu)) (type : Expr) (value : Code pu)
 
-inductive Cases (ph : Purity) where
-  | mk (typeName : Name) (resultType : Expr) (discr : FVarId) (alts : Array (Alt ph))
+inductive Cases (pu : Purity) where
+  | mk (typeName : Name) (resultType : Expr) (discr : FVarId) (alts : Array (Alt pu))
   deriving Inhabited
 
-inductive Code (ph : Purity) where
-  | let (decl : LetDecl ph) (k : Code ph)
-  | fun (decl : FunDecl ph) (k : Code ph) (h : ph = .pure := by purity_tac)
-  | jp (decl : FunDecl ph) (k : Code ph)
-  | jmp (fvarId : FVarId) (args : Array (Arg ph))
-  | cases (cases : Cases ph)
+inductive Code (pu : Purity) where
+  | let (decl : LetDecl pu) (k : Code pu)
+  | fun (decl : FunDecl pu) (k : Code pu) (h : pu = .pure := by purity_tac)
+  | jp (decl : FunDecl pu) (k : Code pu)
+  | jmp (fvarId : FVarId) (args : Array (Arg pu))
+  | cases (cases : Cases pu)
   | return (fvarId : FVarId)
   | unreach (type : Expr)
   deriving Inhabited
@@ -202,84 +202,84 @@ inductive Code (ph : Purity) where
 end
 
 @[inline]
-def FunDecl.fvarId : FunDecl ph → FVarId
+def FunDecl.fvarId : FunDecl pu → FVarId
   | .mk (fvarId := fvarId) .. => fvarId
 
 @[inline]
-def FunDecl.binderName : FunDecl ph → Name
+def FunDecl.binderName : FunDecl pu → Name
   | .mk (binderName := binderName) .. => binderName
 
 @[inline]
-def FunDecl.params : FunDecl ph → Array (Param ph)
+def FunDecl.params : FunDecl pu → Array (Param pu)
   | .mk (params := params) .. => params
 
 @[inline]
-def FunDecl.type : FunDecl ph → Expr
+def FunDecl.type : FunDecl pu → Expr
   | .mk (type := type) .. => type
 
 @[inline]
-def FunDecl.value : FunDecl ph → Code ph
+def FunDecl.value : FunDecl pu → Code pu
   | .mk (value := value) .. => value
 
 @[inline]
-def FunDecl.updateBinderName : FunDecl ph → Name → FunDecl ph
+def FunDecl.updateBinderName : FunDecl pu → Name → FunDecl pu
   | .mk fvarId _ params type value, new =>
     .mk fvarId new params type value
 
 @[inline]
-def FunDecl.toParam (decl : FunDecl ph) (borrow : Bool) : Param ph :=
+def FunDecl.toParam (decl : FunDecl pu) (borrow : Bool) : Param pu :=
   match decl with
   | .mk fvarId binderName _ type .. => ⟨fvarId, binderName, type, borrow⟩
 
 @[inline]
-def Cases.typeName : Cases ph → Name
+def Cases.typeName : Cases pu → Name
   | .mk (typeName := typeName) .. => typeName
 
 @[inline]
-def Cases.resultType : Cases ph → Expr
+def Cases.resultType : Cases pu → Expr
   | .mk (resultType := resultType) .. => resultType
 
 @[inline]
-def Cases.discr : Cases ph → FVarId
+def Cases.discr : Cases pu → FVarId
   | .mk (discr := discr) .. => discr
 
 @[inline]
-def Cases.alts : Cases ph → Array (Alt ph)
+def Cases.alts : Cases pu → Array (Alt pu)
   | .mk (alts := alts) .. => alts
 
 @[inline]
-def Cases.updateAlts : Cases ph → Array (Alt ph) → Cases ph
+def Cases.updateAlts : Cases pu → Array (Alt pu) → Cases pu
   | .mk typeName resultType discr _, new =>
     .mk typeName resultType discr new
 
 deriving instance Inhabited for Alt
 deriving instance Inhabited for FunDecl
 
-def FunDecl.getArity (decl : FunDecl ph) : Nat :=
+def FunDecl.getArity (decl : FunDecl pu) : Nat :=
   decl.params.size
 
 /--
 Return the constructor names that have an explicit (non-default) alternative.
 -/
-def Cases.getCtorNames (c : Cases ph) : NameSet :=
+def Cases.getCtorNames (c : Cases pu) : NameSet :=
   c.alts.foldl (init := {}) fun ctorNames alt =>
     match alt with
     | .default _ => ctorNames
     | .alt ctorName .. => ctorNames.insert ctorName
 
-inductive CodeDecl (ph : Purity) where
-  | let (decl : LetDecl ph)
-  | fun (decl : FunDecl ph) (h : ph = .pure := by purity_tac)
-  | jp (decl : FunDecl ph)
+inductive CodeDecl (pu : Purity) where
+  | let (decl : LetDecl pu)
+  | fun (decl : FunDecl pu) (h : pu = .pure := by purity_tac)
+  | jp (decl : FunDecl pu)
   deriving Inhabited
 
-def CodeDecl.fvarId : CodeDecl ph → FVarId
+def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
 
-def attachCodeDecls (decls : Array (CodeDecl ph)) (code : Code ph) : Code ph :=
+def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
 where
-  go (i : Nat) (code : Code ph) : Code ph :=
+  go (i : Nat) (code : Code pu) : Code pu :=
     if i > 0 then
       match decls[i-1]! with
       | .let decl => go (i-1) (.let decl code)
@@ -289,7 +289,7 @@ where
       code
 
 mutual
-  private unsafe def eqImp (c₁ c₂ : Code ph) : Bool :=
+  private unsafe def eqImp (c₁ c₂ : Code pu) : Bool :=
     if ptrEq c₁ c₂ then
       true
     else match c₁, c₂ with
@@ -302,7 +302,7 @@ mutual
       | .unreach t₁, .unreach t₂ => t₁ == t₂
       | _, _ => false
 
-  private unsafe def eqFunDecl (d₁ d₂ : FunDecl ph) : Bool :=
+  private unsafe def eqFunDecl (d₁ d₂ : FunDecl pu) : Bool :=
     if ptrEq d₁ d₂ then
       true
     else
@@ -310,62 +310,62 @@ mutual
       d₁.params == d₂.params && d₁.type == d₂.type &&
       eqImp d₁.value d₂.value
 
-  private unsafe def eqCases (c₁ c₂ : Cases ph) : Bool :=
+  private unsafe def eqCases (c₁ c₂ : Cases pu) : Bool :=
     c₁.resultType == c₂.resultType && c₁.discr == c₂.discr &&
     c₁.typeName == c₂.typeName && c₁.alts.isEqv c₂.alts eqAlt
 
-  private unsafe def eqAlt (a₁ a₂ : Alt ph) : Bool :=
+  private unsafe def eqAlt (a₁ a₂ : Alt pu) : Bool :=
     match a₁, a₂ with
     | .default k₁, .default k₂ => eqImp k₁ k₂
     | .alt c₁ ps₁ k₁ _, .alt c₂ ps₂ k₂ _ => c₁ == c₂ && ps₁ == ps₂ && eqImp k₁ k₂
     | _, _ => false
 end
 
-@[implemented_by eqImp] protected opaque Code.beq : Code ph → Code ph → Bool
+@[implemented_by eqImp] protected opaque Code.beq : Code pu → Code pu → Bool
 
-instance : BEq (Code ph) where
+instance : BEq (Code pu) where
   beq := Code.beq
 
-@[implemented_by eqFunDecl] protected opaque FunDecl.beq : FunDecl ph → FunDecl ph → Bool
+@[implemented_by eqFunDecl] protected opaque FunDecl.beq : FunDecl pu → FunDecl pu → Bool
 
-instance : BEq (FunDecl ph) where
+instance : BEq (FunDecl pu) where
   beq := FunDecl.beq
 
-def Alt.getCode : Alt ph → Code ph
+def Alt.getCode : Alt pu → Code pu
   | .default k => k
   | .alt _ _ k _ => k
 
-def Alt.getParams : Alt ph → Array (Param ph)
+def Alt.getParams : Alt pu → Array (Param pu)
   | .default _ => #[]
   | .alt _ ps _ _ => ps
 
-def Alt.forCodeM [Monad m] (alt : Alt ph) (f : Code ph → m Unit) : m Unit := do
+def Alt.forCodeM [Monad m] (alt : Alt pu) (f : Code pu → m Unit) : m Unit := do
   match alt with
   | .default k => f k
   | .alt _ _ k _ => f k
 
-private unsafe def updateAltCodeImp (alt : Alt ph) (k' : Code ph) : Alt ph :=
+private unsafe def updateAltCodeImp (alt : Alt pu) (k' : Code pu) : Alt pu :=
   match alt with
   | .default k => if ptrEq k k' then alt else .default k'
   | .alt ctorName ps k _ => if ptrEq k k' then alt else .alt ctorName ps k'
 
-@[implemented_by updateAltCodeImp] opaque Alt.updateCode (alt : Alt ph) (c : Code ph) : Alt ph
+@[implemented_by updateAltCodeImp] opaque Alt.updateCode (alt : Alt pu) (c : Code pu) : Alt pu
 
-private unsafe def updateAltImp (alt : Alt ph) (ps' : Array (Param ph)) (k' : Code ph) : Alt ph :=
+private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Code pu) : Alt pu :=
   match alt with
   | .alt ctorName ps k _ => if ptrEq k k' && ptrEq ps ps' then alt else .alt ctorName ps' k'
   | _ => unreachable!
 
-@[implemented_by updateAltImp] opaque Alt.updateAlt! (alt : Alt ph) (ps' : Array (Param ph)) (k' : Code ph) : Alt ph
+@[implemented_by updateAltImp] opaque Alt.updateAlt! (alt : Alt pu) (ps' : Array (Param pu)) (k' : Code pu) : Alt pu
 
-@[inline] private unsafe def updateAltsImp (c : Code ph) (alts : Array (Alt ph)) : Code ph :=
+@[inline] private unsafe def updateAltsImp (c : Code pu) (alts : Array (Alt pu)) : Code pu :=
   match c with
   | .cases cs => if ptrEq cs.alts alts then c else .cases <| cs.updateAlts alts
   | _ => unreachable!
 
-@[implemented_by updateAltsImp] opaque Code.updateAlts! (c : Code ph) (alts : Array (Alt ph)) : Code ph
+@[implemented_by updateAltsImp] opaque Code.updateAlts! (c : Code pu) (alts : Array (Alt pu)) : Code pu
 
-@[inline] private unsafe def updateCasesImp (c : Code ph) (resultType : Expr) (discr : FVarId) (alts : Array (Alt ph)) : Code ph :=
+@[inline] private unsafe def updateCasesImp (c : Code pu) (resultType : Expr) (discr : FVarId) (alts : Array (Alt pu)) : Code pu :=
   match c with
   | .cases cs =>
     if ptrEq cs.alts alts && ptrEq cs.resultType resultType && cs.discr == discr then
@@ -374,54 +374,54 @@ private unsafe def updateAltImp (alt : Alt ph) (ps' : Array (Param ph)) (k' : Co
       .cases <| ⟨cs.typeName, resultType, discr, alts⟩
   | _ => unreachable!
 
-@[implemented_by updateCasesImp] opaque Code.updateCases! (c : Code ph) (resultType : Expr) (discr : FVarId) (alts : Array (Alt ph)) : Code ph
+@[implemented_by updateCasesImp] opaque Code.updateCases! (c : Code pu) (resultType : Expr) (discr : FVarId) (alts : Array (Alt pu)) : Code pu
 
-@[inline] private unsafe def updateLetImp (c : Code ph) (decl' : LetDecl ph) (k' : Code ph) : Code ph :=
+@[inline] private unsafe def updateLetImp (c : Code pu) (decl' : LetDecl pu) (k' : Code pu) : Code pu :=
   match c with
   | .let decl k => if ptrEq k k' && ptrEq decl decl' then c else .let decl' k'
   | _ => unreachable!
 
-@[implemented_by updateLetImp] opaque Code.updateLet! (c : Code ph) (decl' : LetDecl ph) (k' : Code ph) : Code ph
+@[implemented_by updateLetImp] opaque Code.updateLet! (c : Code pu) (decl' : LetDecl pu) (k' : Code pu) : Code pu
 
-@[inline] private unsafe def updateContImp (c : Code ph) (k' : Code ph) : Code ph :=
+@[inline] private unsafe def updateContImp (c : Code pu) (k' : Code pu) : Code pu :=
   match c with
   | .let decl k => if ptrEq k k' then c else .let decl k'
   | .fun decl k _ => if ptrEq k k' then c else .fun decl k'
   | .jp decl k => if ptrEq k k' then c else .jp decl k'
   | _ => unreachable!
 
-@[implemented_by updateContImp] opaque Code.updateCont! (c : Code ph) (k' : Code ph) : Code ph
+@[implemented_by updateContImp] opaque Code.updateCont! (c : Code pu) (k' : Code pu) : Code pu
 
-@[inline] private unsafe def updateFunImp (c : Code ph) (decl' : FunDecl ph) (k' : Code ph) : Code ph :=
+@[inline] private unsafe def updateFunImp (c : Code pu) (decl' : FunDecl pu) (k' : Code pu) : Code pu :=
   match c with
   | .fun decl k _ => if ptrEq k k' && ptrEq decl decl' then c else .fun decl' k'
   | .jp decl k => if ptrEq k k' && ptrEq decl decl' then c else .jp decl' k'
   | _ => unreachable!
 
-@[implemented_by updateFunImp] opaque Code.updateFun! (c : Code ph) (decl' : FunDecl ph) (k' : Code ph) : Code ph
+@[implemented_by updateFunImp] opaque Code.updateFun! (c : Code pu) (decl' : FunDecl pu) (k' : Code pu) : Code pu
 
-@[inline] private unsafe def updateReturnImp (c : Code ph) (fvarId' : FVarId) : Code ph :=
+@[inline] private unsafe def updateReturnImp (c : Code pu) (fvarId' : FVarId) : Code pu :=
   match c with
   | .return fvarId => if fvarId == fvarId' then c else .return fvarId'
   | _ => unreachable!
 
-@[implemented_by updateReturnImp] opaque Code.updateReturn! (c : Code ph) (fvarId' : FVarId) : Code ph
+@[implemented_by updateReturnImp] opaque Code.updateReturn! (c : Code pu) (fvarId' : FVarId) : Code pu
 
-@[inline] private unsafe def updateJmpImp (c : Code ph) (fvarId' : FVarId) (args' : Array (Arg ph)) : Code ph :=
+@[inline] private unsafe def updateJmpImp (c : Code pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : Code pu :=
   match c with
   | .jmp fvarId args => if fvarId == fvarId' && ptrEq args args' then c else .jmp fvarId' args'
   | _ => unreachable!
 
-@[implemented_by updateJmpImp] opaque Code.updateJmp! (c : Code ph) (fvarId' : FVarId) (args' : Array (Arg ph)) : Code ph
+@[implemented_by updateJmpImp] opaque Code.updateJmp! (c : Code pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : Code pu
 
-@[inline] private unsafe def updateUnreachImp (c : Code ph) (type' : Expr) : Code ph :=
+@[inline] private unsafe def updateUnreachImp (c : Code pu) (type' : Expr) : Code pu :=
   match c with
   | .unreach type => if ptrEq type type' then c else .unreach type'
   | _ => unreachable!
 
-@[implemented_by updateUnreachImp] opaque Code.updateUnreach! (c : Code ph) (type' : Expr) : Code ph
+@[implemented_by updateUnreachImp] opaque Code.updateUnreach! (c : Code pu) (type' : Expr) : Code pu
 
-private unsafe def updateParamCoreImp (p : Param ph) (type : Expr) : Param ph :=
+private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then
     p
   else
@@ -432,9 +432,9 @@ Low-level update `Param` function. It does not update the local context.
 Consider using `Param.update : Param → Expr → CompilerM Param` if you want the local context
 to be updated.
 -/
-@[implemented_by updateParamCoreImp] opaque Param.updateCore (p : Param ph) (type : Expr) : Param ph
+@[implemented_by updateParamCoreImp] opaque Param.updateCore (p : Param pu) (type : Expr) : Param pu
 
-private unsafe def updateLetDeclCoreImp (decl : LetDecl ph) (type : Expr) (value : LetValue ph) : LetDecl ph:=
+private unsafe def updateLetDeclCoreImp (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : LetDecl pu :=
   if ptrEq type decl.type && ptrEq value decl.value then
     decl
   else
@@ -445,9 +445,9 @@ Low-level update `LetDecl` function. It does not update the local context.
 Consider using `LetDecl.update : LetDecl → Expr → Expr → CompilerM LetDecl` if you want the local context
 to be updated.
 -/
-@[implemented_by updateLetDeclCoreImp] opaque LetDecl.updateCore (decl : LetDecl ph) (type : Expr) (value : LetValue ph) : LetDecl ph
+@[implemented_by updateLetDeclCoreImp] opaque LetDecl.updateCore (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : LetDecl pu
 
-private unsafe def updateFunDeclCoreImp (decl: FunDecl ph) (type : Expr) (params : Array (Param ph)) (value : Code ph) : FunDecl ph :=
+private unsafe def updateFunDeclCoreImp (decl: FunDecl pu) (type : Expr) (params : Array (Param pu)) (value : Code pu) : FunDecl pu :=
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     decl
   else
@@ -458,9 +458,9 @@ Low-level update `FunDecl` function. It does not update the local context.
 Consider using `FunDecl.update : LetDecl → Expr → Array Param → Code → CompilerM FunDecl` if you want the local context
 to be updated.
 -/
-@[implemented_by updateFunDeclCoreImp] opaque FunDecl.updateCore (decl : FunDecl ph) (type : Expr) (params : Array (Param ph)) (value : Code ph) : FunDecl ph
+@[implemented_by updateFunDeclCoreImp] opaque FunDecl.updateCore (decl : FunDecl pu) (type : Expr) (params : Array (Param pu)) (value : Code pu) : FunDecl pu
 
-def Cases.extractAlt! (cases : Cases ph) (ctorName : Name) : Alt ph × Cases ph :=
+def Cases.extractAlt! (cases : Cases pu) (ctorName : Name) : Alt pu × Cases pu :=
   let found i := (cases.alts[i]!, cases.updateAlts (cases.alts.eraseIdx! i))
   if let some i := cases.alts.findFinIdx? fun | .alt ctorName' .. => ctorName == ctorName' | _ => false then
     found i
@@ -469,25 +469,25 @@ def Cases.extractAlt! (cases : Cases ph) (ctorName : Name) : Alt ph × Cases ph 
   else
     unreachable!
 
-def Alt.mapCodeM [Monad m] (alt : Alt ph) (f : Code  ph→ m (Code ph)) : m (Alt ph) := do
+def Alt.mapCodeM [Monad m] (alt : Alt pu) (f : Code pu → m (Code pu)) : m (Alt pu) := do
   return alt.updateCode (← f alt.getCode)
 
-def Code.isDecl : Code ph → Bool
+def Code.isDecl : Code pu → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false
 
-def Code.isFun : Code ph → Bool
+def Code.isFun : Code pu → Bool
   | .fun .. => true
   | _ => false
 
-def Code.isReturnOf : Code ph → FVarId → Bool
+def Code.isReturnOf : Code pu → FVarId → Bool
   | .return fvarId, fvarId' => fvarId == fvarId'
   | _, _ => false
 
-partial def Code.size (c : Code ph) : Nat :=
+partial def Code.size (c : Code pu) : Nat :=
   go c 0
 where
-  go (c : Code ph) (n : Nat) : Nat :=
+  go (c : Code pu) (n : Nat) : Nat :=
     match c with
     | .let _ k => go k (n+1)
     | .jp decl k | .fun decl k _ => go k <| go decl.value n
@@ -496,7 +496,7 @@ where
     | .return .. | unreach .. => n -- `return` & `unreach` have weight zero
 
 /-- Return true iff `c.size ≤ n` -/
-partial def Code.sizeLe (c : Code ph) (n : Nat) : Bool :=
+partial def Code.sizeLe (c : Code pu) (n : Nat) : Bool :=
   match go c |>.run 0 with
   | .ok .. => true
   | .error .. => false
@@ -505,7 +505,7 @@ where
     modify (·+1)
     unless (← get) <= n do throw ()
 
-  go (c : Code ph) : EStateM Unit Nat Unit := do
+  go (c : Code pu) : EStateM Unit Nat Unit := do
     match c with
     | .let _ k => inc; go k
     | .jp decl k | .fun decl k _ => inc; go decl.value; go k
@@ -513,10 +513,10 @@ where
     | .jmp .. => inc
     | .return .. | unreach .. => return ()
 
-partial def Code.forM [Monad m] (c : Code ph) (f : Code ph → m Unit) : m Unit :=
+partial def Code.forM [Monad m] (c : Code pu) (f : Code pu → m Unit) : m Unit :=
   go c
 where
-  go (c : Code ph) : m Unit := do
+  go (c : Code pu) : m Unit := do
     f c
     match c with
     | .let _ k => go k
@@ -567,33 +567,33 @@ where
     | .return .. => code
     | .unreach type => code.updateUnreach! (instExpr type)
 
-inductive DeclValue (ph : Purity) where
-  | code (code : Code ph)
+inductive DeclValue (pu : Purity) where
+  | code (code : Code pu)
   | extern (externAttrData : ExternAttrData)
   deriving Inhabited, BEq
 
-partial def DeclValue.size : DeclValue ph → Nat
+partial def DeclValue.size : DeclValue pu → Nat
   | .code c => c.size
   | .extern .. => 0
 
-def DeclValue.mapCode (f : Code ph → Code ph) : DeclValue ph → DeclValue ph :=
+def DeclValue.mapCode (f : Code pu → Code pu) : DeclValue pu → DeclValue pu :=
   fun
     | .code c => .code (f c)
     | .extern e => .extern e
 
-def DeclValue.mapCodeM [Monad m] (f : Code ph → m (Code ph)) : DeclValue ph → m (DeclValue ph) :=
+def DeclValue.mapCodeM [Monad m] (f : Code pu → m (Code pu)) : DeclValue pu → m (DeclValue pu) :=
   fun v => do
     match v with
     | .code c => return .code (← f c)
     | .extern .. => return v
 
-def DeclValue.forCodeM [Monad m] (f : Code ph → m Unit) : DeclValue ph → m Unit :=
+def DeclValue.forCodeM [Monad m] (f : Code pu → m Unit) : DeclValue pu → m Unit :=
   fun v => do
     match v with
     | .code c => f c
     | .extern .. => return ()
 
-def DeclValue.isCodeAndM [Monad m] (v : DeclValue ph) (f : Code ph → m Bool) : m Bool :=
+def DeclValue.isCodeAndM [Monad m] (v : DeclValue pu) (f : Code pu → m Bool) : m Bool :=
   match v with
   | .code c => f c
   | .extern .. => pure false
@@ -601,7 +601,7 @@ def DeclValue.isCodeAndM [Monad m] (v : DeclValue ph) (f : Code ph → m Bool) :
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/
-structure Decl (ph : Purity) where
+structure Decl (pu : Purity) where
   /--
   The name of the declaration from the `Environment` it came from
   -/
@@ -619,12 +619,12 @@ structure Decl (ph : Purity) where
   /--
   Parameters.
   -/
-  params : Array (Param ph)
+  params : Array (Param pu)
   /--
   The body of the declaration, usually changes as it progresses
   through compiler passes.
   -/
-  value : DeclValue ph
+  value : DeclValue pu
   /--
   We set this flag to true during LCNF conversion. When we receive
   a block of functions to be compiled, we set this flag to `true`
@@ -666,26 +666,26 @@ structure Decl (ph : Purity) where
   inlineAttr? : Option InlineAttributeKind
   deriving Inhabited, BEq
 
-def Decl.size (decl : Decl ph) : Nat :=
+def Decl.size (decl : Decl pu) : Nat :=
   decl.value.size
 
-def Decl.getArity (decl : Decl ph) : Nat :=
+def Decl.getArity (decl : Decl pu) : Nat :=
   decl.params.size
 
-def Decl.inlineAttr (decl : Decl ph) : Bool :=
+def Decl.inlineAttr (decl : Decl pu) : Bool :=
   decl.inlineAttr? matches some .inline
 
-def Decl.noinlineAttr (decl : Decl ph) : Bool :=
+def Decl.noinlineAttr (decl : Decl pu) : Bool :=
   decl.inlineAttr? matches some .noinline
 
-def Decl.inlineIfReduceAttr (decl : Decl ph) : Bool :=
+def Decl.inlineIfReduceAttr (decl : Decl pu) : Bool :=
   decl.inlineAttr? matches some .inlineIfReduce
 
-def Decl.alwaysInlineAttr (decl : Decl ph) : Bool :=
+def Decl.alwaysInlineAttr (decl : Decl pu) : Bool :=
   decl.inlineAttr? matches some .alwaysInline
 
 /-- Return `true` if the given declaration has been annotated with `[inline]`, `[inline_if_reduce]`, `[macro_inline]`, or `[always_inline]` -/
-def Decl.inlineable (decl : Decl ph) : Bool :=
+def Decl.inlineable (decl : Decl pu) : Bool :=
   match decl.inlineAttr? with
   | some .noinline => false
   | some _ => true
@@ -710,21 +710,21 @@ That is, `f` is a sequence of declarations followed by a `cases` on the paramete
 We use this function to decide whether we should inline a declaration tagged with
 `[inline_if_reduce]` or not.
 -/
-def Decl.isCasesOnParam? (decl : Decl ph) : Option Nat :=
+def Decl.isCasesOnParam? (decl : Decl pu) : Option Nat :=
   match decl.value with
   | .code c => go c
   | .extern .. => none
 where
-  go {ph : Purity} (code : Code ph) : Option Nat :=
+  go {pu : Purity} (code : Code pu) : Option Nat :=
     match code with
     | .let _ k | .jp _ k | .fun _ k _ => go k
     | .cases c => decl.params.findIdx? fun param => param.fvarId == c.discr
     | _ => none
 
-def Decl.instantiateTypeLevelParams (decl : Decl ph) (us : List Level) : Expr :=
+def Decl.instantiateTypeLevelParams (decl : Decl pu) (us : List Level) : Expr :=
   decl.type.instantiateLevelParamsNoCache decl.levelParams us
 
-def Decl.instantiateParamsLevelParams (decl : Decl ph) (us : List Level) : Array (Param ph) :=
+def Decl.instantiateParamsLevelParams (decl : Decl pu) (us : List Level) : Array (Param pu) :=
   decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParamsNoCache decl.levelParams us)
 
 /--
@@ -741,7 +741,7 @@ def hasLocalInst (type : Expr) : CoreM Bool := do
 /--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
-def Decl.isTemplateLike (decl : Decl ph) : CoreM Bool := do
+def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
   let env ← getEnv
   if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
@@ -762,30 +762,30 @@ private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
   | .proj .. | .letE .. => unreachable!
   | _                => id
 
-private def collectArg (arg : Arg ph) (s : FVarIdHashSet) : FVarIdHashSet :=
+private def collectArg (arg : Arg pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match arg with
   | .erased => s
   | .fvar fvarId => s.insert fvarId
   | .type e _ => collectType e s
 
-private def collectArgs (args : Array (Arg ph)) (s : FVarIdHashSet) : FVarIdHashSet :=
+private def collectArgs (args : Array (Arg pu)) (s : FVarIdHashSet) : FVarIdHashSet :=
   args.foldl (init := s) fun s arg => collectArg arg s
 
-private def collectLetValue (e : LetValue ph) (s : FVarIdHashSet) : FVarIdHashSet :=
+private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match e with
   | .fvar fvarId args _ => collectArgs args <| s.insert fvarId
   | .const _ _ args _ => collectArgs args s
   | .proj _ _ fvarId _ => s.insert fvarId
   | .lit .. | .erased => s
 
-private partial def collectParams (ps : Array (Param ph)) (s : FVarIdHashSet) : FVarIdHashSet :=
+private partial def collectParams (ps : Array (Param pu)) (s : FVarIdHashSet) : FVarIdHashSet :=
   ps.foldl (init := s) fun s p => collectType p.type s
 
 mutual
-partial def FunDecl.collectUsed (decl : FunDecl ph) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
+partial def FunDecl.collectUsed (decl : FunDecl pu) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
   decl.value.collectUsed <| collectParams decl.params <| collectType decl.type s
 
-partial def Code.collectUsed (code : Code ph) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
+partial def Code.collectUsed (code : Code pu) (s : FVarIdHashSet := {}) : FVarIdHashSet :=
   match code with
   | .let decl k => k.collectUsed <| collectLetValue decl.value <| collectType decl.type s
   | .jp decl k | .fun decl k _ => k.collectUsed <| decl.collectUsed s
@@ -812,7 +812,7 @@ This is an overapproximation, and relies on the fact that our frontend
 computes strongly connected components.
 See comment at `recursive` field.
 -/
-partial def markRecDecls (decls : Array (Decl ph)) : Array (Decl ph)  :=
+partial def markRecDecls (decls : Array (Decl pu)) : Array (Decl pu)  :=
   let (_, isRec) := go |>.run {}
   decls.map fun decl =>
     if isRec.contains decl.name then
@@ -820,7 +820,7 @@ partial def markRecDecls (decls : Array (Decl ph)) : Array (Decl ph)  :=
     else
       decl
 where
-  visit {ph : Purity} (code : Code ph) : StateM NameSet Unit := do
+  visit {pu : Purity} (code : Code pu) : StateM NameSet Unit := do
     match code with
     | .jp decl k | .fun decl k _ => visit decl.value; visit k
     | .cases c => c.alts.forM fun alt => visit alt.getCode
@@ -834,13 +834,13 @@ where
   go : StateM NameSet Unit :=
     decls.forM (·.value.forCodeM visit)
 
-def instantiateRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Arg ph)) : Expr :=
+def instantiateRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Arg pu)) : Expr :=
   if !e.hasLooseBVars then
     e
   else
     e.instantiateRange beginIdx endIdx (args.map (·.toExpr))
 
-def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Arg ph)) : Expr :=
+def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Arg pu)) : Expr :=
   if !e.hasLooseBVars then
     e
   else

@@ -71,7 +71,7 @@ where
     alts.mapM fun alt => return alt.updateCode (← go alt.getCode)
 
   findFun? (f : FVarId) : CompilerM (Option (FunDecl .pure)) := do
-    if let some funDecl ← findFunDecl? (ph := .pure) f then
+    if let some funDecl ← findFunDecl? (pu := .pure) f then
       return funDecl
     else if let some (.fvar f' #[]) ← findLetValue? f then
       findFun? f'

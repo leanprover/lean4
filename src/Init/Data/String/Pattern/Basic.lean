@@ -41,6 +41,47 @@ inductive SearchStep (s : Slice) where
   | matched (startPos endPos : s.Pos)
 deriving Inhabited, BEq
 
+namespace SearchStep
+
+def startPos {s : Slice} (st : SearchStep s) : s.Pos :=
+  match st with
+  | .rejected startPos _ => startPos
+  | .matched startPos _ => startPos
+
+@[simp]
+theorem startPos_rejected {s : Slice} {p q : s.Pos} : (SearchStep.rejected p q).startPos = p := (rfl)
+
+@[simp]
+theorem startPos_matched {s : Slice} {p q : s.Pos} : (SearchStep.matched p q).startPos = p := (rfl)
+
+def endPos {s : Slice} (st : SearchStep s) : s.Pos :=
+  match st with
+  | .rejected _ endPos => endPos
+  | .matched _ endPos => endPos
+
+@[simp]
+theorem endPos_rejected {s : Slice} {p q : s.Pos} : (SearchStep.rejected p q).endPos = q := (rfl)
+
+@[simp]
+theorem endPos_matched {s : Slice} {p q : s.Pos} : (SearchStep.matched p q).endPos = q := (rfl)
+
+def ofSliceFrom {s : Slice} {p : s.Pos} (st : SearchStep (s.sliceFrom p)) : SearchStep s :=
+  match st with
+  | .rejected l r => .rejected (Slice.Pos.ofSliceFrom l) (Slice.Pos.ofSliceFrom r)
+  | .matched l r => .matched (Slice.Pos.ofSliceFrom l) (Slice.Pos.ofSliceFrom r)
+
+@[simp]
+theorem startPos_ofSliceFrom {s : Slice} {p : s.Pos} {st : SearchStep (s.sliceFrom p)} :
+    st.ofSliceFrom.startPos = Slice.Pos.ofSliceFrom st.startPos := by
+  cases st <;>  simp [ofSliceFrom]
+
+@[simp]
+theorem endPos_ofSliceFrom {s : Slice} {p : s.Pos} {st : SearchStep (s.sliceFrom p)} :
+    st.ofSliceFrom.endPos = Slice.Pos.ofSliceFrom st.endPos := by
+  cases st <;> simp [ofSliceFrom]
+
+end SearchStep
+
 /--
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches
 of the pattern from the start towards the end of a {name}`Slice`.

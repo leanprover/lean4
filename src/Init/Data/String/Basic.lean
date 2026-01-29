@@ -1722,6 +1722,16 @@ theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s = t} :
 theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
   Slice.Pos.ext (by simp)
 
+@[simp]
+theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
+  cases h; simp
+
+@[simp]
+theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h < pos'.cast h ↔ pos < pos' := by
+  cases h; simp
+
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
 def Pos.cast {s t : String} (pos : s.Pos) (h : s = t) : t.Pos where
@@ -1992,6 +2002,7 @@ theorem Pos.ne_of_lt {s : String} {p q : s.Pos} : p < q → p ≠ q := by
 theorem Pos.lt_of_lt_of_le {s : String} {p q r : s.Pos} : p < q → q ≤ r → p < r := by
   simpa [Pos.lt_iff, Pos.le_iff] using Pos.Raw.lt_of_lt_of_le
 
+@[simp]
 theorem Pos.le_endPos {s : String} (p : s.Pos) : p ≤ s.endPos := by
   simpa [Pos.le_iff] using p.isValid.le_rawEndPos
 

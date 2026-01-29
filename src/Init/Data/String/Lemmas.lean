@@ -14,6 +14,8 @@ public import Init.Data.Char.Lemmas
 public import Init.Data.List.Lex
 import Init.Data.Order.Lemmas
 public import Init.Data.String.Basic
+public import Init.Data.String.Lemmas.Slice
+public import Init.Data.String.Lemmas.Order
 
 public section
 

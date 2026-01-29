@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Elab.Tactic.Basic
+import Lean.Meta.Native
 import Lean.Elab.Tactic.ElabTerm
 
 public section
@@ -52,57 +52,18 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
               return ← blameDecideReductionFailure inst''
   return inst
 
-private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
+def elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
   let d ← mkDecide expectedType
-  let levels := (collectLevelParams {} expectedType).params.toList
-  let auxDeclName ← Term.mkAuxName `_nativeDecide
-  let auxAxiomName ← Term.mkAuxName `_native.native_decide.ax
-  let decl := Declaration.defnDecl {
-    name := auxDeclName
-    levelParams := levels
-    type := mkConst ``Bool
-    value := d
-    hints := .abbrev
-    safety := .safe
-  }
-  try
-    -- disable async codegen so we can catch its exceptions; we don't want to report `evalConst`
-    -- failures below when the actual reason was a codegen failure
-    withOptions (Elab.async.set · false) do
-      addAndCompile decl
-  catch ex =>
-    throwError m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
-
-  -- Now evaluate the constant, and check that it is true.
-  let r ←
-    try
-      evalConst Bool auxDeclName
-    catch ex =>
-      throwError m!"\
-        Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
-        Error: {ex.toMessageData}"
-  if !r then
+  match (← nativeEqTrue tacticName d) with
+  | .notTrue =>
     throwError m!"\
       Tactic `{tacticName}` evaluated that the proposition\
       {indentExpr expectedType}\n\
       is false"
-
-  let levelParams := levels.map .param
-  let axDecl := Declaration.axiomDecl {
-    name := auxAxiomName
-    levelParams := levels
-    type := (← mkEq (mkConst auxDeclName levelParams) (toExpr true))
-    isUnsafe := false
-  }
-  addDecl axDecl
-
-  -- get instance from `d`
-  let s := d.appArg!
-  return mkApp3 (mkConst ``of_decide_eq_true) expectedType s (mkConst auxAxiomName levelParams)
-
-
-@[implemented_by elabNativeDecideCoreUnsafe]
-private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr
+  | .success prf =>
+    -- get instance from `d`
+    let s := d.appArg!
+    return mkApp3 (mkConst ``of_decide_eq_true) expectedType s prf
 
 def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : TacticM Unit := do
   if cfg.revert then

@@ -22,15 +22,15 @@ theorem Iter.step_repeat :
 
 theorem Iter.atIdxSlow?_zero_repeat :
     (Iter.repeat f init).atIdxSlow? 0 = some init := by
-  rw [atIdxSlow?, step_repeat]
+  rw [atIdxSlow?_eq_match, step_repeat]
 
 theorem Iter.atIdxSlow?_succ_repeat {k : Nat} :
     (Iter.repeat f init).atIdxSlow? (k + 1) = (Iter.repeat f (f init)).atIdxSlow? k := by
-  rw [atIdxSlow?, step_repeat]
+  rw [atIdxSlow?_eq_match, step_repeat]
 
 theorem Iter.atIdxSlow?_succ_repeat_eq_map {k : Nat} :
     (Iter.repeat f init).atIdxSlow? (k + 1) = f <$> ((Iter.repeat f init).atIdxSlow? k) := by
-  rw [atIdxSlow?, step_repeat]
+  rw [atIdxSlow?_eq_match, step_repeat]
   simp only
   induction k generalizing init
   · simp [atIdxSlow?_zero_repeat, Functor.map]

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# This script expects to be run from the repo root.
+
+# Format cmake files
+find -regex '.*/CMakeLists\.txt\(\.in\)?\|.*\.cmake\(\.in\)?' \
+  ! -path './build/*' \
+  ! -path "./stage0/*" \
+  -exec \
+    uvx gersemi --in-place --line-length 120 --indent 2 \
+    --definitions src/cmake/Modules/ src/CMakeLists.txt \
+    -- {} +

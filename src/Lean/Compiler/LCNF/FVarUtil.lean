@@ -48,67 +48,67 @@ instance : TraverseFVar Expr where
   mapFVarM := Expr.mapFVarM
   forFVarM := Expr.forFVarM
 
-def Arg.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (arg : Arg) : m Arg := do
+def Arg.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (arg : Arg pu) : m (Arg pu) := do
   match arg with
   | .erased => return .erased
-  | .type e => return arg.updateType! (← TraverseFVar.mapFVarM f e)
+  | .type e _ => return arg.updateType! (← TraverseFVar.mapFVarM f e)
   | .fvar fvarId => return arg.updateFVar! (← f fvarId)
 
-def Arg.forFVarM [Monad m] (f : FVarId → m Unit) (arg : Arg) : m Unit := do
+def Arg.forFVarM [Monad m] (f : FVarId → m Unit) (arg : Arg pu) : m Unit := do
   match arg with
   | .erased => return ()
-  | .type e => TraverseFVar.forFVarM f e
+  | .type e _ => TraverseFVar.forFVarM f e
   | .fvar fvarId => f fvarId
 
-instance : TraverseFVar Arg where
+instance : TraverseFVar (Arg pu) where
   mapFVarM := Arg.mapFVarM
   forFVarM := Arg.forFVarM
 
-def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetValue) : m LetValue := do
+def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetValue pu) : m (LetValue pu) := do
   match e with
   | .lit .. | .erased => return e
-  | .proj _ _ fvarId => return e.updateProj! (← f fvarId)
-  | .const _ _ args => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
+  | .proj _ _ fvarId _ => return e.updateProj! (← f fvarId)
+  | .const _ _ args _ => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
   | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
 
-def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue) : m Unit := do
+def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue pu) : m Unit := do
   match e with
   | .lit .. | .erased => return ()
-  | .proj _ _ fvarId => f fvarId
-  | .const _ _ args => args.forM (TraverseFVar.forFVarM f)
+  | .proj _ _ fvarId _ => f fvarId
+  | .const _ _ args _ => args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)
 
-instance : TraverseFVar LetValue where
+instance : TraverseFVar (LetValue pu) where
   mapFVarM := LetValue.mapFVarM
   forFVarM := LetValue.forFVarM
 
-partial def LetDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : LetDecl) : m LetDecl := do
+partial def LetDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : LetDecl pu) : m (LetDecl pu) := do
   decl.update (← Expr.mapFVarM f decl.type) (← LetValue.mapFVarM f decl.value)
 
-partial def LetDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : LetDecl) : m Unit := do
+partial def LetDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : LetDecl pu) : m Unit := do
   Expr.forFVarM f decl.type
   LetValue.forFVarM f decl.value
 
-instance : TraverseFVar LetDecl where
+instance : TraverseFVar (LetDecl pu) where
   mapFVarM := LetDecl.mapFVarM
   forFVarM := LetDecl.forFVarM
 
-partial def Param.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (param : Param) : m Param := do
+partial def Param.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (param : Param pu) : m (Param pu) := do
   param.update (← Expr.mapFVarM f param.type)
 
-partial def Param.forFVarM [Monad m] (f : FVarId → m Unit) (param : Param) : m Unit := do
+partial def Param.forFVarM [Monad m] (f : FVarId → m Unit) (param : Param pu) : m Unit := do
   Expr.forFVarM f param.type
 
-instance : TraverseFVar Param where
+instance : TraverseFVar (Param pu) where
   mapFVarM := Param.mapFVarM
   forFVarM := Param.forFVarM
 
-partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (c : Code) : m Code := do
+partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (c : Code pu) : m (Code pu) := do
   match c with
   | .let decl k =>
     let decl ← LetDecl.mapFVarM f decl
     return Code.updateLet! c decl (← mapFVarM f k)
-  | .fun decl k =>
+  | .fun decl k _ =>
     let params ← decl.params.mapM (Param.mapFVarM f)
     let decl ← decl.update (← Expr.mapFVarM f decl.type) params (← mapFVarM f decl.value)
     return Code.updateFun! c decl (← mapFVarM f k)
@@ -125,12 +125,12 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
   | .unreach typ =>
     return Code.updateUnreach! c (← Expr.mapFVarM f typ)
 
-partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code) : m Unit := do
+partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Unit := do
   match c with
   | .let decl k =>
     LetDecl.forFVarM f decl
     forFVarM f k
-  | .fun decl k =>
+  | .fun decl k _ =>
     decl.params.forM (Param.forFVarM f)
     Expr.forFVarM f decl.type
     forFVarM f decl.value
@@ -151,45 +151,45 @@ partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code) : m Unit 
   | .unreach typ =>
     Expr.forFVarM f typ
 
-instance : TraverseFVar Code where
+instance : TraverseFVar (Code pu) where
   mapFVarM := Code.mapFVarM
   forFVarM := Code.forFVarM
 
-def FunDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : FunDecl) : m FunDecl := do
+def FunDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : FunDecl pu) : m (FunDecl pu) := do
   let params ← decl.params.mapM (Param.mapFVarM f)
   decl.update (← Expr.mapFVarM f decl.type) params (← Code.mapFVarM f decl.value)
 
-def FunDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : FunDecl) : m Unit := do
+def FunDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : FunDecl pu) : m Unit := do
   decl.params.forM (Param.forFVarM f)
   Expr.forFVarM f decl.type
   Code.forFVarM f decl.value
 
-instance : TraverseFVar FunDecl where
+instance : TraverseFVar (FunDecl pu) where
   mapFVarM := FunDecl.mapFVarM
   forFVarM := FunDecl.forFVarM
 
-instance : TraverseFVar CodeDecl where
+instance : TraverseFVar (CodeDecl pu) where
   mapFVarM f decl := do
     match decl with
-    | .fun decl => return .fun (← mapFVarM f decl)
+    | .fun decl _ => return .fun (← mapFVarM f decl)
     | .jp decl => return .jp (← mapFVarM f decl)
     | .let decl => return .let (← mapFVarM f decl)
   forFVarM f decl :=
     match decl with
-    | .fun decl => forFVarM f decl
+    | .fun decl _ => forFVarM f decl
     | .jp decl => forFVarM f decl
     | .let decl => forFVarM f decl
 
-instance : TraverseFVar Alt where
+instance : TraverseFVar (Alt pu) where
   mapFVarM f alt := do
     match alt with
-    | .alt ctor params c =>
+    | .alt ctor params c _ =>
       let params ← params.mapM (Param.mapFVarM f)
       return .alt ctor params (← Code.mapFVarM f c)
     | .default c => return .default (← Code.mapFVarM f c)
   forFVarM f alt := do
     match alt with
-    | .alt _ params c =>
+    | .alt _ params c _ =>
       params.forM (Param.forFVarM f)
       Code.forFVarM f c
     | .default c => Code.forFVarM f c

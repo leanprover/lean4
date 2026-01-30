@@ -395,7 +395,7 @@ mutual
   partial def specializeApp? (e : LetValue) : SpecializeM (Option LetValue) := do
     let .const declName us args := e | return none
     if args.isEmpty then return none
-    if (← Meta.isInstance declName) then return none
+    if (← isInstanceReducible declName) then return none
     let some specEntry ← getSpecEntry? declName | return none
     unless (← shouldSpecialize specEntry args) do return none
     let some decl ← getDecl? declName | return none

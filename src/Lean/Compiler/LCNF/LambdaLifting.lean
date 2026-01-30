@@ -214,7 +214,7 @@ def eagerLambdaLifting : Pass where
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if decl.inlineable || (← Meta.isInstance decl.name) then
+      if decl.inlineable || (← isInstanceReducible decl.name) then
         return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (allowEtaContraction := false) (suffix := `_elam))

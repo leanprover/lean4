@@ -704,7 +704,7 @@ def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
   let env ← getEnv
   if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if Meta.isInstanceCore env decl.name then
+  else if (← isInstanceReducible decl.name) then
     return true -- `decl` is "fuel" for code specialization
   else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized

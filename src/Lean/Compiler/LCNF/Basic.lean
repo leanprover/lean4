@@ -50,6 +50,7 @@ instance : ToString Purity where
     | .pure => "pure"
     | .impure => "impure"
 
+@[inline]
 def Purity.withAssertPurity [Inhabited α] (is : Purity) (should : Purity)
     (k : (is = should) → α) : α :=
   if h : is = should then
@@ -127,7 +128,7 @@ inductive LetValue (pu : Purity) where
   | fvar (fvarId : FVarId) (args : Array (Arg pu))
   deriving Inhabited, BEq, Hashable
 
-def Arg.toLetValue (arg : Arg .pure) : LetValue .pure :=
+def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
   match arg with
   | .fvar fvarId => .fvar fvarId #[]
   | .erased | .type .. => .erased
@@ -141,7 +142,7 @@ private unsafe def LetValue.updateProjImp (e : LetValue pu) (fvarId' : FVarId) :
 
 private unsafe def LetValue.updateConstImp (e : LetValue pu) (declName' : Name) (us' : List Level) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
-  | .const declName us args h => if declName == declName' && ptrEq us us' && ptrEq args args' then e else .const declName' us' args'
+  | .const declName us args _ => if declName == declName' && ptrEq us us' && ptrEq args args' then e else .const declName' us' args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateConstImp] opaque LetValue.updateConst! (e : LetValue pu) (declName' : Name) (us' : List Level) (args' : Array (Arg pu)) : LetValue pu

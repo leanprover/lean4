@@ -61,7 +61,7 @@ where
       This code is not very efficient, we could ask caller to provide the type of `c >>= f`,
       but this is more convenient, and this case is seldom reached.
       -/
-      let auxParam ← mkAuxParam (pu := .pure) type
+      let auxParam ← mkAuxParam (pu := pu) type
       let k ← f auxParam.fvarId
       let typeNew ← k.inferType
       eraseCode k

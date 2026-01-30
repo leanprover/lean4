@@ -137,7 +137,7 @@ def checkAppArgs (f : Expr) (args : Array (Arg .pure)) : CheckM Unit := do
 def checkLetValue (e : LetValue .pure) : CheckM Unit := do
   match e with
   | .lit .. | .erased => pure ()
-  | .const declName us args  => checkAppArgs (mkConst declName us) args
+  | .const declName us args => checkAppArgs (mkConst declName us) args
   | .fvar fvarId args => checkFVar fvarId; checkAppArgs (.fvar fvarId) args
   | .proj _ _ fvarId => checkFVar fvarId
 
@@ -155,7 +155,6 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
     -/
     throwError "invalid jump to out of scope join point `{mkFVar jp}`"
 
-deriving instance Repr for Param
 def checkParam (param : Param .pure) : CheckM Unit := do
   unless param == (← getParam param.fvarId) do
     throwError "LCNF parameter mismatch at `{param.binderName}`, does not value in local context"

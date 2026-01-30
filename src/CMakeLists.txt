@@ -668,6 +668,7 @@ endif()
 
 add_subdirectory(initialize)
 add_subdirectory(shell)
+add_subdirectory(../tests "${CMAKE_CURRENT_BINARY_DIR}/tests")
 # to be included in `leanshared` but not the smaller `leanshared_*` (as it would pull
 # in the world)
 add_library(leaninitialize STATIC $<TARGET_OBJECTS:initialize>)

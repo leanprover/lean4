@@ -2329,8 +2329,10 @@ namespace Lean
 /--
 Depends on the correctness of the Lean compiler, interpreter, and all `[implemented_by ...]` and `[extern ...]` annotations.
 -/
+@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
 axiom trustCompiler : True
 
+set_option linter.deprecated false in
 /--
 When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
 The kernel will not use the interpreter if `c` is not a constant.
@@ -2356,6 +2358,7 @@ opaque reduceBool (b : Bool) : Bool :=
   have := trustCompiler
   b
 
+set_option linter.deprecated false in
 /--
 Similar to `Lean.reduceBool` for closed `Nat` terms.
 

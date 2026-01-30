@@ -23,6 +23,75 @@ theorem Spec.MonadState_get_StateT {m ps} [Monad m] [WPMonad m ps] {σ} {Q : Pos
   simp only [Triple, WP.get_MonadState, WP.get_StateT, SPred.entails.refl]
 
 /-!
+Some auxiliary theorems for generating smaller proof terms
+-/
+
+namespace TacticHelpers
+
+universe u v
+variable {m : Type u → Type v} {ps : PostShape.{u}}
+
+theorem apply0_pre_post {α : Type u} [WP m ps]
+    {x : m α}
+    {P : Assertion ps} {P' : Assertion ps}
+    {Q Q' : PostCond α ps}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P') (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem apply0_pre {α : Type u} [WP m ps]
+    {x : m α}
+    {P : Assertion ps} {P' : Assertion ps}
+    {Q : PostCond α ps}
+    (h : Triple x P' Q) (hpre : P ⊢ₛ P') : P ⊢ₛ wp⟦x⟧ Q :=
+  apply0_pre_post h hpre .rfl
+
+theorem apply1_pre_post {α σ : Type u} [WP m (.arg σ ps)]
+    {x : m α} {s : σ}
+    {P : Assertion ps} {P' : Assertion (.arg σ ps)}
+    {Q Q' : PostCond α (.arg σ ps)}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem apply1_pre {α σ : Type u} [WP m (.arg σ ps)]
+    {x : m α} {s : σ}
+    {P : Assertion ps} {P' : Assertion (.arg σ ps)}
+    {Q : PostCond α (.arg σ ps)}
+    (h : Triple x P' Q) (hpre : P ⊢ₛ P' s) : P ⊢ₛ wp⟦x⟧ Q s :=
+  apply1_pre_post h hpre .rfl
+
+theorem apply2_pre_post {α σ₁ σ₂ : Type u} [WP m (.arg σ₁ (.arg σ₂ ps))]
+    {x : m α} {s₁ : σ₁} {s₂ : σ₂}
+    {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))}
+    {Q Q' : PostCond α (.arg σ₁ (.arg σ₂ ps))}
+    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s₁ s₂) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ := by
+  apply SPred.entails.trans hpre
+  apply SPred.entails.trans (Triple.iff.mp h)
+  apply (wp x).mono _ _ hpost
+
+theorem apply2_pre {α σ₁ σ₂ : Type u} [WP m (.arg σ₁ (.arg σ₂ ps))]
+    {x : m α} {s₁ : σ₁} {s₂ : σ₂}
+    {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))}
+    {Q : PostCond α (.arg σ₁ (.arg σ₂ ps))}
+    (h : Triple x P' Q) (hpre : P ⊢ₛ P' s₁ s₂) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ :=
+  apply2_pre_post h hpre .rfl
+
+meta def knownApplyTheorems : Std.HashMap (Bool × Bool × Nat) Name := .ofList [
+    -- (pre, post, excess args)
+    ((true, false, 0), ``apply0_pre),
+    ((true, false, 1), ``apply1_pre),
+    ((true, false, 2), ``apply2_pre),
+    ((true, true, 0), ``apply0_pre_post),
+    ((true, true, 1), ``apply1_pre_post),
+    ((true, true, 2), ``apply2_pre_post),
+  ]
+
+end TacticHelpers
+
+/-!
 Creating backward rules for registered specifications
 -/
 
@@ -34,6 +103,28 @@ meta def SpecTheorems.findSpec (database : SpecTheorems) (e : Expr) : MetaM (Opt
   let specs := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   return specs[0]?
 
+meta def mkApplyTheorem (pre post : Bool) (us : List Level) (m ps α instWP prog P Q h : Expr) (ss : Array Expr) (ys : Array Expr) : Option Expr := do
+  let thm ← TacticHelpers.knownApplyTheorems.get? (pre, post, ss.size)
+  let mut σs := #[]
+  let mut ps := ps
+  for _ in [:ss.size] do
+    let (σ, ps') ← ps.app2? ``PostShape.arg
+    σs := σs.push σ
+    ps := ps'
+  let mut prf := mkConst thm us
+  prf := mkApp3 prf m ps α
+  prf := mkAppN prf σs
+  prf := mkApp2 prf instWP prog
+  prf := mkAppN prf ss
+  if pre then prf := mkApp prf ys[0]! -- P'
+  prf := mkApp prf P
+  if post then prf := mkApp prf ys[ys.size-2]! -- Q'
+  prf := mkApp2 prf Q h
+  if pre then prf := mkApp prf ys[1]! -- hpre
+  if post then prf := mkApp prf ys[ys.size-1]! -- hpost
+  return prf
+
+open TacticHelpers in
 meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   -- Create a backward rule for the spec we look up in the database.
   -- In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
@@ -57,12 +148,11 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
   let spec ← withLocalDeclsDND excessArgNamesTypes fun ss => do
     let needPreVC := !xs.contains P
     let needPostVC := !xs.contains Q
-    let u := f.constLevels![0]!
-    let wp := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
-    let P := mkAppN P ss  -- P s₁ ... sₙ
+    let us := f.constLevels!
+    let u := us[0]!
+    let wp := mkApp5 (mkConst ``WP.wp us) m ps instWP α prog
     let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
-    let wpApplyQ := mkAppN wpApplyQ ss  -- wp⟦prog⟧ Q s₁ ... sₙ
-    -- let typeP ← Sym.inferType P -- much simpler than popping ss.size .args from `ps`
+    let Pss := mkAppN P ss  -- P s₁ ... sₙ
     let typeP := mkApp (mkConst ``SPred [u]) σs
       -- Note that this is the type of `P s₁ ... sₙ`,
       -- which is `Assertion ps'`, but we don't know `ps'`
@@ -71,32 +161,40 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
     if needPreVC then
       let nmP' ← mkFreshUserName `P
       let nmHPre ← mkFreshUserName `hpre
-      let entailment P' := pure <| mkApp3 (mkConst ``SPred.entails [u]) σs P' P
+      let entailment P' := pure <| mkApp3 (mkConst ``SPred.entails [u]) σs P' Pss
       declInfos := #[(nmP', .strictImplicit, fun _ => pure typeP),
                      (nmHPre, .default, fun xs => entailment xs[0]!)]
     if needPostVC then
       let nmQ' ← mkFreshUserName `Q
       let nmHPost ← mkFreshUserName `hpost
       let entailment Q' := pure <| mkApp3 (mkConst ``PostCond.entails [u]) ps Q Q'
-      declInfos := #[(nmQ', .strictImplicit, fun _ => pure typeQ),
+      declInfos := declInfos ++
+                   #[(nmQ', .strictImplicit, fun _ => pure typeQ),
                      (nmHPost, .default, fun xs => entailment xs[0]!)]
-    withLocalDecls declInfos fun ys => do
-      let mut prf := spec
-      let mut newP := P
-      let mut newQ := Q
+    withLocalDecls declInfos fun ys => liftMetaM ∘ mkLambdaFVars (ss ++ ys) =<< do
       if !needPreVC && !needPostVC && excessArgs.isEmpty then
         -- Still need to unfold the triple in the spec type
         let entailment := mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
-        prf := mkApp2 (mkConst ``id [0]) entailment prf
-        check prf
+        let prf := mkApp2 (mkConst ``id [0]) entailment spec
+        -- check prf
+        return prf
+      -- Sadly, the following does not yield a kernel checking speedup (on the contrary), so it's pointless:
+      -- if let some prf := mkApplyTheorem needPreVC needPostVC us m ps α instWP prog P Q spec ss ys then
+      --   -- check prf
+      --   return prf
+      let mut prf := spec
+      let P := Pss  -- P s₁ ... sₙ
+      let wpApplyQ := mkAppN wpApplyQ ss  -- wp⟦prog⟧ Q s₁ ... sₙ
       prf := mkAppN prf ss -- Turn `⦃P⦄ prog ⦃Q⦄` into `P s₁ ... sₙ ⊢ₛ wp⟦prog⟧ Q s₁ ... sₙ`
+      let mut newP := P
+      let mut newQ := Q
       if needPreVC then
         -- prf := hpre.trans prf
         let P' := ys[0]!
         let hpre := ys[1]!
         prf := mkApp6 (mkConst ``SPred.entails.trans [u]) σs P' P wpApplyQ hpre prf
         newP := P'
-        check prf
+        -- check prf
       if needPostVC then
         -- prf := prf.trans <| (wp x).mono _ _ hpost
         let wp := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
@@ -108,8 +206,8 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
         let hmono := mkAppN hmono ss
         prf := mkApp6 (mkConst ``SPred.entails.trans [u]) σs newP wpApplyQ wpApplyQ' prf hmono
         newQ := Q'
-        check prf
-      mkLambdaFVars (ss ++ ys) prf
+        -- check prf
+      return prf
   let res ← abstractMVars spec
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 

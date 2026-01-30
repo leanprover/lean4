@@ -103,6 +103,17 @@ theorem le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
 theorem lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
   simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
 
+theorem le_of_lt {s : Slice} {p q : s.Pos} : p < q → p ≤ q := by
+  simpa [Pos.lt_iff, Pos.le_iff, Pos.Raw.lt_iff, Pos.Raw.le_iff] using Nat.le_of_lt
+
+@[simp]
+theorem Slice.Pos.le_next {s : Slice} {p : s.Pos} {h} : p ≤ p.next h :=
+  le_of_lt Pos.lt_next
+
+@[simp]
+theorem Slice.Pos.prev_le {s : Slice} {p : s.Pos} {h} : p.prev h ≤ p :=
+  le_of_lt Pos.prev_lt
+
 @[simp]
 theorem lt_next_next {s : Slice} {p : s.Pos} {h h'} : p < (p.next h).next h' :=
   lt_trans p.lt_next (p.next h).lt_next

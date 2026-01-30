@@ -29,7 +29,6 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-uint8_t l_Lean_Meta_ParamInfo_isInstImplicit(lean_object*);
 lean_object* l_Lean_Meta_isType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_ParamInfo_isImplicit(lean_object*);
 uint8_t l_Lean_Meta_ParamInfo_isStrictImplicit(lean_object*);
@@ -442,7 +441,7 @@ else
 {
 lean_object* x_12; uint8_t x_13; uint8_t x_14; 
 x_12 = lean_array_fget_borrowed(x_3, x_2);
-x_13 = l_Lean_Meta_ParamInfo_isInstImplicit(x_12);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*1 + 4);
 if (x_13 == 0)
 {
 uint8_t x_28; 

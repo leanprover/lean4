@@ -14,6 +14,7 @@ import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
 public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.LCNF.CompilerM
+
 public section
 namespace Lean.Compiler.LCNF
 /--
@@ -50,7 +51,7 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
+def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.set `pp.motives.pi false) do
@@ -119,12 +120,12 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
-  let decls ← runPassManagerPart "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
-  let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
+  let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
   let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
     splitScc decls
   sccs.mapM fun decls => do
-    let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
+    let decls ← runPassManagerPart .pure .pure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     if (← Lean.isTracingEnabledFor `Compiler.result) then
       for decl in decls do
         let decl ← normalizeFVarIds decl
@@ -133,14 +134,19 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
       let irDecls ← IR.toIR decls
       IR.compile irDecls
 where
-  runPassManagerPart (profilerName : String) (passes : Array Pass) (decls : Array Decl)
-      (isCheckEnabled : Bool) : CompilerM (Array Decl) := do
+  runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
+      (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :
+      CompilerM (Array (Decl outPhase)) := do
     profileitM Exception profilerName (← getOptions) do
-      let mut decls := decls
+      let mut state : (pu : Purity) × Array (Decl pu) := ⟨inPhase, decls⟩
       for pass in passes do
-        decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-          withPhase pass.phase <| pass.run decls
-        withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+        state ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+          let decls ← withPhase pass.phase do
+            state.fst.withAssertPurity pass.phase.toPurity fun h => do
+              pass.run (h ▸ state.snd)
+          pure ⟨_, decls⟩
+        withPhase pass.phaseOut <| checkpoint pass.name state.snd (isCheckEnabled || pass.shouldAlwaysRunCheck)
+      let decls := state.fst.withAssertPurity outPhase fun h => h ▸ state.snd
       return decls
 
 end PassManager

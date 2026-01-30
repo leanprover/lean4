@@ -58,7 +58,7 @@ This allows you to observe state changes (like logged messages, modified metavar
 as tasks complete, unlike `par`/`par'` which restore the initial state after collecting all results.
 
 Iterators do not have `Finite` instances, as we cannot prove termination from the available
-information. For consumers that require `Finite` (like `.toList`), use `.allowNontermination.toList`.
+information.
 -/
 
 public section
@@ -245,7 +245,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (CoreM α)) (cancel : Bool := true) : CoreM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -380,7 +380,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (MetaM α)) (cancel : Bool := true) : MetaM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -517,7 +517,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (TermElabM α)) (cancel : Bool := true) : TermElabM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook
@@ -654,7 +654,7 @@ If `cancel := true` (the default), cancels all remaining tasks after the first s
 -/
 def parFirst {α : Type} (jobs : List (TacticM α)) (cancel : Bool := true) : TacticM α := do
   let (cancelHook, iter) ← parIterGreedyWithCancel jobs
-  for result in iter.allowNontermination do
+  for result in iter do
     match result with
     | .ok value =>
       if cancel then cancelHook

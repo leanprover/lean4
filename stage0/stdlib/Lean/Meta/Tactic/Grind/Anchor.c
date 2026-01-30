@@ -92,7 +92,7 @@ lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
-uint8_t l_Lean_Meta_ParamInfo_isInstImplicit(lean_object*);
+uint8_t l_Lean_Meta_ParamInfo_isImplicit(lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Grind_getAnchor_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Meta_Grind_getAnchor_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getAnchor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1829,7 +1829,7 @@ else
 {
 lean_object* x_32; uint8_t x_33; 
 x_32 = lean_array_fget_borrowed(x_3, x_4);
-x_33 = l_Lean_Meta_ParamInfo_isInstImplicit(x_32);
+x_33 = l_Lean_Meta_ParamInfo_isImplicit(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; 

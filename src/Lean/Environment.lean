@@ -439,6 +439,12 @@ also `AsyncContext.declPrefix`.
 private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
 
+private def AsyncContext.descr (ctx : AsyncContext) : String :=
+  if let (n :: _) := ctx.realizingStack then
+    s!"realization context '{n}'"
+  else
+    s!"async context '{ctx.declPrefix}'"
+
 /--
 Constant info and environment extension states eventually resulting from async elaboration.
 -/
@@ -1384,8 +1390,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+      return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
   | .local =>
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }

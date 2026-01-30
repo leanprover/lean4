@@ -54,7 +54,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
 
 def elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
   let d ← mkDecide expectedType
-  match (← nativeEqTrue tacticName d) with
+  match (← nativeEqTrue tacticName d (axiomDeclRange? := (← getRef))) with
   | .notTrue =>
     throwError m!"\
       Tactic `{tacticName}` evaluated that the proposition\

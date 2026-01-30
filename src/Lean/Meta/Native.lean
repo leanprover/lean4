@@ -10,6 +10,7 @@ public import Lean.Meta.Basic
 import Lean.Util.CollectLevelParams
 import Lean.AddDecl
 import Lean.Meta.AppBuilder
+import Lean.Elab.DeclarationRange
 
 open Lean Meta
 
@@ -27,7 +28,7 @@ public inductive NativeEqResult where
   /-- The given expression `e` evalutes to false. -/
   | notTrue
 
-private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) : MetaM NativeEqResult  := do
+private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqResult  := do
   if e.hasFVar then
     throwError m!"Tactic `{tacticName}` failed: Cannot native decide proposition with free variables:{indentExpr e}"
   let levels := (collectLevelParams {} e).params.toList
@@ -67,6 +68,8 @@ private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) : MetaM Nat
     isUnsafe := false
   }
   addDecl axDecl
+  if let some ref := axiomDeclRange? then
+    addDeclarationRangesFromSyntax auxAxiomName ref
 
   let levelParams := levels.map mkLevelParam
   return .success <| mkConst auxAxiomName levelParams
@@ -80,4 +83,4 @@ return that axiom.
 It is the basis for `native_decide` and `bv_decide` tactics.
 -/
 @[implemented_by nativeEqTrueUnsafe]
-public opaque nativeEqTrue (tacticName : Name) (e : Expr) : MetaM NativeEqResult
+public opaque nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqResult

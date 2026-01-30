@@ -212,7 +212,7 @@ def elabGrindLocals (params : Grind.Params) : MetaM Grind.Params := do
     -- Filter similar to LibrarySuggestions.isDeniedPremise (but inlined to avoid dependency)
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← Meta.isInstance name) then continue
+    if (← isInstanceReducible name) then continue
     match ci with
     | .defnInfo _ =>
       try

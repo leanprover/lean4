@@ -16,13 +16,14 @@ namespace Lean
 Reducibility status for a definition.
 -/
 inductive ReducibilityStatus where
-  | reducible | semireducible | irreducible
+  | reducible | semireducible | irreducible | instanceReducible
   deriving Inhabited, Repr, BEq
 
 def ReducibilityStatus.toAttrString : ReducibilityStatus → String
   | .reducible => "[reducible]"
   | .irreducible => "[irreducible]"
   | .semireducible => "[semireducible]"
+  | .instanceReducible => "[instance_reducible]"
 
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
@@ -127,6 +128,9 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         | .irreducible =>
           unless statusOld matches .semireducible do
             throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+        | .instanceReducible =>
+          unless statusOld matches .semireducible do
+            throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
         | .semireducible =>
           throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
       | .local =>
@@ -136,6 +140,9 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         | .irreducible =>
           unless statusOld matches .semireducible do
             throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+        | .instanceReducible =>
+          unless statusOld matches .semireducible do
+            throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
         | .semireducible =>
           unless statusOld matches .irreducible do
             throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
@@ -174,6 +181,15 @@ builtin_initialize
     applicationTime := .afterTypeChecking
  }
 
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `instance_reducible
+    descr           := "semireducible declaration"
+    add             := addAttr .instanceReducible
+    applicationTime := .afterTypeChecking
+ }
+
 /-- Return the reducibility attribute for the given declaration. -/
 def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusCore (← getEnv) declName
@@ -188,15 +204,11 @@ def setReducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
 
 /-- Return `true` if the given declaration has been marked as `[reducible]`. -/
 def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getReducibilityStatus declName) with
-  | .reducible => return true
-  | _ => return false
+  return (← getReducibilityStatus declName) matches .reducible
 
 /-- Return `true` if the given declaration has been marked as `[irreducible]` -/
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getReducibilityStatus declName) with
-  | .irreducible => return true
-  | _ => return false
+  return (← getReducibilityStatus declName) matches .irreducible
 
 /-- Set the given declaration as `[irreducible]` -/
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=

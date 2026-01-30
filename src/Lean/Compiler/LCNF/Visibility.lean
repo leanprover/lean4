@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
+import Lean.Compiler.NoncomputableAttr
+import Lean.AddDecl
 
 public section
 
@@ -139,7 +141,7 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
-      modify (·.insert decl.name)
+      modify (·.insert ref)
       if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
         -- check transitively through local decls
         if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then

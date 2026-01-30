@@ -250,7 +250,8 @@ partial def lowerLet (decl : LCNF.LetDecl .pure) (k : LCNF.Code .pure) : M FnBod
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
-      throwNamedError lean.dependsOnNoncomputable f!"`{name}` not supported by code generator; consider marking definition as `noncomputable`"
+      -- Should have been caught by `ToLCNF`
+      throwError f!"ToIR: unexpected use of noncomputable declaration `{name}`; please report this issue"
     | some (.recInfo ..) =>
       throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
     | none => panic! "reference to unbound name"

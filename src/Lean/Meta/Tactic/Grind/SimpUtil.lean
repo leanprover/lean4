@@ -14,11 +14,10 @@ import Lean.Meta.Tactic.Grind.Arith.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Util
 import Init.Grind.Norm
 public section
 namespace Lean.Meta.Grind
-
-builtin_initialize normExt : SimpExtension ← mkSimpExt
 
 def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name) : MetaM Unit := do
   let thms ← normExt.getTheorems
@@ -138,7 +137,7 @@ builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
     return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
 
 builtin_dsimproc_decl unfoldReducibleSimproc (_) := fun e => do
-  unfoldReducibleStep e
+  Sym.unfoldReducibleStep e
 
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
@@ -176,14 +175,18 @@ private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpThe
   else
     return s
 
-/-- Returns the simplification context used by `grind`. -/
-protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
+def getNormTheorems : MetaM SimpTheorems := do
   let mut thms ← normExt.getTheorems
   thms ← addDeclToUnfold thms ``GE.ge
   thms ← addDeclToUnfold thms ``GT.gt
   thms ← addDeclToUnfold thms ``Nat.cast
   thms ← addDeclToUnfold thms ``Bool.xor
   thms ← addDeclToUnfold thms ``Ne
+  return thms
+
+/-- Returns the simplification context used by `grind`. -/
+protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
+  let thms ← getNormTheorems
   Simp.mkContext
     (config :=
       { arith := true

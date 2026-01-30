@@ -131,7 +131,7 @@ Run an external SAT solver on the `CNF` to obtain an LRAT proof.
 This will obtain an `LratCert` if the formula is UNSAT and throw errors otherwise.
 -/
 def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.FilePath)
-    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) :
+    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) (solverMode : Frontend.SolverMode) :
     CoreM (Except (Array (Bool × Nat)) LratCert) := do
   IO.FS.withTempFile fun cnfHandle cnfPath => do
     withTraceNode `Meta.Tactic.sat (fun _ => return "Serializing SAT problem to DIMACS file") do
@@ -141,7 +141,7 @@ def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.Fi
 
     let res ←
       withTraceNode `Meta.Tactic.sat (fun _ => return "Running SAT solver") do
-        External.satQuery solver cnfPath lratPath timeout binaryProofs
+        External.satQuery solver cnfPath lratPath timeout binaryProofs solverMode
     if let .sat assignment := res then
       return .error assignment
 

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Parser.Extension
+import Init.Data.String.Search
 
 public section
 
@@ -72,16 +73,16 @@ the docstring. -/
 def getRecommendedSpellingString (env : Environment) (declName : Name) : String := Id.run do
   let spellings := getRecommendedSpellingsForName env declName
   if spellings.size == 0 then ""
-  else "\n\nConventions for notations in identifiers:\n\n" ++ String.join (spellings.toList.map bullet) |>.trimRight
+  else "\n\nConventions for notations in identifiers:\n\n" ++ String.join (spellings.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
   indentLine (str : String) : String :=
-    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+    (if str.all Char.isWhitespace then str else "   " ++ str) ++ "\n"
   bullet (spelling : RecommendedSpelling) : String :=
     let firstLine := s!" * The recommended spelling of `{spelling.«notation»}` in identifiers is `{spelling.recommendedSpelling}`"
-    let additionalInfoLines := spelling.additionalInformation?.map (·.splitOn "\n")
+    let additionalInfoLines := spelling.additionalInformation?.map (·.split '\n' |>.toStringList)
     match additionalInfoLines with
     | none | some [] => firstLine ++ ".\n\n"
-    | some [l] => firstLine ++ s!" ({l.trimRight}).\n\n"
+    | some [l] => firstLine ++ s!" ({l.trimAsciiEnd}).\n\n"
     | some ls => firstLine ++ ".\n\n" ++ String.join (ls.map indentLine) ++ "\n\n"
 
 end Lean.Parser.Term.Doc

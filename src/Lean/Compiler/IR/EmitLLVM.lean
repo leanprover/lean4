@@ -13,6 +13,7 @@ public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.IR.ResetReuse
 public import Lean.Compiler.IR.LLVMBindings
+import Lean.Compiler.ModPkgExt
 
 public section
 
@@ -30,6 +31,7 @@ time. These changes can likely be done similar to the ones in EmitC:
     - function decls need to be fixed
     - full applications need to be fixed
     - tail calls need to be fixed
+- closed term static initializers
 -/
 
 def leanMainFn := "_lean_main"
@@ -345,16 +347,18 @@ def throwInvalidExportName {α : Type} (n : Name) : M llvmctx α := do
   throw s!"invalid export name {n.toString}"
 
 def toCName (n : Name) : M llvmctx String := do
-  match getExportNameFor? (← getEnv) n with
-  | some (.str .anonymous s) => pure s
+  let env ← getEnv
+  match getExportNameFor? env n with
+  | some (.str .anonymous s) => return s
   | some _                   => throwInvalidExportName n
-  | none                     => if n == `main then pure leanMainFn else pure n.mangle
+  | none                     => return if n == `main then leanMainFn else getSymbolStem env n
 
 def toCInitName (n : Name) : M llvmctx String := do
-  match getExportNameFor? (← getEnv) n with
+  let env ← getEnv
+  match getExportNameFor? env n with
   | some (.str .anonymous s) => return "_init_" ++ s
   | some _                   => throwInvalidExportName n
-  | none                     => pure ("_init_" ++ n.mangle)
+  | none                     => return "_init_" ++ getSymbolStem env n
 
 /--
 ## LLVM Control flow Utilities
@@ -534,14 +538,12 @@ def emitFnDecls : M llvmctx Unit := do
   let env ← getEnv
   let decls := getDecls env
   let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
-  let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
-  let usedDecls := usedDecls.toList
-  for n in usedDecls do
-    let decl ← getDecl n
+  let usedDecls := collectUsedDecls env decls
+  usedDecls.forM fun n => do
+    let decl ← getDecl n;
     match getExternNameFor env `c decl.name with
     | some cName => emitExternDeclAux decl cName
     | none       => emitFnDecl decl (!modDecls.contains n)
-  return ()
 
 def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get
@@ -679,7 +681,7 @@ def emitExternCall (builder : LLVM.Builder llvmctx)
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall builder extFn ps ys retty name
   | some (ExternEntry.inline `llvm _pat) => throw "Unimplemented codegen of inline LLVM"
   | some (ExternEntry.inline _ pat) => throw s!"Cannot codegen non-LLVM inline code '{pat}'."
-  | some (ExternEntry.opaque _)  => unreachable!
+  | some ExternEntry.opaque => unreachable!
   | _ => throw s!"Failed to emit extern application '{f}'."
 
 def getFunIdTy (f : FunId) : M llvmctx (LLVM.LLVMType llvmctx) := do
@@ -754,7 +756,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
   let (__zty, zslot) ← emitLhsSlot_ z
   let decl ← getDecl f
   match decl with
-  | .fdecl .. | .extern _ _ _ { entries := [.opaque _] } =>
+  | .fdecl .. | .extern _ _ _ { entries := [.opaque] } =>
     if ys.size > 0 then
         let fv ← getOrAddFunIdValue builder f
         let ys ←  ys.mapM (fun y => do
@@ -1333,8 +1335,9 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
          callLeanMarkPersistentFn builder dval
 
 def callModInitFn (builder : LLVM.Builder llvmctx)
-    (modName : Name) (input world : LLVM.Value llvmctx) (retName : String): M llvmctx (LLVM.Value llvmctx) := do
-  let fnName := mkModuleInitializationFunctionName modName
+    (modName : Name) (pkg? : Option PkgId)
+    (input world : LLVM.Value llvmctx) (retName : String) : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName := mkModuleInitializationFunctionName modName pkg?
   let retty ← LLVM.voidPtrType llvmctx
   let argtys := #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
@@ -1344,9 +1347,9 @@ def callModInitFn (builder : LLVM.Builder llvmctx)
 def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let env ← getEnv
   let modName ← getModName
-
+  let pkg? := env.getModulePackage?
   let initFnTy ← LLVM.functionType (← LLVM.voidPtrType llvmctx) #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)] (isVarArg := false)
-  let initFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) initFnTy
+  let initFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName pkg?) initFnTy
   LLVM.setDLLStorageClass initFn LLVM.DLLStorageClass.export  -- LEAN_EXPORT
   let entryBB ← LLVM.appendBasicBlockInContext llvmctx initFn "entry"
   LLVM.positionBuilderAtEnd builder entryBB
@@ -1366,7 +1369,10 @@ def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   env.imports.forM fun import_ => do
     let builtin ← LLVM.getParam initFn 0
     let world ← callLeanIOMkWorld builder
-    let res ← callModInitFn builder import_.module builtin world ("res_" ++ import_.module.mangle)
+    let some idx := env.getModuleIdx? import_.module
+      | throw "(internal) import without module index" -- should be unreachable
+    let pkg? := env.getModulePackageByIdx? idx
+    let res ← callModInitFn builder import_.module pkg? builtin world ("res_" ++ import_.module.mangle)
     let err? ← callLeanIOResultIsError builder res ("res_is_error_"  ++ import_.module.mangle)
     buildIfThen_ builder ("IsError" ++ import_.module.mangle) err?
       (fun builder => do
@@ -1512,7 +1518,8 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         See issue #534. We can remove this workaround after we implement issue #467. -/
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
-  let resv ← callModInitFn builder (← getModName) (← constInt8 1) world ((← getModName).toString ++ "_init_out")
+  let resv ← callModInitFn builder (← getModName) env.getModulePackage?
+    (← constInt8 1) world ((← getModName).toString ++ "_init_out")
   let _ ← LLVM.buildStore builder resv res
 
   callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)

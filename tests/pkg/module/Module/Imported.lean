@@ -3,6 +3,7 @@ module
 prelude
 public import Module.Basic
 import Lean.DocString
+meta import Lean.Elab.Command
 
 /-! Definitions should be exported without their bodies by default -/
 
@@ -64,10 +65,10 @@ info: theorem trfl : f = 1 :=
 
 -- Should not fail with 'unknown constant `inst*`
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   X
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 def fX : X := inferInstance
@@ -89,19 +90,17 @@ example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 
 /--
-error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`
+error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`, so it is not possible to project the field `eq_def` from an expression
   f
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs in
 #check f.eq_def
 
 /--
-error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`
+error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`, so it is not possible to project the field `eq_unfold` from an expression
   f
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs in
 #check f.eq_unfold
@@ -185,3 +184,30 @@ theorem f_struct_eq : f_struct 0 = 0 := by
 #guard_msgs in
 open Lean in
 #eval show CoreM _ from do findDocString? (← getEnv) ``pubInheritDoc
+
+/-! Cross-module `meta` checks, including involving compiler-introduced constants. -/
+
+attribute [local delab Nat] delab
+
+/--
+error: Cannot add attribute `[Lean.PrettyPrinter.Delaborator.delabAttribute]`: Declaration `noMetaDelab` must be marked as `meta`
+-/
+#guard_msgs in
+attribute [local delab Nat] noMetaDelab
+
+@[noinline] meta def pap (f : α → β) (a : α) : β := f a
+public meta def delab' : Lean.PrettyPrinter.Delaborator.Delab :=
+  pap delab
+
+-- Used to complain about `_boxed` not being meta
+attribute [local delab Nat] delab'
+
+/--
+error: Invalid `meta` definition `metaUsingNonMeta`, `f` is not accessible here; consider adding `public meta import Module.Basic`
+-/
+#guard_msgs in
+public meta def metaUsingNonMeta : Nat :=
+  f
+
+-- #11672
+example : instA = { instA with b := 0 } := rfl

@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object* x_1, lean_object* x_2) {
 _start:
 {

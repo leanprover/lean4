@@ -47,10 +47,10 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM Result 
   mvar.withContext <| withReducible do
     let (prf, state) ← StateRefT'.run (ReaderT.run (onGoal goal (← mvar.getTag)) ctx) { fuel }
     mvar.assign prf
-    for h : idx in [:state.invariants.size] do
+    for h : idx in *...state.invariants.size do
       let mv := state.invariants[idx]
       mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
-    for h : idx in [:state.vcs.size] do
+    for h : idx in *...state.vcs.size do
       let mv := state.vcs[idx]
       mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag).eraseMacroScopes)
     return { invariants := state.invariants, vcs := state.vcs }
@@ -179,7 +179,7 @@ where
         let context ← withLocalDecl `e .default (mkApp m α) fun e => do
           mkLambdaFVars #[e] (goal.withNewProg e).toExpr
         let res ← Simp.mkCongrArg context res
-        res.mkEqMPR prf
+        return ← res.mkEqMPR prf
       else
         pure e
     -- Try reduce the matcher
@@ -196,8 +196,18 @@ where
     -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
     let context ← withLocalDecl `e .default (mkApp m α) fun e => do
       mkLambdaFVars #[e] (goal.withNewProg e).toExpr
-    return ← info.splitWithConstantMotive goal.toExpr (useSplitter := true) fun altSuff idx params => do
+    return ← info.splitWith goal.toExpr (useSplitter := true) fun altSuff expAltType idx params => do
+      burnOne
+      let e ← mkFreshExprMVar (mkApp m α)
+      unless ← isDefEq (goal.withNewProg e).toExpr expAltType do
+        throwError "The alternative type {expAltType} returned by `splitWith` does not match {(goal.withNewProg e).toExpr}. This is a bug in `mvcgen`."
+      let e ← instantiateMVarsIfMVarApp e
       let res ← liftMetaM <| rwIfOrMatcher idx e
+      -- When `FunInd.rwMatcher` fails, it returns the original expression. We'd loop in that case,
+      -- so we rather throw an error.
+      if res.expr == e then
+        throwError "`rwMatcher` failed to rewrite {indentExpr e}\n\
+          Check the output of `trace.Elab.Tactic.Do.vcgen.split` for more info and submit a bug report."
       let goal' := goal.withNewProg res.expr
       let prf ← withAltCtx idx params <| onWPApp goal' (name ++ altSuff)
       let res ← Simp.mkCongrArg context res
@@ -243,7 +253,7 @@ where
       mkFreshExprSyntheticOpaqueMVar hypsTy (name.appendIndexAfter i)
 
     let (joinPrf, joinGoal) ← forallBoundedTelescope joinTy numJoinParams fun joinParams _body => do
-      let φ ← info.splitWithConstantMotive (mkSort .zero) fun _suff idx altParams =>
+      let φ ← info.splitWith (mkSort .zero) fun _suff _expAltType idx altParams =>
         return mkAppN hypsMVars[idx]! (joinParams ++ altParams)
       withLocalDecl (← mkFreshUserName `h) .default φ fun h => do
         -- NB: `mkJoinGoal` is not quite `goal.withNewProg` because we only take 4 args and clear
@@ -375,7 +385,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         let n? : Option Nat := do
             let `(binderIdent| $tag:ident) := tag | some n -- fall back to ordinal
             let .str .anonymous s := tag.getId | none
-            s.dropPrefix? "inv" >>= Substring.toNat?
+            s.dropPrefix? "inv" >>= String.Slice.toNat?
         let some mv := do invariants[(← n?) - 1]? | do
           logErrorAt alt m!"No invariant with label {tag} {repr tag}."
           continue
@@ -426,7 +436,7 @@ where
     let some tactic := tactic | return vcs
     let mut newVCs := #[]
     for vc in vcs do
-      let vcs ← try evalTacticAt tactic vc catch _ => pure [vc]
+      let vcs ← evalTacticAt tactic vc
       newVCs := newVCs ++ vcs
     return newVCs
 

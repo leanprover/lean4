@@ -4,19 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.DocString
+import Lean.ExtraModUses
+import Lean.ProjFns
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
-import Lean.ExtraModUses
-
+import Lean.Meta.WHNF
 public section
 
 /-!
-This module contains types to manages simp theorems and sets theirof.
+This module contains types to manages simp theorems and sets thereof.
 
 Overview of types in this module:
 
@@ -39,7 +39,7 @@ namespace Lean.Meta
 
 register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
   defValue := true
-  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theorem \
     can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 
@@ -382,8 +382,6 @@ Because some theorems lead to multiple `SimpTheorems` (in particular conjunction
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
     (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
-  -- If the theorem is used definitionally, it will not be visible in the proof term.
-  recordExtraModUseFromDecl (isMeta := false) declName
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -574,15 +572,12 @@ def SimpTheorems.addSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheor
   -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
   if e.post then
-    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := d.post.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := d.pre.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
-
-@[deprecated SimpTheorems.addSimpTheorem (since := "2025-06-17")]
-def addSimpTheoremEntry := SimpTheorems.addSimpTheorem
 
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }

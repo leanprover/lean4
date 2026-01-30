@@ -26,10 +26,10 @@ namespace Lake
 /-! ### Build Key Helper Constructors -/
 
 public abbrev Module.key (self : Module) : BuildKey :=
-  .module self.keyName
+  .packageModule self.pkg.keyName self.name
 
 public abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
-  .packageTarget self.pkg.name self.name
+  .packageTarget self.pkg.keyName self.name
 
 public abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
   self.key.facet exeFacet
@@ -67,6 +67,7 @@ public structure ModuleImport extends Import where
 /-- A module's source file path plus its parsed header. -/
 public structure ModuleInput where
   path : FilePath
+  trace : BuildTrace
   header : ModuleHeader
   imports : Array ModuleImport
 
@@ -213,7 +214,7 @@ public abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
 
 /-
 Build info for applying the specified facet to the package.
-It is the user's obiligation to ensure the facet in question is a package facet.
+It is the user's obligation to ensure the facet in question is a package facet.
 -/
 public abbrev Package.facetCore (facet : Name) (self : Package) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -266,7 +267,7 @@ end Package
 
 /-
 Build info for applying the specified facet to the library.
-It is the user's obiligation to ensure the facet in question is a library facet.
+It is the user's obligation to ensure the facet in question is a library facet.
 -/
 public abbrev LeanLib.facetCore (facet : Name) (self : LeanLib) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -307,7 +308,7 @@ end LeanLib
 
 /-
 Build info for applying the specified facet to the executable.
-It is the user's obiligation to ensure the facet in question is the executable facet.
+It is the user's obligation to ensure the facet in question is the executable facet.
 -/
 public abbrev LeanExe.facetCore (facet : Name) (self : LeanExe) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -320,7 +321,7 @@ public abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
 
 /-
 Build info for applying the specified facet to the external library.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev ExternLib.facetCore (facet : Name) (self : ExternLib) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -341,7 +342,7 @@ public abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
 
 /-
 Build info for applying the specified facet to the input file.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev InputFile.facetCore (facet : Name) (self : InputFile) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
@@ -352,7 +353,7 @@ public abbrev InputFile.default (self : InputFile) : BuildInfo :=
 
 /-
 Build info for applying the specified facet to the input directory.
-It is the user's obiligation to ensure the facet in question is an external library facet.
+It is the user's obligation to ensure the facet in question is an external library facet.
 -/
 public abbrev InputDir.facetCore (facet : Name) (self : InputDir) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet

@@ -18,6 +18,7 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
 
 public section
 
@@ -113,10 +114,12 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
-    elimDeadBranches,
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    elimDeadBranches,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),

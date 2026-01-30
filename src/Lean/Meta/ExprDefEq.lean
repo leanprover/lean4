@@ -4,24 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta
 
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
@@ -155,12 +151,12 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
 
-/-- Support for constraints of the form `("..." =?= String.mk cs)` -/
+/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf ``String.mk then
+  if s.isStringLit && t.isAppOf ``String.ofList then
     isDefEq (← s.toCtorIfLit) t
-  else if s.isAppOf ``String.mk && t.isStringLit then
+  else if s.isAppOf ``String.ofList && t.isStringLit then
     isDefEq s (← t.toCtorIfLit)
   else
     pure LBool.undef
@@ -304,7 +300,13 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
-    if info.isInstImplicit then
+    /-
+    **Note**: We use `binderInfo.isInstImplicit` (the `[..]` annotation) rather than
+    `info.isInstance` (whether the type is a class). Type class synthesis should only
+    be triggered for parameters explicitly marked for instance resolution, not merely
+    for parameters whose types happen to be class types.
+    -/
+    if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
     unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
@@ -313,7 +315,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
-    if info.isInstImplicit then
+    if info.isInstance then
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
        return false
     else
@@ -376,7 +378,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   isDefEqBindingAux lctx #[] a b #[]
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
-  withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
+  withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
@@ -1185,7 +1187,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
 /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
     It assumes `?m` is unassigned. -/
 private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
-  withTraceNodeBefore `Meta.isDefEq.assign (return m!"{mvarApp} := {v}") do
+  withTraceNodeBefore `Meta.isDefEq.assign (fun _ => return m!"{mvarApp} := {v}") do
     let mvar := mvarApp.getAppFn
     let mvarDecl ← mvar.mvarId!.getDecl
     let rec process (i : Nat) (args : Array Expr) (v : Expr) := do
@@ -1340,7 +1342,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   unless (← isNonTrivialRegular info) || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
-  withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq.delta (fun _ => return m!"{t} =?= {s}") do
     recordDefEqHeuristic tFn.constName!
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
@@ -1755,7 +1757,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            Without the proof irrelevance check, this example timeouts. Recall that:
 
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
-           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
+           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboration, etc.
               The motivation: avoid unassigned metavariables in goals.
            3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.
@@ -1859,7 +1861,7 @@ end
   | none   => failK
 
 private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
-  withTraceNodeBefore `Meta.isDefEq.onFailure (return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq.onFailure (fun _ => return m!"{t} =?= {s}") do
     unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
@@ -2110,7 +2112,7 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do

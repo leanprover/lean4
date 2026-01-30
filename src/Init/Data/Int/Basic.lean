@@ -42,6 +42,7 @@ larger numbers use a fast arbitrary-precision arithmetic library (usually
 than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
 architectures).
 -/
+@[suggest_for ℤ]
 inductive Int : Type where
   /--
   A natural number is an integer.
@@ -278,7 +279,11 @@ set_option bootstrap.genMatcherCode false in
 def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
-  | -[_ +1] => isFalse <| fun h => nomatch h
+  | -[i +1] => isFalse <| fun h =>
+    have : ∀ j, (j = -[i +1]) → NonNeg j → False := fun _ hj hnn =>
+      Int.NonNeg.casesOn (motive := fun j _ => j = -[i +1] → False) hnn
+        (fun _ h => Int.noConfusion h) hj
+    this -[i +1] rfl h
 
 /-- Decides whether `a ≤ b`.
 
@@ -392,9 +397,9 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
-protected def pow (m : Int) : Nat → Int
-  | 0      => 1
-  | succ n => Int.pow m n * m
+protected def pow : Int → Nat → Int
+  | (m : Nat), n => Int.ofNat (m ^ n)
+  | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)
 
 instance : NatPow Int where
   pow := Int.pow

@@ -1,8 +1,9 @@
 open Lean Grind
 
 /--
-info: Try this:
-  [apply] cases #c4b6 <;> cases #4c68 <;> ring
+info: Try these:
+  [apply] cases #e4c4 <;> cases #3e9f <;> ring
+  [apply] finish only [#e4c4, #3e9f]
 -/
 #guard_msgs in
 example {α : Type} [CommRing α] (a b c d e : α) :
@@ -14,11 +15,12 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
-    cases #b0f4
-    · cases #50fc
-    · cases #50fc <;> lia
+    cases #6c8c
+    · cases #4228
+    · cases #4228 <;> lia
+  [apply] finish only [#6c8c, #4228]
 -/
 #guard_msgs in
 example (p : Nat → Prop) (x y z w : Int) :
@@ -28,9 +30,47 @@ example (p : Nat → Prop) (x y z w : Int) :
     (z = 1 ∨ z = 0) → x + y ≤ 6 := by
   grind => finish?
 
+/-- error: tactic is not applicable -/
+#guard_msgs in
+example (a b c : Int) : a + b ≤ 2 → b = c → 2*b - c + a ≤ 3 := by
+  grind => cases_next
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    cases_next <;> cases_next <;> cases_next <;> cases_next <;> lia
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (lia) (cases_next))
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (cases_next) (lia))
+
+example (p : Nat → Prop) (x y z w : Int) :
+    (x = 1 ∨ x = 2) →
+    (w = 1 ∨ w = 4) →
+    (y = 1 ∨ (∃ x : Nat, y = 3 - x ∧ p x)) →
+    (z = 1 ∨ z = 0) → x + y ≤ 6 := by
+  grind =>
+    repeat (first (ring) (cases_next) (lia))
+
 /--
-info: Try this:
-  [apply] cases #5c4b <;> cases #896f <;> ac
+info: Try these:
+  [apply] cases #5d93 <;> cases #11de <;> ac
+  [apply] finish only [#5d93, #11de]
 -/
 #guard_msgs in
 example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d e : α) :
@@ -41,10 +81,11 @@ example {α : Type} (op : α → α → α) [Std.Associative op] [Std.Commutativ
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= Array.getElem_set]
     instantiate only [= Array.getElem_set]
+  [apply] finish only [= Array.getElem_set]
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -64,11 +105,11 @@ set_option warn.sorry false
 /--
 info: Try this:
   [apply] ⏎
-    cases #c4b6
-    · cases #8c9f
+    cases #e4c4
+    · cases #7fb4
       · ring
       · sorry
-    · cases #8c9f
+    · cases #7fb4
       · ring
       · sorry
 -/
@@ -83,7 +124,7 @@ example {α : Type} [CommRing α] (a b c d e : α) :
 info: Try this:
   [apply] ⏎
     instantiate only [= Nat.min_def]
-    cases #7640
+    cases #d485
     · sorry
     · lia
 -/
@@ -93,10 +134,11 @@ example (as : Array α) (lo hi i j : Nat) (h₁ : lo ≤ i) (_ : i < j) (_ : j �
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= getMsbD_setWidth']
-    cases #aa9d
+    cases #1f39
+  [apply] finish only [= getMsbD_setWidth', #1f39]
 -/
 #guard_msgs in
 open BitVec in
@@ -109,24 +151,31 @@ example (ge : m ≥ n) (x : BitVec n) (i : Nat) :
     getMsbD (setWidth' ge x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
   grind =>
     instantiate only [= getMsbD_setWidth']
-    cases #aa9d
+    cases #c2c1
 
 /--
-info: Try this:
-  [apply] cases #9942 <;>
-      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #cfbc
+info: Try these:
+  [apply] cases #52a6 <;>
+      instantiate only [= BitVec.getElem_and] <;> instantiate only [= BitVec.getElem_or] <;> cases #de0f
+  [apply] finish only [= BitVec.getElem_and, = BitVec.getElem_or, #52a6, #de0f]
 -/
 #guard_msgs in
 example (x y : BitVec 64) : (x ||| y) &&& x = x := by
   grind => finish?
 
+set_option trace.Meta.debug true in
+example (x y : BitVec 64) : (x ||| y) &&& x = x := by
+  grind => finish?
+
+
 macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     instantiate only [= Array.getElem_set]
     ring
+  [apply] finish only [= Array.getElem_set]
 -/
 #guard_msgs in
 example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
@@ -134,10 +183,11 @@ example (a : Array (BitVec 64)) (i : Nat) (v : BitVec 64)
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     mbtc
-    cases #a6c8
+    cases #aceb
+  [apply] finish only [#aceb]
 -/
 #guard_msgs in
 example (f : Nat → Nat) (x : Nat)
@@ -145,10 +195,11 @@ example (f : Nat → Nat) (x : Nat)
   grind => finish?
 
 /--
-info: Try this:
+info: Try these:
   [apply] ⏎
     mbtc
-    cases #beb4
+    cases #cb64
+  [apply] finish only [#cb64]
 -/
 #guard_msgs in
 example (f : Int → Int → Int) (x y : Int)
@@ -169,7 +220,7 @@ example (f : Int → Int) (x y : Int)
     : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
   grind =>
     mbtc
-    cases #23ad <;> mbtc <;> cases #beb4 <;> mbtc <;> cases #beed
+    cases #ae37 <;> mbtc <;> cases #cb64 <;> mbtc <;> cases #de9d
 
 example (f : Int → Int) (x y : Int)
     : 0 ≤ x → x ≤ 2 → f 0 = y → f 1 = y → f 2 = y → f x = y := by
@@ -187,9 +238,9 @@ example (f g : Int → Int) (x y z w : Int)
   set_option trace.grind.split true in
   grind =>
     mbtc
-    cases #23ad
+    cases #ae37
     mbtc
-    cases #beb4
+    cases #cb64
 
 /--
 trace: [grind.split] w = 0, generation: 0
@@ -218,7 +269,7 @@ example (f g : Int → Int) (x y z w : Int)
       g w ≠ z → f x = y := by
   fail_if_success grind [#23ad] -- not possible to solve using this set of anchors.
   set_option trace.grind.split true in
-  grind only [#23ad, #beb4] -- Only these two splits were performed.
+  grind only [#ae37, #cb64] -- Only these two splits were performed.
 
 /--
 trace: [grind.split] x = 0, generation: 0
@@ -231,7 +282,8 @@ example (f g : Int → Int) (x y z w : Int)
       f 0 = y → f 1 = y →
       g w ≠ z → f x = y := by
   set_option trace.grind.split true in
-  grind => finish only [#23ad, #beb4] -- Only these two splits were performed.
+  grind =>
+    finish only [#ae37, #cb64]
 
 /--
 trace: [grind.ematch.instance] h: f (f a) = f a
@@ -251,9 +303,9 @@ example (f g : Int → Int)
   grind
 
 /--
-trace: [grind.ematch.instance] h: f (f a) = f a
-[grind.ematch.instance] h: f (f (f a)) = f (f a)
-[grind.ematch.instance] h: f (f (f (f a))) = f (f (f a))
+trace: [grind.ematch.instance] x✝²: f (f a) = f a
+[grind.ematch.instance] x✝²: f (f (f a)) = f (f a)
+[grind.ematch.instance] x✝²: f (f (f (f a))) = f (f (f a))
 -/
 #guard_msgs in
 example (f g : Int → Int)
@@ -263,12 +315,12 @@ example (f g : Int → Int)
     (_ : g (g b) = b)
     : f (f (f a)) = f a := by
   set_option trace.grind.ematch.instance true in
-  grind only [#99cb]
+  grind only [#7a0d]
 
 /--
-trace: [grind.ematch.instance] h✝³: f (f a) = f a
-[grind.ematch.instance] h✝³: f (f (f a)) = f (f a)
-[grind.ematch.instance] h✝³: f (f (f (f a))) = f (f (f a))
+trace: [grind.ematch.instance] x✝²: f (f a) = f a
+[grind.ematch.instance] x✝²: f (f (f a)) = f (f a)
+[grind.ematch.instance] x✝²: f (f (f (f a))) = f (f (f a))
 -/
 #guard_msgs in
 example (f g : Int → Int)
@@ -278,4 +330,4 @@ example (f g : Int → Int)
     (_ : g (g b) = b)
     : f (f (f a)) = f a := by
   set_option trace.grind.ematch.instance true in
-  grind => finish only [#99cb]
+  grind => finish only [#7a0d]

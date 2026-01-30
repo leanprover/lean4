@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
 
@@ -21,68 +20,66 @@ public section
 
 namespace String.Slice.Pattern
 
-structure ForwardCharSearcher (s : Slice) where
+structure ForwardCharSearcher (needle : Char) (s : Slice) where
   currPos : s.Pos
-  needle : Char
 deriving Inhabited
 
 namespace ForwardCharSearcher
 
 @[inline]
-def iter (s : Slice) (c : Char) : Std.Iter (α := ForwardCharSearcher s) (SearchStep s) :=
-  { internalState := { currPos := s.startPos, needle := c }}
+def iter (c : Char) (s : Slice) : Std.Iter (α := ForwardCharSearcher c s) (SearchStep s) :=
+  { internalState := { currPos := s.startPos }}
 
-instance (s : Slice) : Std.Iterators.Iterator (ForwardCharSearcher s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (ForwardCharSearcher c s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
-      it.internalState.needle = it'.internalState.needle ∧
       ∃ h1 : it.internalState.currPos ≠ s.endPos,
         it'.internalState.currPos = it.internalState.currPos.next h1 ∧
         match out with
         | .matched startPos endPos =>
           it.internalState.currPos = startPos ∧
           it'.internalState.currPos = endPos ∧
-          it.internalState.currPos.get h1 = it.internalState.needle
+          it.internalState.currPos.get h1 = c
         | .rejected startPos endPos =>
           it.internalState.currPos = startPos ∧
           it'.internalState.currPos = endPos ∧
-          it.internalState.currPos.get h1 ≠ it.internalState.needle
+          it.internalState.currPos.get h1 ≠ c
     | .skip _ => False
     | .done => it.internalState.currPos = s.endPos
-  step := fun ⟨currPos, needle⟩ =>
+  step := fun ⟨⟨currPos⟩⟩ =>
     if h1 : currPos = s.endPos then
       pure (.deflate ⟨.done, by simp [h1]⟩)
     else
       let nextPos := currPos.next h1
-      let nextIt := ⟨nextPos, needle⟩
-      if h2 : currPos.get h1 = needle then
+      let nextIt := ⟨⟨nextPos⟩⟩
+      if h2 : currPos.get h1 = c then
         pure (.deflate ⟨.yield nextIt (.matched currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩)
       else
         pure (.deflate ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
-def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
+def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s c) Id where
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
     cases step
     · cases h
-      obtain ⟨_, h1, h2, _⟩ := h'
+      obtain ⟨_, h2, _⟩ := h'
       simp [h2]
     · cases h'
     · cases h
 
-instance : Std.Iterators.Finite (ForwardCharSearcher s) Id :=
+instance : Std.Iterators.Finite (ForwardCharSearcher s c) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (ForwardCharSearcher s) Id Id :=
+instance : Std.IteratorLoop (ForwardCharSearcher s c) Id Id :=
   .defaultImplementation
 
-instance : ToForwardSearcher Char ForwardCharSearcher where
-  toSearcher := iter
+instance {c : Char} : ToForwardSearcher c (ForwardCharSearcher c) where
+  toSearcher := iter c
 
-instance : ForwardPattern Char := .defaultImplementation
+instance {c : Char} : ForwardPattern c := .defaultImplementation
 
 end ForwardCharSearcher
 
@@ -94,10 +91,10 @@ deriving Inhabited
 namespace BackwardCharSearcher
 
 @[inline]
-def iter (s : Slice) (c : Char) : Std.Iter (α := BackwardCharSearcher s) (SearchStep s) :=
+def iter (c : Char) (s : Slice) : Std.Iter (α := BackwardCharSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.endPos, needle := c }}
 
-instance (s : Slice) : Std.Iterators.Iterator (BackwardCharSearcher s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (BackwardCharSearcher s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
       it.internalState.needle = it'.internalState.needle ∧
@@ -126,7 +123,7 @@ instance (s : Slice) : Std.Iterators.Iterator (BackwardCharSearcher s) Id (Searc
         pure (.deflate ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos.down)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos.down)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -141,13 +138,13 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher 
 instance : Std.Iterators.Finite (BackwardCharSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (BackwardCharSearcher s) Id Id :=
+instance : Std.IteratorLoop (BackwardCharSearcher s) Id Id :=
   .defaultImplementation
 
-instance : ToBackwardSearcher Char BackwardCharSearcher where
-  toSearcher := iter
+instance {c : Char} : ToBackwardSearcher c BackwardCharSearcher where
+  toSearcher := iter c
 
-instance : BackwardPattern Char := ToBackwardSearcher.defaultImplementation
+instance {c : Char} : BackwardPattern c := ToBackwardSearcher.defaultImplementation
 
 end BackwardCharSearcher
 

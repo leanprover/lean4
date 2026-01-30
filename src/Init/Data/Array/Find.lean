@@ -159,9 +159,6 @@ theorem find?_singleton {a : α} {p : α → Bool} :
     findRev? p (xs.push a) = findRev? p xs := by
   cases xs; simp [h]
 
-@[deprecated findRev?_push_of_neg (since := "2025-06-12")]
-abbrev findRev?_cons_of_neg := @findRev?_push_of_neg
-
 @[grind =]
 theorem finRev?_push {xs : Array α} :
     findRev? p (xs.push a) = (Option.guard p a).or (xs.findRev? p) := by
@@ -170,9 +167,6 @@ theorem finRev?_push {xs : Array α} :
     all_goals simp [h]
   · rw [findRev?_push_of_pos, Option.guard_eq_some_iff.mpr ⟨rfl, h⟩]
     all_goals simp [h]
-
-@[deprecated finRev?_push (since := "2025-06-12")]
-abbrev findRev?_cons := @finRev?_push
 
 @[simp, grind =] theorem find?_eq_none : find? p xs = none ↔ ∀ x ∈ xs, ¬ p x := by
   cases xs; simp
@@ -679,6 +673,39 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   rw [findFinIdx?_congr List.unattach_toArray]
   simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
+
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  cases xs
+  simp [List.find?_eq_map_findFinIdx?_getElem]
+  rfl
+
+theorem find?_eq_bind_findIdx?_getElem? {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findIdx? p).bind (xs[·]?) := by
+  cases xs
+  simp [List.find?_eq_bind_findIdx?_getElem?]
+
+theorem find?_eq_getElem?_findIdx {xs : Array α} {p : α → Bool} :
+    xs.find? p = xs[xs.findIdx p]? := by
+  cases xs
+  simp [List.find?_eq_getElem?_findIdx]
+
+theorem findIdx?_eq_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx? p = (xs.find? p).bind (xs.idxOf? ·) := by
+  cases xs
+  simp [List.findIdx?_eq_bind_find?_idxOf?]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  cases xs
+  simp [List.findFinIdx?_eq_bind_find?_finIdxOf?]
+
+theorem findIdx_eq_getD_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx p = ((xs.find? p).bind (xs.idxOf? ·)).getD xs.size := by
+  cases xs
+  simp [List.findIdx_eq_getD_bind_find?_idxOf?]
 
 /-! ### idxOf
 

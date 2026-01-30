@@ -7,8 +7,6 @@ module
 prelude
 public import Init.Try
 public import Lean.Meta.Tactic.LibrarySearch
-public import Lean.Meta.Tactic.Grind.Cases
-public import Lean.Meta.Tactic.Grind.EMatchTheorem
 public import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.Eqns
 public section
@@ -77,12 +75,12 @@ def saveEqnCandidate (declName : Name) : M Unit := do
   if (← isEligible declName) then
     let some eqns ← getEqnsFor? declName | return ()
     if eqns.isEmpty then return ()
-    unless (← Grind.isEMatchTheorem eqns[0]!) do
+    unless (← Grind.grindExt.isEMatchTheorem eqns[0]!) do
       modify fun s => { s with eqnCandidates := s.eqnCandidates.insert declName }
 
 def getEqDefDecl? (declName : Name) : MetaM (Option Name) := do
   let declName := declName ++ `eq_def
-  if (← Grind.isEMatchTheorem declName) then return none
+  if (← Grind.grindExt.isEMatchTheorem declName) then return none
   try
     let result ← realizeGlobalConstNoOverloadCore declName
     return some result
@@ -109,7 +107,7 @@ open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
   if (← getConfig).harder then
     for (declName, declMod) in (← libSearchFindDecls e) do
-      unless (← Grind.isEMatchTheorem declName) do
+      unless (← Grind.grindExt.isEMatchTheorem declName) do
         let kind := match declMod with
           | .none => (.default false)
           | .mp => .leftRight
@@ -123,10 +121,12 @@ def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do
-  let .const declName _ ← whnfD localDecl.type | return ()
+  let type ← whnfD localDecl.type
+  -- Use getAppFn to handle both `T` and `T α β ...` cases
+  let .const declName _ := type.getAppFn | return ()
   let .inductInfo val ← getConstInfo declName | return ()
   if (← isEligible declName) then
-    unless (← Grind.isSplit declName) do
+    unless (← Grind.isGlobalSplit declName) do
       modify fun s => { s with indCandidates := s.indCandidates.push { fvarId := localDecl.fvarId, val } }
 
 unsafe abbrev Cache := PtrSet Expr

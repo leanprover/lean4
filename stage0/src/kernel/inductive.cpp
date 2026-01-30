@@ -1223,7 +1223,7 @@ void initialize_inductive() {
     mark_persistent(g_nat_zero->raw());
     g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
     mark_persistent(g_nat_succ->raw());
-    g_string_mk      = new expr(mk_constant(name{"String", "mk"}));
+    g_string_mk      = new expr(mk_constant(name{"String", "ofList"}));
     mark_persistent(g_string_mk->raw());
     expr char_type   = mk_constant(name{"Char"});
     g_list_cons_char = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), char_type));

@@ -13,22 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static uint8_t l_System_Platform_isWindows___closed__0;
-LEAN_EXPORT uint8_t l_System_Platform_isOSX;
 uint8_t lean_system_platform_windows(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
-static uint8_t l_System_Platform_isEmscripten___closed__0;
-static lean_object* l_System_Platform_target___closed__0;
-uint8_t lean_system_platform_emscripten(lean_object*);
-LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
-static uint8_t l_System_Platform_isOSX___closed__0;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);
 uint8_t lean_system_platform_osx(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_target;
+LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
+uint8_t lean_system_platform_emscripten(lean_object*);
+LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
+static uint8_t l_System_Platform_isWindows___closed__0;
 LEAN_EXPORT uint8_t l_System_Platform_isWindows;
+static uint8_t l_System_Platform_isOSX___closed__0;
+LEAN_EXPORT uint8_t l_System_Platform_isOSX;
+static uint8_t l_System_Platform_isEmscripten___closed__0;
+LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
 lean_object* lean_system_platform_target(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
+static lean_object* l_System_Platform_target___closed__0;
+LEAN_EXPORT lean_object* l_System_Platform_target;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* x_1) {
 _start:
 {

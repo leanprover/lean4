@@ -71,17 +71,26 @@ syntax (name := massumption) "massumption" : tactic
 @[tactic_alt Lean.Parser.Tactic.mclearMacro]
 syntax (name := mclear) "mclear" colGt ident : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mclearMacro]
+macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects at an identifier"
+
 @[tactic_alt Lean.Parser.Tactic.mconstructorMacro]
 syntax (name := mconstructor) "mconstructor" : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mexactMacro]
 syntax (name := mexact) "mexact" colGt term : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mexactMacro]
+macro (name := mexactError) "mexact" : tactic => Macro.throwError "`mexact` expects a term"
+
 @[tactic_alt Lean.Parser.Tactic.mexfalsoMacro]
 syntax (name := mexfalso) "mexfalso" : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mexistsMacro]
 syntax (name := mexists) "mexists" term,+ : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mexistsMacro]
+macro (name := mexistsError) "mexists" : tactic => Macro.throwError "`mexists` expects at least one term"
 
 @[tactic_alt Lean.Parser.Tactic.mframeMacro]
 syntax (name := mframe) "mframe" : tactic
@@ -92,8 +101,14 @@ syntax (name := mdup) "mdup" ident " => " ident : tactic
 @[tactic_alt Lean.Parser.Tactic.mhaveMacro]
 syntax (name := mhave) "mhave" ident optional(":" term) " := " term : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mhaveMacro]
+macro (name := mhaveError) "mhave" : tactic => Macro.throwError "The syntax is `mhave h := term`"
+
 @[tactic_alt Lean.Parser.Tactic.mreplaceMacro]
 syntax (name := mreplace) "mreplace" ident optional(":" term) " := " term : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mreplaceMacro]
+macro (name := mreplaceError) "mreplace" : tactic => Macro.throwError "The syntax is `mreplace h := term`"
 
 @[tactic_alt Lean.Parser.Tactic.mrightMacro]
 syntax (name := mright) "mright" : tactic
@@ -104,17 +119,29 @@ syntax (name := mleft) "mleft" : tactic
 @[tactic_alt Lean.Parser.Tactic.mpureMacro]
 syntax (name := mpure) "mpure" colGt ident : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mpureMacro]
+macro (name := mpureError) "mpure" : tactic => Macro.throwError "`mpure` expects an identifier"
+
 @[tactic_alt Lean.Parser.Tactic.mpureIntroMacro]
 syntax (name := mpureIntro) "mpure_intro" : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mrenameIMacro]
+macro (name := mrenameIError) "mrename_i" : tactic => Macro.throwError "`mrename_i` expects at least one identifier"
+
 @[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
+macro (name := mspecializeError) "mspecialize" : tactic => Macro.throwError "The syntax is `mspecialize h term*`"
+
 @[tactic_alt Lean.Parser.Tactic.mspecializePureMacro]
 syntax (name := mspecializePure) "mspecialize_pure" term (colGt term:max)* " => " ident : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mspecializeMacro]
+macro (name := mspecializePureError) "mspecialize_pure" : tactic => Macro.throwError "The syntax is `mspecialize_pure h term*`"
 
 @[tactic_alt Lean.Parser.Tactic.mstartMacro]
 syntax (name := mstart) "mstart" : tactic
@@ -213,6 +240,9 @@ where
 @[tactic_alt Lean.Parser.Tactic.mcasesMacro]
 syntax (name := mcases) "mcases" ident " with " mcasesPat : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mcasesMacro]
+macro (name := mcasesError) "mcases" : tactic => Macro.throwError "The syntax is `mcases h with pat`"
+
 declare_syntax_cat mrefinePat
 syntax binderIdent : mrefinePat
 syntax mrefinePats := sepBy1(mrefinePat, ", ")
@@ -250,12 +280,18 @@ where
 @[tactic_alt Lean.Parser.Tactic.mrefineMacro]
 syntax (name := mrefine) "mrefine" mrefinePat : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mrefineMacro]
+macro (name := mrefineError) "mrefine" : tactic => Macro.throwError "`mrefine` expects a pattern"
+
 declare_syntax_cat mintroPat
 syntax mcasesPat : mintroPat
 syntax "∀" binderIdent : mintroPat
 
 @[tactic_alt Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
+macro (name := mintroError) "mintro" : tactic => Macro.throwError "`mintro` expects at least one pattern"
 
 macro_rules
   | `(tactic| mintro $pat₁ $pat₂ $pats:mintroPat*) => `(tactic| mintro $pat₁; mintro $pat₂ $pats*)
@@ -272,7 +308,10 @@ syntax ident : mrevertPat
 syntax "∀" optional(num) : mrevertPat
 
 @[tactic_alt Lean.Parser.Tactic.mrevertMacro]
-syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)+ : tactic
+syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)* : tactic
+
+@[tactic_alt Lean.Parser.Tactic.mrevertMacro]
+macro (name := mrevertError) "mrevert" : tactic => Macro.throwError "`mrevert` expects at least one pattern"
 
 macro_rules
   | `(tactic| mrevert $pat₁ $pat₂ $pats:mrevertPat*) => `(tactic| mrevert $pat₁; mrevert $pat₂ $pats*)

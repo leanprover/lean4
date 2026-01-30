@@ -244,7 +244,7 @@ where
 
   isValidAtom (s : String) : Bool :=
     -- Pretty-printing instructions shouldn't affect validity
-    let s := s.trim
+    let s := s.trimAscii.copy
     !s.isEmpty &&
     (s.front != '\'' || "''".isPrefixOf s) &&
     s.front != '\"' &&
@@ -290,7 +290,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
     let quotSymbol := "`(" ++ suffix ++ "| "
     let name := catName ++ `quot
     let cmd ← `(
-      @[term_parser] meta def $(mkIdent name) : Lean.ParserDescr :=
+      @[term_parser] public meta def $(mkIdent name) : Lean.ParserDescr :=
         Lean.ParserDescr.node `Lean.Parser.Term.quot $(quote Lean.Parser.maxPrec)
           (Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
             (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
@@ -312,7 +312,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   let attrName := catName.appendAfter "_parser"
   let catDeclName := ``Lean.Parser.Category ++ catName
   setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior catDeclName)
-  let cmd ← `($[$docString?]? meta def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
+  let cmd ← `($[$docString?]? public meta def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
   declareSyntaxCatQuotParser catName
   elabCommand cmd
 
@@ -331,7 +331,7 @@ private partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : Mac
 where
   visit (stx : Syntax) (acc : String) : String :=
     match stx.isStrLit? with
-    | some val => acc ++ (val.trim.map fun c => if c.isWhitespace then '_' else c).capitalize
+    | some val => acc ++ (val.trimAscii.copy.map fun c => if c.isWhitespace then '_' else c).capitalize
     | none =>
       match stx with
       | Syntax.node _ k args =>

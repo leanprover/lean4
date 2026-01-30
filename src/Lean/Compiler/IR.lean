@@ -21,12 +21,13 @@ public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.IR.RC
 public import Lean.Compiler.IR.ExpandResetReuse
 public import Lean.Compiler.IR.UnboxResult
-public import Lean.Compiler.IR.ElimDeadBranches
 public import Lean.Compiler.IR.EmitC
 public import Lean.Compiler.IR.Sorry
 public import Lean.Compiler.IR.ToIR
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Compiler.IR.Meta
+public import Lean.Compiler.IR.Toposort
+public import Lean.Compiler.IR.SimpleGroundExpr
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.
@@ -45,8 +46,7 @@ register_builtin_option compiler.reuse : Bool := {
 def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
-  let mut decls ← elimDeadBranches decls
-  logDecls `elim_dead_branches decls
+  let mut decls := decls
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
   if compiler.reuse.get (← getOptions) then
@@ -71,6 +71,8 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   decls ← updateSorryDep decls
   logDecls `result decls
   checkDecls decls
+  decls ← toposortDecls decls
+  decls.forM Decl.detectSimpleGround
   addDecls decls
   inferMeta decls
   return decls

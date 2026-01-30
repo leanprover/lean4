@@ -9,7 +9,9 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
+public import Lean.Linter.Deprecated
 public import Init.Data.Random
+public import Lean.Elab.Tactic.Grind.Annotated
 
 /-!
 # An API for library suggestion algorithms.
@@ -64,7 +66,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
     | .app f a           =>
       let fi ← getFunInfo f (some 1)
       if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
+        -- Don't visit instance implicit arguments.
         visit f acc
       else
         visit a (← visit f acc)
@@ -146,7 +148,7 @@ structure Config where
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
   This may be used to adjust the score of the suggestions
   -/
-  caller : Option Name := none
+  caller : Option String := none
   /--
   A filter on suggestions; only suggestions returning `true` should be returned.
   (It can be better to filter on the premise selection side, to ensure that enough suggestions are returned.)
@@ -194,7 +196,7 @@ def maxSuggestions (selector : Selector) : Selector := fun g c => do
   return suggestions.take c.maxSuggestions
 
 /-- Combine two premise selectors, returning the best suggestions. -/
-def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun g c => do
+def combine (selector₁ selector₂ : Selector) : Selector := fun g c => do
   let suggestions₁ ← selector₁ g c
   let suggestions₂ ← selector₂ g c
 
@@ -210,6 +212,69 @@ def combine (selector₁ : Selector) (selector₂ : Selector) : Selector := fun 
   let sorted := deduped.qsort (fun s₁ s₂ => s₁.score > s₂.score)
 
   return sorted.take c.maxSuggestions
+
+/--
+Filter out theorems from grind-annotated modules when the caller is "grind".
+Modules marked with `grind_annotated` contain manually reviewed/annotated theorems,
+so they should be excluded from automatic premise selection for grind.
+Other callers (like "simp") still receive suggestions from these modules.
+-/
+def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
+  let suggestions ← selector g c
+  -- Only filter when caller is "grind"
+  if c.caller == some "grind" then
+    let env ← getEnv
+    suggestions.filterM fun s => do
+      -- Check if the suggestion's module is grind-annotated
+      match env.getModuleIdxFor? s.name with
+      | none => return true  -- Keep suggestions with no module info
+      | some modIdx => return !Lean.Elab.Tactic.Grind.isGrindAnnotatedModule env modIdx
+  else
+    return suggestions
+
+/--
+Combine two premise selectors by interspersing their results (ignoring scores).
+The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from each selector
+while results are available from both.
+-/
+def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
+  -- Calculate how many suggestions to request from each selector based on the ratio
+  let max₁ := (c.maxSuggestions.toFloat * ratio).toUInt32.toNat
+  let max₂ := (c.maxSuggestions.toFloat * (1 - ratio)).toUInt32.toNat
+
+  let suggestions₁ ← selector₁ g { c with maxSuggestions := max₁ }
+  let suggestions₂ ← selector₂ g { c with maxSuggestions := max₂ }
+
+  let mut result := #[]
+  let mut i₁ := 0
+  let mut i₂ := 0
+  let mut count₁ := 0.0
+  let mut count₂ := 0.0
+
+  -- Intersperse while both arrays have elements
+  while h : i₁ < suggestions₁.size ∧ i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
+    -- Decide whether to take from selector₁ or selector₂ based on the ratio
+    let currentRatio := if count₁ + count₂ <= 0.0 then 0.0 else count₁ / (count₁ + count₂)
+    if currentRatio < ratio then
+      result := result.push suggestions₁[i₁]
+      i₁ := i₁ + 1
+      count₁ := count₁ + 1
+    else
+      result := result.push suggestions₂[i₂]
+      i₂ := i₂ + 1
+      count₂ := count₂ + 1
+
+  -- Append remaining elements from selector₁
+  while h : i₁ < suggestions₁.size ∧ result.size < c.maxSuggestions do
+    result := result.push suggestions₁[i₁]
+    i₁ := i₁ + 1
+
+  -- Append remaining elements from selector₂
+  while h : i₂ < suggestions₂.size ∧ result.size < c.maxSuggestions do
+    result := result.push suggestions₂[i₂]
+    i₂ := i₂ + 1
+
+  return result
 
 end Selector
 
@@ -251,10 +316,12 @@ builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (Li
 def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
   (moduleDenyListExt.getState env).any fun p => moduleName.anyS (· == p)
 
-def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
+def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := false) : Bool := Id.run do
   if name == ``sorryAx then return true
-  if name.isInternalDetail then return true
+  -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
+  if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
   if Lean.Meta.isInstanceCore env name then return true
+  if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
@@ -292,26 +359,53 @@ def currentFile : Selector := fun _ cfg => do
   let max := cfg.maxSuggestions
   -- Use map₂ from the staged map, which contains locally defined constants
   let mut suggestions := #[]
-  for (name, ci) in env.constants.map₂.toList do
+  for (name, _) in env.constants.map₂ do
     if suggestions.size >= max then
       break
-    if isDeniedPremise env name then
+    -- Allow private names since they're accessible from the current module
+    if isDeniedPremise env name (allowPrivate := true) then
       continue
-    match ci with
-    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
-    | _ => continue
+    if wasOriginallyTheorem env name then
+      suggestions := suggestions.push { name := name, score := 1.0 }
   return suggestions
 
-builtin_initialize librarySuggestionsExt : EnvExtension (Option Selector) ←
-  registerEnvExtension (pure none)
+builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := fun _ name => some name  -- Last entry wins
+    addImportedFn := fun entries =>
+      -- Take the last selector name from all imported modules
+      entries.foldl (init := none) fun acc moduleEntries =>
+        moduleEntries.foldl (init := acc) fun _ name => some name
+  }
+
+/-- Attribute for registering library suggestions selectors. -/
+builtin_initialize librarySuggestionsAttr : TagAttribute ←
+  registerTagAttribute `library_suggestions "library suggestions selector" fun declName => do
+    let decl ← getConstInfo declName
+    unless decl.type == mkConst ``Selector do
+      throwError "declaration '{declName}' must have type `Selector`"
+    modifyEnv fun env => librarySuggestionsExt.addEntry env declName
+
+/--
+Get the currently registered library suggestions selector by looking up the stored declaration name.
+Returns `none` if no selector is registered or if evaluation fails.
+-/
+unsafe def getSelectorImpl : MetaM (Option Selector) := do
+  let some declName := librarySuggestionsExt.getState (← getEnv) | return none
+  try
+    evalConstCheck Selector ``Selector declName
+  catch _ =>
+    return none
+
+@[implemented_by getSelectorImpl]
+opaque getSelector : MetaM (Option Selector)
 
 /-- Generate library suggestions for the given metavariable, using the currently registered library suggestions engine. -/
 def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
-  let some selector := librarySuggestionsExt.getState (← getEnv) |
+  let some selector ← getSelector |
     throwError "No library suggestions engine registered. \
-      (Note that Lean does not provide a default library suggestions engine, \
-      these must be provided by a downstream library, \
-      and configured using `set_library_suggestions`.)"
+      (Add `import Lean.LibrarySuggestions.Default` to use Lean's built-in engine, \
+      or use `set_library_suggestions` to configure a custom one.)"
   selector m c
 
 /-!
@@ -324,30 +418,34 @@ library suggestions engines are configured via options in the `lakefile`, and
 commands are only used to override in a single declaration or file.
 -/
 
-/-- Set the current library suggestions engine.-/
-def registerLibrarySuggestions (selector : Selector) : CoreM Unit := do
-  modifyEnv fun env => librarySuggestionsExt.setState env (some selector)
-
 open Lean Elab Command in
 @[builtin_command_elab setLibrarySuggestionsCmd, inherit_doc setLibrarySuggestionsCmd]
 def elabSetLibrarySuggestions : CommandElab
   | `(command| set_library_suggestions $selector) => do
     if `Lean.LibrarySuggestions.Basic ∉ (← getEnv).header.moduleNames then
       logWarning "Add `import Lean.LibrarySuggestions.Basic` before using the `set_library_suggestions` command."
-    let selector ← liftTermElabM do
-      try
-        let selectorTerm ← Term.elabTermEnsuringType selector (some (Expr.const ``Selector []))
-        unsafe Meta.evalExpr Selector (Expr.const ``Selector []) selectorTerm
-      catch _ =>
-        throwError "Failed to elaborate {selector} as a `MVarId → Config → MetaM (Array Suggestion)`."
-    liftCoreM (registerLibrarySuggestions selector)
+    -- Generate a fresh name for the selector definition
+    let name ← liftMacroM <| Macro.addMacroScope `_librarySuggestions
+    -- Elaborate the definition with the library_suggestions attribute
+    -- Note: @[expose] public, to ensure visibility across module boundaries
+    -- Use fully qualified `Lean.LibrarySuggestions.Selector` for module compatibility
+    elabCommand (← `(@[expose, library_suggestions] public def $(mkIdent name) : Lean.LibrarySuggestions.Selector := $selector))
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.suggestions] def evalSuggestions : Tactic := fun _ =>
   liftMetaTactic1 fun mvarId => do
     let suggestions ← select mvarId
-    logInfo m!"Library suggestions: {suggestions.map (·.name)}"
+    let mut msg : MessageData := "Library suggestions:"
+    -- Check if all scores are 1.0
+    let allScoresOne := suggestions.all (·.score == 1.0)
+    for s in suggestions do
+      msg := msg ++ Format.line ++ "  " ++ MessageData.ofConstName s.name
+      if !allScoresOne then
+        msg := msg ++ m!" (score: {s.score})"
+      if let some flag := s.flag then
+        msg := msg ++ m!" [{flag}]"
+    logInfo msg
     return mvarId
 
 end Lean.LibrarySuggestions

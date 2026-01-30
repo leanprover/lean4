@@ -13,12 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_instStreamSubstringChar___lam__0(lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instStreamSubstringChar;
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instStreamSubstringChar___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object*);
+static const lean_closure_object l_instStreamRawChar___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instStreamRawChar___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_instStreamRawChar___closed__0 = (const lean_object*)&l_instStreamRawChar___closed__0_value;
+LEAN_EXPORT const lean_object* l_instStreamRawChar = (const lean_object*)&l_instStreamRawChar___closed__0_value;
+LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -97,14 +99,6 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l_instStreamSubstringChar() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instStreamSubstringChar___lam__0), 1, 0);
-return x_1;
-}
-}
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Stream(uint8_t builtin);
 static bool _G_initialized = false;
@@ -118,8 +112,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instStreamSubstringChar = _init_l_instStreamSubstringChar();
-lean_mark_persistent(l_instStreamSubstringChar);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

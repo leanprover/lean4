@@ -10,6 +10,7 @@ public import Lean.Meta.KExprMap
 import Lean.Data.RArray
 import Lean.Meta.AppBuilder
 import Lean.Meta.NatInstTesters
+import Lean.Meta.Offset
 public section
 namespace Nat.Linear
 
@@ -112,22 +113,25 @@ where
         | none => addAsVar e
     match_expr e with
     | OfNat.ofNat _ n i =>
-      if (← isInstOfNatNat i) then toLinearExpr n
+      if (← Structural.isInstOfNatNat i) then
+        toLinearExpr n
+      else if (← isDefEqI i (mkInstOfNatNat n)) then
+        toLinearExpr n
       else addAsVar e
     | Nat.succ a => return inc (← toLinearExpr a)
     | Nat.add a b => return add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>
-      if (← isInstAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HAdd.hAdd _ _ _ i a b =>
-      if (← isInstHAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstHAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Nat.mul a b => mul a b
     | Mul.mul _ i a b =>
-      if (← isInstMulNat i) then mul a b
+      if (← DefEq.isInstMulNat i) then mul a b
       else addAsVar e
     | HMul.hMul _ _ _ i a b =>
-      if (← isInstHMulNat i) then mul a b
+      if (← DefEq.isInstHMulNat i) then mul a b
       else addAsVar e
     | _ => addAsVar e
 
@@ -141,16 +145,16 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
   | Nat.lt a b =>
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
   | LE.le _ i a b =>
-    guard (← isInstLENat i)
+    guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
   | LT.lt _ i a b =>
-    guard (← isInstLTNat i)
+    guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
   | GE.ge _ i a b =>
-    guard (← isInstLENat i)
+    guard (← DefEq.isInstLENat i)
     return { eq := false, lhs := (← toLinearExpr b), rhs := (← toLinearExpr a) }
   | GT.gt _ i a b =>
-    guard (← isInstLTNat i)
+    guard (← DefEq.isInstLTNat i)
     return { eq := false, lhs := (← toLinearExpr b).inc, rhs := (← toLinearExpr a) }
   | _ => failure
 

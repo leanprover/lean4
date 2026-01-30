@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Lean.Meta.Sym.Util
 public section
 namespace Lean.Meta.Grind
 
@@ -45,13 +46,19 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def preprocess (e : Expr) : GoalM Simp.Result := do
+@[export lean_grind_preprocess]
+def preprocessImpl (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
-  let e' := r.expr
+  /-
+  **Note**: Some transformation performed by `simp` may introduce metavariables.
+  Example: zeta-reduction. Recall that `simp` does not necessarily visit every subterm.
+  In particular, it does not visit universe terms and does not instantiate them.
+  -/
+  let e' ← instantiateMVars r.expr
   -- Remark: `simpCore` unfolds reducible constants, but it does not consistently visit all possible subterms.
   -- So, we must use the following `unfoldReducible` step. It is non-op in most cases
-  let e' ← unfoldReducible e'
+  let e' ← Sym.unfoldReducible e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
@@ -90,6 +97,7 @@ A lighter version of `preprocess` which produces a definitionally equal term,
 but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
+  let e ← instantiateMVars e
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
 
 end Lean.Meta.Grind

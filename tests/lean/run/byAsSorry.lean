@@ -1,6 +1,6 @@
 set_option debug.byAsSorry true in
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 theorem ex1 (h : b = a) : a = b := by
@@ -20,7 +20,7 @@ def f (x : Nat) : Nat := by
 
 set_option debug.byAsSorry true in
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 def g (x : Nat) : { x : Nat // x > 0 } :=

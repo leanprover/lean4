@@ -51,14 +51,14 @@ grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
 grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
 grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
 
-/-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
+/-- Variant of `List.Perm.take` specifying the permutation is constant after `i` elementwise. -/
 theorem _root_.List.Perm.take_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, i ≤ j → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.take i ~ l₂.take i := by
   apply h.take_of_getElem?
   sorry
 
-/-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
+/-- Variant of `List.Perm.drop` specifying the permutation is constant before `i` elementwise. -/
 theorem _root_.List.Perm.drop_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, j < i → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.drop i ~ l₂.drop i := by

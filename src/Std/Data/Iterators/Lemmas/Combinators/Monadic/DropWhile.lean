@@ -11,18 +11,19 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
-theorem IterM.Intermediate.dropWhileM_eq_dropWhileWithPostcondition {α m β} [Monad m]
+theorem IterM.Intermediate.dropWhileM_eq_dropWhileWithPostcondition {α m β} [Monad m] [MonadAttach m]
     [Iterator α m β] {it : IterM (α := α) m β} {P dropping} :
     Intermediate.dropWhileM P dropping it =
-      Intermediate.dropWhileWithPostcondition (PostconditionT.lift ∘ P) dropping it :=
+      Intermediate.dropWhileWithPostcondition (PostconditionT.attachLift ∘ P) dropping it :=
   rfl
 
-theorem IterM.Intermediate.dropWhile_eq_dropWhileM {α m β} [Monad m]
-    [Iterator α m β] {it : IterM (α := α) m β} {P} :
+theorem IterM.Intermediate.dropWhile_eq_dropWhileWithPostcondition {α m β} [Monad m]
+    [Iterator α m β] {it : IterM (α := α) m β} {P dropping} :
     Intermediate.dropWhile P dropping it =
-      Intermediate.dropWhileM (pure ∘ ULift.up ∘ P) dropping it :=
+      Intermediate.dropWhileWithPostcondition (pure ∘ ULift.up ∘ P) dropping it :=
   rfl
 
 theorem IterM.dropWhileWithPostcondition_eq_intermediateDropWhileWithPostcondition {α m β}
@@ -30,7 +31,7 @@ theorem IterM.dropWhileWithPostcondition_eq_intermediateDropWhileWithPostconditi
     it.dropWhileWithPostcondition P = Intermediate.dropWhileWithPostcondition P true it :=
   rfl
 
-theorem IterM.dropWhileM_eq_intermediateDropWhileM {α m β} [Monad m]
+theorem IterM.dropWhileM_eq_intermediateDropWhileM {α m β} [Monad m] [MonadAttach m]
     [Iterator α m β] {it : IterM (α := α) m β} {P} :
     it.dropWhileM P = Intermediate.dropWhileM P true it :=
   rfl
@@ -79,17 +80,17 @@ theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m
       return .deflate <| .done (.done h)) := by
   simp [dropWhileWithPostcondition_eq_intermediateDropWhileWithPostcondition, step_intermediateDropWhileWithPostcondition]
 
-theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
-    {it : IterM (α := α) m β} {P} {dropping} :
+theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m]
+    [Iterator α m β] {it : IterM (α := α) m β} {P} {dropping} :
     (IterM.Intermediate.dropWhileM P dropping it).step = (do
     match (← it.step).inflate with
     | .yield it' out h =>
       if h' : dropping = true then
-        match ← P out with
-        | .up true =>
-          return .deflate <| .skip (IterM.Intermediate.dropWhileM P true it') (.dropped h h' True.intro)
-        | .up false =>
-          return .deflate <| .yield (IterM.Intermediate.dropWhileM P false it') out (.start h h' True.intro)
+        match ← MonadAttach.attach (P out) with
+        | ⟨.up true, hP⟩ =>
+          return .deflate <| .skip (IterM.Intermediate.dropWhileM P true it') (.dropped h h' hP)
+        | ⟨.up false, hP⟩ =>
+          return .deflate <| .yield (IterM.Intermediate.dropWhileM P false it') out (.start h h' hP)
       else
         return .deflate <| .yield (IterM.Intermediate.dropWhileM P false it') out
             (.yield h (Bool.not_eq_true _ ▸ h'))
@@ -101,26 +102,26 @@ theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [LawfulMonad m] [I
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn
-  · simp only [Function.comp_apply, PostconditionT.operation_lift, PlausibleIterStep.skip,
-    PlausibleIterStep.yield, bind_map_left]
+  · simp only [Function.comp_apply, PostconditionT.operation_attachLift, PlausibleIterStep.skip,
+    PlausibleIterStep.yield]
     split
     · apply bind_congr
-      rintro ⟨x⟩
+      rintro ⟨⟨x⟩, hx⟩
       cases x <;> rfl
     · rfl
   · rfl
   · rfl
 
-theorem IterM.step_dropWhileM {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
+theorem IterM.step_dropWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
     (it.dropWhileM P).step = (do
     match (← it.step).inflate with
     | .yield it' out h =>
-      match ← P out with
-      | .up true =>
-        return .deflate <| .skip (IterM.Intermediate.dropWhileM P true it') (.dropped h rfl True.intro)
-      | .up false =>
-        return .deflate <| .yield (IterM.Intermediate.dropWhileM P false it') out (.start h rfl True.intro)
+      match ← MonadAttach.attach (P out) with
+      | ⟨.up true, hP⟩ =>
+        return .deflate <| .skip (IterM.Intermediate.dropWhileM P true it') (.dropped h rfl (by simpa))
+      | ⟨.up false, hP⟩ =>
+        return .deflate <| .yield (IterM.Intermediate.dropWhileM P false it') out (.start h rfl (by simpa))
     | .skip it' h =>
       return .deflate <| .skip (IterM.Intermediate.dropWhileM P true it') (.skip h)
     | .done h =>
@@ -133,11 +134,11 @@ theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [It
     match (← it.step).inflate with
     | .yield it' out h =>
       if h' : dropping = true then
-        match P out with
+        match hP : P out with
         | true =>
-          return .deflate <| .skip (IterM.Intermediate.dropWhile P true it') (.dropped h h' True.intro)
+          return .deflate <| .skip (IterM.Intermediate.dropWhile P true it') (.dropped h h' (by simpa))
         | false =>
-          return .deflate <| .yield (IterM.Intermediate.dropWhile P false it') out (.start h h' True.intro)
+          return .deflate <| .yield (IterM.Intermediate.dropWhile P false it') out (.start h h' (by simpa))
       else
         return .deflate <| .yield (IterM.Intermediate.dropWhile P false it') out
             (.yield h (Bool.not_eq_true _ ▸ h'))
@@ -145,14 +146,15 @@ theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [It
       return .deflate <| .skip (IterM.Intermediate.dropWhile P dropping it') (.skip h)
     | .done h =>
       return .deflate <| .done (.done h)) := by
-  simp only [Intermediate.dropWhile_eq_dropWhileM, step_intermediateDropWhileM]
+  simp only [Intermediate.dropWhile_eq_dropWhileWithPostcondition, step_intermediateDropWhileWithPostcondition]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn
   · simp only [Function.comp_apply, PlausibleIterStep.skip,
     PlausibleIterStep.yield]
     split
-    · cases P _ <;> simp
+    · simp only [PostconditionT.operation_pure, pure_bind]
+      split <;> split <;> simp_all
     · rfl
   · rfl
   · rfl
@@ -162,15 +164,15 @@ theorem IterM.step_dropWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m 
     (it.dropWhile P).step = (do
     match (← it.step).inflate with
     | .yield it' out h =>
-        match P out with
+        match hP : P out with
         | true =>
-          return .deflate <| .skip (IterM.Intermediate.dropWhile P true it') (.dropped h rfl True.intro)
+          return .deflate <| .skip (IterM.Intermediate.dropWhile P true it') (.dropped h rfl (by simpa))
         | false =>
-          return .deflate <| .yield (IterM.Intermediate.dropWhile P false it') out (.start h rfl True.intro)
+          return .deflate <| .yield (IterM.Intermediate.dropWhile P false it') out (.start h rfl (by simpa))
     | .skip it' h =>
       return .deflate <| .skip (IterM.Intermediate.dropWhile P true it') (.skip h)
     | .done h =>
       return .deflate <| .done (.done h)) := by
   simp [dropWhile_eq_intermediateDropWhile, step_intermediateDropWhile]
 
-end Std.Iterators
+end Std

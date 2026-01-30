@@ -15,6 +15,7 @@ trace: [grind.lia.model] a := 7
 [grind.lia.model] b := 0
 [grind.lia.model] c := 3
 [grind.lia.model] d := 2
+[grind.lia.model] e := 4
 -/
 #guard_msgs (trace) in
 example (a b c d e : Int) :

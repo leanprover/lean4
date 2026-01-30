@@ -29,6 +29,10 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
   let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
   let declNames := preDefs.toList.map (·.declName)
 
+  preDefs.forM fun preDef =>
+    unless preDef.kind.isTheorem do
+      markAsRecursive preDef.declName
+
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
@@ -53,8 +57,6 @@ def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefini
 Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
 -/
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
-  for preDef in preDefs do
-    markAsRecursive preDef.declName
   for preDef in preDefs.reverse do
     -- must happen before `generateEagerEqns`
     -- must happen in reverse order so that constants realized as part of the first decl

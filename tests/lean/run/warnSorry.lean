@@ -2,10 +2,10 @@ import Lean
 /-!
 # `warn.sorry` tests
 
-When `warn.sorry` is false, don't log the "declaration uses 'sorry'" warning.
+When `warn.sorry` is false, don't log the "declaration uses `sorry`" warning.
 -/
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 example : True := sorry
 
@@ -27,7 +27,7 @@ So, for now we report them just like a user `sorry`.
 
 elab "synth_sorry" : term <= expectedType => Lean.Meta.mkSorry expectedType true
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 example : True := synth_sorry
 

@@ -14,23 +14,23 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-private partial def collectUsedDecls (code : Code) (s : NameSet := {}) : NameSet :=
+private partial def collectUsedDecls (code : Code pu) (s : NameSet := {}) : NameSet :=
   match code with
   | .let decl k => collectUsedDecls k <| collectLetValue decl.value s
-  | .jp decl k | .fun decl k => collectUsedDecls decl.value <| collectUsedDecls k s
+  | .jp decl k | .fun decl k _ => collectUsedDecls decl.value <| collectUsedDecls k s
   | .cases c =>
     c.alts.foldl (init := s) fun s alt =>
       match alt with
       | .default k => collectUsedDecls k s
-      | .alt _ _ k => collectUsedDecls k s
+      | .alt _ _ k _ => collectUsedDecls k s
   | _ => s
 where
-  collectLetValue (e : LetValue) (s : NameSet) : NameSet :=
+  collectLetValue (e : LetValue pu) (s : NameSet) : NameSet :=
     match e with
     | .const declName .. => s.insert declName
     | _ => s
 
-private def shouldExportBody (decl : Decl) : CompilerM Bool := do
+private def shouldExportBody (decl : Decl pu) : CompilerM Bool := do
   -- Export body if template-like...
   decl.isTemplateLike <||>
   -- ...or it is below the (local) opportunistic inlining threshold and its `Expr` is exported
@@ -44,7 +44,7 @@ private def shouldExportBody (decl : Decl) : CompilerM Bool := do
 Marks the given declaration as to be exported and recursively infers the correct visibility of its
 body and referenced declarations based on that.
 -/
-partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := do
+partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit := do
   modifyEnv (setDeclPublic · decl.name)
   if (← shouldExportBody decl) && !isDeclTransparent (← getEnv) phase decl.name then
     trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
@@ -57,7 +57,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             markDeclPublicRec phase refDecl
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
-partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
+partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
   if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
@@ -68,7 +68,7 @@ partial def checkMeta (origDecl : Decl) : CompilerM Unit := do
   -- decls with relevant global attrs are public (`Lean.ensureAttrDeclIsMeta`).
   let isPublic := !isPrivateName origDecl.name
   go (irPhases == .comptime) isPublic origDecl |>.run' {}
-where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit := do
+where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then
@@ -77,7 +77,7 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       let env ← getEnv
       if isMeta && isPublic then
         if let some modIdx := env.getModuleIdxFor? ref then
-          if Lean.isMeta env ref then
+          if isMarkedMeta env ref then
             if env.header.modules[modIdx]?.any (!·.isExported) then
               throwError "Invalid public `meta` definition `{.ofConstName origDecl.name}`, \
                 `{.ofConstName ref}` is not accessible here; consider adding \
@@ -91,15 +91,17 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
       match getIRPhases env ref, isMeta with
       | .runtime, true =>
         if let some modIdx := env.getModuleIdxFor? ref then
+          -- We use `public` here as a conservative default (and most common case) as necessary
+          -- visibility is only clear at the end of the file.
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` is not accessible here; consider adding \
-            `meta import {env.header.moduleNames[modIdx]!}`"
+            `public meta import {env.header.moduleNames[modIdx]!}`"
         else
           throwError "Invalid `meta` definition `{.ofConstName origDecl.name}`, \
             `{.ofConstName ref}` not marked `meta`"
       | .comptime, false =>
         if let some modIdx := env.getModuleIdxFor? ref then
-          if !Lean.isMeta env ref then
+          if !isMarkedMeta env ref then
             throwError "Invalid definition `{.ofConstName origDecl.name}`, may not access \
               declaration `{.ofConstName ref}` imported as `meta`; consider adding \
               `import {env.header.moduleNames[modIdx]!}`"
@@ -110,8 +112,8 @@ where go (isMeta isPublic : Bool) (decl : Decl) : StateT NameSet CompilerM Unit 
         -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
         -- public meta def tries to use a private meta import via a local private meta def :/ .
         if irPhases == .all || isPublic && isPrivateName ref then
-          if let some refDecl ← getLocalDecl? ref then
-            go isMeta isPublic refDecl
+          if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
+            go isMeta isPublic (refDecl.castPurity! pu)
 
 /--
 Checks that imports necessary for inlining/specialization are public as otherwise we may run into
@@ -129,10 +131,10 @@ partial def checkTemplateVisibility : Pass where
         -- A private template-like decl cannot directly be used by a different module. If it could be used
         -- indirectly via a public template-like, we do a recursive check when checking the latter.
         if !isPrivateName decl.name && (← decl.isTemplateLike) then
-          let isMeta := isMeta (← getEnv) decl.name
+          let isMeta := isMarkedMeta (← getEnv) decl.name
           go decl decl |>.run' {}
     return decls
-where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
+where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
   decl.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
       if (← get).contains ref then

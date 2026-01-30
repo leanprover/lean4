@@ -74,7 +74,7 @@ where
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
-        let gtPatterns := indPatterns ++ #[←`(_), rPat]
+        let gtPatterns := indPatterns ++ #[←`(_), lPat] -- Use the lPat again, we don’t want the `.(a)` pattern here
         let rhs ← rhsCont (← `(Ordering.eq))
         pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
                ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
@@ -88,7 +88,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let x1 := mkIdent header.targetNames[0]!
   let x2 := mkIdent header.targetNames[1]!
   let ctorIdxName := mkCtorIdxName indVal.name
-  -- NB: the getMatcherInfo? assumes all mathcers are called `match_`
+  -- NB: the getMatcherInfo? assumes all matchers are called `match_`
   let casesOnSameCtorName ← mkFreshUserName (indVal.name ++ `match_on_same_ctor)
   mkCasesOnSameCtor casesOnSameCtorName indVal.name
   let alts ← Array.ofFnM (n := indVal.numCtors) fun ⟨ctorIdx, _⟩ => do
@@ -118,6 +118,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
           else
             rhsCont := fun rhs => `(Ordering.then (compare $a $b) $rhs) >>= rhsCont
       let rhs ← rhsCont (← `(Ordering.eq))
+      if ctorArgs1.isEmpty then
+        -- Unit thunking argument
+        ctorArgs1 := ctorArgs1.push (← `(()))
       `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )

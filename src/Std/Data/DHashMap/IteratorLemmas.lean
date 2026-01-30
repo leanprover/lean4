@@ -27,7 +27,7 @@ public theorem step_iter_nil {α : Type u} {β : α → Type v} :
 @[simp]
 public theorem step_iter_cons {α : Type u} {β : α → Type v} {k v} {l : AssocList α β} :
     ((AssocList.cons k v l).iter).step = ⟨.yield l.iter ⟨k, v⟩, rfl⟩ := by
-  simp [Iter.step, IterM.step, Iterator.step, Iter.toIterM, iter, toIterM, IterM.toIter]
+  simp [Iter.step, IterM.step, Iterator.step, Iter.toIterM, iter, IterM.mk, IterM.toIter]
 
 @[simp]
 public theorem toList_iter {α : Type u} {β : α → Type v} {l : AssocList α β} :

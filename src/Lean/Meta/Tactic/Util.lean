@@ -16,7 +16,6 @@ namespace Lean.Meta
 
 register_builtin_option debug.terminalTacticsAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "when enabled, terminal tactics such as `grind` and `omega` are replaced with `sorry`. Useful for debugging and fixing bootstrapping issues"
 }
 
@@ -100,7 +99,8 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
   let removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
     let e ← instantiateMVars e
     let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
-      e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
+      if e.hasFVar then
+        e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
       get
     visit |>.run' candidates
   mvarId.withContext do
@@ -175,7 +175,6 @@ def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
 
 register_builtin_option tactic.skipAssignedInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
 }
 

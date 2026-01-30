@@ -36,6 +36,12 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
     asyncMode       := .async .asyncEnv
+    replay? := some <| fun _oldState newState newItems otherState =>
+      newItems.foldl (init := otherState) fun otherState k =>
+        if let some v := newState.find? k then
+          otherState.insert k v
+        else
+          otherState
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
@@ -101,6 +107,9 @@ register_builtin_option allowUnsafeReducibility : Bool := {
 
 private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do
   let suffix := .note "Use `set_option allowUnsafeReducibility true` to override reducibility status validation"
+  -- Allow global visibility attributes even on non-exported definitions - they may be relevant for
+  -- downstream non-`module`s.
+  withoutExporting do
   unless allowUnsafeReducibility.get (← getOptions) do
     match (← getConstInfo declName) with
     | .defnInfo _ =>

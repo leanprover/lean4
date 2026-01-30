@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Basic
 public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Loop
 
 set_option doc.verso true
 
@@ -44,13 +45,13 @@ deriving Inhabited, BEq
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` that searches for matches
 of the pattern from the start towards the end of a {name}`Slice`.
 -/
-class ToForwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
+class ToForwardSearcher {ρ : Type} (pat : ρ) (σ : outParam (Slice → Type)) where
   /--
   Builds an iterator of {name}`SearchStep` corresponding to matches of {name}`pat` along the slice
   {name}`s`. The {name}`SearchStep`s returned by this iterator must contain ranges that are
   adjacent, non-overlapping and cover all of {name}`s`.
   -/
-  toSearcher : (s : Slice) → (pat : ρ) → Std.Iter (α := σ s) (SearchStep s)
+  toSearcher : (s : Slice) → Std.Iter (α := σ s) (SearchStep s)
 
 /--
 Provides simple pattern matching capabilities from the start of a {name}`Slice`.
@@ -61,21 +62,21 @@ need to specialize in this fashion, then
 {name (scope := "Init.Data.String.Pattern.Basic")}`ForwardPattern.defaultImplementation` can be used
 to automatically derive an instance.
 -/
-class ForwardPattern (ρ : Type) where
+class ForwardPattern {ρ : Type} (pat : ρ) where
   /--
   Checks whether the slice starts with the pattern.
   -/
-  startsWith : Slice → ρ → Bool
+  startsWith : Slice → Bool
   /--
   Checks whether the slice starts with the pattern. If it does, the slice is returned with the
   prefix removed; otherwise the result is {name}`none`.
   -/
-  dropPrefix? : (s : Slice) → ρ → Option s.Pos
+  dropPrefix? : (s : Slice) → Option s.Pos
 
 namespace Internal
 
-@[extern "lean_slice_memcmp"]
-def memcmp (lhs rhs : @& Slice) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
+@[extern "lean_string_memcmp"]
+def memcmpStr (lhs rhs : @& String) (lstart : @& String.Pos.Raw) (rstart : @& String.Pos.Raw)
     (len : @& String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
     (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
   go 0
@@ -99,32 +100,54 @@ where
     simp [Pos.Raw.lt_iff] at h ⊢
     omega
 
+@[inline]
+def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)
+    (len : String.Pos.Raw) (h1 : len.offsetBy lstart ≤ lhs.rawEndPos)
+    (h2 : len.offsetBy rstart ≤ rhs.rawEndPos) : Bool :=
+  memcmpStr
+    lhs.str
+    rhs.str
+    (lstart.offsetBy lhs.startInclusive.offset)
+    (rstart.offsetBy rhs.startInclusive.offset)
+    len
+    (by
+      have := lhs.startInclusive_le_endExclusive
+      have := lhs.endExclusive.isValid.le_utf8ByteSize
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      omega)
+    (by
+      have := rhs.startInclusive_le_endExclusive
+      have := rhs.endExclusive.isValid.le_utf8ByteSize
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      omega)
+
 end Internal
 
 namespace ForwardPattern
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [ToForwardSearcher ρ σ]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+variable (pat : ρ) [ToForwardSearcher pat σ]
 
 @[specialize pat]
-def defaultStartsWith (s : Slice) (pat : ρ) : Bool :=
-  let searcher := ToForwardSearcher.toSearcher s pat
-  match searcher.step with
-  | .yield _ (.matched start ..) _ => s.startPos = start
+def defaultStartsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
+  let searcher := ToForwardSearcher.toSearcher pat s
+  match searcher.first? with
+  | some (.matched start ..) => s.startPos = start
   | _ => false
 
 @[specialize pat]
-def defaultDropPrefix? (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToForwardSearcher.toSearcher s pat
-  match searcher.step with
-  | .yield _ (.matched _ endPos) _ => some endPos
+def defaultDropPrefix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
+  let searcher := ToForwardSearcher.toSearcher pat s
+  match searcher.first? with
+  | some (.matched _ endPos) => some endPos
   | _ => none
 
 @[always_inline, inline]
-def defaultImplementation : ForwardPattern ρ where
-  startsWith := defaultStartsWith
-  dropPrefix? := defaultDropPrefix?
+def defaultImplementation {pat : ρ} [ToForwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
+    ForwardPattern pat where
+  startsWith s := defaultStartsWith pat s
+  dropPrefix? s := defaultDropPrefix? pat s
 
 end ForwardPattern
 
@@ -132,13 +155,13 @@ end ForwardPattern
 Provides a conversion from a pattern to an iterator of {name}`SearchStep` searching for matches of
 the pattern from the end towards the start of a {name}`Slice`.
 -/
-class ToBackwardSearcher (ρ : Type) (σ : outParam (Slice → Type)) where
+class ToBackwardSearcher {ρ : Type} (pat : ρ) (σ : outParam (Slice → Type)) where
   /--
   Build an iterator of {name}`SearchStep` corresponding to matches of {lean}`pat` along the slice
   {name}`s`. The {name}`SearchStep`s returned by this iterator must contain ranges that are
   adjacent, non-overlapping and cover all of {name}`s`.
   -/
-  toSearcher : (s : Slice) → (pat : ρ) → Std.Iter (α := σ s) (SearchStep s)
+  toSearcher : (s : Slice) → Std.Iter (α := σ s) (SearchStep s)
 
 /--
 Provides simple pattern matching capabilities from the end of a {name}`Slice`.
@@ -149,41 +172,42 @@ need to specialize in this fashion, then
 {name (scope := "Init.Data.String.Pattern.Basic")}`BackwardPattern.defaultImplementation` can be
 used to automatically derive an instance.
 -/
-class BackwardPattern (ρ : Type) where
+class BackwardPattern {ρ : Type} (pat : ρ) where
   /--
   Checks whether the slice ends with the pattern.
   -/
-  endsWith : Slice → ρ → Bool
+  endsWith : Slice → Bool
   /--
   Checks whether the slice ends with the pattern. If it does, the slice is returned with the
   suffix removed; otherwise the result is {name}`none`.
   -/
-  dropSuffix? : (s : Slice) → ρ → Option s.Pos
+  dropSuffix? : (s : Slice) → Option s.Pos
 
 namespace ToBackwardSearcher
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [ToBackwardSearcher ρ σ]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+variable (pat : ρ) [ToBackwardSearcher pat σ]
 
 @[specialize pat]
-def defaultEndsWith (s : Slice) (pat : ρ) : Bool :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
-  match searcher.step with
-  | .yield _ (.matched _ endPos) _ => s.endPos = endPos
+def defaultEndsWith (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Bool :=
+  let searcher := ToBackwardSearcher.toSearcher pat s
+  match searcher.first? with
+  | some (.matched _ endPos) => s.endPos = endPos
   | _ => false
 
 @[specialize pat]
-def defaultDropSuffix? (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
-  match searcher.step with
-  | .yield _ (.matched startPos _) _ => some startPos
+def defaultDropSuffix? (s : Slice) [Std.IteratorLoop (σ s) Id Id] : Option s.Pos :=
+  let searcher := ToBackwardSearcher.toSearcher pat s
+  match searcher.first? with
+  | some (.matched startPos _) => some startPos
   | _ => none
 
 @[always_inline, inline]
-def defaultImplementation : BackwardPattern ρ where
-  endsWith := defaultEndsWith
-  dropSuffix? := defaultDropSuffix?
+def defaultImplementation {pat : ρ} [ToBackwardSearcher pat σ] [∀ s, Std.IteratorLoop (σ s) Id Id] :
+    BackwardPattern pat where
+  endsWith s := defaultEndsWith pat s
+  dropSuffix? s := defaultDropSuffix? pat s
 
 end ToBackwardSearcher
 

@@ -233,12 +233,13 @@ where
         `(`@$(mkSuffixes fs):facetSuffix*)
       else
         `(`@$(mkIdent n)$(mkSuffixes fs)*)
+    | .packageModule p m =>
+      if p.isAnonymous then
+        `(`+$(mkIdent m)$(mkSuffixes fs)*)
+      else
+        `(`@$(mkIdent p)/+$(mkIdent m)$(mkSuffixes fs)*)
     | .packageTarget p t =>
-      let t ←
-        if let some t := t.eraseSuffix? moduleTargetIndicator then
-          `(packageTargetLit|+$(mkIdent t))
-        else
-          `(packageTargetLit|$(mkIdent t):ident)
+      let t ← `(packageTargetLit|$(mkIdent t):ident)
       if p.isAnonymous then
         `(`@/$t$(mkSuffixes fs)*)
       else
@@ -263,7 +264,7 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let ver? ←
     if let some ver := cfg.version? then
       if ver.startsWith "git#" then
-        some <$> `(verSpec|git $(toLean <| ver.drop 4))
+        some <$> `(verSpec|git $(toLean <| ver.drop 4 |>.copy))
       else
         some <$> `(verSpec|$(toLean ver):term)
     else
@@ -348,7 +349,7 @@ protected def InputDirConfig.mkCommand
 
 @[inline] def Package.mkTargetCommands
   (pkg : Package) (defaultTargets : NameSet) (kind : Name)
-  (mkCommand : {n : Name} → ConfigType kind pkg.name n → Bool → Command)
+  (mkCommand : {n : Name} → ConfigType kind pkg.keyName n → Bool → Command)
 : Array Command :=
   pkg.targetDecls.filterMap fun t => (t.config? kind).map fun cfg =>
     mkCommand cfg (defaultTargets.contains t.name)
@@ -357,7 +358,7 @@ protected def InputDirConfig.mkCommand
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let pkgConfig : PackageConfig pkg.name pkg.origName :=
+  let pkgConfig : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
   `(module|

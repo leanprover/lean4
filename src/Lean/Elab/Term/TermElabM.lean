@@ -26,15 +26,31 @@ namespace Lean.Elab
 
 namespace Term
 
+-- Same pattern as for `Methods`/`MethodsRef` in `SimpM`. See `FixedTermElabRef`.
+private opaque FixedTermElabRefPointed : NonemptyType.{0}
+
+/--
+This type is an abbreviation for `Option Expr → TermElabM Expr`, but avoids a circular dependency
+with `TermElabM`.
+
+We store `FixedTermElabRef` in the `Context` of the `TermElabM` monad, inducing the circular
+dependency. This mechanism allows us to register semantic term elaborators in
+`el : Option Expr → TermElabM Expr` as scoped `s : Syntax`, such that `elabTerm s = el`.
+-/
+def FixedTermElabRef : Type := FixedTermElabRefPointed.type
+
+instance : Nonempty FixedTermElabRef :=
+  by exact FixedTermElabRefPointed.property
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
-  declName?  : Option Name
-  options    : Options
-  openDecls  : List OpenDecl
-  macroStack : MacroStack
-  errToSorry : Bool
-  levelNames : List Name
+  declName?      : Option Name
+  options        : Options
+  openDecls      : List OpenDecl
+  macroStack     : MacroStack
+  errToSorry     : Bool
+  levelNames     : List Name
+  fixedTermElabs : Array FixedTermElabRef
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -151,6 +167,11 @@ structure LetRecToLift where
   val            : Expr
   mvarId         : MVarId
   termination    : TerminationHints
+  /-- The binders syntax for the declaration, used for docstring elaboration. -/
+  binders        : Syntax := .missing
+  /-- The docstring, if present, and whether it's Verso. Docstring processing is deferred until the
+  declaration is added to the environment (needed for Verso docstrings to work). -/
+  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment × Bool) := none
   deriving Inhabited
 
 /--
@@ -242,33 +263,41 @@ structure Context where
   declName? : Option Name := none
   macroStack        : MacroStack      := []
   /--
-     When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
-     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
-     the list of pending synthetic metavariables, and returns `?m`. -/
+  When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+  The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
+  the list of pending synthetic metavariables, and returns `?m`.
+  -/
   mayPostpone : Bool := true
   /--
-     When `errToSorry` is set to true, the method `elabTerm` catches
-     exceptions and converts them into synthetic `sorry`s.
-     The implementation of choice nodes and overloaded symbols rely on the fact
-     that when `errToSorry` is set to false for an elaboration function `F`, then
-     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
-     That is, it is safe to transition `errToSorry` from `true` to `false`, but
-     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
+  When `errToSorry` is set to true, the method `elabTerm` catches
+  exceptions and converts them into synthetic `sorry`s.
+  The implementation of choice nodes and overloaded symbols rely on the fact
+  that when `errToSorry` is set to false for an elaboration function `F`, then
+  `errToSorry` remains `false` for all elaboration functions invoked by `F`.
+  That is, it is safe to transition `errToSorry` from `true` to `false`, but
+  we must not set `errToSorry` to `true` when it is currently set to `false`.
+  -/
   errToSorry : Bool := true
   /--
-     When `autoBoundImplicit` is set to true, instead of producing
-     an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `withAutoBoundImplicit`
-     which adds an implicit declaration for the unbound variable and tries again. -/
-  autoBoundImplicit  : Bool            := false
-  autoBoundImplicits : PArray Expr := {}
+  During elaboration we track the current context for adding auto-bound
+  implicit variables. (We mark the entry to such a region with
+  `withAutoBoundImplicit` and leave it with `withoutAutoBoundImplicit`.)
+
+  When the `autoImplicit` option is `false`, this context is only used to
+  affect error messages. When `autoImplicit` is `true` and an identifier is
+  unbound and potentially an auto-bound implicit, an internal exception is
+  thrown and caught at the closest surrounding `withAutoBoundImplicit`,
+  which adds an implicit declaration for the unbound variable and tries
+  again.
+  -/
+  autoBoundImplicitContext : Option AutoBoundImplicitContext := .none
   /--
-    A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
-    We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
-    as
-    ```
-    def f : f → Bool := fun _ => true
-    ```
+  A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
+  We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
+  as
+  ```
+  def f : f → Bool := fun _ => true
+  ```
   -/
   autoBoundImplicitForbidden : Name → Bool := fun _ => false
   /-- Map from user name to internal unique name -/
@@ -309,9 +338,33 @@ structure Context where
   If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
   -/
   checkDeprecated : Bool := true
+  /--
+  Fixed term elaborators for supporting `elabToSyntax`.
+  -/
+  fixedTermElabs : Array FixedTermElabRef := #[]
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
+
+@[deprecated "replace with a check of autoBoundImplicitContext" (since := "2025-11-11")]
+def Context.autoBoundImplicit (ctx : Context) : Bool :=
+  match ctx.autoBoundImplicitContext with
+    | .none => false
+    | .some subCtx => subCtx.autoImplicitEnabled
+
+abbrev FixedTermElab := Option Expr → TermElabM Expr
+
+unsafe def FixedTermElab.toFixedTermElabRefImpl (m : FixedTermElab) : FixedTermElabRef :=
+  unsafeCast m
+
+@[implemented_by FixedTermElab.toFixedTermElabRefImpl]
+opaque FixedTermElab.toFixedTermElabRef (m : FixedTermElab) : FixedTermElabRef
+
+unsafe def FixedTermElabRef.toFixedTermElabImpl (m : FixedTermElabRef) : FixedTermElab :=
+  unsafeCast m
+
+@[implemented_by FixedTermElabRef.toFixedTermElabImpl]
+opaque FixedTermElabRef.toFixedTermElab (m : FixedTermElabRef) : FixedTermElab
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -601,7 +654,11 @@ instance : MonadParentDecl TermElabM where
   getParentDeclName? := getDeclName?
 
 instance : MonadAutoImplicits TermElabM where
-  getAutoImplicits := return (← read).autoBoundImplicits.toArray
+  getAutoImplicits := do
+    if let .some implicits := (← read).autoBoundImplicitContext then
+      pure implicits.boundVariables.toArray
+    else
+      pure #[]
 
 /--
 Executes `x` in the context of the given declaration name. Ensures that the info tree is set up
@@ -717,7 +774,11 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := {
+    options := (← getOptions),
+    ref := (← getRef),
+    autoBoundImplicit := ctx.autoBoundImplicitContext.map (·.autoImplicitEnabled) |>.getD false
+  }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
   | .ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
   | .error ex _ => throw ex
@@ -730,9 +791,31 @@ def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α)
   withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 /-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
-def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
-  withMacroExpansionInfo beforeStx afterStx do
-    withPushMacroExpansionStack beforeStx afterStx x
+@[specialize]
+def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx : Syntax) (x : n α) : n α :=
+  controlAt TermElabM fun runInBase => do
+    withMacroExpansionInfo beforeStx afterStx do
+    withPushMacroExpansionStack beforeStx afterStx <| runInBase x
+
+/--
+Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
+It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
+-/
+protected def _root_.Lean.Parser.Term.elabToSyntax : Unit := ()
+
+builtin_initialize Lean.Parser.registerBuiltinNodeKind ``Lean.Parser.Term.elabToSyntax
+
+/-- Refer to the given term elaborator by a scoped `Syntax` object. -/
+def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) : TermElabM α := do
+  let ctx ← read
+  withReader (fun ctx => { ctx with fixedTermElabs := ctx.fixedTermElabs.push fixedTermElab.toFixedTermElabRef }) do
+    k ⟨mkNode ``Lean.Parser.Term.elabToSyntax #[Syntax.mkNatLit ctx.fixedTermElabs.size]⟩
+
+@[builtin_term_elab Lean.Parser.Term.elabToSyntax] def elabFixedTermElab : TermElab := fun stx expectedType? => do
+  let some idx := stx[0].isNatLit? | throwUnsupportedSyntax
+  let some fixedTermElab := (← read).fixedTermElabs[idx]?
+    | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
+  fixedTermElab.toFixedTermElab expectedType?
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -1036,6 +1119,33 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   | none   => return true
 
 /--
+If the `trace.Meta.synthInstance` option is not already set, gives a hint explaining this option.
+-/
+def useTraceSynthMsg : MessageData :=
+  MessageData.lazy fun ctx =>
+    if trace.Meta.synthInstance.get ctx.opts then
+      pure .nil
+    else
+      pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
+
+builtin_initialize derivableRef : IO.Ref NameSet ← IO.mkRef {}
+
+/--
+Registers a deriving handler for the purpose of error message delivery in `synthesizeInstMVarCore`.
+This should only be called by `Lean.Elab.Term.registerDerivingHandler`.
+-/
+def registerDerivableClass (className : Name) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register derivable class, it can only be registered during initialization")
+  derivableRef.modify fun m => m.insert className
+
+/--
+Returns whether `className` has a `deriving` handler installed.
+-/
+def hasDerivingHandler (className : Name) : IO Bool := do
+  return (← derivableRef.get).contains className
+
+/--
   Try to synthesize metavariable using type class resolution.
   This method assumes the local context and local instances of `instMVar` coincide
   with the current local context and local instances.
@@ -1093,7 +1203,20 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}{useDiagnosticMsg}"
+      let msg ← match type with
+        | .app (.const cls _) (.const typ _) =>
+          -- This has the structure of a `deriving`-style type class, alter feedback accordingly
+          if ← hasDerivingHandler cls then
+            pure <| extraErrorMsg ++ .hint' m!"Adding the command `deriving instance {cls} for {typ}` may allow Lean to derive the missing instance."
+          else
+            pure <| extraErrorMsg ++ useTraceSynthMsg
+        | _ =>
+            pure <| extraErrorMsg ++ useTraceSynthMsg
+      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
+
+structure CoeExpansionTrace where
+  expandedCoeDecls : List Name
+deriving TypeName
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
@@ -1101,8 +1224,13 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
-      match ← coerce? e expectedType with
-      | .some eNew => return eNew
+      match ← coerceCollectingNames? e expectedType with
+      | .some (eNew, expandedCoeDecls) =>
+        pushInfoLeaf (.ofCustomInfo {
+          stx := ← getRef
+          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
+        })
+        return eNew
       | .none => failure
       | .undef =>
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
@@ -1224,6 +1352,7 @@ def saveContext : TermElabM SavedContext :=
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
     levelNames := (← get).levelNames
+    fixedTermElabs := (← read).fixedTermElabs
   }
 
 /--
@@ -1250,7 +1379,6 @@ def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDec
 
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
 }
 
@@ -1755,28 +1883,30 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  let flag := autoImplicit.get (← getOptions)
-  if flag then
-    withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
-      let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
-        checkSystem "auto-implicit"
-        try
+  let autoImplicitEnabled := autoImplicit.get (← getOptions)
+  let initCtx : AutoBoundImplicitContext := { autoImplicitEnabled }
+  if autoImplicitEnabled then
+    let rec loop (s : SavedState) (ctx : AutoBoundImplicitContext) : TermElabM α := withIncRecDepth do
+      checkSystem "auto-implicit"
+      try
+        withReader ({ · with autoBoundImplicitContext := .some ctx }) <|
           withSaveAutoImplicitInfoContext k
-        catch
-          | ex => match isAutoBoundImplicitLocalException? ex with
-            | some n =>
-              -- Restore state, declare `n`, and try again
-              s.restore (restoreInfo := true)
-              withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
-                withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
-                  loop (← saveState)
-            | none   => throw ex
-      loop (← saveState)
+      catch
+        | ex => match isAutoBoundImplicitLocalException? ex with
+          | some n =>
+            -- Restore state, declare `n`, and try again
+            s.restore (restoreInfo := true)
+            withLocalDecl n .implicit (← mkFreshTypeMVar) fun x => do
+              loop (← saveState) (ctx.push x)
+          | none   => throw ex
+    loop (← saveState) initCtx
   else
-    k
+    -- Track whether we are in an auto-bound context regardless of whether
+    -- the `autoImplicit` flag is enabled; this can influence error messages.
+    withReader ({ · with autoBoundImplicitContext := .some initCtx}) k
 
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
+  withReader (fun ctx => { ctx with autoBoundImplicitContext := .none }) k
 
 partial def withAutoBoundImplicitForbiddenPred (p : Name → Bool) (x : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicitForbidden := fun n => p n || ctx.autoBoundImplicitForbidden n }) x
@@ -1865,7 +1995,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
   use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
 def addAutoBoundImplicits (xs : Array Expr) (inlayHintPos? : Option String.Pos.Raw) : TermElabM (Array Expr) := do
-  let autos := (← read).autoBoundImplicits
+  let autos ← getAutoImplicits
   go autos.toList #[]
 where
   go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
@@ -1965,36 +2095,23 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← realizeGlobalName n)
+    mkConsts (← realizeGlobalName n) explicitLevels
   else
-    process preresolved
-where
-  process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-    if !candidates.isEmpty then
-      return (← mkConsts candidates explicitLevels)
-    let env ← getEnv
-    -- check for scope errors before trying auto implicits
-    if env.isExporting then
-      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
-        throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
-    if (← read).autoBoundImplicit &&
-          !(← read).autoBoundImplicitForbidden n &&
-          isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
-      throwAutoBoundImplicitLocal n
-    throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
+    mkConsts preresolved explicitLevels
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
   Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
-def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
-  match ident with
-  | .ident _ _ n preresolved =>
-    let r ← resolveName ident n preresolved explicitLevels expectedType?
-    r.mapM fun (c, fields) => do
-      let ids := ident.identComponents (nFields? := fields.length)
-      return (c, ids.head!, ids.tail!)
-  | _ => throwError "identifier expected"
+def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax)) := do
+  let .ident _ _ n preresolved := ident
+    | throwError "identifier expected"
+  let r ← resolveName ident n preresolved explicitLevels expectedType?
+  let rc ← r.mapM fun (c, fields) => do
+    let ids := ident.identComponents (nFields? := fields.length)
+    return (c, ids.head!, ids.tail!)
+  return (n, rc)
+
 
 def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) := withRef stx do
   match stx with

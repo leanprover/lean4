@@ -14,111 +14,61 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamList___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0___boxed(lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ToStream_toStream___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamStringSubstring___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object*);
-LEAN_EXPORT lean_object* l_Stream_next_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instForInOfStream___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamRangeNat;
-LEAN_EXPORT lean_object* l_Std_Stream_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Stream_next_x3f___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamArraySubarray___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ToStream_toStream(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instForInOfStream___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stream_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Stream_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamRangeNat___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamSubarray(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamStringSubstring;
-LEAN_EXPORT lean_object* l_Std_instStreamSubarray___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamArraySubarray(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_instToStreamList___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStreamList___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instToStreamList___closed__0 = (const lean_object*)&l_Std_instToStreamList___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_instToStreamList(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamArraySubarray___lam__0(lean_object*);
+static const lean_closure_object l_Std_instToStreamArraySubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStreamArraySubarray___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instToStreamArraySubarray___closed__0 = (const lean_object*)&l_Std_instToStreamArraySubarray___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instToStreamArraySubarray(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_instToStreamSubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStreamSubarray___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instToStreamSubarray___closed__0 = (const lean_object*)&l_Std_instToStreamSubarray___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamStringRaw___lam__0(lean_object*);
+static const lean_closure_object l_Std_instToStreamStringRaw___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStreamStringRaw___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instToStreamStringRaw___closed__0 = (const lean_object*)&l_Std_instToStreamStringRaw___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_instToStreamStringRaw = (const lean_object*)&l_Std_instToStreamStringRaw___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0___boxed(lean_object*);
+static const lean_closure_object l_Std_instToStreamRange___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instToStreamRange___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instToStreamRange___closed__0 = (const lean_object*)&l_Std_instToStreamRange___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_instToStreamRange = (const lean_object*)&l_Std_instToStreamRange___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamProd___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamList___lam__0(lean_object*);
+static const lean_closure_object l_Std_instStreamList___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instStreamList___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instStreamList___closed__0 = (const lean_object*)&l_Std_instStreamList___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_instStreamList(lean_object*);
-LEAN_EXPORT lean_object* l_Std_instForInOfStream(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instToStreamRange;
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_ToStream_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_ToStream_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Stream_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Stream_ctorIdx(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_6) == 0)
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec_ref(x_6);
-x_8 = lean_apply_2(x_1, lean_box(0), x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_1);
-x_9 = lean_ctor_get(x_6, 0);
-lean_inc(x_9);
-lean_dec_ref(x_6);
-x_10 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_2, x_3, x_4, x_5, x_9);
-return x_10;
-}
-}
-}
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamSubarray___lam__0(lean_object*);
+static const lean_closure_object l_Std_instStreamSubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instStreamSubarray___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instStreamSubarray___closed__0 = (const lean_object*)&l_Std_instStreamSubarray___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_instStreamSubarray(lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamRangeNat___lam__0(lean_object*);
+static const lean_closure_object l_Std_instStreamRangeNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_instStreamRangeNat___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_instStreamRangeNat___closed__0 = (const lean_object*)&l_Std_instStreamRangeNat___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_instStreamRangeNat = (const lean_object*)&l_Std_instStreamRangeNat___closed__0_value;
+LEAN_EXPORT lean_object* l_Stream_next_x3f___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Stream_next_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ToStream_toStream___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ToStream_toStream(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -164,6 +114,34 @@ return x_16;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec_ref(x_6);
+x_8 = lean_apply_2(x_1, lean_box(0), x_7);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
+lean_dec_ref(x_6);
+x_10 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_2, x_3, x_4, x_5, x_9);
+return x_10;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Stream_0__Std_Stream_forIn_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -188,29 +166,32 @@ x_10 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_5, x_6,
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instForInOfStream___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_1, x_3, x_6, x_4, x_5);
+x_7 = l___private_Init_Data_Stream_0__Std_Stream_forIn_visit___redArg(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instForInOfStream___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instForInOfStream___redArg___lam__0), 6, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_instForInOfMonadOfStream___redArg___lam__0), 6, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instForInOfStream(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_instForInOfMonadOfStream(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Std_instForInOfStream___redArg(x_4);
-return x_5;
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_Std_instForInOfMonadOfStream___redArg___lam__0), 6, 2);
+lean_closure_set(x_6, 0, x_5);
+lean_closure_set(x_6, 1, x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0(lean_object* x_1) {
@@ -220,20 +201,20 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instToStreamList(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instToStreamList___lam__0___boxed), 1, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instToStreamList___lam__0___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_instToStreamList___lam__0(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instToStreamList(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = ((lean_object*)(l_Std_instToStreamList___closed__0));
 return x_2;
 }
 }
@@ -251,7 +232,7 @@ LEAN_EXPORT lean_object* l_Std_instToStreamArraySubarray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instToStreamArraySubarray___lam__0), 1, 0);
+x_2 = ((lean_object*)(l_Std_instToStreamArraySubarray___closed__0));
 return x_2;
 }
 }
@@ -260,14 +241,6 @@ _start:
 {
 lean_inc_ref(x_1);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instToStreamSubarray___lam__0___boxed), 1, 0);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_instToStreamSubarray___lam__0___boxed(lean_object* x_1) {
@@ -279,7 +252,15 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instToStreamStringSubstring___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_instToStreamSubarray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = ((lean_object*)(l_Std_instToStreamSubarray___closed__0));
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instToStreamStringRaw___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -292,26 +273,10 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_instToStreamStringSubstring() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instToStreamStringSubstring___lam__0), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_instToStreamRange___lam__0(lean_object* x_1) {
 _start:
 {
 lean_inc_ref(x_1);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_instToStreamRange() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instToStreamRange___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -621,7 +586,9 @@ LEAN_EXPORT lean_object* l_Std_instStreamProd(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Std_instStreamProd___redArg(x_5, x_6);
+x_7 = lean_alloc_closure((void*)(l_Std_instStreamProd___redArg___lam__0), 3, 2);
+lean_closure_set(x_7, 0, x_5);
+lean_closure_set(x_7, 1, x_6);
 return x_7;
 }
 }
@@ -668,7 +635,7 @@ LEAN_EXPORT lean_object* l_Std_instStreamList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instStreamList___lam__0), 1, 0);
+x_2 = ((lean_object*)(l_Std_instStreamList___closed__0));
 return x_2;
 }
 }
@@ -755,7 +722,7 @@ LEAN_EXPORT lean_object* l_Std_instStreamSubarray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_instStreamSubarray___lam__0), 1, 0);
+x_2 = ((lean_object*)(l_Std_instStreamSubarray___closed__0));
 return x_2;
 }
 }
@@ -832,14 +799,6 @@ return x_19;
 }
 }
 }
-static lean_object* _init_l_Std_instStreamRangeNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_instStreamRangeNat___lam__0), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Stream_next_x3f___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -889,12 +848,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_instToStreamStringSubstring = _init_l_Std_instToStreamStringSubstring();
-lean_mark_persistent(l_Std_instToStreamStringSubstring);
-l_Std_instToStreamRange = _init_l_Std_instToStreamRange();
-lean_mark_persistent(l_Std_instToStreamRange);
-l_Std_instStreamRangeNat = _init_l_Std_instStreamRangeNat();
-lean_mark_persistent(l_Std_instStreamRangeNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

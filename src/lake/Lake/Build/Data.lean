@@ -162,6 +162,7 @@ modules facets, package facets, Lake target facets, and custom targets.
 public abbrev BuildData : BuildKey → Type
 | .module _ => DataType Module.facetKind
 | .package _ => DataType Package.facetKind
+| .packageModule _ _ => DataType Module.facetKind
 | .packageTarget p t => CustomData p t
 | .facet _ f => FacetOut f
 
@@ -170,6 +171,10 @@ public instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetOut f
 
 public instance [FamilyOut (CustomData p) t α]
 : FamilyDef BuildData (.packageTarget p t) α where
+  fam_eq := by unfold BuildData; simp
+
+public instance [FamilyOut DataType Module.facetKind α]
+: FamilyDef BuildData (.packageModule p m) α where
   fam_eq := by unfold BuildData; simp
 
 public instance [FamilyOut DataType Module.facetKind α]

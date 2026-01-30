@@ -60,7 +60,7 @@ public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile
-  (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (pkgIdx : Nat) (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
   (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
 : LogIO Environment := do
 
@@ -72,7 +72,7 @@ def elabConfigFile
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
-  let env := nameExt.setState env pkgName
+  let env := nameExt.setState env ⟨pkgIdx, pkgName⟩
   let env := dirExt.setState env pkgDir
   let env := optsExt.setState env lakeOpts
 
@@ -164,6 +164,7 @@ where
     |>.insert ``IR.declMapExt
 
 structure ConfigTrace where
+  idx : Nat
   name : Name
   platform : String
   leanHash : String
@@ -197,7 +198,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   imported and the (shared) lock is then released.
 
   If the trace is out-of-date, Lake upgrades the trace to read-write handle
-  with an exclusive lock. Lake does this by first acquiring a exclusive lock to
+  with an exclusive lock. Lake does this by first acquiring an exclusive lock to
   configuration's lock file (i.e. `olean.lock`). While holding this lock, Lake
   releases the shared lock on the trace, re-opens the trace with a read-write
   handle, and acquires an exclusive lock on the trace. It then releases its
@@ -211,7 +212,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
 
     This is because we are already holding a shared lock on the trace.
     If multiple process race for this lock, one will get it and then
-    wait for an exclusive lock one the trace file, but be blocked by the
+    wait for an exclusive lock on the trace file, but be blocked by the
     other process with a shared lock waiting on this file.
 
     While there is likely a way to sequence this to avoid erroring,
@@ -245,9 +246,10 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
-          configHash, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
+          configHash, idx := cfg.pkgIdx, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
       h.truncate
-      let env ← elabConfigFile cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
+      let env ← elabConfigFile
+        cfg.pkgIdx cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -266,9 +268,9 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       | .ok json =>
         match fromJson? json with
         | .ok (trace : ConfigTrace) =>
-          let upToDate :=
-            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
-            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          let upToDate := (← olean.pathExists) ∧
+            trace.idx = cfg.pkgIdx ∧ trace.name = cfg.pkgName ∧  trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧  trace.leanHash = cfg.lakeEnv.leanGithash
           if upToDate then
             let env ← importConfigFileCore olean cfg.leanOpts
             h.unlock

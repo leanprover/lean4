@@ -63,12 +63,9 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
 
-/-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
-/--
-info: Try this:
-  [apply] (expose_names; exact h)
--/
-#guard_msgs in
+/-! `exact?` no longer uses `solve_by_elim` first, so it can't find local hypotheses.
+However, star-indexed lemmas (like `Function.comp`) may find a proof via fallback. -/
+#guard_msgs (drop info) in
 example {P : Prop} : P → P := by
   intro
   exact?
@@ -103,7 +100,7 @@ info: found a partial proof, but the corresponding tactic failed:
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : E := by apply?
@@ -121,7 +118,7 @@ info: Try this:
   -- Remaining subgoals:
   -- ⊢ R a b
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : (b : B) → R a b := by

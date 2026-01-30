@@ -11,19 +11,19 @@ namespace Lean.Parser.Tactic
 
 syntax anchor := "#" noWs hexnum
 
-syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? ident)
+syntax grindLemma    := ppGroup((Attr.grindMod ppSpace)? term)
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? ident)
+syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? term)
 
 syntax grindErase    := "-" ident
 /--
 The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
 when selecting patterns.
 -/
-syntax grindParam    := grindErase <|> grindLemma <|> grindLemmaMin <|> anchor
+syntax grindParam    := grindErase <|> grindLemmaMin <|> grindLemma <|> anchor
 
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
@@ -72,7 +72,9 @@ syntax (name := linarith) "linarith" : grind
 /-- The `sorry` tactic is a temporary placeholder for an incomplete tactic proof. -/
 syntax (name := «sorry») "sorry" : grind
 
-syntax thm := anchor <|> grindLemma <|> grindLemmaMin
+syntax thmNs := &"namespace" ident
+
+syntax thm := anchor <|> thmNs <|> grindLemmaMin <|> grindLemma
 
 /--
 Instantiates theorems using E-matching.
@@ -123,16 +125,21 @@ available in the `grind` state.
 -/
 syntax (name := casesTrace) "cases?" grindFilter : grind
 
+/--
+Performs the next case-split. The case-split is selected using the same heuristic used by `finish`.
+-/
+syntax (name := casesNext) "cases_next" : grind
+
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : grind
 
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
-syntax (name := finish) "finish" ppSpace configItem*
-    (&" only")? (" [" withoutPosition(grindParam,*) "]")? : grind
+syntax (name := finish) "finish" (ppSpace configItem)*
+    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
-syntax (name := finishTrace) "finish?" ppSpace configItem*
-    (&" only")? (" [" withoutPosition(grindParam,*) "]")? : grind
+syntax (name := finishTrace) "finish?" (ppSpace configItem)*
+    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
 
 /--
 The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.

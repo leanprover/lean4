@@ -53,11 +53,17 @@ example [CommRing α] (a b c : α)
 trace: [facts] Asserted facts
   [_] (bs.set i₂ v₂ ⋯).size = bs.size
   [_] (as.set i₁ v₁ ⋯).size = as.size
+  [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
+  [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
   [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
 ---
 trace: [props] True propositions
   [_] j < (bs.set i₂ v₂ ⋯).size
   [_] j < bs.size
+  [_] cs[j]? = some cs[j]
+  [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
+  [_] as[j]? = some as[j]
+  [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
 ---
 trace: [eqc] Equivalence classes
   [eqc] {bs, as.set i₁ v₁ ⋯}
@@ -65,6 +71,8 @@ trace: [eqc] Equivalence classes
   [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
   [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
     [eqc] {if i₂ = j then v₂ else bs[j]}
+  [eqc] {some as[j], as[j]?}
+  [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
   [eqc] others
     [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/
@@ -141,14 +149,23 @@ trace: [grind] Grind state
   [facts] Asserted facts
     [_] (bs.set i₂ v₂ ⋯).size = bs.size
     [_] (as.set i₁ v₁ ⋯).size = as.size
+    [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
+    [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
     [_] (bs.set i₂ v₂ ⋯)[j] = if i₂ = j then v₂ else bs[j]
   [props] True propositions
     [_] j < (bs.set i₂ v₂ ⋯).size
     [_] j < bs.size
+    [_] cs[j]? = some cs[j]
+    [_] ∀ (h : j + 1 ≤ cs.size), cs[j]? = some cs[j]
+    [_] as[j]? = some as[j]
+    [_] ∀ (h : j + 1 ≤ as.size), as[j]? = some as[j]
   [eqc] Equivalence classes
     [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
     [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
       [eqc] {if i₂ = j then v₂ else bs[j]}
+    [eqc] {some as[j], as[j]?}
+    [eqc] {some cs[j], cs[j]?}
+    [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
     [eqc] others
       [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/
@@ -200,11 +217,11 @@ def h (as : List Nat) :=
 
 /--
 trace: [splits] Case split candidates
-  [split] #829a := match bs with
+  [split] #8289 := match bs with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
-  [split] #dce6 := match as with
+  [split] #bf4f := match as with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
@@ -220,7 +237,7 @@ example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
     show_cases
-    cases #dce6
+    cases #bf4f
     instantiate
     focus instantiate
     instantiate
@@ -246,7 +263,7 @@ example : h bs = 1 → h as ≠ 0 := by
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate | as
-    cases #dce6
+    cases #bf4f
     all_goals instantiate
 
 /--
@@ -292,12 +309,12 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    cases #dce6 <;> instantiate
+    cases #bf4f <;> instantiate
 
 example : h bs = 1 → h as ≠ 1 := by
   grind [h.eq_def] =>
     instantiate
-    cases #dce6
+    cases #8289
     any_goals instantiate
     sorry
 
@@ -313,7 +330,7 @@ h✝ : as = []
 example : h bs = 1 → h as ≠ 0 := by
   grind -verbose [h.eq_def] =>
     instantiate
-    cases #dce6
+    cases #bf4f
     next => skip
     all_goals sorry
 
@@ -326,7 +343,7 @@ def g (as : List Nat) :=
 example : g bs = 1 → g as ≠ 0 := by
   grind [g.eq_def] =>
     instantiate
-    cases #dce6
+    cases #bf4f
     next => instantiate
     next => finish
     tactic =>
@@ -433,6 +450,12 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 
 /--
 trace: [grind.ematch.instance] Array.getElem_set: (as.set i₁ v₁ ⋯)[j] = if i₁ = j then v₁ else as[j]
+[grind.ematch.instance] Array.getElem?_set: (bs.set i₂ v₂ ⋯)[j]? = if i₂ = j then some v₂ else bs[j]?
+[grind.ematch.instance] getElem?_neg: ¬j < cs.size → cs[j]? = none
+[grind.ematch.instance] getElem?_neg: ¬j < as.size → as[j]? = none
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < cs.size), cs[j]? = some cs[j]
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < as.size), as[j]? = some as[j]
+[grind.ematch.instance] getElem?_pos: ∀ (h : j < bs.size), bs[j]? = some bs[j]
 -/
 #guard_msgs in
 example (as bs cs : Array α) (v₁ v₂ : α)
@@ -494,10 +517,6 @@ h✝¹ : p ∨ ¬q
 h2 : ¬p ∨ q
 h✝ : ¬p ∨ ¬q
 ⊢ False
----
-error: unsolved goals
-r p q : Prop
-⊢ p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False
 -/
 #guard_msgs in
 example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → False := by
@@ -523,7 +542,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     show_cases
     rename_i y w _ -- Must reset cached anchors
     show_cases
-    cases #e2a6
+    cases #dded
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by
@@ -534,7 +553,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     show_cases
     next y w _ =>
     show_cases
-    cases #e2a6
+    cases #dded
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by

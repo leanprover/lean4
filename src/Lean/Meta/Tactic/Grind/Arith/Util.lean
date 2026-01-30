@@ -10,6 +10,7 @@ public import Lean.Meta.SynthInstance
 public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith
+
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false

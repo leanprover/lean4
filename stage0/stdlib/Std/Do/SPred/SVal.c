@@ -13,43 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleNil;
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleCons___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_ctorIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleCons(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleCons___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleCons(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabitedStateTupleCons___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_curry(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_ctorIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_uncurry_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SVal_0__Std_Do_SVal_curry_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Std_Do_SVal_instInhabitedStateTupleNil() {
 _start:
 {
@@ -98,17 +96,6 @@ x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Std_Do_SVal_curry___redArg___lam__0), 3, 2);
-lean_closure_set(x_4, 0, x_3);
-lean_closure_set(x_4, 1, x_1);
-x_5 = l_Std_Do_SVal_curry___redArg(x_2, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -130,6 +117,17 @@ lean_closure_set(x_6, 0, x_2);
 lean_closure_set(x_6, 1, x_5);
 return x_6;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_curry___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_closure((void*)(l_Std_Do_SVal_curry___redArg___lam__0), 3, 2);
+lean_closure_set(x_4, 0, x_3);
+lean_closure_set(x_4, 1, x_1);
+x_5 = l_Std_Do_SVal_curry___redArg(x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_SVal_curry(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -165,14 +163,6 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Do_SVal_uncurry___redArg(x_2, x_3, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -180,6 +170,14 @@ lean_object* x_4;
 x_4 = l_Std_Do_SVal_uncurry___redArg(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Do_SVal_uncurry___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_SVal_uncurry___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -288,6 +286,16 @@ lean_inc(x_1);
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Do_SVal_instInhabited___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -306,39 +314,21 @@ x_4 = l_Std_Do_SVal_instInhabited___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instInhabited___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Do_SVal_instInhabited___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_unsigned_to_nat(0u);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_GetTy_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Do_SVal_GetTy_ctorIdx(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Do_SVal_instGetTyCons___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
@@ -364,17 +354,8 @@ LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_Do_SVal_instGetTyCons___redArg(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_instGetTyCons___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Do_SVal_instGetTyCons___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+x_3 = lean_alloc_closure((void*)(l_Std_Do_SVal_instGetTyCons___redArg___lam__1), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -412,13 +393,6 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_inc(x_3);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___redArg___boxed(lean_object* x_1) {
 _start:
 {
@@ -426,6 +400,13 @@ lean_object* x_2;
 x_2 = l_Std_Do_SVal_getThe___redArg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_inc(x_3);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_SVal_getThe___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

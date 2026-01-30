@@ -200,6 +200,10 @@ def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
 
+def Poly.getConst : Poly → Int
+  | .num k => k
+  | .add _ _ p => p.getConst
+
 def Poly.checkCoeffs : Poly → Bool
   | .num _ => true
   | .add k _ p => k != 0 && checkCoeffs p
@@ -269,5 +273,13 @@ where
     | .num 0 => acc
     | .num k => .add acc (.num k)
     | .add k m p => go p (.add acc (goTerm k m))
+
+def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
+  go p 0
+where
+  go (p : Poly) (max : Nat) : Nat :=
+    match p with
+    | .num _ => max
+    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 end Lean.Grind.CommRing

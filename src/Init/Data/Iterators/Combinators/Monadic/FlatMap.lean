@@ -22,22 +22,23 @@ and so on. In other words, `it` flattens the iterator of iterators obtained by m
 `f`.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Iterators.Types
 
 /-- Internal implementation detail of the `flatMap` combinator -/
 @[ext, unbox]
-public structure Flatten (α α₂ β : Type w) (m) where
+public structure Iterators.Types.Flatten (α α₂ β : Type w) (m) where
   it₁ : IterM (α := α) m (IterM (α := α₂) m β)
   it₂ : Option (IterM (α := α₂) m β)
 
 /--
 Internal iterator combinator that is used to implement all `flatMap` variants
 -/
-@[always_inline]
+@[always_inline, inline]
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=
-  (toIterM (α := Flatten α α₂ β m) ⟨it₁, it₂⟩ m β : IterM m β)
+  (.mk (α := Flatten α α₂ β m) ⟨it₁, it₂⟩ m β : IterM m β)
 
 /--
 Let `it₁` and `it₂` be iterators and `f` a monadic function mapping `it₁`'s outputs to iterators
@@ -75,9 +76,9 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline]
+@[always_inline, inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
-    {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
+    {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
   ((it₁.mapM f).flattenAfter it₂ : IterM m γ)
 
@@ -114,9 +115,9 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
-    {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
+    {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
   (it.flatMapAfterM f none : IterM m γ)
 
@@ -156,7 +157,7 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline]
+@[always_inline, inline]
 public def IterM.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
@@ -195,11 +196,13 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it : IterM (α := α) m β) :=
   (it.flatMapAfter f none : IterM m γ)
+
+namespace Iterators.Types
 
 variable {α α₂ β : Type w} {m : Type w → Type w'}
 
@@ -207,17 +210,17 @@ variable {α α₂ β : Type w} {m : Type w → Type w'}
 public inductive Flatten.IsPlausibleStep [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
     (it : IterM (α := Flatten α α₂ β m) m β) → (step : IterStep (IterM (α := Flatten α α₂ β m) m β) β) → Prop where
   | outerYield : ∀ {it₁ it₁' it₂'}, it₁.IsPlausibleStep (.yield it₁' it₂') →
-      IsPlausibleStep (toIterM ⟨it₁, none⟩ m β) (.skip (toIterM ⟨it₁', some it₂'⟩ m β))
+      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) (.skip (.mk ⟨it₁', some it₂'⟩ m β))
   | outerSkip : ∀ {it₁ it₁'}, it₁.IsPlausibleStep (.skip it₁') →
-      IsPlausibleStep (toIterM ⟨it₁, none⟩ m β) (.skip (toIterM ⟨it₁', none⟩ m β))
+      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) (.skip (.mk ⟨it₁', none⟩ m β))
   | outerDone : ∀ {it₁}, it₁.IsPlausibleStep .done →
-      IsPlausibleStep (toIterM ⟨it₁, none⟩ m β) .done
+      IsPlausibleStep (.mk ⟨it₁, none⟩ m β) .done
   | innerYield : ∀ {it₁ it₂ it₂' b}, it₂.IsPlausibleStep (.yield it₂' b) →
-      IsPlausibleStep (toIterM ⟨it₁, some it₂⟩ m β) (.yield (toIterM ⟨it₁, some it₂'⟩ m β) b)
+      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.yield (.mk ⟨it₁, some it₂'⟩ m β) b)
   | innerSkip : ∀ {it₁ it₂ it₂'}, it₂.IsPlausibleStep (.skip it₂') →
-      IsPlausibleStep (toIterM ⟨it₁, some it₂⟩ m β) (.skip (toIterM ⟨it₁, some it₂'⟩ m β))
+      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.skip (.mk ⟨it₁, some it₂'⟩ m β))
   | innerDone : ∀ {it₁ it₂}, it₂.IsPlausibleStep .done →
-      IsPlausibleStep (toIterM ⟨it₁, some it₂⟩ m β) (.skip (toIterM ⟨it₁, none⟩ m β))
+      IsPlausibleStep (.mk ⟨it₁, some it₂⟩ m β) (.skip (.mk ⟨it₁, none⟩ m β))
 
 public instance Flatten.instIterator [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
     Iterator (Flatten α α₂ β m) m β where
@@ -246,7 +249,7 @@ section Finite
 variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
 
 variable (α m β) in
-def Rel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m] [Finite α₂ m] :
+def Flatten.Rel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m] [Finite α₂ m] :
     IterM (α := Flatten α α₂ β m) m β → IterM (α := Flatten α α₂ β m) m β → Prop :=
   InvImage
     (Prod.Lex
@@ -271,10 +274,10 @@ theorem Flatten.rel_of_right₂ [Monad m] [Iterator α m (IterM (α := α₂) m 
     Rel α β m ⟨it₁, none⟩ ⟨it₁, some it₂⟩ :=
   Prod.Lex.right _ True.intro
 
-instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+def Flatten.instFinitenessRelation [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Finite α₂ m] :
     FinitenessRelation (Flatten α α₂ β m) m where
-  rel := Rel α β m
+  Rel := Rel α β m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -299,9 +302,9 @@ instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m 
       apply Flatten.rel_of_right₂
 
 @[no_expose]
-public instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+public instance Flatten.instFinite [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Finite α₂ m] : Finite (Flatten α α₂ β m) m :=
-  .of_finitenessRelation instFinitenessRelationFlattenOfIterMOfFinite
+  .of_finitenessRelation instFinitenessRelation
 
 end Finite
 
@@ -310,7 +313,7 @@ section Productive
 variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
 
 variable (α m β) in
-def ProductiveRel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m]
+def Flatten.ProductiveRel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m]
     [Productive α₂ m] :
     IterM (α := Flatten α α₂ β m) m β → IterM (α := Flatten α α₂ β m) m β → Prop :=
   InvImage
@@ -336,10 +339,10 @@ theorem Flatten.productiveRel_of_right₂ [Monad m] [Iterator α m (IterM (α :=
     ProductiveRel α β m ⟨it₁, none⟩ ⟨it₁, some it₂⟩ :=
   Prod.Lex.right _ True.intro
 
-instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
-    [Finite α m] [Productive α₂ m] :
+def Flatten.instProductivenessRelation [Monad m] [Iterator α m (IterM (α := α₂) m β)]
+    [Iterator α₂ m β] [Finite α m] [Productive α₂ m] :
     ProductivenessRelation (Flatten α α₂ β m) m where
-  rel := ProductiveRel α β m
+  Rel := ProductiveRel α β m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -360,26 +363,14 @@ instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m 
       apply Flatten.productiveRel_of_right₂
 
 @[no_expose]
-public instance [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
+public def Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Productive α₂ m] : Productive (Flatten α α₂ β m) m :=
-  .of_productivenessRelation instProductivenessRelationFlattenOfFiniteIterMOfProductive
+  .of_productivenessRelation instProductivenessRelation
 
 end Productive
-
-public instance Flatten.instIteratorCollect [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorCollect (Flatten α α₂ β m) m n :=
-  .defaultImplementation
-
-public instance Flatten.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorCollectPartial (Flatten α α₂ β m) m n :=
-  .defaultImplementation
 
 public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=
   .defaultImplementation
 
-public instance Flatten.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorLoopPartial (Flatten α α₂ β m) m n :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

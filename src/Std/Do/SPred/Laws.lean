@@ -10,6 +10,8 @@ public import Std.Do.SPred.Notation
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 namespace Std.Do.SPred
 
 /-!
@@ -27,7 +29,7 @@ variable {σs : List (Type u)}
 
 /-! # Entailment -/
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem entails.refl (P : SPred σs) : P ⊢ₛ P := by
   induction σs with
   | nil => simp [entails]

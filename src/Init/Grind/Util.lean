@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Classical
-
 public section
-
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
@@ -121,5 +118,16 @@ See comment at `alreadyNorm`
 -/
 theorem em (p : Prop) : alreadyNorm p ∨ alreadyNorm (¬ p) :=
   Classical.em p
+
+/--
+Marker for grind-solved subproofs in `exact? +grind` suggestions.
+When `exact?` uses grind as a discharger, it wraps the proof in this marker
+so that the unexpander can replace it with `(by grind)` in the suggestion.
+-/
+@[inline] def Marker {α : Sort u} (a : α) : α := a
+
+@[app_unexpander Marker]
+meta def markerUnexpander : PrettyPrinter.Unexpander := fun _ => do
+  `(by grind)
 
 end Lean.Grind

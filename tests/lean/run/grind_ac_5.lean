@@ -59,6 +59,7 @@ h_1 : ¬op (op a b) (op b c) = op (op c d) c
   [eqc] False propositions
     [prop] op (op a b) (op b c) = op (op c d) c
   [eqc] Equivalence classes
+    [eqc] {op (op a b), op (op c d)}
     [eqc] {op a b, op c d}
   [assoc] Operator `op`
     [basis] Basis

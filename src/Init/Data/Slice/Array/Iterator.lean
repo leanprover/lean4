@@ -7,56 +7,72 @@ module
 
 prelude
 public import Init.Data.Slice.Array.Basic
+public import Init.Data.Slice.Operations
 import Init.Data.Iterators.Combinators.Attach
 public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 public import Init.Data.Slice.Operations
 import Init.Omega
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 
 public section
 
 /-!
-This module provides slice notation for array slices (a.k.a. `Subarray`) and implements an iterator
-for those slices.
+This module implements an iterator for array slices (`Subarray`).
 -/
 
 open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-instance {s : Subarray α} : ToIterator s Id α :=
-  .of _
-    (Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
-      |>.attachWith (· < s.internalRepresentation.array.size) ?h
-      |>.uLift
-      |>.map fun | .up i => s.internalRepresentation.array[i.1])
-where finally
-  case h =>
-    simp only [Rco.Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem, and_imp]
-    intro out _ h
-    have := s.internalRepresentation.stop_le_array_size
-    omega
+@[unbox]
+structure SubarrayIterator (α : Type u) where
+  xs : Subarray α
+
+@[inline, expose]
+def SubarrayIterator.step :
+    IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
+  | ⟨⟨xs⟩⟩ =>
+    if h : xs.start < xs.stop then
+      have := xs.start_le_stop; have := xs.stop_le_array_size
+      .yield ⟨⟨xs.array, xs.start + 1, xs.stop, by omega, xs.stop_le_array_size⟩⟩ xs.array[xs.start]
+    else
+      .done
+
+instance : Iterator (SubarrayIterator α) Id α where
+  IsPlausibleStep it step := step = SubarrayIterator.step it
+  step it := pure <| .deflate ⟨SubarrayIterator.step it, rfl⟩
+
+private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (SubarrayIterator α) Id where
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
+    split at h
+    · cases h
+      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage,
+        Nat.lt_wfRel, sizeOf_nat]
+      exact Nat.sub_succ_lt_self _ _ ‹_›
+    · cases h
+
+instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
+  .of_finitenessRelation instFinitelessRelation
+
+instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
+
+@[inline, expose]
+def Subarray.instToIterator :=
+  ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
+attribute [instance] Subarray.instToIterator
 
 universe v w
 
-@[no_expose] instance {s : Subarray α} : Iterator (ToIterator.State s Id) Id α := inferInstance
-@[no_expose] instance {s : Subarray α} : Finite (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
-    IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSize (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Subarray α} :
-    IteratorSizePartial (ToIterator.State s Id) Id := inferInstance
+instance : SliceSize (Internal.SubarrayData α) where
+  size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
-@[no_expose]
-instance {α : Type u} {m : Type v → Type w} :
-    ForIn m (Subarray α) α where
-  forIn xs init f := forIn (Std.Slice.Internal.iter xs) init f
+instance {α : Type u} {m : Type v → Type w} [Monad m] : ForIn m (Subarray α) α :=
+  inferInstance
 
 /-!
 Without defining the following function `Subarray.foldlM`, it is still possible to call
@@ -113,16 +129,35 @@ The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used w
 def Subarray.forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   ForIn.forIn s b f
 
-namespace Array
-
 /--
 Allocates a new array that contains the contents of the subarray.
 -/
 @[coe]
-def ofSubarray (s : Subarray α) : Array α :=
+def Subarray.toArray (s : Subarray α) : Array α :=
   Slice.toArray s
 
-instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
+instance instCoeSubarrayArray : Coe (Subarray α) (Array α) :=
+  ⟨Subarray.toArray⟩
+
+@[inherit_doc Subarray.toArray]
+def Subarray.copy (s : Subarray α) : Array α :=
+  Slice.toArray s
+
+@[simp]
+theorem Subarray.copy_eq_toArray {s : Subarray α} :
+    s.copy = s.toArray :=
+  (rfl)
+
+@[grind =]
+theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
+    Slice.toArray s = s.toArray :=
+  (rfl)
+
+namespace Array
+
+@[inherit_doc Subarray.toArray]
+def ofSubarray (s : Subarray α) : Array α :=
+  Slice.toArray s
 
 instance : Append (Subarray α) where
   append x y :=
@@ -140,7 +175,3 @@ instance [ToString α] : ToString (Subarray α) where
   toString s := toString s.toArray
 
 end Array
-
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s

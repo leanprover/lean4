@@ -377,7 +377,8 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
   let ctx := PartialContextInfo.commandCtx {
-    env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace,
+    env := s.env, cmdEnv? := some s.env, fileMap := ctx.fileMap, mctx := {},
+    currNamespace := scope.currNamespace,
     openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
   }
   return InfoTree.context ctx tree
@@ -597,7 +598,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
-  withInitQuotContext (ss?.map (hash ·.toString.trim)) do
+  withInitQuotContext (ss?.map (hash ·.toString.trimAscii.copy)) do
   -- Reset messages and info state, which are both per-command
   modify fun st => { st with messages := {}, infoState := { enabled := st.infoState.enabled } }
   try

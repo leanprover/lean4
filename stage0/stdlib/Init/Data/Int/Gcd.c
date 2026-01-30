@@ -13,23 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
-lean_object* l_Nat_lcm(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_gcd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_lcm(lean_object*, lean_object*);
-lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_gcd___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_dvdProdDvdOfDvdProd_spec__0(lean_object*);
 static lean_object* l_Int_dvdProdDvdOfDvdProd___redArg___closed__0;
+lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___redArg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Int_gcd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_lcm(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_lcm(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_lcm___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Int_gcd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -149,14 +149,6 @@ return x_31;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Int_dvdProdDvdOfDvdProd___redArg(x_1, x_2, x_3);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -166,6 +158,14 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Int_dvdProdDvdOfDvdProd___redArg(x_1, x_2, x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

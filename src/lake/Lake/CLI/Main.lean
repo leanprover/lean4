@@ -10,6 +10,7 @@ public import Init.System.IO
 public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
+public import Lake.CLI.Shake
 import Lake.Version
 import Lake.Build.Run
 import Lake.Build.Targets
@@ -30,6 +31,7 @@ import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+import Init.Data.String.Search
 
 -- # CLI
 
@@ -73,6 +75,7 @@ public structure LakeOptions where
   toolchain? : Option String := none
   rev? : Option String := none
   maxRevs : Nat := 100
+  shake : Shake.Args := {}
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -190,12 +193,12 @@ def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
 def setConfigOpt (kvPair : String) : CliM PUnit :=
-  let pos := kvPair.posOf '='
+  let pos := kvPair.find '='
   let (key, val) :=
-    if pos = kvPair.rawEndPos then
+    if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.rawEndPos)
+      (kvPair.extract kvPair.startPos pos |>.toName, kvPair.extract (pos.next h) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -220,7 +223,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 def validateRepo? (repo : String) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
-  match repo.splitToList (· == '/') with
+  match repo.split '/' |>.toStringList with
   | [owner, name] =>
     if owner.length > 39 then
       return "invalid repository name; owner must be at most 390 characters long"
@@ -298,6 +301,16 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})
+-- Shake options
+| "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
+| "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
+| "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
+| "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
+| "--force" => modifyThe LakeOptions ({· with shake.force := true})
+| "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
+| "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
+| "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
+| "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -323,7 +336,7 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
   verifyLeanVersion leanInstall
 
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
-  match spec.splitOn "/" with
+  match spec.split '/' |>.toStringList with
   | [scriptName] =>
     match ws.findScript? (stringToLegalOrSimpleName scriptName) with
     | some script => return script
@@ -352,11 +365,10 @@ def parseLangSpec (spec : String) : Except CliError ConfigLang :=
     throw <| CliError.unknownConfigLang spec
 
 def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × ConfigLang) := do
-  match spec.splitOn "." with
+  match spec.split '.' |>.toStringList with
   | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default
-
 
 /-! ## Commands -/
 
@@ -383,7 +395,7 @@ protected def get : CliM PUnit := do
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.platform?.isSome || opts.toolchain?.isSome then
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
@@ -432,11 +444,11 @@ protected def get : CliM PUnit := do
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
         try
           if pkg.scope.isEmpty then
-            logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
+            logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
           else
             let platform := cachePlatform pkg platform
             let toolchain := cacheToolchain pkg toolchain
-            let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+            let remoteScope := s!"{pkg.scope}/{pkg.prettyName}"
             let map ← findOutputs cache service pkg remoteScope opts platform toolchain
             service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
           return ok
@@ -456,9 +468,9 @@ where
   findOutputs cache service pkg remoteScope opts platform toolchain : LoggerIO CacheMap := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
-      logWarning s!"{pkg.name}: package has changes; \
+      logWarning s!"{pkg.prettyName}: package has changes; \
         only artifacts for committed code will be downloaded"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let n := opts.maxRevs
     let revs ← repo.getHeadRevisions n
@@ -491,9 +503,9 @@ protected def put : CliM PUnit := do
   let service := service.withRepoScope opts.repoScope
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
-    logWarning s!"{pkg.name}: package has changes; \
+    logWarning s!"{pkg.prettyName}: package has changes; \
       artifacts will be uploaded for the most recent commit"
-    if .warning ≤ opts.failLv then
+    if opts.failLv ≤ .warning then
       exit 1
   let rev ← repo.getHeadRevision
   let map ← CacheMap.load file
@@ -750,10 +762,35 @@ protected def clean : CliM PUnit := do
     ws.clean
   else
     let pkgs ← pkgSpecs.mapM fun pkgSpec =>
-      match ws.findPackage? <| stringToLegalOrSimpleName pkgSpec with
+      match ws.findPackageByName? <| stringToLegalOrSimpleName pkgSpec with
       | none => throw <| .unknownPackage pkgSpec
-      | some pkg => pure pkg.toPackage
+      | some pkg => pure pkg
     pkgs.forM (·.clean)
+
+/-- The `lake shake` command: minimize imports in Lean source files. -/
+protected def shake : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  -- Get remaining arguments as module names
+  let mods := (← takeArgs).toArray.map (·.toName)
+  -- Get default target modules from workspace if no modules specified
+  let mods := if mods.isEmpty then ws.defaultTargetRoots else mods
+  if h : 0 < mods.size then
+    let args := {opts.shake with mods}
+    unless args.force do
+      let specs ← parseTargetSpecs ws []
+      let upToDate ← ws.checkNoBuild (buildSpecs specs)
+      unless upToDate do
+        error "there are out of date oleans; run `lake build` or fetch them from a cache first"
+    -- Run shake with workspace search paths
+    Lean.searchPathRef.set ws.augmentedLeanPath
+    let exitCode ← Shake.run args h ws.augmentedLeanSrcPath
+    if exitCode != 0 then
+      exit exitCode
+  else
+    error "no modules specified and there are no applicable default targets"
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
@@ -856,7 +893,7 @@ protected def reservoirConfig : CliM PUnit := do
   let readmeFile :=
     if (← pkg.readmeFile.pathExists) then some pkg.relReadmeFile else none
   let cfg : ReservoirConfig := {
-    name := pkg.name.toString
+    name := pkg.baseName.toString
     version := pkg.version
     versionTags := repoTags.filter pkg.versionTags.matches
     description := pkg.description
@@ -909,6 +946,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "lint"                => lake.lint
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
+| "shake"               => lake.shake
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

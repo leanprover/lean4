@@ -10,6 +10,7 @@ public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -32,6 +33,7 @@ An `IO` monad that cannot throw exceptions.
 
 instance : Monad BaseIO := inferInstanceAs (Monad (ST IO.RealWorld))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (ST IO.RealWorld))
+instance : MonadAttach BaseIO := inferInstanceAs (MonadAttach (ST IO.RealWorld))
 
 @[always_inline, inline]
 def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
@@ -87,6 +89,7 @@ def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EST ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EST ε IO.RealWorld))
+instance : MonadAttach (EIO ε) := inferInstanceAs (MonadAttach (EST ε IO.RealWorld))
 instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EST ε IO.RealWorld))
 instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EST ε IO.RealWorld α))
@@ -195,7 +198,7 @@ causing the side effect to occur at initialization time, even if it would otherw
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   unsafeBaseIO fn.toBaseIO
 
-@[inline, inherit_doc EIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
+@[inline, inherit_doc unsafeEIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
 
@@ -558,15 +561,26 @@ Waits for the task to finish, then returns its result.
   return t.get
 
 /--
-Waits until any of the tasks in the list has finished, then return its result.
+Waits until any of the tasks in the list has finished, then returns its result.
 -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
     (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
   return tasks[0].get
 
 /--
+Given a non-empty list of tasks, wait for the first to complete.
+Return the value and the list of remaining tasks.
+-/
+def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
+    BaseIO (α × List (Task α)) := do
+  let (i, a) ← IO.waitAny
+    (tasks.mapIdx fun i t => t.map (sync := true) fun a => (i, a))
+    (by simp_all)
+  return (a, tasks.eraseIdx i)
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
-heartbeat count is the number of “small” memory allocations performed in a thread.
+heartbeat count is the number of "small" memory allocations performed in a thread.
 
 Heartbeats used to implement timeouts that are more deterministic across different hardware.
 -/
@@ -665,7 +679,7 @@ File handles wrap the underlying operating system's file descriptors. There is n
 to close a file: when the last reference to a file handle is dropped, the file is closed
 automatically.
 
-Handles have an associated read/write cursor that determines the where reads and writes occur in the
+Handles have an associated read/write cursor that determines where reads and writes occur in the
 file.
 -/
 opaque FS.Handle : Type := Unit
@@ -776,7 +790,7 @@ An exception is thrown if the file cannot be opened.
 /--
 Acquires an exclusive or shared lock on the handle. Blocks to wait for the lock if necessary.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
@@ -784,7 +798,7 @@ works on Unix-like systems but not on Windows.
 Tries to acquire an exclusive or shared lock on the handle and returns `true` if successful. Will
 not block if the lock cannot be acquired, but instead returns `false`.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool
@@ -825,7 +839,7 @@ Encountering an EOF does not close a handle. Subsequent reads may block and retu
 -/
 @[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 /--
-Writes the provided bytes to the the handle.
+Writes the provided bytes to the handle.
 
 Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
 `IO.FS.Handle.flush` to write changes to buffers to the associated device.
@@ -1008,8 +1022,8 @@ partial def Handle.lines (h : Handle) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1336,7 +1350,7 @@ def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → Fi
     removeFile path
 
 /--
-Creates a temporary directory in the most secure manner possible, providing a its path to an `IO`
+Creates a temporary directory in the most secure manner possible, providing its path to an `IO`
 action. Afterwards, all files in the temporary directory are recursively deleted, regardless of how
 or when they were created.
 
@@ -1466,7 +1480,7 @@ possible to close the child's standard input before the process terminates, whic
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 /--
-Blocks until the child process has exited and return its exit code.
+Blocks until the child process has exited and returns its exit code.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
@@ -1572,7 +1586,7 @@ end Process
 /--
 POSIX-style file permissions.
 
-The `FileRight` structure describes these permissions for a file's owner, members of it's designated
+The `FileRight` structure describes these permissions for a file's owner, members of its designated
 group, and all others.
 -/
 structure AccessRight where
@@ -1791,8 +1805,8 @@ partial def lines (s : Stream) : IO (Array String) := do
     if line.length == 0 then
       pure lines
     else if line.back == '\n' then
-      let line := line.dropRight 1
-      let line := if line.back == '\r' then line.dropRight 1 else line
+      let line := line.dropEnd 1 |>.copy
+      let line := if line.back == '\r' then line.dropEnd 1 |>.copy else line
       read <| lines.push line
     else
       pure <| lines.push line
@@ -1849,7 +1863,7 @@ unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a
 
 set_option linter.unusedVariables false in
 /--
-Discards the passed owned reference. This leads to `a` any any object reachable from it never being
+Discards the passed owned reference. This leads to `a` and any object reachable from it never being
 freed. This can be a useful optimization for eliding deallocation time of big object graphs that are
 kept alive close to the end of the process anyway (in which case calling `Runtime.markPersistent`
 would be similarly costly to deallocation). It is still considered a safe operation as it cannot

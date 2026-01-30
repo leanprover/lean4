@@ -226,7 +226,7 @@ def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic)
   let xs'  := xs.set i v₂
   xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set _).symm)
 
-@[simp] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
+@[simp, grind =] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
   change ((xs.set i xs[j]).set j xs[i]
     (Nat.lt_of_lt_of_eq hj (size_set _).symm)).size = xs.size
   rw [size_set, size_set]
@@ -242,7 +242,7 @@ Examples:
 * `#["red", "green", "blue", "brown"].swapIfInBounds 0 4 = #["red", "green", "blue", "brown"]`
 * `#["red", "green", "blue", "brown"].swapIfInBounds 9 2 = #["red", "green", "blue", "brown"]`
 -/
-@[extern "lean_array_swap", grind]
+@[extern "lean_array_swap", expose]
 def swapIfInBounds (xs : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < xs.size then
   if h₂ : j < xs.size then swap xs i j
@@ -448,7 +448,7 @@ Examples:
 -/
 abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
+@[simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -462,7 +462,7 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -570,7 +570,7 @@ protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn' m (Array α) α inferInstance where
+instance [Monad m] : ForIn' m (Array α) α inferInstance where
   forIn' := Array.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -589,6 +589,8 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else
@@ -1001,7 +1003,7 @@ unless `start < stop`. By default, the entire array is used.
 protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
-instance : ForM m (Array α) α where
+instance [Monad m] : ForM m (Array α) α where
   forM xs f := Array.forM f xs
 
 -- We simplify `Array.forM` to `forM`.
@@ -1295,7 +1297,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 
 /--
-Returns the index of the first element equal to `a`, or the size of the array if no element is equal
+Returns the index of the first element equal to `a`, or `none` if no element is equal
 to `a`. The index is returned as a `Fin`, which guarantees that it is in bounds.
 
 Examples:
@@ -1348,7 +1350,7 @@ Examples:
 * `#[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `#[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
-@[inline, expose]
+@[inline, expose, suggest_for Array.some]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.anyM (pure <| p ·) start stop
 
@@ -1366,7 +1368,7 @@ Examples:
 * `#[2, 4, 6].all (· % 2 = 0) = true`
 * `#[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
-@[inline]
+@[inline, suggest_for Array.every]
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM (pure <| p ·) start stop
 
@@ -1704,7 +1706,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
     as
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[simp] theorem popWhile_empty {p : α → Bool} :
+@[simp, grind =] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
   simp [popWhile]
 
@@ -1751,7 +1753,8 @@ termination_by xs.size - i
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
+@[simp, grind =]
+theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx

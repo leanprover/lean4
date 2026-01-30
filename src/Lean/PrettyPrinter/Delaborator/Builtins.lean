@@ -142,7 +142,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     for (k, v) in m do
       if (`pp).isPrefixOf k then
         let opts := posOpts.get? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
+        posOpts := posOpts.insert pos (opts.set k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
 
@@ -1291,9 +1291,9 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
-@[builtin_delab app.Std.Range.mk]
+@[builtin_delab app.Std.Legacy.Range.mk]
 def delabRange : Delab := whenPPOption getPPNotation do
-  -- Std.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Range
+  -- Std.Legacy.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Legacy.Range
   guard <| (← getExpr).getAppNumArgs == 4
   -- `none` if the start is `0`
   let start? ← withNaryArg 0 do

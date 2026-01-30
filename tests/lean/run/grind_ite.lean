@@ -145,14 +145,30 @@ def normalize (assign : Std.HashMap Nat Bool) : IfExpr → IfExpr
     | some b => normalize assign (ite (lit b) t e)
   termination_by e => e.normSize
 
--- We tell `grind` to unfold our definitions above.
-attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval List.disjoint
+-- We could tell `grind` to unfold our definitions above.
+-- attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval List.disjoint
+-- Instead we just rely on `grind +locals`, which tells `grind` it is allowed to unfold definitions in the current file.
 
 theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
-  fun_induction normalize with grind
+  fun_induction normalize with grind +locals
+
+-- In fact we can even solve this goal with `try?`:
+/--
+[apply] (fun_induction normalize) <;> grind
+-/
+#guard_msgs (substring := true) in
+attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval List.disjoint in
+example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
+    (normalize assign e).normalized
+    ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
+  try?
+
+-- We can even solve it with just `try?` without the `local grind` attributes,
+-- although it is quite slow and all the suggestions look complicated.
 
 -- We can also prove other variations, where we spell "`v` is not in `assign`"
 -- different ways, and `grind` doesn't mind.
@@ -161,13 +177,13 @@ example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign.contains v = false := by
-  fun_induction normalize with grind
+  fun_induction normalize with grind +locals
 
 example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     (normalize assign e).normalized
     ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → assign[v]? = none := by
-  fun_induction normalize with grind
+  fun_induction normalize with grind +locals
 
 /--
 We recall the statement of the if-normalization problem.
@@ -203,18 +219,18 @@ theorem normalize'_spec (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → ¬ v ∈ assign := by
-  fun_induction normalize' with grind
+  fun_induction normalize' with grind +locals
 
 example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign.contains v = false := by
-  fun_induction normalize' with grind
+  fun_induction normalize' with grind +locals
 
 example (assign : Std.TreeMap Nat Bool) (e : IfExpr) :
     (normalize' assign e).normalized
     ∧ (∀ f, (normalize' assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
     ∧ ∀ (v : Nat), v ∈ vars (normalize' assign e) → assign[v]? = none := by
-  fun_induction normalize' with grind
+  fun_induction normalize' with grind +locals
 
 end IfExpr

@@ -56,6 +56,17 @@ namespace Raw
 
 variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
 
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
+@[inline] def foldM [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
+
+/-- Folds the given function over the mappings in the hash map in some order. -/
+@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldM (pure <| f · · ·) init)
+
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)
@@ -64,11 +75,23 @@ variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w
 @[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
   ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
-instance x : ForM m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a.1 a.2 then return false
+  return true
+
+/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if p a.1 a.2 then return true
+  return false
 
 end Raw
 

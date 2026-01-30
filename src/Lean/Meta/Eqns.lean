@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
+public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
 
@@ -39,26 +40,6 @@ This is implemented by
  * when realizing them lazily, reset the options to their default
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
-
-/--
-Environment extension for storing which declarations are recursive.
-This information is populated by the `PreDefinition` module, but the simplifier
-uses when unfolding declarations.
--/
-builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
-
-/--
-Marks the given declaration as recursive.
--/
-def markAsRecursive (declName : Name) : CoreM Unit :=
-  modifyEnv (recExt.tag · declName)
-
-/--
-Returns `true` if `declName` was defined using well-founded recursion, or structural recursion.
--/
-def isRecursiveDefinition (declName : Name) : CoreM Bool :=
-  return recExt.isTagged (← getEnv) declName
 
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
@@ -111,7 +92,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
-    -- including the privat prefix.
+    -- including the private prefix.
     n == mkEqLikeNameFor env declName suffix
   else
     false
@@ -150,9 +131,13 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
   getEqnsFnsRef.modify (f :: ·)
 
-/-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
+/-- Returns `true` iff `declName` is a definition and its type is not a proposition.
+    Returns `false` for matchers since their equations are handled by `Lean.Meta.Match.MatchEqs`. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    -- Matcher equations are handled separately in Lean.Meta.Match.MatchEqs
+    if isMatcherCore (← getEnv) declName then
+      return false
     return !(← isProp sig.get.type)
   else
     return false

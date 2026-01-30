@@ -16,6 +16,7 @@
         let x_5 : tobj := reset[2] x_1;
         let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_2 x_3;
         ret x_4
+[Compiler.IR] [reset_reuse]
     def Sigma.toProd (x_1 : ◾) (x_2 : ◾) (x_3 : obj) : obj :=
       let x_4 : obj := Sigma.toProd._redArg x_3;
       ret x_4

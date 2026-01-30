@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.SameCtorUtils
+import Lean.Meta.InstMVarsNU
 public section
 namespace Lean.Meta
 
@@ -166,13 +167,14 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} generating `{name}`")) do
   let some type ← mkInjectiveEqTheoremType? ctorVal
     | return ()
+  let type ← instantiateMVars type
   trace[Meta.injective] "type: {type}"
   let value ← mkInjectiveEqTheoremValue ctorVal type
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
-    type        := (← instantiateMVars type)
-    value       := (← instantiateMVars value)
+    type        := type
+    value       := (← instantiateMVarsNoUpdate value)
   }
   addSimpTheorem (ext := simpExtension) name (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
 

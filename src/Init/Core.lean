@@ -2350,6 +2350,7 @@ Recall that the compiler trusts the correctness of all `[implemented_by ...]` an
 If an extern function is executed, then the trusted code base will also include the implementation of the associated
 foreign function.
 -/
+@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
 opaque reduceBool (b : Bool) : Bool :=
   -- This ensures that `#print axioms` will track use of `reduceBool`.
   have := trustCompiler
@@ -2362,12 +2363,14 @@ Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α)
 The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
 We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection).
 -/
+@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
 opaque reduceNat (n : Nat) : Nat :=
   -- This ensures that `#print axioms` will track use of `reduceNat`.
   have := trustCompiler
   n
 
 
+set_option linter.deprecated false in
 /--
 The axiom `ofReduceBool` is used to perform proofs by reflection. See `reduceBool`.
 
@@ -2381,8 +2384,10 @@ external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
+@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 
+set_option linter.deprecated false in
 /--
 The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
 
@@ -2392,6 +2397,7 @@ external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
+@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
 

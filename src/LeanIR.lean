@@ -11,6 +11,8 @@ import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
 
+import all Lean.Compiler.CSimpAttr
+
 open Lean
 
 @[extern "lean_ir_export_entries"]
@@ -40,8 +42,12 @@ public def main (args : List String) : IO UInt32 := do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]
     let (_, s) ← importModulesCore (globalLevel := .exported) (arts := setup.importArts) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
-    finalizeImport (leakEnv := true) (loadExts := true) (level := .exported)
+    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported)
       s imports setup.options.toOptions
+  let is := Lean.Compiler.CSimp.ext.ext.toEnvExtension.getState env
+  let newState ← Lean.Compiler.CSimp.ext.ext.addImportedFn is.importedEntries { env := env, opts := {} }
+  let env := Lean.Compiler.CSimp.ext.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
   let some mod := env.header.moduleData[modIdx]? | unreachable!
@@ -52,7 +58,7 @@ public def main (args : List String) : IO UInt32 := do
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
     modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => s.insert e.declName e) {}))
-    withOptions (Compiler.compiler.checkMeta.set · false) do
+    --withOptions (Compiler.compiler.checkMeta.set · false) do
     --withOptions (·.set `trace.Compiler true) do
     --withOptions (·.set `trace.compiler.ir true) do
     for decl in decls do

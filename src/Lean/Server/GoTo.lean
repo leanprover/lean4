@@ -39,15 +39,24 @@ def GoToKind.determineTargetExprs (kind : GoToKind) (ti : TermInfo) : MetaM (Arr
   | _ =>
     return #[← instantiateMVars ti.expr]
 
-def getInstanceProjectionArg? (e : Expr) : MetaM (Option Expr) := do
-  let env ← getEnv
-  let .const n _ := e.getAppFn'
-    | return none
-  let some projInfo := env.getProjectionFnInfo? n
+partial def getInstanceProjectionArg? (e : Expr) : MetaM (Option Expr) := do
+  let some (e, projInfo) ← Meta.withReducible <| reduceToProjection? e
     | return none
   let instIdx := projInfo.numParams
   let appArgs := e.getAppArgs
   return appArgs[instIdx]?
+where
+  reduceToProjection? (e : Expr) : MetaM (Option (Expr × ProjectionFunctionInfo)) := do
+    let env ← getEnv
+    let .const n _ := e.getAppFn'
+      | return none
+    if let some projInfo := env.getProjectionFnInfo? n then
+      return some (e, projInfo)
+    -- Unfold reducible definitions when looking for a projection.
+    -- For example, this ensures that we get `LT.lt` instance projection entries on `GT.gt`.
+    let some e ← Meta.unfoldDefinition? e
+      | return none
+    reduceToProjection? e
 
 def isInstanceProjection (e : Expr) : MetaM Bool := do
   return (← getInstanceProjectionArg? e).isSome
@@ -194,7 +203,7 @@ where
 
 def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
-  let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName
+  let some explan ← getErrorExplanation? eni.errorName
     | return #[]
   let some loc := explan.declLoc?
     | return #[]

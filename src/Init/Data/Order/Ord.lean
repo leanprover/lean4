@@ -46,7 +46,7 @@ theorem ne_of_cmp_ne_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCm
 
 end ReflCmp
 
-/-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
+/-- A typeclass for ordered types for which `compare a a = .eq` for all `a`. -/
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
 
 @[simp]
@@ -270,6 +270,7 @@ theorem TransCmp.gt_of_gt_of_isGE [TransCmp cmp] {a b c : α} (hab : cmp a b = .
   rw [OrientedCmp.gt_iff_lt, OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.lt_of_isLE_of_lt hbc hab
 
+@[deprecated TransCmp.gt_trans (since := "2025-10-26")]
 theorem TransCmp.gt_of_gt_of_gt [TransCmp cmp] {a b c : α} (hab : cmp a b = .gt)
     (hbc : cmp b c = .gt) : cmp a c = .gt := by
   apply gt_of_gt_of_isGE hab (Ordering.isGE_of_eq_gt hbc)

@@ -116,6 +116,45 @@ def getD [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (fallback : β k) :
     | .gt => getD r k fallback
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
+/-- Returns the entry (key-value pair) for the key `k`, or `none` if such a key does not exist. -/
+def getEntry? [Ord α] (t : Impl α β) (k : α) : Option ((a : α) × β a) :=
+  match t with
+  | .leaf => none
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry? l k
+    | .gt => getEntry? r k
+    | .eq => some ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`. -/
+def getEntry [Ord α] (t : Impl α β) (k : α) (hlk : k ∈ t) : (a : α) × β a :=
+  match t with
+  | .inner _ k' v' l r =>
+    match h : compare k k' with
+    | .lt => getEntry l k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .gt => getEntry r k (by simpa [mem_iff_contains, contains, h] using hlk)
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or panics if such a key does not exist. -/
+def getEntry! [Ord α] [Inhabited ((a : α) × β a)] (t : Impl α β) (k : α) : (a : α) × β a :=
+  match t with
+  | .leaf => panic! "Key is not present in map"
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntry! l k
+    | .gt => getEntry! r k
+    | .eq => ⟨k', v'⟩
+
+/-- Returns the entry (key-value pair) for the key `k`, or `fallback` if such a key does not exist. -/
+def getEntryD [Ord α] (t : Impl α β) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  match t with
+  | .leaf => fallback
+  | .inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => getEntryD l k fallback
+    | .gt => getEntryD r k fallback
+    | .eq => ⟨k', v'⟩
+
 /-- Implementation detail of the tree map -/
 def getKey? [Ord α] (t : Impl α β) (k : α) : Option α :=
   match t with
@@ -177,7 +216,7 @@ def get [Ord α] (t : Impl α δ) (k : α) (hlk : t.contains k = true) : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (t : Impl α δ) (k : α) [Inhabited δ] : δ :=
+def get! [Ord α] [Inhabited δ] (t : Impl α δ) (k : α) : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
@@ -250,6 +289,23 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
   match ← forInStep f init t with
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
+
+instance [Monad m] : ForIn m (Impl α β) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+/-- Implementation detail. -/
+@[inline]
+def any (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b then return true
+  return false
+
+/-- Implementation detail. -/
+@[inline]
+def all (t : Impl α β) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in t do
+    if p a b = false then return false
+  return true
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=

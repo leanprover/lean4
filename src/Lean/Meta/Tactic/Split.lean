@@ -101,7 +101,7 @@ private def throwInternalMisuseError [Monad m] [MonadError m] (msg : MessageData
 /--
 Split works best if all discriminants are already free variables. If they are not, it will generalize
 them, but that may fail if the motive is dependent. So to avoid that, we first generalize all
-non-FVar discriminants that are propositions; because of proof irrelvance, that's much simpler.
+non-FVar discriminants that are propositions; because of proof irrelevance, that's much simpler.
 -/
 private partial def generalizeMatchPropDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array Expr × MVarId) := mvarId.withContext do
   let mut mvarId := mvarId
@@ -284,10 +284,17 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     trace[split.debug] "after check splitter"
     let mvarIds ← mvarId.applyN splitter matchEqns.size
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let numParams := matchEqns.splitterAltNumParams[i]!
-      let (_, mvarId) ← mvarId.introN numParams
+      let altInfo := matchEqns.splitterMatchInfo.altInfos[i]!
+      let mvarId ←
+        if altInfo.hasUnitThunk then
+          trace[split.debug] "introducing unit param for alt {(i : Nat)}"
+          let (unitFvarId, mvarId) ← mvarId.intro1
+          mvarId.tryClear unitFvarId
+        else
+          let (_, mvarId) ← mvarId.introN (altInfo.numFields + altInfo.numOverlaps)
+          pure mvarId
       trace[split.debug] "before unifyEqs\n{mvarId}"
-      match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
+      match (← Cases.unifyEqs? (info.getNumDiscrEqs + numEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
         trace[split.debug] "after unifyEqs\n{mvarId}"

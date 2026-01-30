@@ -18,6 +18,7 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
 
 public section
 
@@ -94,6 +95,7 @@ def builtinPassManager : PassManager := {
     -- checked without nested functions whose bodies specialization does not require access to.
     checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
@@ -112,10 +114,12 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
-    elimDeadBranches,
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    elimDeadBranches,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),

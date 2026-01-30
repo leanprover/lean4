@@ -7,8 +7,7 @@ package test where
 
 lean_lib Test
 
-lean_lib Module where
-  leanOptions := #[⟨`experimental.module, true⟩]
+lean_lib Module
 
 lean_lib Ignored
 

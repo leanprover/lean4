@@ -157,6 +157,7 @@ def runFrontend
       liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
         trustLevel
+        package? := setup.package?
         mainModuleName := setup.name
         isModule := strictOr setup.isModule stx.isModule
         imports := setup.imports?.getD stx.imports
@@ -198,10 +199,12 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
+    let (moduleRefs, decls) ← references.toLspModuleRefs
     let ilean := {
       module        := mainModuleName
       directImports := Server.collectImports ⟨snap.stx⟩
-      references    := ← references.toLspModuleRefs
+      references    := moduleRefs
+      decls
       : Lean.Server.Ilean
     }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean

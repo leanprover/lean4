@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 26)
+set(LEAN_VERSION_MINOR 29)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -40,9 +40,13 @@ find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
 endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Create space in install names so they can be patched later in Nix.
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
+endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
-set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
+set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler. Unlike `CMAKE_CXX_FLAGS`, these will not be used to build e.g. cadical.")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -191,7 +195,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
+set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} ${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
 set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
@@ -448,15 +452,18 @@ if(LLVM AND ${STAGE} GREATER 0)
     # - In particular, `host/bin/llvm-config` produces flags like `-Lllvm-host/lib/libLLVM`, while
     #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
-    string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
-    message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
+    string(REPLACE "llvm-host" "llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${CMAKE_CXX_FLAGS}'")
 endif()
 
-# get rid of unused parts of C++ stdlib
+# We always strip away unused declarations to reduce binary sizes as the time cost is small and the
+# potential benefit can be huge, especially when stripping `meta import`s.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-dead_strip")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -631,6 +638,9 @@ if(${STAGE} GREATER 1)
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a")
+  add_dependencies(leanrt_initial-exec copy-leancpp)
+  add_dependencies(leanrt copy-leancpp)
+  add_dependencies(leancpp_1 copy-leancpp)
   add_dependencies(leancpp copy-leancpp)
   if(LLVM)
       add_custom_target(copy-lean-h-bc
@@ -695,7 +705,7 @@ endif()
 
 set(STDLIBS Init Std Lean Leanc)
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  list(APPEND STDLIBS Lake)
+  list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
 add_custom_target(make_stdlib ALL
@@ -757,6 +767,12 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
+    VERBATIM)
+
+  add_custom_target(leanchecker ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM)
 endif()
 

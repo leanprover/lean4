@@ -5,12 +5,12 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
+public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
-import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
@@ -19,17 +19,42 @@ import Lean.PrettyPrinter
 meta import Lean.Parser.Do
 public section
 namespace Lean.Meta.Grind
+export Sym (isSameExpr hashPtrExpr ExprPtr shareCommon shareCommonInc)
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
-/-- Similar to `isDefEq`, but ensures default transparency is used. -/
-def isDefEqD (t s : Expr) : MetaM Bool :=
-  withDefault <| isDefEq t s
+/--
+We use this auxiliary constant to mark delayed symmetric congruence proofs.
+**Example:** `a = b` is symmetrically congruent to `c = d` if `a = d` and `b = c`.
 
-/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
-def isDefEqI (t s : Expr) : MetaM Bool :=
-  withReducibleAndInstances <| isDefEq t s
+**Note:** We previously used `congrPlaceholderProof` for this case, but it
+caused non-termination during proof term construction when `a = b = c = d`.
+The issue was that we did not have enough information to determine how
+`a = b` and `c = d` became congruent. The new marker resolves this issue.
+
+If `congrPlaceholderProof` is used, then `a = b` became congruent to `c = d`
+because `a = c` and `b = d`.
+If `eqCongrSymmPlaceholderProof` is used, then it was because `a = d` and `b = c`.
+
+**Example:** suppose we have the following equivalence class:
+```
+{p, q, p = q, q = p, True}
+```
+Recall that `True` is always the root of its equivalence class.
+Assume we also have the following two paths in the class:
+```
+1. p -> p = q -> q = p -> True
+2. q -> True
+```
+Now suppose we try to build a proof for `p = True`.
+We must construct a proof for `(p = q) = (q = p)`.
+These equalities are congruent, but if we try to prove `p = q` and `q = p`
+using the facts `p = True` and `q = True`, we end up trying to prove `p = True` again.
+In other words, we are missing the information that `p = q` became congruent to `q = p`
+because of the symmetric case. By using `eqCongrSymmPlaceholderProof`, we retain this information.
+-/
+def eqCongrSymmPlaceholderProof := mkConst (Name.mkSimple "[eq_congr_symm]")
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
@@ -41,21 +66,27 @@ def isInterpreted (e : Expr) : MetaM Bool := do
 
 register_builtin_option grind.debug : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "check invariants after updates"
 }
 
 register_builtin_option grind.debug.proofs : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
 register_builtin_option grind.warning : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "generate a warning whenever `grind` is used"
 }
+
+/--
+Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
+We also use anchors to prune the search space when they are provided as `grind` parameters
+and the `finish` tactic.
+-/
+structure AnchorRef where
+  numDigits : Nat
+  anchorPrefix : UInt64
 
 /-- Opaque solver extension state. -/
 opaque SolverExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
@@ -83,23 +114,31 @@ inductive SplitSource where
     input
   | /-- Injectivity theorem. -/
     inj (origin : Origin)
+  | /-- `grind_pattern` guard -/
+    guard (origin : Origin)
   deriving Inhabited
 
 def SplitSource.toMessageData : SplitSource → MessageData
-  | .ematch origin => m!"E-matching {origin.pp}"
-  | .ext declName => m!"Extensionality {declName}"
+  | .ematch origin => m!"E-matching `{origin.pp}`"
+  | .guard origin => m!"Theorem instantiation guard for `{origin.pp}`"
+  | .ext declName => m!"Extensionality `{declName}`"
   | .mbtc a b i => m!"Model-based theory combination at argument #{i} of{indentExpr a}\nand{indentExpr b}"
   | .beta e => m!"Beta-reduction of{indentExpr e}"
   | .forallProp e => m!"Forall propagation at{indentExpr e}"
   | .existsProp e => m!"Exists propagation at{indentExpr e}"
   | .input => "Initial goal"
-  | .inj origin => m!"Injectivity {origin.pp}"
+  | .inj origin => m!"Injectivity `{origin.pp}`"
 
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
   config       : Grind.Config
+  /--
+  If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
+  are considered.
+  -/
+  anchorRefs?  : Option (Array AnchorRef)
   /--
   If `cheapCases` is `true`, `grind` only applies `cases` to types that contain
   at most one minor premise.
@@ -120,13 +159,10 @@ structure Context where
   splitSource  : SplitSource := .input
   /-- Symbol priorities for inferring E-matching patterns -/
   symPrios     : SymbolPriorities
-  trueExpr     : Expr
-  falseExpr    : Expr
-  natZExpr     : Expr
-  btrueExpr    : Expr
-  bfalseExpr   : Expr
-  ordEqExpr    : Expr -- `Ordering.eq`
-  intExpr      : Expr -- `Int`
+  extensions   : ExtensionStateArray := #[]
+  debug        : Bool -- Cached `grind.debug (← getOptions)`
+
+export Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr getNatZeroExpr getOrderingEqExpr getIntExpr isTrueExpr isFalseExpr)
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -140,24 +176,6 @@ instance : BEq CongrTheoremCacheKey where
 -- We manually define `Hashable` because we want to use pointer equality.
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (hashPtrExpr a.f) (hash a.numArgs)
-
-structure EMatchTheoremTrace where
-  origin       : Origin
-  kind         : EMatchTheoremKind
-  minIndexable : Bool
-  deriving BEq, Hashable
-
-/--
-E-match theorems and case-splits performed by `grind`.
-Note that it may contain elements that are not needed by the final proof.
-For example, `grind` instantiated the theorem, but theorem instance was not actually used
-in the proof.
--/
-structure Trace where
-  thms       : PHashSet EMatchTheoremTrace := {}
-  eagerCases : PHashSet Name := {}
-  cases      : PHashSet Name := {}
-  deriving Inhabited
 
 structure Counters where
   /-- Number of times E-match theorem has been instantiated. -/
@@ -180,8 +198,6 @@ structure SplitDiagInfo where
 
 /-- State for the `GrindM` monad. -/
 structure State where
-  /-- `ShareCommon` (aka `Hash-consing`) state. -/
-  scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
@@ -199,8 +215,6 @@ structure State where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
-  /-- `trace` for `grind?` -/
-  trace      : Trace := {}
   /-- Performance counters -/
   counters   : Counters := {}
   /-- Split diagnostic information. This information is only collected when `set_option diagnostics true` -/
@@ -227,10 +241,14 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
-abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State Sym.SymM
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x
+
+/-- Returns `true` if `grind.debug` is set -/
+@[inline] def isDebugEnabled : GrindM Bool :=
+  return (← readThe Context).debug
 
 /--
 Backtrackable state for the `GrindM` monad.
@@ -270,33 +288,21 @@ def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSourc
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
-/-- Returns the internalized `True` constant.  -/
-def getTrueExpr : GrindM Expr := do
-  return (← readThe Context).trueExpr
+/-- Returns extension states associate with `grind` attributes in use -/
+def getExtensions : GrindM Grind.ExtensionStateArray :=
+  return (← readThe Context).extensions
 
-/-- Returns the internalized `False` constant.  -/
-def getFalseExpr : GrindM Expr := do
-  return (← readThe Context).falseExpr
+/--
+Runs `k` with the transparency setting specified by `Config.reducible`.
+Uses reducible transparency if `reducible` is `true`, otherwise default transparency.
+-/
+abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n] (k : n α) : n α := do
+  let m := if (← getConfig).reducible then .reducible else .default
+  withTransparency m k
 
-/-- Returns the internalized `Bool.true`.  -/
-def getBoolTrueExpr : GrindM Expr := do
-  return (← readThe Context).btrueExpr
-
-/-- Returns the internalized `Bool.false`.  -/
-def getBoolFalseExpr : GrindM Expr := do
-  return (← readThe Context).bfalseExpr
-
-/-- Returns the internalized `0 : Nat` numeral.  -/
-def getNatZeroExpr : GrindM Expr := do
-  return (← readThe Context).natZExpr
-
-/-- Returns the internalized `Ordering.eq`.  -/
-def getOrderingEqExpr : GrindM Expr := do
-  return (← readThe Context).ordEqExpr
-
-/-- Returns the internalized `Int`.  -/
-def getIntExpr : GrindM Expr := do
-  return (← readThe Context).intExpr
+/-- Returns the anchor references (if any) being used to restrict the search. -/
+def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
+  return (← readThe Context).anchorRefs?
 
 def resetAnchors : GrindM Unit := do
   modify fun s => { s with anchors := {} }
@@ -315,6 +321,21 @@ def getSymbolPriorities : GrindM SymbolPriorities := do
   return (← readThe Context).symPrios
 
 /--
+Returns `true` if we `declName` is tagged with `funCC` modifier.
+-/
+def hasFunCCModifier (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.funCC.contains declName
+
+def isSplit (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.casesTypes.isSplit declName
+
+def isEagerSplit (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.casesTypes.isEagerSplit declName
+
+def isExtTheorem (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.extThms.contains declName
+
+/--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
 -/
 def isMatchEqLikeDeclName (declName : Name) : CoreM Bool := do
@@ -327,21 +348,12 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
       s.insert k 1
 
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
-  if (← getConfig).trace then
-    unless (← isMatchEqLikeDeclName thm.origin.key) do
-      modify fun s => { s with trace.thms := s.trace.thms.insert {
-          origin := thm.origin
-          kind := thm.kind
-          minIndexable := thm.minIndexable
-      } }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
-def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
-  if (← getConfig).trace then
-    if eager then
-      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
-    else
-      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+def getEMatchTheoremNumInstances (thm : EMatchTheorem) : GrindM Nat := do
+  return (← get).counters.thm.find? thm.origin |>.getD 0
+
+def saveCases (declName : Name) : GrindM Unit := do
   modify fun s => { s with counters.case := incCounter s.counters.case declName }
 
 def saveAppOf (h : HeadIndex) : GrindM Unit := do
@@ -366,24 +378,6 @@ Abstracts nested proofs in `e`. This is a preprocessing step performed before in
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr :=
   Meta.abstractNestedProofs e
-
-/--
-Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
-been hash-consed. We perform this step before we internalize expressions.
--/
-def shareCommon (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
-  let (e, scState) := shareCommonAlpha e scState
-  modify fun s => { s with scState }
-  return e
-
-/-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getTrueExpr)
-
-/-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getFalseExpr)
 
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
@@ -493,6 +487,12 @@ structure ENode where
   mt : Nat := 0
   /-- Solver terms attached to this E-node. -/
   sTerms : SolverTerms := .nil
+  /--
+  If `funCC := true`, then the expression associated with this entry is an application, and
+  function congruence closure is enabled for it.
+  See `Grind.Config.funCC` for additional details.
+  -/
+  funCC : Bool := true
   deriving Inhabited, Repr
 
 def ENode.isRoot (n : ENode) :=
@@ -537,6 +537,12 @@ private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     let some n2 := enodes.find? { expr := b } | return false
     isSameExpr n1.root n2.root
 
+private def useFunCC' (enodes : ENodeMap) (e : Expr) : Bool :=
+  if let some n := enodes.find? { expr := e } then
+    n.funCC
+  else
+    false
+
 private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if let .forallE _ d b _ := e then
     mixHash (hashRoot enodes d) (hashRoot enodes b)
@@ -544,7 +550,14 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   | Grind.nestedProof p _ => hashRoot enodes p
   | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
-  | _ => go e 17
+  | _ =>
+    match e with
+    | .app f a =>
+      if useFunCC' enodes e then
+        mixHash (hashRoot enodes f) (hashRoot enodes a)
+      else
+        go f (hashRoot enodes a)
+    | _ => hashRoot enodes e
 where
   goEq (lhs rhs : Expr) : UInt64 :=
     let h₁ := hashRoot enodes lhs
@@ -555,28 +568,34 @@ where
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
-/-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
-private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
-  if let .forallE _ d₁ b₁ _ := a then
-    if let .forallE _ d₂ b₂ _ := b then
+/-- Returns `true` if `e₁` and `e₂` are congruent modulo the equivalence classes in `enodes`. -/
+private partial def isCongruent (enodes : ENodeMap) (e₁ e₂ : Expr) : Bool :=
+  if let .forallE _ d₁ b₁ _ := e₁ then
+    if let .forallE _ d₂ b₂ _ := e₂ then
       hasSameRoot enodes d₁ d₂ && hasSameRoot enodes b₁ b₂
     else
       false
-  else match_expr a with
+  else match_expr e₁ with
   | Grind.nestedProof p₁ _ =>
-    let_expr Grind.nestedProof p₂ _ := b | false
+    let_expr Grind.nestedProof p₂ _ := e₂ | false
     hasSameRoot enodes p₁ p₂
   | Grind.nestedDecidable p₁ _ =>
-    let_expr Grind.nestedDecidable p₂ _ := b | false
+    let_expr Grind.nestedDecidable p₂ _ := e₂ | false
     hasSameRoot enodes p₁ p₂
   | Eq _ lhs₁ rhs₁ =>
-    let_expr Eq _ lhs₂ rhs₂ := b | false
+    let_expr Eq _ lhs₂ rhs₂ := e₂ | false
     goEq lhs₁ rhs₁ lhs₂ rhs₂
-  | _ =>
-    if a.isApp && b.isApp then
-      go a b
+  | _ => Id.run do
+    let .app f a := e₁ | return false
+    let .app g b := e₂ | return false
+    if useFunCC' enodes e₁ then
+      /-
+      **Note**: We are not in `MetaM` here. Thus, we cannot check whether `f` and `g` have the same type.
+      So, we approximate and try to handle this issue when generating the proof term.
+      -/
+      hasSameRoot enodes a b && hasSameRoot enodes f g
     else
-      false
+      hasSameRoot enodes a b && go f g
 where
   goEq (lhs₁ rhs₁ lhs₂ rhs₂ : Expr) : Bool :=
     (hasSameRoot enodes lhs₁ lhs₂ && hasSameRoot enodes rhs₁ rhs₂)
@@ -640,6 +659,17 @@ We want to avoid instantiating the same theorem with the same assignment more th
 Therefore, we store the (pre-)instance information in set.
 Recall that the proofs of activated theorems have been hash-consed.
 The assignment contains internalized expressions, which have also been hash-consed.
+
+**Note**: We used to use pointer equality to implement `PreInstanceSet`. However,
+this low-level trick was incorrect in interactive mode because we add new
+`EMatchTheorem` objects using `instantiate [...]`. For example, suppose we write
+```
+instantiate [thm_1]; instantiate [thm_1]
+```
+The `EMatchTheorem` object `thm_1` is created twice. Using pointer equality will
+miss instances created using the two different objects. Recall we do not use
+hash-consing on proof objects. If we hash-cons the proof objects, it would be ok
+to use pointer equality.
 -/
 structure PreInstance where
   proof      : Expr
@@ -647,14 +677,14 @@ structure PreInstance where
 
 instance : Hashable PreInstance where
   hash i := Id.run do
-    let mut r := hashPtrExpr i.proof
+    let mut r := hash i.proof -- **Note**: See note at `PreInstance`.
     for v in i.assignment do
       r := mixHash r (hashPtrExpr v)
     return r
 
 instance : BEq PreInstance where
   beq i₁ i₂ := Id.run do
-    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.proof == i₂.proof do return false -- **Note**: See note at `PreInstance`.
     unless i₁.assignment.size == i₂.assignment.size do return false
     for v₁ in i₁.assignment, v₂ in i₂.assignment do
       unless isSameExpr v₁ v₂ do return false
@@ -693,21 +723,47 @@ structure CaseTrace where
   source : SplitSource
   deriving Inhabited
 
+/--
+Users can attach guards to `grind_pattern`s. A guard ensures that a theorem is instantiated
+ only when the guard expression becomes provably true.
+
+If `check` is `true`, then `grind` attempts to prove `e` by asserting its negation and
+checking whether this leads to a contradiction.
+-/
+structure TheoremGuard where
+  e     : Expr
+  check : Bool
+  deriving Inhabited
+
+/--
+A delayed theorem instantiation is an instantiation that includes one or more guards.
+See `TheoremGuard`.
+-/
+structure DelayedTheoremInstance where
+  thm        : EMatchTheorem
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  guards     : List TheoremGuard
+  deriving Inhabited
+
 /-- E-matching related fields for the `grind` goal. -/
 structure EMatch.State where
   /--
   Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
   Local theorem provided by users are added directly into `newThms`.
   -/
-  thmMap       : EMatchTheorems
+  thmMap       : EMatchTheoremsArray
   /-- Goal modification time. -/
   gmt          : Nat := 0
   /-- Active theorems that we have performed ematching at least once. -/
   thms         : PArray EMatchTheorem := {}
   /-- Active theorems that we have not performed any round of ematching yet. -/
   newThms      : PArray EMatchTheorem := {}
-  /-- Number of theorem instances generated so far -/
+  /-- Number of theorem instances generated so far. -/
   numInstances : Nat := 0
+  /-- Number of delayed theorem instances generated so far. We track them to decide whether E-match made progress or not. -/
+  numDelayedInstances : Nat := 0
   /-- Number of E-matching rounds performed in this goal since the last case-split. -/
   num          : Nat := 0
   /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
@@ -716,6 +772,11 @@ structure EMatch.State where
   nextThmIdx   : Nat := 0
   /-- `match` auxiliary functions whose equations have already been created and activated. -/
   matchEqNames : PHashSet Name := {}
+  /--
+  Delayed instantiations is a mapping from guards to theorems that are waiting them
+  to become `True`.
+  -/
+  delayedThmInsts : PHashMap ExprPtr (List DelayedTheoremInstance) := {}
   deriving Inhabited
 
 /-- Case-split information. -/
@@ -779,8 +840,6 @@ structure SplitArg where
 structure Split.State where
   /-- Number of splits performed to get to this goal. -/
   num          : Nat := 0
-  /-- Inductive datatypes marked for case-splitting -/
-  casesTypes   : CasesTypes := {}
   /-- Case-split candidates. -/
   candidates   : List SplitInfo := []
   /-- Case-splits that have been inserted at `candidates` at some point. -/
@@ -827,19 +886,34 @@ structure UnitLike.State where
   deriving Inhabited
 
 structure InjectiveInfo where
-  inv : Expr
-  heq : Expr
+  us   : List Level
+  α    : Expr
+  β    : Expr
+  h    : Expr
+  /--
+  Inverse function and a proof that `∀ a, inv (f a) = a`
+  **Note**: The following two fields are `none` if no `f`-application has been found yet.
+  -/
+  inv?  : Option (Expr × Expr) := none
   deriving Inhabited
 
 /-- State for injective theorem support. -/
 structure Injective.State where
-  thms : InjectiveTheorems
+  thms : InjectiveTheoremsArray
   fns  : PHashMap ExprPtr InjectiveInfo := {}
   deriving Inhabited
 
-/-- The `grind` goal. -/
-structure Goal where
-  mvarId       : MVarId
+/--
+The `grind` state for a goal, excluding the metavariable.
+
+This separation from `Goal` allows multiple goals with different metavariables to share
+the same `GoalState`. This is useful for automation such as symbolic simulation, where applying
+theorems create multiple goals that inherit the same E-graph, congruence closure state, and other
+accumulated facts.
+-/
+structure GoalState where
+  /-- Next local declaration index to process. -/
+  nextDeclIdx  : Nat := 0
   canon        : Canon.State := {}
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
@@ -851,6 +925,11 @@ structure Goal where
   it is its unique id.
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
+  /--
+  All constants (*not* in `appMap`) that have been internalized, *and*
+  `appMap`'s domain. We use this collection during theorem activation.
+  -/
+  indicesFound : PHashSet HeadIndex := {}
   /-- Equations and propositions to be processed. -/
   newFacts     : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
@@ -875,6 +954,16 @@ structure Goal where
   sstates      : Array SolverExtensionState := #[]
   deriving Inhabited
 
+/--
+A `grind` goal, combining shared state with a specific metavariable.
+
+See `GoalState` for details on why the state is factored out.
+**Note**: The `Goal` internal representation is just a pair `GoalState` and `MVarId`.
+-/
+structure Goal extends GoalState where
+  mvarId : MVarId
+  deriving Inhabited
+
 def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=
   Grind.hasSameRoot g.enodeMap a b
 
@@ -894,6 +983,30 @@ abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
+/--
+Sets `nextDeclIdx` to point past the last local declaration in the local context.
+
+This marks all existing local declarations as already processed by `grind`. Use this when
+initializing a goal whose hypotheses should not be processed or after internalizing all of them.
+-/
+def Goal.setNextDeclToEnd (g : Goal) : MetaM Goal := do
+  let mvarDecl ← g.mvarId.getDecl
+  return { g with nextDeclIdx := mvarDecl.lctx.decls.size }
+
+def setNextDeclToEnd : GoalM Unit := do
+  let mvarDecl ← (← get).mvarId.getDecl
+  modify fun g => { g with nextDeclIdx := mvarDecl.lctx.decls.size }
+
+/--
+Returns `true` if the goal has local declarations that have not yet been processed by `grind`.
+
+A local declaration is "pending" if its index is greater than or equal to `nextDeclIdx`.
+This is used to determine whether `grind` needs to internalize new hypotheses.
+-/
+def Goal.hasPendingLocalDecls (g : Goal) : MetaM Bool := do
+  let mvarDecl ← g.mvarId.getDecl
+  return g.nextDeclIdx < mvarDecl.lctx.decls.size
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then
@@ -927,22 +1040,16 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
 def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource : SplitSource) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
-    unless (← withReducible <| isDefEq (← inferType proof) prop) do
+  if (← isDebugEnabled) then
+    unless (← withGTransparency <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
-        which is not definitionally equal with `reducible` transparency setting}"
+        which is not definitionally equal with `reducible` transparency setting"
   modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation, splitSource } }
 
 /-- Returns the number of theorem instances generated so far. -/
 def getNumTheoremInstances : GoalM Nat := do
   return (← get).ematch.numInstances
-
-/-- Adds a new theorem instance produced using E-matching. -/
-def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
-  saveEMatchTheorem thm
-  addNewRawFact proof prop generation (.ematch thm.origin)
-  modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
@@ -967,11 +1074,11 @@ def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).getENode? e
 
-def throwNonInternalizedExpr (e : Expr) : CoreM α :=
+def throwNonInternalizedExpr (e : Expr) : MetaM α :=
   throwError "internal `grind` error, term has not been internalized{indentExpr e}"
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
-def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
+def Goal.getENode (goal : Goal) (e : Expr) : MetaM ENode := do
   let some n := goal.enodeMap.find? { expr := e }
     | throwNonInternalizedExpr e
   return n
@@ -986,17 +1093,25 @@ def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
   else
     0
 
+def SplitInfo.getGenerationCore (goal : Goal) : SplitInfo → Nat
+  | .default e _ => goal.getGeneration e
+  | .imp e h _ => goal.getGeneration (e.forallDomain h)
+  | .arg a b _ _ _ => max (goal.getGeneration a) (goal.getGeneration b)
+
+def SplitInfo.getGeneration (s : SplitInfo) : GoalM Nat :=
+  return s.getGenerationCore (← get)
+
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
 def getGeneration (e : Expr) : GoalM Nat :=
   return (← get).getGeneration e
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getTrueExpr)
+  return (← isTrueExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getFalseExpr)
+  return (← isFalseExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
 def isEqBoolTrue (e : Expr) : GoalM Bool := do
@@ -1030,7 +1145,7 @@ def getRoot? (e : Expr) : GoalM (Option Expr) := do
   return (← get).getRoot? e
 
 /-- Returns the root element in the equivalence class of `e`. -/
-def Goal.getRoot (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getRoot (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).root
 
 @[inline, inherit_doc Goal.getRoot]
@@ -1045,6 +1160,12 @@ def getRootENode (e : Expr) : GoalM ENode := do
 def getRootENode? (e : Expr) : GoalM (Option ENode) := do
   let some n ← getENode? e | return none
   getENode? n.root
+/--
+Returns `true` if the ENode associate with `e` has support for function equality
+congruence closure. See `Grind.Config.funCC` for additional details.
+-/
+def useFunCC (e : Expr) : GoalM Bool :=
+  return (← getENode e).funCC
 
 /--
 Returns the next element in the equivalence class of `e`
@@ -1055,7 +1176,7 @@ def Goal.getNext? (goal : Goal) (e : Expr) : Option Expr := Id.run do
   return some n.next
 
 /-- Returns the next element in the equivalence class of `e`. -/
-def Goal.getNext (goal : Goal) (e : Expr) : CoreM Expr :=
+def Goal.getNext (goal : Goal) (e : Expr) : MetaM Expr :=
   return (← goal.getENode e).next
 
 @[inline, inherit_doc Goal.getRoot]
@@ -1078,17 +1199,17 @@ If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
 Otherwise, it pushes `lhs ≍ rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     unless (← alreadyInternalized lhs) do
       throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
     unless (← alreadyInternalized rhs) do
       throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
-    unless proof == congrPlaceholderProof do
+    if proof != congrPlaceholderProof && proof != eqCongrSymmPlaceholderProof then
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
-      unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
+      unless (← withGTransparency <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
-            which is not definitionally equal with `reducible` transparency setting}"
+            which is not definitionally equal with `reducible` transparency setting"
       trace[grind.debug] "pushEqCore: {expectedType}"
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
@@ -1160,7 +1281,7 @@ def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
     curr := curr.insert parent
   modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
-def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
+def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) (funCC : Bool) : GoalM Unit := do
   let n := {
     self := e, next := e, root := e, congr := e, size := 1
     flipped := false
@@ -1168,7 +1289,7 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     hasLambdas := e.isLambda
     mt := (← get).ematch.gmt
     idx := (← get).nextIdx
-    interpreted, ctor, generation
+    interpreted, ctor, generation, funCC
   }
   modify fun s => { s with
     enodeMap := s.enodeMap.insert { expr := e } n
@@ -1181,11 +1302,11 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
 Creates an `ENode` for `e` if one does not already exist.
 This method assumes `e` has been hash-consed.
 -/
-def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
+def mkENode (e : Expr) (generation : Nat) (funCC : Bool := false) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
-  mkENodeCore e interpreted ctor generation
+  mkENodeCore e interpreted ctor generation funCC
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with
@@ -1248,12 +1369,33 @@ It assumes `a` and `b` are in the same equivalence class.
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
+@[extern "lean_grind_process_new_facts"]
+opaque processNewFacts : GoalM Unit
+
+-- Forward definition
 @[extern "lean_grind_internalize"]
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
-@[extern "lean_grind_process_new_facts"]
-opaque processNewFacts : GoalM Unit
+@[extern "lean_grind_preprocess"]
+opaque preprocess : Expr → GoalM Simp.Result
+
+/--
+Internalizes a local declaration which is not a proposition.
+**Note**: We must internalize local variables because their types may be empty, and may not be
+referenced anywhere else. Example:
+```
+example (a : { x : Int // x < 0 ∧ x > 0 }) : False := by grind
+```
+`etaStruct` may also be applicable.
+-/
+def internalizeLocalDecl (localDecl : LocalDecl) : GoalM Unit := do
+  let e ← shareCommon localDecl.toExpr
+  internalize e 0
+  /-
+  **Note**: `internalize` may add new facts (e.g., `etaStruct` equality)
+  -/
+  processNewFacts
 
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
@@ -1353,6 +1495,18 @@ def getExprs : GoalM (PArray Expr) := do
     f n
     if isSameExpr n.next e then return ()
     curr := n.next
+
+/--
+Executes `f` to each term in the equivalence class containing `e`, and stops as soon as `f` returns `true`.
+-/
+@[inline] def findEqc (e : Expr) (f : ENode → GoalM Bool) : GoalM Bool := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if (← f n) then return true
+    if isSameExpr n.next e then break
+    curr := n.next
+  return false
 
 /-- Folds using `f` and `init` over the equivalence class containing `e` -/
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
@@ -1491,6 +1645,48 @@ def addSplitCandidate (sinfo : SplitInfo) : GoalM Unit := do
     }
     updateSplitArgPosMap sinfo
 
+inductive ActivateNextGuardResult where
+  | ready
+  | next (guard : Expr) (pending : List TheoremGuard)
+
+def activateNextGuard (thm : EMatchTheorem) (guards : List TheoremGuard) (generation : Nat) : GoalM ActivateNextGuardResult := do
+  go guards
+where
+  go : List TheoremGuard → GoalM ActivateNextGuardResult
+    | [] => return .ready
+    | guard :: guards => do
+      let { expr := e, .. } ← preprocess guard.e
+      internalize e generation
+      if (← isEqTrue e) then
+        go guards
+      else
+        if guard.check then
+          addSplitCandidate <| .default e (.guard thm.origin)
+        return .next e guards
+
+/-- Adds a new theorem instance produced using E-matching. -/
+def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) (guards : List TheoremGuard) : GoalM Unit := do
+  match (← activateNextGuard thm guards generation) with
+  | .ready =>
+    trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
+    saveEMatchTheorem thm
+    addNewRawFact proof prop generation (.ematch thm.origin)
+    modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
+  | .next guard guards =>
+    let thms := (← get).ematch.delayedThmInsts.find? { expr := guard } |>.getD []
+    let thms := { thm, proof, prop, generation, guards } :: thms
+    trace_goal[grind.ematch.instance.delayed] "`{thm.origin.pp}` waiting{indentExpr guard}"
+    modify fun s => { s with
+      ematch.delayedThmInsts := s.ematch.delayedThmInsts.insert { expr := guard } thms
+      ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
+      -- Bump numInstances for delayed instances too, so that uniqueId generation
+      -- in EMatch.instantiateTheorem' doesn't produce collisions.
+      ematch.numInstances := s.ematch.numInstances + 1
+    }
+
+def DelayedTheoremInstance.check (delayed : DelayedTheoremInstance) : GoalM Unit := do
+  addTheoremInstance delayed.thm delayed.proof delayed.prop delayed.generation delayed.guards
+
 /--
 Returns extensionality theorems for the given type if available.
 If `Config.ext` is `false`, the result is `#[]`.
@@ -1549,6 +1745,7 @@ inductive ActionResult where
     `gs` are subgoals that could not be closed. They are used for producing error messages.
     -/
     stuck (gs : List Goal)
+  deriving Inhabited
 
 abbrev ActionCont : Type :=
   Goal → GrindM ActionResult
@@ -1862,10 +2059,16 @@ def anchorPrefixToString (numDigits : Nat) (anchorPrefix : UInt64) : String :=
   let n := cs.length
   let zs := List.replicate (numDigits - n) '0'
   let cs := zs ++ cs
-  cs.asString
+  String.ofList cs
 
 def anchorToString (numDigits : Nat) (anchor : UInt64) : String :=
   anchorPrefixToString numDigits (anchor >>> (64 - 4*numDigits.toUInt64))
+
+def AnchorRef.toString (anchorRef : AnchorRef) : String :=
+  anchorPrefixToString anchorRef.numDigits anchorRef.anchorPrefix
+
+instance : ToString AnchorRef where
+  toString := AnchorRef.toString
 
 /--
 Returns activated `match`-declaration equations.

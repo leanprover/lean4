@@ -715,7 +715,7 @@ static inline lean_object ** lean_closure_arg_cptr(lean_object * o) { return lea
 static inline lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
     assert(arity > 0);
     assert(num_fixed < arity);
-    lean_closure_object * o = (lean_closure_object*)lean_alloc_small_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
+    lean_closure_object * o = (lean_closure_object*)lean_alloc_object(sizeof(lean_closure_object) + sizeof(void*)*num_fixed);
     lean_set_st_header((lean_object*)o, LeanClosure, 0);
     o->m_fun = fun;
     o->m_arity = arity;
@@ -729,6 +729,14 @@ static inline b_lean_obj_res lean_closure_get(b_lean_obj_arg o, unsigned i) {
 static inline void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a) {
     assert(i < lean_closure_num_fixed(o));
     lean_to_closure(o)->m_objs[i] = a;
+}
+static inline size_t lean_closure_byte_size(lean_object * o) {
+    return sizeof(lean_closure_object) + sizeof(void*)*lean_closure_num_fixed(o);
+}
+
+static inline size_t lean_closure_data_byte_size(lean_object * o) {
+    // Matches for closures.
+    return lean_closure_byte_size(o);
 }
 
 LEAN_EXPORT lean_object* lean_apply_1(lean_object* f, lean_object* a1);
@@ -855,14 +863,13 @@ static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
-
-static inline lean_obj_res lean_copy_array(lean_obj_arg a) {
-    return lean_copy_expand_array(a, false);
-}
+// Equivalent to `lean_copy_expand_array` but used as a gadget to spot `Array` non-linearities in
+// profiles.
+LEAN_EXPORT lean_obj_res lean_copy_expand_array_nonlinear(lean_obj_arg a, bool expand);
 
 static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
-    return lean_copy_array(a);
+    return lean_copy_expand_array_nonlinear(a, false);
 }
 
 static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {
@@ -1155,7 +1162,7 @@ static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_string_of_usize(size_t);
-LEAN_EXPORT uint8_t lean_slice_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
+LEAN_EXPORT uint8_t lean_string_memcmp(b_lean_obj_arg s1, b_lean_obj_arg s2, b_lean_obj_arg lstart, b_lean_obj_arg rstart, b_lean_obj_arg len);
 LEAN_EXPORT uint64_t lean_slice_hash(b_lean_obj_arg);
 LEAN_EXPORT uint8_t lean_slice_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
 
@@ -1225,6 +1232,8 @@ LEAN_EXPORT bool lean_io_check_canceled_core(void);
 LEAN_EXPORT void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.getTaskState : Task a -> IO TaskState` */
 LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_lean_obj_arg t);
+/* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */
+LEAN_EXPORT b_lean_obj_res lean_io_wait_any_core(b_lean_obj_arg task_list);
 
 /* External objects */
 
@@ -2052,15 +2061,17 @@ static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
 static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN / -1
+    return (uint8_t)((int16_t)lhs / (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint8_t)lhs;
+    // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN % -1
+    return (uint8_t)((int16_t)lhs % (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
@@ -2201,15 +2212,17 @@ static inline uint16_t lean_int16_mul(uint16_t a1, uint16_t a2) {
 static inline uint16_t lean_int16_div(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
     int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN / -1
+    return (uint16_t)((int32_t)lhs / (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_mod(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
     int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint16_t)lhs;
+    // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN % -1
+    return (uint16_t)((int32_t)lhs % (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_land(uint16_t a1, uint16_t a2) {
@@ -2349,15 +2362,17 @@ static inline uint32_t lean_int32_mul(uint32_t a1, uint32_t a2) {
 static inline uint32_t lean_int32_div(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN / -1
+    return (uint32_t)((int64_t)lhs / (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_mod(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint32_t)lhs;
+    // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN % -1
+    return (uint32_t)((int64_t)lhs % (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_land(uint32_t a1, uint32_t a2) {
@@ -2497,15 +2512,19 @@ static inline uint64_t lean_int64_mul(uint64_t a1, uint64_t a2) {
 static inline uint64_t lean_int64_div(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
     int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Check for overflow: INT64_MIN / -1 would trap on x86 idiv
+    if (lhs == INT64_MIN && rhs == -1) return (uint64_t)INT64_MIN;
+    return (uint64_t)(lhs / rhs);
 }
 
 static inline uint64_t lean_int64_mod(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
     int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint64_t)lhs;
+    // Check for overflow: INT64_MIN % -1 would trap on x86 idiv
+    if (lhs == INT64_MIN && rhs == -1) return 0;
+    return (uint64_t)(lhs % rhs);
 }
 
 static inline uint64_t lean_int64_land(uint64_t a1, uint64_t a2) {
@@ -2645,15 +2664,19 @@ static inline size_t lean_isize_mul(size_t a1, size_t a2) {
 static inline size_t lean_isize_div(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return (size_t)PTRDIFF_MIN;
+    return (size_t)(lhs / rhs);
 }
 
 static inline size_t lean_isize_mod(size_t a1, size_t a2) {
     ptrdiff_t lhs = (ptrdiff_t)a1;
     ptrdiff_t rhs = (ptrdiff_t)a2;
-
-    return (size_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (size_t)lhs;
+    // Check for overflow: PTRDIFF_MIN / -1 would trap on x86 idiv
+    if (lhs == PTRDIFF_MIN && rhs == -1) return 0;
+    return (size_t)(lhs % rhs);
 }
 
 static inline size_t lean_isize_land(size_t a1, size_t a2) {
@@ -3155,6 +3178,12 @@ static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
 static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_MANUAL_ROOT);
 }
+
+#ifdef LEAN_EMSCRIPTEN
+#define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
+#else
+#define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint64_t)b1 | ((uint64_t)b2 << 8) | ((uint64_t)b3 << 16) | ((uint64_t)b4 << 24) | ((uint64_t)b5 << 32) | ((uint64_t)b6 << 40) | ((uint64_t)b7 << 48) | ((uint64_t)b8 << 56))
+#endif
 
 #ifdef __cplusplus
 }

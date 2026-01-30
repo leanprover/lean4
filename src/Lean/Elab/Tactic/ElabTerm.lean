@@ -320,6 +320,9 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 @[builtin_tactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
   withTransparency TransparencyMode.all <| evalTactic stx[1]
 
+@[builtin_tactic Lean.Parser.Tactic.withUnfoldingNone] def evalWithUnfoldingNone : Tactic := fun stx =>
+  withTransparency TransparencyMode.none <| evalTactic stx[1]
+
 /--
   Elaborate `stx`. If it is a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/

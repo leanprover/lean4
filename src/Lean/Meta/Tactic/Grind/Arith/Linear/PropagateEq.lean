@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.Den
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
@@ -54,18 +55,21 @@ private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
   let generation := max (← getGeneration a) (← getGeneration b)
-  let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let p := lhs'.norm
+  let p := (lhs.sub rhs).toPoly
+  let c : RingEqCnstr := { p, h := .core a b lhs rhs }
+  let c ← c.cleanupDenominators
+  let p := c.p
+  let lhs ← p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let p := lhs.norm
   if p == .nil then return ()
-  let c₁ : IneqCnstr := { p, strict := false, h := .ofCommRingEq a b lhs rhs p' lhs' }
+  let c₁ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
   c₁.assert
+  let c := { c with p := c.p.mulConst (-1), h := .symm c }
   let p := p.mul (-1)
-  let p' := p'.mulConst (-1)
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let c₂ : IneqCnstr := { p, strict := false, h := .ofCommRingEq b a rhs lhs p' lhs' }
+  let lhs ← c.p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let c₂ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
   c₂.assert
 
 private def processNewIntModuleEq' (a b : Expr) : LinearM Unit := do
@@ -194,6 +198,21 @@ private def updateOccs (a : Nat) (x : Var) (c : EqCnstr) : LinearM Unit := do
   for y in ys do
     updateOccsAt a x c y
 
+private def isImpliedEq (c : EqCnstr) : LinearM Bool := do
+  match c.p with
+  | .add (-1) x (.add 1 y .nil)
+  | .add 1 x (.add (-1) y .nil) =>
+    if (← isEqv (← getVar x) (← getVar y)) then return false
+    return true
+  | _ => return false
+
+private def ensureLeadCoeffPos (c : EqCnstr) : LinearM EqCnstr := do
+  let .add k _ _ := c.p | return c
+  if k < 0 then
+    return { p := c.p.mul (-1), h := .neg c }
+  else
+    return c
+
 private def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
   let c ← c.applySubsts
@@ -203,6 +222,17 @@ private def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
   let (a, x, c) ← c.norm
   trace[grind.debug.linarith.subst] ">> {← getVar x}, {← c.denoteExpr}"
   trace[grind.linarith.assert.store] "{← c.denoteExpr}"
+  /-
+  **Note**:
+  We currently only catch equalities of the form `x + -1*y = 0`
+  This is sufficient for catching trivial cases, but to catch all implied equalities
+  we need to keep a mapping from `(Poly, Int)` to `Var`. The mapping contains an entry `(p, k) ↦ x`
+  if `x` is an eliminated variable and there is a constraint that implies `k*x = p`.
+  We need this mapping to catch `k*x = p` and `k*y = p`
+  -/
+  unless (← getStruct).caseSplits do
+    if (← isImpliedEq c) then
+      propagateImpEq (← ensureLeadCoeffPos c)
   modifyStruct fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack
@@ -271,12 +301,15 @@ def processNewEq (a b : Expr) : GoalM Unit := do
 private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
   let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let p := (lhs.sub rhs).toPoly
+  let c : RingDiseqCnstr := { p, h := .core a b lhs rhs }
+  let c ← c.cleanupDenominators
+  let p := c.p
   let generation := max (← getGeneration a) (← getGeneration b)
-  let p' := (lhs.sub rhs).toPoly
-  let lhs' ← p'.toIntModuleExpr generation
-  let some lhs' ← reify? lhs' (skipVar := false) generation | return ()
-  let p := lhs'.norm
-  let c : DiseqCnstr := { p, h := .coreCommRing a b lhs rhs p' lhs' }
+  let lhs ← p.toIntModuleExpr generation
+  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let p := lhs.norm
+  let c : DiseqCnstr := { p, h := .ring c lhs }
   c.assert
 
 private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do

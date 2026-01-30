@@ -132,9 +132,6 @@ theorem testBit_eq_decide_div_mod_eq {x : Nat} : testBit x i = decide (x / 2^i %
   | succ i hyp =>
     simp [hyp, Nat.div_div_eq_div_mul, Nat.pow_succ']
 
-@[deprecated testBit_eq_decide_div_mod_eq (since := "2025-04-04")]
-abbrev testBit_to_div_mod := @testBit_eq_decide_div_mod_eq
-
 theorem toNat_testBit (x i : Nat) :
     (x.testBit i).toNat = x / 2 ^ i % 2 := by
   rw [testBit_eq_decide_div_mod_eq]
@@ -154,9 +151,6 @@ theorem exists_testBit_of_ne_zero {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i
     | Or.inr mod2_eq =>
       apply Exists.intro 0
       simp_all
-
-@[deprecated exists_testBit_of_ne_zero (since := "2025-04-04")]
-abbrev ne_zero_implies_bit_true := @exists_testBit_of_ne_zero
 
 theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ testBit y i := by
   induction y using Nat.div2Induction generalizing x with
@@ -182,9 +176,6 @@ theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i �
         revert lsb_diff
         cases mod_two_eq_zero_or_one x with
         | _ p => cases mod_two_eq_zero_or_one y with | _ q => simp [p,q]
-
-@[deprecated exists_testBit_ne_of_ne (since := "2025-04-04")]
-abbrev ne_implies_bit_diff := @exists_testBit_ne_of_ne
 
 /--
 `eq_of_testBit_eq` allows proving two natural numbers are equal
@@ -218,18 +209,12 @@ theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i �
       case right =>
         simpa using jp.right
 
-@[deprecated exists_ge_and_testBit_of_ge_two_pow (since := "2025-04-04")]
-abbrev ge_two_pow_implies_high_bit_true := @exists_ge_and_testBit_of_ge_two_pow
-
 theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
   simp only [Nat.testBit_eq_decide_div_mod_eq] at p
   apply Decidable.by_contra
   intro not_ge
   have x_lt : x < 2^i := Nat.lt_of_not_le not_ge
   simp [div_eq_of_lt x_lt] at p
-
-@[deprecated ge_two_pow_of_testBit (since := "2025-04-04")]
-abbrev testBit_implies_ge := @ge_two_pow_of_testBit
 
 theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := by
   match p : x.testBit i with
@@ -238,6 +223,16 @@ theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := b
     exfalso
     exact Nat.not_le_of_gt lt (ge_two_pow_of_testBit p)
 
+theorem testBit_of_two_pow_le_and_two_pow_add_one_gt {n i : Nat}
+    (hle : 2^i ≤ n) (hgt : n < 2^(i + 1)) : n.testBit i = true := by
+  rcases exists_ge_and_testBit_of_ge_two_pow hle with ⟨i', ⟨_, _⟩⟩
+  have : i = i' := by
+    false_or_by_contra
+    have : 2 ^ (i + 1) ≤ 2 ^ i' := Nat.pow_le_pow_of_le (by decide) (by omega)
+    have : n.testBit i' = false := testBit_lt_two_pow (by omega)
+    simp_all only [Bool.false_eq_true]
+  rwa [this]
+
 theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = false) : x < 2^n := by
   apply Decidable.by_contra
   intro not_lt
@@ -245,6 +240,10 @@ theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = fal
   have ⟨i, ⟨i_ge_n, test_true⟩⟩ := exists_ge_and_testBit_of_ge_two_pow x_ge_n
   have test_false := p _ i_ge_n
   simp [test_true] at test_false
+
+theorem testBit_log2 {n : Nat} (h : n ≠ 0) : n.testBit n.log2 = true := by
+  have := log2_eq_iff (n := n) (k := n.log2) (by omega)
+  apply testBit_of_two_pow_le_and_two_pow_add_one_gt <;> omega
 
 private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
   induction x with
@@ -352,9 +351,6 @@ theorem testBit_bool_toNat (b : Bool) (i : Nat) :
   cases b <;> cases i <;>
   simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
-
-@[deprecated testBit_bool_toNat (since := "2025-06-22")]
-abbrev testBit_bool_to_nat := @testBit_bool_toNat
 
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
@@ -500,10 +496,15 @@ protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_comm]
 
-@[grind _=_]
 protected theorem and_assoc (x y z : Nat) : (x &&& y) &&& z = x &&& (y &&& z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_assoc]
+
+grind_pattern Nat.and_assoc => (x &&& y) &&& z where
+  x =/= 0; y =/= 0; z =/= 0
+
+grind_pattern Nat.and_assoc => x &&& (y &&& z) where
+  x =/= 0; y =/= 0; z =/= 0
 
 instance : Std.Associative (α := Nat) (· &&& ·) where
   assoc := Nat.and_assoc

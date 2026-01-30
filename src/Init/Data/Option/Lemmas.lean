@@ -19,9 +19,6 @@ namespace Option
 
 @[grind =] theorem default_eq_none : (default : Option α) = none := rfl
 
-@[deprecated mem_def (since := "2025-04-07")]
-theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
-
 @[grind =] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
 
 theorem mem_some_iff {a b : α} : a ∈ some b ↔ b = a := mem_some
@@ -177,19 +174,12 @@ theorem exists_ne_none {p : Option α → Prop} : (∃ x, x ≠ none ∧ p x) �
   ⟨fun ⟨x, hx, hp⟩ => ⟨x.get <| ne_none_iff_isSome.1 hx, by rwa [some_get]⟩,
     fun ⟨x, hx⟩ => ⟨some x, some_ne_none x, hx⟩⟩
 
-@[deprecated exists_ne_none (since := "2025-04-04")]
-theorem bex_ne_none {p : Option α → Prop} : (∃ x, ∃ (_ : x ≠ none), p x) ↔ ∃ x, p (some x) := by
-  simp only [exists_prop, exists_ne_none]
-
 theorem forall_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) ↔ ∀ x, p (some x) :=
   ⟨fun h x => h (some x) (some_ne_none x),
     fun h x hx => by
       have := h <| x.get <| ne_none_iff_isSome.1 hx
       simp [some_get] at this ⊢
       exact this⟩
-
-@[deprecated forall_ne_none (since := "2025-04-04")]
-abbrev ball_ne_none := @forall_ne_none
 
 @[simp] theorem pure_def : pure = @some α := rfl
 
@@ -207,14 +197,8 @@ abbrev ball_ne_none := @forall_ne_none
 theorem bind_eq_some_iff : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = some b := by
   cases x <;> simp
 
-@[deprecated bind_eq_some_iff (since := "2025-04-10")]
-abbrev bind_eq_some := @bind_eq_some_iff
-
 @[simp] theorem bind_eq_none_iff {o : Option α} {f : α → Option β} :
     o.bind f = none ↔ ∀ a, o = some a → f a = none := by cases o <;> simp
-
-@[deprecated bind_eq_none_iff (since := "2025-04-10")]
-abbrev bind_eq_none := @bind_eq_none_iff
 
 theorem bind_eq_none' {o : Option α} {f : α → Option β} :
     o.bind f = none ↔ ∀ b a, o = some a → f a ≠ some b := by
@@ -228,9 +212,12 @@ theorem bind_comm {f : α → β → Option γ} (a : Option α) (b : Option β) 
     (a.bind fun x => b.bind (f x)) = b.bind fun y => a.bind fun x => f x y := by
   cases a <;> cases b <;> rfl
 
-@[grind =]
 theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ) :
     (x.bind f).bind g = x.bind fun y => (f y).bind g := by cases x <;> rfl
+
+grind_pattern bind_assoc => (x.bind f).bind g where
+  f =/= some
+  g =/= some
 
 theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
     (h : ∀ a, o = some a → f a = g a) → o.bind f = o.bind g := by
@@ -272,9 +259,6 @@ theorem isSome_apply_of_isSome_bind {α β : Type _} {x : Option α} {f : α →
 theorem join_eq_some_iff : x.join = some a ↔ x = some (some a) := by
   simp [← bind_id_eq_join, bind_eq_some_iff]
 
-@[deprecated join_eq_some_iff (since := "2025-04-10")]
-abbrev join_eq_some := @join_eq_some_iff
-
 theorem join_ne_none : x.join ≠ none ↔ ∃ z, x = some (some z) := by
   simp only [ne_none_iff_exists', join_eq_some_iff, iff_self]
 
@@ -284,9 +268,6 @@ theorem join_ne_none' : ¬x.join = none ↔ ∃ z, x = some (some z) :=
 theorem join_eq_none_iff : o.join = none ↔ o = none ∨ o = some none :=
   match o with | none | some none | some (some _) => by simp
 
-@[deprecated join_eq_none_iff (since := "2025-04-10")]
-abbrev join_eq_none := @join_eq_none_iff
-
 theorem bind_join {f : α → Option β} {o : Option (Option α)} :
     o.join.bind f = o.bind (·.bind f) := by
   cases o <;> simp
@@ -295,35 +276,14 @@ theorem bind_join {f : α → Option β} {o : Option (Option α)} :
 
 @[grind =] theorem map_apply : Functor.map f x = Option.map f x := rfl
 
-@[deprecated map_none (since := "2025-04-10")]
-abbrev map_none' := @map_none
-
-@[deprecated map_some (since := "2025-04-10")]
-abbrev map_some' := @map_some
-
 @[simp] theorem map_eq_some_iff : x.map f = some b ↔ ∃ a, x = some a ∧ f a = b := by
   cases x <;> simp
-
-@[deprecated map_eq_some_iff (since := "2025-04-10")]
-abbrev map_eq_some := @map_eq_some_iff
-
-@[deprecated map_eq_some_iff (since := "2025-04-10")]
-abbrev map_eq_some' := @map_eq_some_iff
 
 @[simp] theorem map_eq_none_iff : x.map f = none ↔ x = none := by
   cases x <;> simp [map_none, map_some]
 
-@[deprecated map_eq_none_iff (since := "2025-04-10")]
-abbrev map_eq_none := @map_eq_none_iff
-
-@[deprecated map_eq_none_iff (since := "2025-04-10")]
-abbrev map_eq_none' := @map_eq_none_iff
-
 @[simp, grind =] theorem isSome_map {x : Option α} : (x.map f).isSome = x.isSome := by
   cases x <;> simp
-
-@[deprecated isSome_map (since := "2025-04-10")]
-abbrev isSome_map' := @isSome_map
 
 @[simp, grind =] theorem isNone_map {x : Option α} : (x.map f).isNone = x.isNone := by
   cases x <;> simp
@@ -347,11 +307,19 @@ theorem map_id' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
 
 theorem map_id_apply' {α : Type u} {x : Option α} : Option.map (fun (a : α) => a) x = x := by simp
 
+/-- See `Option.apply_get` for a version that can be rewritten in the reverse direction. -/
 @[simp, grind =] theorem get_map {f : α → β} {o : Option α} {h : (o.map f).isSome} :
     (o.map f).get h = f (o.get (by simpa using h)) := by
   cases o with
   | none => simp at h
   | some a => simp
+
+/-- See `Option.get_map` for a version that can be rewritten in the reverse direction. -/
+theorem apply_get {f : α → β} {o : Option α} {h} :
+    f (o.get h) = (o.map f).get (by simp [h]) := by
+  cases o
+  · simp at h
+  · simp
 
 @[simp] theorem map_map (h : β → γ) (g : α → β) (x : Option α) :
     (x.map g).map h = x.map (h ∘ g) := by
@@ -396,15 +364,9 @@ theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter
     o.isSome := by
   cases o <;> simp at h ⊢
 
-@[deprecated isSome_of_isSome_filter (since := "2025-03-18")]
-abbrev isSome_filter_of_isSome := @isSome_of_isSome_filter
-
 @[simp] theorem filter_eq_none_iff {o : Option α} {p : α → Bool} :
     o.filter p = none ↔ ∀ a, o = some a → ¬ p a := by
   cases o <;> simp [filter_some]
-
-@[deprecated filter_eq_none_iff (since := "2025-04-10")]
-abbrev filter_eq_none := @filter_eq_none_iff
 
 @[simp] theorem filter_eq_some_iff {o : Option α} {p : α → Bool} :
     o.filter p = some a ↔ o = some a ∧ p a := by
@@ -420,9 +382,6 @@ abbrev filter_eq_none := @filter_eq_none_iff
       rintro rfl
       simpa using h
 
-@[deprecated filter_eq_some_iff (since := "2025-04-10")]
-abbrev filter_eq_some := @filter_eq_some_iff
-
 theorem filter_some_eq_some : Option.filter p (some a) = some a ↔ p a := by simp
 
 theorem filter_some_eq_none : Option.filter p (some a) = none ↔ ¬p a := by simp
@@ -436,11 +395,6 @@ theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
 theorem bind_guard (x : Option α) (p : α → Bool) :
     x.bind (Option.guard p) = x.filter p := by
   cases x <;> rfl
-
-@[deprecated bind_guard (since := "2025-05-15")]
-theorem filter_eq_bind (x : Option α) (p : α → Bool) :
-    x.filter p = x.bind (Option.guard p) :=
-  (bind_guard x p).symm
 
 @[simp, grind =] theorem any_filter : (o : Option α) →
     (Option.filter p o).any q = Option.any (fun a => p a && q a) o
@@ -610,14 +564,8 @@ theorem join_eq_get {x : Option (Option α)} {h} : x.join = x.get h := by
 @[simp] theorem guard_eq_some_iff : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
-@[deprecated guard_eq_some_iff (since := "2025-04-10")]
-abbrev guard_eq_some := @guard_eq_some_iff
-
 @[simp, grind =] theorem isSome_guard : (Option.guard p a).isSome = p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
-
-@[deprecated isSome_guard (since := "2025-03-18")]
-abbrev guard_isSome := @isSome_guard
 
 @[simp, grind =] theorem isNone_guard : (Option.guard p a).isNone = !p a := by
   rw [← not_isSome, isSome_guard]
@@ -666,12 +614,6 @@ theorem guard_def (p : α → Bool) :
     Option.guard p = fun x => if p x then some x else none := rfl
 
 @[grind =] theorem guard_apply : Option.guard p x = if p x then some x else none := rfl
-
-@[deprecated guard_def (since := "2025-05-15")]
-theorem guard_eq_map (p : α → Bool) :
-    Option.guard p = fun x => Option.map (fun _ => x) (if p x then some x else none) := by
-  funext x
-  simp [Option.guard]
 
 theorem guard_eq_ite {p : α → Bool} {x : α} :
     Option.guard p x = if p x then some x else none := rfl
@@ -723,23 +665,6 @@ theorem merge_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b 
 
 @[simp, grind =] theorem merge_some_some {f} {a b : α} :
   merge f (some a) (some b) = some (f a b) := rfl
-
-@[deprecated merge_eq_or_eq (since := "2025-04-04")]
-theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
-    ∀ o₁ o₂, merge f o₁ o₂ = o₁ ∨ merge f o₁ o₂ = o₂ :=
-  merge_eq_or_eq h
-
-@[deprecated merge_none_left (since := "2025-04-04")]
-theorem liftOrGet_none_left {f} {b : Option α} : merge f none b = b :=
-  merge_none_left
-
-@[deprecated merge_none_right (since := "2025-04-04")]
-theorem liftOrGet_none_right {f} {a : Option α} : merge f a none = a :=
-  merge_none_right
-
-@[deprecated merge_some_some (since := "2025-04-04")]
-theorem liftOrGet_some_some {f} {a b : α} : merge f (some a) (some b) = some (f a b) :=
-  merge_some_some
 
 instance commutative_merge (f : α → α → α) [Std.Commutative f] :
     Std.Commutative (merge f) :=
@@ -815,6 +740,11 @@ theorem get_merge {o o' : Option α} {f : α → α → α} {i : α} [Std.Lawful
 theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
+@[simp]
+theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+    (o.map f).elim g' g = o.elim g' (g ∘ f) := by
+  cases o <;> simp
+
 -- I don't see how to construct a good grind pattern to instantiate this.
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
@@ -837,9 +767,6 @@ theorem choice_eq_some [Subsingleton α] (a : α) : choice α = some a := by
   rw [dif_pos (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
-@[deprecated choice_eq_some (since := "2025-05-12")]
-abbrev choice_eq := @choice_eq_some
-
 @[simp]
 theorem choice_eq_default [Subsingleton α] [Inhabited α] : choice α = some default :=
   choice_eq_some _
@@ -860,9 +787,6 @@ grind_pattern isSome_choice_iff_nonempty => (choice α).isSome
 @[simp]
 theorem isSome_choice [Nonempty α] : (choice α).isSome :=
   isSome_choice_iff_nonempty.2 inferInstance
-
-@[deprecated isSome_choice_iff_nonempty (since := "2025-03-18")]
-abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 @[simp]
 theorem isNone_choice_eq_false [Nonempty α] : (choice α).isNone = false := by
@@ -896,9 +820,6 @@ theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := 
 @[simp, grind =] theorem or_some {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
 
-@[deprecated or_some (since := "2025-05-03")]
-abbrev or_some' := @or_some
-
 @[simp, grind =]
 theorem or_none : or o none = o := by
   cases o <;> rfl
@@ -915,14 +836,8 @@ theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
 @[simp] theorem or_eq_none_iff : or o o' = none ↔ o = none ∧ o' = none := by
   cases o <;> simp
 
-@[deprecated or_eq_none_iff (since := "2025-04-10")]
-abbrev or_eq_none := @or_eq_none_iff
-
 @[simp] theorem or_eq_some_iff : or o o' = some a ↔ o = some a ∨ (o = none ∧ o' = some a) := by
   cases o <;> simp
-
-@[deprecated or_eq_some_iff (since := "2025-04-10")]
-abbrev or_eq_some := @or_eq_some_iff
 
 @[grind _=_] theorem or_assoc : or (or o₁ o₂) o₃ = or o₁ (or o₂ o₃) := by
   cases o₁ <;> cases o₂ <;> rfl
@@ -942,9 +857,6 @@ instance : Std.IdempotentOp (or (α := α)) := ⟨@or_self _⟩
 
 @[grind _=_] theorem map_or : (or o o').map f = (o.map f).or (o'.map f) := by
   cases o <;> rfl
-
-@[deprecated map_or (since := "2025-04-10")]
-abbrev map_or' := @map_or
 
 theorem or_of_isSome {o o' : Option α} (h : o.isSome) : o.or o' = o := by
   match o, h with
@@ -984,30 +896,6 @@ theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
 /-- The `simp` normal form of `o.orElse f` is o.or (f ())`. -/
 @[simp, grind =] theorem orElse_eq_or {o : Option α} {f} : o.orElse f = o.or (f ()) := by
   simp [or_eq_orElse]
-
-@[deprecated or_some (since := "2025-05-03")]
-theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
-
-@[deprecated or_none (since := "2025-05-03")]
-theorem none_orElse (f : Unit → Option α) : none.orElse f = f () := rfl
-
-@[deprecated or_none (since := "2025-05-13")]
-theorem orElse_fun_none (x : Option α) : x.orElse (fun _ => none) = x := by simp
-
-@[deprecated or_some (since := "2025-05-13")]
-theorem orElse_fun_some (x : Option α) (a : α) :
-    x.orElse (fun _ => some a) = some (x.getD a) := by simp
-
-@[deprecated or_eq_some_iff (since := "2025-05-13")]
-theorem orElse_eq_some_iff (o : Option α) (f) (x : α) :
-    (o.orElse f) = some x ↔ o = some x ∨ o = none ∧ f () = some x := by simp
-
-@[deprecated or_eq_none_iff (since := "2025-05-13")]
-theorem orElse_eq_none_iff (o : Option α) (f) : (o.orElse f) = none ↔ o = none ∧ f () = none := by simp
-
-@[deprecated map_or (since := "2025-05-13")]
-theorem map_orElse {x : Option α} {y} :
-    (x.orElse y).map f = (x.map f).orElse (fun _ => (y ()).map f) := by simp [map_or]
 
 /-! ### beq -/
 
@@ -1227,11 +1115,6 @@ theorem isNone_pbind_iff {o : Option α} {f : (a : α) → o = some a → Option
     (o.pbind f).isNone ↔ o = none ∨ ∃ a h, f a h = none := by
   cases o <;> simp
 
-@[deprecated "isSome_pbind_iff" (since := "2025-04-01")]
-theorem pbind_isSome {o : Option α} {f : (a : α) → o = some a → Option β} :
-    (o.pbind f).isSome = ∃ a h, (f a h).isSome := by
-  exact propext isSome_pbind_iff
-
 theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → o = some a → Option β} {b : β} :
     o.pbind f = some b ↔ ∃ a h, f a h = some b := by
   cases o <;> simp
@@ -1280,8 +1163,6 @@ theorem get_pbind {o : Option α} {f : (a : α) → o = some a → Option β} {h
 @[simp, grind =] theorem isNone_pmap {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     (pmap f o h).isNone = o.isNone := by
   cases o <;> simp
-
-@[deprecated isSome_pmap (since := "2025-04-01")] abbrev pmap_isSome := @isSome_pmap
 
 @[simp] theorem pmap_eq_some_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     pmap f o h = some b ↔ ∃ (a : α) (h : p a), o = some a ∧ b = f a h := by
@@ -1413,7 +1294,7 @@ theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
 
 @[simp, grind =] theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → some x = some a → Bool} :
     (some x).pfilter p = if p x rfl then some x else none := by
-  simp only [pfilter, cond_eq_if]
+  simp only [pfilter, cond_eq_ite]
 
 theorem isSome_pfilter_iff {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).isSome ↔ ∃ (a : α) (ha : o = some a), p a ha := by

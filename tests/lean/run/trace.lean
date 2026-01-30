@@ -46,10 +46,10 @@ withReader
   (fun ctx =>
     -- Try commenting/uncommeting the following `setBool`s
     let opts := ctx.options;
-    let opts := opts.setBool `trace.module true;
-    -- let opts := opts.setBool `trace.module.aux false;
-    let opts := opts.setBool `trace.bughunt true;
-    -- let opts := opts.setBool `trace.slow true;
+    let opts := opts.set `trace.module true;
+    -- let opts := opts.set `trace.module.aux false;
+    let opts := opts.set `trace.bughunt true;
+    -- let opts := opts.set `trace.slow true;
     { ctx with options := opts })
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 

@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Compiler.CSimpAttr
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
-
+import Lean.Meta.CasesInfo
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
 
@@ -64,7 +63,7 @@ That is, our goal is to try to promote the pre join points `_alt.<idx>` into a p
 partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
-  let result := .cases { cases with alts, resultType }
+  let result := .cases ⟨cases.typeName, resultType, cases.discr, alts⟩
   let result := s.foldl (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
@@ -148,7 +147,7 @@ where
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
       let resultType ← mkCasesResultType alts
-      return .cases { c with alts, resultType }
+      return .cases ⟨c.typeName, resultType, c.discr, alts⟩
     | .return fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
     | .jmp .. | .unreach .. => return code
 
@@ -184,7 +183,7 @@ where
           result instead of a join point that takes a closure.
           -/
           eraseParam auxParam
-          let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }
+          let auxFunDecl := ⟨auxParam.fvarId, auxParam.binderName, #[], auxParam.type, .cases cases⟩
           modifyLCtx fun lctx => lctx.addFunDecl auxFunDecl
           let auxFunDecl ← auxFunDecl.etaExpand
           go seq (i - 1) (.fun auxFunDecl c)
@@ -376,7 +375,8 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName || declName == ``Eq.ndrec
+    | _ => isCasesOnLike env declName || isNoConfusion env declName ||
+           env.isProjectionFn declName || declName == ``Eq.ndrec
   else
     false
 
@@ -517,8 +517,14 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (ctorName : Name) (numParams : Nat) (e : Expr) : M (Expr × Alt) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × Alt) := do
     withNewScope do
+    match casesAltInfo with
+    | .default numHyps =>
+      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let altType ← c.inferType
+      return (altType, .default c)
+    | .ctor ctorName numParams =>
       let mut (ps, e) ← visitBoundedLambda e numParams
       if ps.size < numParams then
         e ← etaExpandN e (numParams - ps.size)
@@ -550,7 +556,7 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
-      let typeName := casesInfo.declName.getPrefix
+      let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
@@ -560,7 +566,7 @@ where
         let numParams := indVal.numParams
         let numIndices := indVal.numIndices
         let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
-        let numCtorFields := casesInfo.altNumParams[0]!
+        let .ctor _ numCtorFields := casesInfo.altNumParams[0]! | unreachable!
         let fieldArgs : Array Expr ←
           Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
             let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
@@ -587,11 +593,11 @@ where
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
-        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+          let (altType, alt) ← visitAlt numParams args[i]!
           resultType := joinTypes altType resultType
           alts := alts.push alt
-        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let cases := ⟨typeName, resultType, discrFVarId, alts⟩
         let auxDecl ← mkAuxParam resultType
         pushElement (.cases auxDecl cases)
         let result := .fvar auxDecl.fvarId
@@ -605,12 +611,12 @@ where
     let arity := 6
     etaIfUnderApplied e arity do
       let mut args := e.getAppArgs
-      let α := args[0]!
-      let r := args[1]!
+      let α ← visitAppArg args[0]!
+      let r ← visitAppArg args[1]!
       let f ← visitAppArg args[3]!
       let q ← visitAppArg args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[.type α, .type r, q])
+      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[α, r, q])
       match f with
       | .erased => return .erased
       | .type _ => unreachable!
@@ -656,32 +662,38 @@ where
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
+    let info := getNoConfusionInfo (← getEnv) declName
     let typeName := declName.getPrefix
-    let .inductInfo inductVal ← getConstInfo typeName | unreachable!
-    let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e info.arity do
       let args := e.getAppArgs
-      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs ← liftMetaM lhs.toCtorIfLit
-      let rhs ← liftMetaM rhs.toCtorIfLit
-      match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
-      | some lhsCtorVal, some rhsCtorVal =>
-        if lhsCtorVal.name == rhsCtorVal.name then
-          etaIfUnderApplied e (arity+1) do
-            let major := args[arity]!
+      let visitMajor (numNonPropFields : Nat) := do
+        etaIfUnderApplied e (info.arity+1) do
+          let major := args[info.arity]!
+          let major ← expandNoConfusionMajor major numNonPropFields
+          let major := mkAppN major args[(info.arity+1)...*]
+          visit major
+
+      match info with
+      | .regular _ lhsPos rhsPos =>
+        let lhs ← liftMetaM do Meta.whnf args[lhsPos]!
+        let rhs ← liftMetaM do Meta.whnf args[rhsPos]!
+        let lhs ← liftMetaM lhs.toCtorIfLit
+        let rhs ← liftMetaM rhs.toCtorIfLit
+        match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
+        | some lhsCtorVal, some rhsCtorVal =>
+          if lhsCtorVal.name == rhsCtorVal.name then
             let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
               params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
                 let type ← param.fvarId!.getType
                 return if !(← Meta.isProp type) then n + 1 else n
-            let major ← expandNoConfusionMajor major numNonPropFields
-            let major := mkAppN major args[(arity+1)...*]
-            visit major
-        else
-          let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
-          mkUnreachable type
-      | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
+            visitMajor numNonPropFields
+          else
+            let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
+            mkUnreachable type
+        | _, _ =>
+          throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
+      | .perCtor _ numNonPropFields =>
+        visitMajor numNonPropFields
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with

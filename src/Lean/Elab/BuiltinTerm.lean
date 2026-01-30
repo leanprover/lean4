@@ -240,9 +240,10 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
   -- Always allow quoting private names.
-  let n ← withoutExporting <| realizeGlobalConstNoOverloadWithInfo stx[2]
-  recordExtraModUseFromDecl (isMeta := false) n
-  return toExpr n
+  withoutExporting do
+    let n ← realizeGlobalConstNoOverloadWithInfo stx[2]
+    recordExtraModUseFromDecl (isMeta := false) n
+    return toExpr n
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?

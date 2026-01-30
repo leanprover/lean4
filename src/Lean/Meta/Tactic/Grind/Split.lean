@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.SearchM
 public import Lean.Meta.Tactic.Grind.Action
 public import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Intro
@@ -78,7 +77,7 @@ private def checkIffStatus (e a b : Expr) : GoalM SplitStatus := do
   else
     return .notReady
 
-/-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
+/-- Returns `true` if `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
   unless c.isApp do return false
   (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do
@@ -167,6 +166,15 @@ private inductive SplitCandidate where
   | none
   | some (c : SplitInfo) (numCases : Nat) (isRec : Bool) (tryPostpone : Bool)
 
+/--
+Returns `true`, if there are no anchor references restricting the search,
+or there is an anchor references `ref` s.t. `ref` matches `c`.
+-/
+private def checkAnchorRefs (c : SplitInfo) : GrindM Bool := do
+  let some anchorRefs ← getAnchorRefs | return true
+  let anchor ← c.getAnchor
+  return anchorRefs.any (·.matches anchor)
+
 /-- Returns the next case-split to be performed. It uses a very simple heuristic. -/
 private def selectNextSplit? : GoalM SplitCandidate := do
   if (← isInconsistent) then return .none
@@ -177,39 +185,48 @@ where
     match cs with
     | [] =>
       modify fun s => { s with split.candidates := cs'.reverse }
-      if let .some _ numCases isRec _ := c? then
-        let numSplits := (← get).split.num
-        -- We only increase the number of splits if there is more than one case or it is recursive.
-        let numSplits := if numCases > 1 || isRec then numSplits + 1 else numSplits
+      if let .some .. := c? then
         -- Remark: we reset `numEmatch` after each case split.
         -- We should consider other strategies in the future.
-        modify fun s => { s with split.num := numSplits, ematch.num := 0 }
+        modify fun s => { s with ematch.num := 0 }
       return c?
     | c::cs =>
-    trace_goal[grind.debug.split] "checking: {c.getExpr}"
-    match (← checkSplitStatus c) with
-    | .notReady => go cs c? (c::cs')
-    | .resolved => go cs c? cs'
-    | .ready numCases isRec tryPostpone =>
-    if (← cheapCasesOnly) && numCases > 1 then
-      go cs c? (c::cs')
-    else match c? with
-    | .none => go cs (.some c numCases isRec tryPostpone) cs'
-    | .some c' numCases' _ tryPostpone' =>
-     let isBetter : GoalM Bool := do
-       if tryPostpone' && !tryPostpone then
-         return true
-       else if tryPostpone && !tryPostpone' then
-         return false
-       else if numCases == 1 && !isRec && numCases' > 1 then
-         return true
-       if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
-         return true
-       return numCases < numCases'
-     if (← isBetter) then
-        go cs (.some c numCases isRec tryPostpone) (c'::cs')
-      else
+    if !(← checkAnchorRefs c) then
+      /-
+      **Note**: `grind`s context contains anchor references restricting the
+      case-splits that can be performed, and `c` does not matches any of
+      the references provided.
+      -/
+      go cs c? cs'
+    else
+      trace_goal[grind.debug.split] "checking: {c.getExpr}"
+      match (← checkSplitStatus c) with
+      | .notReady => go cs c? (c::cs')
+      | .resolved => go cs c? cs'
+      | .ready numCases isRec tryPostpone =>
+      if (← cheapCasesOnly) && numCases > 1 then
         go cs c? (c::cs')
+      else match c? with
+      | .none => go cs (.some c numCases isRec tryPostpone) cs'
+      | .some c' numCases' _ tryPostpone' =>
+      let isBetter : GoalM Bool := do
+        if tryPostpone' && !tryPostpone then
+          return true
+        else if tryPostpone && !tryPostpone' then
+          return false
+        else if numCases == 1 && !isRec && numCases' > 1 then
+          return true
+        /-
+        **Note**: We used to use `getGeneration c.getExpr` instead of `c.getGeneration`.
+        This was incorrect. The expression returned by `c.getExpr` may have not been internalized yet.
+        -/
+        else if (← c.getGeneration) < (← c'.getGeneration) then
+          return true
+        return numCases < numCases'
+      if (← isBetter) then
+          go cs (.some c numCases isRec tryPostpone) (c'::cs')
+        else
+          go cs c? (c::cs')
 
 private def mkGrindEM (c : Expr) :=
   mkApp (mkConst ``Lean.Grind.em) c
@@ -239,7 +256,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
 private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId) := do
   if (← getConfig).trace then
     if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
-      saveCases declName false
+      saveCases declName
   cases mvarId major
 
 structure SplitCandidateWithAnchor where
@@ -266,7 +283,7 @@ def getSplitCandidateAnchors (filter : Expr → GoalM Bool := fun _ => return tr
   let candidates := (← get).split.candidates
   let candidates ← candidates.toArray.filterMapM fun c => do
     let e := c.getExpr
-    let anchor ← getAnchor e
+    let anchor ← c.getAnchor
     let status ← checkSplitStatus c
     -- **Note**: we ignore case-splits that are not ready or have already been resolved.
     -- We may consider adding an option for including "not-ready" splits in the future.
@@ -322,6 +339,7 @@ where
 private def isCompressibleSeq (seq : List (TSyntax `grind)) : Bool :=
   seq.all fun tac => match tac with
     | `(grind| next $_* => $_:grindSeq) => false
+    | `(grind| · $_:grindSeq) => false
     | _ => true
 
 /--
@@ -404,7 +422,25 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
     else
       pure 0
     return (mvarIds, numDigits)
-  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let numSubgoals := mvarIds.length
+  /-
+  **Split counter heuristic**: We do not increment `numSplits` for the first case (`i = 0`)
+  of a non-recursive split. This leverages non-chronological backtracking: if the first case
+  is solved using a proof that doesn't depend on the case hypothesis, we backtrack and close
+  the original goal directly. In this scenario, the case-split was "free", it didn't contribute
+  to the proof. By not counting it, we allow deeper exploration when case-splits turn out to be
+  irrelevant.
+
+  For recursive types or subsequent cases (`i > 0`), we always increment the counter since
+  these represent genuine branches in the proof search.
+  -/
+  let subgoals := mvarIds.mapIdx fun i mvarId =>
+    let numSplits := goal.split.num
+    let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
+    { goal with
+      mvarId
+      split.num := numSplits
+      split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do
@@ -463,67 +499,10 @@ def splitNext (stopAtFirstFailure := true) (compress := true) : Action := fun go
     | kna goal
   let cExpr := c.getExpr
   let gen := goal.getGeneration cExpr
-  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros gen >> assertAll
+  let genNew := if numCases > 1 || isRec then gen+1 else gen
+  let x : Action := splitCore c numCases isRec stopAtFirstFailure compress >> intros genNew >> assertAll
   x goal kna kp
 
 end Action
-
-/-!
-**------------------------------------------**
-**------------------------------------------**
-**TODO** Delete rest of the file
-**------------------------------------------**
-**------------------------------------------**
--/
-
-/--
-Performs a case-split using `c`.
-Remarks:
-- `mvarId` is not necessarily `(← getGoal).mvarId`, `splitNext` creates an auxiliary meta-variable
-  to be able to implement non-chronological backtracking.
-- `numCases` and `isRec` are computed using `checkSplitStatus`.
--/
-private def splitCore (mvarId : MVarId) (c : SplitInfo) (numCases : Nat) (isRec : Bool) : SearchM (List Goal × Nat) := do
-  let cExpr := c.getExpr
-  let gen ← getGeneration cExpr
-  let genNew := if numCases > 1 || isRec then gen+1 else gen
-  saveSplitDiagInfo cExpr genNew numCases c.source
-  markCaseSplitAsResolved cExpr
-  trace_goal[grind.split] "{cExpr}, generation: {gen}"
-  let mvarIds ← if let .imp e h _ := c then
-    casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
-  else if (← isMatcherApp cExpr) then
-    casesMatch mvarId cExpr
-  else
-    casesWithTrace mvarId (← mkCasesMajor cExpr)
-  let goal ← getGoal
-  let numSubgoals := mvarIds.length
-  let goals := mvarIds.mapIdx fun i mvarId => { goal with
-    mvarId
-    split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
-  }
-  return (goals, genNew)
-
-/--
-Selects a case-split from the list of candidates, and adds new choice point
-(aka backtracking point). Returns true if successful.
--/
-def splitNext : SearchM Bool := withCurrGoalContext do
-  let .some info numCases isRec _ ← selectNextSplit?
-    | return false
-  let mvarId ← (← getGoal).mkAuxMVar
-  let (goals, genNew) ← splitCore mvarId info numCases isRec
-  mkChoice (mkMVar mvarId) goals genNew (info? := some info)
-  intros genNew
-  return true
-
-/--
-Tries to perform a case-split using `c`. Returns `none` if `c` has already been resolved or
-is not ready.
--/
-def split? (c : SplitInfo) : SearchM (Option (List Goal × Nat)) := do
-  let .ready numCases isRec _ ← checkSplitStatus c | return none
-  let mvarId := (← getGoal).mvarId
-  return some (← splitCore mvarId c numCases isRec)
 
 end Lean.Meta.Grind

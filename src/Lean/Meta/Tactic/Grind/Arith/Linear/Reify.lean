@@ -33,6 +33,12 @@ def isNegInst (struct : Struct) (inst : Expr) : Bool :=
 def reportInstIssue (e : Expr) : GoalM Unit := do
   reportIssue! "`grind linarith` term with unexpected instance{indentExpr e}"
 
+private def assertNatCastNonneg (a : Expr) : LinearM Unit := do
+  let s ← getStruct
+  let h := mkApp8 (mkConst ``Grind.OrderedRing.natCast_nonneg [s.u]) s.type s.ringInst?.get!
+    s.leInst?.get! s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst?.get! s.orderedRingInst?.get! a
+  addNewRawFact h (← inferType h) (← getGeneration a) (.ematch (.decl ``Grind.OrderedRing.natCast_nonneg))
+
 /--
 Converts a Lean `IntModule` expression `e` into a `LinExpr`
 
@@ -54,11 +60,11 @@ partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM
     if isZeroInst (← getStruct) i then return some .zero else asTopVar e
   | OfNat.ofNat _ _ _ =>
     if (← isOfNatZero e) then return some .zero else asTopVar e
-  | _ =>
-    if skipVar then
-      return none
-    else
-      return some (← toVar e)
+  | NatCast.natCast _ _ a =>
+    if (← getStruct).orderedRingInst?.isSome then
+      assertNatCastNonneg a
+    toTopVar e
+  | _ => toTopVar e
 where
   toVar (e : Expr) : LinearM LinExpr := do
     if (← alreadyInternalized e) then
@@ -69,6 +75,11 @@ where
   asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
     toVar e
+  toTopVar (e : Expr) : LinearM (Option LinExpr) := do
+    if skipVar then
+      return none
+    else
+      return some (← toVar e)
   asTopVar (e : Expr) : LinearM (Option LinExpr) := do
     reportInstIssue e
     if skipVar then
@@ -100,6 +111,10 @@ where
       if isZeroInst (← getStruct) i then return .zero else asVar e
     | OfNat.ofNat _ _ _ =>
       if (← isOfNatZero e) then return .zero else toVar e
+    | NatCast.natCast _ _ a =>
+      if (← getStruct).orderedRingInst?.isSome then
+        assertNatCastNonneg a
+      toVar e
     | _ => toVar e
 
 end  Lean.Meta.Grind.Arith.Linear

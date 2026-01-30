@@ -38,6 +38,9 @@ open Std.Iterators
 #guard_msgs in
 #eval (2<...<15).iter.stepSize 2 |>.toList
 
+example : (1...5).size = 4 := by
+  simp [← Std.Rco.size_toArray, Std.Rco.toArray_eq_if_rco]
+
 /-- info: true -/
 #guard_msgs in
 #eval 1 ∈ (1...=5)
@@ -76,6 +79,11 @@ example (xs : Array Nat) : Id Unit := do
   for _h : i in *...=xs.size do
     for _h' : i' in *...<i do
       x := x + xs[i']
+
+example {a : Array Nat} (h : a.size = 28) : Id Unit := do
+  let mut x := 0
+  for h : i in *...(3 : Nat) do
+    x := a[1...4][i]
 
 /--
 info: i=0, j=2

@@ -7,9 +7,9 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Init.Data.String
 public import Lean.Data.Lsp.BasicAux
 public import Lean.DeclarationRange
+import Init.Data.String.Search
 
 public section
 

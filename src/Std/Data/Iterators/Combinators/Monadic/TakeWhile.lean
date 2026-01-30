@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.PostconditionMonad
 
 @[expose] public section
@@ -31,7 +30,8 @@ Several variants of this combinator are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -39,7 +39,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 Internal state of the `takeWhile` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
+structure Iterators.Types.TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
   /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
@@ -85,7 +85,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (toIterM (TakeWhile.mk (P := P) it) m β : IterM m β)
+  (IterM.mk (Types.TakeWhile.mk (P := P) it) m β : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs
@@ -120,8 +120,8 @@ This combinator calls `P` on each output of `it` until the predicate evaluates t
 it terminates.
 -/
 @[always_inline, inline]
-def IterM.takeWhileM [Monad m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (it.takeWhileWithPostcondition (PostconditionT.lift ∘ P) : IterM m β)
+def IterM.takeWhileM [Monad m] [MonadAttach m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
+  (it.takeWhileWithPostcondition (PostconditionT.attachLift ∘ P) : IterM m β)
 
 /--
 Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
@@ -157,7 +157,9 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
-  (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
+  (it.takeWhileWithPostcondition (pure ∘ ULift.up ∘ P) : IterM m β)
+
+namespace Iterators.Types
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
@@ -189,7 +191,7 @@ instance TakeWhile.instIterator [Monad m] [Iterator α m β] {P} :
 private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
     [Finite α m] {P} :
     FinitenessRelation (TakeWhile α m β P) m where
-  rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySteps ∘ TakeWhile.inner ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySteps ∘ TakeWhile.inner ∘ IterM.internalState)
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -214,7 +216,7 @@ instance TakeWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
 private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     [Productive α m] {P} :
     ProductivenessRelation (TakeWhile α m β P) m where
-  rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySkips ∘ TakeWhile.inner ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySkips ∘ TakeWhile.inner ∘ IterM.internalState)
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -226,30 +228,9 @@ instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m]
     Productive (TakeWhile α m β P) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
-    IteratorCollect (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
-instance TakeWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] {P} :
-    IteratorCollectPartial (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] :
     IteratorLoop (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] {P} :
-    IteratorLoopPartial (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] {P} :
-    IteratorSize (TakeWhile α m β P) m :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] {P} :
-    IteratorSizePartial (TakeWhile α m β P) m :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

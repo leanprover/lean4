@@ -7,7 +7,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Meta.Tactic.Grind.ExprPtr
+import Lean.Meta.Sym.ExprPtr
+import Lean.Meta.Sym.Util
 import Lean.Meta.Tactic.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -92,6 +93,10 @@ where
 
   preprocess (e : Expr) : M Expr := do
     /-
+    **Note**: We must use `instantiateMVars` here because this function is called using the result of `inferType`.
+    -/
+    let e ← instantiateMVars e
+    /-
     We must unfold reducible constants occurring in `prop` because the congruence closure
     module in `grind` assumes they have been expanded.
     See `grind_mark_nested_proofs_bug.lean` for an example.
@@ -99,7 +104,7 @@ where
     -/
     /- We must also apply beta-reduction to improve the effectiveness of the congruence closure procedure. -/
     let e ← Core.betaReduce e
-    let e ← unfoldReducible e
+    let e ← Sym.unfoldReducible e
     /- We must mask proofs occurring in `prop` too. -/
     let e ← visit e
     let e ← eraseIrrelevantMData e

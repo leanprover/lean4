@@ -35,7 +35,7 @@ def LetDecl.applyRenaming (decl : LetDecl) (r : Renaming) : CompilerM LetDecl :=
 mutual
 partial def FunDecl.applyRenaming (decl : FunDecl) (r : Renaming) : CompilerM FunDecl := do
   if let some binderName := r.get? decl.fvarId then
-    let decl := { decl with binderName }
+    let decl := decl.updateBinderName binderName
     modifyLCtx fun lctx => lctx.addFunDecl decl
     decl.updateValue (← decl.value.applyRenaming r)
   else

@@ -17,13 +17,11 @@ public section
 namespace Lean
 register_builtin_option diagnostics : Bool := {
   defValue := false
-  group    := "diagnostics"
   descr    := "collect diagnostic information"
 }
 
 register_builtin_option diagnostics.threshold : Nat := {
   defValue := 20
-  group    := "diagnostics"
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
@@ -439,6 +437,9 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 
+@[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
+  (·.1) <$> x.toIO ctx s
+
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
@@ -456,7 +457,6 @@ the exception has been thrown.
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
-  group    := "debug"
   descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
 }
 
@@ -524,7 +524,7 @@ instance : MonadLog CoreM where
     if (← read).suppressElabErrors then
       -- discard elaboration errors, except for a few important and unlikely misleading ones, on
       -- parse error
-      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `trace) do
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `lean.inductionWithNoAlts._namedError | `trace) do
         return
 
     let ctx ← read
@@ -562,7 +562,6 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
   defValue := true
-  group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
 
@@ -650,7 +649,10 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxHeartbeats
+  else
+    false
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=
@@ -728,15 +730,13 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
   let env ← getEnv
-  if mayPostpone && env.header.isModule && !decls.any (isMeta env) && (← compiler.postponeCompile.getM) then
+  if mayPostpone && env.header.isModule && !decls.any (isMarkedMeta env) && (← compiler.postponeCompile.getM) then
     for decl in decls do
       trace[Compiler.init] "postponing compilation of {decl}"
       modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })
     return
 
-  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
-  -- by the replay code
-  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+  if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return

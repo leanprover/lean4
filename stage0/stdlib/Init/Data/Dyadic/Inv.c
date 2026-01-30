@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Dyadic_toRat(lean_object*);
+lean_object* l_Rat_inv(lean_object*);
 lean_object* l_Rat_toDyadic(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec___boxed(lean_object*, lean_object*);
-lean_object* l_Rat_inv(lean_object*);
-lean_object* l_Dyadic_toRat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -111,7 +111,7 @@ example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c 
 #guard_msgs (trace) in
 example (a b c : BitVec 8) (f : BitVec 8 → Nat) : 2*a = 1 → 2*b = 1 → f (a) = f (b) := by
   set_option trace.grind.ring.impEq true in
-  fail_if_success grobner -cutsat
+  fail_if_success grobner -lia
   sorry
 
 -- This one requires the `cutsat` solver as well.
@@ -120,7 +120,7 @@ example (a b c : Int) (f : Int → Nat)
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
-  grobner +cutsat
+  grobner +lia
 
 -- Now we check the same example, calling `cutsat` but adding the `ring` solver.
 example (a b c : Int) (f : Int → Nat)
@@ -135,7 +135,7 @@ example [CommRing α] [NoNatZeroDivisors α] (a b c : α) (f : α → Nat)
     a^2 + b^2 + c^2 = 5 →
     a^3 + b^3 + c^3 = 7 →
     f (a^4 + b^4) + f (9 - c^4) ≠ 1 := by
-  grobner +cutsat
+  grobner +lia
 
 example [CommRing α] [NoNatZeroDivisors α] (x y z : α) : 3*x = 1 → 3*z = 2 → 2*y = 2 → x + z + 3*y = 4 := by
   grobner
@@ -177,4 +177,13 @@ example (x : Int) (h : x^2 = 0) : (if x > 0 then x else x)^3 = 0 := by
 -- Verify that `grobner` will not instantiate theorems.
 example {xs ys zs : List α} : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   fail_if_success grobner
+  grind
+
+example (x : BitVec 8) : (x - 16)*(x + 272) = x^2 := by
+  grind
+
+example (x : BitVec 8) : (x - 16#8)*(x + 16#8) = x^2 := by
+  grind
+
+example (x : BitVec 8) : (x - 16)*(x + 272#8) = x^2 := by
   grind

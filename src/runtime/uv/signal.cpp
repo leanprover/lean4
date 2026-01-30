@@ -101,19 +101,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    auto create_promise = []() {
-        return lean_io_promise_new();
-    };
-
-    auto setup_signal = [create_promise, obj, signal]() {
+    auto setup_signal = [obj, signal]() {
         lean_assert(signal->m_promise == NULL);
-        signal->m_promise = create_promise();
+
+        lean_object* promise = lean_io_promise_new();
+        signal->m_promise = promise;
         signal->m_state = SIGNAL_STATE_RUNNING;
 
         // The event loop must keep the signal alive for the duration of the run time.
         lean_inc(obj);
-
-        event_loop_lock(&global_ev);
+        lean_inc(promise);
 
         int result;
         if (signal->m_repeating) {
@@ -130,16 +127,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             );
         }
 
-        event_loop_unlock(&global_ev);
-
         if (result != 0) {
             lean_dec(obj);
+            lean_dec(promise);
+            event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-        } else {
-            lean_inc(signal->m_promise);
-            return lean_io_result_mk_ok(signal->m_promise);
         }
+
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_ok(promise);
     };
+
+    event_loop_lock(&global_ev);
 
     if (signal->m_repeating) {
         switch (signal->m_state) {
@@ -154,20 +153,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                             lean_dec(signal->m_promise);
                         }
 
-                        signal->m_promise = create_promise();
+                        signal->m_promise = lean_io_promise_new();
                     }
 
                     lean_inc(signal->m_promise);
+                    event_loop_unlock(&global_ev);
                     return lean_io_result_mk_ok(signal->m_promise);
                 }
             case SIGNAL_STATE_FINISHED:
                 {
                     if (signal->m_promise == NULL) {
-                        lean_object* finished_promise = create_promise();
+                        lean_object* finished_promise = lean_io_promise_new();
+                        event_loop_unlock(&global_ev);
                         return lean_io_result_mk_ok(finished_promise);
                     }
 
                     lean_inc(signal->m_promise);
+                    event_loop_unlock(&global_ev);
                     return lean_io_result_mk_ok(signal->m_promise);
                 }
         }
@@ -176,9 +178,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             return setup_signal();
         } else if (signal->m_promise != NULL) {
             lean_inc(signal->m_promise);
+            event_loop_unlock(&global_ev);
             return lean_io_result_mk_ok(signal->m_promise);
         } else {
-            lean_object* finished_promise = create_promise();
+            lean_object* finished_promise = lean_io_promise_new();
+            event_loop_unlock(&global_ev);
             return lean_io_result_mk_ok(finished_promise);
         }
     }
@@ -229,7 +233,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
             lean_dec(signal->m_promise);
             signal->m_promise = NULL;
             signal->m_state = SIGNAL_STATE_INITIAL;
-
             lean_dec(obj);
         }
     }

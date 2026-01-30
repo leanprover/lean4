@@ -66,12 +66,9 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
+@[inline, inherit_doc DHashMap.emptyWithCapacity] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
   ⟨DHashMap.emptyWithCapacity capacity⟩
-
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
   emptyCollection := emptyWithCapacity
@@ -111,7 +108,7 @@ instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
@@ -201,6 +198,10 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Const.ofArray] def ofArray [BEq α] [Hashable α] (a : Array (α × β)) :
+    HashMap α β :=
+  ⟨DHashMap.Const.ofArray a⟩
+
 @[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
     List (α × β) :=
   DHashMap.Const.toList m.inner
@@ -221,10 +222,10 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.forIn f init
 
-instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForM m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForM m (HashMap α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
 
-instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α β) (α × β) where
+instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
@@ -255,8 +256,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForIn m (HashMap α �
     Array α :=
   m.inner.keysArray
 
+@[inline, inherit_doc DHashMap.all] def all (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.all p
+
+@[inline, inherit_doc DHashMap.any] def any (m : HashMap α β) (p : α → β → Bool) : Bool :=
+  m.inner.any p
 /--
-Computes the union of the given hash maps. If a key appears in both maps, the entry contains in
+Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
 
 This function always merges the smaller map into the larger map, so the expected runtime is
@@ -266,6 +272,21 @@ This function always merges the smaller map into the larger map, so the expected
   ⟨DHashMap.union m₁.inner m₂.inner⟩
 
 instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
+
+@[inherit_doc DHashMap.inter, inline] def inter [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
+
+@[inherit_doc DHashMap.beq] def beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : HashMap α β) : Bool :=
+  DHashMap.Const.beq m₁.inner m₂.inner
+
+instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.inter, inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  ⟨DHashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩
 
 section Unverified
 

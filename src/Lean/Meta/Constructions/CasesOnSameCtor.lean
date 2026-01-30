@@ -23,7 +23,7 @@ namespace Lean
 open Meta
 
 /--
-Helper for `mkCasesOnSameCtor` that constructs a heterogenous matcher (indices may differ)
+Helper for `mkCasesOnSameCtor` that constructs a heterogeneous matcher (indices may differ)
 and does not include the equality proof in the motive (so it's not a the shape of a matcher) yet.
 -/
 public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit := do
@@ -128,7 +128,7 @@ this module can be dropped.
 
 Note that for some data types where the indices determine the constructor (e.g. `Vec`), this leads
 to less efficient code than the normal matcher, as this needs to read the constructor tag on both
-arguments, wheras the normal matcher produces code that reads just the first argument’s tag, and
+arguments, whereas the normal matcher produces code that reads just the first argument’s tag, and
 then boldly reads the second argument’s fields.
 -/
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do
@@ -153,17 +153,19 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
       let motiveType ← mkForallFVars (is ++ #[x1,x2,heq]) (mkSort v)
       withLocalDecl `motive .implicit motiveType fun motive => do
 
-      let altTypes ← info.ctors.toArray.mapIdxM fun i ctorName => do
+      let (altTypes, altInfos) ← Array.unzip <$> info.ctors.toArray.mapIdxM fun i ctorName => do
         let ctor := mkAppN (mkConst ctorName us) params
         withSharedCtorIndices ctor fun zs12 is fields1 fields2 => do
           let ctorApp1 := mkAppN ctor fields1
           let ctorApp2 := mkAppN ctor fields2
           let e := mkAppN motive (is ++ #[ctorApp1, ctorApp2, (← mkEqRefl (mkNatLit i))])
           let e ← mkForallFVars zs12 e
+          let e ← if zs12.isEmpty then mkArrow (mkConst ``Unit) e else pure e
           let name := match ctorName with
             | Name.str _ s => Name.mkSimple s
             | _ => Name.mkSimple s!"alt{i+1}"
-          return (name, e)
+          let altInfo := { numFields := zs12.size, numOverlaps := 0, hasUnitThunk := zs12.isEmpty : Match.AltParamInfo}
+          return ((name, e), altInfo)
       withLocalDeclsDND altTypes fun alts => do
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism1' _ =>
         forallBoundedTelescope t0 (some (info.numIndices + 1)) fun ism2' _ => do
@@ -190,8 +192,10 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
             let goal := alt.mvarId!
             let some (goal, _) ← Cases.unifyEqs? newRefls.size goal {}
                 | throwError "unifyEqns? unexpectedly closed goal"
-            let [] ← goal.apply alts[i]!
-              | throwError "could not apply {alts[i]!} to close\n{goal}"
+            let hyp := alts[i]!
+            let hyp := if zs1.isEmpty && zs2.isEmpty then mkApp hyp (mkConst ``Unit.unit) else hyp
+            let [] ← goal.apply hyp
+              | throwError "could not apply {hyp} to close\n{goal}"
             mkLambdaFVars (zs1 ++ zs2) (← instantiateMVars alt)
         let casesOn2 := mkAppN casesOn2 alts'
         let casesOn2 := mkAppN casesOn2 newRefls
@@ -207,9 +211,11 @@ public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := 
         let matcherInfo : MatcherInfo := {
           numParams := info.numParams
           numDiscrs := info.numIndices + 3
-          altNumParams := altTypes.map (·.2.getNumHeadForalls)
+          altInfos
           uElimPos? := some 0
-          discrInfos := #[{}, {}, {}]}
+          discrInfos := #[{}, {}, {}]
+          overlaps := {}
+        }
 
         -- Compare attributes with `mkMatcherAuxDefinition`
         withExporting (isExporting := !isPrivateName declName) do

@@ -40,11 +40,10 @@ public import Lean.LabelAttribute
 public import Lean.AddDecl
 public import Lean.Replay
 public import Lean.PrivateName
-public import Lean.PremiseSelection
+public import Lean.LibrarySuggestions
 public import Lean.Namespace
 public import Lean.EnvExtension
 public import Lean.ErrorExplanation
-public import Lean.ErrorExplanations
 public import Lean.DefEqAttrib
 public import Lean.Shell
 public import Lean.ExtraModUses

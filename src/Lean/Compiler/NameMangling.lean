@@ -6,8 +6,8 @@ Author: Leonardo de Moura, Robin Arnez
 module
 
 prelude
-public import Init.Prelude
-import Init.Data.String.Basic
+public import Lean.Setup
+import Init.Data.String.TakeDrop
 
 namespace String
 
@@ -28,27 +28,9 @@ where finally
   simp only [Nat.reducePow, Nat.add_one_sub_one] at this
   simp [i, UInt32.lt_iff_toNat_lt, this]; omega
 
-def ValidPos.remainingBytes (pos : String.ValidPos s) : Nat :=
-  s.utf8ByteSize - pos.offset.byteIdx
 
-theorem ValidPos.remainingBytes_next_lt_of_lt {p p' : String.ValidPos s} (h' : p' < p) :
-    p.remainingBytes < p'.remainingBytes := by
-  simp only [ValidPos.lt_iff, Pos.Raw.lt_iff] at h' ⊢
-  simp only [remainingBytes]
-  have : p.offset.byteIdx ≤ s.utf8ByteSize := p.isValid.le_rawEndPos
-  omega
-
-theorem ValidPos.lt_next {p : String.ValidPos s} (h) : p < p.next h := by
-  simp only [next, lt_iff, Slice.Pos.offset_ofSlice, Pos.Raw.lt_iff, Slice.Pos.byteIdx_offset_next,
-    offset_toSlice, Nat.lt_add_right_iff_pos]
-  exact Char.utf8Size_pos _
-
-theorem ValidPos.remainingBytes_next_lt (pos : String.ValidPos s) (h) :
-    (pos.next h).remainingBytes < pos.remainingBytes :=
-  remainingBytes_next_lt_of_lt (pos.lt_next h)
-
-def mangleAux (s : String) (pos : s.ValidPos) (r : String) : String :=
-  if h : pos = s.endValidPos then r else
+def mangleAux (s : String) (pos : s.Pos) (r : String) : String :=
+  if h : pos = s.endPos then r else
   let c := pos.get h
   let pos := pos.next h
   if c.isAlpha || c.isDigit then
@@ -61,63 +43,56 @@ def mangleAux (s : String) (pos : s.ValidPos) (r : String) : String :=
     mangleAux s pos (pushHex 4 c.val (r ++ "_u"))
   else
     mangleAux s pos (pushHex 8 c.val (r ++ "_U"))
-termination_by pos.remainingBytes
-decreasing_by all_goals apply ValidPos.remainingBytes_next_lt
+termination_by pos
 
 public def mangle (s : String) : String :=
-  mangleAux s s.startValidPos ""
+  mangleAux s s.startPos ""
 
 end String
 
 namespace Lean
 
-def checkLowerHex : Nat → (s : String) → s.ValidPos → Bool
+def checkLowerHex : Nat → (s : String) → s.Pos → Bool
   | 0, _, _ => true
   | k + 1, s, pos =>
-    if h : pos = s.endValidPos then
+    if h : pos = s.endPos then
       false
     else
       let ch := pos.get h
       (ch.isDigit || (ch.val >= 97 && ch.val <= 102)) && -- 0-9a-f
         checkLowerHex k s (pos.next h)
 
-theorem valid_of_checkLowerHex (h : checkLowerHex n s p) :
-    (String.Pos.Raw.mk (p.offset.byteIdx + n)).IsValid s := by
-  fun_induction checkLowerHex
-  · rename_i p
-    exact p.isValid
-  · contradiction
-  · rename_i k s p hp ch ih
-    simp only [Bool.and_eq_true, Bool.or_eq_true, decide_eq_true_eq] at h
-    specialize ih h.2
-    refine cast ?_ ih
-    congr 2
-    simp only [String.ValidPos.next, String.Slice.Pos.offset_ofSlice,
-      String.Slice.Pos.byteIdx_offset_next, String.ValidPos.offset_toSlice, Nat.succ_eq_add_one]
-    change p.offset.byteIdx + ch.utf8Size + k = _
-    rw [Char.utf8Size_eq_one_iff.mpr, Nat.add_assoc, Nat.add_comm 1]
-    rcases h.1 with h | h
-    · simp only [Char.isDigit, Bool.and_eq_true, decide_eq_true_eq] at h
-      exact UInt32.le_trans h.2 (by decide)
-    · exact UInt32.le_trans h.2 (by decide)
+def fromHex? (c : Char) : Option Nat :=
+  if c.isDigit then
+    some (c.val - 48).toNat
+  else if c.val >= 97 && c.val <= 102 then
+    some (c.val - 87).toNat
+  else none
 
-def parseLowerHex : (n : Nat) → (s : String) → (p : s.ValidPos) →
-    checkLowerHex n s p → Nat → Nat
-  | 0, _, _, _, n => n
-  | k + 1, s, pos, h, n =>
-    have hpos : pos ≠ s.endValidPos := by
-      rw [checkLowerHex] at h
-      split at h <;> trivial
-    let ch := pos.get hpos
-    let pos := pos.next hpos
-    have h' : checkLowerHex k s pos := by
-      simp only [checkLowerHex, hpos, ↓reduceDIte, ge_iff_le, Bool.and_eq_true, Bool.or_eq_true,
-        decide_eq_true_eq, pos] at h ⊢
-      exact h.2
-    if ch.isDigit then parseLowerHex k s pos h' (n <<< 4 ||| (ch.val - 48).toNat)
-    else parseLowerHex k s pos h' (n <<< 4 ||| (ch.val - 87).toNat)
+def parseLowerHex? (k : Nat) (s : String) (p : s.Pos) (acc : Nat) :
+    Option (s.Pos × Nat) :=
+  match k with
+  | 0 => some (p, acc)
+  | k + 1 =>
+    if h : p = s.endPos then
+      none
+    else
+      match fromHex? (p.get h) with
+      | some d => parseLowerHex? k s (p.next h) (acc <<< 4 ||| d)
+      | none => none
 
-def checkDisambiguation (s : String) (p : s.ValidPos) : Bool :=
+theorem lt_of_parseLowerHex?_eq_some {k : Nat} {s : String} {p q : s.Pos} {acc : Nat}
+    {r : Nat} (hk : 0 < k) : parseLowerHex? k s p acc = some (q, r) → p < q := by
+  fun_induction parseLowerHex? with
+  | case1 => simp at hk
+  | case2 => simp
+  | case3 p acc k h d x ih =>
+    match k with
+    | 0 => simpa [parseLowerHex?] using fun h _ => h ▸ p.lt_next
+    | k + 1 => exact fun h => String.Pos.lt_trans p.lt_next (ih (by simp) h)
+  | case4 => simp
+
+def checkDisambiguation (s : String) (p : s.Pos) : Bool :=
   if h : _ then
     let b := p.get h
     if b = '_' then
@@ -132,13 +107,12 @@ def checkDisambiguation (s : String) (p : s.ValidPos) : Bool :=
       true
     else false
   else true
-termination_by p.remainingBytes
-decreasing_by apply p.remainingBytes_next_lt
+termination_by p
 
 def needDisambiguation (prev : Name) (next : String) : Bool :=
   (match prev with
-    | .str _ s => ∃ h, (s.endValidPos.prev h).get (by simp) = '_'
-    | _ => false) || checkDisambiguation next next.startValidPos
+    | .str _ s => ∃ h, (s.endPos.prev h).get (by simp) = '_'
+    | _ => false) || checkDisambiguation next next.startPos
 
 def Name.mangleAux : Name → String
   | Name.anonymous => ""
@@ -146,7 +120,7 @@ def Name.mangleAux : Name → String
     let m := String.mangle s
     match p with
     | Name.anonymous =>
-      if checkDisambiguation m m.startValidPos then "00" ++ m else m
+      if checkDisambiguation m m.startPos then "00" ++ m else m
     | p              =>
       let m1 := mangleAux p
       m1 ++ (if needDisambiguation p m then "_00" else "_") ++ m
@@ -156,76 +130,89 @@ def Name.mangleAux : Name → String
     | p              =>
       mangleAux p ++ "_" ++ n.repr ++ "_"
 
-@[export lean_name_mangle]
 public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
 
-@[export lean_mk_module_initialization_function_name]
-public def mkModuleInitializationFunctionName (moduleName : Name) : String :=
-  "initialize_" ++ moduleName.mangle ""
+/--
+Given `s = nm.mangle pre` for some `nm : Name` and `pre : String` with `nm != Name.anonymous`,
+returns `(mkBoxedName nm).mangle pre`. This is used in the interpreter to find names of boxed
+IR declarations.
+-/
+@[export lean_mk_mangled_boxed_name]
+public def mkMangledBoxedName (s : String) : String :=
+  if s.endsWith "__" then
+    s ++ "_00__boxed"
+  else
+    s ++ "___boxed"
+
+/--
+The mangled name of the name used to create the module initialization function.
+
+This also used for the library name of a module plugin.
+-/
+public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId := none) : String :=
+  let pre := pkg?.elim "" (s!"{·.mangle}_")
+  moduleName.mangle pre
+
+public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) : String :=
+  "initialize_" ++ mkModuleInitializationStem moduleName pkg?
+
+public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
+  pkg?.elim "l_" (s!"lp_{·.mangle}_")
 
 -- assumes `s` has been generated `Name.mangle n ""`
-def Name.demangleAux (s : String) (p : s.ValidPos) (res : Name)
+def Name.demangleAux (s : String) (p₀ : s.Pos) (res : Name)
     (acc : String) (ucount : Nat) : Name :=
-  if h : p = s.endValidPos then res.str (acc.pushn '_' (ucount / 2)) else
-  let ch := p.get h
-  let p := p.next h
+  if hp₀ : p₀ = s.endPos then res.str (acc.pushn '_' (ucount / 2)) else
+  let ch := p₀.get hp₀
+  let p := p₀.next hp₀
   if ch = '_' then demangleAux s p res acc (ucount + 1) else
   if ucount % 2 = 0 then
     demangleAux s p res (acc.pushn '_' (ucount / 2) |>.push ch) 0
   else if ch.isDigit then
     let res := res.str (acc.pushn '_' (ucount / 2))
-    if h : ch = '0' ∧ ∃ h : p ≠ s.endValidPos, p.get h = '0' then
+    if h : ch = '0' ∧ ∃ h : p ≠ s.endPos, p.get h = '0' then
       demangleAux s (p.next h.2.1) res "" 0
     else
       decodeNum s p res (ch.val - 48).toNat
-  else if h : ch = 'x' ∧ checkLowerHex 2 s p then
-    let acc := acc.pushn '_' (ucount / 2)
-    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 2 s p h.2 0))) 0
-  else if h : ch = 'u' ∧ checkLowerHex 4 s p then
-    let acc := acc.pushn '_' (ucount / 2)
-    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 4 s p h.2 0))) 0
-  else if h : ch = 'U' ∧ checkLowerHex 8 s p then
-    let acc := acc.pushn '_' (ucount / 2)
-    demangleAux s ⟨_, valid_of_checkLowerHex h.2⟩ res (acc.push (Char.ofNat (parseLowerHex 8 s p h.2 0))) 0
   else
-    demangleAux s p (res.str acc) ("".pushn '_' (ucount / 2) |>.push ch) 0
-termination_by p.remainingBytes
-decreasing_by
-  · apply String.ValidPos.remainingBytes_next_lt
-  · apply String.ValidPos.remainingBytes_next_lt
-  · apply String.ValidPos.remainingBytes_next_lt_of_lt
-        (Nat.lt_trans (String.ValidPos.lt_next _) (String.ValidPos.lt_next _))
-  · apply String.ValidPos.remainingBytes_next_lt
-  · apply String.ValidPos.remainingBytes_next_lt_of_lt
-      (Nat.lt_trans (String.ValidPos.lt_next _) (Nat.lt_add_of_pos_right (by decide)))
-  · apply String.ValidPos.remainingBytes_next_lt_of_lt
-      (Nat.lt_trans (String.ValidPos.lt_next _) (Nat.lt_add_of_pos_right (by decide)))
-  · apply String.ValidPos.remainingBytes_next_lt_of_lt
-      (Nat.lt_trans (String.ValidPos.lt_next _) (Nat.lt_add_of_pos_right (by decide)))
-  · apply String.ValidPos.remainingBytes_next_lt
+    match ch, h₁ : parseLowerHex? 2 s p 0 with
+    | 'x', some (q, v) =>
+      let acc := acc.pushn '_' (ucount / 2)
+      have : p₀ < q := String.Pos.lt_trans p₀.lt_next (lt_of_parseLowerHex?_eq_some (by decide) h₁)
+      demangleAux s q res (acc.push (Char.ofNat v)) 0
+    | _, _ =>
+      match ch, h₂ : parseLowerHex? 4 s p 0 with
+      | 'u', some (q, v) =>
+        let acc := acc.pushn '_' (ucount / 2)
+        have : p₀ < q := String.Pos.lt_trans p₀.lt_next (lt_of_parseLowerHex?_eq_some (by decide) h₂)
+        demangleAux s q res (acc.push (Char.ofNat v)) 0
+      | _, _ =>
+        match ch, h₃ : parseLowerHex? 8 s p 0 with
+        | 'U', some (q, v) =>
+          let acc := acc.pushn '_' (ucount / 2)
+          have : p₀ < q := String.Pos.lt_trans p₀.lt_next (lt_of_parseLowerHex?_eq_some (by decide) h₃)
+          demangleAux s q res (acc.push (Char.ofNat v)) 0
+        | _, _ => demangleAux s p (res.str acc) ("".pushn '_' (ucount / 2) |>.push ch) 0
+termination_by p₀
 where
-  decodeNum (s : String) (p : s.ValidPos) (res : Name) (n : Nat) : Name :=
-    if h : p = s.endValidPos then res.num n else
+  decodeNum (s : String) (p : s.Pos) (res : Name) (n : Nat) : Name :=
+    if h : p = s.endPos then res.num n else
     let ch := p.get h
     let p := p.next h
     if ch.isDigit then
       decodeNum s p res (n * 10 + (ch.val - 48).toNat)
     else -- assume ch = '_'
       let res := res.num n
-      if h : p = s.endValidPos then res else
+      if h : p = s.endPos then res else
       nameStart s (p.next h) res -- assume s.get' p h = '_'
-  termination_by p.remainingBytes
-  decreasing_by
-    · apply String.ValidPos.remainingBytes_next_lt
-    · apply String.ValidPos.remainingBytes_next_lt_of_lt
-        (Nat.lt_trans (String.ValidPos.lt_next _) (String.ValidPos.lt_next _))
-  nameStart (s : String) (p : s.ValidPos) (res : Name) : Name :=
-    if h : p = s.endValidPos then res else
+  termination_by p
+  nameStart (s : String) (p : s.Pos) (res : Name) : Name :=
+    if h : p = s.endPos then res else
     let ch := p.get h
     let p := p.next h
     if ch.isDigit then
-      if h : ch = '0' ∧ ∃ h : p ≠ s.endValidPos, p.get h = '0' then
+      if h : ch = '0' ∧ ∃ h : p ≠ s.endPos, p.get h = '0' then
         demangleAux s (p.next h.2.1) res "" 0
       else
         decodeNum s p res (ch.val - 48).toNat
@@ -233,15 +220,11 @@ where
       demangleAux s p res "" 1
     else
       demangleAux s p res (String.singleton ch) 0
-  termination_by p.remainingBytes
-  decreasing_by
-    · apply String.ValidPos.remainingBytes_next_lt_of_lt
-        (Nat.lt_trans (String.ValidPos.lt_next _) (String.ValidPos.lt_next _))
-    all_goals apply String.ValidPos.remainingBytes_next_lt
+  termination_by p
 
 /-- Assuming `s` has been produced by `Name.mangle _ ""`, return the original name. -/
 public def Name.demangle (s : String) : Name :=
-  demangleAux.nameStart s s.startValidPos .anonymous
+  demangleAux.nameStart s s.startPos .anonymous
 
 /--
 Returns the demangled version of `s`, if it's the result of `Name.mangle _ ""`. Otherwise returns

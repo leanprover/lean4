@@ -66,7 +66,7 @@ protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f
     | none => return b
   visit s b
 
-instance (priority := low) [Stream ρ α] : ForIn m ρ α where
+instance (priority := low) [Monad m] [Stream ρ α] : ForIn m ρ α where
   forIn := Stream.forIn
 
 instance : ToStream (List α) (List α) where
@@ -79,10 +79,10 @@ instance : ToStream (Array α) (Subarray α) where
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a
 
-instance : ToStream String Substring where
-  toStream s := s.toSubstring
+instance : ToStream String Substring.Raw where
+  toStream s := s.toRawSubstring
 
-instance : ToStream Std.Range Std.Range where
+instance : ToStream Std.Legacy.Range Std.Legacy.Range where
   toStream r := r
 
 instance [Stream ρ α] [Stream γ β] : Stream (ρ × γ) (α × β) where
@@ -108,7 +108,7 @@ instance : Stream (Subarray α) α where
     else
       none
 
-instance : Stream Std.Range Nat where
+instance : Stream Std.Legacy.Range Nat where
   next? r :=
     if r.start < r.stop then
       some (r.start, { r with start := r.start + r.step })

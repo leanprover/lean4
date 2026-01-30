@@ -610,18 +610,34 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
+#if defined(LEAN_WINDOWS)
+
+#define LEAN_IO_LOCK_FILE(fp) _lock_file(fp)
+#define LEAN_IO_UNLOCK_FILE(fp) _unlock_file(fp)
+#define LEAN_IO_GETC_UNLOCKED(fp) _fgetc_nolock(fp)
+
+#else
+
+#define LEAN_IO_LOCK_FILE(fp) flockfile(fp)
+#define LEAN_IO_UNLOCK_FILE(fp) funlockfile(fp)
+#define LEAN_IO_GETC_UNLOCKED(fp) getc_unlocked(fp)
+
+#endif
+
 /* Handle.getLine : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
 
     std::string result;
     int c; // Note: int, not char, required to handle EOF
-    while ((c = std::fgetc(fp)) != EOF) {
+    LEAN_IO_LOCK_FILE(fp);
+    while ((c = LEAN_IO_GETC_UNLOCKED(fp)) != EOF) {
         result.push_back(c);
         if (c == '\n') {
             break;
         }
     }
+    LEAN_IO_UNLOCK_FILE(fp);
 
     if (std::ferror(fp)) {
         return io_result_mk_error(decode_io_error(errno, nullptr));
@@ -1495,14 +1511,12 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
-    // TODO(Leo): ref_maybe_mt
-    bool r = lean_to_ref(ref1)->m_value == lean_to_ref(ref2)->m_value;
-    return box(r);
+extern "C" LEAN_EXPORT uint8_t lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2) {
+    return lean_to_ref(ref1) == lean_to_ref(ref2);
 }
 
-/* {α : Type} (act : BaseIO α) : α */
-static obj_res lean_io_as_task_fn(obj_arg act) {
+/* {α : Type} (act : BaseIO α) (_ : IO.RealWorld) : α */
+static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     object_ref r(apply_1(act, io_mk_world()));
     return object_ref(r.raw(), true).steal();
 }
@@ -1552,6 +1566,13 @@ extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state(b_obj_arg t) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t) {
     return lean_task_get_own(t);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list) {
+    object * t = lean_io_wait_any_core(task_list);
+    object * v = lean_task_get(t);
+    lean_inc(v);
+    return v;
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code) {

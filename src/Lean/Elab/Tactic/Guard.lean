@@ -67,6 +67,7 @@ def MatchKind.toStringDescr : MatchKind → String
   | .defEq .all => s!"definitionally equal (unfolding all constants) to"
   | .defEq .reducible => s!"definitionally equal (unfolding reducible constants) to"
   | .defEq .instances => s!"definitionally equal (unfolding instances) to"
+  | .defEq .none => s!"definitionally equal (not unfolding any constants) to"
   | .alphaEq => "alpha-equivalent to"
 
 /-- Elaborate `a` and `b` and then do the given equality test `mk`. We make sure to unify

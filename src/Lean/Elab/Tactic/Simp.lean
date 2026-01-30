@@ -416,6 +416,28 @@ structure MkSimpContextResult where
   /-- The elaborated simp arguments with syntax -/
   simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
+/-- Add all definitions from the current file to unfold. -/
+def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems := do
+  let env ← getEnv
+  let mut thms := thms
+  for (name, ci) in env.constants.map₂.toList do
+    -- Skip internal details, but allow private names (which are accessible from current module)
+    if name.isInternalDetail && !isPrivateName name then continue
+    if (← Meta.isInstance name) then continue
+    match ci with
+    | .defnInfo _ =>
+      -- Definitions are added to unfold
+      try
+        if kind == .dsimp then
+          thms := thms.addDeclToUnfoldCore name
+        else
+          let entries ← mkSimpEntryOfDeclToUnfold name
+          for entry in entries do
+            thms := thms.addSimpEntry entry
+      catch _ => pure () -- Skip definitions that can't be added
+    | _ => continue
+  return thms
+
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
@@ -437,14 +459,18 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
       throwError "Tactic `dsimp` does not support the `discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
-  let simpTheorems ← if simpOnly then
+  let mut simpTheorems ← if simpOnly then
     simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
+  let config ← elabSimpConfig stx[1] (kind := kind)
+  -- Add local definitions if +locals is enabled
+  if config.locals then
+    simpTheorems ← elabSimpLocals simpTheorems kind
   let ctx ← Simp.mkContext
-     (config := (← elabSimpConfig stx[1] (kind := kind)))
+     (config := config)
      (simpTheorems := #[simpTheorems])
      congrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) (ignoreStarArg := ignoreStarArg) ctx
@@ -657,6 +683,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper, simpArgs } ← mkSimpContext stx (eraseLocal := false)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp? instead of simp"
   let stats ← dischargeWrapper.with fun discharge? =>
     withLoopChecking r do
       simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
@@ -669,6 +697,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let r@{ ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
+  if ctx.config.suggestions then
+    throwError "+suggestions requires using simp_all? instead of simp_all"
   let (result?, stats) ←
     withLoopChecking r do
       simpAll (← getMainGoal) ctx (simprocs := simprocs)

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Lemmas
-// Imports: public import Init.ByCases public import Init.Grind.Util
+// Imports: public import Init.ByCases public import Init.Grind.Util public import Init.Grind.Ring.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_intro__with__eq___redArg(lean_object* x_1) {
 _start:
 {
@@ -51,6 +51,7 @@ return x_7;
 }
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Grind_Util(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -60,6 +61,9 @@ res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

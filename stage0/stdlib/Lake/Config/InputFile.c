@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_InputFile_text___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lake_InputDir_text(lean_object*);
-LEAN_EXPORT uint8_t l_Lake_InputDir_filter(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lake_InputFile_text(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_InputDir_path(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_InputDir_text___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_InputFile_path(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_InputDir_filter___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputFile_path(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_InputFile_text(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputFile_text___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputDir_path(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_InputDir_text(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputDir_text___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_InputDir_filter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_InputDir_filter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFile_path(lean_object* x_1) {
 _start:
 {
@@ -31,14 +31,13 @@ lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_2, 2);
+x_4 = lean_ctor_get(x_2, 4);
 lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -70,14 +69,13 @@ lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_2, 2);
+x_4 = lean_ctor_get(x_2, 4);
 lean_inc_ref(x_4);
 lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 lean_dec(x_3);
 x_6 = l_Lake_joinRelative(x_4, x_5);
-lean_dec_ref(x_5);
 return x_6;
 }
 }

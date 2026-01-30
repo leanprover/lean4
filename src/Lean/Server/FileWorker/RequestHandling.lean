@@ -49,7 +49,7 @@ def handleCompletion (p : CompletionParams)
   mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
-    Completion.find? doc.meta.mod p.position doc.meta.text pos cmdStx infoTree caps
+    Completion.find? doc.meta.uri p.position doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -266,12 +266,12 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
     let trees := snaps.map (·.infoTree)
-    let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
+    let (refs, _) ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
     for ident in refs.findAt p.position (includeStop := true) do
       if let some info := refs.get? ident then
-        if let some ⟨definitionRange, _⟩ := info.definition? then
-          ranges := ranges.push definitionRange
+        if let some loc := info.definition? then
+          ranges := ranges.push loc.range
         ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none

@@ -37,8 +37,8 @@ instance {α} [ToString α] : ToString (Id α) :=
 instance : ToString String :=
   ⟨fun s => s⟩
 
-instance : ToString Substring :=
-  ⟨fun s => Substring.Internal.toString s⟩
+instance : ToString Substring.Raw :=
+  ⟨fun s => Substring.Raw.Internal.toString s⟩
 
 instance : ToString Char :=
   ⟨fun c => Char.toString c⟩

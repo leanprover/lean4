@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object*, lean_object*);
-size_t lean_uint64_to_usize(uint64_t);
-LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx___redArg(lean_object*, uint64_t);
-LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx(lean_object*, lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_scrambleHash___boxed(lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_scrambleHash___boxed(lean_object*);
+size_t lean_uint64_to_usize(uint64_t);
+size_t lean_usize_of_nat(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_land(size_t, size_t);
+LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx___redArg(lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx(lean_object*, lean_object*, uint64_t);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Std_DHashMap_Internal_scrambleHash(uint64_t x_1) {
 _start:
 {
@@ -67,6 +67,18 @@ x_13 = lean_usize_land(x_9, x_12);
 return x_13;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; size_t x_4; lean_object* x_5; 
+x_3 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_4 = l_Std_DHashMap_Internal_mkIdx___redArg(x_1, x_3);
+lean_dec(x_1);
+x_5 = lean_box_usize(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT size_t l_Std_DHashMap_Internal_mkIdx(lean_object* x_1, lean_object* x_2, uint64_t x_3) {
 _start:
 {
@@ -83,18 +95,6 @@ x_12 = 1;
 x_13 = lean_usize_sub(x_11, x_12);
 x_14 = lean_usize_land(x_10, x_13);
 return x_14;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_4 = l_Std_DHashMap_Internal_mkIdx___redArg(x_1, x_3);
-lean_dec(x_1);
-x_5 = lean_box_usize(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_mkIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

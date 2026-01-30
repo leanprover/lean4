@@ -13,60 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* lean_private_to_user_name(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_isPrivatePrefix___boxed(lean_object*);
-static lean_object* l_Lean_privateHeader___closed__1;
-LEAN_EXPORT uint8_t lean_is_private_name(lean_object*);
-LEAN_EXPORT lean_object* lean_private_prefix(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_isPrivatePrefix(lean_object*);
-lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+static const lean_string_object l_Lean_privateHeader___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "_private"};
+static const lean_object* l_Lean_privateHeader___closed__0 = (const lean_object*)&l_Lean_privateHeader___closed__0_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_privateHeader___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_privateHeader___closed__0_value),LEAN_SCALAR_PTR_LITERAL(103, 214, 75, 80, 34, 198, 193, 153)}};
+static const lean_object* l_Lean_privateHeader___closed__1 = (const lean_object*)&l_Lean_privateHeader___closed__1_value;
+LEAN_EXPORT const lean_object* l_Lean_privateHeader = (const lean_object*)&l_Lean_privateHeader___closed__1_value;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_privateHeader;
-LEAN_EXPORT lean_object* l_Lean_privateToUserName(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_isPrivatePrefix_go___boxed(lean_object*);
-static lean_object* l_Lean_privateHeader___closed__0;
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkPrivateNameCore(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_PrivateName_0__Lean_isPrivatePrefix_go(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privatePrefixAux(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privatePrefixAux___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privateToUserNameAux(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isPrivateName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isPrivateName___boxed(lean_object*);
-lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_mkPrivateNameCore(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_is_private_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isPrivateNameExport___boxed(lean_object*);
-static lean_object* _init_l_Lean_privateHeader___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_private", 8, 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_privateHeader___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_privateHeader___closed__0;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_privateHeader() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_privateHeader___closed__1;
-return x_1;
-}
-}
+LEAN_EXPORT uint8_t l___private_Lean_PrivateName_0__Lean_isPrivatePrefix_go(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_isPrivatePrefix_go___boxed(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_isPrivatePrefix(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isPrivatePrefix___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privateToUserNameAux(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_private_to_user_name(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_privateToUserName(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privatePrefixAux(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_PrivateName_0__Lean_privatePrefixAux___boxed(lean_object*);
+LEAN_EXPORT lean_object* lean_private_prefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkPrivateNameCore(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_privateHeader;
+x_3 = ((lean_object*)(l_Lean_privateHeader));
 x_4 = l_Lean_Name_append(x_3, x_1);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Lean_Name_num___override(x_4, x_5);
@@ -88,7 +65,7 @@ case 1:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Lean_privateHeader;
+x_4 = ((lean_object*)(l_Lean_privateHeader));
 x_5 = lean_name_eq(x_1, x_4);
 if (x_5 == 0)
 {
@@ -142,7 +119,7 @@ LEAN_EXPORT uint8_t l___private_Lean_PrivateName_0__Lean_isPrivatePrefix_go(lean
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Lean_privateHeader;
+x_2 = ((lean_object*)(l_Lean_privateHeader));
 x_3 = lean_name_eq(x_1, x_2);
 if (x_3 == 0)
 {
@@ -362,12 +339,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_privateHeader___closed__0 = _init_l_Lean_privateHeader___closed__0();
-lean_mark_persistent(l_Lean_privateHeader___closed__0);
-l_Lean_privateHeader___closed__1 = _init_l_Lean_privateHeader___closed__1();
-lean_mark_persistent(l_Lean_privateHeader___closed__1);
-l_Lean_privateHeader = _init_l_Lean_privateHeader();
-lean_mark_persistent(l_Lean_privateHeader);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

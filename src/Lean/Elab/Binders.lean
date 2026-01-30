@@ -66,7 +66,7 @@ partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
     return mkApp4 (.const ``Syntax.ident [])
       (.const ``SourceInfo.none [])
-      (.app (.const ``String.toSubstring []) (mkStrLit (toString val)))
+      (.app (.const ``String.toRawSubstring []) (mkStrLit (toString val)))
       (toExpr val)
       (toExpr preresolved)
   | stx@(.node _ k args) => do
@@ -92,14 +92,14 @@ Returns the declaration name.
 -/
 def declareTacticSyntax (tactic : Syntax) (name? : Option Name := none) : TermElabM Name :=
   withFreshMacroScope do
-    let name ← name?.getDM do MonadQuotation.addMacroScope ((← getEnv).asyncPrefix?.getD .anonymous ++ `_auto)
+    let name ← name?.getDM (mkAuxDeclName `_auto)
     let type := Lean.mkConst `Lean.Syntax
     let value ← quoteAutoTactic tactic
     trace[Elab.autoParam] value
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
-    modifyEnv (addMeta · name)
+    modifyEnv (markMeta · name)
     compileDecl decl
     return name
 

@@ -23,26 +23,26 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Action
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
-builtin_initialize registerTraceClass `grind.cutsat
-builtin_initialize registerTraceClass `grind.cutsat.nonlinear
-builtin_initialize registerTraceClass `grind.cutsat.model
-builtin_initialize registerTraceClass `grind.cutsat.assert
-builtin_initialize registerTraceClass `grind.cutsat.assert.trivial
-builtin_initialize registerTraceClass `grind.cutsat.assert.unsat
-builtin_initialize registerTraceClass `grind.cutsat.assert.store
-builtin_initialize registerTraceClass `grind.cutsat.assert.nonlinear
+builtin_initialize registerTraceClass `grind.lia
+builtin_initialize registerTraceClass `grind.lia.nonlinear
+builtin_initialize registerTraceClass `grind.lia.model
+builtin_initialize registerTraceClass `grind.lia.assert
+builtin_initialize registerTraceClass `grind.lia.assert.trivial
+builtin_initialize registerTraceClass `grind.lia.assert.unsat
+builtin_initialize registerTraceClass `grind.lia.assert.store
+builtin_initialize registerTraceClass `grind.lia.assert.nonlinear
 
-builtin_initialize registerTraceClass `grind.debug.cutsat.subst
-builtin_initialize registerTraceClass `grind.debug.cutsat.search
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.split (inherited := true)
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.assign (inherited := true)
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.conflict (inherited := true)
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.backtrack (inherited := true)
-builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
-builtin_initialize registerTraceClass `grind.debug.cutsat.toInt
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.cnstrs
-builtin_initialize registerTraceClass `grind.debug.cutsat.search.reorder
-builtin_initialize registerTraceClass `grind.debug.cutsat.elimEq
+builtin_initialize registerTraceClass `grind.debug.lia.subst
+builtin_initialize registerTraceClass `grind.debug.lia.search
+builtin_initialize registerTraceClass `grind.debug.lia.search.split (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.lia.search.assign (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.lia.search.conflict (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.lia.search.backtrack (inherited := true)
+builtin_initialize registerTraceClass `grind.debug.lia.internalize
+builtin_initialize registerTraceClass `grind.debug.lia.toInt
+builtin_initialize registerTraceClass `grind.debug.lia.search.cnstrs
+builtin_initialize registerTraceClass `grind.debug.lia.search.reorder
+builtin_initialize registerTraceClass `grind.debug.lia.elimEq
 
 builtin_initialize
   cutsatExt.setMethods

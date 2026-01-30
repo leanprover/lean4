@@ -67,7 +67,7 @@ syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
-  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") unifConstraint : command
+  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") ppSpace unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
@@ -120,7 +120,7 @@ calc
   _ = z := pyz
 ```
 It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols, especially on longer:
+<proof>`. This is useful for aligning relation symbols, especially on longer
 identifiers:
 ```
 calc abc

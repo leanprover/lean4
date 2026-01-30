@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -139,10 +140,11 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
   registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefTypeErrorName)
 
 /--
-  Return `some [b, c]` if the given `views` are representing a declaration of the form
-  ```
-  opaque a b c : Nat
-  ```  -/
+Return `some [b, c]` if the given `views` are representing a declaration of the form
+```
+opaque a b c : Nat
+```
+-/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
      views[0]!.kind == .opaque &&
@@ -152,21 +154,40 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   else
     none
 
+/--
+Return `some [a, b, c]` if the given `views` are representing a declaration of the form
+```
+example a b c : Nat := ...
+```
+-/
+private def isExampleParams? (views : Array DefView) : Option (List Name) :=
+  if views.size == 1 &&
+     views[0]!.kind == .example &&
+     views[0]!.binders.getArgs.size > 0 &&
+     views[0]!.binders.getArgs.all (·.isIdent) then
+    some (views[0]!.binders.getArgs.toList.map (·.getId))
+  else
+    none
+
 private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
-  match isMultiConstant? views with
-  | some ids =>
-    let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
-    let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
+  if let .some ids := isMultiConstant? views then
     MessageData.note m!"Multiple constants cannot be declared in a single declaration. \
-      The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
-  | none =>
-    if views.all fun view => view.kind.isTheorem then
-      MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
-        before the proof is processed; information from the proof cannot be used to infer what these values should be"
+      {interpretedAsParameters (ids)}"
+  else if views.all (·.kind.isTheorem) then
+    MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
+      before the proof is processed; information from the proof cannot be used to infer what these values should be"
+  else if let .some ids := isExampleParams? views then
+    MessageData.note m!"Examples do not have names. {interpretedAsParameters ids}"
     else
       MessageData.note "Because this declaration's type has been explicitly provided, all parameter \
         types and holes (e.g., `_`) in its header are resolved before its body is processed; \
         information from the declaration body cannot be used to infer what these values should be"
+where
+  interpretedAsParameters (ids : List Name) : MessageData :=
+    let idsStr := ids.map (m!"`{.ofName ·}`") |>.toOxford
+    let paramsStr := ids.map (m!"`({.ofName ·} : _)`") |>.toOxford
+    m!"The identifier{ids.length.plural} {idsStr} {ids.length.plural "is" "are"} being interpreted \
+      as {ids.length.plural "a parameter" "parameters"} {paramsStr}."
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -482,7 +503,6 @@ register_builtin_option linter.unusedSectionVars : Bool := {
 
 register_builtin_option debug.proofAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "replace the bodies (proofs) of theorems with `sorry`"
 }
 
@@ -1072,8 +1092,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
-      binders     := mkNullNode -- No docstrings, so we don't need these
-      modifiers   := { modifiers with attrs := c.toLift.attrs }
+      binders     := c.toLift.binders
+      modifiers   := { modifiers with attrs := c.toLift.attrs, docString? := c.toLift.docString? }
       kind, type, value,
       termination := c.toLift.termination
     }
@@ -1192,7 +1212,7 @@ where
     for view in views, declId in expandedDeclIds do
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
-      | .meta          => modifyEnv (addMeta · declId.declName)
+      | .meta          => modifyEnv (markMeta · declId.declName)
       | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
       | .regular       => pure ()
     withExporting (isExporting :=
@@ -1201,6 +1221,7 @@ where
       -- encoded name in e.g. kernel errors where it's hard to replace it)
       views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
       expandedDeclIds.any (!isPrivateName ·.declName)) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
@@ -1322,6 +1343,10 @@ where
           if !(← isProp header.type) then
             return false
         return true))) do
+    -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
+    withOptions (fun opts =>
+      if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try

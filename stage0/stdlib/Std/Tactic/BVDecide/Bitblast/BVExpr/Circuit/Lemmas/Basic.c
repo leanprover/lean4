@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -26,7 +26,7 @@ x_4 = lean_ctor_get(x_2, 2);
 x_5 = l_Lean_RArray_getImpl___redArg(x_1, x_3);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Nat_testBit(x_6, x_4);
 lean_dec(x_6);
 return x_7;

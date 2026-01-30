@@ -34,6 +34,7 @@ def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .default   => 1
   | .reducible => 2
   | .instances => 3
+  | .none      => 4
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0
@@ -506,6 +507,11 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+  /--
+  When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
+  metavariables
+  -/
+  cacheInferType : Bool := true
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config
@@ -1210,10 +1216,6 @@ Any zeta-delta reductions recorded while executing `x` will *not* persist when l
   mapMetaM fun x =>
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
-@[deprecated withTrackingZetaDelta (since := "2025-06-12")]
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
-
 /--
 `withTrackingZetaDeltaSet s x` executes `x` in a context where `zetaDeltaFVarIds` has been temporarily cleared.
 - If `s` is nonempty, zeta-delta tracking is enabled and `zetaDeltaSet := s`.
@@ -1785,30 +1787,31 @@ partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
     (k : (xs : Array Expr) → n α)
+    (kind : LocalDeclKind := .default)
     : n α :=
   loop #[]
 where
   loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then
       let (name, bi, typeCtor) := declInfos[acc.size]!
-      withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
+      withLocalDecl name bi (←typeCtor acc) (fun x => loop (acc.push x)) kind
     else
       k acc
 
 /--
 Variant of `withLocalDecls` using `BinderInfo.default`
 -/
-def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
+def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
   withLocalDecls
-    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
+    (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k kind
 
 /--
 Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
 on each other.
 -/
-def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
+def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α :=
   withLocalDeclsD
-    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
+    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k (kind := kind)
 
 private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -1833,6 +1836,9 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+def withImplicitBinderInfos (bs : Array Expr) (k : n α) : n α :=
+  withNewBinderInfos (bs.map (·.fvarId!, BinderInfo.implicit)) k
+
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
@@ -1844,6 +1850,19 @@ def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
     else
       return none
   withNewBinderInfos newBinderInfos k
+
+private def withPrimedNamesImp (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let lctx ← getLCtx
+  let lctx := lctx.modifyLocalDecls fun decl =>
+    if xs.contains (mkFVar decl.fvarId) then
+      decl.setUserName (decl.userName.appendAfter "'")
+    else
+      decl
+  withReader (fun ctx => { ctx with lctx := lctx }) k
+
+/-- Appends a `'` to the namen of the given free variables. -/
+def withPrimedNames (xs : Array Expr) (k : n α) : n α := do
+  mapMetaM (fun k => withPrimedNamesImp xs k) k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (nondep : Bool) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -1863,11 +1882,20 @@ def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (no
 /--
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the result is wrapped in the given `let`/`have` expression (according to the value of `nondep`).
-- If `usedLetOnly := true` (the default) then the the `let`/`have` is not created if the variable is unused.
+- If `usedLetOnly := true` (the default) then the `let`/`have` is not created if the variable is unused.
 -/
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do
     mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) #[x] (← k x)
+
+/--
+Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
+Afterwards, the local declaration is zeta-reduced into the result.
+-/
+def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) : n Expr := do
+  withLetDecl (n:=n) name type rhs fun x => do
+    let e ← elimMVarDeps #[x] (← k x)
+    return e.replaceFVar x rhs
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
@@ -2451,6 +2479,14 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
+
+/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+def isDefEqI (t s : Expr) : MetaM Bool :=
+  withReducibleAndInstances <| isDefEq t s
+
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
@@ -2524,6 +2560,9 @@ generated diagnostics is deterministic). Note that, as `realize` is run using th
 declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
 on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
 callers.
+
+CAVEAT: `realize` MUST NOT reference the current environment (the result of `getEnv`) in its result
+to avoid creating an un-collectable promise cycle.
 -/
 def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
     MetaM β := do
@@ -2558,7 +2597,11 @@ where
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          realize)
+          -- The scope at which `enableRealizationsForConst forConst` was called is essentially
+          -- arbitrary, normalize here. As `realize` will not add new constants nor should it
+          -- directly be connected to user input to be checked, be permissive.
+          withoutExporting do
+            realize)
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     let res ← match res? with
@@ -2647,13 +2690,18 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      maxHeartbeats := Core.getMaxHeartbeats opts
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          realize
+          withDeclNameForAuxNaming constName do
+            withoutExporting (when := isPrivateName constName) do
+              realize
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.

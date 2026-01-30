@@ -36,6 +36,8 @@ inductive TransparencyMode where
   | reducible
   /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
+  /-- Do not unfold anything -/
+  | none
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/
@@ -130,12 +132,18 @@ structure Config where
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
+  /--
+  If `locals` is `true`, `dsimp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
 
 namespace Simp
 
+@[inline]
 def defaultMaxSteps := 100000
 
 /--
@@ -290,6 +298,16 @@ structure Config where
   When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
   -/
   warnExponents : Bool := true
+  /--
+  If `suggestions` is `true`, `simp?` will invoke the currently configured library suggestion engine on the current goal,
+  and attempt to use the resulting suggestions as parameters to the `simp` tactic.
+  -/
+  suggestions : Bool := false
+  /--
+  If `locals` is `true`, `simp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

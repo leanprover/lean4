@@ -61,20 +61,6 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
-Running `attribute` with declarations from an imported module causes a rev use.
--/
-
-#eval resetExtraModUses
-
-attribute [builtin_doc] Int.natCast_add
-
-/--
-info: Entries: []
-Is rev mod use: true
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
 `recommended_spelling` records a dependency.
 -/
 
@@ -83,7 +69,7 @@ Is rev mod use: true
 recommended_spelling "id" for "id" in [id]
 
 /--
-info: Entries: [import Init.Prelude]
+info: Entries: [import Init.Core, import Init.Prelude]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -187,8 +173,8 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
-Is rev mod use: true
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude, import Init.Prelude]
+Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
 
@@ -215,7 +201,7 @@ Simp theorems (especially defeq ones) are tracked (here `Nat.pow_succ` from Init
 def test7 : 2 ^ 8 = 256 := by simp [Nat.pow_succ]
 
 /--
-info: Entries: [import Init.Tactics, import Init.Data.Nat.Basic, import Init.Notation]
+info: Entries: [import Init.Tactics, import Init.Data.Nat.Lemmas, import Init.Data.Nat.Basic, import Init.SimpLemmas, import Init.Notation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -262,20 +248,6 @@ def test8 : Lean.MacroM Lean.Syntax := `(Lean.Parser.Command.declaration| def a 
 
 /--
 info: Entries: [import Init.Notation, import Init.Coe, meta import Lean.Parser.Command]
-Is rev mod use: false
--/
-#guard_msgs in #eval showExtraModUses
-
-/-!
-Resolved constants from syntax quotations get added (here `List.sum` from Init.Data.List.Basic).
--/
-
-#eval resetExtraModUses
-
-def test9 : Lean.MacroM Lean.Syntax := `(List.sum)
-
-/--
-info: Entries: [import Init.Notation, import Init.Coe, import Init.Data.List.Basic]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

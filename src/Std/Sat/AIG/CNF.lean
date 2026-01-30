@@ -527,24 +527,25 @@ The CNF within the state is unsat.
 def State.Unsat (state : State aig) : Prop :=
   state.cnf.Unsat
 
-theorem State.sat_def (assign : CNFVar aig → Bool) (state : State aig) :
-    state.Sat assign ↔ state.cnf.Sat assign := by
-  rfl
-
-theorem State.unsat_def (state : State aig) :
-    state.Unsat ↔ state.cnf.Unsat := by
-  rfl
-
 @[simp]
 theorem State.eval_eq : State.eval assign state = state.cnf.eval assign := by
   simp [State.eval]
 
 @[simp]
-theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by
-  simp [State.sat_def]
+theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by rfl
 
 @[simp]
-theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by simp [State.unsat_def]
+theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by rfl
+
+@[deprecated State.sat_iff (since := "2025-10-29")]
+theorem State.sat_def (assign : CNFVar aig → Bool) (state : State aig) :
+    state.Sat assign ↔ state.cnf.Sat assign := by
+  rfl
+
+@[deprecated State.unsat_iff (since := "2025-10-29")]
+theorem State.unsat_def (state : State aig) :
+    state.Unsat ↔ state.cnf.Unsat := by
+  rfl
 
 end toCNF
 

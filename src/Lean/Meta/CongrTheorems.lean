@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.AddDecl
 public import Lean.ReservedNameAction
+import Lean.Structure
 import Lean.Meta.Tactic.Subst
-
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean.Meta
 
 inductive CongrArgKind where
@@ -339,7 +338,7 @@ where
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
-              withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
+              withImplicitBinderInfos #[lhss[i]!] do
                 let lhs := lhss[i]!
                 let lhsType ← inferType lhs
                 let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss

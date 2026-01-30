@@ -1,172 +1,302 @@
-import Lean
+set_option linter.unusedVariables false
+--
 
-def checkWithMkMatcherInput (matcher : Lean.Name) : Lean.MetaM Unit :=
-  Lean.Meta.Match.withMkMatcherInput matcher fun input => do
-  let res ← Lean.Meta.Match.mkMatcher input
-  let origMatcher ← Lean.getConstInfo matcher
-  if not <| input.matcherName == matcher then
-    throwError "matcher name not reconstructed correctly: {matcher} ≟ {input.matcherName}"
+def h1 (b : Bool) : Nat :=
+match b with
+| true  => 0
+| false => 10
 
-  let lCtx ← Lean.getLCtx
-  let fvars := Lean.collectFVars {} res.matcher
-  let closure := Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
-
-  let origTy := origMatcher.value!
-  let newTy := closure
-  if not <| ←Lean.Meta.isDefEq origTy newTy then
-    throwError "matcher {matcher} does not round-trip correctly:\n{origTy} ≟ {newTy}"
-
-set_option smartUnfolding false
-
-def f (xs : List Nat) : List Bool :=
-xs.map fun
-  | 0 => true
-  | _ => false
-
+/-- info: 10 -/
 #guard_msgs in
-#eval checkWithMkMatcherInput ``f.match_1
+#eval h1 false
 
-#guard f [1, 2, 0, 2] == [false, false, true, false]
+def h2 (x : List Nat) : Nat :=
+match x with
+| [x1, x2] => x1 + x2
+| x::xs    => x
+| _        => 0
 
-theorem ex1 : f [1, 0, 2] = [false, true, false] :=
+/-- info: 10 -/
+#guard_msgs in
+#eval h1 false
+/-- info: 3 -/
+#guard_msgs in
+#eval h2 [1, 2]
+/-- info: 10 -/
+#guard_msgs in
+#eval h2 [10, 4, 5]
+/-- info: 0 -/
+#guard_msgs in
+#eval h2 []
+
+def h3 (x : Array Nat) : Nat :=
+  match x with
+  | #[x]    => x
+  | #[x, y] => x + y
+  | xs      => xs.size
+
+/-- info: 10 -/
+#guard_msgs in
+#eval h3 #[10]
+/-- info: 30 -/
+#guard_msgs in
+#eval h3 #[10, 20]
+/-- info: 4 -/
+#guard_msgs in
+#eval h3 #[10, 20, 30, 40]
+
+/--
+error: Failed to compile pattern matching: Stuck at
+  remaining variables: [x✝:(Array Nat)]
+  alternatives:
+    [x:(Nat)]
+    |- [#[x]] => h_1 x
+    [x:(Nat), y:(Nat)]
+    |- [#[x, y]] => h_2 x y
+  examples:_
+-/
+#guard_msgs in
+def h4 (x : Array Nat) : Nat :=
+  match x with
+  | #[x]    => x
+  | #[x, y] => x + y
+
+def h5 (x : String) : Nat :=
+  match x with
+  | "val1" => 0
+  | "val2" => 1
+  | _      => 10
+
+inductive Image {α β : Type} (f : α → β) : β → Type
+| mk (a : α) : Image f (f a)
+
+def mkImage {α β : Type} (f : α → β) (a : α) : Image f (f a) :=
+Image.mk a
+
+def inv {α β : Type} {f : α → β} {b : β} (t : Image f b) : α :=
+match b, t with
+| _, Image.mk a => a
+
+/-- info: 10 -/
+#guard_msgs in
+#eval inv (mkImage Nat.succ 10)
+
+theorem foo {p q} (h : p ∨ q) : q ∨ p :=
+match h with
+| Or.inl h => Or.inr h
+| Or.inr h => Or.inl h
+
+def f (x : Nat × Nat) : Bool × Bool × Bool → Nat :=
+match x with
+| (a, b) => fun _ => a
+
+structure S where
+  (x y z : Nat := 0)
+
+def f1 : S → S :=
+fun { x := x, ..} => { y := x }
+
+theorem ex2 : f1 { x := 10 } = { y := 10 } :=
 rfl
 
-#check f
+universe u
 
-set_option pp.raw true
-set_option pp.raw.maxDepth 10
-set_option trace.Elab.step true in
-def g (xs : List Nat) : List Bool :=
-xs.map <| by {
-  intro
-    | 0 => exact true
-    | _ => exact false
-}
-
-theorem ex2 : g [1, 0, 2] = [false, true, false] :=
-rfl
-
-theorem ex3 {p q r : Prop} : p ∨ q → r → (q ∧ r) ∨ (p ∧ r) :=
-by intro
- | Or.inl hp, h => { apply Or.inr; apply And.intro; assumption; assumption }
- | Or.inr hq, h => { apply Or.inl; exact ⟨hq, h⟩ }
-
-inductive C
-| mk₁ : Nat → C
-| mk₂ : Nat → Nat → C
-
-def C.x : C → Nat
-| C.mk₁ x   => x
-| C.mk₂ x _ => x
-#eval checkWithMkMatcherInput ``C.x.match_1
-
-def head : {α : Type} → List α → Option α
-| _, a::as => some a
-| _, _     => none
-#eval checkWithMkMatcherInput ``head.match_1
-
-theorem ex4 : head [1, 2] = some 1 :=
-rfl
-
-def head2 : {α : Type} → List α → Option α :=
-@fun
-  | _, a::as => some a
-  | _, _     => none
-
-theorem ex5 : head2 [1, 2] = some 1 :=
-rfl
-
-def head3 {α : Type} (xs : List α) : Option α :=
-let rec aux {α : Type} : List α → Option α
-  | a::_ => some a
-  | _    => none;
-aux xs
-
-theorem ex6 : head3 [1, 2] = some 1 :=
-rfl
-
-inductive Vec.{u} (α : Type u) : Nat → Type u
+inductive Vec (α : Type u) : Nat → Type u
 | nil : Vec α 0
 | cons {n} (head : α) (tail : Vec α n) : Vec α (n+1)
 
-def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
-| _,   nil,       nil,       f => none
-| _, cons a as, cons b bs,   f => some (f a b)
+inductive VecPred {α : Type u} (P : α → Prop) : {n : Nat} → Vec α n → Prop
+| nil   : VecPred P Vec.nil
+| cons  {n : Nat} {head : α} {tail : Vec α n} : P head → VecPred P tail → VecPred P (Vec.cons head tail)
 
+theorem ex3 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
+| _, Vec.cons head _, VecPred.cons h _ => ⟨head, h⟩
 
-def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
-| _, nil,            nil,         f => none
-| _, @cons _ n a as, cons b bs,   f => some (f a b)
-set_option pp.match false in
-#print Vec.mapHead2 -- reused Vec.mapHead1.match_1
+/--
+error: Dependent elimination failed: Type mismatch when solving this alternative: it has type
+  motive 0 (Vec.cons head✝ Vec.nil) ⋯
+but is expected to have type
+  motive x✝ (Vec.cons head✝ tail✝) ⋯
+-/
+#guard_msgs in
+theorem ex4 {α : Type u} (P : α → Prop) : {n : Nat} → (v : Vec α (n+1)) → VecPred P v → Exists P
+| _, Vec.cons head _, VecPred.cons h (w : VecPred P Vec.nil) => ⟨head, h⟩  -- ERROR
 
-def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
-| _, nil,            nil,         f => none
-| _, cons (tail := as) (head := a), cons b bs,   f => some (f a b)
+axiom someNat : Nat
 
-inductive Foo
-| mk₁ (x y z w : Nat)
-| mk₂ (x y z w : Nat)
+noncomputable def f2 (x : Nat) := -- must mark as noncomputable since it uses axiom `someNat`
+x + someNat
 
-def Foo.z : Foo → Nat
-| mk₁ (z := z) .. => z
-| mk₂ (z := z) .. => z
+inductive Parity : Nat -> Type
+| even (n) : Parity (n + n)
+| odd  (n) : Parity (Nat.succ (n + n))
 
-#eval checkWithMkMatcherInput ``Foo.z.match_1
+axiom nDiv2 (n : Nat)     : n % 2 = 0 → n = n/2 + n/2
+axiom nDiv2Succ (n : Nat) : n % 2 ≠ 0 → n = Nat.succ (n/2 + n/2)
 
-#guard (Foo.mk₁ 10 20 30 40).z == 30
+def parity (n : Nat) : Parity n :=
+if h : n % 2 = 0 then
+  Eq.ndrec (Parity.even (n/2)) (nDiv2 n h).symm
+else
+  Eq.ndrec (Parity.odd (n/2)) (nDiv2Succ n h).symm
 
-theorem ex7 : (Foo.mk₁ 10 20 30 40).z = 30 :=
-rfl
+partial def natToBin : (n : Nat) → List Bool
+| 0 => []
+| n => match n, parity n with
+  | _, Parity.even j => false :: natToBin j
+  | _, Parity.odd  j => true  :: natToBin j
 
-def Foo.addY? : Foo × Foo → Option Nat
-| (mk₁ (y := y₁) .., mk₁ (y := y₂) ..) => some (y₁ + y₂)
-| _ => none
+/-- info: [false, true, true] -/
+#guard_msgs in
+#eval natToBin 6
 
-#eval checkWithMkMatcherInput ``Foo.addY?.match_1
+partial def natToBin' : (n : Nat) → List Bool
+| 0 => []
+| n => match parity n with
+  | Parity.even j => false :: natToBin j
+  | Parity.odd  j => true  :: natToBin j
 
-#guard Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) == some 22
+-- This used to be bad until we used sparse matchers,
+-- which meant that the `0` pattern does not cause the remaining
+-- to have `n = .succ _`, whic breaks dependent pattern matching
+partial def natToBinBad (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
 
-theorem ex8 : Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) = some 22 :=
-rfl
+-- The refactoring #11695 also fixed this, because it is more likely to use
+-- value matching when it sees no actual constructors. Previously, the
+-- inaccessible pattern caused it to expand the literal to a constructor.
 
-instance {α} : Inhabited (Sigma fun m => Vec α m) :=
-⟨⟨0, Vec.nil⟩⟩
+set_option backward.match.sparseCases false in
+#guard_msgs in
+partial def natToBinBadOld (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
 
-partial def filter {α} (p : α → Bool) : {n : Nat} → Vec α n → Sigma fun m => Vec α m
-| _, Vec.nil        => ⟨0, Vec.nil⟩
-| _, Vec.cons x xs  => match p x, filter p xs with
-  | true,  ⟨_, ys⟩ => ⟨_, Vec.cons x ys⟩
-  | false, ys      => ys
-#eval checkWithMkMatcherInput ``filter.match_1
+-- Somehow the refactoring in #11695 also made this work, because
+-- `.succ 0` is treated as a value, not as a constructor pattern
 
-inductive Bla
-| ofNat  (x : Nat)
-| ofBool (x : Bool)
+partial def natToBinBad2 (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| .succ 0, _       => [true]
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
 
-def Bla.optional? : Bla → Option Nat
-| ofNat x  => some x
-| ofBool _ => none
-#eval checkWithMkMatcherInput ``Bla.optional?.match_1
+-- To still see the problem we have to make sure we do a constructor match:
 
-def Bla.isNat? (b : Bla) : Option { x : Nat // optional? b = some x } :=
-match b.optional? with
-| some y => some ⟨y, rfl⟩
-| none   => none
-#eval checkWithMkMatcherInput ``Bla.isNat?.match_1
+/--
+error: Tactic `cases` failed with a nested error:
+Dependent elimination failed: Failed to solve equation
+  n✝¹.succ = n✝.add n✝
+at case `Parity.even` after processing
+  (Nat.succ _), _
+the dependent pattern matcher can solve the following kinds of equations
+- <var> = <term> and <term> = <var>
+- <term> = <term> where the terms are definitionally equal
+- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
+-/
+#guard_msgs(pass trace, all) in
+partial def natToBinBad3 (n : Nat) : List Bool :=
+match n, parity n with
+| .succ (.succ n), _ => [true]
+| 0, _               => []
+| _, Parity.even j   => false :: natToBin j
+| _, Parity.odd  j   => true  :: natToBin j
 
-def foo (b : Bla) : Option Nat := b.optional?
-theorem fooEq (b : Bla) : foo b = b.optional? :=
-rfl
+partial def natToBin2 (n : Nat) : List Bool :=
+match n, parity n with
+| _, Parity.even 0 => []
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
 
-def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
-match h : foo b with
-| some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
-| none   => none
-#eval checkWithMkMatcherInput ``Bla.isNat2?.match_1
+/-- info: [false, true, true] -/
+#guard_msgs in
+#eval natToBin2 6
 
-def foo2 (x : Nat) : Nat :=
-match (motive := (y : Nat) → x = y → Nat) x, rfl with
-| 0,   h => 0
-| x+1, h => 1
-#eval checkWithMkMatcherInput ``foo2.match_1
+partial def natToBin2' (n : Nat) : List Bool :=
+match parity n with
+| Parity.even 0 => []
+| Parity.even j => false :: natToBin j
+| Parity.odd  j => true  :: natToBin j
+
+/--
+error: Invalid match expression: The type of pattern variable 'a' contains metavariables:
+  ?m.12
+---
+info: fun x => ?m.3 : ?m.12 × ?m.13 → ?m.12
+-/
+#guard_msgs in
+#check fun (a, b) => a -- Error type of pattern variable contains metavariables
+
+/--
+info: fun x =>
+  match x with
+  | (a, b) => a + b : Nat × Nat → Nat
+-/
+#guard_msgs in
+#check fun (a, b) => (a:Nat) + b
+
+/--
+info: fun x =>
+  match x with
+  | (a, b) => a && b : Bool × Bool → Bool
+-/
+#guard_msgs in
+#check fun (a, b) => a && b
+
+/--
+info: fun x =>
+  match x with
+  | (a, b) => a + b : Nat × Nat → Nat
+-/
+#guard_msgs in
+#check fun ((a : Nat), (b : Nat)) => a + b
+
+/--
+info: fun x x_1 =>
+  match x, x_1 with
+  | some a, some b => some (a + b)
+  | x, x_2 => none : Option Nat → Option Nat → Option Nat
+-/
+#guard_msgs in
+#check fun
+  | some a, some b => some (a + b : Nat)
+  | _,      _      => none
+
+-- overapplied matcher
+/--
+info: fun x =>
+  (match (motive := Nat → Nat → Nat) x with
+    | 0 => id
+    | x.succ => id)
+    x : Nat → Nat
+-/
+#guard_msgs in
+#check fun x => (match x with | 0 => id | x+1 => id) x
+
+#guard_msgs(drop info) in
+#check fun
+  | #[1, 2]    => 2
+  | #[]        => 0
+  | #[3, 4, 5] => 3
+  | _          => 4
+
+-- underapplied matcher
+def g {α} : List α → Nat
+  | [a] => 1
+  | _   => 0
+
+/--
+info: g.match_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α) (h_1 : (a : α) → motive [a])
+  (h_2 : (x : List α) → motive x) : motive x✝
+-/
+#guard_msgs in
+#check g.match_1
+
+#guard_msgs(drop info) in
+#check fun (e : Empty) => (nomatch e : False)

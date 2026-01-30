@@ -82,9 +82,6 @@ theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a 
   simp only [replicate_eq_mk_replicate, countP_mk]
   simp [Array.countP_replicate]
 
-@[deprecated countP_replicate (since := "2025-03-18")]
-abbrev countP_mkVector := @countP_replicate
-
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs, rfl⟩
@@ -227,15 +224,9 @@ theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = 
   simp only [replicate_eq_mk_replicate, count_mk]
   simp
 
-@[deprecated count_replicate_self (since := "2025-03-18")]
-abbrev count_mkVector_self := @count_replicate_self
-
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   simp only [replicate_eq_mk_replicate, count_mk]
   simp [Array.count_replicate]
-
-@[deprecated count_replicate (since := "2025-03-18")]
-abbrev count_mkVector := @count_replicate
 
 theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Vector α n} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by

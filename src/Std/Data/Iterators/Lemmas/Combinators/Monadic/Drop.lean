@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 theorem IterM.step_drop {α m β} [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} :
@@ -31,4 +31,4 @@ theorem IterM.step_drop {α m β} [Monad m] [Iterator α m β] {n : Nat}
   · rfl
   · rfl
 
-end Std.Iterators
+end Std

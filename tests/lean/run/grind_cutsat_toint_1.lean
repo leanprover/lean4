@@ -81,16 +81,16 @@ example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
   grind
 
 /--
-trace: [grind.cutsat.model] a := 2
-[grind.cutsat.model] b := 0
+trace: [grind.lia.model] a := 2
+[grind.lia.model] b := 0
 -/
 #guard_msgs (drop error, trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
   grind
 
 -- We use `↑a` when pretty printing `ToInt.toInt a`
-/-- trace: [grind.debug.ring.basis] (↑a + ↑b) % 3 + -1 * ↑a + -1 * ↑b + 3 * ((↑a + ↑b) / 3) = 0 -/
+/-- trace: [grind.debug.ring.basis] ↑a + ↑b + -1 * ((↑a + ↑b) % 3) + -3 * ((↑a + ↑b) / 3) = 0 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.ring.basis true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
@@ -116,4 +116,10 @@ example {n : Nat} (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y <
   grind
 
 example {n m : Nat} (x : BitVec n) : 2 ≤ n → n ≤ m → m = 2 → x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 := by
+  grind
+
+example (x : BitVec 8) : x > 2#8 → x > 1#8 := by
+  grind
+
+example (x y : BitVec 8) : y < 254#8 → x > 2#8 + y → x > 1#8 + y := by
   grind

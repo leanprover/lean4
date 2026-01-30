@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Loop
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -15,7 +14,7 @@ public import Init.Data.Iterators.Internal.Termination
 This file provides the iterator combinator `IterM.drop`.
 -/
 
-namespace Std.Iterators
+namespace Std
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -23,7 +22,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 The internal state of the `IterM.drop` combinator.
 -/
 @[unbox]
-structure Drop (α : Type w) (m : Type w → Type w') (β : Type w) where
+structure Iterators.Types.Drop (α : Type w) (m : Type w → Type w') (β : Type w) where
   /-- Internal implementation detail of the iterator library -/
   remaining : Nat
   /-- Internal implementation detail of the iterator library -/
@@ -55,7 +54,9 @@ does not drop any elements anymore.
 -/
 @[always_inline, inline]
 def IterM.drop (n : Nat) (it : IterM (α := α) m β) :=
-  toIterM (Drop.mk n it) m β
+  IterM.mk (Iterators.Types.Drop.mk n it) m β
+
+namespace Iterators.Types
 
 inductive Drop.PlausibleStep [Iterator α m β] (it : IterM (α := Drop α m β) m β) :
     (step : IterStep (IterM (α := Drop α m β) m β) β) → Prop where
@@ -88,7 +89,7 @@ private def Drop.FiniteRel (m : Type w → Type w') [Iterator α m β] [Finite �
 private def Drop.instFinitenessRelation [Iterator α m β] [Monad m]
     [Finite α m] :
     FinitenessRelation (Drop α m β) m where
-  rel := Drop.FiniteRel m
+  Rel := Drop.FiniteRel m
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -133,7 +134,7 @@ private theorem Drop.productiveRel_of_inner [Monad m] [Iterator α m β] [Produc
 private def Drop.instProductivenessRelation [Iterator α m β] [Monad m]
     [Productive α m] :
     ProductivenessRelation (Drop α m β) m where
-  rel := Drop.ProductiveRel m
+  Rel := Drop.ProductiveRel m
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -152,28 +153,8 @@ instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
     Productive (Drop α m β) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance Drop.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
-    IteratorCollect (Drop α m β) m n :=
-  .defaultImplementation
-
-instance Drop.instIteratorCollectPartial {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
-    IteratorCollectPartial (Drop α m β) m n :=
-  .defaultImplementation
-
 instance Drop.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
-    IteratorLoopPartial (Drop α m β) m n :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [Finite α m] [IteratorLoop α m m] :
-    IteratorSize (Drop α m β) m :=
-  .defaultImplementation
-
-instance {α : Type w} [Monad m] [Iterator α m β] [IteratorLoopPartial α m m] :
-    IteratorSizePartial (Drop α m β) m :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

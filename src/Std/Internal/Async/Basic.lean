@@ -22,13 +22,13 @@ namespace Async
 This module provides a layered approach to asynchronous programming, combining monadic types,
 type classes, and concrete task types that work together in a cohesive system.
 
-- **Monadic Types**: These types provide a good way to to chain and manipulate context. These
+- **Monadic Types**: These types provide a good way to chain and manipulate context. These
   can contain a `Task`, enabling manipulation of both asynchronous and synchronous code.
 - **Concrete Task Types**: Concrete units of work that can be executed within these contexts.
 
 ## Monadic Types
 
-These types provide a good way to to chain and manipulate context. These can contain a `Task`,
+These types provide a good way to chain and manipulate context. These can contain a `Task`,
 enabling manipulation of both asynchronous and synchronous code.
 
 - `BaseAsync`: A monadic type for infallible asynchronous computations
@@ -548,7 +548,7 @@ def concurrentlyAll (xs : Array (BaseAsync α)) (prio := Task.Priority.default) 
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
-All other results are lost, and the tasks are not cancelled, so they'll continue their executing
+All other results are lost, and the tasks are not cancelled, so they'll continue their execution
 until the end.
 -/
 @[inline, specialize]
@@ -829,7 +829,7 @@ def concurrentlyAll (xs : Array (EAsync ε α)) (prio := Task.Priority.default) 
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
-All other results are lost, and the tasks are not cancelled, so they'll continue their executing
+All other results are lost, and the tasks are not cancelled, so they'll continue their execution
 until the end.
 -/
 @[inline, specialize]
@@ -969,7 +969,7 @@ def concurrentlyAll (xs : Array (Async α)) (prio := Task.Priority.default) : As
 
 /--
 Runs all computations concurrently and returns the result of the first one to finish.
-All other results are lost, and the tasks are not cancelled, so they'll continue their executing
+All other results are lost, and the tasks are not cancelled, so they'll continue their execution
 until the end.
 -/
 @[inline, specialize]

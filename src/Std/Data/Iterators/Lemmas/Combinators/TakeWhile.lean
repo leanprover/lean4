@@ -9,10 +9,12 @@ prelude
 public import Std.Data.Iterators.Combinators.TakeWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Lemmas.Consumers.Access
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
@@ -22,16 +24,32 @@ theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
 theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step = (match it.step with
-      | .yield it' out h => match P out with
-        | true => .yield (it'.takeWhile P) out (.yield h True.intro)
-        | false => .done (.rejected h True.intro)
+      | .yield it' out h => match hP : P out with
+        | true => .yield (it'.takeWhile P) out (.yield h (by simpa))
+        | false => .done (.rejected h (by simpa))
       | .skip it' h => .skip (it'.takeWhile P) (.skip h)
       | .done h => .done (.done h)) := by
   simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
-    cases P _ <;> simp
+    split <;> split <;> (try exfalso; simp_all; done) <;> simp_all
+  · simp
+  · simp
+
+theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
+    {it : Iter (α := α) β} :
+    (it.takeWhile P).step.val = (match it.step.val with
+      | .yield it' out => match P out with
+        | true => .yield (it'.takeWhile P) out
+        | false => .done
+      | .skip it' => .skip (it'.takeWhile P)
+      | .done => .done) := by
+  simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
+  generalize it.toIterM.step.run = step
+  cases step.inflate using PlausibleIterStep.casesOn
+  · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
+    split <;> split <;> (try exfalso; simp_all; done) <;> simp_all
   · simp
   · simp
 
@@ -41,8 +59,8 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
     (it.takeWhile P).atIdxSlow? l = if ∀ k, k ≤ l → (it.atIdxSlow? k).any P then it.atIdxSlow? l else none := by
   fun_induction it.atIdxSlow? l
   case case1 it it' out h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h',
-      PlausibleIterStep.yield, PlausibleIterStep.done, Nat.le_zero_eq, forall_eq]
+    rw [atIdxSlow?_eq_match]
+    simp only [val_step_takeWhile, h', Nat.le_zero_eq, forall_eq]
     rw [atIdxSlow?, h']
     simp only [Option.any_some]
     apply Eq.symm
@@ -54,7 +72,8 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
       · simp
       · exfalso; simp_all
   case case2 it it' out h h' l ih =>
-    simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.takeWhile P), step_takeWhile, h']
+    rw [atIdxSlow?_eq_match]
+    simp only [Nat.succ_eq_add_one, val_step_takeWhile, h']
     simp only [atIdxSlow?.eq_def (it := it), h']
     cases hP : P out
     · simp
@@ -115,7 +134,7 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
 
 @[simp]
 theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toList = it.toList.takeWhile P := by
   ext
@@ -123,16 +142,16 @@ theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
 
 @[simp]
 theorem Iter.toListRev_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toListRev = (it.toList.takeWhile P).reverse := by
   rw [toListRev_eq, toList_takeWhile_of_finite]
 
 @[simp]
 theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toArray = it.toArray.takeWhile P := by
   rw [← toArray_toList, ← toArray_toList, List.takeWhile_toArray, toList_takeWhile_of_finite]
 
-end Std.Iterators
+end Std

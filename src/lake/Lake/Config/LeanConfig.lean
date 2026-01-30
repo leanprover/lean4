@@ -79,7 +79,7 @@ public inductive BuildType
   Debug optimization, asserts enabled, custom debug code enabled, and
   debug info included in executable (so you can step through the code with a
   debugger and have address to source-file:line-number translation).
-  For example, passes `-Og -g` when compiling C code.
+  For example, passes `-O0 -g` when compiling C code.
   -/
   | debug
   /--
@@ -112,7 +112,7 @@ public instance : Max BuildType := maxOfLe
 
 /-- The arguments to pass to `leanc` based on the build type. -/
 public def leancArgs : BuildType → Array String
-| debug => #["-Og", "-g"]
+| debug => #["-O0", "-g"]
 | relWithDebInfo => #["-O3", "-g", "-DNDEBUG"]
 | minSizeRel => #["-Os", "-DNDEBUG"]
 | release => #["-O3", "-DNDEBUG"]

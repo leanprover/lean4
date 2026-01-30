@@ -8,14 +8,19 @@ module
 prelude
 public import Init.Data.Iterators.Basic
 
+set_option linter.missingDocs true
+
 public section
 
-namespace Std.Iterators
+namespace Std
 
 /--
 A wrapper around an iterator that provides partial consumers. See `Iter.allowNontermination`.
 -/
 structure Iter.Partial {α : Type w} (β : Type w) where
+  /--
+  The wrapped iterator, which was wrapped by `Iter.allowNontermination`.
+  -/
   it : Iter (α := α) β
 
 /--
@@ -29,4 +34,4 @@ def Iter.allowNontermination {α : Type w} {β : Type w}
     (it : Iter (α := α) β) : Iter.Partial (α := α) β :=
   ⟨it⟩
 
-end Std.Iterators
+end Std

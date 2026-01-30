@@ -18,17 +18,21 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.startsWith "" = true
 #guard "red green blue".toSlice.startsWith 'r' = true
 #guard "red green blue".toSlice.startsWith Char.isLower = true
+#guard "red green blue".toSlice.startsWith (· = 'r') = true
+#guard "red green blue".toSlice.startsWith (· = 's') = false
 
 #guard ("coffee tea water".toSlice.split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]
 #guard ("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.split "ab").toList == ["a".toSlice, "".toSlice, "a".toSlice, "a".toSlice]
 
 #guard ("coffee tea water".toSlice.splitInclusive Char.isWhitespace).toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive ' ').toList == ["coffee ".toSlice, "tea ".toSlice, "water".toSlice]
 #guard ("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]
 #guard ("a".toSlice.splitInclusive (fun (_ : Char) => true)).toList == ["a".toSlice]
 #guard ("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]
+#guard ("aababaaba".toSlice.splitInclusive "ab").toList == ["aab".toSlice, "ab".toSlice, "aab".toSlice, "a".toSlice]
 
 #guard "red green blue".toSlice.drop 4 == "green blue".toSlice
 #guard "red green blue".toSlice.drop 10 == "blue".toSlice
@@ -38,6 +42,7 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.dropWhile 'r' == "ed green blue".toSlice
 #guard "red red green blue".toSlice.dropWhile "red " == "green blue".toSlice
 #guard "red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice
+#guard "rrrrred green blue".toSlice.dropWhile (· = 'r') == "ed green blue".toSlice
 
 #guard "abc".toSlice.trimAsciiStart == "abc".toSlice
 #guard "   abc".toSlice.trimAsciiStart == "abc".toSlice
@@ -89,6 +94,8 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.endsWith "" = true
 #guard "red green blue".toSlice.endsWith 'e' = true
 #guard "red green blue".toSlice.endsWith Char.isLower = true
+#guard "red green blue".toSlice.endsWith (· = 'e') = true
+#guard "red green blue".toSlice.endsWith (· = 'f') = false
 
 #guard ("coffee tea water".toSlice.revSplit Char.isWhitespace).toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]
 #guard ("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]
@@ -100,6 +107,7 @@ Tests for `String.Slice` functions
 #guard "red green blue".toSlice.dropEndWhile Char.isLower == "red green ".toSlice
 #guard "red green blue".toSlice.dropEndWhile 'e' == "red green blu".toSlice
 #guard "red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice
+#guard "red green blueeeeeee".toSlice.dropEndWhile (· = 'e') == "red green blu".toSlice
 
 #guard "abc".toSlice.trimAsciiEnd == "abc".toSlice
 #guard "   abc".toSlice.trimAsciiEnd == "   abc".toSlice
@@ -210,3 +218,31 @@ Tests for `String.Slice` functions
 
 #guard "abc".toSlice.back = 'c'
 #guard "".toSlice.back = (default : Char)
+
+section
+open String.Slice.Pattern
+
+#guard (ToForwardSearcher.toSearcher "" "".toSlice).toList == [.matched "".toSlice.startPos "".toSlice.startPos]
+#guard (ToForwardSearcher.toSearcher "" "abc".toSlice).toList == [
+  .matched ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨0⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨1⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨1⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨2⟩ (by decide)),
+  .rejected ("abc".toSlice.pos ⟨2⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+  .matched ("abc".toSlice.pos ⟨3⟩ (by decide)) ("abc".toSlice.pos ⟨3⟩ (by decide)),
+]
+
+end
+
+#guard ("".toSlice.split "").toList == ["".toSlice, "".toSlice]
+#guard ("abc".toSlice.split "").toList == ["".toSlice, "a".toSlice, "b".toSlice, "c".toSlice, "".toSlice]
+
+#guard " ".find (·.isWhitespace) = " ".startPos
+#guard " ".find (· = ' ') = " ".startPos
+#guard " ".startsWith (·.isWhitespace) = true
+#guard " ".startsWith (· = ' ') = true
+#guard " ".revFind? (·.isWhitespace) = some " ".startPos
+#guard " ".revFind? (· = ' ') = some " ".startPos
+#guard " ".endsWith (·.isWhitespace) = true
+#guard " ".endsWith (· = ' ') = true

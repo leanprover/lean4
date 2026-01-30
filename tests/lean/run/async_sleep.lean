@@ -13,7 +13,6 @@ def assertDuration (should : Nat) (eps : Nat) (x : IO α) : IO α := do
   assertElapsed t1 t2 should eps
   return res
 
-
 def BASE_DURATION : Nat := 1000
 
 -- generous tolerance for slow CI systems

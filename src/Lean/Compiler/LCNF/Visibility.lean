@@ -34,7 +34,7 @@ where
 
 private def shouldExportBody (decl : Decl pu) : CompilerM Bool := do
   -- Export body if template-like...
-  decl.isTemplateLike <||>
+  (if (← inBasePhase) then decl.isTemplateLike else pure decl.inlineable) <||>
   -- ...or it is below the (local) opportunistic inlining threshold and its `Expr` is exported
   -- anyway, unlikely leading to more rebuilds
   decl.value.isCodeAndM fun code => do

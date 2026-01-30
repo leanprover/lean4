@@ -38,7 +38,7 @@ inductive Decision where
   | unknown
 deriving Hashable, BEq, Inhabited, Repr
 
-def Decision.ofAlt : Alt → Decision
+def Decision.ofAlt : Alt .pure → Decision
   | .alt name _ _ => .arm name
   | .default _ => .default
 
@@ -50,7 +50,7 @@ structure BaseFloatContext where
   All the declarations that were collected in the current LCNF basic
   block up to the current statement (in reverse order for efficiency).
   -/
-  decls : List CodeDecl := []
+  decls : List (CodeDecl .pure) := []
 
 /--
 The state for `FloatM`
@@ -67,7 +67,7 @@ structure FloatState where
   - Which declarations do we move into a certain arm
   - Which declarations do we move into the default arm
   -/
-  newArms : Std.HashMap Decision (List CodeDecl)
+  newArms : Std.HashMap Decision (List (CodeDecl .pure))
 
 /--
 Use to collect relevant declarations for the floating mechanism.
@@ -82,7 +82,7 @@ abbrev FloatM := StateRefT FloatState BaseFloatM
 /--
 Add `decl` to the list of declarations and run `x` with that updated context.
 -/
-def withNewCandidate (decl : CodeDecl) (x : BaseFloatM α) : BaseFloatM α :=
+def withNewCandidate (decl : CodeDecl .pure) (x : BaseFloatM α) : BaseFloatM α :=
   withReader (fun r => { r with decls := decl :: r.decls }) do
     x
 
@@ -98,7 +98,7 @@ Whether to ignore `decl` for the floating mechanism. We want to do this if:
 - `decl`' is storing a typeclass instance
 - `decl` is a projection from a variable that is storing a typeclass instance
 -/
-def ignore? (decl : LetDecl) : BaseFloatM Bool :=  do
+def ignore? (decl : LetDecl .pure) : BaseFloatM Bool :=  do
    if (← isArrowClass? decl.type).isSome then
      return true
    else if let .proj _ _ fvarId := decl.value then
@@ -117,7 +117,7 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `arm` or `default` if we see the declaration only being used in exactly one cases arm
 - `unknown` otherwise
 -/
-def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
+def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decision) := do
   let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
   let owned : Std.HashSet FVarId := ∅
   (map, _) ← (← read).decls.foldlM (init := (map, owned)) fun (acc, owned) val => do
@@ -135,12 +135,12 @@ def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := 
   (_, map) ← goCases cs |>.run map
   return map
 where
-  visitDecl (env : Environment) (value : CodeDecl) : StateM (Std.HashSet FVarId) Bool := do
+  visitDecl (env : Environment) (value : CodeDecl .pure) : StateM (Std.HashSet FVarId) Bool := do
     match value with
     | .let decl => visitLetValue env decl.value
     | _ => return false -- will need to investigate whether that can be a problem
 
-  visitLetValue (env : Environment) (value : LetValue) : StateM (Std.HashSet FVarId) Bool := do
+  visitLetValue (env : Environment) (value : LetValue .pure) : StateM (Std.HashSet FVarId) Bool := do
     match value with
     | .proj _ _ x => visitArg (.fvar x) true
     | .const nm _ args =>
@@ -158,7 +158,7 @@ where
         (← visitArg (.fvar x) false)
     | .erased | .lit _ => return false
 
-  visitArg (var : Arg) (borrowed : Bool) : StateM (Std.HashSet FVarId) Bool := do
+  visitArg (var : Arg .pure) (borrowed : Bool) : StateM (Std.HashSet FVarId) Bool := do
     let .fvar v := var | return false
     let res := (← get).contains v
     unless borrowed do
@@ -173,16 +173,16 @@ where
         modify fun s => s.insert var .dont
       -- otherwise we already have the proper decision
 
-  goAlt (alt : Alt) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
+  goAlt (alt : Alt .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     forFVarM (goFVar (.ofAlt alt)) alt
-  goCases (cs : Cases) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
+  goCases (cs : Cases .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     cs.alts.forM goAlt
 
 /--
 Compute the initial new arms. This will just set up a map from all arms of
 `cs` to empty `Array`s, plus one additional entry for `dont`.
 -/
-def initialNewArms (cs : Cases) : Std.HashMap Decision (List CodeDecl) := Id.run do
+def initialNewArms (cs : Cases .pure) : Std.HashMap Decision (List (CodeDecl .pure)) := Id.run do
   let mut map := Std.HashMap.emptyWithCapacity (cs.alts.size + 1)
   map := map.insert .dont []
   cs.alts.foldr (init := map) fun val acc => acc.insert (.ofAlt val) []
@@ -203,7 +203,7 @@ cases z with
 Here `x` and `y` are originally marked as getting floated into `n` and `m`
 respectively but since `z` can't be moved we don't want that to move `x` and `y`.
 -/
-def dontFloat (decl : CodeDecl) : FloatM Unit := do
+def dontFloat (decl : CodeDecl .pure) : FloatM Unit := do
   forFVarM goFVar decl
   modify fun s => { s with newArms := s.newArms.insert .dont (decl :: s.newArms[Decision.dont]!) }
 where
@@ -257,7 +257,7 @@ Will:
     ```
     If we are at `y` `x` is still marked to be moved but we don't want that.
 -/
-def float (decl : CodeDecl) : FloatM Unit := do
+def float (decl : CodeDecl .pure) : FloatM Unit := do
   let arm := (← get).decision[decl.fvarId]!
   forFVarM (goFVar · arm) decl
   modify fun s => { s with newArms := s.newArms.insert arm (decl :: s.newArms[arm]!) }
@@ -273,7 +273,7 @@ where
 Iterate through `decl`, pushing local declarations that are only used in one
 control flow arm into said arm in order to avoid useless computations.
 -/
-partial def floatLetIn (decl : Decl) : CompilerM Decl := do
+partial def floatLetIn (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let newValue ← decl.value.mapCodeM go |>.run {}
   return { decl with value := newValue }
 where
@@ -296,7 +296,7 @@ where
       else
         float decl
 
-  go (code : Code) : BaseFloatM Code := do
+  go (code : Code .pure) : BaseFloatM (Code .pure) := do
     match code with
     | .let decl k =>
       withNewCandidate (.let decl) do
@@ -334,11 +334,12 @@ where
 
 end FloatLetIn
 
-def Decl.floatLetIn (decl : Decl) : CompilerM Decl := do
+def Decl.floatLetIn (decl : Decl .pure) : CompilerM (Decl .pure) := do
   FloatLetIn.floatLetIn decl
 
 def floatLetIn (phase := Phase.base) (occurrence := 0) : Pass :=
-  .mkPerDeclaration `floatLetIn Decl.floatLetIn phase occurrence
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `floatLetIn phase (h ▸ Decl.floatLetIn) occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.floatLetIn (inherited := true)

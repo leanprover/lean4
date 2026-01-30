@@ -33,10 +33,6 @@ structure Context where
   Remark: the lambda lifting pass abstracts all `let`/`fun`-declarations.
   -/
   abstract : FVarId → Bool
-  /--
-  Indicates whether we are processing terms beneath a binder.
-  -/
-  isUnderBinder : Bool
 
 /--
 State for the `ClosureM` monad.
@@ -103,8 +99,7 @@ mutual
     match c with
     | .let decl k =>
       collectType decl.type
-      withReader (fun ctx => { ctx with isUnderBinder := ctx.isUnderBinder || decl.type.isForall })
-        do collectLetValue decl.value
+      collectLetValue decl.value
       collectCode k
     | .fun decl k | .jp decl k => collectFunDecl decl; collectCode k
     | .cases c =>
@@ -122,8 +117,7 @@ mutual
   partial def collectFunDecl (decl : FunDecl) : ClosureM Unit := do
     collectType decl.type
     collectParams decl.params
-    withReader (fun ctx => { ctx with isUnderBinder := true }) do
-      collectCode decl.value
+    collectCode decl.value
 
   /--
   Process the given free variable.
@@ -146,7 +140,7 @@ mutual
           modify fun s => { s with params := s.params.push param }
         else if let some letDecl ← findLetDecl? fvarId then
           collectType letDecl.type
-          if ctx.isUnderBinder || ctx.abstract letDecl.fvarId then
+          if ctx.abstract letDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
             collectLetValue letDecl.value
@@ -162,7 +156,7 @@ mutual
 end
 
 def run (x : ClosureM α) (inScope : FVarId → Bool) (abstract : FVarId → Bool := fun _ => true) : CompilerM (α × Array Param × Array CodeDecl) := do
-  let (a, s) ← x { inScope, abstract, isUnderBinder := false } |>.run {}
+  let (a, s) ← x { inScope, abstract } |>.run {}
   -- If we've abstracted an fvar into a param, exclude its definition. Note that this still allows
   -- for other decls the removed decl depends upon to be included, but they will be removed later
   -- for having no users.

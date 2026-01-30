@@ -97,12 +97,16 @@ def Waiter.isRoot : Waiter → Bool
 namespace  MkTableKey
 
 structure State where
-  nextIdx : Nat := 0
+  nextIdx : Nat := 1
   lmap    : Std.HashMap LMVarId Level := {}
   emap    : Std.HashMap MVarId Expr := {}
   mctx    : MetavarContext
 
-abbrev M := StateM State
+structure Context where
+  env : Environment
+  idx : Nat := 0
+
+abbrev M := StateT State (ReaderM Context)
 
 @[always_inline]
 instance : MonadMCtx M where
@@ -130,9 +134,13 @@ partial def normLevel (u : Level) : M Level := do
     | u => return u
 
 partial def normExpr (e : Expr) : M Expr := do
-  if !e.hasMVar then
-    pure e
-  else match e with
+  -- Assume instances of the same type are always equal.
+  if let some c := e.getAppFn'.constName? then
+    let ctx ← read
+    if isInstanceCore ctx.env c then
+      let n := Name.mkNum `_tc ctx.idx
+      return mkFVar { name := n }
+  match e with
     | .const _ us      => return e.updateConst! (← us.mapM normLevel)
     | .sort u          => return e.updateSort! (← normLevel u)
     | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
@@ -157,8 +165,8 @@ partial def normExpr (e : Expr) : M Expr := do
 end MkTableKey
 
 /-- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
-def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
-  let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
+def mkTableKey [Monad m] [MonadEnv m] [MonadMCtx m] (e : Expr) : m Expr := do
+  let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) } |>.run { env := (← getEnv) }
   setMCtx s.mctx
   return r
 

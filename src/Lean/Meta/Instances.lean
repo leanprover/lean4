@@ -248,7 +248,10 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
 
   Thus, we added a new transparency setting and set it here.
   -/
-  setReducibilityStatus declName .instanceReducible
+  -- TODO: Decide what to do with scoped/local instances. We can't set their reducibility here as
+  -- they may have been declared in a different module.
+  if attrKind == .global then
+    setReducibilityStatus declName .instanceReducible
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind

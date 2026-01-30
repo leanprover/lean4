@@ -104,6 +104,12 @@ theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
   div_le_div_left (Nat.le_add_left z y) h
 
+theorem div_add_div_le_add_div {x y z : Nat} : x / z + y / z ≤ (x + y) / z := by
+  by_cases hc : z > 0
+  · rw [Nat.le_div_iff_mul_le hc, Nat.add_mul]
+    apply Nat.add_le_add <;> apply Nat.div_mul_le_self
+  · simp_all
+
 theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
     (a + 1) / b = a / b + 1 := by
   replace h := mod_eq_zero_of_dvd h

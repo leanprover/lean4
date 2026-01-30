@@ -40,13 +40,14 @@ public def main (args : List String) : IO UInt32 := do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]
     let (_, s) ← importModulesCore (globalLevel := .exported) (arts := setup.importArts) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
-    finalizeImport (leakEnv := true) (loadExts := true /-TODO?-/) (level := .exported)
+    finalizeImport (leakEnv := true) (loadExts := true) (level := .exported)
       s imports setup.options.toOptions
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves
   let env := { env with base.private.header.imports := mod.imports }
+  let _ : MonadAlwaysExcept _ CoreM := inferInstance
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := setup.options.toOptions })
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries env modIdx

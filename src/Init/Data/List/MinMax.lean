@@ -204,7 +204,6 @@ theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMi
     l.min (ne_nil_of_mem ha) ≤ a :=
   (min?_eq_some_iff.mp (min?_eq_some_min (List.ne_nil_of_mem ha))).right a ha
 
-@[grind =]
 protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
   le_min?_iff (min?_eq_some_min hl)
@@ -407,7 +406,6 @@ theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=
   max?_mem (max?_eq_some_max hl)
 
-@[grind =]
 protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x :=
   max?_le_iff (max?_eq_some_max hl)

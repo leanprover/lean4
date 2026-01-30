@@ -54,7 +54,7 @@ does not drop any elements anymore.
 -/
 @[always_inline, inline]
 def IterM.drop (n : Nat) (it : IterM (α := α) m β) :=
-  IterM.mk (Iterators.Types.Drop.mk n it) m β
+  (⟨Iterators.Types.Drop.mk n it⟩ : IterM m β)
 
 namespace Iterators.Types
 

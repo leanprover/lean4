@@ -59,7 +59,7 @@ verification purposes.
 @[always_inline, inline]
 def IterM.Intermediate.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool))
     (dropping : Bool) (it : IterM (α := α) m β) :=
-  (IterM.mk (Iterators.Types.DropWhile.mk (P := P) dropping it) m β : IterM m β)
+  (⟨Iterators.Types.DropWhile.mk (P := P) dropping it⟩ : IterM m β)
 
 /--
 Constructs intermediate states of an iterator created with the combinator `IterM.dropWhileM`.

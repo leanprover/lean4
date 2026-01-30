@@ -23,7 +23,7 @@ theorem IterM.step_drop {α m β} [Monad m] [Iterator α m β] {n : Nat}
         | k + 1 => pure <| .deflate <| .skip (it'.drop k) (.drop h rfl)
       | .skip it' h => pure <| .deflate <| .skip (it'.drop n) (.skip h)
       | .done h => pure <| .deflate <| .done (.done h)) := by
-  simp only [drop, step, Iterator.step, internalState_toIterM, Nat.succ_eq_add_one]
+  simp only [drop, step, Iterator.step, IterM.internalState_mk, Nat.succ_eq_add_one]
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn

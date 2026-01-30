@@ -30,6 +30,7 @@ COMMANDS:
   lint                  lint the package using the configured lint driver
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -271,13 +272,13 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpPack :=
-"Pack build artifacts into a archive for distribution
+"Pack build artifacts into an archive for distribution
 
 USAGE:
   lake pack [<file.tgz>]
 
 Packs the root package's `buildDir` into a gzip tar archive using `tar`.
-If a path for the archive is not specified, creates a archive in the package's
+If a path for the archive is not specified, creates an archive in the package's
 Lake directory (`.lake`) named according to its `buildArchive` setting.
 
 Does NOT build any artifacts. It just packs the existing ones."
@@ -309,6 +310,44 @@ USAGE:
 
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
+
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
 
 def helpCacheCli :=
 "Manage the Lake cache
@@ -406,7 +445,7 @@ Artifacts are uploaded to the artifact endpoint with a file name derived
 from their Lake content hash (and prefixed by the repository or scope).
 The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
-full scope). As such, the command will warn if the the work tree currently
+full scope). As such, the command will warn if the work tree currently
 has changes."
 
 def helpScriptCli :=
@@ -557,6 +596,7 @@ public def help : (cmd : String) → String
 | "lint"                => helpLint
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

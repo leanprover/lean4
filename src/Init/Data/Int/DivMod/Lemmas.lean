@@ -145,6 +145,12 @@ theorem dvd_of_mul_dvd_mul_left {a m n : Int} (ha : a ≠ 0) (h : a * m ∣ a * 
 theorem dvd_of_mul_dvd_mul_right {a m n : Int} (ha : a ≠ 0) (h : m * a ∣ n * a) : m ∣ n :=
   dvd_of_mul_dvd_mul_left ha (by simpa [Int.mul_comm] using h)
 
+theorem dvd_mul_of_dvd_right {a b c : Int} (h : a ∣ c) : a ∣ b * c :=
+  Int.dvd_trans h (Int.dvd_mul_left b c)
+
+theorem dvd_mul_of_dvd_left {a b c : Int} (h : a ∣ b) : a ∣ b * c :=
+  Int.dvd_trans h (Int.dvd_mul_right b c)
+
 @[norm_cast] theorem natCast_dvd_natCast {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n where
   mp := by
     rintro ⟨a, h⟩
@@ -1147,6 +1153,15 @@ theorem ediv_le_iff_le_mul {k x y : Int} (h : 0 < k) : x / k ≤ y ↔ x < y * k
   rw [Int.le_iff_lt_add_one, Int.ediv_lt_iff_lt_mul h, Int.add_mul]
   omega
 
+theorem le_mul_iff_le_left {x y z : Int} (hz : 0 < z) :
+    x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
+  rw [Int.ediv_le_iff_le_mul hz]
+  omega
+
+theorem le_mul_iff_le_right {x y z : Int} (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Int.mul_comm]
+
 protected theorem le_mul_of_ediv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) (H3 : a / b ≤ c) :
     a ≤ c * b := by
   rw [← Int.ediv_mul_cancel H2]; exact Int.mul_le_mul_of_nonneg_right H3 H1
@@ -1200,6 +1215,11 @@ theorem add_ediv {a b c : Int} (h : c ≠ 0) :
 protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c ≤ b / c :=
   Int.le_ediv_of_mul_le H (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H')
 
+theorem ediv_add_ediv_le_add_ediv {x y z : Int} (hz : 0 < z) :
+    x / z + y / z ≤ (x + y) / z := by
+  rw [Int.le_ediv_iff_mul_le hz, Int.add_mul]
+  apply Int.add_le_add <;> apply Int.ediv_mul_le <;> omega
+
 /-- If `n > 0` then `m` is not divisible by `n` iff it is between `n * k` and `n * (k + 1)`
   for some `k`. -/
 theorem not_dvd_iff_lt_mul_succ (m : Int) (hn : 0 < n) :
@@ -1229,7 +1249,7 @@ private theorem ediv_ediv_of_pos {x y z : Int} (hy : 0 < y) (hz : 0 < z) :
   · rw [Int.mul_comm y, ← Int.mul_assoc, ← Int.add_mul, Int.mul_comm _ z]
     exact Int.lt_mul_of_ediv_lt hy (Int.lt_mul_ediv_self_add hz)
 
-theorem ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
+theorem ediv_ediv_of_nonneg {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
   rcases y with (_ | a) | a
   · simp
   · rcases z with (_ | b) | b
@@ -1237,6 +1257,21 @@ theorem ediv_ediv {x y z : Int} (hy : 0 ≤ y) : x / y / z = x / (y * z) := by
     · simp [ediv_ediv_of_pos]
     · simp [Int.negSucc_eq, Int.mul_neg, ediv_ediv_of_pos]
   · simp at hy
+
+theorem ediv_ediv {x y z : Int} : x / y / z = x / (y * z) - if y < 0 ∧ ¬ z ∣ x / y then z.sign else 0 := by
+  rcases y with y | y
+  · rw [ediv_ediv_of_nonneg (by simp), if_neg (by simp; omega)]
+    simp
+  · rw [Int.negSucc_eq, Int.ediv_neg, Int.neg_mul, Int.ediv_neg, Int.neg_ediv, ediv_ediv_of_nonneg (by omega)]
+    simp
+
+theorem ediv_mul {x y z : Int} : x / (y * z) = x / y / z + if y < 0 ∧ ¬ z ∣ x / y then z.sign else 0 := by
+  have := ediv_ediv (x := x) (y := y) (z := z)
+  omega
+
+theorem ediv_mul_of_nonneg {x y z : Int} (hy : 0 ≤ y) : x / (y * z) = x / y / z := by
+  have := ediv_ediv_of_nonneg (x := x) (y := y) (z := z) hy
+  omega
 
 /-! ### tdiv -/
 
@@ -1759,6 +1794,16 @@ theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd :
     (hba : b ∣ a) (hdc : d ∣ c) : a / b < c / d ↔ d * a < c * b := by
   obtain ⟨⟨x, rfl⟩, y, rfl⟩ := hba, hdc
   simp [*, Int.ne_of_lt, d.mul_assoc, b.mul_comm]
+
+theorem ediv_lt_ediv_of_lt {a b c : Int} (h : a < b) (hcb : c ∣ b) (hc : 0 < c) :
+    a / c < b / c :=
+  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb
+    (Int.lt_of_le_of_lt (Int.ediv_mul_le _ (Int.ne_of_gt hc)) h)
+
+theorem ediv_lt_ediv_of_lt_of_neg {a b c : Int} (h : b < a) (hca : c ∣ a) (hc : c < 0) :
+    a / c < b / c :=
+  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2
+    (Int.lt_of_le_of_lt (Int.mul_ediv_self_le (Int.ne_of_lt hc)) h)
 
 /-! ### `tdiv` and ordering -/
 

@@ -2,6 +2,8 @@ module
 
 meta import Init.Dynamic
 meta import Init.System.IO
+public import Lean.PrettyPrinter.Delaborator.Basic
+public meta import Lean.PrettyPrinter.Delaborator.Basic
 
 public axiom testSorry : α
 
@@ -43,11 +45,9 @@ public def Fun := Nat → Nat
 /-! The compiler should check it has sufficient information about types available. -/
 
 /--
-error: Compilation failed, locally inferred compilation type
-  (Nat → Nat) → Nat → Nat
-differs from type
-  (Nat → Nat) → lcAny
-that would be inferred in other modules. This usually means that a type `def` involved with the mentioned declarations needs to be `@[expose]`d. This is a current compiler limitation for `module`s that may be lifted in the future.
+error: Compilation failed, locally inferred compilation type differs from type that would be inferred in other modules. Some of the following definitions may need to be `@[expose]`d to fix this mismatch: ⏎
+  Fun ↦ 1
+This is a current compiler limitation for `module`s that may be lifted in the future.
 -/
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
@@ -259,7 +259,7 @@ info: private theorem f_struct.eq_unfold : f_struct = fun x =>
 -/
 #guard_msgs(pass trace, all) in #print sig f_struct.eq_unfold
 
-/-- info: private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
+/-- info: @[defeq] private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.eq_1
 
 /--
@@ -279,7 +279,7 @@ info: private theorem f_wfrec.eq_unfold : f_wfrec = fun x x_1 =>
 -/
 #guard_msgs in #print sig f_wfrec.eq_unfold
 
-/-- info: theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
+/-- info: @[defeq] theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
 #guard_msgs in #print sig f_exp_wfrec.eq_1
 
 /--
@@ -487,10 +487,9 @@ public structure S
 def S.s := 1
 
 /--
-error: Invalid field `s`: The environment does not contain `S.s`
+error: Invalid field `s`: The environment does not contain `S.s`, so it is not possible to project the field `s` from an expression
   s
-has type
-  S
+of type `S`
 
 Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
 -/
@@ -504,3 +503,54 @@ noncomputable section
 #guard_msgs in
 meta def m := S.s
 end
+
+-- setup for `Imported`
+public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar1]
+def FooBar1 := 4
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar2]
+meta def FooBar2 := 4
+
+#guard_msgs in
+@[suggest_for Bar3 FooBar1 FooBar2]
+public def FooBar3 := 4
+
+/-- #11672: Check that `by` creates aux theorems with correct type in presence of opaque defs. -/
+
+@[no_expose] public def five : Nat := 5
+
+public class A where
+  a : five = 5
+  b : Nat
+
+public instance : A where
+  a := by rfl
+  b := 0
+
+-- should NOT be `five = five`, which is not a valid proof of `A.a` in the public scope
+/--
+info: theorem instA._proof_1 : five = 5 :=
+Eq.refl five
+-/
+#guard_msgs in
+#print instA._proof_1
+
+/-- Setup for #11715. -/
+
+public structure OpOperand2 where
+  nextUse : Option Nat
+
+public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
+  match operand.nextUse with
+  | none => ctx
+  | some nextPtr => ctx

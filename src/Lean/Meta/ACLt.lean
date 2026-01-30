@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.DiscrTree
-
+public import Lean.Meta.DiscrTree.Main
+import Lean.Meta.WHNF
 public section
-
 namespace Lean
 
 def Expr.ctorWeight : Expr → UInt8
@@ -119,7 +117,7 @@ where
         let infos ← getParamsInfo aFn aArgs.size
         for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if (← lt aArgs[i]! bArgs[i]!) then
               return true
             else if (← lt bArgs[i]! aArgs[i]!) then
@@ -157,7 +155,7 @@ where
         let infos ← getParamsInfo f args.size
         for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if !(← lt args[i]! b) then
               return false
         for h : i in infos.size...args.size do

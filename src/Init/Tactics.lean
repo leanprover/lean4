@@ -369,6 +369,12 @@ In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 
+/--
+`with_unfolding_none tacs` executes `tacs` using the `.none` transparency setting.
+In this setting no definitions are unfolded.
+-/
+syntax (name := withUnfoldingNone) "with_unfolding_none " tacticSeq : tactic
+
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
@@ -512,14 +518,13 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
   assuming these are definitionally equal.
 * `change t' at h` will change hypothesis `h : t` to have type `t'`, assuming
   assuming `t` and `t'` are definitionally equal.
--/
-syntax (name := change) "change " term (location)? : tactic
-
-/--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
   assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
+syntax (name := change) "change " term (location)? : tactic
+
+@[tactic_alt change]
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
@@ -540,7 +545,7 @@ introducing new local definitions.
 For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
 introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 -/
-syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+syntax (name := extractLets) "extract_lets" ppSpace optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
 
 /--
 Lifts `let` and `have` expressions within a term as far out as possible.
@@ -899,8 +904,13 @@ The tactic supports all the same syntax variants and options as the `let` term.
 -/
 macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
-/-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
-The syntax is the same as term-mode `let rec`. -/
+/--
+`let rec f : t := e` adds a recursive definition `f` to the current goal.
+The syntax is the same as term-mode `let rec`.
+
+The tactic supports all the same syntax variants and options as the `let` term.
+-/
+@[tactic_name "let rec"]
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
@@ -998,13 +1008,13 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case,
   and `a` and `as'` are used as names for the new variables introduced.
 - `cases h : e`, where `e` is a variable or an expression,
-  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
+  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each goal,
   where `...` is the constructor instance for that particular case.
 -/
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the
 functional induction principle.
 
 The tactic invocation
@@ -1083,8 +1093,6 @@ See also:
 * `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
 syntax "repeat " tacticSeq : tactic
-macro_rules
-  | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
 /--
 `repeat' tac` recursively applies `tac` on all of the goals so long as it succeeds.
@@ -1206,22 +1214,6 @@ while `congr 2` produces the intended `⊢ x + y = y + x`.
 syntax (name := congr) "congr" (ppSpace num)? : tactic
 
 
-/--
-In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
-```
-by_cases h : t
-· tac1
-· tac2
-```
-It performs case distinction on `h : t` or `h : ¬t` and `tac1` and `tac2` are the subproofs.
-
-You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
-if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
-by the end of the block.
--/
-syntax (name := tacDepIfThenElse)
-  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
-    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--
 In tactic mode, `if t then tac1 else tac2` is alternative syntax for:
@@ -1230,14 +1222,32 @@ by_cases t
 · tac1
 · tac2
 ```
-It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous
-hypothesis, and `tac1` and `tac2` are the subproofs. (It doesn't actually use
-nondependent `if`, since this wouldn't add anything to the context and hence would be
-useless for proving theorems. To actually insert an `ite` application use
-`refine if t then ?_ else ?_`.)
+It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous hypothesis, and
+`tac1` and `tac2` are the subproofs. (It doesn't actually use nondependent `if`, since this wouldn't
+add anything to the context and hence would be useless for proving theorems. To actually insert an
+`ite` application use `refine if t then ?_ else ?_`.)
+
+The assumptions in each subgoal can be named. `if h : t then tac1 else tac2` can be used as
+alternative syntax for:
+```
+by_cases h : t
+· tac1
+· tac2
+```
+It performs case distinction on `h : t` or `h : ¬t`.
+
+You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
+if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
+by the end of the block.
 -/
 syntax (name := tacIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+
+@[tactic_alt tacIfThenElse]
+syntax (name := tacDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
     ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--
@@ -1691,14 +1701,37 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
+Configuration for the `exact?` and `apply?` tactics.
+-/
+structure LibrarySearchConfig where
+  /-- If true, use `grind` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  grind : Bool := false
+  /-- If true, use `try?` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  try? : Bool := false
+  /-- If true (the default), star-indexed lemmas (with overly-general discrimination keys
+  like `[*]`) are searched as a fallback when no concrete-keyed lemmas are found.
+  Use `-star` to disable this fallback. -/
+  star : Bool := true
+  /-- If true, collect all successful lemmas instead of stopping at the first complete solution.
+  Use `+all` to enable this behavior. -/
+  all : Bool := false
+
+/--
 Searches environment for definitions or theorems that can solve the goal using `exact`
 with conditions resolved by `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used by `exact?` when closing the goal.  This is most useful if there are multiple
 ways to resolve the goal, and one wants to guide which lemma is used.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas (like `Empty.elim`, `And.left`).
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
 /--
 Searches environment for definitions or theorems that can refine the goal using `apply`
@@ -1706,8 +1739,13 @@ with conditions resolved when possible with `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used when closing the goal.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas.
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.

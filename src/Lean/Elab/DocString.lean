@@ -86,6 +86,9 @@ structure State where
   -/
   lctx : LocalContext
   /--
+  -/
+  localInstances : LocalInstances
+  /--
   The options.
 
   The `MonadLift TermElabM DocM` instance runs the lifted action with these options, so elaboration
@@ -129,10 +132,10 @@ instance : MonadStateOf State DocM :=
 
 instance : MonadLift TermElabM DocM where
   monadLift act := private DocM.mk fun _ _ st' => do
-    let {openDecls, lctx, options, ..} := (← st'.get)
+    let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
-      withTheReader Meta.Context (fun ρ => { ρ with lctx }) <|
+      withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|
       act
     return v
 
@@ -144,16 +147,19 @@ private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDoc
   registerEnvExtension (pure none)
 
 private def getModState
-    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLCtx m]
+    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT MetaM m] [MonadLCtx m]
     [MonadResolveName m] [MonadOptions m] : m ModuleDocstringState := do
   if let some st := modDocstringStateExt.getState (← getEnv) then
     return st
   else
-    let lctx ← getLCtx
-    let openDecls ← getOpenDecls
-    let options ← getOptions
     let scopes := [{header := "", isPublic := true}]
-    let st : ModuleDocstringState := { scopes, openDecls, lctx, options, scopedExts := #[] }
+    let openDecls ← getOpenDecls
+    let lctx ← getLCtx
+    let localInstances ← Meta.getLocalInstances
+    let options ← getOptions
+    let scopedExts := #[]
+    let st : ModuleDocstringState :=
+      { scopes, openDecls, lctx, localInstances, options, scopedExts }
     modifyEnv fun env =>
       modDocstringStateExt.setState env st
     return st
@@ -197,7 +203,7 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
       let ((v, _), _) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
-        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, options }
+        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
       pure v
     finally
       scopedEnvExtensionsRef.set sc
@@ -272,7 +278,7 @@ where
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
         pure (some x)
-      else throwErrorAt x "identifer or `_` expected"
+      else throwErrorAt x "identifier or `_` expected"
 
 
 set_option linter.unusedVariables false in
@@ -1161,7 +1167,6 @@ If `true`, suggestions are provided for code elements.
 register_builtin_option doc.verso.suggestions : Bool := {
   defValue := true
   descr := "whether to provide suggestions for code elements"
-  group := "doc"
 }
 
 -- Normally, name suggestions should be provided relative to the current scope. But
@@ -1207,9 +1212,9 @@ private def mkSuggestion
     let pre := String.Pos.Raw.extract text.source 0 b
     let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.splitToList (· == '\n') |>.toArray
+      let lines := text.source.split '\n' |>.toStringArray
       let s' := pre ++ s ++ post
-      let lines' := s'.splitToList (· == '\n') |>.toArray
+      let lines' := s'.split '\n' |>.toStringArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
@@ -1296,7 +1301,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unkown role `{name}`"
+    throwErrorAt name "Unknown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1491,6 +1496,7 @@ private def elabModSnippet'
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
         else
+          maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
               name.mapM elabInline

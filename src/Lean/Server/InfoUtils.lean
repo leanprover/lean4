@@ -339,10 +339,10 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some doc ← findDocString? env oi.declName then
       return doc
     if let some decl := (← getOptionDecls).find? oi.optionName then
-      return decl.descr
+      return decl.fullDescr
     return none
   | .ofErrorNameInfo eni => do
-    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    let some errorExplanation ← getErrorExplanation? eni.errorName | return none
     return errorExplanation.summaryWithSeverity
   | .ofDocInfo di =>
     return (← findDocString? env di.stx.getKind)

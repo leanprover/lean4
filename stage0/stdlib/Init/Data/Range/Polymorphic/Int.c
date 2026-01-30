@@ -13,24 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt;
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed(lean_object*, lean_object*);
-lean_object* lean_int_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0(lean_object*, lean_object*);
-lean_object* l_Int_toNat(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt;
 lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object*);
+lean_object* l_instNatCastInt___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_PRange_instUpwardEnumerableInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instUpwardEnumerableInt___closed__0 = (const lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__0_value;
+static const lean_closure_object l_Std_PRange_instUpwardEnumerableInt___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instUpwardEnumerableInt___closed__1 = (const lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__1_value;
+static const lean_ctor_object l_Std_PRange_instUpwardEnumerableInt___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__0_value),((lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__1_value)}};
+static const lean_object* l_Std_PRange_instUpwardEnumerableInt___closed__2 = (const lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__2_value;
+LEAN_EXPORT const lean_object* l_Std_PRange_instUpwardEnumerableInt = (const lean_object*)&l_Std_PRange_instUpwardEnumerableInt___closed__2_value;
+lean_object* lean_int_sub(lean_object*, lean_object*);
+lean_object* l_Int_toNat(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_PRange_instHasSizeInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instHasSizeInt___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instHasSizeInt___closed__0 = (const lean_object*)&l_Std_PRange_instHasSizeInt___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_PRange_instHasSizeInt = (const lean_object*)&l_Std_PRange_instHasSizeInt___closed__0_value;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Std_PRange_instHasSizeInt__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instHasSizeInt__1___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instHasSizeInt__1___closed__0 = (const lean_object*)&l_Std_PRange_instHasSizeInt__1___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_PRange_instHasSizeInt__1 = (const lean_object*)&l_Std_PRange_instHasSizeInt__1___closed__0_value;
 static lean_object* _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0() {
 _start:
 {
@@ -51,6 +61,15 @@ lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_PRange_instUpwardEnumerableInt___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -61,27 +80,6 @@ lean_dec(x_3);
 x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
-}
-}
-static lean_object* _init_l_Std_PRange_instUpwardEnumerableInt() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed), 1, 0);
-x_2 = lean_alloc_closure((void*)(l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed), 2, 0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_PRange_instUpwardEnumerableInt___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -104,14 +102,6 @@ lean_dec(x_4);
 x_6 = l_Int_toNat(x_5);
 lean_dec(x_5);
 return x_6;
-}
-}
-static lean_object* _init_l_Std_PRange_instHasSizeInt() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PRange_instHasSizeInt___lam__0___boxed), 2, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -138,14 +128,6 @@ lean_dec(x_6);
 x_8 = lean_nat_sub(x_7, x_3);
 lean_dec(x_7);
 return x_8;
-}
-}
-static lean_object* _init_l_Std_PRange_instHasSizeInt__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_PRange_instHasSizeInt__1___lam__0___boxed), 2, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instHasSizeInt__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -177,12 +159,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0 = _init_l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0();
 lean_mark_persistent(l_Std_PRange_instUpwardEnumerableInt___lam__0___closed__0);
-l_Std_PRange_instUpwardEnumerableInt = _init_l_Std_PRange_instUpwardEnumerableInt();
-lean_mark_persistent(l_Std_PRange_instUpwardEnumerableInt);
-l_Std_PRange_instHasSizeInt = _init_l_Std_PRange_instHasSizeInt();
-lean_mark_persistent(l_Std_PRange_instHasSizeInt);
-l_Std_PRange_instHasSizeInt__1 = _init_l_Std_PRange_instHasSizeInt__1();
-lean_mark_persistent(l_Std_PRange_instHasSizeInt__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

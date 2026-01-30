@@ -4,7 +4,7 @@ opaque f : Nat → Nat
 info: Try this:
   [apply] simp only [h1, x]
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (a : Nat) : True := by
@@ -18,7 +18,7 @@ example (a : Nat) : True := by
 info: Try this:
   [apply] simp only [this, x]
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : True := by

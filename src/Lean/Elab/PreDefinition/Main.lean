@@ -329,25 +329,13 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe docCtx preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")
+        else if preDefs.any (·.modifiers.isPartial) then
+          for preDef in preDefs do
+            if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
+              withRef preDef.ref <| throwError "invalid use of `partial`, `{preDef.declName}` is not a function{indentExpr preDef.type}"
+          addAndCompilePartial docCtx preDefs
+          preDefs.forM (·.termination.ensureNone "partial")
         else
-          -- Consider partial if `partial` was given explicitly, or implied and no termination hint
-          -- was given
-          if preDefs.any (·.modifiers.isPartial) ||
-             preDefs.any (·.modifiers.isInferredPartial) && !preDefs.any (·.termination.isNotNone) then
-            let mut isPartial := true
-            for preDef in preDefs do
-              if !(← whnfD preDef.type).isForall then
-                if preDef.modifiers.isPartial then
-                  withRef preDef.ref <| throwError "invalid use of `partial`, `{preDef.declName}` is not a function{indentExpr preDef.type}"
-                else
-                  -- `meta` should not imply `partial` in this case
-                  isPartial := false
-
-            if isPartial then
-              addAndCompilePartial docCtx preDefs
-              preDefs.forM (·.termination.ensureNone "partial")
-              continue
-
           ensureFunIndReservedNamesAvailable preDefs
           try
             checkCodomainsLevel preDefs

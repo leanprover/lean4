@@ -49,8 +49,10 @@ public def f : Nat → Nat
 
 /--
 info: Try these:
+  [apply] solve_by_elim
   [apply] grind [= f]
   [apply] grind only [f]
+  [apply] grind => instantiate only [f]
 -/
 #guard_msgs (info) in
 example : f (f 0) > 0 := by
@@ -59,7 +61,12 @@ example : f (f 0) > 0 := by
 /--
 info: Try these:
   [apply] grind [= f.eq_def]
+  [apply] grind only [= f.eq_def, #6818]
   [apply] grind only [= f.eq_def]
+  [apply] grind =>
+    instantiate only [= f.eq_def]
+    instantiate only
+    cases #6818 <;> instantiate only
 -/
 #guard_msgs (info) in
 example : f x > 0 := by
@@ -74,6 +81,10 @@ info: Try these:
   [apply] rfl
   [apply] grind [= app]
   [apply] grind only [app]
+  [apply] grind =>
+    instantiate only [app]
+    instantiate only [app]
+    instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app [a, b] [c] = [a, b, c] := by
@@ -83,6 +94,7 @@ example : app [a, b] [c] = [a, b, c] := by
 info: Try these:
   [apply] (fun_induction app as bs) <;> grind [= app]
   [apply] (fun_induction app as bs) <;> grind only [app]
+  [apply] (fun_induction app as bs) <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -100,6 +112,7 @@ example : app (app as bs) cs = app as (app bs cs) := by
 info: Try these:
   [apply] · expose_names; fun_induction app as bs_1 <;> grind [= app]
   [apply] · expose_names; fun_induction app as bs_1 <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs_1 <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -110,6 +123,7 @@ example : app (app as bs) cs = app as (app bs cs) := by
 info: Try these:
   [apply] · expose_names; fun_induction app as bs <;> grind [= app]
   [apply] · expose_names; fun_induction app as bs <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -128,6 +142,14 @@ attribute [simp] concat
 info: Try these:
   [apply] (fun_induction concat) <;> simp_all
   [apply] (fun_induction concat) <;> simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -140,6 +162,14 @@ info: Try these:
     fun_induction concat
     · simp
     · simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -153,6 +183,7 @@ def map (f : α → β) : List α → List β
 info: Try these:
   [apply] (fun_induction map f xs) <;> grind [= map]
   [apply] (fun_induction map f xs) <;> grind only [map]
+  [apply] (fun_induction map f xs) <;> grind => instantiate only [map]
 -/
 #guard_msgs (info) in
 theorem map_map (f : α → β) (g : β → γ) xs :
@@ -166,6 +197,10 @@ def foo : Nat → Nat
 
 /--
 info: Try these:
+  [apply] ·
+    fun_induction foo
+    · solve_by_elim
+    · sorry
   [apply] ·
     fun_induction foo
     · simp

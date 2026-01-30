@@ -4,17 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.GlobalInstances
-
 public section
-
 namespace Lean.Meta
 
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
-  | .all => return true
+  | .none => return false
+  | .all  => return true
   | .default => return !(← isIrreducible info.name)
   | m =>
     if (← isReducible info.name) then

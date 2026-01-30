@@ -223,6 +223,7 @@ example, `deriving instance Foo for Bar, Baz` invokes ``fooHandler #[`Bar, `Baz]
 def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
+  Term.registerDerivableClass className
   derivingHandlersRef.modify fun m => match m.find? className with
     | some handlers => m.insert className (handler :: handlers)
     | none => m.insert className [handler]
@@ -231,7 +232,7 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (setExpose
   withScope (fun sc => { sc with
     attrs := if setExpose then Unhygienic.run `(Parser.Term.attrInstance| expose) :: sc.attrs else sc.attrs
     -- Deactivate some linting options that only make writing deriving handlers more painful.
-    opts := sc.opts.setBool `warn.exposeOnPrivate false
+    opts := sc.opts.set `warn.exposeOnPrivate false
     -- When any of the types are private, the deriving handler will need access to the private scope
     -- and should create private instances.
     isPublic := !typeNames.any isPrivateName }) do
@@ -262,7 +263,7 @@ def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassVie
 
 def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit := do
   let env ← getEnv
-  withScope (fun sc => { sc with isMeta := sc.isMeta || declNames.all (isMeta env) }) do
+  withScope (fun sc => { sc with isMeta := sc.isMeta || declNames.all (isMarkedMeta env) }) do
   withRef view.ref do
     applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 

@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.AddDecl
 public import Lean.ReservedNameAction
+import Lean.Structure
 import Lean.Meta.Tactic.Subst
-
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean.Meta
 
 inductive CongrArgKind where
@@ -198,7 +197,7 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
       result := result.push .fixed
     else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i].isInstImplicit then
+    else if info.paramInfo[i].isInstance then
       if let some mask := mask? then
         if h2 : i < mask.size then
           if mask[i] then
@@ -227,7 +226,7 @@ def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) :=
       result := result.push .eq
     else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i].isInstImplicit then
+    else if info.paramInfo[i].isInstance then
       if shouldUseSubsingletonInst info result i then
         result := result.push .subsingletonInst
       else
@@ -339,7 +338,7 @@ where
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
-              withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
+              withImplicitBinderInfos #[lhss[i]!] do
                 let lhs := lhss[i]!
                 let lhsType ← inferType lhs
                 let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss

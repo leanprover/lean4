@@ -529,7 +529,7 @@ public def assemble₂ (w x : UInt8) : Option Char :=
   else
     let r := assemble₂Unchecked w x
     if r < 0x80 then
-      none -- overlong encodinlg
+      none -- overlong encoding
     else
       some ⟨r, ?onemore⟩
 where finally
@@ -1396,6 +1396,7 @@ scalar value.
 public def IsUTF8FirstByte (c : UInt8) : Prop :=
   c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0
 
+@[inline]
 public instance {c : UInt8} : Decidable c.IsUTF8FirstByte :=
   inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
 
@@ -1430,7 +1431,7 @@ public theorem isUTF8FirstByte_getElem_zero_utf8EncodeChar {c : Char} :
     ((String.utf8EncodeChar c)[0]'(by simp [c.utf8Size_pos])).IsUTF8FirstByte := by
   simp
 
-@[expose]
+@[expose, inline]
 public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
   if c &&& 0x80 = 0 then
     1
@@ -1440,6 +1441,9 @@ public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
     3
   else
     4
+
+public theorem utf8ByteSize_pos (c : UInt8) (h : c.IsUTF8FirstByte) : 0 < c.utf8ByteSize h := by
+  fun_cases utf8ByteSize <;> simp
 
 def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Nat
   | .invalid => 0

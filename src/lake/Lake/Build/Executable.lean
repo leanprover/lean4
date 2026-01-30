@@ -36,12 +36,16 @@ private def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   for mod in imports do
     for facet in mod.nativeFacets shouldExport do
       objJobs := objJobs.push <| ← facet.fetch mod
+  for link in self.moreLinkObjs do
+    objJobs := objJobs.push <| ← link.fetchIn self.pkg
   let libs := imports.foldl (·.insert ·.lib) OrdHashSet.empty |>.toArray
   for lib in libs do
     for link in lib.moreLinkObjs do
       objJobs := objJobs.push <| ← link.fetchIn lib.pkg
     for link in lib.moreLinkLibs do
       libJobs := libJobs.push <| ← link.fetchIn lib.pkg
+  for link in self.moreLinkLibs do
+    libJobs := libJobs.push <| ← link.fetchIn self.pkg
   let deps := (← (← self.pkg.transDeps.fetch).await).push self.pkg
   for dep in deps do
     for lib in dep.externLibs do

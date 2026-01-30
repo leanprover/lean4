@@ -51,3 +51,11 @@ target libleanffi_shared pkg : Dynlib := do
 
 lean_lib FFI.Shared where
   moreLinkLibs := #[libleanffi_shared]
+
+/-! ## Executable-only FFI -/
+
+@[default_target]
+lean_exe standalone where
+  root := `Standalone
+  moreLinkObjs := #[libleanffi_static]
+  moreLinkLibs := #[libleanffi_shared]

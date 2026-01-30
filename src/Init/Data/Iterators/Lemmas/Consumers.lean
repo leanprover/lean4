@@ -9,3 +9,4 @@ prelude
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
 public import Init.Data.Iterators.Lemmas.Consumers.Loop
+public import Init.Data.Iterators.Lemmas.Consumers.Access

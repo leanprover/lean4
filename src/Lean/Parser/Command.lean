@@ -314,6 +314,20 @@ corresponding `end <id>` or the end of the file.
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
 /--
+`with_weak_namespace <id> <cmd>` changes the current namespace to `<id>` for the duration of
+executing command `<cmd>`, without causing scoped things to go out of scope.
+
+This is in contrast to `namespace <id>` which pushes a new scope and deactivates scoped entries
+from the previous namespace. `with_weak_namespace` modifies the existing scope's namespace,
+so scoped extensions remain active.
+
+This is primarily useful for defining syntax extensions that should be scoped to a different
+namespace than the current one.
+-/
+@[builtin_command_parser] def withWeakNamespace := leading_parser
+  "with_weak_namespace " >> checkColGt >> ident >> ppSpace >> checkColGt >> commandParser
+
+/--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.
 -/
@@ -516,6 +530,31 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
+/--
+`#import_path Foo` prints the transitive import chain that brings the declaration `Foo`
+into the current file's scope.
+-/
+@[builtin_command_parser] def importPath := leading_parser
+  "#import_path " >> ident
+/--
+`assert_not_exists Foo Bar` asserts that the declarations `Foo` and `Bar` do not exist
+in the current import scope. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotExists := leading_parser
+  "assert_not_exists " >> many1 ident
+/--
+`assert_not_imported Mod1 Mod2` asserts that the modules `Mod1` and `Mod2` are not
+transitively imported by the current file. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotImported := leading_parser
+  "assert_not_imported " >> many1 ident
+/--
+`#check_assertions` reports whether all `assert_not_exists` and `assert_not_imported`
+assertions in the current file and its imports have been satisfied.
+Use `#check_assertions!` to only show unsatisfied assertions.
+-/
+@[builtin_command_parser] def checkAssertions := leading_parser
+  "#check_assertions" >> optional "!"
 /--
 `#eval e` evaluates the expression `e` by compiling and evaluating it.
 
@@ -781,7 +820,7 @@ def initializeKeyword := leading_parser
   optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser
-  withOpen (ppDedent (" in " >> commandParser))
+  withOpen (ppDedent (" in" >> ppLine >> commandParser))
 
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
@@ -925,7 +964,7 @@ Registers an error explanation.
 Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
-  docComment >> "register_error_explanation " >> ident >> termParser
+  optional docComment >> "register_error_explanation " >> ident >> termParser
 
 /--
 Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be

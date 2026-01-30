@@ -540,7 +540,7 @@ def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task (Option α))
 open Internal.IO.Async in
 
 /--
-Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that data.
 -/
 @[inline]
 def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector (Option α) :=
@@ -633,7 +633,7 @@ partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
     | .yield b => ch.forIn f b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
-instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
+instance [Inhabited α] [Monad m] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
   forIn ch b f := Receiver.forIn ch f b
 
 end Receiver

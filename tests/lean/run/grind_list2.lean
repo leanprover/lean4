@@ -9,7 +9,7 @@
 -- This file only contains those theorems that can be proved "effortlessly" with `grind`.
 -- `tests/lean/grind/experiments/list.lean` contains everything from `Data/List/Lemmas.lean`
 -- that still resists `grind`!
-@[expose] public section -- TODO: remove after congr_eq has been fixed
+
 open List Nat
 
 namespace Hidden
@@ -444,8 +444,6 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := by grind
 theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   cases l with grind
 
--- FIXME
-attribute [local grind] List.map_inj_left in
 theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 
@@ -457,8 +455,6 @@ theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
   grind [cases List]
 
--- FIXME
-attribute [local grind] List.map_inj_left in
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 

@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Rii_iter___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roc_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rcc_iter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rci_iter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rii_iter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rci_iter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rio_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rii_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roo_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roi_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Ric_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roi_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roo_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Ric_iter___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rii_iter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rco_iter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Roc_iter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_iter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rio_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rcc_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rco_iter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rco_iter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rci_iter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rci_iter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roc_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roc_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roo_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roo_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roi_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Roi_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Ric_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Ric_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rio_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rio_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rii_iter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rii_iter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rii_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Rii_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rcc_iter___redArg(lean_object* x_1) {
 _start:
 {
@@ -372,19 +372,19 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rii_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_inc(x_2);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Rii_iter___redArg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Rii_iter___redArg(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rii_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_inc(x_2);
 return x_2;
 }
 }

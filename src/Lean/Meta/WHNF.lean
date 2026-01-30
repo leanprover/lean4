@@ -77,7 +77,7 @@ def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
 
 def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
-  return isAuxRecursor env constName || isNoConfusion env constName
+  return isAuxRecursor env constName
 
 /--
 Retrieves `ConstInfo` for `declName`.
@@ -634,7 +634,7 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-expand let-expressions, expand assigned meta-variables.
+expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e

@@ -1,0 +1,12 @@
+leanchecker found a problem in LeanCheckerTests.ReplaceAxiom
+uncaught exception: (kernel) application type mismatch
+  False.elim @propext
+argument has type
+  ∀ {a b : Prop}, Iff a b → Eq a b
+but function has type
+  False →
+    ∀ (x y z n : Nat),
+      instLTNat.lt 0 x →
+        instLTNat.lt 0 y →
+          instLTNat.lt 0 z →
+            instLTNat.lt 2 n → Ne (instHAdd.hAdd (instHPow.hPow x n) (instHPow.hPow y n)) (instHPow.hPow z n)

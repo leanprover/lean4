@@ -10,7 +10,7 @@ import all Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Nat.MinMax
 public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
-public import Init.Data.Nat.Power2
+public import Init.Data.Nat.Power2.Basic
 public import Init.Data.Nat.Mod
 import Init.TacticsExtra
 import Init.BinderPredicates
@@ -1086,6 +1086,18 @@ protected theorem pow_add (a m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
   | zero => rw [Nat.add_zero, Nat.pow_zero, Nat.mul_one]
   | succ _ ih => rw [Nat.add_succ, Nat.pow_succ, Nat.pow_succ, ih, Nat.mul_assoc]
 
+theorem div_pow_of_pos (a n : Nat) : n > 0 → a ∣ a ^ n := by
+  cases n <;> simp [Nat.pow_add]
+  exact Nat.dvd_mul_left a (a ^ _)
+
+grind_pattern div_pow_of_pos => a ^ n where
+  is_value a
+  guard n > 0
+
+grind_pattern Nat.pow_pos => a ^ n where
+  not_value n
+  guard a > 0
+
 protected theorem pow_add' (a m n : Nat) : a ^ (m + n) = a ^ n * a ^ m := by
   rw [← Nat.pow_add, Nat.add_comm]
 
@@ -1719,10 +1731,15 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   | 0 => by simp
   | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
-@[grind _=_]
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
+
+grind_pattern shiftLeft_add => m <<< (n + k) where
+  m =/= 0
+
+grind_pattern shiftLeft_add => (m <<< n) <<< k where
+  m =/= 0
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]

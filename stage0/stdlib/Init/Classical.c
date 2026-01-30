@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t);
-LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not___redArg(uint8_t x_1) {
 _start:
 {
@@ -34,14 +34,6 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object* x_1, uint8_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Classical_decidable__of__decidable__not___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___redArg___boxed(lean_object* x_1) {
 _start:
 {
@@ -50,6 +42,14 @@ x_2 = lean_unbox(x_1);
 x_3 = l_Classical_decidable__of__decidable__not___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Classical_decidable__of__decidable__not(lean_object* x_1, uint8_t x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_Classical_decidable__of__decidable__not___redArg(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Classical_decidable__of__decidable__not___boxed(lean_object* x_1, lean_object* x_2) {

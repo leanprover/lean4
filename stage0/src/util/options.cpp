@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
+#include "stdlib_flags.h"
 
 #ifndef LEAN_DEFAULT_VERBOSE
 #define LEAN_DEFAULT_VERBOSE true
@@ -50,19 +51,26 @@ bool get_verbose(options const & opts) {
     return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
 }
 
-options join(options const & opts1, options const & opts2) {
-    kvmap r = opts2.m_value;
-    for (kvmap_entry const & e : opts1.m_value) {
-        if (!opts2.contains(e.fst())) {
-            r = cons(e, r);
-        }
-    }
-    return options(r);
+/* getDefaultVerbose (_ : Unit) : Bool */
+extern "C" LEAN_EXPORT uint8 lean_internal_get_default_verbose(obj_arg) {
+    return LEAN_DEFAULT_VERBOSE;
 }
 
-void options::for_each(std::function<void(name const &)> const & fn) const {
-    for (kvmap_entry const & e : m_value) {
-        fn(e.fst());
-    }
+/* getDefaultOptions (_ : Unit) : Options */
+extern "C" LEAN_EXPORT obj_res lean_internal_get_default_options(obj_arg) {
+    return get_default_options().steal();
+}
+
+extern "C" LEAN_EXPORT obj_res lean_options_get_empty(obj_arg u);
+options::options(): object_ref(lean_options_get_empty(box(0))) {}
+
+extern "C" LEAN_EXPORT bool lean_options_get_bool(obj_arg opts, obj_arg n, bool default_value);
+bool options::get_bool(name const & n, bool default_value) const {
+    return lean_options_get_bool(this->to_obj_arg(), n.to_obj_arg(), default_value);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_options_update_bool(obj_arg opts, obj_arg n, bool v);
+options options::update(name const & n, bool v) const {
+    return options(lean_options_update_bool(this->to_obj_arg(), n.to_obj_arg(), v));
 }
 }

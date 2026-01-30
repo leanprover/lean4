@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___closed__0;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___closed__0() {
 _start:
@@ -115,14 +115,6 @@ return x_30;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -131,6 +123,14 @@ x_8 = l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter__
 lean_dec(x_2);
 lean_dec(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Bootstrap_0__Int_ediv_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

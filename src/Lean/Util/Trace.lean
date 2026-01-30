@@ -102,8 +102,8 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
-  !opts.isEmpty && go (`trace ++ cls)
+@[inline] def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
+  opts.hasTrace && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
     if let some enabled := opts.get? opt then
@@ -116,6 +116,15 @@ where
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 def isTracingEnabledFor (cls : Name) : m Bool := do
   return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
+
+@[export lean_is_trace_class_enabled]
+private def isTracingEnabledForExport (opts : Options) (cls : Name) : BaseIO Bool := do
+  -- Replicate `checkTraceOption` fast path to make sure it happens before `IORef.get` (which
+  -- itself is slower than `MonadTrace.getInheritedTraceOptions` but at least that's only on the
+  -- slow path).
+  if !opts.hasTrace then
+    return false
+  return checkTraceOption (← inheritedTraceOptions.get) opts cls
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -164,7 +173,6 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
 
 register_builtin_option trace.profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "activate nested traces with execution time above `trace.profiler.threshold` and annotate with \
     time"
@@ -172,7 +180,6 @@ register_builtin_option trace.profiler : Bool := {
 
 register_builtin_option trace.profiler.threshold : Nat := {
   defValue := 10
-  group    := "profiler"
   descr    :=
     "threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), \
     traces below threshold will not be activated"
@@ -180,21 +187,18 @@ register_builtin_option trace.profiler.threshold : Nat := {
 
 register_builtin_option trace.profiler.useHeartbeats : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if true, measure and report heartbeats instead of seconds"
 }
 
 register_builtin_option trace.profiler.output : String := {
   defValue := ""
-  group    := "profiler"
   descr    :=
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
 
@@ -264,31 +268,39 @@ withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking
   return 0 < x
 ```
 
-The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
+The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
 -/
+@[inline]
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let _ := always.except
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
-  let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := trace.profiler.get opts &&
-    stop - start > trace.profiler.threshold.unitAdjusted opts
-  unless clsEnabled || aboveThresh do
-    modifyTraces (oldTraces ++ ·)
-    return (← MonadExcept.ofExcept res)
-  let ref ← getRef
-  let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-  let mut data := { cls, collapsed, tag }
-  if trace.profiler.get opts then
-    data := { data with startTime := start, stopTime := stop }
-  addTraceNode oldTraces data ref m
-  MonadExcept.ofExcept res
+  let resStartStop ← withStartStop opts <| let _ := always.except; observing k
+  postCallback opts clsEnabled oldTraces msg resStartStop
+where
+  postCallback (opts : Options) (clsEnabled oldTraces msg resStartStop) : m α := do
+    let _ := always.except
+    let (res, start, stop) := resStartStop
+    let aboveThresh := trace.profiler.get opts &&
+      stop - start > trace.profiler.threshold.unitAdjusted opts
+    unless clsEnabled || aboveThresh do
+      modifyTraces (oldTraces ++ ·)
+      return (← MonadExcept.ofExcept res)
+    let ref ← getRef
+    let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
+    let mut data := { cls, collapsed, tag }
+    if trace.profiler.get opts then
+      data := { data with startTime := start, stopTime := stop }
+    addTraceNode oldTraces data ref m
+    MonadExcept.ofExcept res
 
 /-- A version of `Lean.withTraceNode` which allows generating the message within the computation. -/
+@[inline]
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
     (k : m (α × MessageData)) (collapsed := true) (tag := "") : m α :=
   let msg := fun
@@ -309,8 +321,8 @@ on an opt-in basis.
 def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
+    name := optionName
     declName := ref
-    group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"
   }
@@ -374,30 +386,37 @@ the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
 
 TODO: find better name for this function.
 -/
+@[inline]
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let _ := always.except
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
-  let msg ← withRef ref do addMessageContext (← msg)
-  let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := trace.profiler.get opts &&
-    stop - start > trace.profiler.threshold.unitAdjusted opts
-  unless clsEnabled || aboveThresh do
-    modifyTraces (oldTraces ++ ·)
-    return (← MonadExcept.ofExcept res)
-  let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-  let mut data := { cls, collapsed, tag }
-  if trace.profiler.get opts then
-    data := { data with startTime := start, stopTime := stop }
-  addTraceNode oldTraces data ref msg
-  MonadExcept.ofExcept res
+  let msg ← withRef ref do addMessageContext (← msg ())
+  let resStartStop ← withStartStop opts <| let _ := always.except; observing k
+  postCallback opts clsEnabled oldTraces ref msg resStartStop
+where
+  postCallback (opts : Options) (clsEnabled oldTraces ref msg resStartStop) : m α := do
+    let _ := always.except
+    let (res, start, stop) := resStartStop
+    let aboveThresh := trace.profiler.get opts &&
+      stop - start > trace.profiler.threshold.unitAdjusted opts
+    unless clsEnabled || aboveThresh do
+      modifyTraces (oldTraces ++ ·)
+      return (← MonadExcept.ofExcept res)
+    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
+    let mut data := { cls, collapsed, tag }
+    if trace.profiler.get opts then
+      data := { data with startTime := start, stopTime := stop }
+    addTraceNode oldTraces data ref msg
+    MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
   if trace.profiler.output.get? (← getOptions) |>.isSome then
@@ -419,5 +438,8 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     -- put them in a synthetic root node for now and let the rendering functions handle this case
     let data := .tagged `trace <| .trace { cls := .anonymous } .nil traceMsg
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
+
+builtin_initialize
+  registerTraceClass `debug
 
 end Lean

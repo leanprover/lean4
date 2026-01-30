@@ -54,7 +54,6 @@ register_builtin_option inductive.autoPromoteIndices : Bool := {
 
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
   defValue := true,
-  group    := "bootstrap",
   descr    := "by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, \
     but may be zero for some universe parameters. Reason: unless this type is a subsingleton, \
     it is hardly what the user wants since it can only eliminate into `Prop`. \
@@ -960,7 +959,7 @@ private def mkFlatInductive (views : Array InductiveView)
     forallBoundedTelescope indType numParams fun indTypeParams indTypeBody => do
 
       -- We first go through all types in the mutual block and get rid of their parameters
-      -- by substiuting free variables
+      -- by substituting free variables
       let typesWithAppliedParams ← namesAndTypes.mapM fun (newName, curIndType) => do
         forallBoundedTelescope curIndType numParams fun curIntTypeParams curIndTypeBody => do
           return (newName, curIndTypeBody.replaceFVars curIntTypeParams indTypeParams)
@@ -1174,7 +1173,7 @@ private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (is
   let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
     logErrorAt init msg
     throwErrorAt cur msg
-  -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
+  -- Maps names of inductive types to `true` and those of constructors to `false`, along with syntax refs
   let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
   let declString := if isCoinductive then "coinductive predicate" else "inductive type"
   trace[Elab.inductive] "deckString: {declString}"
@@ -1211,8 +1210,8 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
     computedFields := computedFields.push (declName, computedFieldNames)
   withScope (fun scope => { scope with
       opts := scope.opts
-        |>.setBool `bootstrap.genMatcherCode false
-        |>.setBool `elaboratingComputedFields true}) <|
+        |>.set `bootstrap.genMatcherCode false
+        |>.set `elaboratingComputedFields true}) <|
     elabCommand <| ← `(mutual $computedFieldDefs* end)
 
   liftTermElabM do Term.withDeclName indViews[0]!.declName do

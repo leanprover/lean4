@@ -474,11 +474,11 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   xs.toArray.allM p
 
 /-- Returns `true` if `p` returns `true` for any element of the vector. -/
-@[inline, expose] def any (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.some] def any (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.any p
 
 /-- Returns `true` if `p` returns `true` for all elements of the vector. -/
-@[inline, expose] def all (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.every] def all (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.all p
 
 /-- Count the number of elements of a vector that satisfy the predicate `p`. -/
@@ -525,12 +525,12 @@ and do not provide separate verification theorems.
 @[simp] theorem mem_toArray_iff (a : α) (xs : Vector α n) : a ∈ xs.toArray ↔ a ∈ xs :=
   ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
 
-instance : ForIn' m (Vector α n) α inferInstance where
+instance [Monad m] : ForIn' m (Vector α n) α inferInstance where
   forIn' xs b f := Array.forIn' xs.toArray b (fun a h b => f a (by simpa using h) b)
 
 /-! ### ForM instance -/
 
-instance : ForM m (Vector α n) α where
+instance [Monad m] : ForM m (Vector α n) α where
   forM := Vector.forM
 
 -- We simplify `Vector.forM` to `forM`.

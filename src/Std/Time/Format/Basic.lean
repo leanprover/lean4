@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Time.Zoned
 import Init.Data.String.TakeDrop
-import Init.Data.String.Extra
+import Init.Data.String.Search
 
 public section
 
@@ -627,7 +627,7 @@ private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.drop (numStr.length - size) else numStr
+    sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
   else
     sign ++ leftPad size '0' numStr
 
@@ -636,7 +636,7 @@ private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.take size else numStr
+    sign ++ if cut then numStr.take size |>.copy else numStr
   else
     sign ++ rightPad size '0' numStr
 

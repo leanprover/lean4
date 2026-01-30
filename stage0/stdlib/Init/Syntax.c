@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setArg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setArgs(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -67,7 +67,6 @@ x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_ctor_get(x_1, 2);
 x_7 = lean_array_get_size(x_6);
 x_8 = lean_nat_dec_lt(x_2, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_dec(x_3);

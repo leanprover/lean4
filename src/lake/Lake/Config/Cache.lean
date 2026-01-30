@@ -13,7 +13,10 @@ import Lake.Build.Actions
 import Lake.Util.Url
 import Lake.Util.Proc
 import Lake.Util.Reservoir
+import Lake.Util.JsonObject
 import Lake.Util.IO
+import Init.Data.String.Search
+import Init.Data.String.Lemmas.Basic
 
 open Lean System
 
@@ -45,29 +48,29 @@ def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
 
 /-- Parse a `Cache` from a JSON Lines string. -/
 public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
-  let rec loop (i : Nat) (cache : CacheMap) (stopPos pos : String.Pos.Raw) := do
-    let lfPos := contents.posOfAux '\n' stopPos pos
-    let line := String.Pos.Raw.extract contents pos lfPos
-    if line.trim.isEmpty then
+  let rec loop (i : Nat) (cache : CacheMap) {contents : String} (pos : contents.Pos) := do
+    let lfPos := pos.find '\n'
+    let line := contents.slice pos lfPos (by simp [lfPos])
+    if line.trimAscii.isEmpty then
       return cache
     let cache ← id do
-      match Json.parse line >>= fromJson? with
+      match Json.parse line.copy >>= fromJson? with
       | .ok (inputHash, arts) =>
         return cache.insert inputHash arts
       | .error e =>
         logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
         return cache
-    if h : lfPos.atEnd contents then
+    if h : lfPos.IsAtEnd then
       return cache
     else
-      loop (i+1) cache stopPos (lfPos.next' contents h)
-  let lfPos := contents.posOfAux '\n' contents.rawEndPos 0
-  let line := String.Pos.Raw.extract contents 0 lfPos
-  checkSchemaVersion inputName line.trim
-  if h : lfPos.atEnd contents then
+      loop (i+1) cache (lfPos.next h)
+  let lfPos := contents.find '\n'
+  let line := contents.sliceTo lfPos
+  checkSchemaVersion inputName line.trimAscii.copy
+  if h : lfPos.IsAtEnd then
     return {}
   else
-    loop 2 {} contents.rawEndPos (lfPos.next' contents h)
+    loop 2 {} (lfPos.next h)
 
 @[inline] private partial def loadCore
   (h : IO.FS.Handle) (fileName : String)
@@ -88,7 +91,7 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
 
 /--
 Loads a `CacheMap` from a JSON Lines file.
-Errors if the the file is ill-formatted or the read fails for other reasons.
+Errors if the file is ill-formatted or the read fails for other reasons.
 -/
 public def load (file : FilePath) : LogIO CacheMap := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
@@ -253,7 +256,7 @@ public def getArtifactPaths
 @[inline] public def outputsDir (cache : Cache) : FilePath :=
   cache.dir / "outputs"
 
-/-- The file containing the outputs of the the given input for the package. -/
+/-- The file containing the outputs of the given input for the package. -/
 @[inline] public def outputsFile (cache : Cache) (scope : String) (inputHash : Hash) : FilePath  :=
   cache.outputsDir / scope / s!"{inputHash}.json"
 
@@ -303,15 +306,26 @@ end Cache
 def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
-  proc {
+  let out ← captureProc' {
     cmd := "curl"
     args := #[
-      "-s",
+      "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
       "-X", "PUT", "-T", file.toString, url,
       "-H",  s!"Content-Type: {contentType}"
     ]
-  } (quiet := true)
+  }
+  match Json.parse out.stderr >>= JsonObject.fromJson? with
+  | .ok data =>
+    let code ← id do
+      match (data.get? "response_code" <|> data.get? "http_code") with
+      | .ok (some code) => return code
+      | .ok none => error s!"curl's JSON output did not contain a response code"
+      | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
+    unless code == 200 do
+      error s!"failed to upload artifact, error {code}; received:\n{out.stdout}"
+  | .error e =>
+    error s!"curl produced invalid JSON output: {e}"
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
@@ -357,7 +371,7 @@ namespace CacheService
 /--
 Reconfigures the cache service to interpret scopes as repositories (or not if `false`).
 
-For custom endpoints, if `true`, Lake wil augment the provided scope with
+For custom endpoints, if `true`, Lake will augment the provided scope with
 toolchain and platform information in a manner similar to Reservoir.
 -/
 @[inline] public def withRepoScope (service : CacheService) (repoScope := true) : CacheService :=
@@ -369,8 +383,8 @@ toolchain and platform information in a manner similar to Reservoir.
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
 private def appendScope (endpoint : String) (scope : String) : String :=
-  scope.splitToList (· == '/') |>.foldl (init := endpoint) fun s component =>
-    uriEncode component s |>.push '/'
+  scope.split '/' |>.fold (init := endpoint) fun s component =>
+    uriEncode component.copy s |>.push '/'
 
 private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : String)  : String :=
   appendScope s!"{service.artifactEndpoint}/" scope ++ s!"{contentHash.hex}.art"

@@ -13,6 +13,7 @@ public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Util.Heartbeats
+import Lean.Linter.Deprecated
 
 public section
 
@@ -47,6 +48,8 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × RwDirection))) := do
   if constInfo.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
   match name with
   | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]

@@ -156,7 +156,7 @@ def ensureAttrDeclIsPublic (attrName declName : Name) (attrKind : AttributeKind)
         throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be public"
 
 def ensureAttrDeclIsMeta (attrName declName : Name) (attrKind : AttributeKind) : AttrM Unit := do
-  if (← getEnv).header.isModule && !isMeta (← getEnv) declName then
+  if (← getEnv).header.isModule && !isMarkedMeta (← getEnv) declName then
     throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{.ofConstName declName}` must be marked as `meta`"
   -- Make sure attributed decls can't refer to private meta imports, which is already checked for
   -- public decls.
@@ -250,7 +250,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   /--
   If set, entries are not resorted on export and `getParam?` will fall back to a linear instead of
-  binary search insde an imported module's entries.
+  binary search inside an imported module's entries.
   -/
   preserveOrder : Bool := false
   /--
@@ -270,10 +270,11 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
       let mut r := if impl.preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
-        m.foldl (fun a n p => a.push (n, p)) #[]
+        let r := m.foldl (fun a n p => a.push (n, p)) #[]
+        r.qsort (fun a b => Name.quickLt a.1 b.1)
       if lvl != .private then
         r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+      r
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
   let attrImpl : AttributeImpl := {

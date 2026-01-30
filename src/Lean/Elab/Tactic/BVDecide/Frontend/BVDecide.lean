@@ -309,14 +309,15 @@ where
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
   mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    addAndCompile <| .defnDecl {
-      name := name,
-      levelParams := [],
-      type := type,
-      value := value,
-      hints := .abbrev,
-      safety := .safe
-    }
+    withOptions (fun opt => opt.set `compiler.extract_closed false) do
+      addAndCompile <| .defnDecl {
+        name := name,
+        levelParams := [],
+        type := type,
+        value := value,
+        hints := .abbrev,
+        safety := .safe
+      }
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
@@ -343,7 +344,14 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
 
   let res ←
     withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
-      runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
+      runExternal
+        cnf
+        ctx.solver
+        ctx.lratPath
+        ctx.config.trimProofs
+        ctx.config.timeout
+        ctx.config.binaryProofs
+        ctx.config.solverMode
 
   match res with
   | .ok cert =>

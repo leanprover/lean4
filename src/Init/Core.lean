@@ -13,6 +13,10 @@ public import Init.SizeOf
 public section
 set_option linter.missingDocs true -- keep it documented
 
+-- BEq instance for Option defined here so it's available early in the import chain
+-- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
+deriving instance BEq for Option
+
 @[expose] section
 
 universe u v w
@@ -201,6 +205,7 @@ An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : �
 indication of which of the two types was chosen. The union of a singleton set with itself contains
 one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
+@[suggest_for Either]
 inductive Sum (α : Type u) (β : Type v) where
   /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
@@ -336,7 +341,7 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
 notation.
 
-A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
+A collection's `ForIn` or `ForIn'` instance describes how to iterate over its elements. The monadic
 action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
 used to implement features such as `let mut`.
 -/
@@ -377,7 +382,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
   More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
   reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
+  forIn {β} (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
 export ForIn (forIn)
 
@@ -405,7 +410,7 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
   More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
   Lean reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
+  forIn' {β} (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
 
@@ -509,12 +514,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of`a` and `b`. -/
+  /-- `a ∪ b` is the union of `a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  /-- `a ∩ b` is the intersection of `a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -537,10 +542,10 @@ infix:50 " ⊇ " => Superset
 /-- Strict superset relation: `a ⊃ b`  -/
 infix:50 " ⊃ " => SSuperset
 
-/-- `a ∪ b` is the union of`a` and `b`. -/
+/-- `a ∪ b` is the union of `a` and `b`. -/
 infixl:65 " ∪ " => Union.union
 
-/-- `a ∩ b` is the intersection of`a` and `b`. -/
+/-- `a ∩ b` is the intersection of `a` and `b`. -/
 infixl:70 " ∩ " => Inter.inter
 
 /--
@@ -927,6 +932,14 @@ noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sor
 noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≍ b) (m : motive a) : motive b :=
   h.rec m
 
+/-- `HEq.ndrec` specialized to homogeneous heterogeneous equality -/
+noncomputable def HEq.homo_ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : a ≍ b) : motive b :=
+  (eq_of_heq h).ndrec m
+
+/-- `HEq.ndrec` specialized to homogeneous heterogeneous equality, symmetric variant -/
+noncomputable def HEq.homo_ndrec_symm.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : b ≍ a) : motive b :=
+  (eq_of_heq h).ndrec_symm m
+
 /-- `HEq.ndrec` variant -/
 noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≍ b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
@@ -939,9 +952,7 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p �
 @[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
-/-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : a ≍ a' :=
-  Eq.subst h (HEq.refl a)
+
 
 /-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
@@ -1370,7 +1381,7 @@ instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x 
 instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
-    else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
+    else isFalse (fun h' => Subtype.noConfusion rfl .rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h))
 
 end Subtype
 
@@ -1429,8 +1440,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | isTrue e₁ =>
       match decEq b b' with
       | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _   e₂' => absurd (eq_of_heq e₂') n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -1468,10 +1479,35 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 @[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
     Prod.map f g (x, y) = (f x, g y) := rfl
+
+-- We add `@[grind =]` to these in `Init.Data.Prod`.
 @[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
 @[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
 /-! # Dependent products -/
+
+instance {α : Type u} {β : α → Type v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] :
+    DecidableEq (Sigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        Sigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      Sigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
+
+instance {α : Sort u} {β : α → Sort v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] : DecidableEq (PSigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        PSigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      PSigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
@@ -1560,6 +1596,10 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
 
+/-- Helper theorem for proving injectivity theorems -/
+theorem Lean.injEq_helper {P Q R : Prop} :
+  (P → Q → R) → (P ∧ Q → R) := by intro h ⟨h₁,h₂⟩; exact h h₁ h₂
+
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
 gen_injective_theorems% ByteArray
@@ -1588,7 +1628,7 @@ gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
 gen_injective_theorems% String.Pos.Raw
-gen_injective_theorems% Substring
+gen_injective_theorems% Substring.Raw
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum
 gen_injective_theorems% Task
@@ -2505,8 +2545,7 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm r` means that the binary relation `r` is asymmetric, that is,
-`r a b → ¬ r b a`. -/
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is, `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
@@ -2516,16 +2555,19 @@ class Symm (r : α → α → Prop) : Prop where
   /-- A symmetric relation satisfies `r a b → r b a`. -/
   symm : ∀ a b, r a b → r b a
 
-/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
-`x y : X` we have `r x y` or `r y x`. -/
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, `r a b` or `r b a`. -/
 class Total (r : α → α → Prop) : Prop where
-  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  /-- A total relation satisfies `r a b` or `r b a`. -/
   total : ∀ a b, r a b ∨ r b a
 
-/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
-holds. -/
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never holds. -/
 class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
+
+/-- `Trichotomous r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Trichotomous (r : α → α → Prop) : Prop where
+  /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
+  trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std

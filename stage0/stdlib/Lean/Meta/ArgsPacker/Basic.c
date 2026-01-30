@@ -13,35 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedArgsPacker;
-lean_object* l_Array_empty(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedArgsPacker_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedArgsPacker_default;
-LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_ArgsPacker_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
+LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedArgsPacker;
 static lean_object* _init_l_Lean_Meta_instInhabitedArgsPacker_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedArgsPacker_default() {
@@ -56,7 +38,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedArgsPacker() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedArgsPacker_default___closed__0;
+x_1 = l_Lean_Meta_instInhabitedArgsPacker_default;
 return x_1;
 }
 }

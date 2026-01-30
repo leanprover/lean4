@@ -11,6 +11,8 @@ public import Std.Do.SPred.Laws
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Derived laws of `SPred`
 
@@ -126,6 +128,7 @@ theorem pure_elim {φ : Prop} (h1 : Q ⊢ₛ ⌜φ⌝) (h2 : φ → Q ⊢ₛ R) 
   and_self.mpr.trans <| imp_elim <| h1.trans <| pure_elim' fun h =>
     imp_intro' <| and_elim_l.trans (h2 h)
 
+@[grind ←]
 theorem pure_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) : ⌜φ₁⌝ ⊢ₛ (⌜φ₂⌝ : SPred σs) := pure_elim' <| pure_intro ∘ h
 theorem pure_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : ⌜φ₁⌝ ⊣⊢ₛ (⌜φ₂⌝ : SPred σs) := bientails.iff.mpr ⟨pure_mono h.1, pure_mono h.2⟩
 
@@ -165,13 +168,13 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
 theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
-@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) ↔ (P ⊢ₛ Q) := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 -- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
-@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q = (∀ s, (P s).down → (Q s).down) := rfl
-@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q = (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := rfl
-@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q = (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := rfl
-@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := rfl
-@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := rfl
+@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q ↔ (∀ s, (P s).down → (Q s).down) := iff_of_eq rfl
+@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q ↔ (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := iff_of_eq rfl
+@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := iff_of_eq rfl
+@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := iff_of_eq rfl
+@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q ↔ (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := iff_of_eq rfl
 
 /-! # Tactic support -/
 
@@ -180,13 +183,25 @@ namespace Tactic
 /-- Tautology in `SPred` as a quotable definition. -/
 abbrev tautological (Q : SPred σs) : Prop := ⊢ₛ Q
 
+/--
+A mapping from propositions to `SPred` tautologies that are known to be logically equivalent.
+This is used to rewrite proof goals into a form that is suitable for use with `mvcgen`.
+-/
 class PropAsSPredTautology (φ : Prop) {σs : outParam (List (Type u))} (P : outParam (SPred σs)) : Prop where
+  /-- A proof that `φ` and `P` are logically equivalent. -/
   iff : φ ↔ ⊢ₛ P
 instance {φ : SPred []} : PropAsSPredTautology φ.down φ where iff := true_imp_iff.symm
-instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := iff_of_eq (entails_true_intro P Q).symm
+instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := (entails_true_intro P Q).symm
 instance : PropAsSPredTautology (⊢ₛ P) P where iff := Iff.rfl
 
-class IsPure (P : SPred σs) (φ : outParam Prop) where to_pure : P ⊣⊢ₛ ⌜φ⌝
+/--
+A mapping from `SPred` to pure propositions that are known to be equivalent.
+-/
+class IsPure (P : SPred σs) (φ : outParam Prop) where
+  /--
+  A proof that `P` and `φ` are equivalent.
+  -/
+  to_pure : P ⊣⊢ₛ ⌜φ⌝
 instance (σs) : IsPure (σs:=σs) ⌜φ⌝ φ where to_pure := .rfl
 instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ → ⌜ψ⌝) (φ → ψ) where to_pure := pure_imp
 instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ ∧ ⌜ψ⌝) (φ ∧ ψ) where to_pure := pure_and
@@ -198,7 +213,14 @@ instance (σs) (P : SPred σs) [inst : IsPure P φ] : IsPure (σs:=σ::σs) (fun
 instance (φ : Prop) : IsPure (σs:=[]) ⌜φ⌝ φ where to_pure := Iff.rfl
 instance (P : SPred []) : IsPure (σs:=[]) P P.down where to_pure := Iff.rfl
 
+/--
+A decomposition of a stateful predicate into the conjunction of two other stateful predicates.
+
+Decomposing assertions in postconditions into conjunctions of simpler predicates increases the
+chance that automation will be able to prove the entailment of the postcondition and the next precondition.
+-/
 class IsAnd (P : SPred σs) (Q₁ Q₂ : outParam (SPred σs)) where
+  /-- A proof that the decomposition is logically equivalent to the original predicate. -/
   to_and : P ⊣⊢ₛ Q₁ ∧ Q₂
 instance (σs) (Q₁ Q₂ : SPred σs) : IsAnd (σs:=σs) spred(Q₁ ∧ Q₂) Q₁ Q₂ where to_and := .rfl
 instance (σs) : IsAnd (σs:=σs) ⌜p ∧ q⌝ ⌜p⌝ ⌜q⌝ where to_and := pure_and.symm
@@ -256,13 +278,25 @@ theorem Specialize.pure_start {φ : Prop} {H P T : SPred σs} [PropAsSPredTautol
 theorem Specialize.pure_taut {σs} {φ} {P : SPred σs} [IsPure P φ] (h : φ) : ⊢ₛ P := (pure_intro h).trans IsPure.to_pure.mpr
 theorem Specialize.focus {P P' Q R : SPred σs} (hfocus : P ⊣⊢ₛ P' ∧ Q) (hnew : P' ∧ Q ⊢ₛ R) : P ⊢ₛ R := hfocus.mp.trans hnew
 
+/--
+Expresses that the conjunction of `P` and `Q` is equivalent to `spred(P ∧ Q)`, but potentially
+simpler.
+-/
 class SimpAnd (P Q : SPred σs) (PQ : outParam (SPred σs)) : Prop where
+  /-- A proof that `spred(P ∧ Q)` is logically equivalent to `PQ`.-/
   simp_and : P ∧ Q ⊣⊢ₛ PQ
 instance (σs) (P Q : SPred σs) : SimpAnd P Q (spred(P ∧ Q)) where simp_and := .rfl
 instance (σs) (P : SPred σs) : SimpAnd P ⌜True⌝ P where simp_and := and_true
 instance (σs) (P : SPred σs) : SimpAnd ⌜True⌝ P P where simp_and := true_and
 
+/--
+Provides a decomposition of a stateful predicate (`P`) into stateful and pure components (`P'` and
+`φ`, respectively).
+-/
 class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) : Prop where
+  /--
+  A proof that the original stateful predicate is equivalent to the decomposed form.
+  -/
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)

@@ -46,6 +46,8 @@ instance : FromJson Int := ⟨Json.getInt?⟩
 instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
+instance : FromJson String.Slice := ⟨Except.map String.toSlice ∘ Json.getStr?⟩
+instance : ToJson String.Slice := ⟨fun s => s.copy⟩
 
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
@@ -155,7 +157,7 @@ def bignumToJson (n : Nat) : Json :=
 protected def _root_.USize.fromJson? (j : Json) : Except String USize := do
   let n ← bignumFromJson? j
   if n ≥ USize.size then
-    throw "value '{j}' is too large for `USize`"
+    throw s!"value '{j}' is too large for `USize`"
   return USize.ofNat n
 
 instance : FromJson USize where
@@ -167,7 +169,7 @@ instance : ToJson USize where
 protected def _root_.UInt64.fromJson? (j : Json) : Except String UInt64 := do
   let n ← bignumFromJson? j
   if n ≥ UInt64.size then
-    throw "value '{j}' is too large for `UInt64`"
+    throw s!"value '{j}' is too large for `UInt64`"
   return UInt64.ofNat n
 
 instance : FromJson UInt64 where
@@ -224,7 +226,13 @@ def opt [ToJson α] (k : String) : Option α → List (String × Json)
   | none   => []
   | some o => [⟨k, toJson o⟩]
 
-/-- Parses a JSON-encoded `structure` or `inductive` constructor. Used mostly by `deriving FromJson`. -/
+/-- Returns the string value or single key name, if any. -/
+def getTag? : Json → Option String
+  | .str tag => some tag
+  | .obj kvs => guard (kvs.size == 1) *> kvs.minKey?
+  | _        => none
+
+-- TODO: delete after rebootstrap
 def parseTagged
     (json : Json)
     (tag : String)
@@ -256,6 +264,29 @@ def parseTagged
               Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
           | Except.error err => Except.error err
     | Except.error err => Except.error err
+
+/--
+Parses a JSON-encoded `structure` or `inductive` constructor, assuming the tag has already been
+checked and `nFields` is nonzero. Used mostly by `deriving FromJson`.
+-/
+def parseCtorFields
+    (json : Json)
+    (tag : String)
+    (nFields : Nat)
+    (fieldNames? : Option (Array Name)) : Except String (Array Json) := do
+  let payload  ← getObjVal? json tag
+  match fieldNames? with
+  | some fieldNames =>
+    fieldNames.mapM (getObjVal? payload ·.getString!)
+  | none =>
+    if nFields == 1 then
+      Except.ok #[payload]
+    else
+      let fields ← getArr? payload
+      if fields.size == nFields then
+        Except.ok fields
+      else
+        Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
 
 end Json
 end Lean

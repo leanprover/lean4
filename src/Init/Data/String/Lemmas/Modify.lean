@@ -22,22 +22,22 @@ public section
 
 namespace String
 
-/-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/
-theorem ValidPos.Splits.pastSet {s : String} {p : s.ValidPos} {t₁ t₂ : String}
+/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append` to be able to apply this. -/
+theorem Pos.Splits.pastSet {s : String} {p : s.Pos} {t₁ t₂ : String}
     {c d : Char} (h : p.Splits t₁ (singleton c ++ t₂)) :
-    (p.pastSet d h.ne_endValidPos_of_singleton).Splits (t₁ ++ singleton d) t₂ := by
-  generalize h.ne_endValidPos_of_singleton = hp
+    (p.pastSet d h.ne_endPos_of_singleton).Splits (t₁ ++ singleton d) t₂ := by
+  generalize h.ne_endPos_of_singleton = hp
   obtain ⟨rfl, rfl, rfl⟩ := by simpa using h.eq (p.splits_next_right hp)
   apply splits_pastSet
 
-/-- You might want to invoke `ValidPos.Splits.exists_eq_singleton_append` to be able to apply this. -/
-theorem ValidPos.Splits.pastModify {s : String} {p : s.ValidPos} {t₁ t₂ : String}
+/-- You might want to invoke `Pos.Splits.exists_eq_singleton_append` to be able to apply this. -/
+theorem Pos.Splits.pastModify {s : String} {p : s.Pos} {t₁ t₂ : String}
     {c : Char} (h : p.Splits t₁ (singleton c ++ t₂)) :
-    (p.pastModify f h.ne_endValidPos_of_singleton).Splits
-    (t₁ ++ singleton (f (p.get h.ne_endValidPos_of_singleton))) t₂ :=
+    (p.pastModify f h.ne_endPos_of_singleton).Splits
+    (t₁ ++ singleton (f (p.get h.ne_endPos_of_singleton))) t₂ :=
   h.pastSet
 
-theorem toList_mapAux {f : Char → Char} {s : String} {p : s.ValidPos}
+theorem toList_mapAux {f : Char → Char} {s : String} {p : s.Pos}
     (h : p.Splits t₁ t₂) : (mapAux f s p).toList = t₁.toList ++ t₂.toList.map f := by
   fun_induction mapAux generalizing t₁ t₂ with
   | case1 s => simp_all
@@ -47,7 +47,7 @@ theorem toList_mapAux {f : Char → Char} {s : String} {p : s.ValidPos}
 
 @[simp]
 theorem toList_map {f : Char → Char} {s : String} : (s.map f).toList = s.toList.map f := by
-  simp [map, toList_mapAux s.splits_startValidPos]
+  simp [map, toList_mapAux s.splits_startPos]
 
 @[simp]
 theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.length := by

@@ -27,13 +27,11 @@ private def expandPackageTargetLit
 : MacroM Term := withRef stx do
   let `(packageTargetLit|$[+%$mod?]?$tgt) := stx
     | Macro.throwError "ill-formed package target literal"
-  let tgtName :=
-    if mod?.isSome then
-      tgt.getId ++ PartialBuildKey.moduleTargetIndicator
-    else
-      tgt.getId
-  let tgtLit := Name.quoteFrom tgt tgtName
-  `(BuildKey.packageTarget $pkg $tgtLit)
+  let tgtLit := Name.quoteFrom tgt tgt.getId
+  if mod?.isSome then
+    `(BuildKey.packageModule $pkg $tgtLit)
+  else
+    `(BuildKey.packageTarget $pkg $tgtLit)
 
 @[builtin_macro moduleTargetKeyLit]
 def expandModuleTargetKeyLit : Macro := fun stx => do

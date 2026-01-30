@@ -36,9 +36,14 @@ def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   -- lhs should be an application of the declNameNonrec, which unfolds to an
   -- application of fix in one step
   let some lhs' ← delta? lhs | throwError "rwFixEq: cannot delta-reduce {lhs}"
-  let_expr WellFounded.fix _α _C _r _hwf F x := lhs'
-    | throwTacticEx `rwFixEq mvarId "expected saturated fixed-point application in {lhs'}"
-  let h := mkAppN (mkConst ``WellFounded.fix_eq lhs'.getAppFn.constLevels!) lhs'.getAppArgs
+  let h ← match_expr lhs' with
+    | WellFounded.fix _α _C _r _hwf _F _x =>
+      pure <| mkAppN (mkConst ``WellFounded.fix_eq lhs'.getAppFn.constLevels!) lhs'.getAppArgs
+    | WellFounded.Nat.fix _α _C _motive _F _x =>
+      pure <| mkAppN (mkConst ``WellFounded.Nat.fix_eq lhs'.getAppFn.constLevels!) lhs'.getAppArgs
+    | _ => throwTacticEx `rwFixEq mvarId m!"expected saturated fixed-point application in {lhs'}"
+  let F := lhs'.appFn!.appArg!
+  let x := lhs'.appArg!
 
   -- We used to just rewrite with `fix_eq` and continue with whatever RHS that produces, but that
   -- would include more copies of `fix` resulting in large and confusing terms.
@@ -92,6 +97,7 @@ matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1
 def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
   let name := (mkPrivateName (← getEnv) matcherName) ++ `_arg_pusher
   realizeConst matcherName name do
+    prependError m!"Cannot create match arg pusher for {matcherName}" do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
       let params := xs[*...matcherInfo.numParams]

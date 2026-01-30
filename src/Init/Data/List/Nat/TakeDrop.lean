@@ -137,12 +137,13 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
-@[deprecated take_append (since := "2025-06-16")]
-abbrev take_append_eq_append_take := @take_append
-
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
   simp [take_append, Nat.sub_eq_zero_of_le h]
+
+@[grind =]
+theorem take_append_length {l₁ l₂ : List α} : (l₁ ++ l₂).take l₁.length = l₁ := by
+  simp
 
 /-- Taking the first `l₁.length + i` elements in `l₁ ++ l₂` is the same as appending the first
 `i` elements of `l₂` to `l₁`. -/
@@ -307,7 +308,6 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
 
 /-- Dropping the elements up to `i` in `l₁ ++ l₂` is the same as dropping the elements up to `i`
 in `l₁`, dropping the elements up to `i - l₁.length` in `l₂`, and appending them. -/
-@[grind =]
 theorem drop_append {l₁ l₂ : List α} {i : Nat} :
     drop i (l₁ ++ l₂) = drop i l₁ ++ drop (i - l₁.length) l₂ := by
   induction l₁ generalizing i
@@ -318,12 +318,14 @@ theorem drop_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
-@[deprecated drop_append (since := "2025-06-16")]
-abbrev drop_append_eq_append_drop := @drop_append
-
+@[grind =]
 theorem drop_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).drop i = l₁.drop i ++ l₂ := by
   simp [drop_append, Nat.sub_eq_zero_of_le h]
+
+@[grind =]
+theorem drop_append_length {l₁ l₂ : List α} : (l₁ ++ l₂).drop l₁.length = l₂ := by
+  simp [List.drop_append_of_le_length (Nat.le_refl _)]
 
 /-- Dropping the elements up to `l₁.length + i` in `l₁ + l₂` is the same as dropping the elements
 up to `i` in `l₂`. -/
@@ -372,6 +374,22 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
 
 @[simp] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
+  simp
+
+@[simp]
+theorem drop_eq_drop_iff :
+    ∀ {l : List α} {i j : Nat}, l.drop i = l.drop j ↔ min i l.length = min j l.length
+  | [], i, j => by simp
+  | _ :: xs, 0, 0 => by simp
+  | x :: xs, i + 1, 0 => by
+    rw [List.ext_getElem_iff]
+    simp [succ_min_succ, show ¬ xs.length - i = xs.length + 1 by omega]
+  | x :: xs, 0, j + 1 => by
+    rw [List.ext_getElem_iff]
+    simp [succ_min_succ, show ¬ xs.length + 1 = xs.length - j by omega]
+  | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, drop_eq_drop_iff]
+
+theorem drop_eq_drop_min {l : List α} {i : Nat} : l.drop i = l.drop (min i l.length) := by
   simp
 
 theorem take_reverse {α} {xs : List α} {i : Nat} :

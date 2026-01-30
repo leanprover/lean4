@@ -15,6 +15,11 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 @[extern "lean_cutsat_propagate_nonlinear"]
 opaque propagateNonlinearTerm (y : Var) (x : Var) : GoalM Bool
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural
+
 private def isNonlinearTerm (e : Expr) : MetaM Bool := do
   match_expr e with
   | HMul.hMul _ _ _ i _ _ => isInstHMulInt i
@@ -42,7 +47,7 @@ private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit :=
   | HPow.hPow _ _ _ _ a b =>
     if (← getIntValue? a).isNone then
       registerNonlinearOcc a x
-    if (← getIntValue? b).isNone then
+    if (← getIntValue? b).isNone && (← getNatValue? b).isNone then
       -- Recall that `b : Nat`, we must create `NatCast.natCast b` and watch it.
       let (b', _) ← mkNatVar b
       internalize b' (← getGeneration b)

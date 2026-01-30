@@ -56,10 +56,6 @@ theorem Internal.ofNat_eq_ofNat {n : Nat} {hn} {a : Nat} :
   letI : NeZero n := ⟨Nat.pos_iff_ne_zero.1 hn⟩
   Fin.Internal.ofNat n hn a = Fin.ofNat n a := rfl
 
-@[deprecated Fin.ofNat (since := "2025-05-28")]
-protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
-  Fin.ofNat n a
-
 -- We provide this because other similar types have a `toNat` function, but `simp` rewrites
 -- `i.toNat` to `i.val`.
 /--
@@ -246,6 +242,11 @@ instance neg (n : Nat) : Neg (Fin n) :=
 
 theorem neg_def (a : Fin n) : -a = ⟨(n - a) % n, Nat.mod_lt _ a.pos⟩ := rfl
 
+-- Later we give another version called `Fin.val_neg` that splits on `a = 0`.
+protected theorem val_neg' (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
+  rfl
+
+@[deprecated Fin.val_neg' (since := "2025-11-21")]
 protected theorem coe_neg (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
   rfl
 

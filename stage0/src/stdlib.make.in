@@ -34,7 +34,7 @@ ifeq "${STAGE}" "0"
 endif
 
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
-.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean LeanChecker leanchecker
 
 ifeq "${USE_LAKE}" "ON"
 
@@ -42,7 +42,7 @@ ifeq "${USE_LAKE}" "ON"
 Init:
 	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
 
-Std Lean Lake Leanc: Init
+Std Lean Lake Leanc LeanChecker: Init
 
 else
 
@@ -67,6 +67,9 @@ endif
 Lake: Lean
 # lake is in its own subdirectory, so must adjust relative paths...
 	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
+
+LeanChecker: Lake
+	+"${LEAN_BIN}/leanmake" lib PKG=LeanChecker $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
 
 endif
 
@@ -170,3 +173,11 @@ ${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_
 	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 leanc: ${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}
+
+${CMAKE_BINARY_DIR}/bin/leanchecker${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanChecker.a ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
+	@echo "[    ] Building $@"
+# on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+
+leanchecker: ${CMAKE_BINARY_DIR}/bin/leanchecker${CMAKE_EXECUTABLE_SUFFIX}

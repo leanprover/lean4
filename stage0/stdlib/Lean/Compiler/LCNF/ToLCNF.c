@@ -23819,10 +23819,10 @@ return x_141;
 block_14:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_st_ref_set(x_9, x_11);
-lean_dec(x_9);
+x_12 = lean_st_ref_set(x_8, x_11);
+lean_dec(x_8);
 x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_8);
+lean_ctor_set(x_13, 0, x_9);
 return x_13;
 }
 block_31:
@@ -23833,8 +23833,8 @@ x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*6);
 if (x_19 == 0)
 {
 lean_dec_ref(x_1);
-x_8 = x_15;
-x_9 = x_16;
+x_8 = x_16;
+x_9 = x_15;
 x_10 = lean_box(0);
 x_11 = x_18;
 goto block_14;
@@ -23850,8 +23850,8 @@ x_21 = lean_ctor_get(x_18, 1);
 lean_inc(x_15);
 x_22 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore_spec__0___redArg(x_21, x_1, x_15);
 lean_ctor_set(x_18, 1, x_22);
-x_8 = x_15;
-x_9 = x_16;
+x_8 = x_16;
+x_9 = x_15;
 x_10 = lean_box(0);
 x_11 = x_18;
 goto block_14;
@@ -23882,8 +23882,8 @@ lean_ctor_set(x_30, 3, x_26);
 lean_ctor_set(x_30, 4, x_27);
 lean_ctor_set(x_30, 5, x_28);
 lean_ctor_set_uint8(x_30, sizeof(void*)*6, x_19);
-x_8 = x_15;
-x_9 = x_16;
+x_8 = x_16;
+x_9 = x_15;
 x_10 = lean_box(0);
 x_11 = x_30;
 goto block_14;

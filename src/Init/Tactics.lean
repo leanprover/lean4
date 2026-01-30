@@ -1321,7 +1321,7 @@ structure DecideConfig where
   however kernel reduction ignores transparency settings. -/
   kernel : Bool := false
   /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
-  admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
+  admitting the result via an axiom. This can be significantly more efficient,
   but it is at the cost of increasing the trusted code base, namely the Lean compiler
   and all definitions with an `@[implemented_by]` attribute.
   The instance is only evaluated once. The `native_decide` tactic is a synonym for `decide +native`. -/
@@ -1351,7 +1351,7 @@ Options:
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
 - `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via the `Lean.ofReduceBool` axiom.
+  admitting the result via an axiom. This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
@@ -1412,7 +1412,7 @@ of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
 uses `#eval` to evaluate the decidability instance.
 
 This should be used with care because it adds the entire lean compiler to the trusted
-part, and the axiom `Lean.ofReduceBool` will show up in `#print axioms` for theorems using
+part, and a new axiom will show up in `#print axioms` for theorems using
 this method or anything that transitively depends on them. Nevertheless, because it is
 compiled, this can be significantly more efficient than using `decide`, and for very
 large computations this is one way to run external programs and trust the result.
@@ -1827,8 +1827,7 @@ In order to avoid calling a SAT solver every time, the proof can be cached with 
 If solving your problem relies inherently on using associativity or commutativity, consider enabling
 the `bv.ac_nf` option.
 
-
-Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
+Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
 
 Note: include `import Std.Tactic.BVDecide`
 -/

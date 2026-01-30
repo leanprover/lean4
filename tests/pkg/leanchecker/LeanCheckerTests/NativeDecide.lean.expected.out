@@ -1,2 +1,0 @@
-leanchecker found a problem in LeanCheckerTests.NativeDecide
-uncaught exception: (kernel) (interpreter) unknown declaration 'nat_dec._nativeDecide_1_1'

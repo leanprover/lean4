@@ -75,8 +75,7 @@ def resolveModuleTarget
   if facet.isAnonymous then
     return mkBuildSpec mod.leanArts
   else
-    let facet := Module.facetKind ++ facet
-    if let some config := ws.findModuleFacetConfig? facet then do
+    if let some config := ws.findModuleFacetConfig? (Module.facetKind ++ facet) then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
     else
       throw <| CliError.unknownFacet "module" facet
@@ -118,7 +117,7 @@ where
     if let some config := ws.findLibraryFacetConfig? facet then do
       return mkConfigBuildSpec (lib.facetCore config.name) config.toFacetConfig rfl
     else
-      throw <| CliError.unknownFacet "library" facet
+      throw <| CliError.unknownFacet "library" (facet.replacePrefix LeanLib.facetKind .anonymous)
 
 def resolveExeTarget
   (exe : LeanExe) (facet : Name)
@@ -159,8 +158,7 @@ def resolvePackageTarget
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else
-    let facet := Package.facetKind ++ facet
-    if let some config := ws.findPackageFacetConfig? facet then do
+    if let some config := ws.findPackageFacetConfig? (Package.facetKind ++ facet) then do
       return #[mkConfigBuildSpec (pkg.facetCore config.name) config.toFacetConfig rfl]
     else
       throw <| CliError.unknownFacet "package" facet

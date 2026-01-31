@@ -28,7 +28,7 @@ cp "$BENCH/build/lean_wrapper.py" "$STAGE2/bin/lean"
 "$BENCH/measure.py" -t build \
   -m cycles -m instructions -m maxrss -m task-clock -m wall-clock -- \
   lakeprof record -- \
-  make -C build/release -j"$(nproc)" stage3
+  make -C build/release/stage3 -j"$(nproc)" make_stdlib
 
 # Analyze lakeprof data
 mv lakeprof.log src

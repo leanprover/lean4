@@ -872,6 +872,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   )
 endif()
 
+# TODO: integrate into Lake
+add_custom_target(bundle-Init ALL
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  DEPENDS lean
+	COMMAND bash -c "echo 'import Lean.Bundle #eval Lean.bundleOLeans `Init \"${LIB}/lean/Init.olean.bundle\"' | ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX} --stdin"
+  VERBATIM)
+
 if(PREV_STAGE)
   add_custom_target(
     update-stage0

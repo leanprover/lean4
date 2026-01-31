@@ -112,7 +112,7 @@ def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environmen
   on top of it like the elaborator would. Thus the non-shared part of the
   `Environment` is very small.
   -/
-  let (mod, _) ← readModuleData olean
+  let (mod, _) ← unsafe readModuleData (α := ModuleData) olean
   let env ← importModulesUsingCache mod.imports leanOpts 1024
   -- Apply constants (does not go through the kernel, so order is irrelevant)
   let env := mod.constants.foldl addToEnv env

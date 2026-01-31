@@ -1727,19 +1727,19 @@ passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to 
 arbitrary but deterministic base address for `mmap`.
 -/
 @[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
+opaque saveModuleDataParts {α : Type} (mod : @& Name) (parts : @& Array (System.FilePath × α)) : IO Unit
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
 `saveModuleDataParts` call.
 -/
 @[extern "lean_read_module_data_parts"]
-opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
+unsafe opaque readModuleDataParts {α : Type} (fnames : @& Array System.FilePath) : IO (Array (α × CompactedRegion))
 
-def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : α) : IO Unit :=
   saveModuleDataParts mod #[(fname, data)]
 
-def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
+unsafe def readModuleData (fname : @& System.FilePath) : IO (α × CompactedRegion) := do
   let parts ← readModuleDataParts #[fname]
   assert! parts.size == 1
   let some part := parts[0]? | unreachable!
@@ -1921,9 +1921,9 @@ where
 
 private structure ImportedModule extends EffectiveImport where
   /-- All loaded incremental compacted regions from `.olean*`. -/
-  parts     : Array (ModuleData × CompactedRegion)
+  parts     : Array (ModuleData × Option CompactedRegion)
   /-- `.ir` data, if loaded. -/
-  irData?   : Option (ModuleData × CompactedRegion)
+  irData?   : Option (ModuleData × Option CompactedRegion)
   /-- If true, `.olean*` data should be imported. -/
   needsData : Bool
   /-- If true, IR is loaded transitively. -/
@@ -1966,6 +1966,12 @@ private def ImportedModule.interpData? (self : ImportedModule) (level : OLeanLev
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
   private moduleNames   : Array Name := #[]
+  /--
+  Module data loaded from bundles is available for use in `moduleNameMap` but may not end up wholly
+  in it, e.g. under the module system not all of `Init.olean.bundle` will actually be used.
+  -/
+  private bundleRegions : Array CompactedRegion := #[]
+  private bundled       : Std.HashMap Name ImportedModule := {}
 deriving Inhabited
 
 /-- Bumps all modules' `isExported` flag to true, intended for use in `shake` only. -/
@@ -2001,10 +2007,19 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
       fnames := fnames.push pFile
   return fnames
 
+private def OLeanBundle := Array ImportedModule
+
 partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private)
     (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private) :
     ImportStateM Unit := do
+  -- Hard-coded Init bundle. TODO: integrate into Lake
+  if imports.any (·.module == `Init) then  -- true for any non-`prelude` file
+    if let some fname ← (← searchPathRef.get).findModuleWithExt "olean.bundle" `Init then
+      let (bundle, region) ← unsafe readModuleData (α := OLeanBundle) fname
+      modify fun s => { s with
+        bundleRegions := s.bundleRegions.push region
+        bundled := bundle.foldl (fun m b => m.insert b.module b) s.bundled }
   go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
     for i in imports do
@@ -2118,20 +2133,26 @@ where
         moduleNames := s.moduleNames.push i.module
       }
   loadData i := do
+    if let some bundledMod := (← get).bundled[i.module]? then
+      return bundledMod.parts
     let fnames ← if let some arts := arts.find? i.module then
       -- Opportunistically load all available parts.
       -- Producer (e.g., Lake) should limit parts to the proper import level.
       pure (arts.oleanParts (inServer := globalLevel ≥ .server))
     else
       findOLeanParts i.module
-    readModuleDataParts fnames
+    return (← unsafe readModuleDataParts (α := ModuleData) fnames).map fun (data, region) =>
+      (data, some region)
   loadIR? i := do
+    if let some bundledMod := (← get).bundled[i.module]? then
+      return bundledMod.irData?
     let irFile? ← if let some arts := arts.find? i.module then
       pure arts.ir?
     else
       let irFile := (← findOLean i.module).withExtension "ir"
       pure (guard (← irFile.pathExists) *> irFile)
-    irFile?.mapM (readModuleData ·)
+    return (← irFile?.mapM (unsafe readModuleData (α := ModuleData) ·)).map fun (data, region) =>
+      (data, some region)
 
 /--
 Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially
@@ -2254,7 +2275,10 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
-      regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.filterMap (·.irData?.map (·.2))
+      regions      :=
+        modules.flatMap (·.parts.filterMap (·.2)) ++
+        modules.filterMap (·.irData?.bind (·.2)) ++
+        s.bundleRegions
     }
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
@@ -2383,8 +2407,9 @@ private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environm
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get
   IO.println ("direct imports:                        " ++ toString env.header.imports);
-  IO.println ("number of imported modules:            " ++ toString env.header.regions.size);
-  IO.println ("number of memory-mapped modules:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
+  IO.println ("number of imported modules:            " ++ toString env.header.moduleData.size);
+  IO.println ("number of imported regions:            " ++ toString env.header.regions.size);
+  IO.println ("number of memory-mapped regions:       " ++ toString (env.header.regions.filter (·.isMemoryMapped) |>.size));
   IO.println ("number of imported bytes:              " ++ toString (env.header.regions.map (·.size) |>.sum));
   IO.println ("number of imported consts:             " ++ toString env.constants.map₁.size);
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);

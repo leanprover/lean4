@@ -348,15 +348,28 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let paramStxs := if let some params := params? then params.getElems else #[]
   -- Extract term parameters (non-ident params) to include in the suggestion.
   -- These are not tracked via E-matching, so we conservatively include them all.
-  -- Ident params resolve to global declarations and are tracked via E-matching.
+  -- Plain ident params that resolve to global declarations are tracked via E-matching.
+  -- But idents with local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs`
+  -- is a local variable) must be preserved because they produce anchors that need
+  -- the original term to be loaded during replay.
   -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
-  let termParamStxs : Array Grind.TParam := paramStxs.filter fun p =>
+  let termParamStxs : Array Grind.TParam ← paramStxs.filterM fun p => do
     match p with
-    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $_:ident) => false
-    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $_:ident) => false
-    | `(Parser.Tactic.grindParam| - $_:ident) => false
-    | `(Parser.Tactic.grindParam| #$_:hexnum) => false
-    | _ => true
+    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
+      -- Check if this ident resolves to local variable dot notation
+      -- If so, keep it because it's not a simple global declaration
+      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+        return true
+      else
+        return false
+    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
+      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+        return true
+      else
+        return false
+    | `(Parser.Tactic.grindParam| - $_:ident) => return false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
+    | _ => return true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config mvarId fun mvarId' => do

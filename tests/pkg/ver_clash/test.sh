@@ -68,7 +68,7 @@ popd
 # Main tests
 # ---
 
-cd DiamondExample-D
+pushd DiamondExample-D
 
 # Test build succeeds on v1
 git switch v1 --detach
@@ -83,3 +83,9 @@ sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/lakefile.toml
 sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/lakefile.toml
 test_run update
 test_err 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`' build
+
+popd
+
+# Cleanup
+rm -rf DiamondExample-*/.git
+rm -f produced.out

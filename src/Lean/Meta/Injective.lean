@@ -157,8 +157,7 @@ private def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : E
             | throwError "unexpected number of goals after applying `Lean.and_imp`"
         mvarId₂ := mvarId₂'
       | _ => pure ()
-      let (h, mvarId₂') ← mvarId₂.intro1
-      (_, mvarId₂) ← substEq mvarId₂' h
+      (_, mvarId₂) ← introSubstEq mvarId₂
     try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorVal.name)
     mkLambdaFVars xs mvar
 

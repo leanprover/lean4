@@ -115,10 +115,10 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
 
-  -- see `regularInitAttr.filterExport`
-  let initDecls : Array (Name × Name) := regularInitAttr.ext.getState env
-      |>.2.foldl (fun a n p => a.push (n, p)) #[]
-      |>.qsort (fun a b => Name.quickLt a.1 b.1)
+  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
+  -- .ir is actually loaded, and private ones iff visible.
+  let initDecls : Array (Name × Name) :=
+    regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env) .private
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 

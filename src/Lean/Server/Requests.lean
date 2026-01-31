@@ -62,28 +62,36 @@ inductive SnapshotTree.foldSnaps.Control where
   | done
   | proceed (foldChildren : Bool)
 
+def addTrailing (stx : Syntax) (outerTrailing : Substring.Raw) : Syntax := Id.run do
+  if let some (.original leading pos trailing endPos) := stx.getTailInfo? then
+    if trailing.stopPos == outerTrailing.startPos then
+      let trailing := { trailing with stopPos := outerTrailing.stopPos }
+      return stx.setTailInfo (.original leading pos trailing endPos)
+  return stx
+
 partial def SnapshotTree.foldSnaps (tree : SnapshotTree) (init : α)
     (f : SnapshotTask SnapshotTree → α → ServerTask (α × foldSnaps.Control)) : ServerTask α :=
-  let t := traverseTree init tree
+  let t := traverseTree init tree default
   t.mapCheap (·.1)
 where
-  traverseTree (acc : α) (tree : SnapshotTree) : ServerTask (α × Bool) :=
-    traverseChildren acc tree.children.toList
+  traverseTree (acc : α) (tree : SnapshotTree) (trailing : Substring.Raw) : ServerTask (α × Bool) :=
+    traverseChildren acc trailing tree.children.toList
 
-  traverseChildren (acc : α) : List (SnapshotTask SnapshotTree) → ServerTask (α × Bool)
+  traverseChildren (acc : α) (trailing : Substring.Raw) : List (SnapshotTask SnapshotTree) → ServerTask (α × Bool)
     | [] => .pure (acc, false)
     | child::otherChildren =>
+      let child := { child with stx? := child.stx?.map (addTrailing · trailing) }
       f child acc |>.bindCheap fun (acc, control) => Id.run do
         let .proceed foldChildrenOfChild := control
           | return .pure (acc, true)
         if ! foldChildrenOfChild then
-          return traverseChildren acc otherChildren
+          return traverseChildren acc trailing otherChildren
         let subtreeTask := child.task.asServerTask.bindCheap fun tree =>
-          traverseTree acc tree
+          traverseTree acc tree (child.stx?.bind (·.getTrailing?) |>.getD default)
         return subtreeTask.bindCheap fun (acc, done) => Id.run do
           if done then
             return .pure (acc, done)
-          return traverseChildren acc otherChildren
+          return traverseChildren acc trailing otherChildren
 
 /--
 Finds the first (in pre-order) snapshot task in `tree` that contains `hoverPos`

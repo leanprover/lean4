@@ -254,6 +254,9 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem sum_mk [Add α] [Zero α] {xs : Array α} (h : xs.size = n) :
     (Vector.mk xs h).sum = xs.sum := rfl
 
+@[simp, grind =] theorem sum_toArray [Add α] [Zero α] {xs : Vector α n} :
+    xs.toArray.sum = xs.sum := rfl
+
 @[simp] theorem eq_mk : xs = Vector.mk as h ↔ xs.toArray = as := by
   cases xs
   simp
@@ -503,6 +506,15 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
 
 @[simp, grind =] theorem toList_mk : (Vector.mk xs h).toList = xs.toList := rfl
 
+@[simp, grind =] theorem sum_toList [Add α] [Zero α] {xs : Vector α n} :
+    xs.toList.sum = xs.sum := by
+  rw [← toList_toArray, Array.sum_toList, sum_toArray]
+
+@[simp, grind =]
+theorem Vector.toList_zip {as : Vector α n} {bs : Vector β n} :
+    (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
+  rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
+
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
@@ -513,6 +525,7 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
   cases xs
   simp
 
+@[simp, grind =]
 theorem toList_append {xs : Vector α m} {ys : Vector α n} :
     (xs ++ ys).toList = xs.toList ++ ys.toList := by simp [toList]
 
@@ -569,7 +582,7 @@ theorem toList_push {xs : Vector α n} {x} : (xs.push x).toList = xs.toList ++ [
 
 theorem toList_range : (Vector.range n).toList = List.range n := by simp [toList]
 
-theorem toList_reverse {xs : Vector α n} : xs.reverse.toList = xs.toList.reverse := by simp [toList]
+@[simp] theorem toList_reverse {xs : Vector α n} : xs.reverse.toList = xs.toList.reverse := by simp [toList]
 
 theorem toList_set {xs : Vector α n} {i x} (h) :
     (xs.set i x).toList = xs.toList.set i x := rfl
@@ -2138,9 +2151,6 @@ theorem flatMap_replicate {f : α → Vector β m} : (replicate n a).flatMap f =
   ext i h
   simp
 
-@[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
-  simp [sum, toArray_replicate]
-
 /-! ### reverse -/
 
 theorem reverse_empty : reverse (#v[] : Vector α 0) = #v[] := rfl
@@ -3022,9 +3032,19 @@ instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
 
 /-! ### sum -/
 
+@[simp, grind =] theorem sum_empty [Add α] [Zero α] : (#v[] : Vector α 0).sum = 0 := rfl
+theorem sum_eq_foldr [Add α] [Zero α] {xs : Vector α n} :
+    xs.sum = xs.foldr (b := 0) (· + ·) :=
+  rfl
+
 @[simp, grind =]
-theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
-    (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
-  rcases xs₁ with ⟨xs₁, rfl⟩
-  rcases xs₂ with ⟨xs₂, rfl⟩
-  simp [Array.sum_append_nat]
+theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    {as₁ as₂ : Vector α n} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+  simp [← sum_toList, List.sum_append]
+
+@[simp, grind =]
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Vector α n) : xs.reverse.sum = xs.sum := by
+  simp [← sum_toList, List.sum_reverse]

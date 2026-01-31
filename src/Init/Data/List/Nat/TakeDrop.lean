@@ -137,6 +137,7 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
+@[grind =]
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
   simp [take_append, Nat.sub_eq_zero_of_le h]

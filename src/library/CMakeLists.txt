@@ -16,4 +16,5 @@ add_library(
   llvm.cpp
   ir_interpreter.cpp
   instantiate_mvars.cpp
+  bytecode_interpreter.cpp
 )

@@ -12,17 +12,25 @@ public section
 
 namespace Lean.Compiler.Bytecode
 
-private opaque SymbolCacheImpl : NonemptyType.{0}
-
-def SymbolCache : Type := SymbolCacheImpl.type
-
-instance : Nonempty SymbolCache := by exact SymbolCacheImpl.property
-
 structure Symbol where
   arity : Nat
   declName : Name
 
+private opaque SymbolCacheImpl (symbols : Array Symbol) : NonemptyType.{0}
+
+def SymbolCache (symbols : Array Symbol) : Type := (SymbolCacheImpl symbols).type
+
+instance : Nonempty (SymbolCache symbols) := by exact (SymbolCacheImpl symbols).property
+
+@[extern "lean_bytecode_mk_initial_cache"]
+opaque SymbolCache.mkEmpty (symbols : @& Array Symbol) : SymbolCache symbols
+
 structure BytecodeDecl where
   code : ByteArray
+  symbols : Array Name
+
+structure RuntimeBytecodeDecl where
+  code : ByteArray
   symbols : Array Symbol
-  cache : SymbolCache
+  cache : SymbolCache symbols
+  value : NonScalar

@@ -482,25 +482,28 @@ theorem mem_iff_getElem {a} {l : List α} : a ∈ l ↔ ∃ (i : Nat) (h : i < l
 theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ i : Nat, l[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem {P : α → Prop} {l : List α} :
+    (∃ x ∈ l, P x) ↔ ∃ (i : Nat), ∃ hi, P (l[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · rintro ⟨_, ⟨i, hi, rfl⟩, hP⟩
+    exact ⟨i, hi, hP⟩
+  · rintro ⟨i, hi, hP⟩
+    exact ⟨_, ⟨i, hi, rfl⟩, hP⟩
+
+theorem forall_mem_iff_forall_getElem {P : α → Prop} {l : List α} :
+    (∀ x ∈ l, P x) ↔ ∀ (i : Nat) hi, P (l[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · intro h i hi
+    exact h l[i] ⟨i, hi, rfl⟩
+  · rintro h _ ⟨i, hi, rfl⟩
+    exact h i hi
+
+@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
 theorem forall_getElem {l : List α} {p : α → Prop} :
-    (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a := by
-  induction l with
-  | nil => simp
-  | cons a l ih =>
-    simp only [length_cons, mem_cons, forall_eq_or_imp]
-    constructor
-    · intro w
-      constructor
-      · exact w 0 (by simp)
-      · apply ih.1
-        intro n h
-        simpa using w (n+1) (Nat.add_lt_add_right h 1)
-    · rintro ⟨h, w⟩
-      rintro (_ | n) h
-      · simpa
-      · apply w
-        simp only [getElem_cons_succ]
-        exact getElem_mem (lt_of_succ_lt_succ h)
+    (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a :=
+  forall_mem_iff_forall_getElem.symm
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {l : List α} :
     elem a l = l.contains a := by

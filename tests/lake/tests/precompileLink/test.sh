@@ -27,7 +27,7 @@ PKG=precompileArgs
 test_run build -R
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_err "Building Foo" build --rehash
-test_cmd rm .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
+test_cmd rm -f .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build -R -KplatformIndependent=true
 echo foo > .lake/build/lib/lean/${PKG}_Foo_Bar.$SHARED_LIB_EXT
 test_run build --rehash --no-build

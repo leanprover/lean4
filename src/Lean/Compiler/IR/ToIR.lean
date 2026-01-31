@@ -40,14 +40,14 @@ structure BuilderState where
   For this reason we carry around these kinds of bindings in this substitution and apply it whenever
   we access an fvar in the conversion.
   -/
-  subst : LCNF.FVarSubst := {}
+  subst : LCNF.FVarSubst .pure := {}
 
 abbrev M := StateRefT BuilderState CoreM
 
-instance : LCNF.MonadFVarSubst M false where
+instance : LCNF.MonadFVarSubst M .pure false where
   getSubst := return (← get).subst
 
-instance : LCNF.MonadFVarSubstState M where
+instance : LCNF.MonadFVarSubstState M .pure where
   modifySubst f := modify fun s => { s with subst := f s.subst }
 
 def M.run (x : M α) : CoreM α := do
@@ -102,7 +102,7 @@ def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   | .uint64 v => ⟨.num (UInt64.toNat v), .uint64⟩
   | .usize v => ⟨.num (UInt64.toNat v), .usize⟩
 
-def lowerArg (a : LCNF.Arg) : M Arg := do
+def lowerArg (a : LCNF.Arg .pure) : M Arg := do
   match a with
   | .fvar fvarId => getFVarValue fvarId
   | .erased | .type .. => return .erased
@@ -121,15 +121,15 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
   | .erased => ⟨.erased, .erased⟩
   | .void => ⟨.erased, .void⟩
 
-def lowerParam (p : LCNF.Param) : M Param := do
+def lowerParam (p : LCNF.Param .pure) : M Param := do
   let x ← bindVar p.fvarId
   let ty ← toIRType p.type
   if ty.isVoid || ty.isErased then
-    Compiler.LCNF.addSubst p.fvarId .erased
+    Compiler.LCNF.addSubst p.fvarId (.erased : LCNF.Arg .pure)
   return { x, borrow := p.borrow, ty }
 
 mutual
-partial def lowerCode (c : LCNF.Code) : M FnBody := do
+partial def lowerCode (c : LCNF.Code .pure) : M FnBody := do
   match c with
   | .let decl k => lowerLet decl k
   | .jp decl k =>
@@ -149,7 +149,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
       for idx in 0...ps.size do
         let p := ps[idx]!
         if idx == info.fieldIdx then
-          LCNF.addSubst p.fvarId (.fvar cases.discr)
+          LCNF.addSubst p.fvarId (.fvar cases.discr : LCNF.Arg .pure)
         else
           bindErased p.fvarId
       lowerCode k
@@ -165,7 +165,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .unreach .. => return .unreachable
   | .fun .. => panic! "all local functions should be λ-lifted"
 
-partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
+partial def lowerLet (decl : LCNF.LetDecl .pure) (k : LCNF.Code .pure) : M FnBody := do
   let value ← LCNF.normLetValue decl.value
   match value with
   | .lit litValue =>
@@ -175,7 +175,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   | .proj typeName i fvarId =>
     if let some info ← hasTrivialStructure? typeName then
       if info.fieldIdx == i then
-        LCNF.addSubst decl.fvarId (.fvar fvarId)
+        LCNF.addSubst decl.fvarId (.fvar fvarId : LCNF.Arg .pure)
       else
         bindErased decl.fvarId
       lowerCode k
@@ -250,7 +250,8 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
-      throwNamedError lean.dependsOnNoncomputable f!"`{name}` not supported by code generator; consider marking definition as `noncomputable`"
+      -- Should have been caught by `ToLCNF`
+      throwError f!"ToIR: unexpected use of noncomputable declaration `{name}`; please report this issue"
     | some (.recInfo ..) =>
       throwError f!"code generator does not support recursor `{name}` yet, consider using 'match ... with' and/or structural recursion"
     | none => panic! "reference to unbound name"
@@ -302,11 +303,11 @@ where
     else
       mkOverApplication name numParams args
 
-partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
+partial def lowerAlt (discr : VarId) (a : LCNF.Alt .pure) : M Alt := do
   match a with
   | .alt ctorName params code =>
     let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
-    let lowerParams (params : Array LCNF.Param) (fields : Array CtorFieldInfo) : M FnBody := do
+    let lowerParams (params : Array (LCNF.Param .pure)) (fields : Array CtorFieldInfo) : M FnBody := do
       let rec loop (i : Nat) : M FnBody := do
         match params[i]?, fields[i]? with
         | some param, some field =>
@@ -340,7 +341,7 @@ where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
     | .const ``lcErased _ => mkConst ``lcErased
     | _ => panic! "invalid arity"
 
-def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
+def lowerDecl (d : LCNF.Decl .pure) : M (Option Decl) := do
   let params ← d.params.mapM lowerParam
   let mut resultType ← lowerResultType d.type d.params.size
   let taggedReturn := taggedReturnAttr.hasTag (← getEnv) d.name
@@ -366,7 +367,7 @@ def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
 
 end ToIR
 
-def toIR (decls: Array LCNF.Decl) : CoreM (Array Decl) := do
+def toIR (decls: Array (LCNF.Decl .pure)) : CoreM (Array Decl) := do
   let mut irDecls := #[]
   for decl in decls do
     if let some irDecl ← ToIR.lowerDecl decl |>.run then

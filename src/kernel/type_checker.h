@@ -33,6 +33,7 @@ public:
         expr_map<expr>            m_whnf;
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
+        expr_map<expr>            m_unfold;
         friend type_checker;
     public:
         state(environment const & env);

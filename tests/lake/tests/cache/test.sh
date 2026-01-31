@@ -8,7 +8,7 @@ NO_BUILD_CODE=3
 
 # Store Lake cache in a local directory
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-CACHE_DIR="$TEST_DIR/.lake/cache"
+CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
 export LAKE_CACHE_DIR="$CACHE_DIR"
 
 # Verify packages without `enableArtifactCache` do not use the cache by default

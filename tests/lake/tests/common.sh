@@ -40,10 +40,11 @@ else
 fi
 
 if [ "$OS" = Windows_NT ]; then
-  norm_dirname() { cygpath -u "$(dirname -- "$1")";  }
+  norm_path() { cygpath -u "$1";  }
 else
-  norm_dirname() { dirname -- "$1"; }
+  norm_path() { echo "$1";  }
 fi
+norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
 init_git() {
   echo "# initialize test repository"

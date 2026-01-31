@@ -561,23 +561,29 @@ public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
 
 /-- Remove all existing artifacts produced by the Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
-  removeFileIfExists mod.oleanFile
-  removeFileIfExists mod.oleanServerFile
-  removeFileIfExists mod.oleanPrivateFile
-  removeFileIfExists mod.ileanFile
-  removeFileIfExists mod.irFile
-  removeFileIfExists mod.cFile
-  removeFileIfExists mod.bcFile
+  try
+    removeFileIfExists mod.oleanFile
+    removeFileIfExists mod.oleanServerFile
+    removeFileIfExists mod.oleanPrivateFile
+    removeFileIfExists mod.ileanFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+    removeFileIfExists mod.bcFile
+  catch e =>
+    error s!"failed to remove output artifacts: {e}"
 
 /-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
 public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
-  clearFileHash mod.oleanFile
-  clearFileHash mod.oleanServerFile
-  clearFileHash mod.oleanPrivateFile
-  clearFileHash mod.ileanFile
-  clearFileHash mod.irFile
-  clearFileHash mod.cFile
-  clearFileHash mod.bcFile
+  try
+    clearFileHash mod.oleanFile
+    clearFileHash mod.oleanServerFile
+    clearFileHash mod.oleanPrivateFile
+    clearFileHash mod.ileanFile
+    clearFileHash mod.irFile
+    clearFileHash mod.cFile
+    clearFileHash mod.bcFile
+  catch e =>
+    error s!"failed to remove output hashes: {e}"
 
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do

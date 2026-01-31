@@ -197,7 +197,7 @@ test_run build -v --no-build test:exe Test:static Test:shared \
 test_restored() {
   target="$1"; shift
   art="$($LAKE query $target)"
-  hardlinks="$(stat -c %h "$art")"
+  hardlinks="$(stat_ch "$art")"
   echo "! artifact cached (links: $hardlinks): $target -> $art"
   test ! "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
   test $hardlinks -gt 1 # check that the restored artifact is hard linked

@@ -79,6 +79,14 @@ public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob
   (self : LeanLibDecl) [Monad m] [MonadError m] [MonadLake m] : m LeanLib
 := KConfigDecl.get self
 
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLib.fetch (self : LeanLib) : FetchM (Job Unit) :=
+  self.default.fetch
+
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLibDecl.fetch (self : LeanLibDecl) : FetchM (Job Unit) := do
+  (← self.get).fetch
+
 /-- Fetch the build result of a library facet. -/
 @[inline] public protected def LibraryFacetDecl.fetch
   (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
@@ -97,17 +105,17 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] public def LeanExe.fetch (self : LeanExe) : FetchM (Job FilePath) :=
+@[inline] public protected def LeanExe.fetch (self : LeanExe) : FetchM (Job FilePath) :=
   self.exe.fetch
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] public def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
+@[inline] public protected def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
   (← self.get).fetch
 
 /-! ## Input File / Directory Targets -/
 
 /-- Fetch the input file. -/
-@[inline] public def InputFile.fetch (self : InputFile) : FetchM (Job FilePath) :=
+@[inline] public protected def InputFile.fetch (self : InputFile) : FetchM (Job FilePath) :=
   self.default.fetch
 
 /-- Get the input file in the workspace corresponding to this configuration. -/
@@ -116,11 +124,11 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the input file. -/
-@[inline] public def InputFileDecl.fetch (self : InputFileDecl) : FetchM (Job FilePath) := do
+@[inline] public protected def InputFileDecl.fetch (self : InputFileDecl) : FetchM (Job FilePath) := do
   (← self.get).default.fetch
 
 /-- Fetch the files in the input directory. -/
-@[inline] public def InputDir.fetch (self : InputDir) : FetchM (Job (Array FilePath)) :=
+@[inline] public protected def InputDir.fetch (self : InputDir) : FetchM (Job (Array FilePath)) :=
   self.default.fetch
 
 /-- Get the input directory in the workspace corresponding to this configuration. -/
@@ -129,5 +137,5 @@ public def LeanLib.fetchFacetJob
 := KConfigDecl.get self
 
 /-- Fetch the files in the input directory. -/
-@[inline] public def InputDirDecl.fetch (self : InputDirDecl) : FetchM (Job (Array FilePath)) := do
+@[inline] public protected def InputDirDecl.fetch (self : InputDirDecl) : FetchM (Job (Array FilePath)) := do
   (← self.get).default.fetch

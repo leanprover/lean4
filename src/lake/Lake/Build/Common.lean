@@ -550,11 +550,9 @@ drives and/or file systems), falls back to copying the artifact to the new path.
 public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : LogIO Artifact := do
   unless (← file.pathExists) do
     logVerbose s!"found artifact in cache: {art.path}"
-    try
-      IO.FS.hardLink art.path file
-    catch _ =>
-      logVerbose s!"could not hard link artifact, copying from cache instead..."
-      createParentDirs file
+    createParentDirs file
+    if let .error e ← (IO.FS.hardLink art.path file).toBaseIO then
+      logVerbose s!"could not hard link artifact, copying from cache instead; error: {e}"
       copyFile art.path file
       -- make the local file unwritable where possible to discourage users from
       -- writing to such paths as this can corrupt the cache if the file was hard linked instead

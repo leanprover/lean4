@@ -55,9 +55,9 @@ test_exp "$(norm_dirname "$cache_art")" = "$CACHE_DIR/artifacts"
 test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
 
-# Verify supported artifacts end up in the cache directory
-test_run build \
-  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+# Verify supported artifacts use the cache directory
+test_run build test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
 test_cached() {
   target="$1"; shift
   art="$($LAKE query $target)"
@@ -157,7 +157,7 @@ test_out "Fetched Test:c.o" build +Test:o -v --no-build
 test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/ir/Test.c
 test_run -v build +Test:c --no-build
 
-# Verify that the olean does need to be present in the build directory
+# Verify that the olean does not need to be present in the build directory
 test_cmd rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
 test_run -v build +Test.Imported --no-build --wfail
 test_run -v build +Test
@@ -186,15 +186,21 @@ test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
 test_run cache clean
 test_exp ! -d "$CACHE_DIR"
 
-# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
+# Verify all artifacts restore from the cache and
+# use the build directory with `restoreAllArtifacts`
 test_cmd rm -rf "$CACHE_DIR" .lake/build
-test_run build -R -KrestoreAll=true \
-  test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module
+test_run build -R -KrestoreAll=true test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
+test_cmd rm -rf .lake/build
+test_run build -v --no-build test:exe Test:static Test:shared \
+  +Test:dynlib +Test:o.export +Test:o.noexport +Module
 test_restored() {
   target="$1"; shift
   art="$($LAKE query $target)"
-  echo "! artifact cached: $target -> $art"
+  hardlinks="$(stat -c %h "$art")"
+  echo "! artifact cached (links: $hardlinks): $target -> $art"
   test ! "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  test $hardlinks -gt 1 # check that the restored artifact is hard linked
   if [ -n "${1:-}" ]; then
     test "$(basename "$art")" = "$1"
   fi

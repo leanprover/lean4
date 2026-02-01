@@ -9,6 +9,7 @@ prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Count
+import Init.Grind.Util
 
 public section
 
@@ -91,6 +92,18 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
 @[simp] theorem countP_eq_zero {p} : countP p xs = 0 ↔ ∀ a ∈ xs, ¬p a := by
   rcases xs with ⟨xs⟩
   simp
+
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Array.countP_eq_zero_of_forall {xs : Array α} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Array.not_of_countP_eq_zero_of_mem {xs : Array α} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Array.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
 
 @[simp] theorem countP_eq_size {p} : countP p xs = xs.size ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs⟩

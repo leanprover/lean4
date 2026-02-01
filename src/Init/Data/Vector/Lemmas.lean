@@ -503,6 +503,11 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
 
 @[simp, grind =] theorem toList_mk : (Vector.mk xs h).toList = xs.toList := rfl
 
+@[simp, grind =]
+theorem Vector.toList_zip {as : Vector α n} {bs : Vector β n} :
+    (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
+  rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
+
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
@@ -513,6 +518,7 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
   cases xs
   simp
 
+@[grind =]
 theorem toList_append {xs : Vector α m} {ys : Vector α n} :
     (xs ++ ys).toList = xs.toList ++ ys.toList := by simp [toList]
 
@@ -1028,10 +1034,18 @@ theorem mem_iff_getElem {a} {xs : Vector α n} : a ∈ xs ↔ ∃ (i : Nat) (h :
 theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem {P : α → Prop} {xs : Vector α n} :
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+  cases xs; simp [*, Array.exists_mem_iff_exists_getElem]
+
+theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Vector α n} :
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+  cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
+
+@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
 theorem forall_getElem {xs : Vector α n} {p : α → Prop} :
-    (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.forall_getElem]
+    (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a :=
+  forall_mem_iff_forall_getElem.symm
 
 /-! ### Decidability of bounded quantifiers -/
 

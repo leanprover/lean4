@@ -609,7 +609,8 @@ protected theorem compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
 end List
 
 /-- The lexicographic order on pairs. -/
-@[expose] def lexOrd [Ord α] [Ord β] : Ord (α × β) where
+@[expose, instance_reducible]
+def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
 /--

@@ -41,8 +41,8 @@ private theorem size_values : m.values.size = m.size := rfl
 
 def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
-  keys := Array.emptyWithCapacity capacity
-  values := Array.emptyWithCapacity capacity
+  keys    := Array.emptyWithCapacity capacity
+  values  := Array.emptyWithCapacity capacity
 
 instance : EmptyCollection (IndexMap α β) where
   emptyCollection := emptyWithCapacity
@@ -76,21 +76,10 @@ variable [LawfulBEq α] [LawfulHashable α]
 
 attribute [local grind _=_] IndexMap.WF
 
--- We're considering activating this globally in https://github.com/leanprover/lean4/pull/11963
--- local grind_pattern getElem?_pos => c[i] where
---   guard dom c i
-
-private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
-  -- If we don't activate `grind_pattern getElem?_pos => c[i]` we need this step:
-  have : m.indices[a]? = some m.indices[a] := by grind
-  grind
-
-grind_pattern getElem_indices_lt => m.indices[a]
-
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
-  getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
-  getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
+  getElem? m a  := m.indices[a]?.bind (fun i => (m.values[i]?))
+  getElem! m a  := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
 @[local grind =]
 private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) :
@@ -126,13 +115,6 @@ instance : Insert (α × β) (IndexMap α β) :=
 instance : LawfulSingleton (α × β) (IndexMap α β) :=
   ⟨fun _ => rfl⟩
 
--- This is not needed if we activate `grind_pattern getElem?_pos => c[i]` above.
-@[local grind .]
-private theorem WF' (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
-    m.keys[i] = a ↔ m.indices[a] = i := by
-  have := m.WF i a
-  grind
-
 /--
 Erase the key-value pair with the given key, moving the last pair into its place in the order.
 If the key is not present, the map is unchanged.
@@ -142,14 +124,14 @@ If the key is not present, the map is unchanged.
   | some i =>
     if w : i = m.size - 1 then
       { indices := m.indices.erase a
-        keys := m.keys.pop
-        values := m.values.pop }
+        keys    := m.keys.pop
+        values  := m.values.pop }
     else
       let lastKey := m.keys.back
       let lastValue := m.values.back
       { indices := (m.indices.erase a).insert lastKey i
-        keys := m.keys.pop.set i lastKey
-        values := m.values.pop.set i lastValue }
+        keys    := m.keys.pop.set i lastKey
+        values  := m.values.pop.set i lastValue }
   | none => m
 
 -- TODO: similarly define `eraseShift`, etc.

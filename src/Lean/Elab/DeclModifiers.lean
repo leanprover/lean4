@@ -125,6 +125,10 @@ def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifier
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.filter p }
 
+/-- Returns `true` if `modifiers` contains an attribute satisfying `p`. -/
+def Modifiers.anyAttr (modifiers : Modifiers) (p : Attribute → Bool) : Bool :=
+  modifiers.attrs.any p
+
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
     (match m.docString? with

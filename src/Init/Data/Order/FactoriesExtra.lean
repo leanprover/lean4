@@ -82,7 +82,7 @@ public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [Lawf
 
 /--
 Creates a `BEq α` instance from an `Ord α` instance. -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.BEq.ofOrd (α : Type u) [Ord α] :
     BEq α where
   beq a b := compare a b = .eq

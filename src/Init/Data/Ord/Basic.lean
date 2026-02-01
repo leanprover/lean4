@@ -616,14 +616,14 @@ end List
 Constructs an `BEq` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.eq`.
 -/
-@[expose] def beqOfOrd [Ord α] : BEq α where
+@[expose, instance_reducible] def beqOfOrd [Ord α] : BEq α where
   beq a b := (compare a b).isEq
 
 /--
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.lt`.
 -/
-@[expose] def ltOfOrd [Ord α] : LT α where
+@[expose, instance_reducible] def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
 @[inline]

@@ -18,7 +18,7 @@ Creates an `LE α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LE α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.LE.ofOrd (α : Type u) [Ord α] : LE α where
   le a b := (compare a b).isLE
 

@@ -219,9 +219,15 @@ def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   return (← getReducibilityStatus declName) matches .irreducible
 
+def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
+  getReducibilityStatusCore env declName matches .instanceReducible
+
+/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
+def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInstanceReducibleCore (← getEnv) declName
+
 /-- Set the given declaration as `[irreducible]` -/
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.irreducible
-
 
 end Lean

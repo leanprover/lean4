@@ -367,15 +367,4 @@ def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
 def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
   return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
 
-end Meta
-
--- **TODO**: Move to `ReducibilityAttrs.lean` after update stage0
-def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
-  getReducibilityStatusCore env declName matches .instanceReducible
-    || Meta.isInstanceCore env declName -- **TODO**: Delete after update stage0
-
-/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
-def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
-  return isInstanceReducibleCore (← getEnv) declName
-
-end Lean
+end Lean.Meta

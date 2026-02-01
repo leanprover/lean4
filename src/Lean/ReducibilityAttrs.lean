@@ -145,17 +145,7 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
 
-/-
-**Note**: Some instances are not definitions, but theorems. Thus, they don't need the `[instance_reducible]` attribute,
-but the current frontend adds the attribute `[instance_reducible]` when pre-processing the command `instance` before
-we know whether its type is a proposition or not. Thus, we just skip these annotations for now.
--/
-private def ignoreAttr (status : ReducibilityStatus) (declName : Name) : CoreM Bool := do
-  let .instanceReducible := status | return false
-  return !getOriginalConstKind? (← getEnv) declName matches some .defn
-
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
-  if (← ignoreAttr status declName) then return ()
   Attribute.Builtin.ensureNoArgs stx
   validate declName status attrKind
   let ns ← getCurrNamespace

@@ -10,6 +10,7 @@ public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
 import Lean.ReducibilityAttrs
 import Lean.Meta.WHNF
+import Lean.AddDecl
 public section
 namespace Lean.Meta
 
@@ -235,7 +236,9 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   unless status matches .reducible | .instanceReducible do
     let info ← getConstInfo declName
     if info.isDefinition then
-      logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[instance_reducible]`"
+    else if wasOriginallyDefn (← getEnv) declName then
+      logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind

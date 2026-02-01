@@ -238,7 +238,6 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
       -- **TODO**: uncomment after update stage0
       -- logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
       pure ()
-  addGlobalInstance declName attrKind
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind

@@ -235,7 +235,9 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   unless status matches .reducible | .instanceReducible do
     let info ← getConstInfo declName
     if info.isDefinition then
-      logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
+      -- **TODO**: uncomment after update stage0
+      -- logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
+      pure ()
   addGlobalInstance declName attrKind
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?

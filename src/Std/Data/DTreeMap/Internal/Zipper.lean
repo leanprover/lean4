@@ -1550,7 +1550,7 @@ public abbrev RoiSlice α β [Ord α] := Slice (RoiSliceData α β)
 public instance {α : Type u} {β : α → Type v} [Ord α] : Roi.Sliceable (Impl α β) α (RoiSlice α β) where
   mkSlice carrier range := ⟨carrier, range⟩
 
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def RoiSlice.instToIterator {β : α → Type v} [Ord α] :=
   ToIterator.of (γ := Slice (RoiSliceData α β)) (β := (a : α) × β a) _ fun s =>
     roiIterator s.1.treeMap s.1.range.lower

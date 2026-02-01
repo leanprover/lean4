@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.ScopedEnvExtension
-
+import Lean.OriginalConstKind
 public section
-
 namespace Lean
 
 /--
@@ -154,7 +152,7 @@ we know whether its type is a proposition or not. Thus, we just skip these annot
 -/
 private def ignoreAttr (status : ReducibilityStatus) (declName : Name) : CoreM Bool := do
   let .instanceReducible := status | return false
-  return !(← getConstInfo declName).isDefinition
+  return !getOriginalConstKind? (← getEnv) declName matches some .defn
 
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   if (← ignoreAttr status declName) then return ()

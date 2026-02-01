@@ -235,9 +235,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   unless status matches .reducible | .instanceReducible do
     let info ← getConstInfo declName
     if info.isDefinition then
-      -- **TODO**: uncomment after update stage0
-      -- logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
-      pure ()
+      logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind

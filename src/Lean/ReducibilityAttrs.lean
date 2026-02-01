@@ -194,7 +194,7 @@ builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `instance_reducible
-    descr           := "semireducible declaration"
+    descr           := "instance reducible declaration"
     add             := addAttr .instanceReducible
     applicationTime := .afterTypeChecking
  }

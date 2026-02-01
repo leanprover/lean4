@@ -6,7 +6,8 @@ CommMonoid.mk.{u} {α : Type u} [toMonoid : Monoid.{u} α]
         (@HMul.hMul.{u, u, u} α α α (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α toMonoid))) b
           a)) :
   CommMonoid.{u} α
-def CommMonoid.toCommSemigroup.{u} : {α : Type u} → [self : CommMonoid.{u} α] → CommSemigroup.{u} α :=
+@[instance_reducible] def CommMonoid.toCommSemigroup.{u} : {α : Type u} →
+  [self : CommMonoid.{u} α] → CommSemigroup.{u} α :=
 fun (α : Type u) (self : CommMonoid.{u} α) =>
   @CommSemigroup.mk.{u} α (@Monoid.toSemigroup.{u} α (@CommMonoid.toMonoid.{u} α self))
     (@CommMonoid.mul_comm.{u} α self)
@@ -19,12 +20,12 @@ CommGroup.mk.{u} {α : Type u} [toGroup : Group.{u} α]
         (@HMul.hMul.{u, u, u} α α α
           (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α (@Group.toMonoid.{u} α toGroup)))) b a)) :
   CommGroup.{u} α
-def CommGroup.toCommMonoid.{u} : {α : Type u} → [self : CommGroup.{u} α] → CommMonoid.{u} α :=
+@[instance_reducible] def CommGroup.toCommMonoid.{u} : {α : Type u} → [self : CommGroup.{u} α] → CommMonoid.{u} α :=
 fun (α : Type u) (self : CommGroup.{u} α) =>
   @CommMonoid.mk.{u} α (@Group.toMonoid.{u} α (@CommGroup.toGroup.{u} α self)) (@CommGroup.mul_comm.{u} α self)
 Field.mk.{u} {α : Type u} [toDivisionRing : DivisionRing α] (mul_comm : ∀ (a b : α), a * b = b * a) : Field α
-def Field.toDivisionRing.{u} : {α : Type u} → [self : Field.{u} α] → DivisionRing.{u} α :=
+@[instance_reducible] def Field.toDivisionRing.{u} : {α : Type u} → [self : Field.{u} α] → DivisionRing.{u} α :=
 fun (α : Type u) [self : Field.{u} α] => self.1
-def Field.toCommRing.{u} : {α : Type u} → [self : Field.{u} α] → CommRing.{u} α :=
+@[instance_reducible] def Field.toCommRing.{u} : {α : Type u} → [self : Field.{u} α] → CommRing.{u} α :=
 fun (α : Type u) (self : Field.{u} α) =>
   @CommRing.mk.{u} α (@DivisionRing.toRing.{u} α (@Field.toDivisionRing.{u} α self)) (@Field.mul_comm.{u} α self)

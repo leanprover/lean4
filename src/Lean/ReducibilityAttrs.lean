@@ -124,8 +124,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible do
           throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .instanceReducible =>
         unless statusOld matches .semireducible do
           throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
@@ -136,8 +136,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
       | .reducible =>
         throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` nor `[instance_reducible]` expected{suffix}"
       | .instanceReducible =>
         unless statusOld matches .semireducible do
           throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"

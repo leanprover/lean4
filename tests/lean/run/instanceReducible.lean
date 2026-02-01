@@ -31,3 +31,11 @@ attribute [instance] exposedAndReducible
 
 #guard_msgs in
 attribute [local instance] exposedAndReducible
+
+instance bla : Add Int := ⟨Int.add⟩
+
+attribute [irreducible] bla
+
+
+#guard_msgs in
+@[irreducible] instance Foo : Add Nat := ⟨Nat.add⟩

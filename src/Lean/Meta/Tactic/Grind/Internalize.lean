@@ -445,7 +445,7 @@ Returns `true` if we should use `funCC` for applications of the given constant s
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
   if (← hasFunCCModifier declName) then
     return true
-  if (← isInstance declName) then
+  if (← isInstanceReducible declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false
   if let some projInfo ← getProjectionFnInfo? declName then

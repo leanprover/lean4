@@ -205,7 +205,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
   let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
   addAndCompile (logCompileErrors := !(← read).isNoncomputableSection) <| Declaration.defnDecl decl
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
-  addInstance instName AttributeKind.global (eval_prio default)
+  registerInstance instName AttributeKind.global (eval_prio default)
   addDeclarationRangesFromSyntax instName (← getRef)
 
 end Term

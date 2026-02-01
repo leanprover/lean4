@@ -54,7 +54,7 @@ inductive L' (α : Type u) : Type u
 
 end InNamespace
 /--
-info: @[expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] → BEq (InNamespace.L' α)
+info: @[instance_reducible, expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] → BEq (InNamespace.L' α)
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'
 /--
@@ -163,7 +163,7 @@ private structure PrivStruct where
 deriving BEq
 
 -- Instance and spec should be private
-/-- info: private def instBEqPrivStruct : BEq PrivStruct -/
+/-- info: @[instance_reducible] private def instBEqPrivStruct : BEq PrivStruct -/
 #guard_msgs in
 #print sig instBEqPrivStruct
 

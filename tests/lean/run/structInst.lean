@@ -274,7 +274,7 @@ instance : B where
 instance : C where
 
 /--
-info: def Issue6046.instC : C :=
+info: @[instance_reducible] def Issue6046.instC : C :=
 { b := B.b }
 -/
 #guard_msgs in #print Issue6046.instC
@@ -342,7 +342,7 @@ class Bar extends Foo where
 instance instBar : Bar where
 
 /--
-info: def Ex6769_1.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_1.instBar : Bar :=
 { x := 0 }
 -/
 #guard_msgs in #print instBar
@@ -361,7 +361,7 @@ instance instBar : Bar where
   x := 0
 
 /--
-info: def Ex6769_2.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_2.instBar : Bar :=
 { x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar
@@ -380,7 +380,7 @@ instance instBar : Bar where
   x := 0
 
 /--
-info: def Ex6769_3.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_3.instBar : Bar :=
 { x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar

@@ -24,7 +24,7 @@ open Std Slice PRange Iterators
 
 variable {α : Type u}
 
-@[inline, expose]
+@[inline, expose, instance_reducible]
 def ListSlice.instToIterator :=
   ToIterator.of (γ := Slice (Internal.ListSliceData α)) _ (fun s => match s.internalRepresentation.stop with
       | some n => s.internalRepresentation.list.iter.take n

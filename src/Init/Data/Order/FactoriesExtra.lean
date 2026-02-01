@@ -38,7 +38,7 @@ Creates an `LT α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LT α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.LT.ofOrd (α : Type u) [Ord α] :
     LT α where
   lt a b := compare a b = .lt

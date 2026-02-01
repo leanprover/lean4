@@ -113,10 +113,10 @@ static const lean_ctor_object l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_d
 static const lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default = (const lean_object*)&l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind = (const lean_object*)&l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default___closed__0_value;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqEMatchTheoremKind_beq___lam__0(uint8_t, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqEMatchTheoremKind_beq___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqEMatchTheoremKind_beq___lam__1(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
@@ -401,8 +401,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instReprEMatchTheoremConstraint_repr_
 static const lean_closure_object l_Lean_Meta_Grind_instReprEMatchTheoremConstraint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Grind_instReprEMatchTheoremConstraint_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_Grind_instReprEMatchTheoremConstraint___closed__0 = (const lean_object*)&l_Lean_Meta_Grind_instReprEMatchTheoremConstraint___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Meta_Grind_instReprEMatchTheoremConstraint = (const lean_object*)&l_Lean_Meta_Grind_instReprEMatchTheoremConstraint___closed__0_value;
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1842,7 +1842,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -1969,11 +1969,11 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
-x_13 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_13 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_12);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -1984,19 +1984,19 @@ lean_dec(x_1);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
 lean_object* x_15; 
-x_15 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(x_2, x_3, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
+x_15 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(x_2, x_3, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_15;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
 lean_object* x_15; 
-x_15 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
+x_15 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -2102,7 +2102,7 @@ x_9 = lean_box(x_5);
 x_10 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_instBEqEMatchTheoremKind_beq___lam__4___boxed), 3, 1);
 lean_closure_set(x_10, 0, x_9);
 lean_inc_ref_n(x_8, 4);
-x_11 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_54_(x_1, x_2, x_8, x_8, x_8, x_10, x_10, x_8, x_10, x_10, x_8, x_10);
+x_11 = l_Lean_Meta_Grind_EMatchTheoremKind_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2351797346____hygCtx___hyg_49_(x_1, x_2, x_8, x_8, x_8, x_10, x_10, x_8, x_10, x_10, x_8, x_10);
 lean_dec_ref(x_10);
 x_12 = lean_apply_2(x_11, lean_box(0), lean_box(0));
 x_13 = lean_unbox(x_12);
@@ -4348,7 +4348,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -4621,11 +4621,11 @@ return x_62;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
 lean_object* x_16; 
-x_16 = l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(x_2, x_3, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+x_16 = l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(x_2, x_3, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_16;
 }
 }
@@ -4870,7 +4870,7 @@ x_8 = ((lean_object*)(l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___clo
 x_9 = ((lean_object*)(l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___closed__6));
 x_10 = ((lean_object*)(l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___closed__7));
 x_11 = ((lean_object*)(l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___closed__8));
-x_12 = l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_130_(x_1, x_2, x_6, x_6, x_7, x_7, x_8, x_9, x_10, x_8, x_11, x_11, x_10);
+x_12 = l_Lean_Meta_Grind_EMatchTheoremConstraint_match__on__same__ctor_het___redArg_00___x40_Lean_Meta_Tactic_Grind_Extension_2814061931____hygCtx___hyg_113_(x_1, x_2, x_6, x_6, x_7, x_7, x_8, x_9, x_10, x_8, x_11, x_11, x_10);
 x_13 = lean_apply_2(x_12, lean_box(0), lean_box(0));
 x_14 = lean_unbox(x_13);
 return x_14;

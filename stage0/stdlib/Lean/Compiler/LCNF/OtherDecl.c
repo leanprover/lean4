@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Lean_Compiler_LCNF_getPhase___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,41 +34,51 @@ lean_inc(x_8);
 lean_dec_ref(x_7);
 x_9 = lean_unbox(x_8);
 lean_dec(x_8);
-if (x_9 == 0)
+switch (x_9) {
+case 0:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Compiler_LCNF_getOtherDeclBaseType(x_1, x_2, x_4, x_5);
 return x_10;
 }
-else
+case 1:
 {
 lean_object* x_11; 
 lean_dec(x_2);
 x_11 = l_Lean_Compiler_LCNF_getOtherDeclMonoType(x_1, x_4, x_5);
 return x_11;
 }
+default: 
+{
+lean_object* x_12; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_12 = l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(x_4, x_5);
+return x_12;
+}
+}
 }
 else
 {
-uint8_t x_12; 
+uint8_t x_13; 
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_12 = !lean_is_exclusive(x_7);
-if (x_12 == 0)
+x_13 = !lean_is_exclusive(x_7);
+if (x_13 == 0)
 {
 return x_7;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_7, 0);
-lean_inc(x_13);
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_7, 0);
+lean_inc(x_14);
 lean_dec(x_7);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
-return x_14;
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+return x_15;
 }
 }
 }

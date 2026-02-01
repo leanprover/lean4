@@ -2325,52 +2325,51 @@ return x_12;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_14 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_14);
-x_15 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_15);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
-x_16 = lean_ctor_get(x_14, 2);
-lean_inc_ref(x_16);
-x_17 = lean_ctor_get(x_14, 3);
-lean_inc(x_17);
-lean_dec_ref(x_14);
-x_18 = l_Lean_CollectLevelParams_visitExpr(x_16, x_2);
-x_19 = l_Lean_Compiler_LCNF_CollectLevelParams_visitLetValue(x_17, x_18);
-x_1 = x_15;
-x_2 = x_19;
+x_5 = lean_ctor_get(x_3, 2);
+lean_inc_ref(x_5);
+x_6 = lean_ctor_get(x_3, 3);
+lean_inc(x_6);
+lean_dec_ref(x_3);
+x_7 = l_Lean_CollectLevelParams_visitExpr(x_5, x_2);
+x_8 = l_Lean_Compiler_LCNF_CollectLevelParams_visitLetValue(x_6, x_7);
+x_1 = x_4;
+x_2 = x_8;
 goto _start;
 }
 case 3:
 {
-lean_object* x_21; lean_object* x_22; 
-x_21 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_21);
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_10);
 lean_dec_ref(x_1);
-x_22 = l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs(x_21, x_2);
-lean_dec_ref(x_21);
-return x_22;
+x_11 = l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs(x_10, x_2);
+lean_dec_ref(x_10);
+return x_11;
 }
 case 4:
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_23 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_23);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_12);
 lean_dec_ref(x_1);
-x_24 = lean_ctor_get(x_23, 1);
-lean_inc_ref(x_24);
-x_25 = lean_ctor_get(x_23, 3);
-lean_inc_ref(x_25);
-lean_dec_ref(x_23);
-x_26 = l_Lean_CollectLevelParams_visitExpr(x_24, x_2);
-x_27 = l_Lean_Compiler_LCNF_CollectLevelParams_visitAlts(x_25, x_26);
-lean_dec_ref(x_25);
-return x_27;
+x_13 = lean_ctor_get(x_12, 1);
+lean_inc_ref(x_13);
+x_14 = lean_ctor_get(x_12, 3);
+lean_inc_ref(x_14);
+lean_dec_ref(x_12);
+x_15 = l_Lean_CollectLevelParams_visitExpr(x_13, x_2);
+x_16 = l_Lean_Compiler_LCNF_CollectLevelParams_visitAlts(x_14, x_15);
+lean_dec_ref(x_14);
+return x_16;
 }
 case 5:
 {
@@ -2379,44 +2378,36 @@ return x_2;
 }
 case 6:
 {
-lean_object* x_28; lean_object* x_29; 
-x_28 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_28);
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_17);
 lean_dec_ref(x_1);
-x_29 = l_Lean_CollectLevelParams_visitExpr(x_28, x_2);
-return x_29;
+x_18 = l_Lean_CollectLevelParams_visitExpr(x_17, x_2);
+return x_18;
 }
 default: 
 {
-lean_object* x_30; lean_object* x_31; 
-x_30 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_30);
-x_31 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_31);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_19 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_19);
+x_20 = lean_ctor_get(x_1, 1);
+lean_inc_ref(x_20);
 lean_dec_ref(x_1);
-x_3 = x_30;
-x_4 = x_31;
-x_5 = x_2;
-goto block_13;
-}
-}
-block_13:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_ctor_get(x_3, 2);
-lean_inc_ref(x_6);
-x_7 = lean_ctor_get(x_3, 3);
-lean_inc_ref(x_7);
-x_8 = lean_ctor_get(x_3, 4);
-lean_inc_ref(x_8);
-lean_dec_ref(x_3);
-x_9 = l_Lean_CollectLevelParams_visitExpr(x_7, x_5);
-x_10 = l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(x_6, x_9);
-lean_dec_ref(x_6);
-x_11 = l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(x_8, x_10);
-x_1 = x_4;
-x_2 = x_11;
+x_21 = lean_ctor_get(x_19, 2);
+lean_inc_ref(x_21);
+x_22 = lean_ctor_get(x_19, 3);
+lean_inc_ref(x_22);
+x_23 = lean_ctor_get(x_19, 4);
+lean_inc_ref(x_23);
+lean_dec_ref(x_19);
+x_24 = l_Lean_CollectLevelParams_visitExpr(x_22, x_2);
+x_25 = l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(x_21, x_24);
+lean_dec_ref(x_21);
+x_26 = l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(x_23, x_25);
+x_1 = x_20;
+x_2 = x_26;
 goto _start;
+}
 }
 }
 }

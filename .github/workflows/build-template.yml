@@ -213,7 +213,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: matrix.release
         with:
           name: build-${{ matrix.name }}

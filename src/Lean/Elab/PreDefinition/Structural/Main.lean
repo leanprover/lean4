@@ -127,7 +127,6 @@ def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
     let stx ← termMeasure.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
-
 def structuralRecursion
     (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
     (termMeasure?s : Array (Option TerminationMeasure)) :
@@ -140,11 +139,9 @@ def structuralRecursion
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
     prependError m!"structural recursion failed, produced type incorrect term" do
-      unless preDefNonRec.kind.isTheorem do
-        markAsRecursive preDefNonRec.declName
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList) (isRecursive := true)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   addAndCompilePartialRec docCtx preDefs
   for preDef in preDefs, recArgPos in recArgPoss do

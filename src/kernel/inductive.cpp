@@ -782,7 +782,7 @@ public:
             names rec_lparams     = get_rec_lparams();
             m_env.check_name(rec_name);
             m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all, recs,
-                                                      m_nparams, m_nindices[d_idx], nmotives, nminors, 0,
+                                                      m_nparams, m_nindices[d_idx], nmotives, nminors,
                                                       rules, m_K_target, m_is_unsafe)));
         }
     }
@@ -1163,7 +1163,7 @@ environment environment::add_inductive(declaration const & d) const {
             new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_lparams(), new_rec_type,
                                                         all_ind_names, all_new_rec_names,
                                                         rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
-                                                        rec_val.get_nminors(), rec_val.get_nextra(), recursor_rules(new_rules),
+                                                        rec_val.get_nminors(), recursor_rules(new_rules),
                                                         rec_val.is_k(), rec_val.is_unsafe())));
         };
         for (inductive_type const & ind_type : ind_d.get_types()) {

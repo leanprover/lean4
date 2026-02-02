@@ -1276,7 +1276,7 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
          rec.get_all(),
          recs,
          params.size(), rec.get_nindices(), 0 /* motives */,
-         0 /* minors */, extra_params.size(), rules, rec.is_k(), rec.is_unsafe());
+         0 /* minors */, rules, rec.is_k(), rec.is_unsafe());
     return some<recursor_val>(new_rec);
 }
 

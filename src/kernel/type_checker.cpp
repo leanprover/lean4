@@ -359,6 +359,7 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = find_as_rec(const_name(rec_fn));
+    // optional<constant_info> rec_info = env().find(const_name(rec_fn));
     if (!rec_info || !rec_info->is_recursor()) return none_expr();
     recursor_val const & rec_val = rec_info->to_recursor_val();
     if (optional<expr> r = inductive_reduce_rec(env(), e, rec_val,
@@ -1232,8 +1233,8 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         params = xs;
         extra_params = buffer<expr>();
     }
-    std::cout << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
-    std::cout << "kernel: while looking at " << v.get_name() << " found " << params.size() << " params and " << extra_params.size() << " extra params\n";
+    std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
+    std::cerr << "kernel: while looking at " << v.get_name() << " found " << params.size() << " params and " << extra_params.size() << " extra params\n";
 
 
     names recs(const_name(fn));
@@ -1246,11 +1247,12 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         expr r = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
         rhs = mk_app(rhs, r);
         rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
+        // TODO: Go under field binders, then bind the `extra_params` here
         rhs = head_beta_reduce(rhs);
         rhs = head_beta_reduce_under_lambda(rhs);
         // TODO: the original major argument is not in scope here, should be substituted by the constructor application here
         rhs = m_lctx.mk_lambda(extra_params, rhs);
-        std::cout << "kernel: rhs now:" << rhs << "'\n";
+        std::cerr << "kernel: rhs now:" << rhs << "'\n";
         rhs = m_lctx.mk_lambda(r, rhs);
         rhs = m_lctx.mk_lambda(params, rhs);
         return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);

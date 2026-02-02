@@ -203,7 +203,10 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
     | some .defn => printDefLike sigOnly "def" id us t none (if u then .unsafe else .safe)
     | some .thm => printDefLike sigOnly "theorem" id us t none (if u then .unsafe else .safe)
     | _  => printAxiomLike "axiom" id us t (if u then .unsafe else .safe)
-  | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike sigOnly "def" id us t v s
+  | ConstantInfo.defnInfo  di@{ levelParams := us, type := t, value := v, safety := s, .. } =>
+    printDefLike sigOnly "def" id us t v s
+    if let some recInfo ← ofExceptKernelException <| Lean.Kernel.defToRecursor (← getEnv) di then
+      printRecursor recInfo
   | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike sigOnly "theorem" id us t v
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t

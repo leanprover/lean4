@@ -104,6 +104,7 @@ structure DefinitionVal extends ConstantVal where
 class definition_val : public object_ref {
 public:
     definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety, names const & all);
+    definition_val(obj_arg o):object_ref(o) {}
     definition_val(definition_val const & other):object_ref(other) {}
     definition_val(definition_val && other) noexcept:object_ref(std::move(other)) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }

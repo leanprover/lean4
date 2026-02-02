@@ -2697,6 +2697,9 @@ opaque whnf (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except K
 @[extern "lean_kernel_check"]
 opaque check (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
 
+@[extern "lean_kernel_def_to_recursor"]
+opaque defToRecursor (env : Lean.Environment) (a : DefinitionVal) : Except Kernel.Exception (Option RecursorVal)
+
 end Kernel
 
 class MonadEnv (m : Type → Type) where

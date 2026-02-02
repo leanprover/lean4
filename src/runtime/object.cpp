@@ -755,6 +755,8 @@ class task_manager {
             m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0 && m_shutting_down) {
+                    // Wake any throttled workers so they can exit.
+                    m_queue_cv.notify_all();
                     break;
                 }
                 if (m_queues_size == 0 ||

@@ -1202,47 +1202,10 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
     optional<constant_info> ctor_info = m_st->m_env.find(const_name(fn));
     if (!ctor_info || !ctor_info->is_recursor()) return optional<recursor_val>();
     recursor_val const & rec = ctor_info->to_recursor_val();
-    unsigned n_rec_params = rec.get_nparams() + rec.get_nmotives() + rec.get_nminors();
-    if (args.size() < n_rec_params) return optional<recursor_val>();
+    if (args.size() != rec.get_nparams() + rec.get_nmotives() + rec.get_nminors()) return optional<recursor_val>();
     // we have a primitive recursive definition
 
-    // only non-mutual for now
     if (length(rec.get_recs()) != 1) return optional<recursor_val>();
-
-    buffer<expr> params;
-    buffer<expr> extra_params;
-    if (args.size() > n_rec_params) {
-        // we need to handle the case of an over-applied recursor. This works if
-        // 1. indices and major argument are fvars
-        // 2. they appear in xs contiguously
-        // 3. no unwanted dependencies
-        if (args.size () < n_rec_params + rec.get_nindices() + 1) return optional<recursor_val>();
-        if (! is_fvar(args[n_rec_params])) return optional<recursor_val>();
-        auto first_index_idx = xs.index_of(args[n_rec_params]);
-        if (!first_index_idx) return optional<recursor_val>();
-        for (unsigned i = 1; i < rec.get_nindices() + 1; i++) {
-            if (args[n_rec_params + i] != xs[*first_index_idx + i])
-                return optional<recursor_val>();
-        }
-
-        for (unsigned i = 0; i < xs.size(); i++) {
-            if (i < *first_index_idx) params.push_back(xs[i]);
-            if (i >= *first_index_idx + rec.get_nindices() + 1) extra_params.push_back(xs[i]);
-        }
-        // check that no extra parameter depends on the indices or the major argument
-        // (we could support that, it would require specializing to the constructor)
-        expr dummy = mk_sort(mk_level_zero());
-        dummy = m_lctx.mk_lambda(extra_params, dummy);
-        dummy = m_lctx.mk_lambda(params, dummy);
-        if (has_fvar_core(dummy)) return optional<recursor_val>();
-        std::cerr << "dummy: " << dummy << "\n";
-    } else {
-        params = xs;
-        extra_params = buffer<expr>();
-    }
-    std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
-    std::cerr << "kernel: while looking at " << v.get_name() << " found " << params.size() << " params and " << extra_params.size() << " extra params\n";
-
     names recs(const_name(fn));
 
     recursor_rules rules = map(rec.get_rules(), [&](recursor_rule const & rule) {
@@ -1254,28 +1217,21 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         rhs = mk_app(rhs, r);
         rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
         rhs = head_beta_reduce(rhs);
-        buffer<expr> fields;
-        for (unsigned i = 0; i < rule.get_nfields(); i++) {
-            expr f = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
-            fields.push_back(f);
-            rhs = instantiate(binding_body(rhs), f);
-        }
-        rhs = head_beta_reduce(rhs);
-        // TODO: the original major argument is not in scope here, should be substituted by the constructor application here
-        rhs = m_lctx.mk_lambda(extra_params, rhs);
-        rhs = m_lctx.mk_lambda(fields, rhs);
+        rhs = head_beta_reduce_under_lambda(rhs);
+        // std::cerr << "kernel: rhs now:" << rhs << "'\n";
         rhs = m_lctx.mk_lambda(r, rhs);
-        rhs = m_lctx.mk_lambda(params, rhs);
+        rhs = m_lctx.mk_lambda(xs, rhs);
         return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);
     });
 
+    // std::stdout << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
     recursor_val new_rec = recursor_val(
          v.get_name(),
          v.to_constant_val().get_lparams(),
          v.to_constant_val().get_type(),
          rec.get_all(),
          recs,
-         params.size(), rec.get_nindices(), 0 /* motives */,
+         xs.size(), rec.get_nindices(), 0 /* motives */,
          0 /* minors */, rules, rec.is_k(), rec.is_unsafe());
     return some<recursor_val>(new_rec);
 }

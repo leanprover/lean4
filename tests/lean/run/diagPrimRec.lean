@@ -1,42 +1,48 @@
-def fact : Nat → Nat := @Nat.rec
+def fact1 : Nat → Nat := @Nat.rec
   (motive := fun _ => Nat)
   1
-  (fun k ih => (k + 1) * ih)
+  (fun k ih => (k.add 1).mul ih)
 
 /--
 trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 102, num: 6):
-    [kernel] OfNat.ofNat ↦ 102
-    [kernel] fact ↦ 101
-    [kernel] Add.add ↦ 100
-    [kernel] HAdd.hAdd ↦ 100
-    [kernel] HMul.hMul ↦ 100
-    [kernel] Mul.mul ↦ 100
+  [kernel] unfolded declarations (max: 101, num: 1):
+    [kernel] fact1 ↦ 101
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics true in
 set_option diagnostics.threshold 50 in
-theorem foo : fact 100 = fact 100 := by decide +kernel
+example : fact1 100 = fact1 100 := by decide +kernel
 
-def fact2 (n k : Nat) : Nat := @Nat.rec
+def fact2 (t : Nat) : Nat := Nat.rec
+  (motive := fun _ => Nat)
+  1
+  (fun k ih => (k.add 1).mul ih) t
+
+/--
+trace: [diag] Diagnostics
+  [kernel] unfolded declarations (max: 101, num: 1):
+    [kernel] Nat.rec ↦ 101
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
+set_option diagnostics true in
+set_option diagnostics.threshold 50 in
+example : fact2 100 = fact2 100 := by decide +kernel
+
+def fact3 (n k : Nat) : Nat := @Nat.rec
   (motive := fun _ => Nat)
   k
-  (fun k ih => (k + 1) * ih)
+  (fun k ih => (k.add 1).mul ih)
   n
 
 /--
 trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 102, num: 6):
-    [kernel] OfNat.ofNat ↦ 102
+  [kernel] unfolded declarations (max: 101, num: 1):
     [kernel] Nat.rec ↦ 101
-    [kernel] Add.add ↦ 100
-    [kernel] HAdd.hAdd ↦ 100
-    [kernel] HMul.hMul ↦ 100
-    [kernel] Mul.mul ↦ 100
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics true in
 set_option diagnostics.threshold 50 in
-theorem bar : fact2 100 1 = fact2 100 1 := by decide +kernel
+example : fact3 100 1 = fact3 100 1 := by decide +kernel

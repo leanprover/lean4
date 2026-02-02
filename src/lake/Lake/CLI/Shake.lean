@@ -508,8 +508,8 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
               -- `j'` must be reachable from `i` (allow downgrading from `meta`)
               guard <| s.transDepsOrig[i]!.has k j' || s.transDepsOrig[i]!.has { k with isMeta := true } j'
               let j'transDeps := addTransitiveImps .empty p j' s.transDeps[j']!
-              -- `j` must be reachable from `j'` (now downgrading must be done in the other direction)
-              guard <| j'transDeps.has k j || j'transDeps.has { k with isMeta := false } j
+              -- `j` must be publicly reachable from `j'` (now downgrading must be done in the other direction)
+              guard <| j'transDeps.has { k with isExported := true } j || j'transDeps.has { k with isExported := true, isMeta := false } j
               return j')
             | _ => none
           if let some j' := tryPrefix imp.module then

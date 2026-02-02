@@ -359,6 +359,7 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
     expr const & rec_fn   = get_app_fn(e);
     if (!is_constant(rec_fn)) return none_expr();
     optional<constant_info> rec_info = env().find(const_name(rec_fn));
+    if (!rec_info || !rec_info->is_recursor()) return none_expr();
     recursor_val const & rec_val = rec_info->to_recursor_val();
     if (optional<expr> r = inductive_reduce_rec(env(), e, rec_val,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },

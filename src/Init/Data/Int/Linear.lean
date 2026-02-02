@@ -11,7 +11,7 @@ import all Init.Data.Int.Gcd
 public import Init.Data.AC
 import all Init.Data.AC
 import Init.LawfulBEqTactics
-public import Init.Data.Int.LemmasAux  -- lake: keep (?)
+public import Init.Data.Int.LemmasAux
 public section
 namespace Int.Linear
 

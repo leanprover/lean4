@@ -22,7 +22,7 @@ def fact2 (t : Nat) : Nat := Nat.rec
 /--
 trace: [diag] Diagnostics
   [kernel] unfolded declarations (max: 101, num: 1):
-    [kernel] Nat.rec ↦ 101
+    [kernel] fact2 ↦ 101
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

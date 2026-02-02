@@ -1202,6 +1202,19 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
     optional<constant_info> ctor_info = m_st->m_env.find(const_name(fn));
     if (!ctor_info || !ctor_info->is_recursor()) return optional<recursor_val>();
     recursor_val const & rec = ctor_info->to_recursor_val();
+
+    // Reduce the case with explicit indices and major to the one without
+    if (args.size() == rec.get_nparams() + rec.get_nmotives() + rec.get_nminors() + rec.get_nindices() + 1) {
+        for (unsigned i = 0; i < rec.get_nindices() + 1; i++) {
+            auto a = args.back();
+            auto x = xs.back();
+            // TODO: check that x is not mentioned elsewhere in args
+            if (a != x) return optional<recursor_val>();
+            args.pop_back();
+            xs.pop_back();
+        }
+    }
+
     if (args.size() != rec.get_nparams() + rec.get_nmotives() + rec.get_nminors()) return optional<recursor_val>();
     // we have a primitive recursive definition
 

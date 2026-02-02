@@ -21,7 +21,6 @@ import Lean.Data.EditDistance
 namespace Lean.Doc
 open Lean Elab Term
 open Lean.Parser
-open Lean.EditDistance
 open scoped Lean.Doc.Syntax
 
 set_option linter.missingDocs true

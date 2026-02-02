@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.LemmasExtra
+public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
 
 namespace Std
 

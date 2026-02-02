@@ -2233,7 +2233,7 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w) : Bool :=
 -/
 def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (hslt : 0 < s) : Bool :=
   match hs0 : s with
-  | 0 => by omega
+  | 0 => False.elim (by omega)
   | s' + 1 =>
     match hs' : s' with
     | 0 => aandRec x y 1 (by omega)

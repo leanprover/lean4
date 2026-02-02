@@ -15,7 +15,6 @@ import Lean.Elab.PreDefinition.Basic
 
 namespace Lean.Elab.WF
 open Meta
-open Eqns
 
 public structure EqnInfo where
   declName    : Name

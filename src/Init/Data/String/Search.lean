@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Slice
+import Init.Data.Iterators.Consumers.Collect  -- shake: keep (used in verso)
 
 set_option doc.verso true
 

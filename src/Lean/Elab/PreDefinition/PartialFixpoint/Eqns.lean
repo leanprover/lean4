@@ -14,7 +14,6 @@ import Lean.Elab.Tactic.Conv
 
 namespace Lean.Elab.PartialFixpoint
 open Meta
-open Eqns
 
 public structure EqnInfo where
   declName    : Name

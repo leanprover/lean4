@@ -986,7 +986,7 @@ For the induction:
   let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
     if hi : i.1 = j then _root_.cast (by simp [← hi]) x
     else match j with
-      | 0 => by omega
+      | 0 => False.elim (by omega)
       | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
   go _ _ (by omega) last
 

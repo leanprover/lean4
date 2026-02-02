@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Repr
+import Init.MetaTypes  -- shake: keep (fix)
 public section
 namespace Lean.Meta.Grind
 /--

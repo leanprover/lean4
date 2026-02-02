@@ -11,6 +11,7 @@ public import Lean.Compiler.IR.Boxing
 import Lean.Compiler.IR.RC
 import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.ToImpure
+import Lean.Compiler.LCNF.ToImpureType
 
 public section
 
@@ -38,7 +39,6 @@ where
         borrow
       }
       typeIter := b
-    -- TODO: log
     let decl := {
       name := declName,
       levelParams := [],
@@ -53,8 +53,7 @@ where
   addImpure (decl : Compiler.LCNF.Decl .pure) : CoreM (Compiler.LCNF.Decl .impure) := do
     let type ← Compiler.LCNF.lowerResultType decl.type decl.params.size
     let params ← decl.params.mapM fun param =>
-      return { param with type := ← Compiler.LCNF.toIRType param.type }
-    -- TODO: log
+      return { param with type := ← Compiler.LCNF.toImpureType param.type }
     let decl := {
       name := decl.name,
       levelParams := decl.levelParams,

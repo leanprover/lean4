@@ -97,7 +97,7 @@ def isAnyProducingType (type : Expr) : Bool :=
   | _ => false
 
 -- TODO: rename
-public partial def toIRType (type : Expr) : CoreM Expr := do
+public partial def toImpureType (type : Expr) : CoreM Expr := do
   match type with
   | .const name _ => visitApp name #[]
   | .app .. =>
@@ -113,14 +113,14 @@ public partial def toIRType (type : Expr) : CoreM Expr := do
       return ImpureType.tobject
     else
       return ImpureType.object
-  | .mdata _ b => toIRType b
+  | .mdata _ b => toImpureType b
   | _ => unreachable!
 where
   visitApp (declName : Name) (args : Array Lean.Expr) : CoreM Expr := do
     if let some info ← hasTrivialImpureStructure? declName then
       let ctorType ← getOtherDeclBaseType info.ctorName []
       let monoType ← toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
-      toIRType monoType
+      toImpureType monoType
     else
       nameToImpureType declName
 
@@ -173,7 +173,7 @@ where fillCache := do
       let fieldType ← field.fvarId!.getType
       let lcnfFieldType ← LCNF.toLCNFType fieldType
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let irFieldType ← toIRType monoFieldType
+      let irFieldType ← toImpureType monoFieldType
       let ctorField ← match irFieldType with
       | ImpureType.object | ImpureType.tagged | ImpureType.tobject => do
         let i := nextIdx
@@ -245,7 +245,7 @@ public def getOtherDeclImpureType (declName : Name) : CoreM Expr := do
   match (← impureTypeExt.find? declName) with
   | some type => return type
   | none =>
-    let type ← toIRType (← getOtherDeclMonoType declName)
+    let type ← toImpureType (← getOtherDeclMonoType declName)
     monoTypeExt.insert declName type
     return type
 

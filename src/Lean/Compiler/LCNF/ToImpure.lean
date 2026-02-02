@@ -42,7 +42,7 @@ instance : MonadFVarSubstState ToImpureM .pure where
   modifySubst f := modify fun s => { s with subst := f s.subst }
 
 def Param.toImpure (p : Param .pure) : ToImpureM (Param .impure) := do
-  let type ← toIRType p.type
+  let type ← toImpureType p.type
   if type.isVoid || type.isErased then
     addSubst p.fvarId .erased
 
@@ -66,7 +66,7 @@ def Arg.toImpure (arg : Arg .pure) : ToImpureM (Arg .impure) := do
   | .erased | .type .. => return .erased
 
 public def lowerResultType (type : Expr) (arity : Nat) : CoreM Expr :=
-  toIRType (resultTypeForArity type arity)
+  toImpureType (resultTypeForArity type arity)
 where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Expr :=
   if arity == 0 then
     type
@@ -185,7 +185,7 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
     | none => panic! "reference to unbound name"
   | .fvar fvarId irArgs =>
     let irArgs ← irArgs.mapM (·.toImpure)
-    let type := (← toIRType decl.type).boxed
+    let type := (← toImpureType decl.type).boxed
     let decl := ⟨decl.fvarId, decl.binderName, type, .fvar fvarId irArgs⟩
     continueLet decl
   | .erased =>
@@ -201,14 +201,14 @@ where
     k.toImpure
 
   mkFap (name : Name) (args : Array (Arg .impure)) : ToImpureM (Code .impure) := do
-    continueLet ⟨decl.fvarId, decl.binderName, ← toIRType decl.type, .fap name args⟩
+    continueLet ⟨decl.fvarId, decl.binderName, ← toImpureType decl.type, .fap name args⟩
 
   mkPap (name : Name) (args : Array (Arg .impure)) : ToImpureM (Code .impure) := do
     continueLet ⟨decl.fvarId, decl.binderName, ImpureType.object, .pap name args⟩
 
   mkOverApplication (name : Name) (numParams : Nat) (args : Array (Arg .impure)) :
       ToImpureM (Code .impure) := do
-    let type := (← toIRType decl.type).boxed
+    let type := (← toImpureType decl.type).boxed
     let firstArgs := args.extract 0 numParams
     let restArgs := args.extract numParams args.size
     let auxDecl ← mkLetDecl (.str decl.binderName "overap") ImpureType.object (.fap name firstArgs)
@@ -254,14 +254,14 @@ partial def Code.toImpure (c : Code .pure) : ToImpureM (Code .impure) := do
     else
       -- `casesOn` for inductive predicates should have already been expanded.
       withNormFVarResult (← normFVar c.discr) fun discr => do
-        let resultType ← toIRType c.resultType
+        let resultType ← toImpureType c.resultType
         let alts ← c.alts.mapM (·.toImpure discr)
         -- TODO: convert type name to new type name
         return .cases ⟨(← nameToImpureType c.typeName).getAppFn.constName!, resultType, discr, alts⟩
   | .return fvarId =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do
       return .return fvarId
-  | .unreach type => return .unreach (← toIRType type)
+  | .unreach type => return .unreach (← toImpureType type)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) : ToImpureM (Alt .impure) := do

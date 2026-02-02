@@ -73,15 +73,11 @@ inline expr to_cnstr_when_structure(environment const & env, name const & induct
 }
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
+inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e, recursor_val const & rec_val,
                                            WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     expr const & rec_fn   = get_app_fn(e);
-    if (!is_constant(rec_fn)) return none_expr();
-    optional<constant_info> rec_info = env.find(const_name(rec_fn));
-    if (!rec_info || !rec_info->is_recursor()) return none_expr();
     buffer<expr> rec_args;
     get_app_args(e, rec_args);
-    recursor_val const & rec_val = rec_info->to_recursor_val();
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
@@ -100,10 +96,21 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     buffer<expr> major_args;
     get_app_args(major, major_args);
     if (rule->get_nfields() > major_args.size()) return none_expr();
-    if (length(const_levels(rec_fn)) != length(rec_info->get_lparams())) return none_expr();
-    expr rhs = instantiate_lparams(rule->get_rhs(), rec_info->get_lparams(), const_levels(rec_fn));
-    /* apply parameters, motives and minor premises from recursor application. */
-    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
+    if (length(const_levels(rec_fn)) != length(rec_val.get_lparams())) return none_expr();
+    expr rhs = instantiate_lparams(rule->get_rhs(), rec_val.get_lparams(), const_levels(rec_fn));
+    /* apply parameters, motives, recursor application and minor premises from recursor application. */
+    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives(), rec_args.data());
+    expr rec_app = get_app_fn_n(e, rec_args.size() - (rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors()));
+    if (length(rec_val.get_recs()) == 1) {
+        rhs      = mk_app(rhs, rec_app);
+    } else {
+        for (name rec_name : rec_val.get_recs()) {
+            expr rec_app2 = mk_const(rec_name, const_levels(rec_fn));
+            rec_app2 = mk_app(rec_app2, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
+            rhs = mk_app(rhs, rec_app2);
+        }
+    }
+    rhs      = mk_app(rhs, rec_val.get_nminors(), rec_args.data() + rec_val.get_nparams() + rec_val.get_nmotives());
     /* The number of parameters in the constructor is not necessarily
        equal to the number of parameters in the recursor when we have
        nested inductive types. */

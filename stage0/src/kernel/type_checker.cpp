@@ -328,6 +328,26 @@ bool type_checker::is_prop(expr const & e) {
     return whnf(infer_type(e)) == mk_Prop();
 }
 
+/** \brief Consults `m_primrec_cache` to see if `n` is a primitive recursive definition, updating
+the cache if necessary */
+optional<constant_info> type_checker::find_as_rec(name const & n) {
+    auto it = m_st->m_primrec_cache.find(n);
+    if (it != m_st->m_primrec_cache.end())
+        return optional<constant_info>(it->second);
+    optional<constant_info> cinfo = m_st->m_env.find(n);
+    if (!cinfo) { return optional<constant_info>(); }
+    if (cinfo->is_definition()) {
+        definition_val const & d = cinfo->to_definition_val();
+        optional<recursor_val> rec = def_to_recursor(d);
+        if (rec) {
+            m_st->m_primrec_cache.insert(mk_pair(n, constant_info(*rec)));
+            return optional<constant_info>(constant_info(*rec));
+        }
+    }
+    m_st->m_primrec_cache.insert(mk_pair(n, *cinfo));
+    return cinfo;
+}
+
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
@@ -336,7 +356,12 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
             return r;
         }
     }
-    if (optional<expr> r = inductive_reduce_rec(env(), e,
+    expr const & rec_fn   = get_app_fn(e);
+    if (!is_constant(rec_fn)) return none_expr();
+    optional<constant_info> rec_info = env().find(const_name(rec_fn));
+    if (!rec_info || !rec_info->is_recursor()) return none_expr();
+    recursor_val const & rec_val = rec_info->to_recursor_val();
+    if (optional<expr> r = inductive_reduce_rec(env(), e, rec_val,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
                                                 [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {
@@ -1160,6 +1185,54 @@ expr type_checker::eta_expand(expr const & e) {
     }
     expr r = mk_app(it, args);
     return m_lctx.mk_lambda(fvars, r);
+}
+
+optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
+    buffer<expr> xs;
+    expr body = v.get_value();
+    while (is_lambda(body)) {
+        expr x = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(body), consume_type_annotations(binding_domain(body)), binding_info(body));
+        xs.push_back(x);
+        body = instantiate(binding_body(body), x);
+    }
+    buffer<expr> args;
+    expr fn = get_app_args(body, args);
+    if (!is_constant(fn)) return optional<recursor_val>();
+    optional<constant_info> ctor_info = m_st->m_env.find(const_name(fn));
+    if (!ctor_info || !ctor_info->is_recursor()) return optional<recursor_val>();
+    recursor_val const & rec = ctor_info->to_recursor_val();
+    if (args.size() != rec.get_nparams() + rec.get_nmotives() + rec.get_nminors()) return optional<recursor_val>();
+    // we have a primitive recursive definition
+
+    if (length(rec.get_recs()) != 1) return optional<recursor_val>();
+    names recs(const_name(fn));
+
+    recursor_rules rules = map(rec.get_rules(), [&](recursor_rule const & rule) {
+        expr rhs = rule.get_rhs();
+        rhs = instantiate_lparams(rhs, rec.to_constant_val().get_lparams(), const_levels(fn));
+        rhs = mk_app(rhs, rec.get_nparams() + rec.get_nmotives(), args.data());
+        rhs = head_beta_reduce(rhs);
+        expr r = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
+        rhs = mk_app(rhs, r);
+        rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
+        rhs = head_beta_reduce(rhs);
+        rhs = head_beta_reduce_under_lambda(rhs);
+        // std::cerr << "kernel: rhs now:" << rhs << "'\n";
+        rhs = m_lctx.mk_lambda(r, rhs);
+        rhs = m_lctx.mk_lambda(xs, rhs);
+        return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);
+    });
+
+    // std::stdout << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
+    recursor_val new_rec = recursor_val(
+         v.get_name(),
+         v.to_constant_val().get_lparams(),
+         v.to_constant_val().get_type(),
+         rec.get_all(),
+         recs,
+         xs.size(), rec.get_nindices(), 0 /* motives */,
+         0 /* minors */, rules, rec.is_k(), rec.is_unsafe());
+    return some<recursor_val>(new_rec);
 }
 
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):

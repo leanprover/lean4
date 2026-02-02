@@ -646,22 +646,20 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Bool.and' : (a b : Bool) → Bool :=
-  @Bool.rec _ (fun _ => false) (fun b => b)
+@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
+  Bool.rec false b a
 
 @[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
-  go a
-where
-  go : Bool → Bool := @Bool.rec _ b true
+  Bool.rec b true a
 
-@[expose] protected noncomputable def Bool.not' : Bool → Bool :=
-  @Bool.rec _ true false
+@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
+  Bool.rec true false a
 
-@[simp] axiom Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b
-  -- cases a <;> simp [Bool.and']
+@[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
+  cases a <;> simp [Bool.and']
 
-@[simp] axiom Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b
-  -- cases a <;> simp [Bool.or']
+@[simp] theorem Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
+  cases a <;> simp [Bool.or']
 
-@[simp] axiom Bool.not'_eq_not (a : Bool) : a.not' = a.not
-  -- cases a <;> simp [Bool.not']
+@[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
+  cases a <;> simp [Bool.not']

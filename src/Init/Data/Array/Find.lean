@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Nat.Find
+import Init.Data.List.Nat.Sum
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Range
 
@@ -114,7 +115,7 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
   simp only [List.findSome?_toArray, List.findSome?_map, Function.comp_def, List.getElem?_toArray,
     List.findSome?_isSome_iff, isSome_getElem?]
   simp only [flatten_toArray_map_toArray, List.size_toArray, List.length_flatten,
-    Nat.sum_pos_iff_exists_pos, List.mem_map] at h
+    List.sum_pos_iff_exists_pos_nat, List.mem_map] at h
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
   exact ⟨xs, m, by simpa using h⟩
 

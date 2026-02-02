@@ -1830,12 +1830,17 @@ theorem append_eq_map_iff {f : α → β} :
   rw [eq_comm, map_eq_append_iff]
 
 @[simp, grind =]
-theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
-  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
+theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    [Std.Associative (α := α) (· + ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
 
 @[simp, grind =]
-theorem sum_reverse_nat (xs : List Nat) : xs.reverse.sum = xs.sum := by
-  induction xs <;> simp_all [Nat.add_comm]
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by
+  induction xs <;>
+    simp_all [sum_append, Std.Commutative.comm (α := α) _ 0,
+      Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
 
 /-! ### concat
 
@@ -2365,9 +2370,6 @@ theorem replicateRecOn {α : Type _} {p : List α → Prop} (l : List α)
     subst w
     exact hi _ _ _ _ h hn (replicateRecOn (b :: l') h0 hr hi)
 termination_by l.length
-
-@[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
-  induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
 
 /-! ### reverse -/
 

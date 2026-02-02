@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 import Init.Grind.Lint
-import Lean.Elab.Tactic.Grind.Lint
-import Std
+import Lean.Elab.Tactic.Grind.Lint  -- shake: keep (fix)
+import Std  -- shake: keep (fix)
 
 -- We allow these as grind lemmas even though they triggers >20 further instantiations.
 -- See tests/lean/run/grind_lint_*.lean for more details.

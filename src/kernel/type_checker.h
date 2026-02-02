@@ -25,7 +25,7 @@ class type_checker {
 public:
     class state {
         typedef expr_map<expr> infer_cache;
-        typedef name_map<constant_info> primrec_cache;
+        typedef lean::unordered_map<name, constant_info, name_hash_fn, name_eq_fn> primrec_cache;
         typedef lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;

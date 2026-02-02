@@ -331,19 +331,20 @@ bool type_checker::is_prop(expr const & e) {
 /** \brief Consults `m_primrec_cache` to see if `n` is a primitive recursive definition, updating
 the cache if necessary */
 optional<constant_info> type_checker::find_as_rec(name const & n) {
-    lean::constant_info const * rec_cinfo = m_st->m_primrec_cache.find(n);
-    if (rec_cinfo) { return optional<constant_info>(*rec_cinfo); }
+    auto it = m_st->m_primrec_cache.find(n);
+    if (it != m_st->m_primrec_cache.end())
+        return optional<constant_info>(it->second);
     optional<constant_info> cinfo = m_st->m_env.find(n);
     if (!cinfo) { return optional<constant_info>(); }
     if (cinfo->is_definition()) {
         definition_val const & d = cinfo->to_definition_val();
         optional<recursor_val> rec = def_to_recursor(d);
         if (rec) {
-            m_st->m_primrec_cache.insert(n, constant_info(*rec));
+            m_st->m_primrec_cache.insert(mk_pair(n, constant_info(*rec)));
             return optional<constant_info>(constant_info(*rec));
         }
     }
-    m_st->m_primrec_cache.insert(n, *cinfo);
+    m_st->m_primrec_cache.insert(mk_pair(n, *cinfo));
     return cinfo;
 }
 

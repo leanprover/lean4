@@ -430,7 +430,8 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
     let j := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if addOnly ||
-        args.keepPublic && imp.isExported ||
+        -- TODO: allow per-library configuration instead of hardcoding `Init`
+        args.keepPublic && imp.isExported && !(`Init).isPrefixOf s.modNames[i]! ||
         impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
       deps := deps.union k {j}
       if args.trace then

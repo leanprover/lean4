@@ -101,7 +101,7 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 /-- Configuration options for the structural simplifier. -/
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
-  maxSteps : Nat := 0
+  maxSteps : Nat := 1000
   -- **TODO**: many are still missing
 
 /--
@@ -149,6 +149,7 @@ inductive Result where
   Simplified to `e'` with proof `proof : e = e'`.
   If `done = true`, skip recursive simplification of `e'`. -/
   | step (e' : Expr) (proof : Expr) (done : Bool := false)
+  deriving Inhabited
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type

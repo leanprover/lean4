@@ -1,5 +1,7 @@
 prelude -- stand-alone, its useful to run these tests even if the prelude does not work
 
+noncomputable section
+
 inductive Eq {α : Type} (a : α) : α → Prop
 | refl : Eq a a
 
@@ -81,3 +83,6 @@ def nested_foo : Nested N :=
   .branch (Vec.pair (.leaf N.zero) (.leaf N.zero))
 
 theorem nested_test : Eq (Nested.id nested_foo) nested_foo := @Eq.refl _ nested_foo
+
+
+end

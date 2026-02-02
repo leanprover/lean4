@@ -40,6 +40,10 @@ find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
 endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Create space in install names so they can be patched later in Nix.
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
+endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler. Unlike `CMAKE_CXX_FLAGS`, these will not be used to build e.g. cadical.")

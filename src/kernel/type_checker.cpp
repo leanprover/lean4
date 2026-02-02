@@ -1247,12 +1247,17 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         expr r = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
         rhs = mk_app(rhs, r);
         rhs = mk_app(rhs, rec.get_nminors(), args.data() + rec.get_nparams() + rec.get_nmotives());
-        // TODO: Go under field binders, then bind the `extra_params` here
         rhs = head_beta_reduce(rhs);
-        rhs = head_beta_reduce_under_lambda(rhs);
+        buffer<expr> fields;
+        for (unsigned i = 0; i < rule.get_nfields(); i++) {
+            expr f = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(rhs), consume_type_annotations(binding_domain(rhs)), binding_info(rhs));
+            fields.push_back(f);
+            rhs = instantiate(binding_body(rhs), f);
+        }
+        rhs = head_beta_reduce(rhs);
         // TODO: the original major argument is not in scope here, should be substituted by the constructor application here
         rhs = m_lctx.mk_lambda(extra_params, rhs);
-        std::cerr << "kernel: rhs now:" << rhs << "'\n";
+        rhs = m_lctx.mk_lambda(fields, rhs);
         rhs = m_lctx.mk_lambda(r, rhs);
         rhs = m_lctx.mk_lambda(params, rhs);
         return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);

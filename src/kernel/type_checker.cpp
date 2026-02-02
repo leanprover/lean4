@@ -1202,6 +1202,8 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
     optional<constant_info> ctor_info = m_st->m_env.find(const_name(fn));
     if (!ctor_info || !ctor_info->is_recursor()) return optional<recursor_val>();
     recursor_val const & rec = ctor_info->to_recursor_val();
+    if (rec.is_k()) return optional<recursor_val>();
+    if (rec.is_unsafe()) return optional<recursor_val>();
 
     // Reduce the case with explicit indices and major to the one without
     if (args.size() == rec.get_nparams() + rec.get_nmotives() + rec.get_nminors() + rec.get_nindices() + 1) {
@@ -1237,7 +1239,7 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         return recursor_rule(rule.get_cnstr(), rule.get_nfields(), rhs);
     });
 
-    // std::stdout << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
+    // std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
     recursor_val new_rec = recursor_val(
          v.get_name(),
          v.to_constant_val().get_lparams(),

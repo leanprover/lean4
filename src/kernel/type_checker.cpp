@@ -1215,7 +1215,7 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
         // we need to handle the case of an over-applied recursor. This works if
         // 1. indices and major argument are fvars
         // 2. they appear in xs contiguously
-        // 3. (TODO) no unwanted dependencies
+        // 3. no unwanted dependencies
         if (args.size () < n_rec_params + rec.get_nindices() + 1) return optional<recursor_val>();
         if (! is_fvar(args[n_rec_params])) return optional<recursor_val>();
         auto first_index_idx = xs.index_of(args[n_rec_params]);
@@ -1229,13 +1229,19 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
             if (i < *first_index_idx) params.push_back(xs[i]);
             if (i >= *first_index_idx + rec.get_nindices() + 1) extra_params.push_back(xs[i]);
         }
+        // check that no extra parameter depends on the indices or the major argument
+        // (we could support that, it would require specializing to the constructor)
+        expr dummy = mk_sort(mk_level_zero());
+        dummy = m_lctx.mk_lambda(extra_params, dummy);
+        dummy = m_lctx.mk_lambda(params, dummy);
+        if (has_fvar_core(dummy)) return optional<recursor_val>();
+        std::cerr << "dummy: " << dummy << "\n";
     } else {
         params = xs;
         extra_params = buffer<expr>();
     }
     std::cerr << "kernel: primitive recursion detected at '" << v.get_name() << "'\n";
     std::cerr << "kernel: while looking at " << v.get_name() << " found " << params.size() << " params and " << extra_params.size() << " extra params\n";
-
 
     names recs(const_name(fn));
 

@@ -1,7 +1,3 @@
-import Lean
-
-open Lean Meta
-
 def fact : Nat → Nat := @Nat.rec
   (motive := fun _ => Nat)
   1
@@ -44,5 +40,3 @@ trace: [diag] Diagnostics
 set_option diagnostics true in
 set_option diagnostics.threshold 50 in
 theorem bar : fact2 100 1 = fact2 100 1 := by decide +kernel
-
-#print Nat.brecOn.go

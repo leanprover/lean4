@@ -1204,9 +1204,11 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
     recursor_val const & rec = ctor_info->to_recursor_val();
     if (rec.is_k()) return optional<recursor_val>();
     if (rec.is_unsafe()) return optional<recursor_val>();
+    // std::cerr << "kernel: primitive recursion considered at '" << v.get_name() << "'\n";
 
     // Reduce the case with explicit indices and major to the one without
-    if (args.size() == rec.get_nparams() + rec.get_nmotives() + rec.get_nminors() + rec.get_nindices() + 1) {
+    if (args.size() == rec.get_nparams() + rec.get_nmotives() + rec.get_nminors() + rec.get_nindices() + 1 &&
+        rec.get_nindices() + 1 <= xs.size()) {
         for (unsigned i = 0; i < rec.get_nindices() + 1; i++) {
             auto a = args.back();
             auto x = xs.back();
@@ -1215,10 +1217,12 @@ optional<recursor_val> type_checker::def_to_recursor(definition_val const & v) {
             args.pop_back();
             xs.pop_back();
         }
+        // std::cerr << "kernel: eta-contracted '" << v.get_name() << "'\n";
     }
 
     if (args.size() != rec.get_nparams() + rec.get_nmotives() + rec.get_nminors()) return optional<recursor_val>();
     // we have a primitive recursive definition
+    // std::cerr << "kernel: primitive recursion still considered at '" << v.get_name() << "'\n";
 
     if (length(rec.get_recs()) != 1) return optional<recursor_val>();
     names recs(const_name(fn));

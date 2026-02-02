@@ -328,6 +328,25 @@ bool type_checker::is_prop(expr const & e) {
     return whnf(infer_type(e)) == mk_Prop();
 }
 
+/** \brief Consults `m_primrec_cache` to see if `n` is a primitive recursive definition, updating
+the cache if necessary */
+optional<constant_info> type_checker::find_as_rec(name const & n) {
+    lean::constant_info const * rec_cinfo = m_st->m_primrec_cache.find(n);
+    if (rec_cinfo) { return optional<constant_info>(*rec_cinfo); }
+    optional<constant_info> cinfo = m_st->m_env.find(n);
+    if (!cinfo) { return optional<constant_info>(); }
+    if (cinfo->is_definition()) {
+        definition_val const & d = cinfo->to_definition_val();
+        optional<recursor_val> rec = def_to_recursor(d);
+        if (rec) {
+            m_st->m_primrec_cache.insert(n, constant_info(*rec));
+            return optional<constant_info>(constant_info(*rec));
+        }
+    }
+    m_st->m_primrec_cache.insert(n, *cinfo);
+    return cinfo;
+}
+
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
@@ -336,7 +355,11 @@ optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, boo
             return r;
         }
     }
-    if (optional<expr> r = inductive_reduce_rec(env(), e,
+    expr const & rec_fn   = get_app_fn(e);
+    if (!is_constant(rec_fn)) return none_expr();
+    optional<constant_info> rec_info = env().find(const_name(rec_fn));
+    recursor_val const & rec_val = rec_info->to_recursor_val();
+    if (optional<expr> r = inductive_reduce_rec(env(), e, rec_val,
                                                 [&](expr const & e) { return cheap_rec ? whnf_core(e, cheap_rec, cheap_proj) : whnf(e); },
                                                 [&](expr const & e) { return infer(e); },
                                                 [&](expr const & e1, expr const & e2) { return is_def_eq(e1, e2); })) {

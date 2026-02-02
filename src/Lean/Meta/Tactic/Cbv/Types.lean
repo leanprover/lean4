@@ -5,6 +5,7 @@ Authors: Wojciech Różowski
 -/
 
 module
+
 prelude
 public import Lean.Meta.Basic
 public import Lean.Meta.Sym.Simp.Theorems

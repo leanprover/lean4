@@ -5,6 +5,7 @@ Authors: Wojciech Różowski
 -/
 
 module
+
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.InferType
@@ -79,10 +80,13 @@ def isProp (e : Expr) : Sym.SymM Bool := do
     | _           => return false
 
 /- Modified for the `SymM` usage -/
-public def isProof (e : Expr) : Sym.SymM Bool := do
+def isProof (e : Expr) : Sym.SymM Bool := do
   match (← isProofQuick e) with
   | .true  => return true
   | .false => return false
   | .undef => isProp (← Sym.inferType e)
+
+public def isProofTerm : Simproc := fun e => do
+  return .rfl (← isProof e)
 
 end Lean.Meta.Tactic.Cbv

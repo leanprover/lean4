@@ -5,6 +5,7 @@ Authors: Wojciech Różowski
 -/
 
 module
+
 prelude
 public import Lean.Meta.Tactic.Cbv.Types
 public import Lean.Meta.Sym.Simp.SimpM
@@ -127,12 +128,13 @@ def handleConst : Simproc := fun e => do
   let eType ← whnfD eType
   unless eType matches .forallE .. do
     return .rfl
-  -- TODO: Check if we new to look if we applied all the levels correctly
+  -- TODO: Check if we need to look if we applied all the levels correctly
   let some thm ← getUnfoldTheorem n | return .rfl
   Theorem.rewrite thm e
 
 def cbvPre : Simproc :=
       isBuiltinValue
+  >>  isProofTerm
   >>  skipBinders
   >>  tryMatcher
   >>  simpControl

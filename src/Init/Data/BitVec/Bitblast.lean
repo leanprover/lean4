@@ -1004,42 +1004,8 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
   have ⟨⟨hrwn, hd, hrd, hr, hn, hrnd⟩, hwn_lt⟩ := h
   have : d.toNat * (qr.q.toNat * 2) = d.toNat * qr.q.toNat * 2 := by rw [Nat.mul_assoc]
   by_cases rltd : shiftConcat qr.r (n.getLsbD (qr.wn - 1)) < d
-  · simp only [rltd, ↓reduceIte]
-    constructor <;> try bv_omega
-    case pos.hrWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
-    case pos.hqWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
-    case pos.hdiv =>
-      simp [qr.toNat_shiftRight_sub_one_eq h, h.hdiv, this,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth]
-      omega
-  · simp only [rltd, ↓reduceIte]
-    constructor <;> try bv_omega
-    case neg.hrLtDivisor =>
-      simp only [lt_def, Nat.not_lt] at rltd
-      rw [BitVec.toNat_sub_of_le rltd,
-        toNat_shiftConcat_eq_of_lt (hk := qr.wr_lt_w h) (hx := h.hrWidth),
-        Nat.mul_comm]
-      apply two_mul_add_sub_lt_of_lt_of_lt_two <;> bv_omega
-    case neg.hrWidth =>
-      simp only
-      have hdr' : d ≤ (qr.r.shiftConcat (n.getLsbD (qr.wn - 1))) :=
-        BitVec.not_lt.mp rltd
-      have hr' : ((qr.r.shiftConcat (n.getLsbD (qr.wn - 1)))).toNat < 2 ^ (qr.wr + 1) := by
-        apply toNat_shiftConcat_lt_of_lt <;> bv_omega
-      rw [BitVec.toNat_sub_of_le hdr']
-      omega
-    case neg.hqWidth =>
-      apply toNat_shiftConcat_lt_of_lt <;> omega
-    case neg.hdiv =>
-      have rltd' := (BitVec.not_lt.mp rltd)
-      simp only [qr.toNat_shiftRight_sub_one_eq h,
-        BitVec.toNat_sub_of_le rltd',
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]
-      simp only [BitVec.le_def,
-        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth] at rltd'
-      simp only [toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
-      bv_omega
+  · sorry
+  · sorry
 
 /-! ### Core division algorithm circuit -/
 

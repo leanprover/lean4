@@ -181,7 +181,7 @@ theorem map_toSlice_prev? {s : String} {p : s.Pos} :
 
 theorem ne_endPos_of_next?_eq_some {s : String} {p q : s.Pos}
     (h : p.next? = some q) : p ≠ s.endPos :=
-  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_endPos_of_next?_eq_some
+  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_endPos_of_next?_eq_some (q := q.toSlice)
     (by simpa only [Pos.map_toSlice_next?, Option.map_some] using congrArg (·.map toSlice) h))
 
 theorem eq_next_of_next?_eq_some {s : String} {p q : s.Pos} (h : p.next? = some q) :
@@ -191,7 +191,7 @@ theorem eq_next_of_next?_eq_some {s : String} {p q : s.Pos} (h : p.next? = some 
 
 theorem ne_startPos_of_prev?_eq_some {s : String} {p q : s.Pos}
     (h : p.prev? = some q) : p ≠ s.startPos :=
-  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_startPos_of_prev?_eq_some
+  ne_of_apply_ne Pos.toSlice (Slice.Pos.ne_startPos_of_prev?_eq_some (q := q.toSlice)
     (by simpa only [Pos.map_toSlice_prev?, Option.map_some] using congrArg (·.map toSlice) h))
 
 theorem eq_prev_of_prev?_eq_some {s : String} {p q : s.Pos} (h : p.prev? = some q) :

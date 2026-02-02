@@ -233,6 +233,7 @@ def link (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanc
         ⟨.inner (szl + 1 + szr) k v (inner szl k' v' l' r') (inner szr k'' v'' l'' r''),
           ✓, ✓⟩
 termination_by sizeOf l + sizeOf r
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Slower version of `link` which can be used in the absence of balance information but
@@ -252,6 +253,7 @@ def link! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
       else
         .inner (l.size + 1 + r.size) k v l r
 termination_by sizeOf l + sizeOf r
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Builds the tree `l ++ r` without any balancing information at the root. -/
 def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
@@ -271,6 +273,7 @@ def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
       else
         ⟨glue l r ✓ ✓ ✓, ✓, ✓⟩
 termination_by sizeOf l + sizeOf r
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Slower version of `link2` which can be used in the absence of balance information but
 still assumes the preconditions of `link2`, otherwise might panic.
@@ -289,6 +292,7 @@ def link2! (l r : Impl α β) : Impl α β :=
       else
         glue! l r
 termination_by sizeOf l + sizeOf r
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-!
 ## Modification operations

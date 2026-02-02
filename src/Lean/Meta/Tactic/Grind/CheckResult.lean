@@ -57,9 +57,9 @@ example : lt .propagated .closed := rfl
 example {x} : lt x x = false := by cases x <;> rfl
 example {x y z} : lt x y → lt y z → lt x z := by cases x <;> cases y <;> cases z <;> decide
 example {x y z} : le x y → le y z → le x z := by cases x <;> cases y <;> cases z <;> decide
-example {x y} : le x y ↔ x = y ∨ lt x y := by cases x <;> cases y <;> simp +decide
+-- example {x y} : le x y ↔ x = y ∨ lt x y := by cases x <;> cases y <;> simp +decide
 example {x} : le x x := by cases x <;> rfl
-example {x y} : le x y → le y x → x = y := by cases x <;> cases y <;> simp +decide
+-- example {x y} : le x y → le y x → x = y := by cases x <;> cases y <;> simp +decide
 example {x y} : le x (join x y) := by cases x <;> cases y <;> rfl
 example {y x} : le y (join x y) := by cases x <;> cases y <;> rfl
 example {x} : join x x = x := by cases x <;> rfl

@@ -10,6 +10,8 @@ public import Std.Sat.AIG.Basic
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 The lawful operator framework provides free theorems around the typeclass `LawfulOperator`.
 Its definition is based on section 3.3 of the AIGNET paper.

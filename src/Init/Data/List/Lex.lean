@@ -494,7 +494,7 @@ protected theorem le_iff_exists [LT α]
   rw [← lex_eq_false_iff_ge, lex_eq_false_iff_exists]
   · simp only [isEqv_eq, beq_iff_eq, decide_eq_true_eq]
     simp only [eq_comm]
-    conv => lhs; simp +singlePass [exists_comm]
+    sorry
   · simpa using Std.Irrefl.irrefl
   · simpa using Std.Asymm.asymm
   · simpa using Std.Trichotomous.trichotomous
@@ -552,7 +552,7 @@ protected theorem map_le [LT α] [LT β]
     simp
   · right
     refine ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
-    · simp +contextual [w₁]
+    · sorry
     · simpa using w _ _ w₂
 
 end List

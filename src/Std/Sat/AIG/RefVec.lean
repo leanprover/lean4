@@ -11,6 +11,8 @@ public import Init.Data.Vector.Lemmas
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 namespace Std
 namespace Sat
 
@@ -58,7 +60,7 @@ def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig
 def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   let ⟨refs, hrefs⟩ := s
   let ref := refs[idx]
-  ⟨ref.gate, ref.invert, hrefs ..⟩
+  ⟨ref.gate, ref.invert, hrefs hidx⟩
 
 @[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=

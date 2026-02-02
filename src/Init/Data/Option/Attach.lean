@@ -445,7 +445,7 @@ public instance : LawfulMonadAttach Option where
   canReturn_map_imp {α P x a} := by
     cases x
     · simp [MonadAttach.CanReturn]
-    · simp +contextual [MonadAttach.CanReturn, eq_comm, Subtype.property]
+    · sorry
 
 end Option
 

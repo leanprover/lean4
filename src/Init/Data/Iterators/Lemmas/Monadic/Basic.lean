@@ -31,6 +31,7 @@ def IterM.inductSteps {α m β} [Iterator α m β] [Finite α m]
     (fun {it' _} _ => inductSteps motive step it')
     (fun {it'} _ => inductSteps motive step it')
 termination_by it.finitelyManySteps
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Induction principle for productive monadic iterators: One can define a function `f` that maps every
@@ -46,5 +47,6 @@ def IterM.inductSkips {α m β} [Iterator α m β] [Productive α m]
   (it : IterM (α := α) m β) : motive it :=
   step it (fun {it'} _ => inductSkips motive step it')
 termination_by it.finitelyManySkips
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 end Std

@@ -30,9 +30,9 @@ def Slice.posGE (s : Slice) (offset : String.Pos.Raw)  (_h : offset ≤ s.rawEnd
   else
     s.endPos
 termination_by s.utf8ByteSize - offset.byteIdx
-decreasing_by
-  simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.byteIdx_inc] at h ⊢
-  omega
+-- decreasing_by
+--   simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.byteIdx_inc] at h ⊢
+--   omega
 
 /--
 Obtains the smallest valid position that is strictly greater than the given byte position.

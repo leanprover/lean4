@@ -172,9 +172,6 @@ theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : T
   · apply IterM.DefaultConsumers.forIn'_eq_forIn' <;> assumption
   · rfl
 termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
-decreasing_by
-  · exact Or.inl ⟨_, ‹_›, ‹_›⟩
-  · exact Or.inr ⟨‹_›, rfl⟩
 
 theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]

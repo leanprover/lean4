@@ -255,7 +255,7 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
   mem_iff_isSome_getElem?.symm
 
 theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
-    t[k]? = some v ↔ ∃ h, t[k] = v :=
+    t[k]? = some v ↔ ∃ (h : k ∈ t), t[k] = v :=
   DTreeMap.Const.get?_eq_some_iff
 
 theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α}

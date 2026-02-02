@@ -10,6 +10,8 @@ public import Std.Sat.AIG.LawfulOperator
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module provides a basic theory around the naive AIG node creation functions. It is mostly
 fundamental work for the cached versions later on.

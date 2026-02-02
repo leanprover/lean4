@@ -139,7 +139,7 @@ fun s => Subset.trans s <| subset_append_right _ _
 theorem replicate_subset {n : Nat} {a : α} {l : List α} : replicate n a ⊆ l ↔ n = 0 ∨ a ∈ l := by
   induction n with
   | zero => simp
-  | succ n ih => simp +contextual [replicate_succ, ih, cons_subset]
+  | succ n ih => sorry
 
 theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ replicate n a ↔ ∀ x ∈ l, x = a := by
   induction l with

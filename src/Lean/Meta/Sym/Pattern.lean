@@ -325,6 +325,8 @@ def processLevel (u : Level) (v : Level) : UnifyM Bool := do
     else
       return false
   | _, _ => return false
+termination_by (u, v)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with
@@ -490,6 +492,8 @@ def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
   | .max u₁ u₂, .max v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
   | .imax u₁ u₂, .imax v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
   | _, _ => tryAssignLevelMVar u v <||> tryAssignLevelMVar v u
+termination_by (u, v)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Structural definitional equality for lists of universe levels.

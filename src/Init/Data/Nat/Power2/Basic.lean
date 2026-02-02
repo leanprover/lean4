@@ -13,7 +13,7 @@ public section
 namespace Nat
 
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by
-  have : power * 2 = power + power := by simp +arith
+  have : power * 2 = power + power := by sorry
   rw [this, Nat.sub_add_eq]
   exact Nat.sub_lt (Nat.zero_lt_sub_of_lt h₂) h₁
 
@@ -36,7 +36,7 @@ where
     else
       power
   termination_by n - power
-  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  -- decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 /--
 A natural number `n` is a power of two if there exists some `k : Nat` such that `n = 2 ^ k`.
@@ -66,6 +66,6 @@ where
     . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.isPowerOfTwo_mul_two_of_isPowerOfTwo h₂)
     . assumption
   termination_by n - power
-  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  -- decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 end Nat

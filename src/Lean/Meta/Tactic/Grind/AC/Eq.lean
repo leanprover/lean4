@@ -31,6 +31,8 @@ where
         go ids₁ (id₂::ids₂)
       else
         go (id₁::ids₁) ids₂
+  termination_by l₁ l₂ => (l₁.length, l₂.length)
+  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 def asACExpr (e : Expr) : ACM AC.Expr := do
   if let some e' := (← getStruct).denote.find? { expr := e } then

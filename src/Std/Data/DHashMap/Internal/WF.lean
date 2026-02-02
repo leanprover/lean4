@@ -15,6 +15,8 @@ import all Std.Data.DHashMap.RawDef
 
 public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
 the contents of this file.

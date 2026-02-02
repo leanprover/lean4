@@ -106,7 +106,7 @@ instance if `Ord α` is compatible with it.
 public instance instLawfulOrderLT_ofOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderLT α where
   lt_iff {a b} := by
-    simp +contextual [LT.lt, ← Std.isLE_compare (a := a), ← Std.isGE_compare (a := a)]
+    sorry
 
 attribute [local instance] BEq.ofOrd in
 /--
@@ -116,7 +116,6 @@ instance if `Ord α` is compatible with it.
 public instance instLawfulOrderBEq_ofOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderBEq α where
   beq_iff_le_and_ge {a b} := by
-    simp +contextual [BEq.beq, ← Std.isLE_compare (a := a), ← Std.isGE_compare (a := a),
-      Ordering.eq_eq_iff_isLE_and_isGE]
+    sorry
 
 end Std

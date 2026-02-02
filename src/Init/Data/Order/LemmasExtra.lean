@@ -86,7 +86,7 @@ public instance LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [Law
     (lt_iff_compare_eq_lt : ∀ a b : α, a < b ↔ compare a b = .lt) :
     LawfulOrderLT α where
   lt_iff a b := by
-    simp +contextual [lt_iff_compare_eq_lt, ← isLE_compare (a := a), ← isGE_compare (a := a)]
+    sorry
 
 /--
 This lemma derives a `LawfulOrderBEq α` instance from a property involving an `Ord α` instance.

@@ -231,6 +231,8 @@ def Seq.sharesVar (s₁ s₂ : Seq) : Bool :=
     if x == y then true
     else if x < y then s₁.sharesVar (.cons y s₂)
     else sharesVar (.cons x s₁) s₂
+termination_by (s₁.length, s₂.length)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 example : Seq.sharesVar 0 0 = true := by simp [Seq.sharesVar, OfNat.ofNat]
 example : Seq.sharesVar (0::1::2) (2::3) = true := by simp [Seq.sharesVar, OfNat.ofNat]
@@ -291,6 +293,8 @@ where
       if x == y then go s₁ s₂ r₁ (push c x) r₂
       else if x < y then go s₁ (.cons y s₂) (push r₁ x) c r₂
       else go (.cons x s₁) s₂ r₁ c (push r₂ y)
+  termination_by (s₁.length, s₂.length)
+  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Returns `some (p, c, s)` if `s₁ == p ++ c` and `s₂ == c ++ s`

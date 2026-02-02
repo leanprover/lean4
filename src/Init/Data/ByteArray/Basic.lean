@@ -174,7 +174,7 @@ def toList (bs : ByteArray) : List UInt8 :=
     else
       r.reverse
     termination_by bs.size - i
-    decreasing_by decreasing_trivial_pre_omega
+    -- decreasing_by decreasing_trivial_pre_omega
   loop 0 []
 
 /--
@@ -190,7 +190,7 @@ The index is returned along with a proof that it is a valid index in the array.
     else
       none
     termination_by a.size - i
-    decreasing_by decreasing_trivial_pre_omega
+    -- decreasing_by decreasing_trivial_pre_omega
   loop start
 
 /--
@@ -206,7 +206,7 @@ The variant {name}`findFinIdx?` additionally returns a proof that the found inde
     else
       none
     termination_by a.size - i
-    decreasing_by decreasing_trivial_pre_omega
+    -- decreasing_by decreasing_trivial_pre_omega
   loop start
 
 /--

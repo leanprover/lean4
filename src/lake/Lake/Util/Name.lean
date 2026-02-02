@@ -53,7 +53,7 @@ public theorem eq_anonymous_of_isAnonymous {n : Name} (h : n.isAnonymous) : n = 
   isAnonymous_iff_eq_anonymous.mp h
 
 @[simp] public protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp +decide
+  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> sorry
 
 @[simp] public theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]

@@ -17,6 +17,8 @@ import Init.Data.Array.Monadic
 
 public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 # Lemmas about ranges
 

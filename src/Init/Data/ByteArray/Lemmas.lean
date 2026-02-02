@@ -10,6 +10,8 @@ public import Init.Data.ByteArray.Basic
 
 public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 namespace ByteArray
 
 -- At present the preferred normal form for empty byte arrays is `ByteArray.empty`

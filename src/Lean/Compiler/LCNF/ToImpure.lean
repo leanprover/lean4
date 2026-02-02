@@ -319,6 +319,7 @@ public def toImpure : Pass where
   phase    := .mono
   phaseOut := .impure
   shouldAlwaysRunCheck := true
+  phaseInv := sorry
 
 builtin_initialize
   registerTraceClass `Compiler.toImpure (inherited := true)

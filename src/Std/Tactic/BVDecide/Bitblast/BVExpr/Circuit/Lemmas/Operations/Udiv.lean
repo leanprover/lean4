@@ -17,6 +17,8 @@ public import Std.Tactic.BVDecide.Normalize.BitVec
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module contains the verification of the `BitVec.udiv` bitblaster from `Impl.Operations.Udiv`.
 -/

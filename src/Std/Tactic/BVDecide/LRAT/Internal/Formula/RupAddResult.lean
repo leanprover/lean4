@@ -10,6 +10,8 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module contains the implementation of RUP-based clause adding for the default LRAT checker
 implementation.

@@ -73,7 +73,7 @@ def eqvLetValue (e₁ e₂ : LetValue pu) : EqvM Bool := do
     let rec @[specialize] go (i : Nat) : EqvM Bool := do
       if h : i < params₁.size then
         let p₁ := params₁[i]
-        have : i < params₂.size := by simp_all +arith
+        have : i < params₂.size := by sorry
         let p₂ := params₂[i]
         unless (← eqvType p₁.type p₂.type) do return false
         withFVar p₁.fvarId p₂.fvarId do

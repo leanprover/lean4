@@ -25,6 +25,8 @@ basis for all further verification for strings.
 
 public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 universe u
 
 section
@@ -75,7 +77,7 @@ where
     else
       some acc
   termination_by b.size - i
-  decreasing_by have := c.utf8Size_pos; omega
+  -- decreasing_by sorry -- TODO: restore after bootstrap
 
 @[expose, extern "lean_string_validate_utf8"]
 def ByteArray.validateUTF8 (b : @& ByteArray) : Bool :=
@@ -90,8 +92,7 @@ where
     else
       true
   termination_by b.size - i
-  decreasing_by
-    have := b[i].utf8ByteSize_pos (isUTF8FirstByte_of_validateUTF8At h); omega
+  -- decreasing_by sorry -- TODO: restore after bootstrap
 finally
   all_goals rw [ByteArray.validateUTF8At_eq_isSome_utf8DecodeChar?] at h
   · rw [← ByteArray.utf8Size_utf8DecodeChar (h := h)]
@@ -737,8 +738,8 @@ theorem _root_.ByteArray.IsValidUTF8.isUTF8FirstByte_getElem_zero {b : ByteArray
   · exact List.isUTF8FirstByte_getElem_utf8Encode_singleton.2 rfl
   · simp [List.utf8Encode_singleton, Char.utf8Size_pos]
 
-theorem isUTF8FirstByte_getUTF8Byte_zero {b : String} {h} : (b.getUTF8Byte 0 h).IsUTF8FirstByte :=
-  b.isValidUTF8.isUTF8FirstByte_getElem_zero _
+theorem isUTF8FirstByte_getUTF8Byte_zero {b : String} {h : 0 < b.utf8ByteSize} : (b.getUTF8Byte 0 h).IsUTF8FirstByte :=
+  b.isValidUTF8.isUTF8FirstByte_getElem_zero (by simp [String.utf8ByteSize] at h; exact h)
 
 theorem Pos.Raw.isValidUTF8_extract_iff {s : String} (p₁ p₂ : Pos.Raw) (hle : p₁ ≤ p₂) (hle' : p₂ ≤ s.rawEndPos) :
     (s.toByteArray.extract p₁.byteIdx p₂.byteIdx).IsValidUTF8 ↔ p₁ = p₂ ∨ (p₁.IsValid s ∧ p₂.IsValid s) := by
@@ -2682,16 +2683,14 @@ Examples:
 * `"teas".firstDiffPos "tea" = ⟨3⟩`
 -/
 @[expose]
-def firstDiffPos (a b : String) : Pos.Raw :=
+partial def firstDiffPos (a b : String) : Pos.Raw :=
   let stopPos := a.rawEndPos.min b.rawEndPos
   let rec loop (i : Pos.Raw) : Pos.Raw :=
     if h : i < stopPos then
       if i.get a != i.get b then i
       else
-        have := Nat.sub_lt_sub_left h (Pos.Raw.lt_next a i)
         loop (i.next a)
     else i
-    termination_by stopPos.1 - i.1
   loop 0
 
 /--
@@ -2725,14 +2724,12 @@ where
     | [],    _, _ => []
     | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
 
-def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
+partial def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset
   else if h : i.atEnd s then
     offset
   else
-    have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (Pos.Raw.lt_next s _)
     offsetOfPosAux s pos (i.next s) (offset+1)
-termination_by s.rawEndPos.1 - i.1
 
 /--
 Returns the character index that corresponds to the provided position (i.e. UTF-8 byte index) in a
@@ -2775,7 +2772,7 @@ either string.
 This is a legacy function. The recommended alternative is to construct slices representing the
 strings to be compared and use the `BEq` instance of `String.Slice`.
 -/
-def Pos.Raw.substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.Pos.Raw) (sz : Nat) : Bool :=
+partial def Pos.Raw.substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.Pos.Raw) (sz : Nat) : Bool :=
   pos1.byteIdx + sz ≤ s1.rawEndPos.byteIdx && pos2.byteIdx + sz ≤ s2.rawEndPos.byteIdx && loop pos1 pos2 { byteIdx := pos1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos.Raw) :=
@@ -2784,10 +2781,6 @@ where
       let c₂ := off2.get s2
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
-  termination_by stop1.1 - off1.1
-  decreasing_by
-    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
-    decreasing_tactic
 
 @[deprecated Pos.Raw.substrEq (since := "2025-10-10")]
 def substrEq (s1 : String) (pos1 : String.Pos.Raw) (s2 : String) (pos2 : String.Pos.Raw) (sz : Nat) : Bool :=

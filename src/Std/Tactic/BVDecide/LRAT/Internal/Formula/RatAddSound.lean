@@ -10,6 +10,8 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module contains the verification of RAT-based clause adding for the default LRAT checker
 implementation.

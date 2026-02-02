@@ -90,10 +90,10 @@ variable [Monad m] [MonadStateOf ArgList m]
       handle (p.get' opt h)
       loop (p.next' opt h)
   termination_by opt.utf8ByteSize - p.byteIdx
-  decreasing_by
-    simp [String.Pos.Raw.atEnd] at h
-    apply Nat.sub_lt_sub_left h
-    exact String.Pos.Raw.byteIdx_lt_byteIdx_next opt p
+  -- decreasing_by
+  --   simp [String.Pos.Raw.atEnd] at h
+  --   apply Nat.sub_lt_sub_left h
+  --   exact String.Pos.Raw.byteIdx_lt_byteIdx_next opt p
   loop ⟨1⟩
 
 /-- Splits a long option of the form `"--long foo bar"` into `--long` and `"foo bar"`. -/

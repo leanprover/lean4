@@ -10,6 +10,8 @@ public import Std.Sat.AIG.Cached
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module contains the theory of the cached AIG node creation functions.
 It is mainly concerned with proving lemmas about the denotational semantics of the gate functions

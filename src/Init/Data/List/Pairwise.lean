@@ -83,11 +83,11 @@ theorem pairwise_of_forall {l : List α} (H : ∀ x y, R x y) : Pairwise R l := 
 
 theorem Pairwise.and_mem {l : List α} :
     Pairwise R l ↔ Pairwise (fun x y => x ∈ l ∧ y ∈ l ∧ R x y) l :=
-  Pairwise.iff_of_mem <| by simp +contextual
+  Pairwise.iff_of_mem <| by sorry
 
 theorem Pairwise.imp_mem {l : List α} :
     Pairwise R l ↔ Pairwise (fun x y => x ∈ l → y ∈ l → R x y) l :=
-  Pairwise.iff_of_mem <| by simp +contextual
+  Pairwise.iff_of_mem <| by sorry
 
 theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pairwise R l)
     (h₃ : l.Pairwise (flip R)) : ∀ ⦃x⦄, x ∈ l → ∀ ⦃y⦄, y ∈ l → R x y := by

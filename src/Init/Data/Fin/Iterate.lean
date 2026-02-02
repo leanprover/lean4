@@ -34,7 +34,7 @@ def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.
     have p : i = n := (or_iff_left g).mp (Nat.eq_or_lt_of_le ubnd)
     _root_.cast (congrArg P p) a
   termination_by n - i
-  decreasing_by decreasing_trivial_pre_omega
+  -- decreasing_by decreasing_trivial_pre_omega
 
 /--
 Applies an index-dependent function to all the values less than the given bound `n`, starting at

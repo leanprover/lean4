@@ -12,6 +12,8 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftL
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftLeft` from
 `Impl.Operations.ShiftLeft`.

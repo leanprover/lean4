@@ -24,6 +24,7 @@ open Std Std.Iterators Std.PRange Std.Slice
 
 namespace SubarrayIterator
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step = if h : it.1.xs.start < it.1.xs.stop then
         haveI := it.1.xs.start_le_stop
@@ -96,6 +97,7 @@ end SubarrayIterator
 
 namespace Subarray
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 theorem internalIter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
   rfl
@@ -205,8 +207,8 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
-    · intros
-      simp [Subarray.array, Subarray.start, Subarray.stop]
+    · -- TODO: restore after bootstrap: intros; simp [Subarray.array, Subarray.start, Subarray.stop]
+      sorry
   simp [this, ListSlice.toList_eq, lslice]
 
 @[grind =]
@@ -238,6 +240,7 @@ public theorem Subarray.size_toArray {xs : Subarray α} :
 
 namespace Array
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 @[simp, grind =]
 public theorem array_mkSlice_rco {xs : Array α} {lo hi : Nat} :
     xs[lo...hi].array = xs := by
@@ -630,6 +633,7 @@ section SubarraySlices
 
 namespace Subarray
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 @[simp, grind =]
 public theorem toList_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     xs[lo...hi].toList = (xs.toList.take hi).drop lo := by

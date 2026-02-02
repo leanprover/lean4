@@ -70,7 +70,7 @@ def handleApp : Simproc := fun e => do
   match fn with
   | .const constName _ =>
     let info ← getConstInfo constName
-    guardSimproc (fun _ => info.hasValue) handleConstApp <|> reduceRecMatcher <| e
+    (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
   | _ => return .rfl
 

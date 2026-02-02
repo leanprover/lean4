@@ -1,5 +1,7 @@
 #include "util/options.h"
 
+// update thy!
+
 namespace lean {
 options get_default_options() {
     options opts;

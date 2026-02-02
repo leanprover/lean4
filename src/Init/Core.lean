@@ -136,6 +136,8 @@ Because the value has already been computed, there is no laziness.
 @[extern "lean_thunk_pure"] protected def Thunk.pure (a : α) : Thunk α :=
   ⟨fun _ => a⟩
 
+instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
+
 /--
 Gets the thunk's value. If the value is cached, it is returned in constant time; if not, it is
 computed.

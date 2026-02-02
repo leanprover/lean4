@@ -41,8 +41,6 @@ def SimplePersistentEnvExtension.replayOfFilter (p : σ → α → Bool)
     let newEntries := newEntries.filter (p s)
     (newEntries, newEntries.foldl (init := s) addEntryFn)
 
-local instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
-
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
   registerPersistentEnvExtension {
     name            := descr.name,

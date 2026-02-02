@@ -15,7 +15,7 @@ public section
 namespace Lean
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
-@[expose] def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
+@[expose] def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × Thunk σ)
 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
   as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
@@ -41,28 +41,30 @@ def SimplePersistentEnvExtension.replayOfFilter (p : σ → α → Bool)
     let newEntries := newEntries.filter (p s)
     (newEntries, newEntries.foldl (init := s) addEntryFn)
 
+local instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
+
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
   registerPersistentEnvExtension {
     name            := descr.name,
-    mkInitial       := pure ([], descr.addImportedFn #[]),
-    addImportedFn   := fun as => pure ([], descr.addImportedFn as),
+    mkInitial       := pure ([], .pure (descr.addImportedFn #[])),
+    addImportedFn   := fun as => pure ([], ⟨fun _ => descr.addImportedFn as⟩),
     addEntryFn      := fun s e => match s with
-      | (entries, s) => (e::entries, descr.addEntryFn s e),
+      | (entries, s) => (e::entries, s.map (descr.addEntryFn · e)),
     exportEntriesFnEx env s level := match descr.exportEntriesFnEx? with
-      | some fn => fn env s.2 s.1.reverse level
+      | some fn => fn env s.2.get s.1.reverse level
       | none    => descr.toArrayFn s.1.reverse
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      let (newEntries, s) := replay newEntries newState.2 s
-      (newEntries ++ entries, s)
+      let (newEntries, s) := replay newEntries newState.2.get s.get
+      (newEntries ++ entries, .pure s)
   }
 
 namespace SimplePersistentEnvExtension
 
 instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
-  inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
+  inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × Thunk σ)))
 
 /-- Get the list of values used to update the state of the given
 `SimplePersistentEnvExtension` in the current file. -/
@@ -73,15 +75,15 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
     (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
-  (PersistentEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) ext env).2
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) ext env).2.get
 
 /-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
-  PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, s))
+  PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, .pure s))
 
 /-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
-  PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
+  PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, s.map f))
 
 end SimplePersistentEnvExtension
 

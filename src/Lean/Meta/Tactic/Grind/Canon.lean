@@ -174,7 +174,7 @@ See comments at `ShouldCanonResult`.
 private def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM ShouldCanonResult := do
   if h : i < pinfos.size then
     let pinfo := pinfos[i]
-    if pinfo.isInstImplicit then
+    if pinfo.isInstance then
       return .canonInst
     else if pinfo.isProp then
       return .visit

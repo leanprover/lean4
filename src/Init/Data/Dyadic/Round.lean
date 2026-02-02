@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Dyadic.Basic
-import all Init.Data.Dyadic.Instances
+import Init.Data.Dyadic.Instances
 import Init.Grind.Ordered.Rat
 import Init.Grind.Ordered.Field
 

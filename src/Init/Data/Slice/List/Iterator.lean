@@ -34,7 +34,7 @@ attribute [instance] ListSlice.instToIterator
 universe v w
 
 instance : SliceSize (Internal.ListSliceData α) where
-  size s := (Internal.iter s).count
+  size s := (Internal.iter s).length
 
 @[no_expose]
 instance {α : Type u} {m : Type v → Type w} [Monad m] :

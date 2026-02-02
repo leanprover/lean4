@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Eqns
 public import Lean.Elab.Command
 import Lean.PrettyPrinter.Delaborator.Builtins
-
 public section
-
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
@@ -29,9 +26,10 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) (sig : Bool := true) : CommandElabM MessageData := do
   let mut attrs := #[]
   match (← getReducibilityStatus id) with
-  | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
-  | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
-  | ReducibilityStatus.semireducible => pure ()
+  | .irreducible =>   attrs := attrs.push m!"irreducible"
+  | .reducible =>     attrs := attrs.push m!"reducible"
+  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
+  | .semireducible => pure ()
 
   let env ← getEnv
   if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then

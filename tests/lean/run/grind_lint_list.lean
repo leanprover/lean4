@@ -35,6 +35,10 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 #guard_msgs in
 #grind_lint inspect (min := 25) List.head_attachWith
 
+-- `List.drop_append_length` is reasonable at 25.
+#guard_msgs in
+#grind_lint inspect (min := 25) List.drop_append_length
+
 /-! Check List namespace: -/
 
 #guard_msgs in

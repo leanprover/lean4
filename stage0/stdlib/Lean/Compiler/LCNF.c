@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF
-// Imports: public import Lean.Compiler.LCNF.AlphaEqv public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.Bind public import Lean.Compiler.LCNF.Check public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.CSE public import Lean.Compiler.LCNF.DependsOn public import Lean.Compiler.LCNF.ElimDead public import Lean.Compiler.LCNF.FixedParams public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.JoinPoints public import Lean.Compiler.LCNF.LCtx public import Lean.Compiler.LCNF.Level public import Lean.Compiler.LCNF.Main public import Lean.Compiler.LCNF.Passes public import Lean.Compiler.LCNF.PassManager public import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.PrettyPrinter public import Lean.Compiler.LCNF.PullFunDecls public import Lean.Compiler.LCNF.PullLetDecls public import Lean.Compiler.LCNF.ReduceJpArity public import Lean.Compiler.LCNF.Simp public import Lean.Compiler.LCNF.Specialize public import Lean.Compiler.LCNF.SpecInfo public import Lean.Compiler.LCNF.Testing public import Lean.Compiler.LCNF.ToDecl public import Lean.Compiler.LCNF.ToExpr public import Lean.Compiler.LCNF.ToLCNF public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.Util public import Lean.Compiler.LCNF.ConfigOptions public import Lean.Compiler.LCNF.MonoTypes public import Lean.Compiler.LCNF.ToMono public import Lean.Compiler.LCNF.MonadScope public import Lean.Compiler.LCNF.Closure public import Lean.Compiler.LCNF.LambdaLifting public import Lean.Compiler.LCNF.ReduceArity public import Lean.Compiler.LCNF.Probing public import Lean.Compiler.LCNF.Irrelevant public import Lean.Compiler.LCNF.SplitSCC
+// Imports: public import Lean.Compiler.LCNF.AlphaEqv public import Lean.Compiler.LCNF.Basic public import Lean.Compiler.LCNF.Bind public import Lean.Compiler.LCNF.Check public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.CSE public import Lean.Compiler.LCNF.DependsOn public import Lean.Compiler.LCNF.ElimDead public import Lean.Compiler.LCNF.FixedParams public import Lean.Compiler.LCNF.InferType public import Lean.Compiler.LCNF.JoinPoints public import Lean.Compiler.LCNF.LCtx public import Lean.Compiler.LCNF.Level public import Lean.Compiler.LCNF.Main public import Lean.Compiler.LCNF.Passes public import Lean.Compiler.LCNF.PassManager public import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.PrettyPrinter public import Lean.Compiler.LCNF.PullFunDecls public import Lean.Compiler.LCNF.PullLetDecls public import Lean.Compiler.LCNF.ReduceJpArity public import Lean.Compiler.LCNF.Simp public import Lean.Compiler.LCNF.Specialize public import Lean.Compiler.LCNF.SpecInfo public import Lean.Compiler.LCNF.ToDecl public import Lean.Compiler.LCNF.ToExpr public import Lean.Compiler.LCNF.ToLCNF public import Lean.Compiler.LCNF.Types public import Lean.Compiler.LCNF.Util public import Lean.Compiler.LCNF.ConfigOptions public import Lean.Compiler.LCNF.MonoTypes public import Lean.Compiler.LCNF.ToMono public import Lean.Compiler.LCNF.MonadScope public import Lean.Compiler.LCNF.Closure public import Lean.Compiler.LCNF.LambdaLifting public import Lean.Compiler.LCNF.ReduceArity public import Lean.Compiler.LCNF.Probing public import Lean.Compiler.LCNF.Irrelevant public import Lean.Compiler.LCNF.SplitSCC
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,7 +37,6 @@ lean_object* initialize_Lean_Compiler_LCNF_ReduceJpArity(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_Simp(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_Specialize(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_SpecInfo(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_LCNF_Testing(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToDecl(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToExpr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToLCNF(uint8_t builtin);
@@ -128,9 +127,6 @@ res = initialize_Lean_Compiler_LCNF_Specialize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_SpecInfo(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_Testing(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_ToDecl(builtin);

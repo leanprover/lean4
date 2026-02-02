@@ -217,11 +217,11 @@ def h (as : List Nat) :=
 
 /--
 trace: [splits] Case split candidates
-  [split] #829a := match bs with
+  [split] #8289 := match bs with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
-  [split] #dce6 := match as with
+  [split] #bf4f := match as with
       | [] => 1
       | [head] => 2
       | head :: head_1 :: tail => 3
@@ -237,7 +237,7 @@ example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
     show_cases
-    cases #dce6
+    cases #bf4f
     instantiate
     focus instantiate
     instantiate
@@ -263,7 +263,7 @@ example : h bs = 1 → h as ≠ 0 := by
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate | as
-    cases #dce6
+    cases #bf4f
     all_goals instantiate
 
 /--
@@ -309,12 +309,12 @@ example (r p q : Prop) : p ∨ r → p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p
 example : h bs = 1 → h as ≠ 0 := by
   grind [h.eq_def] =>
     instantiate
-    cases #dce6 <;> instantiate
+    cases #bf4f <;> instantiate
 
 example : h bs = 1 → h as ≠ 1 := by
   grind [h.eq_def] =>
     instantiate
-    cases #dce6
+    cases #8289
     any_goals instantiate
     sorry
 
@@ -330,7 +330,7 @@ h✝ : as = []
 example : h bs = 1 → h as ≠ 0 := by
   grind -verbose [h.eq_def] =>
     instantiate
-    cases #dce6
+    cases #bf4f
     next => skip
     all_goals sorry
 
@@ -343,7 +343,7 @@ def g (as : List Nat) :=
 example : g bs = 1 → g as ≠ 0 := by
   grind [g.eq_def] =>
     instantiate
-    cases #dce6
+    cases #bf4f
     next => instantiate
     next => finish
     tactic =>
@@ -542,7 +542,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     show_cases
     rename_i y w _ -- Must reset cached anchors
     show_cases
-    cases #e2a6
+    cases #dded
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by
@@ -553,7 +553,7 @@ example : (a : Point Nat) → p a → x ≠ y → False := by
     show_cases
     next y w _ =>
     show_cases
-    cases #e2a6
+    cases #dded
     all_goals sorry
 
 example : (a : Point Nat) → p a → x ≠ y → False := by

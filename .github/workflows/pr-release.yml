@@ -43,6 +43,19 @@ jobs:
           name: build-.*
           name_is_regexp: true
 
+      # Verify artifacts were downloaded before any side effects (tag creation, release deletion).
+      - name: Verify release artifacts exist
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
+          shopt -s nullglob
+          files=(artifacts/*/*)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::No artifacts found matching artifacts/*/*"
+            exit 1
+          fi
+          echo "Found ${#files[@]} artifacts to upload:"
+          printf '%s\n' "${files[@]}"
+
       - name: Push tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
@@ -74,18 +87,6 @@ jobs:
           gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }} -y || true
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
-      # Verify artifacts were downloaded (equivalent to fail_on_unmatched_files in the old action).
-      - name: Verify release artifacts exist
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        run: |
-          shopt -s nullglob
-          files=(artifacts/*/*)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::No artifacts found matching artifacts/*/*"
-            exit 1
-          fi
-          echo "Found ${#files[@]} artifacts to upload:"
-          printf '%s\n' "${files[@]}"
       # We use `gh release create` instead of `softprops/action-gh-release` because
       # the latter enumerates all releases to check for existing ones, which fails
       # when the repository has more than 10000 releases (GitHub API pagination limit).

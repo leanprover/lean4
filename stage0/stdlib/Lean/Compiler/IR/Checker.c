@@ -1206,9 +1206,9 @@ goto block_152;
 block_144:
 {
 lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-x_141 = lean_nat_add(x_138, x_140);
+x_141 = lean_nat_add(x_139, x_140);
 lean_dec(x_140);
-lean_dec(x_138);
+lean_dec(x_139);
 if (lean_is_scalar(x_135)) {
  x_142 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1227,7 +1227,7 @@ if (lean_is_scalar(x_125)) {
 lean_ctor_set(x_143, 0, x_137);
 lean_ctor_set(x_143, 1, x_128);
 lean_ctor_set(x_143, 2, x_129);
-lean_ctor_set(x_143, 3, x_139);
+lean_ctor_set(x_143, 3, x_138);
 lean_ctor_set(x_143, 4, x_142);
 return x_143;
 }
@@ -1253,8 +1253,8 @@ if (lean_obj_tag(x_131) == 0)
 lean_object* x_150; 
 x_150 = lean_ctor_get(x_131, 0);
 lean_inc(x_150);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_150;
 goto block_144;
 }
@@ -1262,8 +1262,8 @@ else
 {
 lean_object* x_151; 
 x_151 = lean_unsigned_to_nat(0u);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_151;
 goto block_144;
 }
@@ -1645,9 +1645,9 @@ return x_28;
 block_13:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = lean_st_ref_set(x_8, x_10);
+x_11 = lean_st_ref_set(x_9, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_7);
+lean_ctor_set(x_12, 0, x_8);
 return x_12;
 }
 block_20:
@@ -1660,18 +1660,18 @@ if (x_18 == 0)
 {
 lean_object* x_19; 
 x_19 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_Checker_markIndex_spec__1___redArg(x_1, x_17, x_16);
-x_7 = x_17;
-x_8 = x_14;
-x_9 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_17;
+x_9 = x_14;
 x_10 = x_19;
 goto block_13;
 }
 else
 {
 lean_dec(x_1);
-x_7 = x_17;
-x_8 = x_14;
-x_9 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_17;
+x_9 = x_14;
 x_10 = x_16;
 goto block_13;
 }

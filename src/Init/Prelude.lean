@@ -322,6 +322,10 @@ For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/
 @[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
+/-- Non-dependent recursor for the equality type (symmetric variant) -/
+@[simp] abbrev Eq.ndrec_symm.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq b a) : motive b :=
+  h.symm.ndrec m
+
 /--
 Equality is transitive: if `a = b` and `b = c` then `a = c`.
 

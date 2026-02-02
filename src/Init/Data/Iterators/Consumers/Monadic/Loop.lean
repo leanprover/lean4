@@ -950,6 +950,38 @@ def IterM.Total.first? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iter
     [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) : m (Option β) :=
   it.it.first?
 
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+{lit}`it.ensureTermination.isEmpty` always terminates after finitely many steps.
+-/
+@[always_inline]
+def IterM.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+    [IteratorLoop α m m] (it : IterM (α := α) m β) : m (ULift Bool) :=
+  IteratorLoop.forIn (fun _ _ => flip Bind.bind) _ (fun _ _ s => s = ForInStep.done (.up false)) it
+    (.up true) (fun _ _ _ => pure ⟨ForInStep.done (.up false), rfl⟩)
+
+set_option doc.verso true in
+/--
+Returns {lean}`ULift.up true` if the iterator {name}`it` yields no values.
+
+{lit}`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of {name}`it` is examined.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using {name}`IterM.isEmpty`.
+-/
+@[always_inline, inline]
+def IterM.Total.isEmpty {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [Productive α m] (it : IterM.Total (α := α) m β) :
+    m (ULift Bool) :=
+  it.it.isEmpty
+
 section Count
 
 /--
@@ -960,21 +992,15 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.length {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2026-01-28"), expose]
+def IterM.count := @IterM.length
 
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
-def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
-  it.count
+@[inline, inherit_doc IterM.length, deprecated IterM.length (since := "2025-10-29"), expose]
+def IterM.size := @IterM.length
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -983,7 +1009,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.count (since := "2025-12-04")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-12-04")]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
   it.it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
@@ -995,10 +1021,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
+@[always_inline, inline, deprecated IterM.length (since := "2025-10-29")]
 def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
-  it.it.count
+  it.it.length
 
 end Count
 

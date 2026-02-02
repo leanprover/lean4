@@ -1272,9 +1272,6 @@ private def addProjections (params : Array Expr) (r : ElabHeaderResult) (fieldIn
   for fieldInfo in fieldInfos do
     if fieldInfo.kind.isSubobject then
       addDeclarationRangesFromSyntax fieldInfo.declName r.view.ref fieldInfo.ref
-  for decl in projDecls do
-    -- projections may generate equation theorems
-    enableRealizationsForConst decl.projName
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do
@@ -1501,7 +1498,7 @@ private def addParentInstances (parents : Array StructureParentInfo) : MetaM Uni
   let instParents := instParents.filter fun parent =>
     !resOrders.any (fun resOrder => resOrder[1...*].any (· == parent.structName))
   for instParent in instParents do
-    addInstance instParent.projFn AttributeKind.global (eval_prio default)
+    registerInstance instParent.projFn AttributeKind.global (eval_prio default)
 
 @[builtin_inductive_elab Lean.Parser.Command.«structure»]
 def elabStructureCommand : InductiveElabDescr where
@@ -1563,6 +1560,11 @@ def elabStructureCommand : InductiveElabDescr where
               checkResolutionOrder view.declName
               return {
                 finalize := do
+                  -- Enable realizations for projections here (after @[class] attribute is applied)
+                  -- so that the realization context has class information available.
+                  for fieldInfo in fieldInfos do
+                    if fieldInfo.kind.isInCtor then
+                      enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
                     addParentInstances parentInfos
               }

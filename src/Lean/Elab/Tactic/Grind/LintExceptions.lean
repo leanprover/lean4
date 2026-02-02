@@ -20,6 +20,7 @@ import Std
 #grind_lint skip List.getLast_attach
 #grind_lint skip List.getLast_attachWith
 #grind_lint skip List.head_attachWith
+#grind_lint skip List.drop_append_length
 #grind_lint skip Array.back_singleton
 #grind_lint skip Array.count_singleton
 #grind_lint skip Array.foldl_empty

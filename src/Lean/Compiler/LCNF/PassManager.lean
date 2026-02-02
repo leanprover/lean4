@@ -15,6 +15,20 @@ namespace Lean.Compiler.LCNF
 @[expose] def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
+  | .impure => 2
+
+instance : ToString Phase where
+  toString
+    | .base => "base"
+    | .mono => "mono"
+    | .impure => "impure"
+
+def Phase.withPurityCheck [Inhabited α] (pp : Phase) (ip : Purity)
+    (x : pp.toPurity = ip → α) : α :=
+  if h : pp.toPurity = ip then
+    x h
+  else
+    panic! s!"Compiler error: {pp} is not equivalent to IR phase {ip}, this is a bug"
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -60,7 +74,7 @@ structure Pass where
   /--
   The actual pass function, operating on the `Decl`s.
   -/
-  run : Array Decl → CompilerM (Array Decl)
+  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phase.toPurity))
 
 instance : Inhabited Pass where
   default := { phase := .base, name := default, run := fun decls => return decls }
@@ -90,14 +104,10 @@ structure PassManager where
   monoPassesNoLambda : Array Pass
   deriving Inhabited
 
-instance : ToString Phase where
-  toString
-    | .base => "base"
-    | .mono => "mono"
-
 namespace Pass
 
-def mkPerDeclaration (name : Name) (run : Decl → CompilerM Decl) (phase : Phase) (occurrence : Nat := 0) : Pass where
+def mkPerDeclaration (name : Name) (phase : Phase)
+    (run : Decl phase.toPurity → CompilerM (Decl phase.toPurity)) (occurrence : Nat := 0) : Pass where
   occurrence := occurrence
   phase := phase
   name := name
@@ -190,6 +200,7 @@ def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager 
     return { manager with basePasses := (← installer.install manager.basePasses) }
   | .mono =>
     return { manager with monoPasses := (← installer.install manager.monoPasses) }
+  | .impure => panic! "Pass manager support for impure unimplemented" -- TODO
 
 private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName

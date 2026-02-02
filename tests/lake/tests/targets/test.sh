@@ -1,28 +1,18 @@
 #!/usr/bin/env bash
-set -exo pipefail
+source ../common.sh
 
 # Prevent MSYS2 from automatically transforming path-like targets
 [ "$OSTYPE" == "cygwin" -o "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
-
-if [ "$OS" = Windows_NT ]; then
-LIB_PREFIX=
-SHARED_LIB_EXT=dll
-elif [ "`uname`" = Darwin ]; then
-LIB_PREFIX=lib
-SHARED_LIB_EXT=dylib
-else
-LIB_PREFIX=lib
-SHARED_LIB_EXT=so
-fi
 
 PKG=targets
 
 ./clean.sh
 
-# Test error on nonexistent facet
-$LAKE build targets:noexistent && exit 1 || true
+# Test errors on nonexistent facets
+test_err 'unknown package facet `bogus`' build targets:bogus
+test_err 'unknown lean_lib facet `bogus`' build Foo:bogus
+test_err 'unknown module facet `bogus`'  build +Foo:bogus
+test_err 'unknown lean_exe facet `bogus`' build a:bogus
 
 # Test custom targets and package, library, and module facets
 diff_out() {
@@ -126,3 +116,6 @@ test -f .lake/build/ir/Bar.c.o.export
 $LAKE build -v src/a.lean
 test -f .lake/build/lib/lean/a.olean
 test ! -f .lake/build/bin/a
+
+# Cleanup
+rm -f produced.out

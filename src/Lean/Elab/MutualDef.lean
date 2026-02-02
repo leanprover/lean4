@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
 import all Lean.Elab.ErrorUtils
-
 public section
-
 namespace Lean.Elab
 open Lean.Parser.Term
 

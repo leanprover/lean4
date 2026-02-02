@@ -110,7 +110,7 @@ example {h : a ∈ m} : m.indices[a] < m.size := by
   have : m.indices[a]? = some m.indices[a] := by grind
   have := m.WF m.indices[a]
   grind =>
-    instantiate only [#41bd]
+    instantiate only [#bc4b]
     instantiate only [= getElem?_neg]
     instantiate only [= size_keys]
 
@@ -119,7 +119,7 @@ example {h : a ∈ m} : m.indices[a] < m.size := by
   have : m.indices[a]? = some m.indices[a] := by grind
   have := m.WF m.indices[a]
   grind =>
-    instantiate only [#41bd]
+    instantiate only [#bc4b]
     -- Display asserted facts
     show_asserted
     -- Display asserted facts with `generation > 0`

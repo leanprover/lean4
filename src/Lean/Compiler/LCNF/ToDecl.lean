@@ -105,13 +105,13 @@ The steps for this are roughly:
 - expand declarations tagged with the `[macro_inline]` attribute
 - turn the resulting term into LCNF declaration
 -/
-def toDecl (declName : Name) : CompilerM Decl := do
+def toDecl (declName : Name) : CompilerM (Decl .pure) := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
   let safe ← declIsNotUnsafe declName
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
-  let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do
+  let paramsFromTypeBinders (expr : Expr) : CompilerM (Array (Param .pure)) := do
     let mut params := #[]
     let mut currentExpr := expr
     repeat
@@ -145,7 +145,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let code ← toLCNF value
     let decl ← if let .fun decl (.return _) := code then
       eraseFunDecl decl (recursive := false)
-      pure { name := declName, params := decl.params, type, value := .code decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl }
+      pure { name := declName, params := decl.params, type, value := .code decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl .pure }
     else
       pure { name := declName, params := #[], type, value := .code code, levelParams := info.levelParams, safe, inlineAttr? }
     /- `toLCNF` may eta-reduce simple declarations. -/

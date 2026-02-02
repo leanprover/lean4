@@ -72,10 +72,13 @@ partial def compatibleTypesQuick (a b : Expr) : Bool :=
       | .const n us, .const m vs => n == m && List.isEqv us vs Level.isEquiv
       | _, _ => false
 
+namespace InferType
+namespace Pure
+
 /--
 Complete check for `compatibleTypes`. It eta-expands type formers. See comment at `compatibleTypes`.
 -/
-partial def InferType.compatibleTypesFull (a b : Expr) : InferTypeM Bool := do
+partial def compatibleTypesFull (a b : Expr) : InferTypeM Bool := do
   if a.isErased || b.isErased then
     return true
   else
@@ -141,10 +144,13 @@ This is a simplification. We used to use `isErasedCompatible`, but this only add
 For item 2, we would have to modify the `toLCNFType` function and make sure a type former is erased if the expected
 type is not always a type former (see `S.mk` type and example in the note above).
 -/
-def InferType.compatibleTypes (a b : Expr) : InferTypeM Bool := do
+def compatibleTypes (a b : Expr) : InferTypeM Bool := do
   if compatibleTypesQuick a b then
     return true
   else
     compatibleTypesFull a b
+
+end Pure
+end InferType
 
 end Lean.Compiler.LCNF

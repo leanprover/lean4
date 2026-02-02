@@ -132,6 +132,19 @@ public inductive CtorFieldInfo where
   | void
   deriving Inhabited
 
+namespace CtorFieldInfo
+
+def format : CtorFieldInfo → Format
+  | erased => "◾"
+  | void => "void"
+  | object i type => f!"obj@{i}:{type}"
+  | usize i    => f!"usize@{i}"
+  | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
+
+instance : ToFormat CtorFieldInfo := ⟨format⟩
+
+end CtorFieldInfo
+
 public structure CtorLayout where
   ctorInfo : CtorInfo
   fieldInfo : Array CtorFieldInfo

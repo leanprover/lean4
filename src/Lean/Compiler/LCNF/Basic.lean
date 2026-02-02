@@ -87,10 +87,10 @@ def usize : Expr := .const ``USize []
 def erased : Expr := .const ``lcErased []
 
 @[inline, expose, match_pattern]
-def object : Expr := .const `object []
+def object : Expr := .const `obj []
 
 @[inline, expose, match_pattern]
-def tobject : Expr := .const `tobject []
+def tobject : Expr := .const `tobj []
 
 @[inline, expose, match_pattern]
 def tagged : Expr := .const `tagged []

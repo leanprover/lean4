@@ -30,7 +30,7 @@ error: Error while compiling function 'illegal1': @[tagged_return] is only valid
 @[tagged_return]
 opaque illegal1 (a : Nat) : Nat
 
-/-- error: @[tagged_return] on function 'illegal2' with scalar return type u8 -/
+/-- error: @[tagged_return] on function 'illegal2' with scalar return type UInt8 -/
 #guard_msgs in
 @[extern "mytest", tagged_return]
 opaque illegal2 (a : Nat) : UInt8

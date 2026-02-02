@@ -13,6 +13,8 @@ import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
 
+open ImpureType
+
 /--
 Marks an extern definition to be guaranteed to always return tagged values.
 This information is used to optimize reference counting in the compiler.

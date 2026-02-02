@@ -150,7 +150,7 @@ def void : Expr := .const ``lcVoid []
 /--
 Whether the type is a scalar as opposed to a pointer (or a value disguised as a pointer).
 -/
-def _root_.Lean.Expr.isScalar : Expr → Bool
+def Lean.Expr.isScalar : Expr → Bool
   | ImpureType.float    => true
   | ImpureType.float32  => true
   | ImpureType.uint8    => true
@@ -163,7 +163,7 @@ def _root_.Lean.Expr.isScalar : Expr → Bool
 /--
 Whether the type is an object which is to say a pointer or a value disguised as a pointer.
 -/
-def _root_.Lean.Expr.isObj : Expr → Bool
+def Lean.Expr.isObj : Expr → Bool
   | ImpureType.object  => true
   | ImpureType.tagged  => true
   | ImpureType.tobject => true
@@ -173,21 +173,21 @@ def _root_.Lean.Expr.isObj : Expr → Bool
 /--
 Whether the type might be an actual pointer (crucially this excludes `tagged`).
 -/
-def _root_.Lean.Expr.isPossibleRef : Expr → Bool
+def Lean.Expr.isPossibleRef : Expr → Bool
   | ImpureType.object | ImpureType.tobject => true
   | _ => false
 
 /--
 Whether the type is a pointer for sure.
 -/
-def _root_.Lean.Expr.isDefiniteRef : Expr → Bool
+def Lean.Expr.isDefiniteRef : Expr → Bool
   | ImpureType.object => true
   | _ => false
 
 /--
 The boxed version of types.
 -/
-def _root_.Lean.Expr.boxed : Expr → Expr
+def Lean.Expr.boxed : Expr → Expr
   | ImpureType.object | ImpureType.float | ImpureType.float32 => ImpureType.object
   | ImpureType.void | ImpureType.tagged | ImpureType.uint8 | ImpureType.uint16 => ImpureType.tagged
   | _ => ImpureType.tobject

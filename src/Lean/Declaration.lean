@@ -359,6 +359,8 @@ structure RecursorVal extends ConstantVal where
   numMotives : Nat
   /-- Number of minor premises -/
   numMinors : Nat
+  /-- Number of extra parameters that come after the major premise -/
+  numExtra : Nat
   /-- A reduction for each Constructor -/
   rules : List RecursorRule
   /-- It supports K-like reduction.
@@ -375,10 +377,11 @@ structure RecursorVal extends ConstantVal where
   deriving Inhabited, BEq
 
 @[export lean_mk_recursor_val]
-def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (recs : List Name) (numParams numIndices numMotives numMinors : Nat)
+def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (recs : List Name)
+    (numParams numIndices numMotives numMinors numExtra : Nat)
     (rules : List RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
   name, levelParams, type, all, recs, numParams, numIndices,
-  numMotives, numMinors, rules, k, isUnsafe
+  numMotives, numMinors, numExtra, rules, k, isUnsafe
 }
 
 @[export lean_recursor_k] def RecursorVal.kEx (v : RecursorVal) : Bool := v.k

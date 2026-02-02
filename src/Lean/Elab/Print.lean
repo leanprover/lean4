@@ -101,6 +101,8 @@ private def printRecursor (recInfo : RecursorVal) : CommandElabM Unit := do
   m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}"
   m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}"
   m := m ++ Format.line ++ m!"number of minors: {recInfo.numMinors}"
+  if recInfo.numExtra > 0 then
+    m := m ++ Format.line ++ m!"number of extra parameters: {recInfo.numExtra}"
   if recInfo.k then
     m := m ++ Format.line ++ m!"supports k-like reduction"
   m := m ++ Format.line ++ "rules:"

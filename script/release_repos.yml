@@ -14,13 +14,6 @@ repositories:
     bump-branch: true
     dependencies: []
 
-  - name: verso
-    url: https://github.com/leanprover/verso
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: []
-
   - name: lean4checker
     url: https://github.com/leanprover/lean4checker
     toolchain-tag: true
@@ -41,6 +34,14 @@ repositories:
     stable-branch: false
     branch: main
     dependencies: []
+
+  - name: verso
+    url: https://github.com/leanprover/verso
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - plausible
 
   - name: import-graph
     url: https://github.com/leanprover-community/import-graph

@@ -1,7 +1,7 @@
-@[noinline]
+@[macro_inline]
 noncomputable def noncomp (a : Nat) : Nat := a
 
-@[noinline]
+@[macro_inline]
 def f (_ b : Nat) : Nat := b
 
 def g (b : Nat) := f (noncomp 0) b

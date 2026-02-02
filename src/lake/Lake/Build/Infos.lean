@@ -278,6 +278,10 @@ public abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
 
 namespace LeanLib
 
+@[inherit_doc defaultFacet]
+public abbrev default (self : LeanLib) : BuildInfo :=
+  self.facetCore defaultFacet
+
 @[inherit_doc modulesFacet]
 public abbrev modules (self : LeanLib) : BuildInfo :=
   self.facetCore modulesFacet
@@ -313,7 +317,7 @@ It is the user's obligation to ensure the facet in question is the executable fa
 public abbrev LeanExe.facetCore (facet : Name) (self : LeanExe) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the Lean executable. -/
+@[inherit_doc exeFacet]
 public abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   self.facetCore LeanExe.exeFacet
 
@@ -326,15 +330,15 @@ It is the user's obligation to ensure the facet in question is an external libra
 public abbrev ExternLib.facetCore (facet : Name) (self : ExternLib) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the external library's static binary. -/
+@[inherit_doc staticFacet]
 public abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.staticFacet
 
-/-- Build info of the external library's shared binary. -/
+@[inherit_doc sharedFacet]
 public abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.sharedFacet
 
-/-- Build info of the external library's dynlib. -/
+@[inherit_doc dynlibFacet]
 public abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
   self.facetCore ExternLib.dynlibFacet
 
@@ -347,7 +351,7 @@ It is the user's obligation to ensure the facet in question is an external libra
 public abbrev InputFile.facetCore (facet : Name) (self : InputFile) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the input file's default facet. -/
+@[inherit_doc defaultFacet]
 public abbrev InputFile.default (self : InputFile) : BuildInfo :=
   self.facetCore InputFile.defaultFacet
 
@@ -358,6 +362,6 @@ It is the user's obligation to ensure the facet in question is an external libra
 public abbrev InputDir.facetCore (facet : Name) (self : InputDir) : BuildInfo :=
   .facet self.key facetKind (toFamily self) facet
 
-/-- Build info of the input directory's default facet. -/
+@[inherit_doc defaultFacet]
 public abbrev InputDir.default (self : InputDir) : BuildInfo :=
   self.facetCore InputDir.defaultFacet

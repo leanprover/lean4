@@ -61,19 +61,16 @@ extern "C" LEAN_EXPORT obj_res lean_internal_get_default_options(obj_arg) {
     return get_default_options().steal();
 }
 
-options join(options const & opts1, options const & opts2) {
-    kvmap r = opts2.m_value;
-    for (kvmap_entry const & e : opts1.m_value) {
-        if (!opts2.contains(e.fst())) {
-            r = cons(e, r);
-        }
-    }
-    return options(r);
+extern "C" LEAN_EXPORT obj_res lean_options_get_empty(obj_arg u);
+options::options(): object_ref(lean_options_get_empty(box(0))) {}
+
+extern "C" LEAN_EXPORT bool lean_options_get_bool(obj_arg opts, obj_arg n, bool default_value);
+bool options::get_bool(name const & n, bool default_value) const {
+    return lean_options_get_bool(this->to_obj_arg(), n.to_obj_arg(), default_value);
 }
 
-void options::for_each(std::function<void(name const &)> const & fn) const {
-    for (kvmap_entry const & e : m_value) {
-        fn(e.fst());
-    }
+extern "C" LEAN_EXPORT obj_res lean_options_update_bool(obj_arg opts, obj_arg n, bool v);
+options options::update(name const & n, bool v) const {
+    return options(lean_options_update_bool(this->to_obj_arg(), n.to_obj_arg(), v));
 }
 }

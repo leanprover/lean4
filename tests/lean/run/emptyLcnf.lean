@@ -41,6 +41,13 @@ trace: [Compiler.result] size: 5
       let _x.2 := _eval._closed_2.2;
       let _x.3 := Array.push ◾ _x.2 _x.1;
       return _x.3
+[Compiler.result] size: 3
+    def _private.lean.run.emptyLcnf.0._eval._closed_4 : Lean.Elab.Term.Context →
+      lcAny → Lean.Meta.Context → lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit :=
+      let _x.1 := PUnit.unit;
+      let _x.2 := _eval._closed_3.2;
+      let _f.3 := _eval._lam_0.2 _x.2 _x.1;
+      return _f.3
 [Compiler.result] size: 8
     def _private.lean.run.emptyLcnf.0._eval a.1 a.2 a.3 : EST.Out Lean.Exception lcAny PUnit :=
       let _x.4 := _eval._closed_0.2;
@@ -49,7 +56,7 @@ trace: [Compiler.result] size: 5
       let _x.7 := _eval._closed_2.2;
       let _x.8 := _eval._closed_3.2;
       let _x.9 := PUnit.unit;
-      let _f.10 := _eval._lam_0.2 _x.8 _x.9;
+      let _f.10 := _eval._closed_4.2;
       let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 a.3;
       return _x.11
 -/

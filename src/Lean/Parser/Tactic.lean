@@ -52,24 +52,7 @@ example (n : Nat) : n = n := by
   optional Term.motive >> sepBy1 Term.matchDiscr ", " >>
   " with " >> ppDedent matchAlts
 
-/--
-The tactic
-```
-intro
-| pat1 => tac1
-| pat2 => tac2
-```
-is the same as:
-```
-intro x
-match x with
-| pat1 => tac1
-| pat2 => tac2
-```
-That is, `intro` can be followed by match arms and it introduces the values while
-doing a pattern match. This is equivalent to `fun` with match arms in term mode.
--/
-@[builtin_tactic_parser] def introMatch := leading_parser
+@[builtin_tactic_parser, tactic_alt intro] def introMatch := leading_parser
   nonReservedSymbol "intro" >> matchAlts
 
 builtin_initialize

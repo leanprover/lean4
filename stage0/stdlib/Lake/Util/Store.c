@@ -13,22 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___redArg(lean_object* x_1) {
 _start:
 {
@@ -220,39 +220,6 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_8);
-x_9 = lean_ctor_get(x_4, 1);
-lean_inc(x_9);
-lean_dec_ref(x_4);
-x_10 = lean_ctor_get(x_6, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_6, 1);
-lean_inc(x_11);
-lean_dec_ref(x_6);
-x_12 = lean_ctor_get(x_8, 1);
-lean_inc(x_12);
-lean_dec_ref(x_8);
-lean_inc(x_9);
-lean_inc(x_12);
-x_13 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__1), 4, 3);
-lean_closure_set(x_13, 0, x_12);
-lean_closure_set(x_13, 1, x_11);
-lean_closure_set(x_13, 2, x_9);
-lean_inc(x_9);
-x_14 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__2), 5, 4);
-lean_closure_set(x_14, 0, x_9);
-lean_closure_set(x_14, 1, x_7);
-lean_closure_set(x_14, 2, x_13);
-lean_closure_set(x_14, 3, x_12);
-x_15 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_14);
-return x_15;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -284,6 +251,39 @@ lean_closure_set(x_10, 2, x_9);
 lean_closure_set(x_10, 3, x_8);
 x_11 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_10);
 return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_fetchOrCreate(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_8 = lean_ctor_get(x_4, 0);
+lean_inc_ref(x_8);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_9);
+lean_dec_ref(x_4);
+x_10 = lean_ctor_get(x_6, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_dec_ref(x_6);
+x_12 = lean_ctor_get(x_8, 1);
+lean_inc(x_12);
+lean_dec_ref(x_8);
+lean_inc(x_9);
+lean_inc(x_12);
+x_13 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__1), 4, 3);
+lean_closure_set(x_13, 0, x_12);
+lean_closure_set(x_13, 1, x_11);
+lean_closure_set(x_13, 2, x_9);
+lean_inc(x_9);
+x_14 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__2), 5, 4);
+lean_closure_set(x_14, 0, x_9);
+lean_closure_set(x_14, 1, x_7);
+lean_closure_set(x_14, 2, x_13);
+lean_closure_set(x_14, 3, x_12);
+x_15 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_14);
+return x_15;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

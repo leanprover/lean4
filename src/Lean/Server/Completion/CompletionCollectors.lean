@@ -23,7 +23,7 @@ open FuzzyMatching
 section Infrastructure
 
   private structure Context where
-    mod               : Name
+    uri               : DocumentUri
     pos               : Lsp.Position
     completionInfoPos : Nat
 
@@ -46,7 +46,7 @@ section Infrastructure
       : M Unit := do
     let ctx ← read
     let data := {
-      mod := ctx.mod,
+      uri := ctx.uri,
       pos := ctx.pos,
       cPos? := ctx.completionInfoPos,
       id?
@@ -83,7 +83,7 @@ section Infrastructure
     addItem item
 
   private def runM
-      (mod               : Name)
+      (uri               : DocumentUri)
       (pos               : Lsp.Position)
       (completionInfoPos : Nat)
       (ctx               : ContextInfo)
@@ -92,7 +92,7 @@ section Infrastructure
       : CancellableM (Array ResolvableCompletionItem) := do
     let tk ← read
     let r ← ctx.runMetaM lctx do
-      x.run ⟨mod, pos, completionInfoPos⟩ |>.run {} |>.run tk
+      x.run ⟨uri, pos, completionInfoPos⟩ |>.run {} |>.run tk
     match r with
     | .error _ => throw .requestCancelled
     | .ok (_, s) => return s.items
@@ -401,7 +401,7 @@ private def idCompletionCore
   completeNamespaces ctx id danglingDot
 
 def idCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
@@ -411,17 +411,17 @@ def idCompletion
     (hoverInfo         : HoverInfo)
     (danglingDot       : Bool)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM mod pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx do
     idCompletionCore ctx stx id hoverInfo danglingDot
 
 def dotCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (info              : TermInfo)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM mod pos completionInfoPos ctx info.lctx do
+  runM uri pos completionInfoPos ctx info.lctx do
     let nameSet ← try
       getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
@@ -443,7 +443,7 @@ def dotCompletion
         (← decl.kind) (← decl.tags)
 
 def dotIdCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
@@ -451,7 +451,7 @@ def dotIdCompletion
     (id                : Name)
     (expectedType?     : Option Expr)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM mod pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx do
     let some expectedType := expectedType?
       | return ()
 
@@ -484,7 +484,7 @@ def dotIdCompletion
       addUnresolvedCompletionItem label (.const c.name) kind tags
 
 def fieldIdCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
@@ -492,7 +492,7 @@ def fieldIdCompletion
     (id                : Option Name)
     (structName        : Name)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM mod pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx do
     let idStr := id.map (·.toString) |>.getD ""
     let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
     for fieldName in fieldNames do
@@ -536,7 +536,7 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
   return items
 
 def optionCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
@@ -555,7 +555,7 @@ def optionCompletion
       kind? := CompletionItemKind.property -- TODO: investigate whether this is the best kind for options.
       textEdit?
       data? := {
-        mod
+        uri
         pos
         cPos? := completionInfoPos
         id? := none : ResolvableCompletionItemData
@@ -563,7 +563,7 @@ def optionCompletion
     }
 
 def errorNameCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
@@ -584,7 +584,7 @@ def errorNameCompletion
       textEdit?
       tags? := explan.metadata.removedVersion?.map fun _ => #[CompletionItemTag.deprecated]
       data? := {
-        mod
+        uri
         pos
         cPos? := completionInfoPos
         id? := none : ResolvableCompletionItemData
@@ -592,19 +592,20 @@ def errorNameCompletion
     }
 
 def tacticCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     : IO (Array ResolvableCompletionItem) := ctx.runMetaM .empty do
-  let allTacticDocs ← Tactic.Doc.allTacticDocs
+  -- Don't include tactics that are identified only by their internal parser name
+  let allTacticDocs ← Tactic.Doc.allTacticDocs (includeUnnamed := false)
   let items : Array ResolvableCompletionItem := allTacticDocs.map fun tacticDoc => {
       label          := tacticDoc.userName
       detail?        := none
       documentation? := tacticDoc.docString.map fun docString =>
         { value := docString, kind := MarkupKind.markdown : MarkupContent }
       kind?          := CompletionItemKind.keyword
-      data?          := { mod, pos, cPos? := completionInfoPos, id? := none : ResolvableCompletionItemData }
+      data?          := { uri, pos, cPos? := completionInfoPos, id? := none : ResolvableCompletionItemData }
     }
   return items
 
@@ -636,7 +637,7 @@ where
     ".".intercalate scopeNames[idx:].toList
 
 def endSectionCompletion
-    (mod               : Name)
+    (uri               : DocumentUri)
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (id?               : Option Name)
@@ -652,7 +653,7 @@ def endSectionCompletion
     label := candidate
     kind? := CompletionItemKind.module
     data? := {
-        mod
+        uri
         pos
         cPos? := completionInfoPos
         id? := none : ResolvableCompletionItemData

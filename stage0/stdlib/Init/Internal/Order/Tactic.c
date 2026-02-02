@@ -13,83 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static const lean_string_object l_Lean_Order_monotonicity___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
+static const lean_object* l_Lean_Order_monotonicity___closed__0 = (const lean_object*)&l_Lean_Order_monotonicity___closed__0_value;
+static const lean_string_object l_Lean_Order_monotonicity___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "Order"};
+static const lean_object* l_Lean_Order_monotonicity___closed__1 = (const lean_object*)&l_Lean_Order_monotonicity___closed__1_value;
+static const lean_string_object l_Lean_Order_monotonicity___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "monotonicity"};
+static const lean_object* l_Lean_Order_monotonicity___closed__2 = (const lean_object*)&l_Lean_Order_monotonicity___closed__2_value;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Order_monotonicity;
-static lean_object* l_Lean_Order_monotonicity___closed__5;
-static lean_object* l_Lean_Order_monotonicity___closed__0;
-static lean_object* l_Lean_Order_monotonicity___closed__3;
-static lean_object* l_Lean_Order_monotonicity___closed__1;
-static lean_object* l_Lean_Order_monotonicity___closed__2;
-static lean_object* l_Lean_Order_monotonicity___closed__4;
-static lean_object* _init_l_Lean_Order_monotonicity___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Order", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("monotonicity", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Order_monotonicity___closed__2;
-x_2 = l_Lean_Order_monotonicity___closed__1;
-x_3 = l_Lean_Order_monotonicity___closed__0;
-x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity___closed__4() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = l_Lean_Order_monotonicity___closed__2;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Order_monotonicity___closed__4;
-x_2 = lean_unsigned_to_nat(1024u);
-x_3 = l_Lean_Order_monotonicity___closed__3;
-x_4 = lean_alloc_ctor(3, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Order_monotonicity() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Order_monotonicity___closed__5;
-return x_1;
-}
-}
+static const lean_ctor_object l_Lean_Order_monotonicity___closed__3_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Order_monotonicity___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_Order_monotonicity___closed__3_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Order_monotonicity___closed__3_value_aux_0),((lean_object*)&l_Lean_Order_monotonicity___closed__1_value),LEAN_SCALAR_PTR_LITERAL(47, 93, 74, 241, 117, 210, 202, 6)}};
+static const lean_ctor_object l_Lean_Order_monotonicity___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Order_monotonicity___closed__3_value_aux_1),((lean_object*)&l_Lean_Order_monotonicity___closed__2_value),LEAN_SCALAR_PTR_LITERAL(76, 245, 3, 217, 93, 200, 5, 81)}};
+static const lean_object* l_Lean_Order_monotonicity___closed__3 = (const lean_object*)&l_Lean_Order_monotonicity___closed__3_value;
+static const lean_ctor_object l_Lean_Order_monotonicity___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 6}, .m_objs = {((lean_object*)&l_Lean_Order_monotonicity___closed__2_value),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_object* l_Lean_Order_monotonicity___closed__4 = (const lean_object*)&l_Lean_Order_monotonicity___closed__4_value;
+static const lean_ctor_object l_Lean_Order_monotonicity___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Order_monotonicity___closed__3_value),((lean_object*)(((size_t)(1024) << 1) | 1)),((lean_object*)&l_Lean_Order_monotonicity___closed__4_value)}};
+static const lean_object* l_Lean_Order_monotonicity___closed__5 = (const lean_object*)&l_Lean_Order_monotonicity___closed__5_value;
+LEAN_EXPORT const lean_object* l_Lean_Order_monotonicity = (const lean_object*)&l_Lean_Order_monotonicity___closed__5_value;
 lean_object* initialize_Init_Notation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Internal_Order_Tactic(uint8_t builtin) {
@@ -99,20 +38,6 @@ _G_initialized = true;
 res = initialize_Init_Notation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Order_monotonicity___closed__0 = _init_l_Lean_Order_monotonicity___closed__0();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__0);
-l_Lean_Order_monotonicity___closed__1 = _init_l_Lean_Order_monotonicity___closed__1();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__1);
-l_Lean_Order_monotonicity___closed__2 = _init_l_Lean_Order_monotonicity___closed__2();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__2);
-l_Lean_Order_monotonicity___closed__3 = _init_l_Lean_Order_monotonicity___closed__3();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__3);
-l_Lean_Order_monotonicity___closed__4 = _init_l_Lean_Order_monotonicity___closed__4();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__4);
-l_Lean_Order_monotonicity___closed__5 = _init_l_Lean_Order_monotonicity___closed__5();
-lean_mark_persistent(l_Lean_Order_monotonicity___closed__5);
-l_Lean_Order_monotonicity = _init_l_Lean_Order_monotonicity();
-lean_mark_persistent(l_Lean_Order_monotonicity);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

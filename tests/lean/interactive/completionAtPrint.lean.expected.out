@@ -3,10 +3,10 @@
 {"items":
  [{"label": "gg",
    "kind": 21,
-   "data": ["«external:file:///completionAtPrint.lean»", 2, 10, 0, "cf.gg"]}],
+   "data": ["file:///completionAtPrint.lean", 2, 10, 0, "cf.gg"]}],
  "isIncomplete": false}
 Resolution of gg:
 {"label": "gg",
  "kind": 21,
  "detail": "Nat",
- "data": ["«external:file:///completionAtPrint.lean»", 2, 10, 0, "cf.gg"]}
+ "data": ["file:///completionAtPrint.lean", 2, 10, 0, "cf.gg"]}

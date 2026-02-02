@@ -96,48 +96,39 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array F
 
 def hugeNat := 1000000
 
+public inductive IntrosResult where
+  | failed
+  | goal (newDecls : Array FVarId) (mvarId : MVarId)
+
 /--
 Introduces leading binders (universal quantifiers and let-expressions) from the goal's target type.
 
 If `names` is non-empty, introduces (at most) `names.size` binders using the provided names.
 If `names` is empty, introduces all leading binders using inaccessible names.
 
-Returns the introduced free variable Ids and the updated goal.
-
-Throws an error if the target type does not have a leading binder.
+Returns `.goal newDecls mvarId` with new introduced free variable Ids and the updated goal.
+Returns `.failed` if no new declaration was introduced.
 -/
-public def intros (mvarId : MVarId) (names : Array Name := #[]) : SymM (Array FVarId × MVarId) := do
+public def intros (mvarId : MVarId) (names : Array Name := #[]) : SymM IntrosResult := do
   let result ← if names.isEmpty then
     introCore mvarId hugeNat #[]
   else
     introCore mvarId  names.size names
   if result.1.isEmpty then
-    throwError "`intros` failed, binder expected"
-  return result
-
-/--
-Introduces a single binder from the goal's target type with the given name.
-
-Returns the introduced free variable ID and the updated goal.
-Throws an error if the target type does not have a leading binder.
--/
-public def intro (mvarId : MVarId) (name : Name) : SymM (FVarId × MVarId) := do
-  let (fvarIds, goal') ← introCore mvarId 1 #[name]
-  if h : 0 < fvarIds.size then
-    return (fvarIds[0], goal')
-  else
-    throwError "`intro` failed, binder expected"
+    return .failed
+  return .goal result.1 result.2
 
 /--
 Introduces exactly `num` binders from the goal's target type.
 
-Returns the introduced free variable IDs and the updated goal.
-Throws an error if the target type has fewer than `num` leading binders.
+Returns `.goal newDecls mvarId` if successful where `newDecls` are the introduced free variable IDs,
+`mvarId` the updated goal.
+Returns `.failed` if it was not possible to introduce `num` new local declarations.
 -/
-public def introN (mvarId : MVarId) (num : Nat) : SymM (Array FVarId × MVarId) := do
+public def introN (mvarId : MVarId) (num : Nat) : SymM IntrosResult := do
   let result ← introCore mvarId num #[]
   unless result.1.size == num do
-    throwError "`introN` failed, insufficient number of binders"
-  return result
+    return .failed
+  return .goal result.1 result.2
 
 end Lean.Meta.Sym

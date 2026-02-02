@@ -3,5 +3,5 @@
 {"items":
  [{"label": "And",
    "kind": 21,
-   "data": ["«external:file:///completionEOF.lean»", 8, 9, 0, "cAnd"]}],
+   "data": ["file:///completionEOF.lean", 8, 9, 0, "cAnd"]}],
  "isIncomplete": false}

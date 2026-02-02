@@ -19,11 +19,11 @@ It contains information for inlining local and global functions.
 -/
 structure InlineCandidateInfo where
   isLocal  : Bool
-  params   : Array Param
+  params   : Array (Param .pure)
   /-- Value (lambda expression) of the function to be inlined. -/
-  value    : Code
+  value    : Code .pure
   fType    : Expr
-  args     : Array Arg
+  args     : Array (Arg .pure)
   /-- `ifReduce = true` if the declaration being inlined was tagged with `inline_if_reduce`. -/
   ifReduce : Bool
   /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
@@ -36,7 +36,7 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 /--
 Return `some info` if `e` should be inlined.
 -/
-def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
+def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) := do
   let mut e := e
   let mut mustInline := false
   if let .const ``inline _ #[_, .fvar argFVarId] := e then
@@ -46,7 +46,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
   if let .const declName us args := e then
     unless (← read).config.inlineDefs do
       return none
-    let some decl ← getDecl? declName | return none
+    let some ⟨.pure, decl⟩ ← getDecl? declName | return none
     let .code code := decl.value | return none
     let shouldInline : SimpM Bool := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
@@ -56,7 +56,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
       if (← inBasePhase) then
-        if (← Meta.isInstance decl.name) then
+        if (← isInstanceReducible decl.name) then
           unless decl.name == ``instDecidableEqBool do
             /-
             TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.

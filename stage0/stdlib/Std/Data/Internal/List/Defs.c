@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Internal_List_keys___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_List_values___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_keys(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_values___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_List_values(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_keys___redArg(lean_object* x_1) {
 _start:
 {

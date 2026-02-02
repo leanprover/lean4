@@ -11,7 +11,7 @@ def x   : PUnit := ()
   formatTerm (← delab e)
 
 #eval do
-  let opts := ({}: Options).setBool `pp.universes true
+  let opts := ({}: MData).set `pp.universes true
   -- the MData annotation should make it not a regular application,
   -- so the unexpander should not be called.
   let e : Expr := mkApp (mkMData opts $ mkConst `foo [levelOne]) (mkConst `x)

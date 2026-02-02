@@ -111,6 +111,11 @@ instance {n : Type u → Type w} [Monad n] [LawfulMonad n] :
   liftBind_pure := by simp
   liftBind_bind := by simp
 
+instance {m : Type u → Type v} [Monad m] [LawfulMonad m] :
+    LawfulMonadLiftBindFunction (m := m) (n := m) (fun _ _ => flip Bind.bind) where
+  liftBind_pure := by simp [flip]
+  liftBind_bind := by simp [flip]
+
 end LiftBind
 
 end Std.Internal

@@ -3,110 +3,110 @@
 {"items":
  [{"label": "fn2",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.fn2"]},
+   "data": ["file:///completion4.lean", 7, 4, 1, "cS.fn2"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.fn1"]},
+   "data": ["file:///completion4.lean", 7, 4, 1, "cS.fn1"]},
   {"label": "pred",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.pred"]}],
+   "data": ["file:///completion4.lean", 7, 4, 1, "cS.pred"]}],
  "isIncomplete": false}
 Resolution of fn2:
 {"label": "fn2",
  "kind": 5,
  "detail": "S → Bool → IO Unit",
- "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.fn2"]}
+ "data": ["file:///completion4.lean", 7, 4, 1, "cS.fn2"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat → IO Unit",
- "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.fn1"]}
+ "data": ["file:///completion4.lean", 7, 4, 1, "cS.fn1"]}
 Resolution of pred:
 {"label": "pred",
  "kind": 5,
  "detail": "S → String → Bool",
- "data": ["«external:file:///completion4.lean»", 7, 4, 1, "cS.pred"]}
+ "data": ["file:///completion4.lean", 7, 4, 1, "cS.pred"]}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 11, "character": 10}}
 {"items":
  [{"label": "fn2",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.fn2"]},
+   "data": ["file:///completion4.lean", 11, 10, 1, "cS.fn2"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.fn1"]},
+   "data": ["file:///completion4.lean", 11, 10, 1, "cS.fn1"]},
   {"label": "pred",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.pred"]}],
+   "data": ["file:///completion4.lean", 11, 10, 1, "cS.pred"]}],
  "isIncomplete": false}
 Resolution of fn2:
 {"label": "fn2",
  "kind": 5,
  "detail": "S → Bool → IO Unit",
- "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.fn2"]}
+ "data": ["file:///completion4.lean", 11, 10, 1, "cS.fn2"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat → IO Unit",
- "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.fn1"]}
+ "data": ["file:///completion4.lean", 11, 10, 1, "cS.fn1"]}
 Resolution of pred:
 {"label": "pred",
  "kind": 5,
  "detail": "S → String → Bool",
- "data": ["«external:file:///completion4.lean»", 11, 10, 1, "cS.pred"]}
+ "data": ["file:///completion4.lean", 11, 10, 1, "cS.pred"]}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 16, "character": 11}}
 {"items":
  [{"label": "fn2",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.fn2"]},
+   "data": ["file:///completion4.lean", 16, 11, 1, "cS.fn2"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.fn1"]},
+   "data": ["file:///completion4.lean", 16, 11, 1, "cS.fn1"]},
   {"label": "pred",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.pred"]}],
+   "data": ["file:///completion4.lean", 16, 11, 1, "cS.pred"]}],
  "isIncomplete": false}
 Resolution of fn2:
 {"label": "fn2",
  "kind": 5,
  "detail": "S → Bool → IO Unit",
- "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.fn2"]}
+ "data": ["file:///completion4.lean", 16, 11, 1, "cS.fn2"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat → IO Unit",
- "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.fn1"]}
+ "data": ["file:///completion4.lean", 16, 11, 1, "cS.fn1"]}
 Resolution of pred:
 {"label": "pred",
  "kind": 5,
  "detail": "S → String → Bool",
- "data": ["«external:file:///completion4.lean»", 16, 11, 1, "cS.pred"]}
+ "data": ["file:///completion4.lean", 16, 11, 1, "cS.pred"]}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 20, "character": 21}}
 {"items":
  [{"label": "fn2",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.fn2"]},
+   "data": ["file:///completion4.lean", 20, 21, 1, "cS.fn2"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.fn1"]},
+   "data": ["file:///completion4.lean", 20, 21, 1, "cS.fn1"]},
   {"label": "pred",
    "kind": 5,
-   "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.pred"]}],
+   "data": ["file:///completion4.lean", 20, 21, 1, "cS.pred"]}],
  "isIncomplete": false}
 Resolution of fn2:
 {"label": "fn2",
  "kind": 5,
  "detail": "S → Bool → IO Unit",
- "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.fn2"]}
+ "data": ["file:///completion4.lean", 20, 21, 1, "cS.fn2"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat → IO Unit",
- "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.fn1"]}
+ "data": ["file:///completion4.lean", 20, 21, 1, "cS.fn1"]}
 Resolution of pred:
 {"label": "pred",
  "kind": 5,
  "detail": "S → String → Bool",
- "data": ["«external:file:///completion4.lean»", 20, 21, 1, "cS.pred"]}
+ "data": ["file:///completion4.lean", 20, 21, 1, "cS.pred"]}

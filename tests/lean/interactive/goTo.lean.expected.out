@@ -301,3 +301,35 @@
   "originSelectionRange":
   {"start": {"line": 112, "character": 4},
    "end": {"line": 112, "character": 10}}}]
+{"textDocument": {"uri": "file:///goTo.lean"},
+ "position": {"line": 118, "character": 8}}
+[{"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "originSelectionRange":
+  {"start": {"line": 118, "character": 7},
+   "end": {"line": 118, "character": 14}}},
+ {"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 116, "character": 17},
+   "end": {"line": 116, "character": 22}},
+  "targetRange":
+  {"start": {"line": 116, "character": 17},
+   "end": {"line": 116, "character": 22}},
+  "originSelectionRange":
+  {"start": {"line": 118, "character": 7},
+   "end": {"line": 118, "character": 14}}}]
+{"textDocument": {"uri": "file:///goTo.lean"},
+ "position": {"line": 124, "character": 8}}
+[{"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 122, "character": 4},
+   "end": {"line": 122, "character": 10}},
+  "targetRange":
+  {"start": {"line": 122, "character": 4},
+   "end": {"line": 122, "character": 10}},
+  "originSelectionRange":
+  {"start": {"line": 124, "character": 7},
+   "end": {"line": 124, "character": 13}}}]

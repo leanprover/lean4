@@ -83,12 +83,8 @@ public def Package.test
   else if let some lib := pkg.findLeanLib? driver.toName then
     unless cfgArgs.isEmpty ∧ args.isEmpty do
       error s!"{pkg.prettyName}: arguments cannot be passed to a library test driver"
-    match resolveLibTarget (← getWorkspace) lib with
-    | .ok specs =>
-      runBuild (buildSpecs specs) {buildConfig with out := .stdout}
-      return 0
-    | .error e =>
-      error s!"{pkg.prettyName}: invalid test driver: {e}"
+    runBuild lib.fetch {buildConfig with out := .stdout}
+    return 0
   else
     error s!"{pkg.prettyName}: invalid test driver: unknown script, executable, or library '{driver}'"
 

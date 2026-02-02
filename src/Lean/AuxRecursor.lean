@@ -33,6 +33,7 @@ def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   -- TODO: use `markAuxRecursor` when they are defined
   -- An attribute is not a good solution since we don't want users to control what is tagged as an auxiliary recursor.
   || declName == ``Eq.ndrec
+  || declName == ``Eq.ndrec_symm
   || declName == ``Eq.ndrecOn
 
 def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : String) : Bool :=

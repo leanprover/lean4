@@ -46,6 +46,21 @@ This PR adds a `num?` parameter to `mkPatternFromTheorem` to control how many
 leading quantifiers are stripped when creating a pattern.
 ```
 
+**Changelog labels:** Add one `changelog-*` label to categorize the PR for release notes:
+- `changelog-language` - Language features and metaprograms
+- `changelog-tactics` - User facing tactics
+- `changelog-server` - Language server, widgets, and IDE extensions
+- `changelog-pp` - Pretty printing
+- `changelog-library` - Library
+- `changelog-compiler` - Compiler, runtime, and FFI
+- `changelog-lake` - Lake
+- `changelog-doc` - Documentation
+- `changelog-ffi` - FFI changes
+- `changelog-other` - Other changes
+- `changelog-no` - Do not include this PR in the release changelog
+
+If you're unsure which label applies, it's fine to omit the label and let reviewers add it.
+
 ## CI Log Retrieval
 
 When CI jobs fail, investigate immediately - don't wait for other jobs to complete. Individual job logs are often available even while other jobs are still running. Try `gh run view <run-id> --log` or `gh run view <run-id> --log-failed`, or use `gh run view <run-id> --job=<job-id>` to target the specific failed job. Sleeping is fine when asked to monitor CI and no failures exist yet, but once any job fails, investigate that failure immediately.

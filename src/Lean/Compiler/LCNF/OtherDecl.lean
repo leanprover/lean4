@@ -19,5 +19,6 @@ def getOtherDeclType (declName : Name) (us : List Level := []) : CompilerM Expr 
   match (← getPhase) with
   | .base => getOtherDeclBaseType declName us
   | .mono => getOtherDeclMonoType declName
+  | .impure => getOtherDeclImpureType declName
 
 end Lean.Compiler.LCNF

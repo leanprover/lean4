@@ -185,6 +185,30 @@ def get_release_notes(tag_name):
     except Exception:
         return None
 
+def check_release_notes_file_exists(toolchain, github_token):
+    """Check if the release notes file exists in the reference-manual repository.
+
+    For -rc1 releases, this checks that the release notes have been created.
+    For subsequent RCs and stable releases, release notes should already exist.
+
+    Returns tuple (exists: bool, is_rc1: bool) where is_rc1 indicates if this is
+    the first release candidate (when release notes need to be written).
+    """
+    # Determine the release notes file path
+    # e.g., v4.28.0-rc1 -> Manual/Releases/v4_28_0.lean
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))  # "4.28.0"
+    file_name = f"v{base_version.replace('.', '_')}.lean"  # "v4_28_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    is_rc1 = toolchain.endswith("-rc1")
+
+    repo_url = "https://github.com/leanprover/reference-manual"
+
+    # Check if the file exists on main branch
+    content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    return (content is not None, is_rc1)
+
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -501,6 +525,76 @@ def check_proofwidgets4_release(repo_url, target_toolchain, github_token):
     print(f"     You will need to create and push a tag v0.0.{next_version}")
     return False
 
+def check_reference_manual_release_title(repo_url, toolchain, pr_branch, github_token):
+    """Check if the reference-manual release notes title matches the release type.
+
+    For RC releases (e.g., v4.27.0-rc1), the title should contain the exact RC suffix.
+    For final releases (e.g., v4.27.0), the title should NOT contain any "-rc".
+
+    Returns True if check passes or is not applicable, False if title needs updating.
+    """
+    is_rc = is_release_candidate(toolchain)
+
+    # For RC releases, get the base version and RC suffix
+    # e.g., "v4.27.0-rc1" -> version="4.27.0", rc_suffix="-rc1"
+    if is_rc:
+        parts = toolchain.lstrip('v').split('-', 1)
+        version = parts[0]
+        rc_suffix = '-' + parts[1] if len(parts) > 1 else ''
+    else:
+        version = toolchain.lstrip('v')
+        rc_suffix = ''
+
+    # Construct the release notes file path (e.g., Manual/Releases/v4_27_0.lean for v4.27.0)
+    file_name = f"v{version.replace('.', '_')}.lean"  # "v4_27_0.lean"
+    file_path = f"Manual/Releases/{file_name}"
+
+    # Try to get the file from the PR branch first, then fall back to main branch
+    content = get_branch_content(repo_url, pr_branch, file_path, github_token)
+    if content is None:
+        # Try the default branch
+        content = get_branch_content(repo_url, "main", file_path, github_token)
+
+    if content is None:
+        print(f"  ⚠️  Could not check release notes file: {file_path}")
+        return True  # Don't block on this
+
+    # Look for the #doc line with the title
+    for line in content.splitlines():
+        if line.strip().startswith('#doc') and 'Manual' in line:
+            has_rc_in_title = '-rc' in line.lower()
+
+            if is_rc:
+                # For RC releases, title should contain the exact RC suffix (e.g., "-rc1")
+                # Use regex to match exact suffix followed by non-digit (to avoid -rc1 matching -rc10)
+                # Pattern matches the RC suffix followed by a non-digit or end-of-string context
+                # e.g., "-rc1" followed by space, quote, paren, or similar
+                exact_match = re.search(rf'{re.escape(rc_suffix)}(?![0-9])', line, re.IGNORECASE)
+                if exact_match:
+                    print(f"  ✅ Release notes title correctly shows {rc_suffix}")
+                    return True
+                elif has_rc_in_title:
+                    print(f"  ❌ Release notes title shows wrong RC version (expected {rc_suffix})")
+                    print(f"     Update {file_path} to use '{rc_suffix}' in the title")
+                    return False
+                else:
+                    print(f"  ❌ Release notes title missing RC suffix")
+                    print(f"     Update {file_path} to include '{rc_suffix}' in the title")
+                    return False
+            else:
+                # For final releases, title should NOT contain -rc
+                if has_rc_in_title:
+                    print(f"  ❌ Release notes title still shows RC version")
+                    print(f"     Update {file_path} to remove '-rcN' from the title")
+                    return False
+                else:
+                    print(f"  ✅ Release notes title is updated for final release")
+                    return True
+
+    # If we didn't find the #doc line, don't block
+    print(f"  ⚠️  Could not find release notes title in {file_path}")
+    return True
+
 def run_mathlib_verify_version_tags(toolchain, verbose=False):
     """Run mathlib4's verify_version_tags.py script to validate the release tag.
 
@@ -644,6 +738,27 @@ def main():
     else:
         print(f"  ✅ Release notes page title looks good ('{actual_title}').")
 
+    # Check if release notes file exists in reference-manual repository
+    # For -rc1 releases, this is when release notes need to be written
+    # For subsequent RCs and stable releases, they should already exist
+    release_notes_exists, is_rc1 = check_release_notes_file_exists(toolchain, github_token)
+    base_version = strip_rc_suffix(toolchain.lstrip('v'))
+    release_notes_file = f"Manual/Releases/v{base_version.replace('.', '_')}.lean"
+
+    if not release_notes_exists:
+        if is_rc1:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     This is an -rc1 release, so release notes need to be written.")
+            print(f"     Run `script/release_notes.py --since <previous_version>` to generate them.")
+            print(f"     See doc/dev/release_checklist.md section 'Writing the release notes' for details.")
+            lean4_success = False
+        else:
+            print(f"  ❌ Release notes file not found: {release_notes_file}")
+            print(f"     Release notes should have been created for -rc1. Check the reference-manual repository.")
+            lean4_success = False
+    else:
+        print(f"  ✅ Release notes file exists: {release_notes_file}")
+
     repo_status["lean4"] = lean4_success
 
     # If the release page doesn't exist, skip repository checks and master branch checks
@@ -709,6 +824,11 @@ def main():
                     print(f"     ⚠️  CI: {ci_message}")
                 else:
                     print(f"     ❓ CI: {ci_message}")
+
+                # For reference-manual, check that the release notes title has been updated
+                if name == "reference-manual":
+                    pr_branch = f"bump_to_{toolchain}"
+                    check_reference_manual_release_title(url, toolchain, pr_branch, github_token)
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
                 print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")

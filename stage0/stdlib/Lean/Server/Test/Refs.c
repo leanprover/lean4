@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test7;
-LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test9;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test8;
+LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test9;
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Refs_test10;
 static lean_object* _init_l_Lean_Server_Test_Refs_test7() {
 _start:

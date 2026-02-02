@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Int_Nonneg_num__cert___closed__0;
+uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object*);
 static lean_object* _init_l_Int_Nonneg_num__cert___closed__0() {

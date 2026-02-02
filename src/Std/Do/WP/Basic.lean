@@ -145,16 +145,45 @@ theorem ReaderM.of_wp_run_eq {α} {x : α} {prog : ReaderM ρ α} (h : ReaderT.r
 
 /--
 Adequacy lemma for `Except`.
+Useful if you want to prove a property about a complex expression `prog : Except ε α` that you have
+generalized to a variable `x` and you want to use `mvcgen` to reason about `prog`.
+-/
+theorem Except.of_wp_eq {ε α : Type u} {x prog : Except ε α} (h : prog = x) (P : Except ε α → Prop) :
+    (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P x := by
+  subst h
+  intro hspec
+  simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
+  split at hspec
+  case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
+  case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro
+
+/--
+Adequacy lemma for `Except`.
 Useful if you want to prove a property about an expression `prog : Except ε α` and you want to use
 `mvcgen` to reason about `prog`.
 -/
-theorem Except.of_wp {α} {prog : Except ε α} (P : Except ε α → Prop) :
+@[deprecated Except.of_wp_eq (since := "2026-01-26")]
+theorem Except.of_wp {ε α : Type u} {prog : Except ε α} (P : Except ε α → Prop) :
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P prog := by
   intro hspec
   simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
   split at hspec
   case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
   case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro
+
+/--
+Adequacy lemma for `Option`.
+Useful if you want to prove a property about a complex expression `prog : Option α` that you have
+generalized to a variable `x` and you want to use `mvcgen` to reason about `prog`.
+-/
+theorem Option.of_wp_eq {α : Type u} {x prog : Option α} (h : prog = x) (P : Option α → Prop) :
+    (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (some a)⌝, fun _ => ⌜P none⌝⟩) → P x := by
+  subst h
+  intro hspec
+  simp only [wp, PredTrans.pushOption_apply, PredTrans.pure_apply] at hspec
+  split at hspec
+  case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
+  case h_2   s' heq => rw[← heq] at hspec; exact hspec True.intro
 
 /--
 Adequacy lemma for `EStateM.run`.

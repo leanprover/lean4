@@ -13,34 +13,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Nat_shiftRight___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instXorOp;
-static lean_object* l_Nat_instShiftRight___closed__0;
-LEAN_EXPORT lean_object* l_Nat_instAndOp;
-lean_object* lean_nat_shiftr(lean_object*, lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Nat_instShiftLeft___closed__0;
-lean_object* lean_nat_land(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instShiftRight;
-LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object*, lean_object*);
-static lean_object* l_Nat_instOrOp___closed__0;
-lean_object* lean_nat_lxor(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Nat_testBit(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-static lean_object* l_Nat_instAndOp___closed__0;
-lean_object* lean_nat_shiftl(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_xor___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
-static lean_object* l_Nat_instXorOp___closed__0;
-LEAN_EXPORT lean_object* l_Nat_instOrOp;
-LEAN_EXPORT lean_object* l_Nat_shiftLeft___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instShiftLeft;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_land(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_lxor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_xor___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_shiftl(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_shiftLeft___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_shiftr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_shiftRight___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Nat_instAndOp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_land___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Nat_instAndOp___closed__0 = (const lean_object*)&l_Nat_instAndOp___closed__0_value;
+LEAN_EXPORT const lean_object* l_Nat_instAndOp = (const lean_object*)&l_Nat_instAndOp___closed__0_value;
+static const lean_closure_object l_Nat_instOrOp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_lor___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Nat_instOrOp___closed__0 = (const lean_object*)&l_Nat_instOrOp___closed__0_value;
+LEAN_EXPORT const lean_object* l_Nat_instOrOp = (const lean_object*)&l_Nat_instOrOp___closed__0_value;
+static const lean_closure_object l_Nat_instXorOp___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_xor___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Nat_instXorOp___closed__0 = (const lean_object*)&l_Nat_instXorOp___closed__0_value;
+LEAN_EXPORT const lean_object* l_Nat_instXorOp = (const lean_object*)&l_Nat_instXorOp___closed__0_value;
+static const lean_closure_object l_Nat_instShiftLeft___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_shiftLeft___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Nat_instShiftLeft___closed__0 = (const lean_object*)&l_Nat_instShiftLeft___closed__0_value;
+LEAN_EXPORT const lean_object* l_Nat_instShiftLeft = (const lean_object*)&l_Nat_instShiftLeft___closed__0_value;
+static const lean_closure_object l_Nat_instShiftRight___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Nat_shiftRight___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Nat_instShiftRight___closed__0 = (const lean_object*)&l_Nat_instShiftRight___closed__0_value;
+LEAN_EXPORT const lean_object* l_Nat_instShiftRight = (const lean_object*)&l_Nat_instShiftRight___closed__0_value;
+LEAN_EXPORT uint8_t l_Nat_testBit(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_bitwise(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -187,86 +192,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_instAndOp___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_land___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instAndOp() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instAndOp___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instOrOp___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_lor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instOrOp() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instOrOp___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instXorOp___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_xor___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instXorOp() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instXorOp___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instShiftLeft___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_shiftLeft___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instShiftLeft() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instShiftLeft___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instShiftRight___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_shiftRight___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Nat_instShiftRight() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Nat_instShiftRight___closed__0;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Nat_testBit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -312,26 +237,6 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_instAndOp___closed__0 = _init_l_Nat_instAndOp___closed__0();
-lean_mark_persistent(l_Nat_instAndOp___closed__0);
-l_Nat_instAndOp = _init_l_Nat_instAndOp();
-lean_mark_persistent(l_Nat_instAndOp);
-l_Nat_instOrOp___closed__0 = _init_l_Nat_instOrOp___closed__0();
-lean_mark_persistent(l_Nat_instOrOp___closed__0);
-l_Nat_instOrOp = _init_l_Nat_instOrOp();
-lean_mark_persistent(l_Nat_instOrOp);
-l_Nat_instXorOp___closed__0 = _init_l_Nat_instXorOp___closed__0();
-lean_mark_persistent(l_Nat_instXorOp___closed__0);
-l_Nat_instXorOp = _init_l_Nat_instXorOp();
-lean_mark_persistent(l_Nat_instXorOp);
-l_Nat_instShiftLeft___closed__0 = _init_l_Nat_instShiftLeft___closed__0();
-lean_mark_persistent(l_Nat_instShiftLeft___closed__0);
-l_Nat_instShiftLeft = _init_l_Nat_instShiftLeft();
-lean_mark_persistent(l_Nat_instShiftLeft);
-l_Nat_instShiftRight___closed__0 = _init_l_Nat_instShiftRight___closed__0();
-lean_mark_persistent(l_Nat_instShiftRight___closed__0);
-l_Nat_instShiftRight = _init_l_Nat_instShiftRight();
-lean_mark_persistent(l_Nat_instShiftRight);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

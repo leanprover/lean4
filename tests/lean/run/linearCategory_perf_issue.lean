@@ -362,12 +362,10 @@ instance functorCategoryPreadditive : Preadditive (C ⥤ D) where
         apply neg_add_cancel }
   add_comp := by
     intros
-    dsimp only [id_eq]
     ext
     apply add_comp
   comp_add := by
     intros
-    dsimp only [id_eq]
     ext
     apply comp_add
 

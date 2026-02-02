@@ -23,13 +23,15 @@ public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
 public import Lean.Meta.Sym.Simp
 public import Lean.Meta.Sym.Util
+public import Lean.Meta.Sym.Eta
+public import Lean.Meta.Sym.Grind
 
 /-!
-# Symbolic simulation support.
+# Symbolic computation support.
 
-This module provides `SymM`, a monad for implementing symbolic simulators (e.g., verification condition generators)
-using Lean. The monad addresses performance issues found in symbolic simulators built on top of user-facing
-tactics (e.g., `apply` and `intros`).
+This module provides `SymM`, a monad for implementing symbolic computation (e.g., decision procedures and
+verification condition generators) using Lean. The monad addresses performance issues found in symbolic
+computation engines built on top of user-facing tactics (e.g., `apply` and `intros`).
 
 ## Overview
 
@@ -65,14 +67,14 @@ whether `maxFVar[e]` is in `?m.lctx` — a single hash lookup, O(1).
 
 **The problem:** The `isDefEq` predicate in `MetaM` is designed for elaboration and user-facing tactics.
 It supports reduction, type-class resolution, and many other features that can be expensive or have
-unpredictable running time. For symbolic simulation, where pattern matching is called frequently on
+unpredictable running time. For symbolic computation, where pattern matching is called frequently on
 large ground terms, these features become performance bottlenecks.
 
 **The solution:** In `SymM`, pattern matching and definitional equality are restricted to a more syntactic,
 predictable subset. Key design choices:
 
 1. **Reducible declarations are abbreviations.** Reducible declarations are eagerly expanded when indexing
-   terms and when entering symbolic simulation mode. During matching, we assume abbreviations have already
+   terms and when entering symbolic computation mode. During matching, we assume abbreviations have already
    been expanded.
 
   **Why `MetaM` `simp` cannot make this assumption**: The simplifier in `MetaM` is designed for interactive use,
@@ -99,7 +101,7 @@ predictable subset. Key design choices:
 4. **Types must be indexed.** Unlike proofs and instances, types cannot be ignored, without indexing them,
    pattern matching produces too many candidates. Like other abbreviations, type abbreviations are expanded.
    Note that given `def Foo : Type := Bla`, the terms `Foo` and `Bla` are *not* considered structurally
-   equal in the symbolic simulator framework.
+   equal in the symbolic computation framework.
 
 ### Skipping type checks on assignment
 
@@ -117,7 +119,7 @@ so the check is almost always skipped.
 
 ### `GrindM` state
 
-**The problem:** In symbolic simulation, we often want to discharge many goals using proof automation such
+**The problem:** In symbolic computation, we often want to discharge many goals using proof automation such
 as `grind`. Many of these goals share very similar local contexts. If we invoke `grind` on each goal
 independently, we repeatedly reprocess the same hypotheses.
 

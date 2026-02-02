@@ -28,7 +28,8 @@ builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ←
         { s with map := s.map.insert e c, constNames := s.constNames.insert c, revExprs := e :: s.revExprs })
 
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=
-  closedTermCacheExt.modifyState env fun s => { s with map := s.map.insert e n, constNames := s.constNames.insert n }
+  closedTermCacheExt.modifyState env fun s =>
+    { s with map := s.map.insert e n, constNames := s.constNames.insert n, revExprs := e :: s.revExprs }
 
 def getClosedTermName? (env : Environment) (e : Expr) : Option Name :=
   (closedTermCacheExt.getState env).map.find? e

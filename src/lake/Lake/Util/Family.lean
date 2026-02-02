@@ -151,8 +151,10 @@ public class FamilyDef {α : Type u} {β : Type v} (f : α → β) (a : α) (b :
 public class FamilyOut {α : Type u} {β : Type v} (f : α → β) (a : α) (b : outParam β) : Prop where
   fam_eq : f a = b
 
--- Simplifies proofs involving open type families
-attribute [simp] FamilyOut.fam_eq
+-- Simplifies proofs involving open type families.
+-- Scoped to avoid slowing down `simp` in downstream projects (the discrimination
+-- tree key is `_`, so it would be attempted on every goal).
+attribute [scoped simp] FamilyOut.fam_eq
 
 public instance [FamilyDef f a b] : FamilyOut f a b where
   fam_eq := FamilyDef.fam_eq

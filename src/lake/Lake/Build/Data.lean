@@ -154,7 +154,6 @@ public instance [h : FamilyDef CustomOut (p, t) α] : FamilyDef (CustomData p) t
 /-! ## Build Data                                                             -/
 --------------------------------------------------------------------------------
 
-set_option linter.deprecated false in
 /--
 A mapping between a build key and its associated build data in the store.
 It is a simple type function composed of the separate open type families for
@@ -178,7 +177,6 @@ public instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.packageModule p m) α where
   fam_eq := by unfold BuildData; simp
 
-set_option linter.deprecated false in
 public instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.module k) α where
   fam_eq := by unfold BuildData; simp

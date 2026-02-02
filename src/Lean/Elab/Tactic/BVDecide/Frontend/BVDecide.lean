@@ -309,7 +309,7 @@ where
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
   mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    withOptions (fun opt => opt.setBool `compiler.extract_closed false) do
+    withOptions (fun opt => opt.set `compiler.extract_closed false) do
       addAndCompile <| .defnDecl {
         name := name,
         levelParams := [],

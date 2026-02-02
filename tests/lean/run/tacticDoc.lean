@@ -128,17 +128,78 @@ Note: This linter can be disabled with `set_option linter.tactic.docsOnAlt false
 attribute [tactic_alt my_trivial] «yetAnother»
 
 /-! # Querying Tactic Docs -/
+
+/-!
+`tm` is part of the below set because the tag attribute can't reject `someTerm` above before it is
+added. Because it's not a tactic, its first token is not found.
+-/
+
 /--
 info: Available tags: ⏎
   • `ctrl` — "control flow"
     Tactics that sequence or arrange other tactics ⏎
-    '<;>'
+    `<;>`
   • `extensible`
     Tactics that are intended to be extensible ⏎
-    'my_trivial'
+    `my_trivial`
   • `finishing`
     Finishing tactics that are intended to completely close a goal ⏎
-    'omega', 'my_trivial', 'someTerm'
+    `omega`, `my_trivial`, `tm`
 -/
 #guard_msgs in
 #print tactic tags
+
+/-!
+## Custom Names
+
+The next two tests check that custom tactic names are shown.
+-/
+@[tactic_tag finishing]
+syntax (name := fooBar) "foo" "bar" term : tactic
+
+
+/-!
+Here, the first token `foo` is shown:
+-/
+/--
+info: Available tags: ⏎
+  • `ctrl` — "control flow"
+    Tactics that sequence or arrange other tactics ⏎
+    `<;>`
+  • `extensible`
+    Tactics that are intended to be extensible ⏎
+    `my_trivial`
+  • `finishing`
+    Finishing tactics that are intended to completely close a goal ⏎
+    `omega`, `foo`, `my_trivial`, `tm`
+-/
+#guard_msgs in
+#print tactic tags
+
+attribute [tactic_name "foo bar"] fooBar
+
+/-!
+Now we show `foo bar`:
+-/
+/--
+info: Available tags: ⏎
+  • `ctrl` — "control flow"
+    Tactics that sequence or arrange other tactics ⏎
+    `<;>`
+  • `extensible`
+    Tactics that are intended to be extensible ⏎
+    `my_trivial`
+  • `finishing`
+    Finishing tactics that are intended to completely close a goal ⏎
+    `omega`, `foo bar`, `my_trivial`, `tm`
+-/
+#guard_msgs in
+#print tactic tags
+
+/-!
+This test checks that tactic names can't be added to other kinds of syntax.
+-/
+/-- error: `termNotATactic` is not a tactic, but it was assigned a tactic name `t` -/
+#guard_msgs in
+@[tactic_name t]
+syntax "not " "a " "tactic" : term

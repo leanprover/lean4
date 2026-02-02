@@ -11,6 +11,8 @@ public import Init.Grind.Ordered.Ring
 
 /-! # Internal `grind` algebra instances for `Dyadic`. -/
 
+@[expose] public section
+
 open Lean.Grind
 
 namespace Dyadic

@@ -6,16 +6,9 @@ source ../common.sh
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the `bar1` repository on each test.
 echo "# SETUP"
-set -x
 pushd bar1
-git init
-git checkout -b master
-git config user.name test
-git config user.email test@example.com
-git add --all
-git commit -m "initial commit"
+init_git
 popd
-set +x
 
 # Test the functionality of package overrides
 
@@ -41,4 +34,5 @@ test_out "bar2" exe bar
 test_out "foo" exe foo
 
 # Cleanup
+rm -rf bar1/.git
 rm -f produced.out

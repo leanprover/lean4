@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
 import all Lean.Elab.ErrorUtils
-
 public section
-
 namespace Lean.Elab
 open Lean.Parser.Term
 
@@ -1092,8 +1089,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
-      binders     := mkNullNode -- No docstrings, so we don't need these
-      modifiers   := { modifiers with attrs := c.toLift.attrs }
+      binders     := c.toLift.binders
+      modifiers   := { modifiers with attrs := c.toLift.attrs, docString? := c.toLift.docString? }
       kind, type, value,
       termination := c.toLift.termination
     }

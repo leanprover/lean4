@@ -13,13 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_pbind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_MonadAttach_trivial___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_MonadAttach_trivial___redArg___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_MonadAttach_trivial___redArg___closed__0 = (const lean_object*)&l_MonadAttach_trivial___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_trivial(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -88,7 +90,7 @@ lean_dec_ref(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
-x_4 = lean_alloc_closure((void*)(l_MonadAttach_trivial___redArg___lam__0___boxed), 1, 0);
+x_4 = ((lean_object*)(l_MonadAttach_trivial___redArg___closed__0));
 x_5 = lean_alloc_closure((void*)(l_MonadAttach_trivial___redArg___lam__1), 4, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);

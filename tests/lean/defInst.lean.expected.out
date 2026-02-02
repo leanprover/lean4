@@ -10,5 +10,5 @@ fun x y => x == y : Foo → Foo → Bool
 false
 true
 true
-def instMonadM : Monad M :=
+@[instance_reducible] def instMonadM : Monad M :=
 ReaderT.instMonad

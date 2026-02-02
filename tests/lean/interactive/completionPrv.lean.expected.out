@@ -4,7 +4,7 @@
  [{"label": "longAndHopefullyUniqueBlaBlaBoo",
    "kind": 21,
    "data":
-   ["«external:file:///completionPrv.lean»",
+   ["file:///completionPrv.lean",
     2,
     33,
     0,
@@ -15,7 +15,7 @@ Resolution of longAndHopefullyUniqueBlaBlaBoo:
  "kind": 21,
  "detail": "Nat",
  "data":
- ["«external:file:///completionPrv.lean»",
+ ["file:///completionPrv.lean",
   2,
   33,
   0,
@@ -26,7 +26,7 @@ Resolution of longAndHopefullyUniqueBlaBlaBoo:
  [{"label": "longAndHopefullyUniqueBooBoo",
    "kind": 21,
    "data":
-   ["«external:file:///completionPrv.lean»",
+   ["file:///completionPrv.lean",
     9,
     33,
     0,
@@ -37,7 +37,7 @@ Resolution of longAndHopefullyUniqueBooBoo:
  "kind": 21,
  "detail": "Nat",
  "data":
- ["«external:file:///completionPrv.lean»",
+ ["file:///completionPrv.lean",
   9,
   33,
   0,
@@ -48,21 +48,21 @@ Resolution of longAndHopefullyUniqueBooBoo:
  [{"label": "getInc",
    "kind": 3,
    "data":
-   ["«external:file:///completionPrv.lean»",
+   ["file:///completionPrv.lean",
     21,
     5,
     1,
     "c_private.«external:file:///completionPrv.lean».0.S.getInc"]},
   {"label": "field1",
    "kind": 5,
-   "data": ["«external:file:///completionPrv.lean»", 21, 5, 1, "cS.field1"]}],
+   "data": ["file:///completionPrv.lean", 21, 5, 1, "cS.field1"]}],
  "isIncomplete": false}
 Resolution of getInc:
 {"label": "getInc",
  "kind": 3,
  "detail": "S → Nat",
  "data":
- ["«external:file:///completionPrv.lean»",
+ ["file:///completionPrv.lean",
   21,
   5,
   1,
@@ -71,28 +71,28 @@ Resolution of field1:
 {"label": "field1",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completionPrv.lean»", 21, 5, 1, "cS.field1"]}
+ "data": ["file:///completionPrv.lean", 21, 5, 1, "cS.field1"]}
 {"textDocument": {"uri": "file:///completionPrv.lean"},
  "position": {"line": 25, "character": 4}}
 {"items":
  [{"label": "getInc",
    "kind": 3,
    "data":
-   ["«external:file:///completionPrv.lean»",
+   ["file:///completionPrv.lean",
     25,
     4,
     1,
     "c_private.«external:file:///completionPrv.lean».0.S.getInc"]},
   {"label": "field1",
    "kind": 5,
-   "data": ["«external:file:///completionPrv.lean»", 25, 4, 1, "cS.field1"]}],
+   "data": ["file:///completionPrv.lean", 25, 4, 1, "cS.field1"]}],
  "isIncomplete": false}
 Resolution of getInc:
 {"label": "getInc",
  "kind": 3,
  "detail": "S → Nat",
  "data":
- ["«external:file:///completionPrv.lean»",
+ ["file:///completionPrv.lean",
   25,
   4,
   1,
@@ -101,4 +101,4 @@ Resolution of field1:
 {"label": "field1",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completionPrv.lean»", 25, 4, 1, "cS.field1"]}
+ "data": ["file:///completionPrv.lean", 25, 4, 1, "cS.field1"]}

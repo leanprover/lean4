@@ -8,6 +8,7 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+import Lean.ReducibilityAttrs
 import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
@@ -230,10 +231,43 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
+  let status ← getReducibilityStatus declName
+  unless status matches .reducible | .instanceReducible do
+    let info ← getConstInfo declName
+    if info.isDefinition then
+      -- **TODO**: uncomment after update stage0
+      -- logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
+      pure ()
   addGlobalInstance declName attrKind
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+
+/-
+Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
+to elaborate `instance` command.
+
+**Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
+However, this was not a robust solution because:
+
+- We have scoped instances, and `isInstance declName` returns true only if the scope is active.
+
+- We have auxiliary declarations used to construct instances manually, such as:
+  ```
+  def lt_wfRel : WellFoundedRelation Nat
+  ```
+  `isInstance` also returns `false` for this kind of declaration.
+
+In both cases, the declaration may be (or may have been) used to construct an instance, but `isInstance`
+returns `false`. We claim it is a mistake to check the reducibility status using `isInstance`.
+`isInstance` indicates whether a declaration is available for the type class resolution mechanism,
+not its transparency status.
+
+Thus, we added a new transparency setting and set it here.
+-/
+def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  setReducibilityStatus declName .instanceReducible
+  addInstance declName attrKind prio
 
 /--
 Registers type class instances.
@@ -334,4 +368,15 @@ def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
 def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
   return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
 
-end Lean.Meta
+end Meta
+
+-- **TODO**: Move to `ReducibilityAttrs.lean` after update stage0
+def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
+  getReducibilityStatusCore env declName matches .instanceReducible
+    || Meta.isInstanceCore env declName -- **TODO**: Delete after update stage0
+
+/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
+def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInstanceReducibleCore (← getEnv) declName
+
+end Lean

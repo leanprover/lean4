@@ -188,6 +188,12 @@ def applyEqLemma (e : Expr → EqResult) (lemmaName : Name) (args : Array Expr) 
   return .some (e (mkAppN (mkConst lemmaName) args))
 
 def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
+  /-
+  **TODO**: These proofs rely too much on definitional equality.
+  Example:
+  `x + 1 + 1 + ... + 1 = x + 1 + ... + 1`
+  It will treat both sides as `x + n = x + n`.
+  -/
   let some xno ← NatOffset.fromExpr? x | return none
   let some yno ← NatOffset.fromExpr? y | return none
   match xno, yno with

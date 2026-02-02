@@ -44,7 +44,7 @@ def testUnicodeEscape :=
   true
 
 def testRoundTrip :=
-  assert! (fileUriToPath? (pathToUri "/temp/test.xml?😵=2022")) == "/temp/test.xml?😵=2022"
+  assert! (fileUriToPath? (pathToUri ("" / "temp" / "test.xml?😵=2022")) == ("" / "temp" / "test.xml?😵=2022" : System.FilePath))
   true
 
 def testInvalidFileUri :=

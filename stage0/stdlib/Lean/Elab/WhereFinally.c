@@ -13,59 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_none;
-lean_object* l_Lean_stringToMessageData(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_isNone___boxed(lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
-LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object*);
-static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1;
-static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0;
+static const lean_ctor_object l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0 = (const lean_object*)&l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default = (const lean_object*)&l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Elab_instInhabitedWhereFinallyView = (const lean_object*)&l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Elab_WhereFinallyView_none = (const lean_object*)&l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0_value;
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_WhereFinallyView_isNone___boxed(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedWhereFinallyView_default;
+LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_object*, lean_object*);
+static const lean_string_object l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 93, .m_capacity = 93, .m_length = 92, .m_data = "`where ... finally` does not currently support any named sub-sections `| sectionName => ...`"};
+static const lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0 = (const lean_object*)&l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0_value;
+lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1;
+lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedWhereFinallyView;
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView___redArg___lam__1(lean_object*, lean_object*);
-lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView_default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedWhereFinallyView() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_WhereFinallyView_none() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0;
-return x_1;
-}
-}
+LEAN_EXPORT lean_object* l_Lean_Elab_mkWhereFinallyView(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_WhereFinallyView_isNone(lean_object* x_1) {
 _start:
 {
@@ -116,19 +83,11 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`where ... finally` does not currently support any named sub-sections `| sectionName => ...`", 92, 92);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0;
+x_1 = ((lean_object*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0));
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -287,16 +246,6 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0 = _init_l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0();
-lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView_default___closed__0);
-l_Lean_Elab_instInhabitedWhereFinallyView_default = _init_l_Lean_Elab_instInhabitedWhereFinallyView_default();
-lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView_default);
-l_Lean_Elab_instInhabitedWhereFinallyView = _init_l_Lean_Elab_instInhabitedWhereFinallyView();
-lean_mark_persistent(l_Lean_Elab_instInhabitedWhereFinallyView);
-l_Lean_Elab_WhereFinallyView_none = _init_l_Lean_Elab_WhereFinallyView_none();
-lean_mark_persistent(l_Lean_Elab_WhereFinallyView_none);
-l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0 = _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0();
-lean_mark_persistent(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__0);
 l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1 = _init_l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1();
 lean_mark_persistent(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

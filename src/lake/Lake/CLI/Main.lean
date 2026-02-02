@@ -10,6 +10,7 @@ public import Init.System.IO
 public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
+public import Lake.CLI.Shake
 import Lake.Version
 import Lake.Build.Run
 import Lake.Build.Targets
@@ -74,6 +75,7 @@ public structure LakeOptions where
   toolchain? : Option String := none
   rev? : Option String := none
   maxRevs : Nat := 100
+  shake : Shake.Args := {}
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -299,6 +301,16 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})
+-- Shake options
+| "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
+| "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
+| "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
+| "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
+| "--force" => modifyThe LakeOptions ({· with shake.force := true})
+| "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
+| "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
+| "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
+| "--fix" => modifyThe LakeOptions ({· with shake.fix := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -358,7 +370,6 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default
 
-
 /-! ## Commands -/
 
 namespace lake
@@ -384,7 +395,7 @@ protected def get : CliM PUnit := do
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.platform?.isSome || opts.toolchain?.isSome then
       logWarning "the `--platform` and `--toolchain` options do nothing for `cache get` with a mappings file"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let some remoteScope := opts.scope?
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
@@ -459,7 +470,7 @@ where
     if (← repo.hasDiff) then
       logWarning s!"{pkg.prettyName}: package has changes; \
         only artifacts for committed code will be downloaded"
-      if .warning ≤ opts.failLv then
+      if opts.failLv ≤ .warning then
         failure
     let n := opts.maxRevs
     let revs ← repo.getHeadRevisions n
@@ -494,7 +505,7 @@ protected def put : CliM PUnit := do
   if (← repo.hasDiff) then
     logWarning s!"{pkg.prettyName}: package has changes; \
       artifacts will be uploaded for the most recent commit"
-    if .warning ≤ opts.failLv then
+    if opts.failLv ≤ .warning then
       exit 1
   let rev ← repo.getHeadRevision
   let map ← CacheMap.load file
@@ -756,6 +767,31 @@ protected def clean : CliM PUnit := do
       | some pkg => pure pkg
     pkgs.forM (·.clean)
 
+/-- The `lake shake` command: minimize imports in Lean source files. -/
+protected def shake : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  -- Get remaining arguments as module names
+  let mods := (← takeArgs).toArray.map (·.toName)
+  -- Get default target modules from workspace if no modules specified
+  let mods := if mods.isEmpty then ws.defaultTargetRoots else mods
+  if h : 0 < mods.size then
+    let args := {opts.shake with mods}
+    unless args.force do
+      let specs ← parseTargetSpecs ws []
+      let upToDate ← ws.checkNoBuild (buildSpecs specs)
+      unless upToDate do
+        error "there are out of date oleans; run `lake build` or fetch them from a cache first"
+    -- Run shake with workspace search paths
+    Lean.searchPathRef.set ws.augmentedLeanPath
+    let exitCode ← Shake.run args h ws.augmentedLeanSrcPath
+    if exitCode != 0 then
+      exit exitCode
+  else
+    error "no modules specified and there are no applicable default targets"
+
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
     processLeadingOptions lakeOption -- between `lake script <cmd>` and args
@@ -910,6 +946,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "lint"                => lake.lint
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
+| "shake"               => lake.shake
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

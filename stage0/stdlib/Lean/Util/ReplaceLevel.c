@@ -13,50 +13,53 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint8_t l_ptrEqList___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0;
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00__private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
-lean_object* l_Lean_Level_succ___override(lean_object*);
-lean_object* l_Lean_Expr_sort___override(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
-lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
-size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
-LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
-lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
-size_t lean_usize_mod(size_t, size_t);
-lean_object* lean_usize_to_nat(size_t);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
-LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object*, size_t, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
-static size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_instBEqBinderInfo_beq(uint8_t, uint8_t);
-lean_object* l_List_reverse___redArg(lean_object*);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
+lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
+lean_object* l_Lean_Level_succ___override(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Lean_Name_mkStr1(lean_object*);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6;
-static lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0;
-LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
-static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
+static size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0;
+LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00__private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit_spec__0(lean_object*, lean_object*, lean_object*);
+size_t lean_ptr_addr(lean_object*);
+size_t lean_usize_mod(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(lean_object*, size_t, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
+uint8_t l_Lean_instBEqBinderInfo_beq(uint8_t, uint8_t);
+lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_sort___override(lean_object*);
+uint8_t l_ptrEqList___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(lean_object*, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0 = (const lean_object*)&l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr = (const lean_object*)&l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0_value;
+lean_object* lean_usize_to_nat(size_t);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0;
+lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
+static const lean_string_object l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "_inhabitedExprDummy"};
+static const lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2 = (const lean_object*)&l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2_value),LEAN_SCALAR_PTR_LITERAL(37, 247, 56, 151, 29, 116, 116, 243)}};
+static const lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3 = (const lean_object*)&l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3_value;
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceLevel(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -717,25 +720,6 @@ x_6 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0() {
 _start:
 {
@@ -749,27 +733,10 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr;
+x_1 = ((lean_object*)(l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr));
 x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0;
 x_3 = lean_mk_array(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4() {
@@ -777,7 +744,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
+x_2 = ((lean_object*)(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3));
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
@@ -1174,18 +1141,10 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0 = _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize___closed__0();
 l_Lean_Expr_ReplaceLevelImpl_cacheSize = _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize();
-l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0 = _init_l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0();
-lean_mark_persistent(l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr___closed__0);
-l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr = _init_l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr();
-lean_mark_persistent(l___private_Lean_Util_ReplaceLevel_0__Lean_Expr_ReplaceLevelImpl_notAnExpr);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__0);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1);
-l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2();
-lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2);
-l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3();
-lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5();

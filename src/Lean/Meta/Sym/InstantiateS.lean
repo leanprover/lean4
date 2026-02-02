@@ -56,15 +56,13 @@ It assumes `beginIdx ≤ endIdx` and `endIdx ≤ subst.size`
 def instantiateRangeS' (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) : AlphaShareBuilderM Expr :=
   if _ : beginIdx > endIdx then unreachable! else
   if _ : endIdx > subst.size then unreachable! else
-  let s := beginIdx
   let n := endIdx - beginIdx
   replaceS' e fun e offset => do
-    let s₁ := s + offset
     match e with
     | .bvar idx =>
-      if _h : idx >= s₁ then
-        if _h : idx < s₁ + n then
-          let v := subst[idx - s₁]
+      if _h : idx >= offset then
+        if _h : idx < offset + n then
+          let v := subst[beginIdx + idx - offset]
           liftLooseBVarsS' v 0 offset
         else
           mkBVarS (idx - n)
@@ -73,7 +71,7 @@ def instantiateRangeS' (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) :
     | .lit _ | .mvar _ | .fvar _ | .const _ _ | .sort _ =>
       return some e
     | _ =>
-      if s₁ >= e.looseBVarRange then
+      if offset >= e.looseBVarRange then
         return some e
       else
         return none

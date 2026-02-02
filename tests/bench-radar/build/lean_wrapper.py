@@ -12,14 +12,14 @@ NAME = "build"
 REPO = Path("..")
 BENCH = REPO / "tests" / "bench-radar"
 STAGE2 = REPO / "build" / "release" / "stage2"
-OUT = REPO / "radar.jsonl"
+OUT = REPO / "measurements.jsonl"
 
 
 def save_result(metric: str, value: float, unit: str | None = None) -> None:
     data = {"metric": metric, "value": value}
     if unit is not None:
         data["unit"] = unit
-    with open(OUT, "a+") as f:
+    with open(OUT, "a") as f:
         f.write(f"{json.dumps(data)}\n")
 
 

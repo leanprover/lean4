@@ -13,6 +13,7 @@ import Lake.Build.Actions
 import Lake.Util.Url
 import Lake.Util.Proc
 import Lake.Util.Reservoir
+import Lake.Util.JsonObject
 import Lake.Util.IO
 import Init.Data.String.Search
 import Init.Data.String.Lemmas.Basic
@@ -305,15 +306,26 @@ end Cache
 def uploadS3
   (file : FilePath) (contentType : String) (url : String) (key : String)
 : LoggerIO Unit := do
-  proc {
+  let out ← captureProc' {
     cmd := "curl"
     args := #[
-      "-s",
+      "-s", "-w", "%{stderr}%{json}\n",
       "--aws-sigv4", "aws:amz:auto:s3", "--user", key,
       "-X", "PUT", "-T", file.toString, url,
       "-H",  s!"Content-Type: {contentType}"
     ]
-  } (quiet := true)
+  }
+  match Json.parse out.stderr >>= JsonObject.fromJson? with
+  | .ok data =>
+    let code ← id do
+      match (data.get? "response_code" <|> data.get? "http_code") with
+      | .ok (some code) => return code
+      | .ok none => error s!"curl's JSON output did not contain a response code"
+      | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
+    unless code == 200 do
+      error s!"failed to upload artifact, error {code}; received:\n{out.stdout}"
+  | .error e =>
+    error s!"curl produced invalid JSON output: {e}"
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).

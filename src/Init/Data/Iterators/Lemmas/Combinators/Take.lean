@@ -47,18 +47,18 @@ theorem Iter.atIdxSlow?_take {α β}
     [Iterator α Id β] [Productive α Id] {k l : Nat}
     {it : Iter (α := α) β} :
     (it.take k).atIdxSlow? l = if l < k then it.atIdxSlow? l else none := by
-  fun_induction it.atIdxSlow? l generalizing k
-  case case1 it it' out h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  induction l, it using Iter.atIdxSlow?.induct_unfolding generalizing k
+  case yield_zero it it' out h h' =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> simp
-  case case2 it it' out h h' l ih =>
-    simp only [Nat.succ_eq_add_one, atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case yield_succ it it' out h h' l ih =>
+    simp only [Nat.succ_eq_add_one, atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp [ih]
-  case case3 l it it' h h' ih =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case skip_case l it it' h h' ih =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp [ih]
-  case case4 l it h h' =>
-    simp only [atIdxSlow?.eq_def (it := it.take k), step_take, h']
+  case done_case l it h h' =>
+    simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp
 
 @[simp]

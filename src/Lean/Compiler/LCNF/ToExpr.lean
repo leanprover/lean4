@@ -37,7 +37,7 @@ where
 
 abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
-@[inline] def mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
+@[inline] def mkLambdaM (params : Array (Param pu)) (e : Expr) : ToExprM Expr :=
   return go (← read) (← get) params.size e
 where
   go (offset : Nat) (m : LevelMap) (i : Nat) (e : Expr) : Expr :=
@@ -59,7 +59,7 @@ private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   modify fun s => s.insert fvarId offset
   withReader (·+1) k
 
-@[inline] partial def withParams (params : Array Param) (k : ToExprM α) : ToExprM α :=
+@[inline] partial def withParams (params : Array (Param pu)) (k : ToExprM α) : ToExprM α :=
   go 0
 where
   @[specialize] go (i : Nat) : ToExprM α := do
@@ -79,21 +79,21 @@ end ToExpr
 
 open ToExpr
 
-private def Arg.toExprM (arg : Arg) : ToExprM Expr :=
+private def Arg.toExprM (arg : Arg pu) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
 
 mutual
-partial def FunDecl.toExprM (decl : FunDecl) : ToExprM Expr :=
+partial def FunDecl.toExprM (decl : FunDecl pu) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
-partial def Code.toExprM (code : Code) : ToExprM Expr := do
+partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
   match code with
   | .let decl k =>
     let type ← abstractM decl.type
     let value ← abstractM decl.value.toExpr
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
-  | .fun decl k | .jp decl k =>
+  | .fun decl k _ | .jp decl k =>
     let type ← abstractM decl.type
     let value ← decl.toExprM
     let body ← withFVar decl.fvarId k.toExprM
@@ -103,17 +103,17 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun
-      | .alt ctorName params k => do
+      | .alt ctorName params k _ => do
         let body ← withParams params do mkLambdaM params (← k.toExprM)
         return mkApp (mkConst ctorName) body
       | .default k => k.toExprM
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end
 
-public def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+public def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-public def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+public def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

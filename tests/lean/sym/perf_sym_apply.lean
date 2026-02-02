@@ -3,7 +3,7 @@ import Lean.Meta.Sym
 
 open Lean Meta Sym
 def profileM {α : Type} (k : MetaM α) (msg : String := "experiment") : MetaM α :=
-  profileitM Exception msg ({ : Options }.setBool `profiler true |>.setNat `profiler.threshold 0)  k
+  profileitM Exception msg (Options.empty.set `profiler true |>.set `profiler.threshold 0)  k
 
 def genTerm (n : Nat) : Expr := Id.run do
   let mut e := mkConst ``True
@@ -26,18 +26,15 @@ set_option maxRecDepth 10000000
 def tryIntros? (goals : List MVarId) : SymM (Option (List MVarId)) := do
   try
     let goal :: goals := goals | return none
-    let (_, goal') ← intros goal
+    let .goal _ goal' ← intros goal | failure
     return some (goal' :: goals)
   catch _ =>
     return none
 
 def tryApply? (rule : BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do
   let goal :: goals := goals | return none
-  try
-    let goals' ← rule.apply goal
-    return some (goals' ++ goals)
-  catch _ =>
-    return none
+  let .goals goals' ← rule.apply goal | return none
+  return some (goals' ++ goals)
 
 def tryApplyAny? (rules : List BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do
   match rules with

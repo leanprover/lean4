@@ -13,23 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_String_splitAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitToList___boxed(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* l_List_reverse___redArg(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitToList(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-static lean_object* l_String_splitOn___closed__0;
-LEAN_EXPORT lean_object* l_String_splitOn___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_splitOn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_splitAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitToList(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitToList___boxed(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitOnAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_String_splitOn___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_String_splitOn___closed__0 = (const lean_object*)&l_String_splitOn___closed__0_value;
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitOn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_splitOn___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -195,19 +196,11 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_String_splitOn___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_String_splitOn(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_String_splitOn___closed__0;
+x_3 = ((lean_object*)(l_String_splitOn___closed__0));
 x_4 = lean_string_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
@@ -247,8 +240,6 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_splitOn___closed__0 = _init_l_String_splitOn___closed__0();
-lean_mark_persistent(l_String_splitOn___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

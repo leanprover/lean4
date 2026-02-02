@@ -322,6 +322,10 @@ For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/
 @[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
+/-- Non-dependent recursor for the equality type (symmetric variant) -/
+@[simp] abbrev Eq.ndrec_symm.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq b a) : motive b :=
+  h.symm.ndrec m
+
 /--
 Equality is transitive: if `a = b` and `b = c` then `a = c`.
 
@@ -2810,6 +2814,8 @@ structure Char where
   /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
+grind_pattern Char.valid => self.val
+
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.lt_trans h (of_decide_eq_true rfl)
@@ -3192,7 +3198,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[expose]
+@[expose, inline]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3480,6 +3486,18 @@ structure String where ofByteArray ::
 
 attribute [extern "lean_string_to_utf8"] String.toByteArray
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
+
+/--
+Creates a string that contains the characters in a list, in order.
+
+Examples:
+ * `String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"`
+ * `String.ofList [] = ""`
+ * `String.ofList ['a', 'a', 'a'] = "aaa"`
+-/
+@[extern "lean_string_mk"]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data, .intro data rfl⟩
 
 /--
 Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the

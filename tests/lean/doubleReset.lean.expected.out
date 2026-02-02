@@ -1,15 +1,4 @@
 [Compiler.IR] [reset_reuse]
-    def _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0 (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : tobj) (x_5 : usize) (x_6 : usize) (x_7 : obj) : obj :=
-      let x_8 : obj := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_4 x_5 x_6 x_7;
-      ret x_8
-    def applyProjectionRules (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : obj) (x_5 : tobj) : obj :=
-      let x_6 : obj := applyProjectionRules._redArg x_4 x_5;
-      ret x_6
-    def applyProjectionRules._redArg (x_1 : obj) (x_2 : tobj) : obj :=
-      let x_3 : usize := Array.usize ◾ x_1;
-      let x_4 : usize := 0;
-      let x_5 : obj := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_2 x_3 x_4 x_1;
-      ret x_5
     def _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg (x_1 : tobj) (x_2 : usize) (x_3 : usize) (x_4 : obj) : obj :=
       let x_5 : u8 := USize.decLt x_3 x_2;
       case x_5 : u8 of
@@ -35,3 +24,17 @@
             let x_16 : obj := Array.uset ◾ x_11 x_3 x_13 ◾;
             let x_17 : obj := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_1 x_2 x_15 x_16;
             ret x_17
+[Compiler.IR] [reset_reuse]
+    def applyProjectionRules._redArg (x_1 : obj) (x_2 : tobj) : obj :=
+      let x_3 : usize := Array.usize ◾ x_1;
+      let x_4 : usize := 0;
+      let x_5 : obj := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_2 x_3 x_4 x_1;
+      ret x_5
+[Compiler.IR] [reset_reuse]
+    def applyProjectionRules (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : obj) (x_5 : tobj) : obj :=
+      let x_6 : obj := applyProjectionRules._redArg x_4 x_5;
+      ret x_6
+[Compiler.IR] [reset_reuse]
+    def _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0 (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : tobj) (x_5 : usize) (x_6 : usize) (x_7 : obj) : obj :=
+      let x_8 : obj := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_4 x_5 x_6 x_7;
+      ret x_8

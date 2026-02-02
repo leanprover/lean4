@@ -128,6 +128,8 @@ theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
 
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
+  -- This is a great test case for `applyRflAndAndIntro` because it requires
+  -- reducing `(⌜s₁.counter = ?c⌝ s).down` to `s₁ = ?c`.
   mvcgen [mkFreshN, liftCounterM]
   case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind

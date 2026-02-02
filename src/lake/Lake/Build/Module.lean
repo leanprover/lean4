@@ -357,6 +357,7 @@ private def Package.discriminant (self : Package) :=
   else
     s!"{self.prettyName}@{self.version}"
 
+set_option linter.unusedVariables.funArgs false in
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
@@ -373,29 +374,31 @@ private def fetchImportInfo
       return s
     else if n = 1 then -- common fast path
       let mod := mods[0]
-      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.keyName then
-        logError s!"{fileName}: cannot `import all` \
-          the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
-        return .error
+      -- Remark: We've decided to disable this check for now
+      -- if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.keyName then
+      --   logError s!"{fileName}: cannot `import all` \
+      --     the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
+      --   return .error
       let importJob ← mod.exportInfo.fetch
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
-      let isImportable (mod) :=
-        mod.allowImportAll || pkgName == mod.pkg.keyName
-      let allImportable :=
-        if imp.importAll then
-          mods.all isImportable
-        else true
-      unless allImportable do
-        let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
-          from the following packages:"
-        let msg := mods.foldl (init := msg) fun msg mod =>
-          if isImportable mod then
-            msg
-          else
-            s!"{msg}\n  {mod.pkg.discriminant}"
-        logError msg
-        return .error
+      -- Remark: We've decided to disable this check for now
+      -- let isImportable (mod) :=
+      --   mod.allowImportAll || pkgName == mod.pkg.keyName
+      -- let allImportable :=
+      --   if imp.importAll then
+      --     mods.all isImportable
+      --   else true
+      -- unless allImportable do
+      --   let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
+      --     from the following packages:"
+      --   let msg := mods.foldl (init := msg) fun msg mod =>
+      --     if isImportable mod then
+      --       msg
+      --     else
+      --       s!"{msg}\n  {mod.pkg.discriminant}"
+      --   logError msg
+      --   return .error
       let mods : Vector Module n := .mk mods rfl
       let expInfosJob ← Job.collectVector <$> mods.mapM (·.exportInfo.fetch)
       s.bindM (sync := true) fun impInfo => do

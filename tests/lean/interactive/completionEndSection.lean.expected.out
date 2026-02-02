@@ -3,23 +3,23 @@
 {"items":
  [{"label": "Foo",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 2, 4, 0]}],
+   "data": ["file:///completionEndSection.lean", 2, 4, 0]}],
  "isIncomplete": false}
 Resolution of Foo:
 {"label": "Foo",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 2, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 2, 4, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 8, "character": 5}}
 {"items":
  [{"label": "Foo",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 8, 5, 0]}],
+   "data": ["file:///completionEndSection.lean", 8, 5, 0]}],
  "isIncomplete": false}
 Resolution of Foo:
 {"label": "Foo",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 8, 5, 0]}
+ "data": ["file:///completionEndSection.lean", 8, 5, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 14, "character": 5}}
 {"items": [], "isIncomplete": false}
@@ -28,70 +28,70 @@ Resolution of Foo:
 {"items":
  [{"label": "Foo.Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 21, 4, 0]},
+   "data": ["file:///completionEndSection.lean", 21, 4, 0]},
   {"label": "Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 21, 4, 0]}],
+   "data": ["file:///completionEndSection.lean", 21, 4, 0]}],
  "isIncomplete": false}
 Resolution of Foo.Bar:
 {"label": "Foo.Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 21, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 21, 4, 0]}
 Resolution of Bar:
 {"label": "Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 21, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 21, 4, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 28, "character": 4}}
 {"items":
  [{"label": "Foo.Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 28, 4, 0]},
+   "data": ["file:///completionEndSection.lean", 28, 4, 0]},
   {"label": "Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 28, 4, 0]}],
+   "data": ["file:///completionEndSection.lean", 28, 4, 0]}],
  "isIncomplete": false}
 Resolution of Foo.Bar:
 {"label": "Foo.Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 28, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 28, 4, 0]}
 Resolution of Bar:
 {"label": "Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 28, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 28, 4, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 36, "character": 5}}
 {"items":
  [{"label": "Foo.Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 36, 5, 0]}],
+   "data": ["file:///completionEndSection.lean", 36, 5, 0]}],
  "isIncomplete": false}
 Resolution of Foo.Bar:
 {"label": "Foo.Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 36, 5, 0]}
+ "data": ["file:///completionEndSection.lean", 36, 5, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 44, "character": 5}}
 {"items":
  [{"label": "Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 44, 5, 0]}],
+   "data": ["file:///completionEndSection.lean", 44, 5, 0]}],
  "isIncomplete": false}
 Resolution of Bar:
 {"label": "Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 44, 5, 0]}
+ "data": ["file:///completionEndSection.lean", 44, 5, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 52, "character": 8}}
 {"items":
  [{"label": "Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 52, 8, 0]}],
+   "data": ["file:///completionEndSection.lean", 52, 8, 0]}],
  "isIncomplete": false}
 Resolution of Bar:
 {"label": "Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 52, 8, 0]}
+ "data": ["file:///completionEndSection.lean", 52, 8, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 59, "character": 4}}
 {"items": [], "isIncomplete": false}
@@ -100,38 +100,38 @@ Resolution of Bar:
 {"items":
  [{"label": "Geh",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 64, 8, 0]}],
+   "data": ["file:///completionEndSection.lean", 64, 8, 0]}],
  "isIncomplete": false}
 Resolution of Geh:
 {"label": "Geh",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 64, 8, 0]}
+ "data": ["file:///completionEndSection.lean", 64, 8, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 72, "character": 4}}
 {"items":
  [{"label": "Bar.Geh",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 72, 4, 0]},
+   "data": ["file:///completionEndSection.lean", 72, 4, 0]},
   {"label": "Geh",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 72, 4, 0]}],
+   "data": ["file:///completionEndSection.lean", 72, 4, 0]}],
  "isIncomplete": false}
 Resolution of Bar.Geh:
 {"label": "Bar.Geh",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 72, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 72, 4, 0]}
 Resolution of Geh:
 {"label": "Geh",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 72, 4, 0]}
+ "data": ["file:///completionEndSection.lean", 72, 4, 0]}
 {"textDocument": {"uri": "file:///completionEndSection.lean"},
  "position": {"line": 79, "character": 8}}
 {"items":
  [{"label": "Bar",
    "kind": 9,
-   "data": ["«external:file:///completionEndSection.lean»", 79, 8, 0]}],
+   "data": ["file:///completionEndSection.lean", 79, 8, 0]}],
  "isIncomplete": false}
 Resolution of Bar:
 {"label": "Bar",
  "kind": 9,
- "data": ["«external:file:///completionEndSection.lean»", 79, 8, 0]}
+ "data": ["file:///completionEndSection.lean", 79, 8, 0]}

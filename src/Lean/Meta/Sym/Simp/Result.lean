@@ -22,4 +22,12 @@ public abbrev mkEqTransResult (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (r₂ : 
   | .rfl done => return .step e₂ h₁ done
   | .step e₃ h₂ done => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂) done
 
+public def Result.markAsDone : Result → Result
+  | .rfl _ => .rfl true
+  | .step e h _ => .step e h true
+
+public def Result.getResultExpr : Expr → Result → Expr
+  | e, .rfl _ => e
+  | _, .step e _ _ => e
+
 end Lean.Meta.Sym.Simp

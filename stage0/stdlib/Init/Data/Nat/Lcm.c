@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_nat_gcd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lcm(lean_object*, lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* lean_nat_gcd(lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lcm(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lcm(lean_object* x_1, lean_object* x_2) {
 _start:
 {

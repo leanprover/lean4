@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Setup
-import Init.Data.String.Termination
+import Init.Data.String.TakeDrop
 
 namespace String
 
@@ -132,6 +132,18 @@ def Name.mangleAux : Name → String
 
 public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
+
+/--
+Given `s = nm.mangle pre` for some `nm : Name` and `pre : String` with `nm != Name.anonymous`,
+returns `(mkBoxedName nm).mangle pre`. This is used in the interpreter to find names of boxed
+IR declarations.
+-/
+@[export lean_mk_mangled_boxed_name]
+public def mkMangledBoxedName (s : String) : String :=
+  if s.endsWith "__" then
+    s ++ "_00__boxed"
+  else
+    s ++ "___boxed"
 
 /--
 The mangled name of the name used to create the module initialization function.

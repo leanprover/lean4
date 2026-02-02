@@ -1153,6 +1153,15 @@ theorem ediv_le_iff_le_mul {k x y : Int} (h : 0 < k) : x / k ≤ y ↔ x < y * k
   rw [Int.le_iff_lt_add_one, Int.ediv_lt_iff_lt_mul h, Int.add_mul]
   omega
 
+theorem le_mul_iff_le_left {x y z : Int} (hz : 0 < z) :
+    x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
+  rw [Int.ediv_le_iff_le_mul hz]
+  omega
+
+theorem le_mul_iff_le_right {x y z : Int} (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Int.mul_comm]
+
 protected theorem le_mul_of_ediv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) (H3 : a / b ≤ c) :
     a ≤ c * b := by
   rw [← Int.ediv_mul_cancel H2]; exact Int.mul_le_mul_of_nonneg_right H3 H1
@@ -1205,6 +1214,11 @@ theorem add_ediv {a b c : Int} (h : c ≠ 0) :
 
 protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c ≤ b / c :=
   Int.le_ediv_of_mul_le H (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H')
+
+theorem ediv_add_ediv_le_add_ediv {x y z : Int} (hz : 0 < z) :
+    x / z + y / z ≤ (x + y) / z := by
+  rw [Int.le_ediv_iff_mul_le hz, Int.add_mul]
+  apply Int.add_le_add <;> apply Int.ediv_mul_le <;> omega
 
 /-- If `n > 0` then `m` is not divisible by `n` iff it is between `n * k` and `n * (k + 1)`
   for some `k`. -/
@@ -1783,12 +1797,12 @@ theorem ediv_lt_ediv_iff_of_dvd_of_neg_of_neg {a b c d : Int} (hb : b < 0) (hd :
 
 theorem ediv_lt_ediv_of_lt {a b c : Int} (h : a < b) (hcb : c ∣ b) (hc : 0 < c) :
     a / c < b / c :=
-  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb 
+  Int.lt_ediv_of_mul_lt (Int.le_of_lt hc) hcb
     (Int.lt_of_le_of_lt (Int.ediv_mul_le _ (Int.ne_of_gt hc)) h)
-  
+
 theorem ediv_lt_ediv_of_lt_of_neg {a b c : Int} (h : b < a) (hca : c ∣ a) (hc : c < 0) :
     a / c < b / c :=
-  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2 
+  (Int.ediv_lt_iff_of_dvd_of_neg hc hca).2
     (Int.lt_of_le_of_lt (Int.mul_ediv_self_le (Int.ne_of_lt hc)) h)
 
 /-! ### `tdiv` and ordering -/

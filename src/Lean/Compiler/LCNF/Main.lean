@@ -109,11 +109,9 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   sccs.mapM fun decls => do
     let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     withPhase .impure do
-      dbg_trace s!"purity1: {← getPurity}"
       if (← Lean.isTracingEnabledFor `Compiler.result) then
         for decl in decls do
           let decl ← normalizeFVarIds decl
-          dbg_trace s!"purity2: {← getPurity}"
           Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
       -- or consider running clear? unclear

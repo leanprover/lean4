@@ -119,16 +119,10 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
   | .const name _ args =>
     let irArgs ← args.mapM (·.toImpure)
     if let some decl ← getImpureDecl? name then
-      if name == ``Task.get then
-        trace[Meta.debug] m!"Working Task.get from impure decl"
       return (← mkApplication name decl.params.size irArgs)
     if let some decl ← getMonoDecl? name then
-      if name == ``Task.get then
-        trace[Meta.debug] m!"Working Task.get from mono decl"
       return (← mkApplication name decl.params.size irArgs)
 
-    if name == ``Task.get then
-      trace[Meta.debug] m!"Working Task.get weirdly"
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>

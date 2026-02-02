@@ -289,7 +289,8 @@ def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
     match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
     | .notTrue =>
-      throwError m!"The LRAT certificate could not be verified."
+      throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+        evaluating the following term returned `false`:{indentExpr reflectionTerm}"
     | .success auxProof =>
       return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
 where

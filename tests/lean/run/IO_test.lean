@@ -162,15 +162,15 @@ def testHardLink : IO Unit := do
   let linkFn : System.FilePath := "io_test/hardLink.txt"
   if (← System.FilePath.pathExists linkFn) then
     removeFile linkFn
-  assert! (← fn.metadata).numLinks == 1
+  check_eq "1" 1 (← fn.metadata).numLinks
   hardLink fn linkFn
-  assert! (← fn.metadata).numLinks == 2
-  assert! (← linkFn.metadata).numLinks == 2
+  check_eq "2" 2 (← fn.metadata).numLinks
+  check_eq "3" 2 (← linkFn.metadata).numLinks
   removeFile fn
   assert! !(← System.FilePath.pathExists fn)
   assert! (← System.FilePath.pathExists linkFn)
   let linkContents ← readFile linkFn
-  check_eq "1" contents linkContents
+  check_eq "4" contents linkContents
 
 #guard_msgs in
 #eval testHardLink

@@ -47,24 +47,6 @@ union value {
     double   m_float;
     float    m_float32;
     object * m_obj;
-
-    value() {}
-    // too convenient to make explicit
-    value(uint64 num): m_num(num) {}
-    value(object * o): m_obj(o) {}
-
-    // would overlap with `value(uint64)` as a constructor
-    static value from_float(double f) {
-        value v;
-        v.m_float = f;
-        return v;
-    }
-
-    static value from_float32(float f) {
-        value v;
-        v.m_float32 = f;
-        return v;
-    }
 };
 
 static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in length"); // NOLINT
@@ -86,7 +68,7 @@ struct symbol_cache {
     symbol_cache_entry m_entries[];
 };
 
-external_object_class g_symbol_cache_external_class;
+external_object_class * g_symbol_cache_external_class;
 
 void symbol_cache_finalize(void * val) {
     symbol_cache * cache = reinterpret_cast<symbol_cache *>(val);
@@ -109,7 +91,6 @@ void symbol_cache_foreach(void * val, object * fn) {
             apply_1(fn, val);
         }
     }
-    free(cache);
 }
 
 extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
@@ -121,6 +102,7 @@ extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
     // using it with the wrong count, so no need to store it here
     cache->m_loaded.store(false);
     cache->m_count = 0;
+    return alloc_external(g_symbol_cache_external_class, cache);
 }
 
 // reuse the compiler's name mangling to compute native symbol names
@@ -128,6 +110,16 @@ extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
 extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
 string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
     return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
+}
+
+extern "C" object* lean_get_export_name_for(object* env, object* fn);
+optional<name> get_export_name_for(elab_environment const & env, name const & n) {
+    return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
+}
+
+extern "C" object* lean_find_bytecode_decl(object* env, object* fn);
+optional<object_ref> find_bytecode_decl(elab_environment const & env, name const & n) {
+    return to_optional<object_ref>(lean_find_bytecode_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
@@ -155,14 +147,23 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 }
 
 symbol_cache_entry fill_cache_entry(elab_environment const & env, object_ref const & symbol) {
-    symbol_cache_entry result = {0};
+    symbol_cache_entry result = { .m_arity = 0, .m_native = nullptr, .m_object = nullptr };
     nat const & arity = cnstr_get_ref_t<nat>(symbol, 0);
     name const & decl_name = cnstr_get_ref_t<name>(symbol, 1);
-    string_ref mangled = get_symbol_stem(env, decl_name);
     if (!arity.is_small() || arity.get_small_value() > UINT_MAX) {
         return result;
     }
+    optional<object_ref> decl = find_bytecode_decl(env, decl_name);
+    if (decl) {
+        result.m_object = decl->steal();
+        io_eprintln(mk_string("loaded decl"));
+    }
+    string_ref mangled = get_symbol_stem(env, decl_name);
     result.m_arity = static_cast<unsigned>(arity.get_small_value());
+    if (optional<name> n = get_export_name_for(env, decl_name)) {
+        mangled = n->get_string();
+    }
+    io_eprintln(mangled.to_obj_arg());
     if (void * p = lookup_symbol_in_cur_exe(mangled.data())) {
         result.m_native = p;
     }
@@ -196,43 +197,473 @@ void fill_cache(elab_environment const & env, array_ref<object_ref> const & symb
     cache->m_loaded.store(1);
 }
 
-struct interpreter {};
-LEAN_THREAD_PTR(interpreter, g_interpreter);
-
-enum instruction_type : uint32 {
-    NCONST = 0U << 26,
-    PROJ = 1U << 26,
-    UPROJ = 2U << 26,
-    SPROJ = 3U << 26,
-    ALLOC_CTOR = 4U << 26,
-    SET = 5U << 26,
-    USET = 6U << 26,
-    SSET = 7U << 26,
-    BOX_SMALL = 8U << 26,
-    BOX_UINT32 = 10U << 26,
-    BOX_UINT64 = 11U << 26,
-    BOX_USIZE = 12U << 26,
-    BOX_FLOAT = 13U << 26,
-    BOX_FLOAT32 = 14U << 26,
-    UNBOX_SMALL = 15U << 26,
-    UNBOX_UINT32 = 16U << 26,
-    UNBOX_UINT64 = 17U << 26,
-    UNBOX_USIZE = 18U << 26,
-    UNBOX_FLOAT = 19U << 26,
-    UNBOX_FLOAT32 = 20U << 26,
-    INC_N = 21U << 26,
-    DEC_N = 22U << 26,
+struct frame {
+    value * m_stack_base;
+    uint32 * m_code;
+    object * m_decl;
+    symbol_cache_entry * m_cache;
 };
 
-void eval_loop(interpreter * interp) {
+struct interpreter {
+    elab_environment m_env;
+    value * m_stack_start;
+    value * m_stack_end;
+    value * m_stack_top;
+    frame * m_frame_start;
+    frame * m_frame_end;
+    frame * m_frame_top;
+
+    interpreter() : m_env(box(0)) {}
+};
+
+LEAN_THREAD_PTR(interpreter, g_interpreter);
+
+enum instruction_type {
+    UCONST,
+    MOVE,
+    RET,
+    CALL,
+    RETCALL,
+    COMPUTE_SCALAR,
+    ALLOC_CTOR,
+    PROJ,
+    UPROJ,
+    SPROJ8,
+    SPROJ16,
+    SPROJ32,
+    SPROJ64,
+    SET,
+    USET,
+    SSET8,
+    SSET16,
+    SSET32,
+    SSET64,
+    BOX_SMALL,
+    BOX_UINT32,
+    BOX_UINT64,
+    BOX_USIZE,
+    BOX_FLOAT,
+    BOX_FLOAT32,
+    UNBOX_SMALL,
+    UNBOX_UINT32,
+    UNBOX_UINT64,
+    UNBOX_USIZE,
+    UNBOX_FLOAT,
+    UNBOX_FLOAT32,
+    INC_N,
+    DEC_N,
+    IS_SHARED,
+    LOAD_TAG,
+    JUMP_TABLE,
+    SET_TAG,
+    LOAD_CONST,
+    IF_TAG,
+    JUMP,
+    PAP,
+    RESET,
+    REUSE
+};
+
+frame call_init(interpreter * interp, object_ref decl) {
+    object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
+    nat const & stack_reserved_obj = cnstr_get_ref_t<nat>(decl, 2);
+    nat const & stack_space_obj = cnstr_get_ref_t<nat>(decl, 3);
+    array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
+    object_ref const & cache_obj = cnstr_get_ref(decl, 5);
+
+    uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));
+    size_t stack_reserved = stack_reserved_obj.get_small_value();
+    if (interp->m_stack_top + stack_reserved >= interp->m_stack_end || interp->m_frame_top >= interp->m_frame_end) {
+        throw stack_space_exception("stack overflow");
+    }
+
+    symbol_cache * cache = reinterpret_cast<symbol_cache *>(lean_get_external_data(cache_obj.raw()));
+    fill_cache(interp->m_env, symbols_array, cache);
+
+    frame f;
+    f.m_code = bytecode;
+    f.m_decl = decl.steal();
+    f.m_stack_base = interp->m_stack_top;
+    f.m_cache = cache->m_entries;
+    interp->m_stack_top += stack_space_obj.get_small_value();
+    return f;
+}
+
+void report_unknown_declaration(object_ref const & decl, unsigned symbol_idx) {
+    array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
+    object_ref const & symbol = symbols_array[symbol_idx];
+    name const & nm = cnstr_get_ref_t<name>(symbol, 1);
+    throw exception(sstream() << "(interpreter) unknown declaration '" << nm << "'");
+}
+
+value eval_loop(interpreter * interp, frame start_frame) {
+    value * base = start_frame.m_stack_base;
+    uint32 * pc = start_frame.m_code;
+    symbol_cache_entry * cache = start_frame.m_cache;
+    object * decl = start_frame.m_decl;
+    unsigned scalar_pos = 0;
+    frame * orig_frame = interp->m_frame_top;
+    while (1) {
+        uint32 instr = *pc;
+        /*char buf[8192];
+        object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
+        uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));
+        sprintf(buf, "Running instruction %x with base: %lu and top: %lu. Cache: %p, declaration: %p, relative: %lx, frame: %lu, original frame: %lu",
+            instr, (base - interp->m_stack_start),
+            (interp->m_stack_top - interp->m_stack_start), cache, decl, (pc - bytecode),
+            (interp->m_frame_top - interp->m_frame_start),
+            (orig_frame - interp->m_frame_start));
+        io_eprintln(mk_string(buf));*/
+        pc++;
+        switch (instr >> 26) {
+            case instruction_type::UCONST: {
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 val = instr & 0x3FFFF;
+                base[target].m_num = val;
+                break;
+            }
+            case instruction_type::MOVE: {
+                uint32 target = (instr >> 13) & 0x1FFF;
+                uint32 source = instr & 0x1FFF;
+                base[target] = base[source];
+                break;
+            }
+            case instruction_type::RET: {
+                uint32 source = instr & 0xFF;
+                value val = base[source];
+                interp->m_stack_top = base;
+                dec(decl);
+                if (interp->m_frame_top <= orig_frame) {
+                    return val;
+                }
+                *base = val;
+                interp->m_frame_top--;
+                frame * new_frame = interp->m_frame_top;
+                base = new_frame->m_stack_base;
+                pc = new_frame->m_code;
+                cache = new_frame->m_cache;
+                decl = new_frame->m_decl;
+                break;
+            }
+            case instruction_type::CALL: {
+                uint32 fn_id = instr & 0xFFFF;
+                symbol_cache_entry fn = cache[fn_id];
+                if (fn.m_native != nullptr) {
+                    object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
+                    interp->m_stack_top[0].m_obj = res;
+                } else if (fn.m_object != nullptr) {
+                    interp->m_frame_top->m_stack_base = base;
+                    interp->m_frame_top->m_cache = cache;
+                    interp->m_frame_top->m_code = pc;
+                    interp->m_frame_top->m_decl = decl;
+                    interp->m_frame_top++;
+
+                    frame new_frame = call_init(interp, object_ref(fn.m_object, true));
+                    base = new_frame.m_stack_base;
+                    pc = new_frame.m_code;
+                    cache = new_frame.m_cache;
+                    decl = new_frame.m_decl;
+                } else {
+                    // Note: This leaks memory
+                    interp->m_frame_top = orig_frame;
+                    report_unknown_declaration(object_ref(decl), fn_id);
+                }
+                break;
+            }
+            case instruction_type::RETCALL: {
+                uint32 fn_id = instr & 0xFFFF;
+                symbol_cache_entry fn = cache[fn_id];
+                interp->m_stack_top = base;
+                if (fn.m_native != nullptr) {
+                    object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
+                    base[0].m_obj = res;
+                    interp->m_frame_top--;
+                    frame * new_frame = interp->m_frame_top;
+                    base = new_frame->m_stack_base;
+                    pc = new_frame->m_code;
+                    cache = new_frame->m_cache;
+                    decl = new_frame->m_decl;
+                } else if (fn.m_object != nullptr) {
+                    dec(decl);
+                    frame new_frame = call_init(interp, object_ref(fn.m_object, true));
+                    base = new_frame.m_stack_base;
+                    pc = new_frame.m_code;
+                    cache = new_frame.m_cache;
+                    decl = new_frame.m_decl;
+                } else {
+                    // Note: This leaks memory
+                    report_unknown_declaration(object_ref(decl), fn_id);
+                }
+                break;
+            }
+            case instruction_type::COMPUTE_SCALAR: {
+                uint32 usize = (instr >> 13) & 0x1FFF;
+                uint32 ssize = instr & 0x1FFF;
+                scalar_pos = usize * sizeof(size_t) + ssize;
+                break;
+            }
+            case instruction_type::ALLOC_CTOR: {
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 tag = (instr >> 8) & 0x3FF;
+                uint32 num_objs = instr & 0xFF;
+                base[target].m_obj = lean_alloc_ctor(tag, num_objs, scalar_pos);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::PROJ: {
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
+                base[target].m_obj = lean_ctor_get(base[source].m_obj, idx);
+                break;
+            }
+            case instruction_type::UPROJ: {
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 source = (instr >> 10) & 0xFF;
+                uint32 idx = instr & 0x3FF;
+                base[target].m_num = lean_ctor_get_usize(base[source].m_obj, idx);
+                break;
+            }
+            case instruction_type::SPROJ8: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = lean_ctor_get_uint8(base[source].m_obj, scalar_pos);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SPROJ16: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = lean_ctor_get_uint16(base[source].m_obj, scalar_pos);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SPROJ32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = lean_ctor_get_uint32(base[source].m_obj, scalar_pos);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SPROJ64: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = lean_ctor_get_uint64(base[source].m_obj, scalar_pos);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SET: {
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
+                lean_ctor_set(base[target].m_obj, idx, base[source].m_obj);
+                break;
+            }
+            case instruction_type::USET: {
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 source = (instr >> 10) & 0xFF;
+                uint32 idx = instr & 0x3FF;
+                lean_ctor_set_usize(base[target].m_obj, idx, base[source].m_num);
+                break;
+            }
+            case instruction_type::SSET8: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                lean_ctor_set_uint8(base[target].m_obj, scalar_pos, base[source].m_num);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SSET16: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                lean_ctor_set_uint16(base[target].m_obj, scalar_pos, base[source].m_num);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SSET32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                lean_ctor_set_uint32(base[target].m_obj, scalar_pos, base[source].m_num);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::SSET64: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                lean_ctor_set_uint64(base[target].m_obj, scalar_pos, base[source].m_num);
+                scalar_pos = 0;
+                break;
+            }
+            case instruction_type::BOX_SMALL: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box(base[source].m_num);
+                break;
+            }
+            case instruction_type::BOX_UINT32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box_uint32(base[source].m_num);
+                break;
+            }
+            case instruction_type::BOX_UINT64: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box_uint64(base[source].m_num);
+                break;
+            }
+            case instruction_type::BOX_USIZE: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box_size_t(base[source].m_num);
+                break;
+            }
+            case instruction_type::BOX_FLOAT: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box_float(base[source].m_float);
+                break;
+            }
+            case instruction_type::BOX_FLOAT32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_obj = box_float32(base[source].m_float32);
+                break;
+            }
+            case instruction_type::UNBOX_SMALL: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = unbox(base[source].m_obj);
+                break;
+            }
+            case instruction_type::UNBOX_UINT32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = unbox(base[source].m_obj);
+                break;
+            }
+            case instruction_type::UNBOX_UINT64: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = unbox_uint64(base[source].m_obj);
+                break;
+            }
+            case instruction_type::UNBOX_USIZE: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = unbox_size_t(base[source].m_obj);
+                break;
+            }
+            case instruction_type::UNBOX_FLOAT: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_float = unbox_float(base[source].m_obj);
+                break;
+            }
+            case instruction_type::UNBOX_FLOAT32: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_float32 = unbox_float32(base[source].m_obj);
+                break;
+            }
+            case instruction_type::INC_N: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 count = instr & 0xFF;
+                lean_inc_n(base[target].m_obj, count);
+                break;
+            }
+            case instruction_type::DEC_N: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 count = instr & 0xFF;
+                while (count > 0) {
+                    lean_dec(base[target].m_obj);
+                    count--;
+                }
+                break;
+            }
+            case instruction_type::IS_SHARED: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = !lean_is_exclusive(base[source].m_obj);
+                break;
+            }
+            case instruction_type::LOAD_TAG: {
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                base[target].m_num = lean_obj_tag(base[source].m_obj);
+                break;
+            }
+            case instruction_type::JUMP_TABLE: {
+                uint32 source = (instr >> 10) & 0xFF;
+                uint32 limit = instr & 0x3FF;
+                uint32 val = base[source].m_num;
+                if (val < limit) {
+                    pc += val;
+                }
+                break;
+            }
+            case instruction_type::SET_TAG: {
+                uint32 target = (instr >> 10) & 0xFF;
+                uint32 tag = instr & 0x3FF;
+                lean_ctor_set_tag(base[target].m_obj, tag);
+                break;
+            }
+            case instruction_type::IF_TAG: {
+                uint32 source = (instr >> 18) & 0xFF;
+                uint32 tag = (instr >> 8) & 0x3FF;
+                uint32 offset = instr & 0xFF;
+                if (base[source].m_num == tag) {
+                    pc += offset - 0x80;
+                }
+                break;
+            }
+            case instruction_type::JUMP: {
+                int32 offset = (instr & 0x3FF'FFFF) - 0x200'0000;
+                pc += offset;
+                break;
+            }
+        }
+    }
+}
+
+#define INTERPRETER_STACK_SIZE (1 << 18)
+#define INTERPRETER_FRAME_COUNT (1 << 12)
+
+extern "C" obj_res lean_eval_bytecode_decl(obj_arg env, obj_arg decl) {
+    if (g_interpreter == nullptr) {
+        interpreter * interp = new interpreter;
+        value * value_stack = reinterpret_cast<value *>(malloc(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(malloc(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        interp->m_stack_start = value_stack;
+        interp->m_stack_top = value_stack;
+        interp->m_stack_end = value_stack + INTERPRETER_STACK_SIZE;
+        interp->m_frame_start = frame_stack;
+        interp->m_frame_top = frame_stack;
+        interp->m_frame_end = frame_stack + INTERPRETER_FRAME_COUNT;
+        g_interpreter = interp;
+    }
+    flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
+    // In case of failure, reset stack and frame stack
+    flet<frame *> frame_flet(g_interpreter->m_frame_top, g_interpreter->m_frame_top);
+    flet<value *> stack_flet(g_interpreter->m_stack_top, g_interpreter->m_stack_top);
+    frame f = call_init(g_interpreter, object_ref(decl));
+    try {
+        value res = eval_loop(g_interpreter, f);
+        return mk_except_ok(res.m_obj);
+    } catch (exception e) {
+        return mk_except_error(string_ref(e.what()));
+    } catch (stack_space_exception e) {
+        return mk_except_error(string_ref(e.what()));
+    }
+}
 
 }
 
 void initialize_bytecode_interpreter() {
-    register_external_object_class(symbol_cache_finalize, symbol_cache_foreach);
+    interpreter::g_symbol_cache_external_class = register_external_object_class(interpreter::symbol_cache_finalize, interpreter::symbol_cache_foreach);
 }
 
 void finalize_bytecode_interpreter() {
 }
-}
+
 }

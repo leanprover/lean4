@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.CNF.Literal
+public import Init.Data.Prod  -- shake: keep (?)
 
 @[expose] public section
 

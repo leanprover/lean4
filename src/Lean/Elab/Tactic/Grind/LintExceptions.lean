@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 import Init.Grind.Lint
+import Init  -- shake: keep (fix)
+import Init.Data.Array.Count  -- shake: keep (fix)
 import Lean.Elab.Tactic.Grind.Lint  -- shake: keep (fix)
 import Std  -- shake: keep (fix)
 

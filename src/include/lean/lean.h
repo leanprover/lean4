@@ -359,6 +359,14 @@ typedef struct {
 } lean_external_object;
 
 static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
+
+typedef union {
+    lean_object * m_obj;
+    uint64_t      m_num;
+    float         m_float32;
+    double        m_float;
+} lean_interpreter_value;
+
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 

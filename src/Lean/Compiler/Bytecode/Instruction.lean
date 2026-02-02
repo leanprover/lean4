@@ -132,6 +132,12 @@ def Instruction.ifTag (target tag : UInt32) (offset : Int32) : Instruction where
 def Instruction.jump (offset : Int32) : Instruction where
   value := (39 : UInt32) <<< 26 ||| (offset + 0x200_0000).toUInt32
 
+def Instruction.app (fn n : UInt32) : Instruction where
+  value := (40 : UInt32) <<< 26 ||| n <<< 16 ||| fn
+
+def Instruction.pap (fn n : UInt32) : Instruction where
+  value := (41 : UInt32) <<< 26 ||| n <<< 16 ||| fn
+
 def pushInstr (code : ByteArray) (instr : Instruction) : ByteArray :=
   let code := code.push instr.value.toUInt8
   let code := code.push (instr.value >>> 8).toUInt8

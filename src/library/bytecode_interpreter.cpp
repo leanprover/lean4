@@ -37,18 +37,10 @@ Interpreter for Lean bytecode.
 
 namespace lean {
 namespace interpreter {
-// C++ wrappers of Lean data types
 
-/** \brief Value stored in an interpreter variable slot */
-union value {
-    // NOTE: the IR type system guarantees that we always access the active union member
-    uint64   m_num; // big enough for any unboxed integral type
-    static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
-    double   m_float;
-    float    m_float32;
-    object * m_obj;
-};
+typedef lean_interpreter_value value;
 
+static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
 static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in length"); // NOLINT
 
 struct symbol_cache_entry {
@@ -156,16 +148,20 @@ symbol_cache_entry fill_cache_entry(elab_environment const & env, object_ref con
     optional<object_ref> decl = find_bytecode_decl(env, decl_name);
     if (decl) {
         result.m_object = decl->steal();
-        io_eprintln(mk_string("loaded decl"));
     }
     string_ref mangled = get_symbol_stem(env, decl_name);
     result.m_arity = static_cast<unsigned>(arity.get_small_value());
-    if (optional<name> n = get_export_name_for(env, decl_name)) {
-        mangled = n->get_string();
-    }
-    io_eprintln(mangled.to_obj_arg());
-    if (void * p = lookup_symbol_in_cur_exe(mangled.data())) {
+    string_ref mangled_interp = string_ref(string_append(mangled.to_obj_arg(), mk_string("_0interp")));
+    if (void * p = lookup_symbol_in_cur_exe(mangled_interp.data())) {
         result.m_native = p;
+        result.m_arity = UINT32_MAX;
+    } else {
+        if (optional<name> n = get_export_name_for(env, decl_name)) {
+            mangled = n->get_string();
+        }
+        if (void * p = lookup_symbol_in_cur_exe(mangled.data())) {
+            result.m_native = p;
+        }
     }
     return result;
 }
@@ -259,6 +255,7 @@ enum instruction_type {
     LOAD_CONST,
     IF_TAG,
     JUMP,
+    APP,
     PAP,
     RESET,
     REUSE
@@ -294,6 +291,70 @@ void report_unknown_declaration(object_ref const & decl, unsigned symbol_idx) {
     object_ref const & symbol = symbols_array[symbol_idx];
     name const & nm = cnstr_get_ref_t<name>(symbol, 1);
     throw exception(sstream() << "(interpreter) unknown declaration '" << nm << "'");
+}
+
+typedef void (*stack_function)(value * values);
+
+value eval_loop(interpreter * interp, frame start_frame);
+
+// static closure stub
+static object * stub_m_aux(object ** args) {
+    object * env = args[0];
+    object * decl = args[1];
+    flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
+    // In case of failure, reset stack and frame stack
+    flet<frame *> frame_flet(g_interpreter->m_frame_top, g_interpreter->m_frame_top);
+    flet<value *> stack_flet(g_interpreter->m_stack_top, g_interpreter->m_stack_top);
+    object_ref decl_ref = object_ref(decl);
+    nat const & arity_obj = cnstr_get_ref_t<nat>(decl_ref, 6);
+    size_t arity = arity_obj.get_small_value();
+    frame f = call_init(g_interpreter, decl_ref);
+    for (size_t i = 0; i < arity; i++) {
+        f.m_stack_base[i].m_obj = args[i + 2];
+    }
+    value res = eval_loop(g_interpreter, f);
+    return res.m_obj;
+}
+
+// python3 -c 'for i in range(1,17): print(f"    static object * stub_{i}_aux(" + ", ".join([f"object * x_{j}" for j in range(1,i+1)]) + ") { object * args[] = { " + ", ".join([f"x_{j}" for j in range(1,i+1)]) + " }; return stub_m_aux(args); }")'
+static object * stub_1_aux(object * x_1) { object * args[] = { x_1 }; return stub_m_aux(args); }
+static object * stub_2_aux(object * x_1, object * x_2) { object * args[] = { x_1, x_2 }; return stub_m_aux(args); }
+static object * stub_3_aux(object * x_1, object * x_2, object * x_3) { object * args[] = { x_1, x_2, x_3 }; return stub_m_aux(args); }
+static object * stub_4_aux(object * x_1, object * x_2, object * x_3, object * x_4) { object * args[] = { x_1, x_2, x_3, x_4 }; return stub_m_aux(args); }
+static object * stub_5_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5) { object * args[] = { x_1, x_2, x_3, x_4, x_5 }; return stub_m_aux(args); }
+static object * stub_6_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6 }; return stub_m_aux(args); }
+static object * stub_7_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7 }; return stub_m_aux(args); }
+static object * stub_8_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8 }; return stub_m_aux(args); }
+static object * stub_9_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9 }; return stub_m_aux(args); }
+static object * stub_10_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10 }; return stub_m_aux(args); }
+static object * stub_11_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11 }; return stub_m_aux(args); }
+static object * stub_12_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12 }; return stub_m_aux(args); }
+static object * stub_13_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13 }; return stub_m_aux(args); }
+static object * stub_14_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14 }; return stub_m_aux(args); }
+static object * stub_15_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15 }; return stub_m_aux(args); }
+static object * stub_16_aux(object * x_1, object * x_2, object * x_3, object * x_4, object * x_5, object * x_6, object * x_7, object * x_8, object * x_9, object * x_10, object * x_11, object * x_12, object * x_13, object * x_14, object * x_15, object * x_16) { object * args[] = { x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16 }; return stub_m_aux(args); }
+
+void * get_stub(unsigned params) {
+    switch (params) {
+        case 0: lean_unreachable();
+        case 1: return reinterpret_cast<void *>(stub_1_aux);
+        case 2: return reinterpret_cast<void *>(stub_2_aux);
+        case 3: return reinterpret_cast<void *>(stub_3_aux);
+        case 4: return reinterpret_cast<void *>(stub_4_aux);
+        case 5: return reinterpret_cast<void *>(stub_5_aux);
+        case 6: return reinterpret_cast<void *>(stub_6_aux);
+        case 7: return reinterpret_cast<void *>(stub_7_aux);
+        case 8: return reinterpret_cast<void *>(stub_8_aux);
+        case 9: return reinterpret_cast<void *>(stub_9_aux);
+        case 10: return reinterpret_cast<void *>(stub_10_aux);
+        case 11: return reinterpret_cast<void *>(stub_11_aux);
+        case 12: return reinterpret_cast<void *>(stub_12_aux);
+        case 13: return reinterpret_cast<void *>(stub_13_aux);
+        case 14: return reinterpret_cast<void *>(stub_14_aux);
+        case 15: return reinterpret_cast<void *>(stub_15_aux);
+        case 16: return reinterpret_cast<void *>(stub_16_aux);
+        default: return reinterpret_cast<void *>(stub_m_aux);
+    }
 }
 
 value eval_loop(interpreter * interp, frame start_frame) {
@@ -349,8 +410,12 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 uint32 fn_id = instr & 0xFFFF;
                 symbol_cache_entry fn = cache[fn_id];
                 if (fn.m_native != nullptr) {
-                    object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
-                    interp->m_stack_top[0].m_obj = res;
+                    if (fn.m_arity == UINT32_MAX) {
+                        ((stack_function) fn.m_native)(interp->m_stack_top);
+                    } else {
+                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
+                        interp->m_stack_top[0].m_obj = res;
+                    }
                 } else if (fn.m_object != nullptr) {
                     interp->m_frame_top->m_stack_base = base;
                     interp->m_frame_top->m_cache = cache;
@@ -375,8 +440,12 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 symbol_cache_entry fn = cache[fn_id];
                 interp->m_stack_top = base;
                 if (fn.m_native != nullptr) {
-                    object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
-                    base[0].m_obj = res;
+                    if (fn.m_arity == UINT32_MAX) {
+                        ((stack_function) fn.m_native)(base);
+                    } else {
+                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(base));
+                        base[0].m_obj = res;
+                    }
                     interp->m_frame_top--;
                     frame * new_frame = interp->m_frame_top;
                     base = new_frame->m_stack_base;
@@ -620,6 +689,39 @@ value eval_loop(interpreter * interp, frame start_frame) {
             case instruction_type::JUMP: {
                 int32 offset = (instr & 0x3FF'FFFF) - 0x200'0000;
                 pc += offset;
+                break;
+            }
+            case instruction_type::APP: {
+                uint32 n = (instr >> 16) & 0xFF;
+                uint32 fn = instr & 0xFFFF;
+                object * res = lean_apply_n(base[fn].m_obj, n, reinterpret_cast<object **>(interp->m_stack_top));
+                interp->m_stack_top[0].m_obj = res;
+                break;
+            }
+            case instruction_type::PAP: {
+                uint32 n = (instr >> 16) & 0xFF;
+                uint32 fn_id = instr & 0xFFFF;
+                symbol_cache_entry fn = cache[fn_id];
+                if (fn.m_native) {
+                    object * closure = lean_alloc_closure(fn.m_native, fn.m_arity, n);
+                    for (size_t i = 0; i < n; i++) {
+                        lean_closure_set(closure, i, interp->m_stack_top[i].m_obj);
+                    }
+                    interp->m_stack_top[0].m_obj = closure;
+                } else if (fn.m_object) {
+                    inc(fn.m_object);
+                    object * closure = lean_alloc_closure(get_stub(fn.m_arity + 2), fn.m_arity + 2, n + 2);
+                    lean_closure_set(closure, 0, interp->m_env.to_obj_arg());
+                    lean_closure_set(closure, 1, fn.m_object);
+                    for (size_t i = 0; i < n; i++) {
+                        lean_closure_set(closure, i + 2, interp->m_stack_top[i].m_obj);
+                    }
+                    interp->m_stack_top[0].m_obj = closure;
+
+                } else {
+                    // Note: This leaks memory
+                    report_unknown_declaration(object_ref(decl), fn_id);
+                }
                 break;
             }
         }

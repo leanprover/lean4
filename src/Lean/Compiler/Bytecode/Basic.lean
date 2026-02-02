@@ -31,6 +31,7 @@ structure BytecodeDecl where
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
   symbols : Array Symbol
+  arity : Nat
 
 structure RuntimeBytecodeDecl where
   name : Name
@@ -39,6 +40,7 @@ structure RuntimeBytecodeDecl where
   stackSpace : Nat
   symbols : Array Symbol
   cache : SymbolCache symbols
+  arity : Nat
 
 @[extern "lean_eval_bytecode_decl"]
 unsafe opaque RuntimeBytecodeDecl.eval (α)

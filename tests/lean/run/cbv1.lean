@@ -170,3 +170,23 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
   conv =>
     lhs
     cbv
+
+attribute [cbv_forbidden] Std.DHashMap.emptyWithCapacity
+attribute [cbv_forbidden] Std.DHashMap.insert
+attribute [cbv_forbidden] Std.DHashMap.contains
+attribute [cbv_forbidden] Std.DHashMap.getEntry
+
+/--
+warning: The `cbv` tactic is experimental and still under development. Avoid using it in production projects
+---
+error: unsolved goals
+⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
+---
+trace: | (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5
+-/
+#guard_msgs in
+example : ((Std.HashMap.emptyWithCapacity : Std.HashMap Nat Nat).insert 5 3).contains 5 = true := by
+  conv =>
+    lhs
+    cbv
+    trace_state

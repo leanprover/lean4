@@ -1102,7 +1102,7 @@ static obj_res timespec_to_obj(timespec const & ts) {
 }
 
 static obj_res metadata_core(struct stat const & st) {
-    object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
+    object * mdata = alloc_cnstr(0, 2, 2 * sizeof(uint64) + sizeof(uint8));
 #ifdef __APPLE__
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
@@ -1115,7 +1115,8 @@ static obj_res metadata_core(struct stat const & st) {
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtim));
 #endif
     cnstr_set_uint64(mdata, 2 * sizeof(object *), st.st_size);
-    cnstr_set_uint8(mdata, 2 * sizeof(object *) + sizeof(uint64),
+    cnstr_set_uint64(mdata, 2 * sizeof(object *) + sizeof(uint64), st.st_nlink);
+    cnstr_set_uint8(mdata, 2 * sizeof(object *) + 2 * sizeof(uint64),
                     S_ISDIR(st.st_mode) ? 0 :
                     S_ISREG(st.st_mode) ? 1 :
 #ifndef LEAN_WINDOWS

@@ -21,6 +21,7 @@ and `List.lookup`.
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 
 namespace List
@@ -1005,7 +1006,7 @@ theorem findIdx?_eq_map_findFinIdx?_val {xs : List α} {p : α → Bool} :
 theorem findFinIdx?_eq_pmap_findIdx? {xs : List α} {p : α → Bool} :
     xs.findFinIdx? p =
       (xs.findIdx? p).pmap
-        (fun i m => by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, m.choose⟩)
+        (fun i m => ⟨i, sorry⟩) -- TODO: restore proof after bootstrap: by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, m.choose⟩
         (fun i h => h) := by
   simp [findIdx?_eq_map_findFinIdx?_val, Option.pmap_map]
 

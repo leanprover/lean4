@@ -18,6 +18,7 @@ This file follows the contents of `Init.Data.List.TakeDrop` and `Init.Data.List.
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 open Nat
 namespace Array

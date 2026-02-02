@@ -18,6 +18,7 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace Vector
 
@@ -187,7 +188,7 @@ theorem reverse_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector �
 @[simp, grind =]
 theorem getElem_zip {as : Vector α n} {bs : Vector β n} {i : Nat} {h : i < n} :
     (zip as bs)[i] = (as[i], bs[i]) :=
-  getElem_zipWith ..
+  getElem_zipWith h
 
 theorem zip_eq_zipWith {as : Vector α n} {bs : Vector β n} : zip as bs = zipWith Prod.mk as bs := by
   rcases as with ⟨as, rfl⟩

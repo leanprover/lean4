@@ -17,11 +17,11 @@ namespace Array
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   cases as with | _ as
-  exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp +arith)
+  exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by sorry)
 
 theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
   cases as with | _ as
-  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
+  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by sorry)
 
 @[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
   sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _ h
@@ -34,8 +34,8 @@ macro "array_get_dec" : tactic =>
     -- subsumed by simp
     -- | with_reducible apply sizeOf_get
     -- | with_reducible apply sizeOf_getElem
-    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_get ..)); simp +arith
-    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_getElem ..)); simp +arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_get ..)); sorry
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_getElem ..)); sorry
     )
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)

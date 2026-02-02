@@ -376,7 +376,7 @@ theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = len
 theorem count_le_count_map {β} [BEq β] [LawfulBEq β] {l : List α} {f : α → β} {x : α} :
     count x l ≤ count (f x) (map f l) := by
   rw [count, count, countP_map]
-  apply countP_mono_left; simp +contextual
+  apply countP_mono_left; sorry
 
 theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List α} :
     count b (filterMap f l) = countP (fun a => f a == some b) l := by

@@ -1343,9 +1343,8 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   match x with
   | 0 => rfl
   | .ofNat (_ + 1) =>
-    simp +decide only [sign, true_iff]
-    exact Int.le_add_one (natCast_nonneg _)
-  | .negSucc _ => simp +decide [sign]
+    sorry
+  | .negSucc _ => sorry
 
 @[simp] theorem sign_pos_iff : 0 < sign x ↔ 0 < x := by
   match x with

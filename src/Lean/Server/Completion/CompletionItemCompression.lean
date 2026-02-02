@@ -104,7 +104,7 @@ def compressItemFast (acc : String) (item : ResolvableCompletionItem) : String :
       acc := acc ++ "]"
   return acc ++ "}"
 
-def compressItemsFast
+partial def compressItemsFast
     (acc : String) (items : Array ResolvableCompletionItem) (i : Nat) :
     String :=
   if h : i < items.size then

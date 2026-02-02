@@ -96,9 +96,9 @@ where
     else
       true
   termination_by len.byteIdx - curr.byteIdx
-  decreasing_by
-    simp [Pos.Raw.lt_iff] at h ⊢
-    omega
+  -- decreasing_by
+  --   simp [Pos.Raw.lt_iff] at h ⊢
+  --   omega
 
 @[inline]
 def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos.Raw)

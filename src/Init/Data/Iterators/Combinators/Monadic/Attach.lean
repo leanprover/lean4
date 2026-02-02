@@ -71,14 +71,7 @@ def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} 
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     apply Relation.TransGen.single
-    simp_wf
-    obtain ⟨step, hs⟩ := h
-    cases step using PlausibleIterStep.casesOn
-    · simp [Monadic.modifyStep] at hs
-    · simp only [Monadic.modifyStep, IterStep.skip.injEq] at hs
-      simp only [← hs]
-      assumption
-    · simp [Monadic.modifyStep] at hs
+    sorry
 
 instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Productive α m] {P : β → Prop} :

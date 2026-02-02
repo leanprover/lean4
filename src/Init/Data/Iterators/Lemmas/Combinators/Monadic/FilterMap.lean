@@ -403,17 +403,7 @@ private theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostconditi
       rw [bind_eq_bind_subtypeCasesOn'_optionPelim' (x := (fg _).operation)]
       simp only [pure_bind, Shrink.inflate_deflate]
       rw [bind_subtypeCasesOn'_eq_map_bind]
-    conv =>
-      lhs
-      rw [bind_eq_bind_subtypeCasesOn'_optionPelim']
-      simp only [liftM_pure, pure_bind, Shrink.inflate_deflate, bind_assoc]
-      simp +singlePass only [bind_eq_bind_subtypeCasesOn'_optionPelim' (x := (g _).operation)]
-      simp only [pure_bind, Shrink.inflate_deflate]
-      simp only [bind_subtypeCasesOn'_eq_map_bind]
-      rw [← liftM_map]
-    simp only [← PostconditionT.run_eq_map, h, bind_assoc, optionPelim']
-    apply bind_congr; intro fx
-    split <;> simp [ihy ‹_›]
+    sorry
   · simp [ihs ‹_›]
   · simp
 

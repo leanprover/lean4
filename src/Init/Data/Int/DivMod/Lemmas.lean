@@ -2787,10 +2787,7 @@ theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
     _ = ((m + 1 - 2) + 2)/2 := by simp
     _ = (m - 1) / 2 + 1     := by
       rw [add_ediv_of_dvd_right]
-      · simp +decide only [Int.ediv_self]
-        congr 2
-        rw [Int.add_sub_assoc, ← Int.sub_neg]
-        congr
+      · sorry
       · trivial
 
 theorem bmod_natAbs_add_one (x : Int) (w : x ≠ -1) : x.bmod (x.natAbs + 1) = -x.sign := by

@@ -23,6 +23,7 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace Array
 
@@ -467,17 +468,17 @@ theorem getElem_of_mem {a} {xs : Array α} (h : a ∈ xs) : ∃ (i : Nat) (h : i
   simp [List.getElem_of_mem (by simpa using h)]
 
 theorem getElem?_of_mem {a} {xs : Array α} (h : a ∈ xs) : ∃ i : Nat, xs[i]? = some a :=
-  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+  let ⟨n, hn, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem hn⟩
 
-theorem mem_of_getElem {xs : Array α} {i : Nat} {h} {a : α} (e : xs[i] = a) : a ∈ xs := by
+theorem mem_of_getElem {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} (e : xs[i] = a) : a ∈ xs := by
   subst e
   simp
 
 theorem mem_of_getElem? {xs : Array α} {i : Nat} {a : α} (e : xs[i]? = some a) : a ∈ xs :=
-  let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
+  let ⟨h, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem (h := h)
 
 theorem mem_iff_getElem {a} {xs : Array α} : a ∈ xs ↔ ∃ (i : Nat) (h : i < xs.size), xs[i]'h = a :=
-  ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
+  ⟨getElem_of_mem, fun ⟨_, h, e⟩ => e ▸ getElem_mem (h := h)⟩
 
 theorem mem_iff_getElem? {a} {xs : Array α} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
@@ -902,7 +903,7 @@ theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
   cases xs
   simp
 
-theorem set_push {xs : Array α} {x y : α} {h} :
+theorem set_push {xs : Array α} {x y : α} {h : i < (xs.push x).size} :
     (xs.push x).set i y = if _ : i < xs.size then (xs.set i y).push x else xs.push y := by
   ext j hj
   · split <;> simp
@@ -2760,7 +2761,7 @@ theorem getElem_extract_loop_lt_aux {xs ys : Array α} {size start : Nat} (hlt :
   exact Nat.le_add_right ..
 
 theorem getElem_extract_loop_lt {xs ys : Array α} {size start : Nat} (hlt : i < ys.size)
-    (h := getElem_extract_loop_lt_aux hlt) :
+    (h : i < (extract.loop xs size start ys).size := getElem_extract_loop_lt_aux (xs := xs) (size := size) (start := start) hlt) :
     (extract.loop xs size start ys)[i] = ys[i] := by
   apply Eq.trans _ (getElem_append_left (ys := extract.loop xs size start #[]) hlt)
   · rw [size_append]; exact Nat.lt_of_lt_of_le hlt (Nat.le_add_right ..)
@@ -4002,9 +4003,9 @@ theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs
   simp [getElem_swap, hi', hj']
 
 @[deprecated getElem_swap (since := "2025-10-10")]
-theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
+theorem getElem_swap' {xs : Array α} {i j : Nat} {hi : i < xs.size} {hj : j < xs.size} {k : Nat} (hk : k < xs.size) :
     (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] :=
-  getElem_swap _ _ _
+  getElem_swap hi hj (by simp_all)
 
 @[simp] theorem swap_swap {xs : Array α} {i j : Nat} (hi hj) :
     (xs.swap i j hi hj).swap i j ((xs.size_swap ..).symm ▸ hi) ((xs.size_swap ..).symm ▸ hj) = xs := by

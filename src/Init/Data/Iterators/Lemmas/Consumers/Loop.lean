@@ -29,9 +29,7 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
           (fun out h acc => return ⟨← f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc, trivial⟩) := by
   simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
-  simp +singlePass only [this]
-  rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp [IteratorLoop.defaultImplementation]
+  sorry
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]

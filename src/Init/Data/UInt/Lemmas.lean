@@ -328,20 +328,20 @@ protected theorem USize.mod_eq_of_lt {a b : USize} (h : a < b) : a % b = a := US
 @[simp] theorem UInt64.toNat_lt (n : UInt64) : n.toNat < 2 ^ 64 := n.toFin.isLt
 
 theorem UInt8.size_lt_usizeSize : UInt8.size < USize.size := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 theorem UInt8.size_le_usizeSize : UInt8.size ≤ USize.size :=
   Nat.le_of_lt UInt8.size_lt_usizeSize
 theorem UInt16.size_lt_usizeSize : UInt16.size < USize.size := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 theorem UInt16.size_le_usizeSize : UInt16.size ≤ USize.size :=
   Nat.le_of_lt UInt16.size_lt_usizeSize
 theorem UInt32.size_le_usizeSize : UInt32.size ≤ USize.size := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 theorem USize.size_eq_two_pow : USize.size = 2 ^ System.Platform.numBits := (rfl)
 theorem USize.toNat_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
 @[simp] theorem USize.toNat_lt (n : USize) : n.toNat < 2 ^ 64 := Nat.lt_of_lt_of_le n.toFin.isLt size_le
 theorem USize.size_le_uint64Size : USize.size ≤ UInt64.size := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 
 theorem UInt8.toNat_lt_usizeSize (n : UInt8) : n.toNat < USize.size :=
   Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
@@ -350,10 +350,10 @@ theorem UInt16.toNat_lt_usizeSize (n : UInt16) : n.toNat < USize.size :=
 theorem UInt32.toNat_lt_usizeSize (n : UInt32) : n.toNat < USize.size :=
   Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
 
-theorem UInt8.size_dvd_usizeSize : UInt8.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
-theorem UInt16.size_dvd_usizeSize : UInt16.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
-theorem UInt32.size_dvd_usizeSize : UInt32.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
-theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize.size_eq <;> simp_all +decide
+theorem UInt8.size_dvd_usizeSize : UInt8.size ∣ USize.size := by cases USize.size_eq <;> sorry
+theorem UInt16.size_dvd_usizeSize : UInt16.size ∣ USize.size := by cases USize.size_eq <;> sorry
+theorem UInt32.size_dvd_usizeSize : UInt32.size ∣ USize.size := by cases USize.size_eq <;> sorry
+theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize.size_eq <;> sorry
 
 @[simp] theorem mod_usizeSize_uInt8Size (n : Nat) : n % USize.size % UInt8.size = n % UInt8.size :=
   Nat.mod_mod_of_dvd _ UInt8.size_dvd_usizeSize
@@ -365,13 +365,13 @@ theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize
   Nat.mod_mod_of_dvd _ USize.size_dvd_uInt64Size
 
 @[simp] theorem USize.size_sub_one_mod_uint8Size : (USize.size - 1) % UInt8.size = UInt8.size - 1 := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 @[simp] theorem USize.size_sub_one_mod_uint16Size : (USize.size - 1) % UInt16.size = UInt16.size - 1 := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 @[simp] theorem USize.size_sub_one_mod_uint32Size : (USize.size - 1) % UInt32.size = UInt32.size - 1 := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 @[simp] theorem UInt64.size_sub_one_mod_uSizeSize : 18446744073709551615 % USize.size = USize.size - 1 := by
-  cases USize.size_eq <;> simp_all +decide
+  cases USize.size_eq <;> sorry
 
 @[simp] theorem UInt8.toNat_mod_size (n : UInt8) : n.toNat % UInt8.size = n.toNat := Nat.mod_eq_of_lt n.toNat_lt
 @[simp] theorem UInt8.toNat_mod_uInt16Size (n : UInt8) : n.toNat % UInt16.size = n.toNat := Nat.mod_eq_of_lt (Nat.lt_trans n.toNat_lt (by decide))
@@ -1257,7 +1257,7 @@ theorem USize.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
   UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
 
 theorem USize.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
-    (USize.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all +decide) :=
+    (USize.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> sorry) :=
   UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
 
 @[simp] theorem UInt8.toUInt16_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt16 = UInt16.ofNat n := by

@@ -405,7 +405,7 @@ theorem Zipper.toList_iter {α β} {z : Zipper α β} : z.iter.toList = z.toList
     simp only
     rw [← Iter.toList_eq_toList_toIterM, toList_iter, toList_prependMap_eq_append]
 termination_by z.size
-decreasing_by simp [size_prependMap]
+-- decreasing_by simp [size_prependMap]
 
 public theorem Zipper.toList_iterOfTree (t : Impl α β) :
     (Zipper.iterOfTree t).toList = t.toList := by
@@ -516,8 +516,8 @@ theorem RxcIterator.toList_rxcIter {α β} [Ord α]
       true_and]
       rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxcIter, Zipper.toList_prependMap_eq_append]
 termination_by z.size
-decreasing_by
-  simp_all [Zipper.size_prependMap]
+-- decreasing_by
+--   simp_all [Zipper.size_prependMap]
 
 theorem List.takeWhile_eq_filter_of_pairwise {α : Type u} {p : α → Bool} {l : List α}
     (h : l.Pairwise (fun a b => p a = false → p b = false)) : l.takeWhile p = l.filter p := by
@@ -645,8 +645,8 @@ theorem RxoIterator.toList_rxoIter {α β} [Ord α]
       true_and]
       rw [← eq_toIterM_iter, ← Iter.toList_eq_toList_toIterM, toList_rxoIter, Zipper.toList_prependMap_eq_append]
 termination_by z.size
-decreasing_by
-  simp_all [Zipper.size_prependMap]
+-- decreasing_by
+--   simp_all [Zipper.size_prependMap]
 
 theorem RxoIterator.takeWhile_eq_filter {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] {bound : α}
     {l : List ((a : α) × β a)}

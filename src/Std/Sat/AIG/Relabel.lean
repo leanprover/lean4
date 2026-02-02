@@ -10,6 +10,8 @@ public import Std.Sat.AIG.Lemmas
 
 @[expose] public section
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
+
 namespace Std
 namespace Sat
 

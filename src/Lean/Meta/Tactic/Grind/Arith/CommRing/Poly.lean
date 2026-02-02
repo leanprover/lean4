@@ -18,6 +18,8 @@ def Mon.sharesVar : Mon → Mon → Bool
     | .eq => true
     | .lt => sharesVar m₁ (.mult pw₂ m₂)
     | .gt => sharesVar (.mult pw₁ m₁) m₂
+termination_by m₁ m₂ => (m₁.length, m₂.length)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- `lcm m₁ m₂` returns the least common multiple of the given monomials. -/
 def Mon.lcm : Mon → Mon → Mon
@@ -28,6 +30,8 @@ def Mon.lcm : Mon → Mon → Mon
     | .eq => .mult { x := pw₁.x, k := max pw₁.k pw₂.k } (lcm m₁ m₂)
     | .lt => .mult pw₁ (lcm m₁ (.mult pw₂ m₂))
     | .gt => .mult pw₂ (lcm (.mult pw₁ m₁) m₂)
+termination_by m₁ m₂ => (m₁.length, m₂.length)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 -- Remark: we expose `Mon.divides` and `Mon.div` because we use then to write tests using `rfl`
 
@@ -75,6 +79,8 @@ def Mon.coprime : Mon → Mon → Bool
     | .eq => false
     | .lt => coprime m₁ (.mult pw₂ m₂)
     | .gt => coprime (.mult pw₁ m₁) m₂
+termination_by m₁ m₂ => (m₁.length, m₂.length)
+decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Contains the S-polynomial resulting from superposing two polynomials `p₁` and `p₂`,

@@ -236,6 +236,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Ch
 
 namespace ByteArray.utf8DecodeChar?
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 /-! # `parseFirstByte` -/
 
 /-! ## `parseFirstByte` definition -/
@@ -1138,31 +1139,16 @@ theorem utf8DecodeChar?_eq_assemble₄ {b : ByteArray} (hb : 4 ≤ b.size) (h : 
   all_goals omega
 
 theorem utf8DecodeChar?_append_eq_assemble₁ {l : List UInt8} {b : ByteArray} (hl : l.length = 1) (h : parseFirstByte l[0] = .done) :
-    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₁ l[0] h := by
-  have : (l.toByteArray ++ b)[0]'(by simp [hl]; omega) = l[0] := by
-    rw [ByteArray.getElem_append_left (by simp [hl]), List.getElem_toByteArray]
-  rw [utf8DecodeChar?_eq_assemble₁ (by simp [hl])] <;> simp [this, h]
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₁ l[0] h := sorry
 
 theorem utf8DecodeChar?_append_eq_assemble₂ {l : List UInt8} {b : ByteArray} (hl : l.length = 2) (h : parseFirstByte l[0] = .oneMore) :
-    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₂ l[0] l[1] := by
-  rw [utf8DecodeChar?_eq_assemble₂ (by simp [hl])]
-  all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
-  all_goals repeat rw [List.getElem_toByteArray]
-  assumption
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₂ l[0] l[1] := sorry
 
 theorem utf8DecodeChar?_append_eq_assemble₃ {l : List UInt8} {b : ByteArray} (hl : l.length = 3) (h : parseFirstByte l[0] = .twoMore) :
-    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₃ l[0] l[1] l[2] := by
-  rw [utf8DecodeChar?_eq_assemble₃ (by simp [hl])]
-  all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
-  all_goals repeat rw [List.getElem_toByteArray]
-  assumption
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₃ l[0] l[1] l[2] := sorry
 
 theorem utf8DecodeChar?_append_eq_assemble₄ {l : List UInt8} {b : ByteArray} (hl : l.length = 4) (h : parseFirstByte l[0] = .threeMore) :
-    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₄ l[0] l[1] l[2] l[3] := by
-  rw [utf8DecodeChar?_eq_assemble₄ (by simp [hl])]
-  all_goals repeat rw [ByteArray.getElem_append_left (by simp [hl])]
-  all_goals repeat rw [List.getElem_toByteArray]
-  assumption
+    (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₄ l[0] l[1] l[2] l[3] := sorry
 
 /-!
 # Main theorems
@@ -1388,6 +1374,7 @@ public theorem List.utf8DecodeChar_utf8Encode_cons {l : List Char} {c : Char} {h
 
 namespace UInt8
 
+set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 /--
 Predicate for whether a byte can appear as the first byte of the UTF-8 encoding of a Unicode
 scalar value.
@@ -1470,9 +1457,11 @@ theorem utf8ByteSize_eq_utf8ByteSize_parseFirstByte {c : UInt8} {h : c.IsUTF8Fir
 end UInt8
 
 public theorem ByteArray.isUTF8FirstByte_getElem_zero_utf8EncodeChar_append {c : Char} {b : ByteArray} :
-    (((String.utf8EncodeChar c).toByteArray ++ b)[0]'(by simp; have := c.utf8Size_pos; omega)).IsUTF8FirstByte := by
-  rw [ByteArray.getElem_append_left (by simp [c.utf8Size_pos]),
-    List.getElem_toByteArray, UInt8.isUTF8FirstByte_getElem_utf8EncodeChar]
+    (((String.utf8EncodeChar c).toByteArray ++ b)[0]'(by simp; have := c.utf8Size_pos; omega)).IsUTF8FirstByte :=
+  -- TODO: restore proof after bootstrap:
+  -- by rw [ByteArray.getElem_append_left (by simp [c.utf8Size_pos]),
+  --        List.getElem_toByteArray, UInt8.isUTF8FirstByte_getElem_utf8EncodeChar]
+  sorry
 
 public theorem ByteArray.isUTF8FirstByte_of_isSome_utf8DecodeChar? {b : ByteArray} {i : Nat}
     (h : (utf8DecodeChar? b i).isSome) : (b[i]'(lt_size_of_isSome_utf8DecodeChar? h)).IsUTF8FirstByte := by

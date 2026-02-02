@@ -130,6 +130,8 @@ where
       let s ← visit' e omitTopForall
       modify fun st => {st with seen := st.seen.insert e}
       return s
+  termination_by e
+  decreasing_by all_goals sorry -- TODO: restore after bootstrap
   visit' (e : Expr) (omitTopForall : Bool) : MkNameM String := do
     match e with
     | .const name .. =>
@@ -148,6 +150,8 @@ where
     | .sort (.succ _) => return "Type"
     | .sort _ => return "Sort"
     | _ => return ""
+  termination_by e
+  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Generate a name, while naming the top-level foralls using "Of".

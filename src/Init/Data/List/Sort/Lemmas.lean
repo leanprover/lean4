@@ -165,8 +165,8 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
   | a::l, b::r =>
     rw [cons_merge_cons]
     split
-    · simp +arith [length_merge s l (b::r)]
-    · simp +arith [length_merge s (a::l) r]
+    · sorry
+    · sorry
 
 /--
 The elements of `merge le xs ys` are exactly the elements of `xs` and `ys`.

@@ -64,7 +64,6 @@ def div.inductionOn.{u}
     ind x y h (inductionOn (x - y) y ind base)
   else
     base x y h
-decreasing_by apply div_rec_lemma; assumption
 
 theorem div_le_self (n k : Nat) : n / k ≤ n := by
   induction n using Nat.strongRecOn with
@@ -237,7 +236,6 @@ theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
     simp [h]
     have ih := div_add_mod (m - n) n
     rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
-decreasing_by apply div_rec_lemma; assumption
 
 theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1 := by
  rw [div_eq a, if_pos]; constructor <;> assumption

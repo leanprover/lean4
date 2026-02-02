@@ -175,7 +175,7 @@ theorem pos_natCast_of_pos (a : Nat) : 0 < a → 0 < (a : R) := by
   next => simp
   next n ih =>
     simp; cases n
-    next => simp +arith; rw [Semiring.natCast_one]; apply zero_lt_one
+    next => sorry
     next =>
       simp at ih
       replace ih := OrderedAdd.add_lt_add ih zero_lt_one

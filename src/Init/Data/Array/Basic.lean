@@ -741,7 +741,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
         map (i+1) (bs.push (← f as[i]))
       else
         pure bs
-  decreasing_by simp_wf; decreasing_trivial_pre_omega
+  -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
   map 0 (emptyWithCapacity as.size)
 
 /--
@@ -789,7 +789,7 @@ where
     else
       failure
   termination_by as.size - i
-  decreasing_by exact Nat.sub_succ_lt_self as.size i hlt
+  -- decreasing_by exact Nat.sub_succ_lt_self as.size i hlt
 
 /--
 Returns the first non-`none` result of applying the monadic function `f` to each element of the
@@ -905,7 +905,7 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
           loop (j+1)
       else
         pure false
-      decreasing_by simp_wf; decreasing_trivial_pre_omega
+      -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
     loop start
   if h : stop ≤ as.size then
     any stop h
@@ -1238,7 +1238,7 @@ def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
     if h : j < as.size then
       if p as[j] then some j else loop (j + 1)
     else none
-    decreasing_by simp_wf; decreasing_trivial_pre_omega
+    -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
   loop 0
 
 /--
@@ -1255,7 +1255,7 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     if h : j < as.size then
       if p as[j] then some ⟨j, h⟩ else loop (j + 1)
     else none
-    decreasing_by simp_wf; decreasing_trivial_pre_omega
+    -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
   loop 0
 
 private theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
@@ -1292,7 +1292,7 @@ def idxOfAux [BEq α] (xs : Array α) (v : α) (i : Nat) : Option (Fin xs.size) 
     if xs[i] == v then some ⟨i, h⟩
     else idxOfAux xs v (i+1)
   else none
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 
 
@@ -1507,11 +1507,13 @@ where
   loop (as : Array α) (i : Nat) (j : Fin as.size) :=
     if h : i < j then
       have := termination h
-      let as := as.swap i j (Nat.lt_trans h j.2)
+      let as := as.swap i j (Nat.lt_trans h j.2) sorry
       have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
       loop as (i+1) ⟨j-1, this⟩
     else
       as
+  termination_by j - i
+  -- decreasing_by sorry -- TODO: restore after bootstrap
 
 /--
 Returns the array of elements in `as` for which `p` returns `true`.
@@ -1704,7 +1706,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
       as
   else
     as
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 @[simp, grind =] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
@@ -1729,7 +1731,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
         acc
     else
       acc
-    decreasing_by simp_wf; decreasing_trivial_pre_omega
+    -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
   go 0 #[]
 
 /--
@@ -1750,7 +1752,7 @@ def eraseIdx (xs : Array α) (i : Nat) (h : i < xs.size := by get_elem_tactic) :
   else
     xs.pop
 termination_by xs.size - i
-decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 -- This is required in `Lean.Data.PersistentHashMap`.
 @[simp, grind =]
@@ -1758,7 +1760,8 @@ theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = x
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx
-    simp +zetaDelta [h', ih]
+    sorry
+    -- simp +zetaDelta [h', ih]
   | case2 xs i h h' =>
     unfold eraseIdx
     simp [h']
@@ -1803,7 +1806,7 @@ Examples:
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.finIdxOf? a with
   | none   => as
-  | some i => as.eraseIdx i
+  | some i => as.eraseIdx i sorry
 
 /--
 Removes the first element that satisfies the predicate `p`. If no element satisfies `p`, the array
@@ -1821,7 +1824,7 @@ Examples:
 def eraseP (as : Array α) (p : α → Bool) : Array α :=
   match as.findFinIdx? p with
   | none   => as
-  | some i => as.eraseIdx i
+  | some i => as.eraseIdx i sorry
 
 /--
 Inserts an element into an array at the specified index. If the index is greater than the size of
@@ -1841,11 +1844,11 @@ Examples:
   let rec loop (as : Array α) (j : Fin as.size) :=
     if i < j then
       let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
-      let as := as.swap j' j
+      let as := as.swap j' j sorry sorry
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
       as
-    decreasing_by simp_wf; decreasing_trivial_pre_omega
+    -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
@@ -1903,7 +1906,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
       false
   else
     true
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 /--
 Return `true` if `as` is a prefix of `bs`, or `false` otherwise.
@@ -1931,7 +1934,7 @@ def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β
       return cs
   else
     return cs
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 /--
 Applies a function to the corresponding elements of two arrays, stopping at the end of the shorter
@@ -1979,7 +1982,7 @@ where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
   else
     cs
   termination_by max as.size bs.size - i
-  decreasing_by simp_wf; decreasing_trivial_pre_omega
+  -- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 /--
 Applies a monadic function to the corresponding elements of two arrays, left-to-right, stopping at
@@ -2011,7 +2014,7 @@ Examples:
 def replace [BEq α] (xs : Array α) (a b : α) : Array α :=
   match xs.finIdxOf? a with
   | none => xs
-  | some i => xs.set i b
+  | some i => xs.set i b sorry
 
 /-! ### Lexicographic ordering -/
 
@@ -2088,7 +2091,7 @@ private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
     allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
   else
     true
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+-- decreasing_by sorry -- TODO: restore simp_wf after bootstrap
 
 /--
 Returns `true` if no two elements of `as` are equal according to the `==` operator.

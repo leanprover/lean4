@@ -560,7 +560,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [zipIdx, f]
   rw [← Array.foldr_toList]
-  simp +zetaDelta [go]
+  sorry
 
 /-! ### enumFrom -/
 

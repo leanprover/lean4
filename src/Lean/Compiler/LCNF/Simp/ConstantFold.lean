@@ -87,9 +87,14 @@ instance : Literal String where
   getLit := getStringLit
   mkLit := mkStringLit
 
-def getBoolLit (fvarId : FVarId) : CompilerM (Option Bool) := do
-  let some (.const ctor [] #[]) ← findLetValue? fvarId | return none
-  return ctor == ``Bool.true
+private unsafe def getBoolLitImpl (fvarId : FVarId) : CompilerM (Option Bool) := do
+  let some v ← findLetValue? (pu := .pure) fvarId | return none
+  match v with
+  | .const ctor [] #[] => return ctor == ``Bool.true
+  | _ => return none
+
+@[implemented_by getBoolLitImpl]
+opaque getBoolLit (fvarId : FVarId) : CompilerM (Option Bool)
 
 def mkBoolLit (b : Bool) : FolderM (LetValue .pure) :=
   let ctor := if b then ``Bool.true else ``Bool.false
@@ -99,11 +104,17 @@ instance : Literal Bool where
   getLit := getBoolLit
   mkLit := mkBoolLit
 
-private def getLitAux (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
-  let some (.const declName _ #[.fvar fvarId]) ← findLetValue? fvarId | return none
-  unless declName == ofNatName do return none
-  let some natLit ← getLit fvarId | return none
-  return ofNat natLit
+private unsafe def getLitAuxImpl (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
+  let some v ← findLetValue? (pu := .pure) fvarId | return none
+  match v with
+  | .const declName _ #[.fvar fvarId] =>
+    unless declName == ofNatName do return none
+    let some natLit ← getLit fvarId | return none
+    return ofNat natLit
+  | _ => return none
+
+@[implemented_by getLitAuxImpl]
+private opaque getLitAux (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α)
 
 def mkNatWrapperInstance (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : Literal α where
   getLit := (getLitAux · ofNat ofNatName)
@@ -143,7 +154,7 @@ partial def getPseudoListLiteral (fvarId : FVarId) : CompilerM (Option (List FVa
   go fvarId []
 where
   go (fvarId : FVarId) (fvarIds : List FVarId) : CompilerM (Option (List FVarId × Expr × Level)) := do
-    let some e ← findLetValue? fvarId | return none
+    let some e ← findLetValue? (pu := .pure) fvarId | return none
     match e with
     | .const ``List.nil [u] #[.type α] =>
       return some (fvarIds.reverse, α, u)

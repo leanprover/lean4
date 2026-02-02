@@ -170,16 +170,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    match step with
-    | .yield it'' out | .skip it'' =>
-      obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
-      revert h'
-      match it, it' with
-      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitIterator.toOption, Option.lt]
-      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitIterator.toOption, Option.lt]
-      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
@@ -261,16 +251,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    match step with
-    | .yield it'' out | .skip it'' =>
-      obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
-      revert h'
-      match it, it' with
-      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
-      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [SplitInclusiveIterator.toOption, Option.lt]
-      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] :
@@ -601,16 +581,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    match step with
-    | .yield it'' out | .skip it'' =>
-      obtain rfl : it' = it'' := by simpa using h.symm
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep] at h'
-      revert h'
-      match it, it' with
-      | ⟨.operating _ searcher⟩, ⟨.operating _ searcher'⟩ => simp [RevSplitIterator.toOption, Option.lt]
-      | ⟨.operating _ searcher⟩, ⟨.atEnd⟩ => simp [RevSplitIterator.toOption, Option.lt]
-      | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
@@ -825,9 +795,9 @@ where
     else
       s1Curr == s1.rawEndPos && s2Curr == s2.rawEndPos
   termination_by s1.endPos.offset.byteIdx - s1Curr.byteIdx
-  decreasing_by
-    simp [String.Pos.Raw.lt_iff] at h ⊢
-    omega
+  -- decreasing_by
+  --   simp [String.Pos.Raw.lt_iff] at h ⊢
+  --   omega
 
 structure PosIterator (s : Slice) where
   currPos : s.Pos
@@ -872,17 +842,6 @@ private def finitenessRelation [Pure m] :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, _⟩ := h'
-      have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
-      have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h1 h2 h4
-      omega
-    · cases h'
-    · cases h
-
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
@@ -954,15 +913,6 @@ private def finitenessRelation [Pure m] :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, _⟩ := h'
-      have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
-      omega
-    · cases h'
-    · cases h
 
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
@@ -1029,17 +979,6 @@ private def finitenessRelation [Pure m] :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, h3, h4⟩ := h'
-      clear h4
-      generalize it'.internalState.s = s at *
-      cases h2
-      simp [String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h1 h3
-      omega
-    · cases h'
-    · cases h
 
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
@@ -1109,15 +1048,6 @@ private def finitenessRelation [Pure m] :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, h3, h4, h5⟩ := h'
-      rw [h4]
-      simp at h1 h3 ⊢
-      omega
-    · cases h'
-    · cases h
 
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=

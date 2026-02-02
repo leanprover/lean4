@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.NotationExtra
-public meta import Init.Data.ToString.Name  -- shake: keep (?)
+public meta import Init.Data.ToString.Name  -- shake: keep (transitive public meta dep, fix)
 
 public section
 

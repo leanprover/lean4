@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.ToString.Macro
 public import Init.TacticsExtra
-public import Init.RCases  -- shake: keep (fix)
+public import Init.RCases
 
 public section
 

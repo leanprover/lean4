@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.BitVec.Lemmas
 public import Std.Tactic.BVDecide.Syntax
-public import Init.Data.BitVec.Bootstrap  -- shake: keep (?)
+public import Init.Data.BitVec.Bootstrap
 
 @[expose] public section
 

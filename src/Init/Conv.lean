@@ -51,6 +51,9 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
+/-- Simplifies the expression by simulating call-by-value evaluation. -/
+syntax (name := cbv) "cbv" : conv
+
 /--
 Traverses into the left subterm of a binary operator.
 

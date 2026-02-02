@@ -894,7 +894,7 @@ def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientifi
   mkLit scientificLitKind val info
 
 /--
-Creates literal syntax for name. The caller must ensure that the provided string is a valid name
+Creates literal syntax for a name. The caller must ensure that the provided string is a valid name
 literal.
 
 If `info` is provided, then the literal's source information is copied from it.
@@ -1554,7 +1554,7 @@ def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
   .mk sa.elemsAndSeps.getSepElems
 
 /--
-Adds an element to the end of a separated array, adding a separater as needed.
+Adds an element to the end of a separated array, adding a separator as needed.
 -/
 def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
   if sa.elemsAndSeps.isEmpty then

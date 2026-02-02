@@ -252,7 +252,6 @@ partial def Code.toImpure (c : Code .pure) : ToImpureM (Code .impure) := do
       withNormFVarResult (← normFVar c.discr) fun discr => do
         let resultType ← toImpureType c.resultType
         let alts ← c.alts.mapM (·.toImpure discr)
-        -- TODO: convert type name to new type name
         return .cases ⟨(← nameToImpureType c.typeName).getAppFn.constName!, resultType, discr, alts⟩
   | .return fvarId =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do

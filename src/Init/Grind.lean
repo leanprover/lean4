@@ -28,3 +28,4 @@ public import Init.Grind.Interactive
 public import Init.Grind.Lint
 public import Init.Grind.Annotated
 public import Init.Grind.FieldNormNum
+public import Init.Grind.Config

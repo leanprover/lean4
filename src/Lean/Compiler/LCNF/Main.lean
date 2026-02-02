@@ -57,7 +57,7 @@ def checkpoint (stepName : Name) (decls : Array (Decl pu)) (shouldCheck : Bool) 
     withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
+        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       if shouldCheck then
         decl.check
 
@@ -109,10 +109,12 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   sccs.mapM fun decls => do
     let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     withPhase .impure do
+      dbg_trace s!"purity1: {← getPurity}"
       if (← Lean.isTracingEnabledFor `Compiler.result) then
         for decl in decls do
           let decl ← normalizeFVarIds decl
-          Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
+          dbg_trace s!"purity2: {← getPurity}"
+          Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
       -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
       -- or consider running clear? unclear
       profileitM Exception "compilation (IR)" (← getOptions) do
@@ -141,7 +143,7 @@ def compile (declNames : Array Name) : CoreM (Array (Array IR.Decl)) :=
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   let some decl ← getDeclAt? declName phase | return "<not-available>"
-  ppDecl' decl
+  ppDecl' decl phase
 
 def main (declNames : Array Name) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do

@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
@@ -14,7 +14,7 @@ import Lean.Elab.DeclarationRange
 
 open Lean Meta
 
-namespace Lean.Elab.Tactic
+namespace Lean.Meta
 
 /-!
 This module contains infrastructure for proofs by native evaluation (`native decide`, `bv_decide`).
@@ -22,15 +22,25 @@ Such proofs involve a native computation using the Lean kernel, and then asserti
 of that computation as an axiom towards the logic.
 -/
 
-public inductive NativeEqResult where
+public inductive NativeEqTrueResult where
   /-- The given expression `e` evalutes to true. `prf` is a proof of `e = true`. -/
   | success (prf : Expr)
   /-- The given expression `e` evalutes to false. -/
   | notTrue
 
-private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqResult  := do
+/--
+A call to `nativeEqTrue tacName e`, where `e` is a closed value of type `Bool`, will compile and run
+that value, check that it evaluates to `true`, and if so, will add an axiom asserting `e = true` and
+return that axiom.
+
+It is the basis for `native_decide` and `bv_decide` tactics.
+-/
+public def nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqTrueResult  := do
+  let e ← instantiateMVars e
   if e.hasFVar then
     throwError m!"Tactic `{tacticName}` failed: Cannot native decide proposition with free variables:{indentExpr e}"
+  if e.hasMVar then
+    throwError m!"Tactic `{tacticName}` failed: Cannot native decide proposition with metavariables:{indentExpr e}"
   let levels := (collectLevelParams {} e).params.toList
   let isTrue ← withoutModifyingEnv do
     let auxDeclName ← mkAuxDeclName <| `_native ++ tacticName ++ `decl
@@ -52,7 +62,7 @@ private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) (axiomDeclR
 
     -- Now evaluate the constant, and check that it is true.
     try
-      evalConst Bool auxDeclName
+      unsafe evalConst Bool auxDeclName
     catch ex =>
       throwError m!"\
         Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
@@ -69,18 +79,7 @@ private unsafe def nativeEqTrueUnsafe (tacticName : Name) (e : Expr) (axiomDeclR
   }
   addDecl axDecl
   if let some ref := axiomDeclRange? then
-    addDeclarationRangesFromSyntax auxAxiomName ref
+    Elab.addDeclarationRangesFromSyntax auxAxiomName ref
 
   let levelParams := levels.map mkLevelParam
   return .success <| mkConst auxAxiomName levelParams
-
-
-/--
-A call to `nativeEqTrue tacName e`, where `e` is a closed value of type `Bool`, will compile and run
-that value, check that it evaluates to `true`, and if so, will add an axiom asserting `e = true` and
-return that axiom.
-
-It is the basis for `native_decide` and `bv_decide` tactics.
--/
-@[implemented_by nativeEqTrueUnsafe]
-public opaque nativeEqTrue (tacticName : Name) (e : Expr) (axiomDeclRange? : Option Syntax := none) : MetaM NativeEqResult

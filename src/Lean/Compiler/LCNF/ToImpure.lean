@@ -118,8 +118,8 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
         k.toImpure
   | .const name _ args =>
     let irArgs ← args.mapM (·.toImpure)
-    if let some decl ← getImpureDecl? name then
-      return (← mkApplication name decl.params.size irArgs)
+    if let some sig ← getImpureSignature? name then
+      return (← mkApplication name sig.params.size irArgs)
     if let some decl ← getMonoDecl? name then
       return (← mkApplication name decl.params.size irArgs)
 

@@ -856,13 +856,13 @@ def DeclValue.isCodeAndM [Monad m] (v : DeclValue pu) (f : Code pu → m Bool) :
   | .extern .. => pure false
 
 /--
-Declaration being processed by the Lean to Lean compiler passes.
+The signature of a declaration being processed by the Lean to Lean compiler passes.
 -/
-structure Decl (pu : Purity) where
+structure Signature (pu : Purity) where
   /--
   The name of the declaration from the `Environment` it came from
   -/
-  name  : Name
+  name : Name
   /--
   Universe level parameter names.
   -/
@@ -878,21 +878,6 @@ structure Decl (pu : Purity) where
   Parameters.
   -/
   params : Array (Param pu)
-  /--
-  The body of the declaration, usually changes as it progresses
-  through compiler passes.
-  -/
-  value : DeclValue pu
-  /--
-  We set this flag to true during LCNF conversion. When we receive
-  a block of functions to be compiled, we set this flag to `true`
-  if there is an application to the function in the block containing
-  it. This is an approximation, but it should be good enough because
-  in the frontend, we invoke the compiler with blocks of strongly connected
-  components only.
-  We use this information to control inlining.
-  -/
-  recursive : Bool := false
   /--
   We set this flag to false during LCNF conversion if the Lean function
   associated with this function was tagged as partial or unsafe. This
@@ -917,6 +902,27 @@ structure Decl (pu : Purity) where
   exhaust resources or output a looping computation.
   -/
   safe : Bool := true
+  deriving Inhabited, BEq
+
+/--
+Declaration being processed by the Lean to Lean compiler passes.
+-/
+structure Decl (pu : Purity) extends Signature pu where
+  /--
+  The body of the declaration, usually changes as it progresses
+  through compiler passes.
+  -/
+  value : DeclValue pu
+  /--
+  We set this flag to true during LCNF conversion. When we receive
+  a block of functions to be compiled, we set this flag to `true`
+  if there is an application to the function in the block containing
+  it. This is an approximation, but it should be good enough because
+  in the frontend, we invoke the compiler with blocks of strongly connected
+  components only.
+  We use this information to control inlining.
+  -/
+  recursive : Bool := false
   /--
   We store the inline attribute at LCNF declarations to make sure we can set them for
   auxiliary declarations created during compilation.

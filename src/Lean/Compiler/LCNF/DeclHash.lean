@@ -48,6 +48,7 @@ instance : Hashable (Code pu) where
   hash c := hashCode c
 
 deriving instance Hashable for DeclValue
+deriving instance Hashable for Signature
 deriving instance Hashable for Decl
 
 end Lean.Compiler.LCNF

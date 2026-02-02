@@ -70,6 +70,16 @@ def saveMono : Pass where
     return decl
   shouldAlwaysRunCheck := true
 
+def saveImpure : Pass where
+  occurrence := 0
+  phase := .impure
+  phaseOut := .impure
+  name := `saveImpure
+  run decls := decls.mapM fun decl => do
+    (← normalizeFVarIds decl).saveImpure
+    return decl
+  shouldAlwaysRunCheck := true
+
 end Pass
 
 open Pass
@@ -129,6 +139,10 @@ def builtinPassManager : PassManager := {
     extractClosed,
     toImpure,
   ]
+  impurePasses := #[
+    saveImpure, -- End of impure phase
+    inferVisibility (phase := .impure),
+  ]
 }
 
 def runImportedDecls (importedDeclNames : Array (Array Name)) : CoreM PassManager := do
@@ -173,6 +187,7 @@ builtin_initialize
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
   registerTraceClass `Compiler.saveMono (inherited := true)
+  registerTraceClass `Compiler.saveImpure (inherited := true)
   registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

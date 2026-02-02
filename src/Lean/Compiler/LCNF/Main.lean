@@ -91,6 +91,8 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
           LCNF.markDeclPublicRec .base decl
           if let some decl ← getLocalDeclAt? fnName .mono then
             LCNF.markDeclPublicRec .mono decl
+            if let some decl ← getLocalDeclAt? fnName .impure then
+              LCNF.markDeclPublicRec .impure decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   for declName in declNames do
@@ -109,10 +111,13 @@ def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLe
   sccs.mapM fun decls => do
     let decls ← runPassManagerPart .pure .impure "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
     withPhase .impure do
+      let decls ← runPassManagerPart .impure .impure "compilation (LCNF impure)" manager.impurePasses decls isCheckEnabled
+
       if (← Lean.isTracingEnabledFor `Compiler.result) then
         for decl in decls do
           let decl ← normalizeFVarIds decl
           Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl (← getPhase)}"
+
       -- TODO consider doing this in one go afterwards in a separate mapM and running clearPure to save memory
       -- or consider running clear? unclear
       profileitM Exception "compilation (IR)" (← getOptions) do

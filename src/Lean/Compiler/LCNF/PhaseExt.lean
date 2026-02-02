@@ -148,22 +148,6 @@ builtin_initialize monoExt : DeclExt .pure ← mkDeclExt .mono
 builtin_initialize impureExt : EnvExtension (DeclExtState .impure) ←
   registerEnvExtension (mkInitial := pure {}) (asyncMode := .sync) (replay? := some (replayFn .impure))
 
-structure Signature (pu : Purity) where
-  name : Name
-  levelParams : List Name
-  type  : Expr
-  params : Array (Param pu)
-  safe : Bool
-  deriving Inhabited
-
-def Signature.ofDecl (decl : Decl pu) : Signature pu :=
-  {
-    name := decl.name,
-    levelParams := decl.levelParams,
-    type := decl.type,
-    params := decl.params,
-    safe := decl.safe
-  }
 
 abbrev SigExtState (pu : Purity) := AbstractDeclExtState pu Signature
 
@@ -232,7 +216,7 @@ def saveMonoDeclCore (env : Environment) (decl : Decl .pure) : Environment :=
 
 def saveImpureDeclCore (env : Environment) (decl : Decl .impure) : Environment :=
   let env := impureExt.modifyState env (fun s => s.insert decl.name decl)
-  impureSigExt.addEntry env (.ofDecl decl)
+  impureSigExt.addEntry env decl.toSignature
 
 def Decl.saveBase (decl : Decl .pure) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)

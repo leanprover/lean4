@@ -102,6 +102,7 @@ structure PassManager where
   basePasses : Array Pass
   monoPasses : Array Pass
   monoPassesNoLambda : Array Pass
+  impurePasses : Array Pass
   deriving Inhabited
 
 namespace Pass

@@ -64,6 +64,17 @@ def ppLitValue (lit : LitValue) : M Format := do
   | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return format v
   | .str v => return format (repr v)
 
+private def formatCtorInfo : CtorInfo → Format
+  | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => Id.run do
+    let mut r := f!"ctor_{cidx}"
+    if usize > 0 || ssize > 0 then
+      r := f!"{r}.{usize}.{ssize}"
+    if name != Name.anonymous then
+      r := f!"{r}[{name}]"
+    r
+
+instance : ToFormat CtorInfo := ⟨private_decl% formatCtorInfo⟩
+
 def ppLetValue (e : LetValue pu) : M Format := do
   match e with
   | .erased => return "◾"
@@ -71,6 +82,12 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .proj _ i fvarId _ => return f!"{← ppFVar fvarId} # {i}"
   | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
   | .const declName us args _ => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
+  | .ctor i args _ => return f!"{i} {← ppArgs args}"
+  | .fap declName args _ => return f!"{declName}{← ppArgs args}"
+  | .pap declName args _ => return f!"pap {declName}{← ppArgs args}"
+  | .oproj i fvarId _ => return f!"proj[{i}] {← ppFVar fvarId}"
+  | .uproj i fvarId _ => return f!"uproj[{i}] {← ppFVar fvarId}"
+  | .sproj i offset fvarId _ => return f!"sproj[{i}, {offset}] {← ppFVar fvarId}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -92,7 +109,9 @@ def getFunType (ps : Array (Param pu)) (type : Expr) : CoreM Expr :=
   if type.isErased then
     pure type
   else
-    instantiateForall type (ps.map (mkFVar ·.fvarId))
+    match pu with
+    | .pure => instantiateForall type (ps.map (mkFVar ·.fvarId))
+    | .impure => return type
 
 mutual
   partial def ppFunDecl (funDecl : FunDecl pu) : M Format := do
@@ -102,6 +121,7 @@ mutual
     match alt with
     | .default k => return f!"| _ =>{indentD (← ppCode k)}"
     | .alt ctorName params k _ => return f!"| {ctorName}{← ppParams params} =>{indentD (← ppCode k)}"
+    | .ctorAlt info k _ => return f!"| {info.name} =>{indentD (← ppCode k)}"
 
   partial def ppCode (c : Code pu) : M Format := do
     match c with
@@ -116,6 +136,14 @@ mutual
         return f!"⊥ : {← ppExpr type}"
       else
         return "⊥"
+    | .sset fvarId i offset y ty k _ =>
+      if pp.letVarTypes.get (← getOptions) then
+        return f!"sset {← ppFVar fvarId} [{i}, {offset}] : {← ppExpr ty} := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+      else
+        return f!"sset {← ppFVar fvarId} [{i}, {offset}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+    | .uset fvarId i y k _ =>
+      return f!"uset {← ppFVar fvarId} [{i}] := {← ppFVar y} " ++ ";" ++ .line ++ (← ppCode k)
+
 
   partial def ppDeclValue (b : DeclValue pu) : M Format := do
     match b with
@@ -147,10 +175,10 @@ def ppFunDecl (decl : FunDecl pu) : CompilerM Format :=
 Execute `x` in `CoreM` without modifying `Core`s state.
 This is useful if we want make sure we do not affect the next free variable id.
 -/
-def runCompilerWithoutModifyingState (x : CompilerM α) : CoreM α := do
+def runCompilerWithoutModifyingState (phase : Phase) (x : CompilerM α) : CoreM α := do
   let s ← get
   try
-    x |>.run {}
+    x |>.run (phase := phase)
   finally
     set s
 
@@ -159,16 +187,16 @@ Similar to `ppDecl`, but in `CoreM`, and it does not assume
 `decl` has already been internalized.
 This function is used for debugging purposes.
 -/
-def ppDecl' (decl : Decl pu) : CoreM Format := do
-  runCompilerWithoutModifyingState do
+def ppDecl' (decl : Decl pu) (phase : Phase) : CoreM Format := do
+  runCompilerWithoutModifyingState phase do
     ppDecl (← decl.internalize)
 
 /--
 Similar to `ppCode`, but in `CoreM`, and it does not assume
 `code` has already been internalized.
 -/
-def ppCode' (code : Code pu) : CoreM Format := do
-  runCompilerWithoutModifyingState do
+def ppCode' (code : Code pu) (phase : Phase) : CoreM Format := do
+  runCompilerWithoutModifyingState phase do
     ppCode (← code.internalize)
 
 end Lean.Compiler.LCNF

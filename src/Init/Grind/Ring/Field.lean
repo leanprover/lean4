@@ -33,6 +33,7 @@ class Field (α : Type u) extends CommRing α, Inv α, Div α where
   /-- Raising to a negative power is the inverse of raising to the positive power. -/
   zpow_neg : ∀ (a : α) (n : Int), a ^ (-n) = (a ^ n)⁻¹
 
+attribute [instance_reducible] Field.zpow
 attribute [instance 100] Field.toInv Field.toDiv Field.zpow
 
 namespace Field

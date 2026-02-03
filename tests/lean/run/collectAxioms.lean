@@ -23,14 +23,10 @@ info: 'A2' depends on axioms: [A0, A1, A2]
 theorem one_add_one : 1 + 1 = 2 := by
   native_decide
 
-/--
-info: #[`Lean.ofReduceBool, `Lean.trustCompiler]
--/
+/-- info: #[`one_add_one._native.native_decide.ax_1_1] -/
 #guard_msgs in
 #eval Lean.collectAxioms ``one_add_one
 
-/--
-info: 'one_add_one' depends on axioms: [Lean.ofReduceBool, Lean.trustCompiler]
--/
+/-- info: 'one_add_one' depends on axioms: [one_add_one._native.native_decide.ax_1_1] -/
 #guard_msgs in
 #print axioms one_add_one

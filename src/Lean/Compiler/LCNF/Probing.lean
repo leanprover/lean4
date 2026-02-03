@@ -58,6 +58,7 @@ where
       go k
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
+    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
   start (decls : Array (Decl pu)) : StateRefT (Array (LetValue pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
 
@@ -72,6 +73,7 @@ where
     | .jp decl k => modify (·.push decl); go decl.value; go k
     | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
+    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
   start (decls : Array (Decl pu)) : StateRefT (Array (FunDecl pu)) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
@@ -84,6 +86,7 @@ where
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByFun (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -93,6 +96,7 @@ where
   | .fun decl k _ => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByJp (pu : Purity) (f : FunDecl pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -103,6 +107,7 @@ where
   | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByFunDecl (pu : Purity) (f : FunDecl pu → CompilerM Bool) :
     Probe (Decl pu) (Decl pu):=
@@ -113,6 +118,7 @@ where
   | .fun decl k _ | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByCases (pu : Purity) (f : Cases pu → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -122,6 +128,7 @@ where
   | .fun decl k _ | .jp decl k => go decl.value <||> go k
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByJmp (pu : Purity) (f : FVarId → Array (Arg pu) → CompilerM Bool) :
     Probe (Decl pu) (Decl pu) :=
@@ -133,6 +140,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp fn var => f fn var
   | .return .. | .unreach .. => return false
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByReturn (pu : Purity) (f : FVarId → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -143,6 +151,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .unreach .. => return false
   | .return var  => f var
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 partial def filterByUnreach (pu : Purity) (f : Expr → CompilerM Bool) : Probe (Decl pu) (Decl pu) :=
   filter (·.value.isCodeAndM go)
@@ -153,6 +162,7 @@ where
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. => return false
   | .unreach typ  => f typ
+  | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
 
 @[inline]
 def declNames (pu : Purity) : Probe (Decl pu) Name :=
@@ -173,31 +183,6 @@ def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 
 @[inline]
 def head (n : Nat) : Probe α α := fun data => return data[*...n]
-
-def runOnDeclsNamed (declNames : Array Name) (phase : Phase := Phase.base)
-    (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let decls ← declNames.mapM fun name => do
-    let some decl := getDeclCore? env ext name | throwError "decl `{name}` not found"
-    return decl
-  probe decls |>.run (phase := phase)
-
-def runOnModule (moduleName : Name) (phase : Phase := Phase.base)
-    (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
-  let decls := ext.getModuleEntries env modIdx
-  probe decls |>.run (phase := phase)
-
-def runGlobally  (phase : Phase := Phase.base) (probe : Probe (Decl phase.toPurity) β) : CoreM (Array β) := do
-  let ext := getExt phase
-  let env ← getEnv
-  let mut decls := #[]
-  for modIdx in *...env.allImportedModuleNames.size do
-    decls := decls.append <| ext.getModuleEntries env modIdx
-  probe decls |>.run (phase := phase)
 
 def toPass [ToString β] (phase : Phase) (probe : Probe (Decl phase.toPurity) β) : Pass where
   phase := phase

@@ -2509,10 +2509,6 @@ theorem flatMap_replicate {f : α → Array β} : (replicate n a).flatMap f = (r
   rw [← List.toArray_replicate, List.isEmpty_toArray]
   simp
 
-@[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
-  rw [← List.toArray_replicate, List.sum_toArray]
-  simp
-
 /-! ### Preliminaries about `swap` needed for `reverse`. -/
 
 @[grind =]
@@ -4298,19 +4294,31 @@ theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then
 /-! ### sum -/
 
 @[simp, grind =] theorem sum_empty [Add α] [Zero α] : (#[] : Array α).sum = 0 := rfl
+theorem sum_eq_foldr [Add α] [Zero α] {xs : Array α} :
+    xs.sum = xs.foldr (init := 0) (· + ·) :=
+  rfl
 
 -- Without further algebraic hypotheses, there's no useful `sum_push` lemma.
 
 @[simp, grind =]
-theorem sum_eq_sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
+theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
   cases as
   simp [Array.sum, List.sum]
 
+@[deprecated sum_toList (since := "2026-01-14")]
+def sum_eq_sum_toList := @sum_toList
+
 @[simp, grind =]
-theorem sum_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
-  cases as₁
-  cases as₂
-  simp [List.sum_append_nat]
+theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    {as₁ as₂ : Array α} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+  simp [← sum_toList, List.sum_append]
+
+@[simp, grind =]
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by
+  simp [← sum_toList, List.sum_reverse]
 
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}

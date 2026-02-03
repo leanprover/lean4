@@ -20,6 +20,7 @@ public import Init.Data.List.MinMaxIdx
 public import Init.Data.List.MinMaxOn
 public import Init.Data.List.Monadic
 public import Init.Data.List.Nat
+public import Init.Data.List.Int
 public import Init.Data.List.Notation
 public import Init.Data.List.Pairwise
 public import Init.Data.List.Sublist

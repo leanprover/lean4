@@ -46,6 +46,7 @@ where
       let alts ← c.alts.mapM fun
         | .alt ctorName params k _ => return .alt ctorName params (← go k)
         | .default k => return .default (← go k)
+        | .ctorAlt info k _ => return .ctorAlt info (← go k)
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
       let resultType ← mkCasesResultType alts
@@ -67,6 +68,8 @@ where
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
+    | .sset fvarId i offset y ty k _ => return .sset fvarId i offset y ty (← go k)
+    | .uset fvarId offset y k _ => return .uset fvarId offset y (← go k)
 
 instance : MonadCodeBind CompilerM where
   codeBind := CompilerM.codeBind

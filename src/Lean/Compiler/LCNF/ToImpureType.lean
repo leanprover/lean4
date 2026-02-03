@@ -96,7 +96,6 @@ def isAnyProducingType (type : Expr) : Bool :=
   | .forallE _ _ b _ => isAnyProducingType b
   | _ => false
 
--- TODO: rename
 public partial def toImpureType (type : Expr) : CoreM Expr := do
   match type with
   | .const name _ => visitApp name #[]

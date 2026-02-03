@@ -46,7 +46,7 @@ def toIRType (type : Lean.Expr) : IRType :=
   | LCNF.ImpureType.tobject => .tobject
   | LCNF.ImpureType.tagged => .tagged
   | LCNF.ImpureType.void => .void
-  | _ => panic! s!"not found {type}"--unreachable!
+  | _ => unreachable!
 
 end IR
 end Lean

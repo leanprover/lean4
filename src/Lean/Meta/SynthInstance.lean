@@ -688,8 +688,9 @@ private def preprocess (type : Expr) : MetaM PreprocessResult :=
     let .const declName us := c | return { type }
     let env ← getEnv
     let some outParamsPos := getOutParamPositions? env declName | return { type }
-    if outParamsPos.isEmpty then return { type }
-    let c := if let some outLevelParamPos := getOutLevelParamPositions? env declName then
+    let some outLevelParamPos := getOutLevelParamPositions? env declName | unreachable!
+    if outParamsPos.isEmpty && outLevelParamPos.isEmpty then return { type }
+    let c := if outLevelParamPos.isEmpty then c else
       let rec normLevels (us : List Level) (i : Nat) : List Level :=
         match us with
         | [] => []
@@ -697,8 +698,6 @@ private def preprocess (type : Expr) : MetaM PreprocessResult :=
           let u := if i ∈ outLevelParamPos then keyLevelWildcard else u
           u :: normLevels us (i+1)
       mkConst declName (normLevels us 0)
-    else
-      c
     let rec norm (e : Expr) (i : Nat) : Expr :=
       match e with
       | .app f a =>
@@ -715,8 +714,9 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
     let .const declName us := c | return type
     let env ← getEnv
     let some outParamsPos := getOutParamPositions? env declName | return type
-    if outParamsPos.isEmpty then return type
-    let c ← if let some outLevelParamPos := getOutLevelParamPositions? env declName then
+    let some outLevelParamPos := getOutLevelParamPositions? env declName | unreachable!
+    if outParamsPos.isEmpty && outLevelParamPos.isEmpty then return type
+    let c ← if outLevelParamPos.isEmpty then pure c else
       -- Replace universe parameters corresponding to output parameters with fresh universe metavariables.
       let rec preprocessLevels (us : List Level) (i : Nat) : MetaM (List Level) := do
         match us with
@@ -726,9 +726,6 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
           let us ← preprocessLevels us (i+1)
           return u :: us
       pure <| mkConst declName (← preprocessLevels us 0)
-    else
-      pure c
-    let cType ← inferType c
     let rec preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) : MetaM (Array Expr) := do
       if h : i < args.size then
         let type ← whnf type
@@ -747,8 +744,12 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
       else
         return args
     let args := typeBody.getAppArgs
-    let args ← preprocessArgs cType 0 args
-    mkForallFVars xs (mkAppN c args)
+    if outParamsPos.isEmpty then
+      mkForallFVars xs (mkAppN c args)
+    else
+      let cType ← inferType c
+      let args ← preprocessArgs cType 0 args
+      mkForallFVars xs (mkAppN c args)
 
 /-!
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.

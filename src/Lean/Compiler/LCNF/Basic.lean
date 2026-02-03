@@ -1022,14 +1022,17 @@ def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
     return false
 
 private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
-  match e with
-  | .forallE _ d b _ => collectType b ∘ collectType d
-  | .lam _ d b _     => collectType b ∘ collectType d
-  | .app f a         => collectType f ∘ collectType a
-  | .fvar fvarId     => fun s => s.insert fvarId
-  | .mdata _ b       => collectType b
-  | .proj .. | .letE .. => unreachable!
-  | _                => id
+  if e.hasFVar then
+    match e with
+    | .forallE _ d b _ => collectType b ∘ collectType d
+    | .lam _ d b _     => collectType b ∘ collectType d
+    | .app f a         => collectType f ∘ collectType a
+    | .fvar fvarId     => fun s => s.insert fvarId
+    | .mdata _ b       => collectType b
+    | .proj .. | .letE .. => unreachable!
+    | _                => id
+  else
+    id
 
 private def collectArg (arg : Arg pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match arg with

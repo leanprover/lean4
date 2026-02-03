@@ -1,7 +1,7 @@
 import Lean.Hygiene
 open Lean
 
-set_option trace.Compiler.result true
+set_option trace.Compiler.extractClosed true
 --set_option trace.compiler.ir.result true
 
 -- The following function should not allocate any closures,

@@ -67,15 +67,18 @@ instance : TraverseFVar (Arg pu) where
 def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetValue pu) : m (LetValue pu) := do
   match e with
   | .lit .. | .erased => return e
-  | .proj _ _ fvarId _ => return e.updateProj! (← f fvarId)
-  | .const _ _ args _ => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ =>
+    return e.updateProj! (← f fvarId)
+  | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
+    return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
   | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
 
 def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue pu) : m Unit := do
   match e with
   | .lit .. | .erased => return ()
-  | .proj _ _ fvarId _ => f fvarId
-  | .const _ _ args _ => args.forM (TraverseFVar.forFVarM f)
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ => f fvarId
+  | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
+    args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)
 
 instance : TraverseFVar (LetValue pu) where
@@ -124,6 +127,10 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
     return Code.updateReturn! c (← f var)
   | .unreach typ =>
     return Code.updateUnreach! c (← Expr.mapFVarM f typ)
+  | .sset fvarId i offset y ty k _ =>
+    return Code.updateSset! c (← f fvarId) i offset (← f y) (← Expr.mapFVarM f ty) (← mapFVarM f k)
+  | .uset fvarId offset y k _ =>
+    return Code.updateUset! c (← f fvarId) offset (← f y) (← mapFVarM f k)
 
 partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Unit := do
   match c with
@@ -150,6 +157,15 @@ partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Un
   | .return var => f var
   | .unreach typ =>
     Expr.forFVarM f typ
+  | .sset fvarId _ _ y ty k _ =>
+    f fvarId
+    f y
+    Expr.forFVarM f ty
+    forFVarM f k
+  | .uset fvarId _ y k _ =>
+    f fvarId
+    f y
+    forFVarM f k
 
 instance : TraverseFVar (Code pu) where
   mapFVarM := Code.mapFVarM
@@ -187,12 +203,14 @@ instance : TraverseFVar (Alt pu) where
       let params ← params.mapM (Param.mapFVarM f)
       return .alt ctor params (← Code.mapFVarM f c)
     | .default c => return .default (← Code.mapFVarM f c)
+    | .ctorAlt i c _ => return .ctorAlt i (← Code.mapFVarM f c)
   forFVarM f alt := do
     match alt with
     | .alt _ params c _ =>
       params.forM (Param.forFVarM f)
       Code.forFVarM f c
     | .default c => Code.forFVarM f c
+    | .ctorAlt i c _ => Code.forFVarM f c
 
 def anyFVarM [Monad m] [TraverseFVar α] (f : FVarId → m Bool) (x : α) : m Bool := do
   return (← TraverseFVar.forFVarM go x |>.run) matches none

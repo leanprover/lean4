@@ -107,7 +107,18 @@ partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
         let body ← withParams params do mkLambdaM params (← k.toExprM)
         return mkApp (mkConst ctorName) body
       | .default k => k.toExprM
+      | .ctorAlt i k _ => do
+        let body ← k.toExprM
+        return mkApp (mkConst i.name) body
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
+  | .sset fvarId i offset y ty k _ =>
+    let value := mkApp5 (mkConst `sset) (.fvar fvarId) (toExpr i) (toExpr offset) (.fvar y) ty
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .uset fvarId offset y k _ =>
+    let value := mkApp3 (mkConst `uset) (.fvar fvarId) (toExpr offset) (.fvar y)
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
 end
 
 public def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=

@@ -684,6 +684,13 @@ private def preprocess (type : Expr) : MetaM PreprocessResult :=
   forallTelescopeReducing type fun xs typeBody => do
     let typeBody ← whnf typeBody
     let type ← mkForallFVars xs typeBody
+    /-
+    **Note**: Workaround for classes such as `class ToLevel.{u}`. They do not have any parameters,
+    the universe parameter inference engine at `Class.lean` assumes `u` is an output parameter,
+    but this is not correct. We can remove this check after we update `Class.lean` and perform an
+    update stage0
+    -/
+    if typeBody.isConst then return { type }
     let c := typeBody.getAppFn
     let .const declName us := c | return { type }
     let env ← getEnv
@@ -710,6 +717,8 @@ private def preprocess (type : Expr) : MetaM PreprocessResult :=
 
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
+    /- **Note**: See similar test at preprocess. -/
+    if typeBody.isConst then return type
     let c := typeBody.getAppFn
     let .const declName us := c | return type
     let env ← getEnv

@@ -677,7 +677,7 @@ private def preprocess (type : Expr) : MetaM (Expr × Expr) :=
   let keyLevelWildcard := mkLevelParam `__wild__
   forallTelescopeReducing type fun xs typeBody => do
     let typeBody ← whnf typeBody
-    let type ← mkForallFVars xs type
+    let type ← mkForallFVars xs typeBody
     let c := typeBody.getAppFn
     let .const declName us := c | return (type, type)
     let env ← getEnv

@@ -87,8 +87,12 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
 
 def elabParserName? (stx : Syntax.Ident) (checkMeta := true) : TermElabM (Option Parser.ParserResolution) := do
   match ← Parser.resolveParserName stx with
-  | [n@(.category cat)] =>
-    addCategoryInfo stx cat
+  | [n@(.category catId)] =>
+    if let some cat := Parser.getParserCategory? (← getEnv) catId then
+      if !(← hasConst cat.declName) && (← withoutExporting <| hasConst cat.declName) then
+        throwError "unknown category `{catId}`, must be imported publicly"
+      recordExtraModUseFromDecl (isMeta := true) cat.declName
+    addCategoryInfo stx catId
     return n
   | [n@(.parser parser _)] =>
     if checkMeta && getIRPhases (← getEnv) parser == .runtime then
@@ -394,13 +398,16 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
-  let cat := catStx.getId.eraseMacroScopes
-  if let some cat := Parser.getParserCategory? (← getEnv) cat then
+  withExporting (isExporting := !isLocalAttrKind attrKind) do
+  let catId := catStx.getId.eraseMacroScopes
+  if let some cat := Parser.getParserCategory? (← getEnv) catId then
+    if !(← hasConst cat.declName) && (← withoutExporting <| hasConst cat.declName) then
+      throwErrorAt catStx "unknown category `{catId}`, must be imported publicly"
     -- The category must be imported but is not directly referenced afterwards.
     recordExtraModUseFromDecl (isMeta := true) cat.declName
   else
-    throwErrorAt catStx "unknown category `{cat}`"
-  liftTermElabM <| Term.addCategoryInfo catStx cat
+    throwErrorAt catStx "unknown category `{catId}`"
+  liftTermElabM <| Term.addCategoryInfo catStx catId
   let syntaxParser := mkNullNode ps
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
@@ -410,7 +417,7 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let name ← match name? with
     | some name => pure name.getId
     | none =>
-      let base ← liftMacroM <| mkNameFromParserSyntax cat syntaxParser
+      let base ← liftMacroM <| mkNameFromParserSyntax catId syntaxParser
       let mut name := base
       let mut i := 1
       -- Avoid name conflicts, for which we have to check both public and private name
@@ -426,8 +433,8 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let mut stxNodeKind := (← getCurrNamespace) ++ name
   if attrKind matches `(attrKind| local) then
     stxNodeKind := mkPrivateName (← getEnv) stxNodeKind
-  let catParserId := mkIdentFrom idRef (cat.appendAfter "_parser")
-  let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
+  let catParserId := mkIdentFrom idRef (catId.appendAfter "_parser")
+  let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser catId
   let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
@@ -448,6 +455,10 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
 
 @[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? $[$vis?:visibility]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
+  let sc ← getScope
+  withExporting (isExporting := match vis? with
+    | none => sc.isPublic
+    | some v => v matches `(Parser.Command.visibility| public)) do
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 meta import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.Attr  -- shake: keep (macro output dependency)
 
 public section
 

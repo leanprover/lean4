@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Data.Vector.Basic
 public import Init.Data.Slice.Array.Lemmas
+public import Init.Data.Range.Polymorphic.Basic  -- shake: keep (macro output dependency)
+public import Init.Data.Vector.Basic  -- shake: keep (macro output dependency)
+public import Init.Data.Slice.Array.Lemmas  -- shake: keep (macro output dependency)
 
 public section
 

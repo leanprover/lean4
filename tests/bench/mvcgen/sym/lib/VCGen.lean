@@ -28,13 +28,65 @@ Creating backward rules for registered specifications
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
+structure SpecializedWPApplyApp where
+  name : Name
+  m : Expr
+  ps : Expr
+  instWP : Expr
+  α : Expr
+  e : Expr
+  Q : Expr
+  excessArgs : Array Expr
+
+meta def mkSpecializedWPApply (wp : Expr) (wpRevArgs : Array Expr) : SymM Name := do
+  -- Example of produced definition:
+  -- def wpApplyStateM (α : Type) (x : StateM Nat α) (Q : (α → Nat → ULift Prop) × ExceptConds (.arg Nat .pure)) : Nat → ULift Prop :=
+  --   (wp x).apply Q
+  -- where
+  --   PredTrans.apply : {ps : PostShape} → {α : Type u} → PredTrans ps α → PostCond α ps → Assertion ps
+  --   WP.wp : {m : Type u → Type v} → {ps : outParam PostShape} → [self : WP m ps] → {α : Type u} → m α → PredTrans ps α
+  let m := wpRevArgs[4]!
+  let ps := wpRevArgs[3]!
+  let α := wpRevArgs[1]!
+  let _x := wpRevArgs[0]!
+  let u := wp.constLevels![0]!
+  let e ←
+    withLocalDeclD `α (← Sym.inferType α) fun α => do
+    withLocalDeclD `x (mkApp m α) fun x => do
+    let wpRevArgs := wpRevArgs |>.set! 0 x |>.set! 1 α
+    let wpApp := mkAppRev wp wpRevArgs
+    let applyApp := mkApp3 (mkConst ``PredTrans.apply [u]) ps α wpApp  -- NB: undersaturated, because we need to unfold in the type of `Q` anyway
+    mkLambdaFVars #[α, x] applyApp
+  let e ← unfoldReducible e
+  let e ← shareCommon e
+  let type ← Sym.inferType e
+  let type ← unfoldReducible type
+  let type ← shareCommon type
+  trace[Elab.Tactic.Do.vcgen] "specialized `(wp _).apply` result type: {type}"
+  let name ← mkFreshUserName `PredTrans.specializedApply
+  let _defn ← mkAuxDefinition name type e (compile := false) -- e is closed, so `_defn` is always `mkConst name`
+  enableRealizationsForConst name
+  return name
+
 meta def SpecTheorems.findSpec (database : SpecTheorems) (e : Expr) : MetaM (Option SpecTheorem) := do
   let candidates ← database.specs.getMatch e
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   let specs := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   return specs[0]?
 
-meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+meta def SpecializedWPApplyApp.rewriteWPApply (app : SpecializedWPApplyApp) (e : Expr) : SymM Expr := do
+  let post (e : Expr) : SymM TransformStep := do
+    e.withApp fun f args => do
+    unless f.isConstOf ``PredTrans.apply do return .done e
+    if args.size < 3 then return .done e
+    let wp := args[2]!
+    unless wp.isAppOfArity ``WP.wp 5 do return .done e
+    let #[m, _ps, _instWP, α, prog] := wp.getAppArgs | return .done e
+    unless ← isDefEqS m app.m do return .done e
+    return .done (mkAppN (mkConst app.name) (#[α, prog] ++ args[3...*]))
+  Meta.transform e (post := post)
+
+meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (σs : Expr) (app : SpecializedWPApplyApp) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   -- Create a backward rule for the spec we look up in the database.
   -- In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
@@ -42,31 +94,30 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
   let (xs, _bs, spec, specTy) ← specThm.proof.instantiate
   let_expr f@Triple m' ps' instWP' α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
-  unless ← isDefEqGuarded m m' do -- TODO: Try isDefEqS?
-    Term.throwTypeMismatchError none m m' spec
-  unless ← isDefEqGuarded ps ps' do
-    Term.throwTypeMismatchError none ps ps' spec
-  unless ← isDefEqGuarded instWP instWP' do
-    Term.throwTypeMismatchError none instWP instWP' spec
+  unless ← isDefEqGuarded app.m m' do -- TODO: Try isDefEqS?
+    Term.throwTypeMismatchError none app.m m' spec
+  unless ← isDefEqGuarded app.ps ps' do
+    Term.throwTypeMismatchError none app.ps ps' spec
+  unless ← isDefEqGuarded app.instWP instWP' do
+    Term.throwTypeMismatchError none app.instWP instWP' spec
 
   -- We must ensure that P and Q are pattern variables so that the spec matches for every potential
   -- P and Q. We do so by introducing VCs accordingly.
   -- The following code could potentially be extracted into a definition at @[spec] attribute
   -- annotation time. That might help a bit with kernel checking time.
-  let excessArgNamesTypes ← excessArgs.mapM fun arg =>
+  let excessArgNamesTypes ← app.excessArgs.mapM fun arg =>
     return (← mkFreshUserName `s, ← Sym.inferType arg)
   let spec ← withLocalDeclsDND excessArgNamesTypes fun ss => do
     let needPreVC := !xs.contains P
     let needPostVC := !xs.contains Q
     let us := f.constLevels!
     let u := us[0]!
-    let wp := mkApp5 (mkConst ``WP.wp us) m ps instWP α prog
-    let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
+    let wpApplyQ := mkApp3 (mkConst app.name) α prog Q  -- wp⟦prog⟧ Q
     let Pss := mkAppN P ss  -- P s₁ ... sₙ
     let typeP ← preprocessExpr (mkApp (mkConst ``SPred [u]) σs)
       -- Note that this is the type of `P s₁ ... sₙ`,
       -- which is `Assertion ps'`, but we don't know `ps'`
-    let typeQ ← preprocessExpr (mkApp2 (mkConst ``PostCond [u]) α ps)
+    let typeQ ← preprocessExpr (mkApp2 (mkConst ``PostCond [u]) α app.ps)
     let mut declInfos := #[]
     if needPreVC then
       let nmP' ← mkFreshUserName `P
@@ -77,12 +128,12 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
     if needPostVC then
       let nmQ' ← mkFreshUserName `Q
       let nmHPost ← mkFreshUserName `hpost
-      let entailment Q' := pure <| mkApp3 (mkConst ``PostCond.entails [u]) ps Q Q'
+      let entailment Q' := pure <| mkApp3 (mkConst ``PostCond.entails [u]) app.ps Q Q'
       declInfos := declInfos ++
                    #[(nmQ', .default, fun _ => pure typeQ),
                      (nmHPost, .default, fun xs => entailment xs[0]!)]
     withLocalDecls declInfos fun ys => liftMetaM ∘ mkLambdaFVars (ss ++ ys) =<< do
-      if !needPreVC && !needPostVC && excessArgs.isEmpty then
+      if !needPreVC && !needPostVC && app.excessArgs.isEmpty then
         -- Still need to unfold the triple in the spec type
         let entailment ← preprocessExpr <| mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
         let prf ← mkExpectedTypeHint spec entailment
@@ -103,12 +154,12 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
         -- check prf
       if needPostVC then
         -- prf := prf.trans <| (wp x).mono _ _ hpost
-        let wp := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
+        let wp := mkApp5 (mkConst ``WP.wp f.constLevels!) app.m app.ps app.instWP α prog
         let Q' := ys[ys.size-2]!
         let hpost := ys[ys.size-1]!
-        let wpApplyQ' := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q' -- wp⟦prog⟧ Q'
+        let wpApplyQ' := mkApp3 (mkConst app.name) α prog Q' -- wp⟦prog⟧ Q'
         let wpApplyQ' := mkAppN wpApplyQ' ss -- wp⟦prog⟧ Q' s₁ ... sₙ
-        let hmono := mkApp6 (mkConst ``PredTrans.mono [u]) ps α wp Q Q' hpost
+        let hmono := mkApp6 (mkConst ``PredTrans.mono [u]) app.ps α wp Q Q' hpost
         let hmono := mkAppN hmono ss
         prf := mkApp6 (mkConst ``SPred.entails.trans [u]) σs newP wpApplyQ wpApplyQ' prf hmono
         newQ := Q'
@@ -116,6 +167,7 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
       return prf
   let res ← abstractMVars spec
   let type ← preprocessExpr (← Sym.inferType res.expr)
+  let type ← app.rewriteWPApply type
   trace[Elab.Tactic.Do.vcgen] "Type of new auxiliary spec apply theorem: {type}"
   let spec ← Meta.mkAuxLemma res.paramNames.toList type res.expr
   mkBackwardRuleFromDecl spec
@@ -132,6 +184,15 @@ public structure VCGen.Context where
   entailsConsIntroRule : BackwardRule
 
 public structure VCGen.State where
+  /--
+  Cached definitions wrapping `fun α x Q => @PredTrans.apply ps α (@wp m ps instWP α x) Q` with
+  all reducible types reduced. Maps `m` (which uniquely identifies `ps` and `instWP`) to definition name.
+  -/
+  wpApplyCache : Std.HashMap Expr Name := {}
+  /--
+  Cached `(wp _).apply` functions in `applyCache`, indexed by `Name` and mapping to `(m, ps, instWP)`.
+  -/
+  wpApplyByName : Std.HashMap Name (Expr × Expr × Expr) := {}
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
   The particular rule depends on the theorem name, the monad and the number of excess state
@@ -159,11 +220,33 @@ meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
   let b ← fallback
   return (b, cache.insert key b)
 
-meta def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM BackwardRule := do
-  let mkRuleSlow := specThm.mkBackwardRuleFromSpec m σs ps instWP excessArgs
+meta def mkSpecializedWPApplyCached (wp : Expr) (wpRevArgs : Array Expr) : VCGenM Name := do
+  let s ← get
+  -- WP.wp : {m : Type u → Type v} → {ps : outParam PostShape} → [self : WP m ps] → {α : Type u} → m α → PredTrans ps α
+  let m := wpRevArgs[wpRevArgs.size-1]!
+  let ps := wpRevArgs[wpRevArgs.size-2]!
+  let instWP := wpRevArgs[wpRevArgs.size-3]!
+  let (name, wpApplyCache) ← s.wpApplyCache.getDM m (mkSpecializedWPApply wp wpRevArgs)
+  let (_, wpApplyByName) ← s.wpApplyByName.getDM name (pure (m, ps, instWP))
+  set { s with wpApplyCache, wpApplyByName }
+  return name
+
+meta def isSpecializedWPApplyApp (T : Expr) : VCGenM (Option SpecializedWPApplyApp) := do
+  T.withAppRev fun f revArgs => do
+  unless f.isConst do return none
+  let name := f.constName!
+  let some (m, ps, instWP) := (← get).wpApplyByName.get? name | return none
+  let α := revArgs.back!; let revArgs := revArgs.pop;
+  let e := revArgs.back!; let revArgs := revArgs.pop;
+  let Q := revArgs.back!; let revArgs := revArgs.pop;
+  let excessArgs := revArgs.reverse
+  return some { name, m, ps, instWP, α, e, Q, excessArgs }
+
+meta def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (σs : Expr) (app : SpecializedWPApplyApp) : VCGenM BackwardRule := do
+  let mkRuleSlow := specThm.mkBackwardRuleFromSpec σs app
   let s ← get
   let .global decl := specThm.proof | mkRuleSlow
-  let (rule, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decl, m, excessArgs.size) mkRuleSlow
+  let (rule, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decl, app.m, app.excessArgs.size) mkRuleSlow
   set { s with specBackwardRuleCache }
   return rule
 
@@ -171,14 +254,33 @@ meta def unfoldTriple (goal : MVarId) : SymM MVarId := goal.withContext do
   let type ← goal.getType
   unless type.isAppOf ``Triple do return goal
   let type ← unfoldDefinition type
-  let goal ← goal.replaceTargetDefEq (← shareCommon type)
-  preprocessMVar goal  -- need to reinstate subterm sharing
+  let goal ← goal.replaceTargetDefEq type
+  preprocessMVar goal  -- need to reinstate subterm sharing. TODO: replace `unfoldDefinition`?
 
 open Lean.Elab.Tactic.Do in
 meta def simplifyTarget (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
   let target ← goal.getType
   let_expr ent@SPred.entails σs P T := target | return goal
   let some T ← reduceProjBeta? T | return goal -- very slight simplification
+  goal.replaceTargetDefEq (mkApp3 ent σs P T)
+
+meta def specializeWPApply (goal : MVarId) : VCGenM MVarId := goal.withContext do
+  let target ← goal.getType
+  trace[Elab.Tactic.Do.vcgen] "is it specializable?: {target}"
+  let_expr ent@SPred.entails σs P T := target | return goal
+  T.withAppRev fun apply applyRevArgs => do
+  unless apply.isConstOf ``PredTrans.apply do return goal
+  trace[Elab.Tactic.Do.vcgen] "it is a predtrans.apply: {applyRevArgs}"
+  applyRevArgs[applyRevArgs.size-3]!.withAppRev fun wp wpRevArgs => do
+  unless wp.isConstOf ``WP.wp do return goal
+  trace[Elab.Tactic.Do.vcgen] "wp: {wp}, wpRevArgs: {wpRevArgs}"
+  let name ← mkSpecializedWPApplyCached wp wpRevArgs
+  -- The args to the specialized `wpApply` def are `[α, e, Q, s₁, ..., sₙ]`.
+  -- We take `[α, e]` from `wpRevArgs[0...2].reverse`
+  -- and `[Q, s₁, ..., sₙ]` from `applyRevArgs[*...applyRevArgs.size-3].reverse`.
+  let T := mkAppRev (mkConst name) (applyRevArgs[*...applyRevArgs.size-3] ++ wpRevArgs[0...2])
+  check T
+  trace[Elab.Tactic.Do.vcgen] "specialized `(wp _).apply` result: {T}"
   goal.replaceTargetDefEq (mkApp3 ent σs P T)
 
 meta def preprocessGoal (goal : MVarId) : VCGenM (Option MVarId) := do
@@ -188,6 +290,7 @@ meta def preprocessGoal (goal : MVarId) : VCGenM (Option MVarId) := do
     goal := goal'
   goal ← unfoldTriple goal
   goal ← simplifyTarget goal
+  goal ← specializeWPApply goal
   return goal
 
 inductive SolveResult where
@@ -216,14 +319,13 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
       | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
     return .goals goals
 
-  T.withApp fun apply args => do
-  unless apply.isConstOf ``PredTrans.apply do return .noProgramFoundInTarget T
-  let wp := args[2]!
-  let_expr WP.wp m ps instWP _α e := wp | return .noProgramFoundInTarget T
-  -- `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`, where `e` is the program.
+  let res? ← isSpecializedWPApplyApp T
+  trace[Elab.Tactic.Do.vcgen] "Monad of specialized wp apply app: {SpecializedWPApplyApp.m <$> res?}"
+  let some app@{ name, m, ps, instWP, α, e, Q, excessArgs : SpecializedWPApplyApp } := res?
+        | return .noProgramFoundInTarget T
+  -- `T` is defeq to the form `wp⟦e⟧ Q s₁ ... sₙ`, where `e` is the program.
   -- We call `s₁ ... sₙ` the excess state args; the backward rules need to account for these.
   -- Excess state args are introduced by the spec of `get` (see lambda case above).
-  let excessArgs := args.drop 4
   let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
@@ -232,7 +334,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     trace[Elab.Tactic.Do.vcgen] "Applying a spec for {e}. Excess args: {excessArgs}"
     let some thm ← (← read).specThms.findSpec e
       | return .noSpecFoundForProgram e
-    let rule ← mkBackwardRuleFromSpecCached thm m σs ps instWP excessArgs
+    let rule ← mkBackwardRuleFromSpecCached thm σs app
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply rule {thm.proof} for {e}"
     return .goals goals
@@ -389,3 +491,25 @@ example :
   mvcgen'
   grind
 -/
+def step (v : Nat) : StateM Nat Unit := do
+  let s ← get
+  set (s + v)
+  let s ← get
+  set (s - v)
+
+def loop (n : Nat) : StateM Nat Unit := do
+  match n with
+  | 0 => pure ()
+  | n+1 => step n; loop n
+
+set_option maxRecDepth 100000
+set_option maxHeartbeats 10000000
+
+set_option trace.Elab.Tactic.Do.vcgen true in
+set_option diagnostics true in
+example : ∀ post, ⦃post⦄ loop 1 ⦃⇓_ => post⦄ := by
+  intro post
+  simp only [loop, step]
+  mvcgen'
+
+  sorry

@@ -883,6 +883,9 @@ def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, starting from the least
   significant bit and zero-extending if necessary.
   In this folding operation, we interpret each `l`-long word as a natural number.
+
+  · well-foundedness ✅
+  · structural recursion ❌
 -/
 def foldNatR (x : BitVec w) (acc : BitVec l) (f : BitVec l → BitVec l → BitVec l) : BitVec l :=
   if hl :  l = 0 then (0#0).cast (by omega) else
@@ -896,6 +899,9 @@ def foldNatR (x : BitVec w) (acc : BitVec l) (f : BitVec l → BitVec l → BitV
 
 /--
   In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+
+  · well-foundedness ✅
+  · structural recursion ❌
 -/
 def foldNatR' (x : BitVec w) (start : Nat) (acc : BitVec l)
     (f : BitVec l → BitVec l → BitVec l)  : BitVec l :=
@@ -908,6 +914,43 @@ termination_by w - start
 #eval foldNatR' (73#9) 0 0#3 BitVec.add
 #eval foldNatR' (17#6) 0 0#3 BitVec.add
 #eval foldNatR' (33#6) 0 0#3 BitVec.add
+
+/--
+  In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+  This is the most general definition for `f`.
+
+  · well-foundedness ✅
+  · structural recursion ❌
+-/
+def foldNatR'' (x : BitVec w) (start : Nat) (acc : BitVec s)
+    (f : BitVec l → BitVec s → BitVec s)  : BitVec s :=
+  if hl : l = 0 then (0#s).cast (by omega) else
+  match h : w - start with
+  | 0 => acc
+  | n + 1 => foldNatR'' x (start + l) (f (x.extractLsb' start l) acc) f
+termination_by w - start
+
+#eval foldNatR'' (73#9) 0 0#3 BitVec.add
+#eval foldNatR'' (17#6) 0 0#3 BitVec.add
+#eval foldNatR'' (33#6) 0 0#3 BitVec.add
+
+/--
+  In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+  This is the most general definition for `f`.
+
+  · well-foundedness ✅
+  · structural recursion ✅
+-/
+def foldNatR''' (x : BitVec w) (start k : Nat) (acc : BitVec s)
+    (f : BitVec l → BitVec s → BitVec s)  : BitVec s :=
+  if hl : l = 0 then (0#s).cast (by omega) else
+  match h : k with
+  | 0 => acc
+  | k' + 1 => foldNatR''' x (start + l) k' (f (x.extractLsb' start l) acc) f
+
+#eval foldNatR'' (73#9) 0 0#3 BitVec.add
+#eval foldNatR'' (17#6) 0 0#3 BitVec.add
+#eval foldNatR'' (33#6) 0 0#3 BitVec.add
 
 /--
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, starting from the least

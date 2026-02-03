@@ -75,31 +75,31 @@ protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
   | _ => throw ()
 
 instance Id.instWP : WP Id .pure where
-  wp x := PredTrans.pure x.run
+  wp x := pure x.run
 
 instance StateT.instWP [WP m ps] : WP (StateT σ m) (.arg σ ps) where
-  wp x := PredTrans.pushArg (fun s => wp (x s))
+  wp x := PredTrans.pushArg (fun s => wp (x.run s))
 
 instance ReaderT.instWP [WP m ps] : WP (ReaderT ρ m) (.arg ρ ps) where
-  wp x := PredTrans.pushArg (fun s => (·, s) <$> wp (x s))
+  wp x := PredTrans.pushArg (fun s => (·, s) <$> wp (x.run s))
 
 instance ExceptT.instWP [WP m ps] : WP (ExceptT ε m) (.except ε ps) where
-  wp x := PredTrans.pushExcept (wp x)
+  wp x := PredTrans.pushExcept (wp x.run)
 
 instance OptionT.instWP [WP m ps] : WP (OptionT m) (.except PUnit ps) where
-  wp x := PredTrans.pushOption (wp x)
+  wp x := PredTrans.pushOption (wp x.run)
 
 instance EStateM.instWP : WP (EStateM ε σ) (.except ε (.arg σ .pure)) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
-    { apply := fun Q s => match x s with
+    { trans := fun Q s => match x.run s with
         | .ok a s' => Q.1 a s'
         | .error e s' => Q.2.1 e s'
-      conjunctive := by
+      conjunctiveRaw := by
         intro _ _
         apply SPred.bientails.of_eq
         ext s
         dsimp
-        cases (x s) <;> simp
+        cases (x.run s) <;> simp
     }
 
 instance State.instWP : WP (StateM σ) (.arg σ .pure) :=
@@ -152,10 +152,8 @@ theorem Except.of_wp_eq {ε α : Type u} {x prog : Except ε α} (h : prog = x) 
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P x := by
   subst h
   intro hspec
-  simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
-  split at hspec
-  case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
-  case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro
+  simp only [wp, ExceptT.run, Id.run, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
+  split at hspec <;> exact hspec True.intro
 
 /--
 Adequacy lemma for `Except`.
@@ -166,10 +164,8 @@ Useful if you want to prove a property about an expression `prog : Except ε α`
 theorem Except.of_wp {ε α : Type u} {prog : Except ε α} (P : Except ε α → Prop) :
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P prog := by
   intro hspec
-  simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
-  split at hspec
-  case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
-  case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro
+  simp only [wp, ExceptT.run, Id.run, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
+  split at hspec <;> exact hspec True.intro
 
 /--
 Adequacy lemma for `Option`.
@@ -180,10 +176,8 @@ theorem Option.of_wp_eq {α : Type u} {x prog : Option α} (h : prog = x) (P : O
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (some a)⌝, fun _ => ⌜P none⌝⟩) → P x := by
   subst h
   intro hspec
-  simp only [wp, PredTrans.pushOption_apply, PredTrans.pure_apply] at hspec
-  split at hspec
-  case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
-  case h_2   s' heq => rw[← heq] at hspec; exact hspec True.intro
+  simp only [wp, OptionT.run, Id.run, PredTrans.pushOption_apply, PredTrans.pure_apply] at hspec
+  split at hspec <;> exact hspec True.intro
 
 /--
 Adequacy lemma for `EStateM.run`.
@@ -193,7 +187,7 @@ you want to use `mvcgen` to reason about `prog`.
 theorem EStateM.of_wp_run_eq {α} {x : EStateM.Result ε σ α} {prog : EStateM ε σ α} (h : EStateM.run prog s = x) (P : EStateM.Result ε σ α → Prop) :
     (⊢ₛ wp⟦prog⟧ post⟨fun a s' => ⌜P (EStateM.Result.ok a s')⌝, fun e s' => ⌜P (EStateM.Result.error e s')⌝⟩ s) → P x := by
   intro hspec
-  simp only [wp] at hspec
+  simp only [wp, PredTrans.apply] at hspec
   split at hspec
   case h_1 a s' heq => rw[← heq] at hspec; exact h ▸ hspec True.intro
   case h_2 e s' heq => rw[← heq] at hspec; exact h ▸ hspec True.intro

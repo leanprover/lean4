@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.GetUnfoldableConst
-// Imports: public import Lean.Meta.GlobalInstances import Lean.ReducibilityAttrs
+// Imports: public import Lean.Meta.Basic import Lean.ReducibilityAttrs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Lean_isIrreducible___at___00__private_Lean_Meta_GetUn
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 uint8_t l_Lean_instBEqReducibilityStatus_beq(uint8_t, uint8_t);
 uint8_t l_Lean_Meta_instBEqTransparencyMode_beq(uint8_t, uint8_t);
-uint8_t lean_is_instance(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConfig___redArg(lean_object*);
@@ -318,9 +317,8 @@ return x_14;
 }
 default: 
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; 
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; 
 x_30 = l_Lean_ConstantInfo_name(x_2);
-lean_inc(x_30);
 x_31 = l_Lean_getReducibilityStatus___at___00__private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__1___redArg(x_30, x_4);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
@@ -337,87 +335,62 @@ x_36 = l_Lean_instBEqReducibilityStatus_beq(x_35, x_34);
 x_37 = 1;
 if (x_36 == 0)
 {
-lean_object* x_38; uint8_t x_39; uint8_t x_45; uint8_t x_46; 
-x_38 = lean_st_ref_get(x_4);
-x_45 = 3;
-x_46 = l_Lean_Meta_instBEqTransparencyMode_beq(x_6, x_45);
-if (x_46 == 0)
+uint8_t x_44; uint8_t x_45; 
+x_44 = 3;
+x_45 = l_Lean_Meta_instBEqTransparencyMode_beq(x_6, x_44);
+if (x_45 == 0)
 {
-lean_dec(x_38);
 lean_dec(x_32);
-lean_dec(x_30);
-x_39 = x_46;
-goto block_44;
+x_38 = x_45;
+goto block_43;
 }
 else
 {
-lean_object* x_47; uint8_t x_48; 
-x_47 = lean_ctor_get(x_38, 0);
-lean_inc_ref(x_47);
-lean_dec(x_38);
-x_48 = lean_is_instance(x_47, x_30);
-if (x_48 == 0)
-{
-uint8_t x_49; uint8_t x_50; uint8_t x_51; 
-x_49 = 3;
-x_50 = lean_unbox(x_32);
+uint8_t x_46; uint8_t x_47; uint8_t x_48; 
+x_46 = 3;
+x_47 = lean_unbox(x_32);
 lean_dec(x_32);
-x_51 = l_Lean_instBEqReducibilityStatus_beq(x_50, x_49);
-x_39 = x_51;
-goto block_44;
+x_48 = l_Lean_instBEqReducibilityStatus_beq(x_47, x_46);
+x_38 = x_48;
+goto block_43;
+}
 }
 else
 {
-lean_object* x_52; lean_object* x_53; 
+lean_object* x_49; lean_object* x_50; 
 lean_dec(x_33);
 lean_dec(x_32);
-x_52 = lean_box(x_37);
-x_53 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_53, 0, x_52);
-return x_53;
+x_49 = lean_box(x_37);
+x_50 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_50, 0, x_49);
+return x_50;
 }
-}
-block_44:
+block_43:
 {
-if (x_39 == 0)
+if (x_38 == 0)
 {
-lean_object* x_40; lean_object* x_41; 
-x_40 = lean_box(x_39);
+lean_object* x_39; lean_object* x_40; 
+x_39 = lean_box(x_38);
 if (lean_is_scalar(x_33)) {
- x_41 = lean_alloc_ctor(0, 1, 0);
+ x_40 = lean_alloc_ctor(0, 1, 0);
 } else {
- x_41 = x_33;
+ x_40 = x_33;
 }
-lean_ctor_set(x_41, 0, x_40);
-return x_41;
+lean_ctor_set(x_40, 0, x_39);
+return x_40;
 }
 else
 {
-lean_object* x_42; lean_object* x_43; 
-x_42 = lean_box(x_37);
+lean_object* x_41; lean_object* x_42; 
+x_41 = lean_box(x_37);
 if (lean_is_scalar(x_33)) {
- x_43 = lean_alloc_ctor(0, 1, 0);
+ x_42 = lean_alloc_ctor(0, 1, 0);
 } else {
- x_43 = x_33;
+ x_42 = x_33;
 }
-lean_ctor_set(x_43, 0, x_42);
-return x_43;
+lean_ctor_set(x_42, 0, x_41);
+return x_42;
 }
-}
-}
-else
-{
-lean_object* x_54; lean_object* x_55; 
-lean_dec(x_32);
-lean_dec(x_30);
-x_54 = lean_box(x_37);
-if (lean_is_scalar(x_33)) {
- x_55 = lean_alloc_ctor(0, 1, 0);
-} else {
- x_55 = x_33;
-}
-lean_ctor_set(x_55, 0, x_54);
-return x_55;
 }
 }
 }
@@ -1899,14 +1872,14 @@ lean_dec(x_3);
 return x_7;
 }
 }
-lean_object* initialize_Lean_Meta_GlobalInstances(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_GetUnfoldableConst(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_GlobalInstances(builtin);
+res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ReducibilityAttrs(builtin);

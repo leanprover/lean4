@@ -142,7 +142,7 @@ def builtinPassManager : PassManager := {
   ]
   impurePasses := #[
     saveImpure, -- End of impure phase
-    --pushProj (occurrence := 0),
+    pushProj (occurrence := 0),
     inferVisibility (phase := .impure),
   ]
 }

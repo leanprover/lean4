@@ -6,7 +6,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 Type class instance synthesizer using tabled resolution.
 -/
 module
-
 prelude
 public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
@@ -15,7 +14,6 @@ public import Lean.Meta.Check
 import Init.While
 
 public section
-
 namespace Lean.Meta
 
 register_builtin_option synthInstance.maxHeartbeats : Nat := {
@@ -661,10 +659,49 @@ If it succeeds, and metavariables ?m_i have been assigned, we try to unify
 the original type `C a_1 ... a_n` with the normalized one.
 -/
 
-private def preprocess (type : Expr) : MetaM Expr :=
-  forallTelescopeReducing type fun xs type => do
-    let type ← whnf type
-    mkForallFVars xs type
+/--
+Returns the pair `(type, cacheKeyType)`, where `type` is the normalized type, and `cacheKeyType`
+is part of the key for the type class resolution cache. If the class associated with `type`
+does not have output parameters, then, `cacheKeyType` is `type`.
+If it has, we replace arguments corresponding with output parameters with wildcard terms.
+
+For example, the cache key for a query like
+`HAppend.{0, 0, ?u} (BitVec 8) (BitVec 8) ?m` should be independent of the specific
+metavariable IDs in output parameter positions. To achieve this, output parameter arguments
+are erased from the cache key. However, universe levels that only appear in output parameter
+types (e.g., `?u` corresponding to the result type's universe) must also be erased to avoid
+cache misses when the same query is issued with different universe metavariable IDs.
+-/
+private def preprocess (type : Expr) : MetaM (Expr × Expr) :=
+  let keyExprWildcard := mkFVar { name := `__wild__  }
+  let keyLevelWildcard := mkLevelParam `__wild__
+  forallTelescopeReducing type fun xs typeBody => do
+    let typeBody ← whnf typeBody
+    let type ← mkForallFVars xs type
+    let c := typeBody.getAppFn
+    let .const declName us := c | return (type, type)
+    let env ← getEnv
+    let some outParamsPos := getOutParamPositions? env declName | return (type, type)
+    if outParamsPos.isEmpty then return (type, type)
+    let c := if let some outLevelParamPos := getOutLevelParamPositions? env declName then
+      let rec normLevels (us : List Level) (i : Nat) : List Level :=
+        match us with
+        | [] => []
+        | u :: us =>
+          let u := if i ∈ outLevelParamPos then keyLevelWildcard else u
+          u :: normLevels us (i+1)
+      mkConst declName (normLevels us 0)
+    else
+      c
+    let rec norm (e : Expr) (i : Nat) : Expr :=
+      match e with
+      | .app f a =>
+        let a := if i ∈ outParamsPos then keyExprWildcard else a
+        mkApp (norm f (i-1)) a
+      | _ => c
+    let typeBody := norm typeBody (typeBody.getAppNumArgs - 1)
+    let cacheKey ← mkForallFVars xs typeBody
+    return (type, cacheKey)
 
 private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
   if h : i < args.size then
@@ -686,18 +723,15 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
 
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
-    match typeBody.getAppFn with
-    | c@(.const declName _) =>
-      let env ← getEnv
-      if let some outParamsPos := getOutParamPositions? env declName then
-        unless outParamsPos.isEmpty do
-          let args := typeBody.getAppArgs
-          let cType ← inferType c
-          let args ← preprocessArgs cType 0 args outParamsPos
-          return (← mkForallFVars xs (mkAppN c args))
-      return type
-    | _ =>
-      return type
+    let c := typeBody.getAppFn
+    let .const declName _ := c | return type
+    let env ← getEnv
+    let some outParamsPos := getOutParamPositions? env declName | return type
+    if outParamsPos.isEmpty then return type
+    let args := typeBody.getAppArgs
+    let cType ← inferType c
+    let args ← preprocessArgs cType 0 args outParamsPos
+    mkForallFVars xs (mkAppN c args)
 
 /-!
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
@@ -791,12 +825,13 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
-    let type ← preprocess type
-    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    let (type, cacheKeyType) ← preprocess type
+    let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth }
     match (← get).cache.synthInstance.find? cacheKey with
     | some abstResult? =>
       let result? ← applyCachedAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?} (cached)"
+      trace[Meta.synthInstance.cache] "cached: {type}"
       return result?
     | none =>
       let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
@@ -804,6 +839,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
         SynthInstance.main normType maxResultSize
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
+      trace[Meta.synthInstance.cache] "new: {type}"
       cacheResult cacheKey abstResult? result?
       return result?
 
@@ -874,5 +910,6 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer
+  registerTraceClass `Meta.synthInstance.cache
 
 end Lean.Meta

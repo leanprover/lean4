@@ -49,7 +49,6 @@ uint8_t lean_int8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Int8_instUpwardEnumerable___lam__0(uint8_t);
 LEAN_EXPORT lean_object* l_Int8_instUpwardEnumerable___lam__0___boxed(lean_object*);
 static lean_object* l_Int8_instUpwardEnumerable___lam__1___closed__0;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 uint8_t lean_int8_of_int(lean_object*);
 LEAN_EXPORT lean_object* l_Int8_instUpwardEnumerable___lam__1(lean_object*, uint8_t);
@@ -63,19 +62,12 @@ static const lean_object* l_Int8_instUpwardEnumerable___closed__2 = (const lean_
 LEAN_EXPORT const lean_object* l_Int8_instUpwardEnumerable = (const lean_object*)&l_Int8_instUpwardEnumerable___closed__2_value;
 static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f;
-lean_object* lean_uint8_to_nat(uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0(uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object*);
-uint8_t lean_uint8_of_nat_mk(lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object*);
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l_UInt8_toBitVec___boxed(lean_object*);
+static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_UInt8_toBitVec___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0_value;
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1_value;
-static const lean_ctor_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0_value),((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1_value)}};
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__2 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__2_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__2_value;
+lean_object* l_UInt8_ofBitVec___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat;
 LEAN_EXPORT const lean_object* l_Int8_instRxcHasSize = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__HasModel_instHasSizeInt8___closed__0_value;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int8_instRxoHasSize___lam__0(uint8_t, uint8_t);
@@ -117,19 +109,12 @@ static const lean_object* l_Int16_instUpwardEnumerable___closed__2 = (const lean
 LEAN_EXPORT const lean_object* l_Int16_instUpwardEnumerable = (const lean_object*)&l_Int16_instUpwardEnumerable___closed__2_value;
 static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f;
-lean_object* lean_uint16_to_nat(uint16_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0(uint16_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object*);
-uint16_t lean_uint16_of_nat_mk(lean_object*);
-LEAN_EXPORT uint16_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object*);
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l_UInt16_toBitVec___boxed(lean_object*);
+static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_UInt16_toBitVec___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0_value;
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1_value;
-static const lean_ctor_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0_value),((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1_value)}};
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__2 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__2_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__2_value;
+lean_object* l_UInt16_ofBitVec___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat;
 LEAN_EXPORT lean_object* l_Int16_instRxcHasSize___lam__0(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Int16_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Int16_instRxcHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int16_instRxcHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -173,19 +158,12 @@ LEAN_EXPORT const lean_object* l_Int32_instUpwardEnumerable = (const lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f___closed__0___boxed__const__1;
 static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f;
-lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0(uint32_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object*);
-uint32_t lean_uint32_of_nat_mk(lean_object*);
-LEAN_EXPORT uint32_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object*);
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l_UInt32_toBitVec___boxed(lean_object*);
+static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_UInt32_toBitVec___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0_value;
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1_value;
-static const lean_ctor_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0_value),((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1_value)}};
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__2 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__2_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__2_value;
+lean_object* l_UInt32_ofBitVec___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat;
 LEAN_EXPORT lean_object* l_Int32_instRxcHasSize___lam__0(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Int32_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Int32_instRxcHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int32_instRxcHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -230,19 +208,12 @@ LEAN_EXPORT const lean_object* l_Int64_instUpwardEnumerable = (const lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f___closed__0___boxed__const__1;
 static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f;
-lean_object* lean_uint64_to_nat(uint64_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0(uint64_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object*);
-uint64_t lean_uint64_of_nat_mk(lean_object*);
-LEAN_EXPORT uint64_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object*);
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l_UInt64_toBitVec___boxed(lean_object*);
+static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_UInt64_toBitVec___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0_value;
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1_value;
-static const lean_ctor_object l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0_value),((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1_value)}};
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__2 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__2_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__2_value;
+lean_object* l_UInt64_ofBitVec___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat;
 LEAN_EXPORT lean_object* l_Int64_instRxcHasSize___lam__0(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Int64_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Int64_instRxcHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int64_instRxcHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -290,19 +261,12 @@ LEAN_EXPORT const lean_object* l_ISize_instUpwardEnumerable = (const lean_object
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f___closed__0___boxed__const__1;
 static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f;
-lean_object* lean_usize_to_nat(size_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0(size_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0___boxed(lean_object*);
-size_t lean_usize_of_nat_mk(lean_object*);
-LEAN_EXPORT size_t l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1___boxed(lean_object*);
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+lean_object* l_USize_toBitVec___boxed(lean_object*);
+static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_USize_toBitVec___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0_value;
-static const lean_closure_object l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1_value;
-static const lean_ctor_object l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0_value),((lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1_value)}};
-static const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__2 = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__2_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits = (const lean_object*)&l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__2_value;
+lean_object* l_USize_ofBitVec___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits;
 LEAN_EXPORT lean_object* l_ISize_instRxcHasSize___lam__0(size_t, size_t);
 LEAN_EXPORT lean_object* l_ISize_instRxcHasSize___lam__0___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_ISize_instRxcHasSize___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_ISize_instRxcHasSize___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -655,7 +619,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_int8_to_int(x_2);
-x_4 = l_instNatCastInt___lam__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_add(x_3, x_4);
 lean_dec(x_4);
 x_6 = l_Int8_instUpwardEnumerable___lam__1___closed__0;
@@ -707,38 +671,24 @@ x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f___close
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0(uint8_t x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_uint8_to_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__0(x_2);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_UInt8_ofBitVec___boxed), 1, 0);
+x_2 = ((lean_object*)(l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__0));
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1(lean_object* x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat() {
 _start:
 {
-uint8_t x_2; 
-x_2 = lean_uint8_of_nat_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___lam__1(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int8_instRxoHasSize___lam__0(uint8_t x_1, uint8_t x_2) {
@@ -908,7 +858,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_int16_to_int(x_2);
-x_4 = l_instNatCastInt___lam__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_add(x_3, x_4);
 lean_dec(x_4);
 x_6 = l_Int16_instUpwardEnumerable___lam__1___closed__0;
@@ -960,38 +910,24 @@ x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f___clos
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0(uint16_t x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_uint16_to_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint16_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__0(x_2);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_UInt16_ofBitVec___boxed), 1, 0);
+x_2 = ((lean_object*)(l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__0));
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint16_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1(lean_object* x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat() {
 _start:
 {
-uint16_t x_2; 
-x_2 = lean_uint16_of_nat_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-uint16_t x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___lam__1(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int16_instRxcHasSize___lam__0(uint16_t x_1, uint16_t x_2) {
@@ -1178,7 +1114,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_int32_to_int(x_2);
-x_4 = l_instNatCastInt___lam__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_add(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1240,39 +1176,24 @@ x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f___clos
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0(uint32_t x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_uint32_to_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
-x_3 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__0(x_2);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_UInt32_ofBitVec___boxed), 1, 0);
+x_2 = ((lean_object*)(l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__0));
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint32_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1(lean_object* x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat() {
 _start:
 {
-uint32_t x_2; 
-x_2 = lean_uint32_of_nat_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___lam__1(x_1);
-x_3 = lean_box_uint32(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int32_instRxcHasSize___lam__0(uint32_t x_1, uint32_t x_2) {
@@ -1477,7 +1398,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_int64_to_int_sint(x_2);
-x_4 = l_instNatCastInt___lam__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_add(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1539,39 +1460,24 @@ x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f___clos
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0(uint64_t x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_uint64_to_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_3 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__0(x_2);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_UInt64_ofBitVec___boxed), 1, 0);
+x_2 = ((lean_object*)(l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__0));
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint64_t l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1(lean_object* x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat() {
 _start:
 {
-uint64_t x_2; 
-x_2 = lean_uint64_of_nat_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___lam__1(x_1);
-x_3 = lean_box_uint64(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int64_instRxcHasSize___lam__0(uint64_t x_1, uint64_t x_2) {
@@ -1798,7 +1704,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_isize_to_int(x_2);
-x_4 = l_instNatCastInt___lam__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_add(x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1860,39 +1766,24 @@ x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f___clos
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0(size_t x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_usize_to_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-size_t x_2; lean_object* x_3; 
-x_2 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_3 = l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__0(x_2);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_alloc_closure((void*)(l_USize_ofBitVec___boxed), 1, 0);
+x_2 = ((lean_object*)(l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__0));
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT size_t l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1(lean_object* x_1) {
+static lean_object* _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits() {
 _start:
 {
-size_t x_2; 
-x_2 = lean_usize_of_nat_mk(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1___boxed(lean_object* x_1) {
-_start:
-{
-size_t x_2; lean_object* x_3; 
-x_2 = l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___lam__1(x_1);
-x_3 = lean_box_usize(x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_ISize_instRxcHasSize___lam__0(size_t x_1, size_t x_2) {
@@ -2022,6 +1913,10 @@ l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f___closed__0 =
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f();
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instLeast_x3f);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat___closed__1);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int8_instHasModelBitVecOfNatNat);
 l_Int8_instRxiHasSize___lam__0___closed__0 = _init_l_Int8_instRxiHasSize___lam__0___closed__0();
 lean_mark_persistent(l_Int8_instRxiHasSize___lam__0___closed__0);
 l_Int8_instRxiHasSize___lam__0___closed__1 = _init_l_Int8_instRxiHasSize___lam__0___closed__1();
@@ -2038,6 +1933,10 @@ l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f___closed__0 
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f();
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instLeast_x3f);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat___closed__1);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int16_instHasModelBitVecOfNatNat);
 l_Int16_instRxiHasSize___lam__0___closed__0 = _init_l_Int16_instRxiHasSize___lam__0___closed__0();
 lean_mark_persistent(l_Int16_instRxiHasSize___lam__0___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_minValueSealed___closed__0 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_minValueSealed___closed__0();
@@ -2054,6 +1953,10 @@ l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f___closed__0 
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f();
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instLeast_x3f);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat___closed__1);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int32_instHasModelBitVecOfNatNat);
 l_Int32_instRxiHasSize___lam__0___closed__0 = _init_l_Int32_instRxiHasSize___lam__0___closed__0();
 lean_mark_persistent(l_Int32_instRxiHasSize___lam__0___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_minValueSealed___closed__0 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_minValueSealed___closed__0();
@@ -2072,6 +1975,10 @@ l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f___closed__0 
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f();
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instLeast_x3f);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat___closed__1);
+l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__Int64_instHasModelBitVecOfNatNat);
 l_Int64_instRxiHasSize___lam__0___closed__0 = _init_l_Int64_instRxiHasSize___lam__0___closed__0();
 lean_mark_persistent(l_Int64_instRxiHasSize___lam__0___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_minValueSealed___closed__0 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_minValueSealed___closed__0();
@@ -2095,6 +2002,10 @@ l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f___closed__0 
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f___closed__0);
 l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f();
 lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instLeast_x3f);
+l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits___closed__1);
+l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits();
+lean_mark_persistent(l___private_Init_Data_Range_Polymorphic_SInt_0__ISize_instHasModelBitVecNumBits);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Prelude
-import Lake.Config.Package
-import Lake.DSL.Attributes
+import Lake.Config.Package  -- shake: keep (builtin macro output dependency)
+import Lake.DSL.Attributes  -- shake: keep (builtin macro output dependency)
 import Lake.DSL.Syntax
 
 /-! # Script Declarations

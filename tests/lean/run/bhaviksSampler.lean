@@ -138,7 +138,7 @@ theorem randFin_total {m : Type → Type u} [Monad m] [WPMonad m ps] {n : ℕ} [
   ⦃⇓ _ _ => P⦄ := by
     unfold randFin
     mintro hs ∀s
-    simp [wp]
+    simp [wp, StateT.run]
 
 @[spec]
 theorem randBound_spec {m : Type → Type u} [Monad m] [WPMonad m ps] (h : lo ≤ hi)  :

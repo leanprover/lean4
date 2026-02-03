@@ -6613,4 +6613,20 @@ theorem toNat_cpop_not {x : BitVec w} :
     cases b
     <;> (simp [ih]; omega)
 
+/-! ### Natural right folding -/
+
+theorem foldNatR_zero {start s : Nat} {acc : BitVec s} {x : BitVec w}
+  (f : BitVec l → BitVec s → BitVec s) :
+  foldNatR x start 0 acc f = acc := by rfl
+
+theorem foldNatR_succ {start s : Nat} {acc : BitVec s} {x : BitVec w}
+  (f : BitVec l → BitVec s → BitVec s) :
+  foldNatR x start (n + 1) acc f = foldNatR x (start + l) k' (f (x.extractLsb' start l) acc) f := by rfl
+
+theorem foldNatR_append {start s : Nat} {acc : BitVec s} {x : BitVec w}
+  (f : BitVec l → BitVec s → BitVec s) :
+  foldNatR (y ++ x) start (n + 1) acc f = foldNatR x (start + l) k' (f (x.extractLsb' start l) acc) f := by rfl
+
+
+
 end BitVec

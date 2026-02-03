@@ -959,8 +959,7 @@ termination_by w - start
 -/
 def foldNatR (x : BitVec w) (start k : Nat) (acc : BitVec s)
     (f : BitVec l → BitVec s → BitVec s) : BitVec s :=
-  if hl : l = 0 then (0#s).cast (by omega) else
-  match h : k with
+  match k with
   | 0 => acc
   | k' + 1 => foldNatR x (start + l) k' (f (x.extractLsb' start l) acc) f
 
@@ -980,7 +979,6 @@ def foldNatR (x : BitVec w) (start k : Nat) (acc : BitVec s)
 -/
 def foldNatR' {s : Type} (x : BitVec w) (start k : Nat) (acc : s)
     (f : BitVec l → s → s) : s :=
-  if l = 0 then acc else
   match k with
   | 0 => acc
   | k' + 1 => foldNatR' x (start + l) k' (f (x.extractLsb' start l) acc) f
@@ -998,8 +996,7 @@ def foldNatR' {s : Type} (x : BitVec w) (start k : Nat) (acc : s)
 -/
 def foldIntR (x : BitVec w) (start k : Nat) (acc : BitVec s)
     (f : BitVec l → BitVec s → BitVec s) : BitVec s :=
-  if hl : l = 0 then (0#s).cast (by omega) else
-  match h : k with
+  match k with
   | 0 => acc
   | k' + 1 => foldIntR x (start + l) k' (f ((x.extractLsb' start (w - start)).signExtend l) acc) f
 
@@ -1013,7 +1010,6 @@ def foldIntR (x : BitVec w) (start k : Nat) (acc : BitVec s)
 -/
 def foldIntR' {s : Type} (x : BitVec w) (start k : Nat) (acc : s)
     (f : BitVec l → s → s) : s :=
-  if l = 0 then acc else
   match k with
   | 0 => acc
   | k' + 1 => foldIntR' x (start + l) k' (f ((x.extractLsb' start (w - start)).signExtend l) acc) f
@@ -1057,7 +1053,6 @@ def foldSubNat (l : Nat) (x : BitVec w) : BitVec l := foldNatR x 0 l 0#l BitVec.
 def foldSubInt (l : Nat) (x : BitVec w) : BitVec l := foldIntR x 0 l 0#l BitVec.sub
 
 /-! ### Left-folding -/
-
 /-
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, starting from the most
   significant bit and zero-extending if necessary.

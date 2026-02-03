@@ -39,7 +39,7 @@ public section
 namespace Lean.IR
 
 register_builtin_option compiler.reuse : Bool := {
-  defValue := true
+  defValue := false
   descr    := "heuristically insert reset/reuse instruction pairs"
 }
 

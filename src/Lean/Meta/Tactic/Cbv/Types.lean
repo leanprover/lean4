@@ -18,11 +18,11 @@ open Lean.Meta.Sym.Simp
 
 public structure CbvTheoremsLookupState where
   /-- Cache for function equations (from getEqnsFor?) -/
-  eqnTheorems : PHashMap Name Theorems := {}
+  eqnTheorems : NameMap Theorems := {}
   /-- Cache for unfold equations (from getUnfoldEqnFor?) -/
-  unfoldTheorems : PHashMap Name Theorem := {}
+  unfoldTheorems : NameMap Theorem := {}
   /-- Cache for match equations (from Match.getEquationsFor) -/
-  matchTheorems : PHashMap Name Theorems := {}
+  matchTheorems : NameMap Theorems := {}
   deriving Inhabited
 
 end Lean.Meta.Tactic.Cbv

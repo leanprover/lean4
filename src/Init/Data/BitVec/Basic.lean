@@ -936,7 +936,7 @@ termination_by w - start
 
 /--
   In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
-  This is the most general definition for `f`.
+  This is a more general definition for `f`.
 
   · well-foundedness ✅
   · structural recursion ✅
@@ -948,9 +948,28 @@ def foldNatR''' (x : BitVec w) (start k : Nat) (acc : BitVec s)
   | 0 => acc
   | k' + 1 => foldNatR''' x (start + l) k' (f (x.extractLsb' start l) acc) f
 
-#eval foldNatR'' (73#9) 0 0#3 BitVec.add
-#eval foldNatR'' (17#6) 0 0#3 BitVec.add
-#eval foldNatR'' (33#6) 0 0#3 BitVec.add
+#eval foldNatR''' (73#9) 0 3 0#3 BitVec.add
+#eval foldNatR''' (17#6) 0 3 0#3 BitVec.add
+#eval foldNatR''' (33#6) 0 3 0#3 BitVec.add
+
+
+/--
+  In this definition we introduce an explicit `start` argument demarcating the extraction of the next chunk.
+  This is the most general definition for `f`.
+
+  · well-foundedness ✅
+  · structural recursion ✅
+-/
+def foldNatR'''' {s : Type} (x : BitVec w) (start k : Nat) (acc : s)
+    (f : BitVec l → s → s) : s :=
+  if l = 0 then acc else
+  match k with
+  | 0 => acc
+  | k' + 1 => foldNatR'''' x (start + l) k' (f (x.extractLsb' start l) acc) f
+
+#eval foldNatR'''' (73#9) 0 3 0#3 BitVec.add
+#eval foldNatR'''' (17#6) 0 3 0#3 BitVec.add
+#eval foldNatR'''' (33#6) 0 3 0#3 BitVec.add
 
 /--
   Recursively apply `f` on `l`-long chunks of `x` for its entire length, starting from the least

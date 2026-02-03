@@ -202,7 +202,7 @@ def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager 
   | .mono =>
     return { manager with monoPasses := (← installer.install manager.monoPasses) }
   | .impure =>
-    return { manager with impurePasses := (← installer.install manager.monoPasses) }
+    return { manager with impurePasses := (← installer.install manager.impurePasses) }
 
 private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName

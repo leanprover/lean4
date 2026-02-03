@@ -140,7 +140,7 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
       let alts ← c.alts.mapM fun
         | .alt ctorName params k _ => return .alt ctorName (← params.mapM internalizeParam) (← internalizeCode k)
         | .default k => return .default (← internalizeCode k)
-        | .ctorAlt i k _ => return .default (← internalizeCode k)
+        | .ctorAlt i k _ => return .ctorAlt i (← internalizeCode k)
       return .cases ⟨c.typeName, resultType, discr, alts⟩
   | .sset fvarId i offset y ty k _ =>
     withNormFVarResult (← normFVar fvarId) fun fvarId => do

@@ -1,4 +1,4 @@
-Failure @5 (⟨1, 5⟩): expected ']'
+Failure @5 (⟨1, 5⟩): expected `]`
 Final stack:
   (Lean.Doc.Syntax.image
    "!["

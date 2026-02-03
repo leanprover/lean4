@@ -1,5 +1,5 @@
 2 failures:
-  @19 (⟨6, 0⟩): '{'; expected '![', '$$', '$', '[' or '[^'
+  @19 (⟨6, 0⟩): `{`; expected `![`, `$$`, `$`, `[^` or `[`
     "Here's a paragraph."
   @19 (⟨6, 0⟩): expected token
     "Here's a paragraph."

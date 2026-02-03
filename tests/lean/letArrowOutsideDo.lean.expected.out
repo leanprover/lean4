@@ -1,1 +1,1 @@
-letArrowOutsideDo.lean:2:7-2:9: error: unexpected token '←'; expected ':=' or '|'
+letArrowOutsideDo.lean:2:7-2:9: error: unexpected token `←`; expected `:=` or `|`

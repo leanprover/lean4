@@ -1,4 +1,4 @@
-Failure @35 (⟨2, 15⟩): unexpected end of input; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', beginning of line at ⟨2, 15⟩ or beginning of line or sequence of nestable block openers at ⟨2, 15⟩
+Failure @35 (⟨2, 15⟩): unexpected end of input; expected %%% (at line beginning), `![`, `$$`, `$`, `[^`, `[`, beginning of line at ⟨2, 15⟩ or beginning of line or sequence of nestable block openers at ⟨2, 15⟩
 Final stack:
   [(Lean.Doc.Syntax.dl
     "dl{"

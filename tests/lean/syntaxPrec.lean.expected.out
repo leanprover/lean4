@@ -1,4 +1,4 @@
-syntaxPrec.lean:1:17-1:21: error: unexpected token '<|>'; expected ':'
+syntaxPrec.lean:1:17-1:21: error: unexpected token `<|>`; expected `:`
 [Elab.command] @[term_parser 1000]
     public meta def «termFoo*_» : Lean.ParserDescr✝ :=
       ParserDescr.node✝ `«termFoo*_» 1022

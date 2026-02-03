@@ -58,9 +58,31 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (st
       pos := r.start
       endPos? := some r.stop
     let unexpected := match e.unexpectedTk with
-      | .ident .. => "unexpected identifier"
-      | .atom _ v => s!"unexpected token '{v}'"
-      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+      | .ident _ rawVal _ _ =>
+        s!"unexpected identifier `{toString rawVal}`"
+      | .atom _ v =>
+        s!"unexpected token `{v}`"
+      | .node _ k #[.atom _ v] =>
+        if k == numLitKind then
+          s!"unexpected numeral `{v}`"
+        else if k == strLitKind then
+          s!"unexpected string literal {v}"
+        else if k == charLitKind then
+          s!"unexpected character literal {v}"
+        else if k == scientificLitKind then
+          s!"unexpected scientific numeral `{v}`"
+        else if k == nameLitKind then
+          s!"unexpected name literal {v}"
+        else if k == fieldIdxKind then
+          s!"unexpected field index `{v}`"
+        else if k == hexnumKind then
+          s!"unexpected hexadecimal number `{v}`"
+        else if k == interpolatedStrLitKind then
+          s!"unexpected interpolated string fragment {v}"
+        else
+          s!"unexpected token `{v}`"
+      | _ =>
+        "unexpected token"
     e := { e with unexpected }
     -- if there is an unexpected token, include preceding whitespace as well as the expected token could
     -- be inserted at any of these places to fix the error; see tests/lean/1971.lean

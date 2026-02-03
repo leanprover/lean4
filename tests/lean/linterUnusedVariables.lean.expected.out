@@ -85,7 +85,7 @@ a : Nat
 ⊢ Nat
 linterUnusedVariables.lean:245:0-245:7: warning: declaration uses `sorry`
 linterUnusedVariables.lean:246:0-246:7: warning: declaration uses `sorry`
-linterUnusedVariables.lean:247:29-248:7: error: unexpected token 'theorem'; expected '{' or tactic
+linterUnusedVariables.lean:247:29-248:7: error: unexpected token `theorem`; expected `{` or tactic
 linterUnusedVariables.lean:247:27-247:29: error: unsolved goals
 a : Nat
 ⊢ Nat

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Data.NameMap
 public import Lean.ScopedEnvExtension
+public import Lean.Elab.InfoTree
 
 public section
 namespace Lean.Meta.Tactic.Cbv
@@ -45,6 +46,9 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     name     := `cbvEvalExt
     initial  := {}
     addEntry := CbvEvalState.addEntry
+    exportEntry? := fun level entry => do
+      guard (level == .private || !isPrivateName entry.target)
+      return entry
   }
 
 /--
@@ -52,8 +56,31 @@ Look up all lemma names registered for a given target definition
 via the `cbv_eval` attribute.
 Returns an empty array if no lemmas have been registered.
 -/
-def getCbvEvalLemmas (target : Name) : CoreM (Array Name) := do
+def getCbvEvalLemmas (target : Name) : CoreM (Option <| Array Name) := do
+  trace[Meta.Tactic.cbv] "trying to get user lemmas for: {target}"
   let s := cbvEvalExt.getState (← getEnv)
-  return (s.lemmas.find? target).getD #[]
+  return (s.lemmas.find? target)
+
+/-- Syntax for the `cbv_eval` attribute. -/
+syntax (name := Parser.Attr.cbvEval) "cbv_eval " ident : attr
+
+/-- Register the `cbv_eval` attribute. -/
+builtin_initialize
+  registerBuiltinAttribute {
+    ref   := `cbvEvalAttr
+    name  := `cbv_eval
+    descr := "Register a theorem as a rewrite rule for CBV evaluation of a given definition. \
+              Usage: @[cbv_eval targetDef] theorem ..."
+    applicationTime := AttributeApplicationTime.afterCompilation
+    add   := fun lemmaName stx kind => do
+      let fnNameStx ← Attribute.Builtin.getIdent <| stx
+      let targetName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
+      cbvEvalExt.add { target := targetName, declName := lemmaName } kind
+    erase := fun lemmaName => do
+      modifyEnv fun env => cbvEvalExt.modifyState env fun s =>
+        { s with lemmas := s.lemmas.foldl (init := {}) fun acc target lemmas =>
+            let filtered := lemmas.filter (· != lemmaName)
+            if filtered.isEmpty then acc else acc.insert target filtered }
+  }
 
 end Lean.Meta.Tactic.Cbv

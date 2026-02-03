@@ -171,22 +171,52 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
     lhs
     cbv
 
-attribute [cbv_forbidden] Std.DHashMap.emptyWithCapacity
-attribute [cbv_forbidden] Std.DHashMap.insert
-attribute [cbv_forbidden] Std.DHashMap.contains
-attribute [cbv_forbidden] Std.DHashMap.getEntry
 
-/--
-warning: The `cbv` tactic is experimental and still under development. Avoid using it in production projects
----
-error: unsolved goals
-⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
----
-trace: | (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5
--/
-#guard_msgs in
+section
+attribute [local cbv_forbidden] Std.DHashMap.emptyWithCapacity
+attribute [local cbv_forbidden] Std.DHashMap.insert
+attribute [local cbv_forbidden] Std.DHashMap.contains
+attribute [local cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_empty
+attribute [local cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_insert
+
 example : ((Std.HashMap.emptyWithCapacity : Std.HashMap Nat Nat).insert 5 3).contains 5 = true := by
   conv =>
     lhs
     cbv
-    trace_state
+end
+
+section
+
+
+#check Std.Iter.toList_take_of_finite
+
+example : (#[1,2,3].iter.take 2).toList = [1,2] := by
+  simp?
+
+
+theorem myLen {α β : Type w} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]
+    [Std.IteratorLoop α Id Id] [Std.LawfulIteratorLoop α Id Id]
+    {it : Std.Iter (α := α) β} :
+    it.length = it.toList.length := by
+  simp
+
+attribute [cbv_forbidden] List.iter
+attribute [cbv_forbidden] Array.iter
+attribute [cbv_forbidden] Std.Iter.take
+attribute [cbv_forbidden] Std.Iter.toList
+attribute [cbv_forbidden] Std.Iter.length
+attribute [cbv_forbidden] Std.Iter.toArray
+attribute [cbv_eval Std.Iter.toList] Std.Iter.toList_take_of_finite
+attribute [cbv_eval Std.Iter.toList] Array.toList_iter
+attribute [cbv_eval Std.Iter.toList] List.toList_iter
+attribute [cbv_eval Std.Iter.length] myLen
+
+theorem iter_length_test : ((List.replicate 1 1).iter.take 2).toList = [1] := by
+  conv =>
+    lhs
+    cbv
+
+
+#print iter_length_test
+
+end

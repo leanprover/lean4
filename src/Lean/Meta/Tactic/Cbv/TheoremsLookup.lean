@@ -14,7 +14,7 @@ import Lean.Meta.Eqns
 
 namespace Lean.Meta.Sym.Simp
 
-def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=
+public def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=
   Array.foldl Theorems.insert thms toInsert
 
 end Lean.Meta.Sym.Simp

@@ -9,7 +9,10 @@ module
 prelude
 public import Lean.Meta.Tactic.Cbv.Types
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.Simp.Theorems
+public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Tactic.Cbv.Forbidden
+public import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Sym
@@ -29,6 +32,14 @@ def reduceRecMatcher : Simproc := fun e => do
     return .step e' (← Sym.mkEqRefl e')
   else
     return .rfl
+
+def tryUserLemmas : Simproc := fun e => do
+  unless e.isApp do return .rfl
+  let some appFn := e.getAppFn.constName? | return .rfl
+  let some names ← getCbvEvalLemmas appFn | return .rfl
+  trace[Meta.Tactic.cbv] "found user lemmas: {names}"
+  let thms := Theorems.insertMany {} <| ← names.mapM (do mkTheoremFromDecl ·)
+  (simpAppArgs >> thms.rewrite (d := dischargeNone)) e
 
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
@@ -144,11 +155,11 @@ def handleConst : Simproc := fun e => do
 
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
-  >>  (tryMatcher >> simpControl) <|> ((isForbiddenConst >> handleConst) <|> simplifyLhs <|> handleProj)
+  >>  (tryMatcher >> simpControl) <|> ((isForbiddenConst >> handleConst) <|> (tryUserLemmas >> isForbiddenApp) <|> simplifyLhs <|> handleProj)
 
 def cbvPost : Simproc :=
       evalGround
-  >>  ((isForbiddenApp >> handleApp) <|> zetaReduce)
+  >>  ((handleApp) <|> zetaReduce)
   >>  foldLit
 
 public def cbvEntry (e : Expr) : MetaM Result := do

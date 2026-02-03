@@ -190,11 +190,15 @@ instance : TraverseFVar (CodeDecl pu) where
     | .fun decl _ => return .fun (← mapFVarM f decl)
     | .jp decl => return .jp (← mapFVarM f decl)
     | .let decl => return .let (← mapFVarM f decl)
+    | .uset var i y _ => return .uset (← f var) i (← f y)
+    | .sset var i offset y ty _ => return .sset (← f var) i offset (← f y) (← mapFVarM f ty)
   forFVarM f decl :=
     match decl with
     | .fun decl _ => forFVarM f decl
     | .jp decl => forFVarM f decl
     | .let decl => forFVarM f decl
+    | .uset var i y _ => do f var; f y
+    | .sset var i offset y ty _ => do f var; f y; forFVarM f ty
 
 instance : TraverseFVar (Alt pu) where
   mapFVarM f alt := do

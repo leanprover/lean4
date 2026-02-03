@@ -20,6 +20,7 @@ public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
 public import Lean.Compiler.LCNF.Simp
 public import Lean.Compiler.LCNF.ToImpure
+public import Lean.Compiler.LCNF.PushProj
 
 public section
 
@@ -141,6 +142,7 @@ def builtinPassManager : PassManager := {
   ]
   impurePasses := #[
     saveImpure, -- End of impure phase
+    pushProj (occurrence := 0),
     inferVisibility (phase := .impure),
   ]
 }

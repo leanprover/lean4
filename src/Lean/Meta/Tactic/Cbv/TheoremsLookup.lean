@@ -7,7 +7,7 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Lean.Meta.Tactic.Cbv.Types
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Eqns
 
@@ -21,6 +21,12 @@ end Lean.Meta.Sym.Simp
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
+
+public structure CbvTheoremsLookupState where
+  eqnTheorems : PHashMap Name Theorems := {}
+  unfoldTheorems : PHashMap Name Theorem := {}
+  matchTheorems : PHashMap Name Theorems := {}
+  deriving Inhabited
 
 builtin_initialize cbvTheoremsLookup : EnvExtension CbvTheoremsLookupState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
@@ -46,7 +52,6 @@ public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
-
     let some unfoldEqn ← getUnfoldEqnFor? fnName (nonRec := true) | return none
     let thm ← mkTheoremFromDecl unfoldEqn
 
@@ -61,7 +66,6 @@ public def getMatchTheorems (matcherName : Name) : MetaM Theorems := do
   if let some thms := cache.matchTheorems.find? matcherName then
     return thms
   else
-
     let eqns ← Match.getEquationsFor matcherName
     let thms := Theorems.insertMany {} <| ← eqns.eqnNames.mapM mkTheoremFromDecl
 

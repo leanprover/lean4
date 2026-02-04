@@ -161,7 +161,9 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
 @[export lean_run_init_attrs]
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
   if (← isInitializerExecutionEnabled) then
-    for mod in env.header.moduleNames, modIdx in 0...* do
+    -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
+    -- Thus, we use `(modIdx : Nat)`
+    for mod in env.header.moduleNames, (modIdx : Nat) in 0...* do
       -- any native Lean code reachable by the interpreter (i.e. from shared
       -- libraries with their corresponding module in the Environment) must
       -- first be initialized

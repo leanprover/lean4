@@ -232,7 +232,7 @@ theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
     (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
   intro hspec
   simp only [wp] at hspec
-  split at hspec <;> simp_all +instances [pure, Except.pure, Id.run]
+  split at hspec <;> simp at hspec <;> assumption
 
 instance : MonadExcept Error Result where
   throw e := .fail e

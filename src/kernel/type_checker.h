@@ -74,6 +74,7 @@ private:
     optional<expr> reduce_proj_core(expr c, unsigned idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
+    bool is_value(expr const & e) const;
     optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e, bool in_defeq);
 

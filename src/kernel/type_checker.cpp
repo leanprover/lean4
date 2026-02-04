@@ -482,6 +482,20 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
     return r;
 }
 
+/** \brief Returns true if \c e is a literal or constructor application */
+bool type_checker::is_value(expr const & e) const {
+    if (is_sort(e) || is_lit(e)) return true;
+    expr const & f = get_app_fn(e);
+    if (is_constant(f)) {
+        if (optional<constant_info> info = env().find(const_name(f)))
+            if (info->is_constructor())
+                return true;
+    } else if (is_fvar(f)) {
+        return true;
+    }
+    return false;
+}
+
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
     to be expanded. */
 optional<constant_info> type_checker::is_delta(expr const & e) const {
@@ -1087,6 +1101,12 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     }
 
     r = is_def_eq_proof_irrel(t_n, s_n);
+    if (r != l_undef) return r == l_true;
+
+    if (is_value(t_n)) { s_n = whnf(s_n); }
+    if (is_value(s_n)) { t_n = whnf(t_n); }
+
+    r = quick_is_def_eq(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */

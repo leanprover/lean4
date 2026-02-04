@@ -487,6 +487,11 @@ bool type_checker::is_value(expr const & e) const {
     if (is_sort(e) || is_lit(e)) return true;
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
+        // Special case: Do not trigger this if we have `Nat.succ`, else
+        // example (a : Nat) : (a - 8000) + 1 = Nat.succ (a - 8000) := rfl
+        // explodes, because on `Nat`, `whnf` is often `nf`.
+        if (f == *g_nat_succ)
+            return false;
         if (optional<constant_info> info = env().find(const_name(f)))
             if (info->is_constructor())
                 return true;

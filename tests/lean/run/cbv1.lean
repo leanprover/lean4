@@ -1,4 +1,5 @@
 import Std
+set_option cbv.warning false
 
 def function (n : Nat) : Nat := match n with
   | 0 => 0 + 1
@@ -176,17 +177,13 @@ attribute [cbv_forbidden] Std.DHashMap.insert
 attribute [cbv_forbidden] Std.DHashMap.contains
 attribute [cbv_forbidden] Std.DHashMap.getEntry
 
+
 /--
-warning: The `cbv` tactic is experimental and still under development. Avoid using it in production projects
----
 error: unsolved goals
 ⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
----
-trace: | (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5
 -/
 #guard_msgs in
-example : ((Std.HashMap.emptyWithCapacity : Std.HashMap Nat Nat).insert 5 3).contains 5 = true := by
+example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
   conv =>
     lhs
     cbv
-    trace_state

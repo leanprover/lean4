@@ -781,10 +781,15 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 
 private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   let resultType ← inferType result
-  /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
-      We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
-      TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
-  let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+  /-
+  Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
+  We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
+  TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`.
+
+  **Note**: We used to use `withDefault` at the following `isDefEq`, but this was a potential foot gun.
+  TC is supposed to unfold only `reducible` and `instances`.
+  -/
+  let defEq ← withAssignableSyntheticOpaque <| isDefEq type resultType
   unless defEq do
     trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
   return defEq

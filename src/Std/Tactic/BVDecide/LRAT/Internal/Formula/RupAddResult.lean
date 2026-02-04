@@ -14,7 +14,6 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
 import Init.Data.Nat.Linear
 import Init.Data.Nat.Simproc
-import Init.Data.Int.Linear
 
 @[expose] public section
 

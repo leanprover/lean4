@@ -13,7 +13,6 @@ import Init.Data.Array.Bootstrap
 import Init.Data.Int.OfNat
 import Init.Data.List.Pairwise
 import Init.Data.Nat.Linear
-import Init.Data.Int.Linear
 
 @[expose] public section
 

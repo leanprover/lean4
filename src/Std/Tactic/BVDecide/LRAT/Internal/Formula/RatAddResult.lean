@@ -10,7 +10,6 @@ public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
 import Init.ByCases
 import Init.Data.Int.OfNat
 import Init.Data.Nat.Linear
-import Init.Data.Int.Linear
 
 @[expose] public section
 

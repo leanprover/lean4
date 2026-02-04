@@ -13,7 +13,6 @@ public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
 public import Init.Omega
 import Init.ByCases
-import Init.Data.Bool
 public section
 
 namespace Lean.Grind

@@ -11,7 +11,6 @@ import Init.ByCases
 import Init.Data.Array.Range
 import Init.Data.Int.OfNat
 import Init.Data.Nat.Linear
-import Init.Data.Int.Linear
 
 @[expose] public section
 

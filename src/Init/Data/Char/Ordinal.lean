@@ -19,7 +19,6 @@ import Init.Data.Nat.Linear
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.UInt.Lemmas
-import Init.Data.Int.Linear
 
 /-!
 # Bijection between `Char` and `Fin Char.numCodePoints`

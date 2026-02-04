@@ -7,7 +7,6 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Lean.Meta.Tactic.Cbv.Types
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
@@ -15,6 +14,11 @@ import Lean.Meta.Sym
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
+
+public register_builtin_option cbv.warning : Bool := {
+  defValue := true
+  descr    := "disable `cbv` usage warning"
+}
 
 def skipBinders : Simproc := fun e => do
   return .rfl (e.isLambda || e.isForall)
@@ -110,7 +114,7 @@ def handleProj : Simproc := fun e => do
     let newProof ← mkCongrArg congrArgFun proof
     return .step (← Lean.Expr.updateProjS! e e') newProof
 
-def simplifyLhs : Simproc := fun e => do
+def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl
     let fn := e.getAppFn
     unless fn.isLambda || fn.isConst do
@@ -154,7 +158,7 @@ def cbvPost : Simproc :=
   >>  zetaReduce
 =======
       isBuiltinValue <|> isProofTerm <|> skipBinders
-  >>  (tryMatcher >> simpControl) <|> (handleConst <|> simplifyLhs <|> handleProj)
+  >>  (tryMatcher >> simpControl) <|> (handleConst <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=
       evalGround

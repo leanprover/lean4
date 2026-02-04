@@ -1,4 +1,5 @@
 import Std
+set_option cbv.warning false
 
 def function (n : Nat) : Nat := match n with
   | 0 => 0 + 1

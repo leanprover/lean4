@@ -12,6 +12,7 @@ open Std.Do
 
 set_option grind.warning false
 set_option mvcgen.warning false
+set_option warn.sorry false
 
 namespace Code
 
@@ -481,7 +482,7 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen <;> simp_all
 
 theorem test_sum :
@@ -557,8 +558,11 @@ instance : Monad Result where
   | .fail e => .fail e
   | .div => .div
 
-instance : LawfulMonad Result := by
-  apply LawfulMonad.mk' <;> (simp only [instMonadResult]; grind)
+instance : LawfulMonad Result :=
+  LawfulMonad.mk' _
+    (by dsimp only [Functor.map]; grind)
+    (by dsimp only [bind]; grind)
+    (by dsimp only [bind]; grind)
 
 instance Result.instWP : WP Result (.except Error .pure) where
   wp x := match x with

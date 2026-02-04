@@ -208,8 +208,11 @@ instance : Monad Result where
   | .fail e => .fail e
   | .div => .div
 
-instance : LawfulMonad Result := by
-  apply LawfulMonad.mk' <;> (simp only [instMonadResult]; grind)
+instance : LawfulMonad Result :=
+  LawfulMonad.mk' _
+    (by dsimp only [Functor.map]; grind)
+    (by dsimp only [bind]; grind)
+    (by dsimp only [bind]; grind)
 
 instance Result.instWP : WP Result (.except Error .pure) where
   wp x := match x with
@@ -228,7 +231,7 @@ instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
     (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
   intro hspec
-  simp only [instWP] at hspec
+  simp only [wp] at hspec
   split at hspec <;> simp_all
 
 instance : MonadExcept Error Result where

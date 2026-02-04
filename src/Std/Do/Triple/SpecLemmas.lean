@@ -238,7 +238,15 @@ theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond
 
 /-! # `MonadLiftT` -/
 
-attribute [spec] liftM instMonadLiftTOfMonadLift instMonadLiftT
+@[spec]
+theorem Spec.UnfoldLift.monadLift_trans [MonadLift n o] [MonadLiftT m n] (x : m α) :
+    (MonadLiftT.monadLift x : o α) = MonadLift.monadLift (m := n) (monadLift x) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.monadLift_refl (x : m α) :
+    (MonadLiftT.monadLift x : m α) = x := rfl
+
+attribute [spec] liftM Spec.UnfoldLift.monadLift_trans Spec.UnfoldLift.monadLift_refl
 
 /-! # `MonadFunctor` -/
 
@@ -531,14 +539,34 @@ theorem Spec.adaptExcept_EStateM (f : ε → ε') (Q : PostCond α (.except ε' 
 
 /-! # Lifting `MonadStateOf` -/
 
+@[spec]
+theorem Spec.UnfoldLift.get [MonadLift m n] [MonadStateOf σ m] :
+    (MonadStateOf.get : n σ) = monadLift (MonadStateOf.get : m σ) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.set [MonadLift m n] [MonadStateOf σ m] (s : σ) :
+    (MonadStateOf.set (m := n) s) = monadLift (MonadStateOf.set (m := m) s) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.modifyGet [MonadLift m n] [MonadStateOf σ m] (f : σ → α × σ) :
+    MonadStateOf.modifyGet (m := n) f = monadLift (MonadStateOf.modifyGet (m := m) f) := rfl
+
 attribute [spec] modify modifyThe getThe getModify modifyGetThe
-  instMonadStateOfMonadStateOf instMonadStateOfOfMonadLift
+  MonadState.get MonadState.set MonadState.modifyGet
+  Spec.UnfoldLift.get Spec.UnfoldLift.set Spec.UnfoldLift.modifyGet
 
 /-! # Lifting `MonadReaderOf` -/
 
+@[spec]
+theorem Spec.UnfoldLift.read [MonadLift m n] [MonadReaderOf ρ m] :
+    (MonadReaderOf.read : n ρ) = monadLift (MonadReaderOf.read : m ρ) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.withReader [MonadFunctor m n] [MonadWithReaderOf ρ m] (f : ρ → ρ) :
+    (MonadWithReaderOf.withReader f : n α → n α) = monadMap (m := m) (MonadWithReaderOf.withReader f) := rfl
+
 attribute [spec] readThe withTheReader
-  instMonadReaderOfMonadReaderOf instMonadReaderOfOfMonadLift
-  instMonadWithReaderOfMonadWithReaderOf instMonadWithReaderOfOfMonadFunctor
+  read withReader Spec.UnfoldLift.read Spec.UnfoldLift.withReader
 
 /-! # Lifting `MonadExceptOf` -/
 
@@ -621,8 +649,6 @@ theorem Spec.tryCatch_OptionT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
   simp
   intro x
   split <;> rfl
-
-/-! # Lifting `OrElse` -/
 
 end Std.Do
 

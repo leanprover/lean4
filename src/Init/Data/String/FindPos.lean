@@ -38,11 +38,25 @@ decreasing_by
 Obtains the smallest valid position that is strictly greater than the given byte position.
 -/
 @[inline]
-def Slice.posGT (s : Slice) (offset : String.Pos.Raw)  (_h : offset < s.rawEndPos) : s.Pos :=
+def Slice.posGT (s : Slice) (offset : String.Pos.Raw)  (h : offset < s.rawEndPos) : s.Pos :=
   s.posGE offset.inc (by simpa)
 
 @[deprecated Slice.posGT (since := "2026-02-03")]
-def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (_h : offset < s.rawEndPos) : s.Pos :=
-  s.posGT offset _h
+def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (h : offset < s.rawEndPos) : s.Pos :=
+  s.posGT offset h
+
+/--
+Obtains the smallest valid position that is greater than or equal to the given byte position.
+-/
+@[inline]
+def posGE (s : String) (offset : String.Pos.Raw) (h : offset ≤ s.rawEndPos) : s.Pos :=
+  Pos.ofToSlice (s.toSlice.posGE offset (by simpa))
+
+/--
+Obtains the smallest valid position that is strictly greater than the given byte position.
+-/
+@[inline]
+def posGT (s : String) (offset : String.Pos.Raw) (h : offset < s.rawEndPos) : s.Pos :=
+  Pos.ofToSlice (s.toSlice.posGT offset (by simpa))
 
 end String

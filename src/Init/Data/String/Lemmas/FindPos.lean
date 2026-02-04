@@ -72,4 +72,62 @@ theorem posGT_eq_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos}
 
 end Slice
 
+@[simp]
+theorem le_offset_posGE {s : String} {p : Pos.Raw} {h : p ≤ s.rawEndPos} :
+    p ≤ (s.posGE p h).offset := by
+  simp [posGE]
+
+@[simp]
+theorem posGE_le_iff {s : String} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+    s.posGE p h ≤ q ↔ p ≤ q.offset := by
+  simp [posGE, Pos.ofToSlice_le_iff]
+
+@[simp]
+theorem lt_posGE_iff {s : String} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+    q < s.posGE p h ↔ q.offset < p := by
+  simp [posGE, Pos.lt_ofToSlice_iff]
+
+theorem posGE_eq_iff {s : String} {p : Pos.Raw} {h : p ≤ s.rawEndPos} {q : s.Pos} :
+    s.posGE p h = q ↔ p ≤ q.offset ∧ ∀ q', p ≤ q'.offset → q ≤ q' :=
+  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
+
+theorem posGT_eq_posGE {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} :
+    s.posGT p h = s.posGE p.inc (by simpa) :=
+  (rfl)
+
+@[simp]
+theorem lt_offset_posGT {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} :
+    p < (s.posGT p h).offset :=
+  Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE])
+
+@[simp]
+theorem posGT_le_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+    s.posGT p h ≤ q ↔ p < q.offset := by
+  rw [posGT_eq_posGE, posGE_le_iff, Pos.Raw.inc_le]
+
+@[simp]
+theorem lt_posGT_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+    q < s.posGT p h ↔ q.offset ≤ p := by
+  rw [posGT_eq_posGE, lt_posGE_iff, Pos.Raw.lt_inc_iff]
+
+theorem posGT_eq_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
+    s.posGT p h = q ↔ p < q.offset ∧ ∀ q', p < q'.offset → q ≤ q' := by
+  simp [posGT_eq_posGE, posGE_eq_iff]
+
+theorem posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.toSlice.rawEndPos) :
+    s.toSlice.posGE p h = (s.posGE p (by simpa)).toSlice := by
+  simp [posGE]
+
+theorem posGE_eq_posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.rawEndPos) :
+    s.posGE p h = Pos.ofToSlice (s.toSlice.posGE p (by simpa)) := by
+  simp [posGE]
+
+theorem posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.toSlice.rawEndPos) :
+    s.toSlice.posGT p h = (s.posGT p (by simpa)).toSlice := by
+  simp [posGT]
+
+theorem posGT_eq_posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.rawEndPos) :
+    s.posGT p h = Pos.ofToSlice (s.toSlice.posGT p (by simpa)) := by
+  simp [posGT]
+
 end String

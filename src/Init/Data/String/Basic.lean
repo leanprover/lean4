@@ -2012,6 +2012,15 @@ theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next
 theorem Pos.ofToSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
     ofToSlice p ≤ q ↔ p ≤ q.toSlice := Iff.rfl
 
+theorem Pos.ofToSlice_lt_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
+    ofToSlice p < q ↔ p < q.toSlice := Iff.rfl
+
+theorem Pos.lt_ofToSlice_iff {s : String} {p : s.Pos} {q : s.toSlice.Pos} :
+    p < ofToSlice q ↔ p.toSlice < q := Iff.rfl
+
+theorem Pos.le_ofToSlice_iff {s : String} {p : s.Pos} {q : s.toSlice.Pos} :
+    p ≤ ofToSlice q ↔ p.toSlice ≤ q := Iff.rfl
+
 @[simp]
 theorem Pos.toSlice_lt_toSlice_iff {s : String} {p q : s.Pos} :
     p.toSlice < q.toSlice ↔ p < q := Iff.rfl

@@ -201,13 +201,13 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     rw [ListSlice.toList_eq]
-    simp only [aslice, lslice, Std.Slice.toList, toList_internalIter]
+    simp +instances only [aslice, lslice, Std.Slice.toList, toList_internalIter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop]
-  simp [this, ListSlice.toList_eq, lslice]
+  simp +instances [this, ListSlice.toList_eq, lslice]
 
 @[grind =]
 public theorem Subarray.size_eq {xs : Subarray α} :

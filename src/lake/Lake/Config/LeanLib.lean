@@ -8,6 +8,9 @@ module
 prelude
 public import Lake.Config.ConfigTarget
 public import Lake.Util.NativeLib
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 namespace Lake
 open Lean System

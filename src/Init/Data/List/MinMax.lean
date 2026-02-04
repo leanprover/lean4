@@ -6,9 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
+public import Init.Data.List.Attach
+import Init.Data.Bool
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.Option.Lemmas
+import Init.Data.Subtype.Basic
 
 public section
 

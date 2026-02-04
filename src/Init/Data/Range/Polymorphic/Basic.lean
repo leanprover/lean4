@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.PRange
+public import Init.Data.Option.Instances
 
 set_option doc.verso true
 

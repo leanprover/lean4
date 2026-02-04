@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.CompletionName
 import Lean.Meta.PProdN
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Refl

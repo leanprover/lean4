@@ -6,9 +6,11 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.ByteArray.Basic
 public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 /-!
 # Preliminary developments for strings

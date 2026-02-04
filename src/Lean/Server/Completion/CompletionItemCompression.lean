@@ -7,6 +7,9 @@ module
 
 prelude
 public import Lean.Data.Lsp.LanguageFeatures
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 namespace Lean.Lsp.ResolvableCompletionList
 

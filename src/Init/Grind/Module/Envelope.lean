@@ -7,8 +7,12 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 

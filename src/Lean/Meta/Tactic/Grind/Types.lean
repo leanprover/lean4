@@ -6,17 +6,18 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
-public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
-import Lean.HeadIndex
-import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-import Lean.PrettyPrinter
-meta import Lean.Parser.Do
+public import Init.Grind.Config
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Linear
+meta import Init.Data.String.Basic
+import Init.Omega
+import Lean.Util.ShareCommon
 public section
 namespace Lean.Meta.Grind
 export Sym (isSameExpr hashPtrExpr ExprPtr shareCommon shareCommonInc)

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.ReducibilityAttrs
 public section
 namespace Lean.Meta
 

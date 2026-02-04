@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Basic
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Basic
+import Init.Data.Order.Lemmas
 
 public section
 

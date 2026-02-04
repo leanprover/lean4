@@ -10,7 +10,6 @@ public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
 public import Lake.Util.JsonObject
 public import Lake.Util.IO
-import Lake.Build.Target.Fetch
 public import Lake.Build.Actions
 
 /-! # Common Build Tools

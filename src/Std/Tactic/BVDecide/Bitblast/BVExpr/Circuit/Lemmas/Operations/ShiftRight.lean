@@ -9,6 +9,12 @@ prelude
 public import Init.Data.BitVec.Bitblast
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
 
 @[expose] public section
 

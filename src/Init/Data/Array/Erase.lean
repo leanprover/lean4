@@ -8,6 +8,15 @@ module
 prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Erase
+import Init.Data.List.Nat.Basic
+import Init.Data.List.Nat.Erase
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 

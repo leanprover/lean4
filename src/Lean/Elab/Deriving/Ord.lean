@@ -12,6 +12,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
 import Lean.Meta.SameCtorUtils
+import Init.Data.Array.OfFn
 
 register_builtin_option deriving.ord.linear_construction_threshold : Nat := {
   defValue := 10

@@ -6,8 +6,11 @@ Authors: Kim Morrison, Sebastian Graf, Paul Reichert
 module
 
 prelude
-public import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.Sum
+public import Init.BinderPredicates
+public import Init.Data.Array.Basic
+public import Init.NotationExtra
+import Init.Data.Array.Lemmas
 
 public section
 

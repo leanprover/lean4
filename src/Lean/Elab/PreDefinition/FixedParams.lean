@@ -8,6 +8,8 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition.Basic
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

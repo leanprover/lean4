@@ -14,7 +14,6 @@ public import Lean.Server.FileWorker.SignatureHelp
 public import Lean.Server.Completion
 public import Lean.Server.References
 public import Lean.Server.Completion.CompletionItemCompression
-meta import Lean.Parser.Module
 
 public import Lean.Widget.Diff
 

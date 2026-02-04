@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.MetaTypes
 public import Init.WF  -- shake: keep (macro output dependency)
 public import Init.Data.Nat.Basic  -- shake: keep (macro output dependency)
 

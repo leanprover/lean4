@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.Attr
-public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 
 -- All these should become private imports in the future:
-import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame

@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.List.Notation
-public import Init.Data.Nat.Div.Basic
+public import Init.Data.Zero
+public import Init.Grind.Tactics
+public import Init.SimpLemmas
+import Init.Data.Nat.Basic
 
 public section
 

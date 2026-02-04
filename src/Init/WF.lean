@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.BinderNameHint
-public import Init.Data.Nat.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 public section
 

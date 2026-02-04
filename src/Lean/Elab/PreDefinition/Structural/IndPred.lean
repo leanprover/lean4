@@ -10,6 +10,9 @@ public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
 import Lean.Util.HasConstCache
 import Lean.Meta.IndPredBelow
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 namespace Lean.Elab.Structural
 open Meta

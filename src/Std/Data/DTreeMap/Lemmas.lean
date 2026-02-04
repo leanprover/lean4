@@ -8,6 +8,8 @@ module
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.AdditionalOperations
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 @[expose] public section
 

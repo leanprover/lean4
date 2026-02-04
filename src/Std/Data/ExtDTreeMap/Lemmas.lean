@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.ExtDTreeMap.Basic
+import Init.Data.List.Pairwise
 
 @[expose] public section
 

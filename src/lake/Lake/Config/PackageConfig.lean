@@ -12,6 +12,8 @@ public import Lake.Config.Pattern
 public import Lake.Config.LeanConfig
 public import Lake.Config.WorkspaceConfig
 meta import all Lake.Config.Meta
+public import Init.System.Platform
+import Lake.Config.Meta
 
 open System Lean
 

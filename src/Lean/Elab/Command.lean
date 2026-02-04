@@ -11,7 +11,6 @@ public import Lean.Elab.Binders
 public import Lean.Elab.Command.Scope
 public import Lean.Elab.SetOption
 public meta import Lean.Parser.Command
-import Lean.ExtraModUses
 
 public section
 

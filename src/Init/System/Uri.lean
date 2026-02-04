@@ -10,6 +10,11 @@ public import Init.System.FilePath
 import Init.Data.String.TakeDrop
 import Init.Data.String.Modify
 import Init.Data.String.Search
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.System.Platform
+import Init.While
 
 public section
 

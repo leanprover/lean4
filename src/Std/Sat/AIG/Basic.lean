@@ -9,6 +9,13 @@ prelude
 public import Std.Data.HashSet
 public import Init.Data.Vector.Basic
 public import Init.Data.Hashable
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
 
 @[expose] public section
 

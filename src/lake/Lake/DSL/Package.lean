@@ -8,9 +8,7 @@ module
 prelude
 public import Lake.DSL.Syntax
 import Lake.Config.Package  -- shake: keep (builtin macro output dependency)
-import Lake.DSL.Attributes
 import Lake.DSL.Extensions
-import Lake.DSL.DeclUtil
 
 open Lean Parser Elab Command
 

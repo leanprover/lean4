@@ -10,8 +10,15 @@ public import Init.Data.Array.Subarray.Split
 public import Init.Data.Slice.Array.Iterator
 public import Init.Data.Range
 public import Std.Data.HashMap.Basic
-import Init.Data.Iterators.Combinators.ULift  -- TODO: necessary because of codegen issue
 public import Init.Data.String.Basic
+public import Init.Data.Range.Polymorphic.RangeIterator
+public import Init.While
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 

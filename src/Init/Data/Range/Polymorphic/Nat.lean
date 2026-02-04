@@ -7,9 +7,14 @@ module
 
 prelude
 import Init.Data.Nat.Lemmas
-public import Init.Data.Nat.Order
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.MinMax
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
+import Init.RCases
 
 set_option doc.verso true
 

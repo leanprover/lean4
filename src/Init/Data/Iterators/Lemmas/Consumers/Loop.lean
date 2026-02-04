@@ -6,12 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Loop
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import Init.Data.Array.Monadic
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.List.Monadic
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Find
+import Init.Data.Option.Lemmas
 
 public section
 

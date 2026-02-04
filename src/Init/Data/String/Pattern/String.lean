@@ -7,11 +7,16 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.Vector.Basic
 public import Init.Data.String.FindPos
 import Init.Data.String.Termination
 import Init.Data.String.Lemmas.FindPos
+import Init.ByCases
+import Init.Data.Array.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 

@@ -7,11 +7,19 @@ Authors: Joe Hendrix
 module
 
 prelude
-public import Init.Data.Int.Pow
 import all Init.Data.Nat.Bitwise.Basic
-public import Init.Data.Nat.Simproc
-public import Init.TacticsExtra
-import Init.BinderPredicates
+public import Init.BinderPredicates
+public import Init.Data.Bool
+public import Init.Data.Nat.Log2
+import Init.ByCases
+import Init.Classical
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
+import Init.TacticsExtra
 
 public section
 

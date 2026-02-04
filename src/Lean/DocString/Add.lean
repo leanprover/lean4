@@ -10,7 +10,6 @@ prelude
 import Lean.Elab.DocString
 public import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
-import Std.Data.HashMap
 
 public section
 

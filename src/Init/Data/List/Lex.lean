@@ -6,8 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
 import Init.Data.Order.Lemmas
+public import Init.Data.BEq
+public import Init.Data.Order.Classes
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.TacticsExtra
 
 public section
 

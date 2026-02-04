@@ -5,12 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
-import Init.Simproc
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Init.Data.Int.Order
 public section
 namespace Lean.Meta.Grind
 /-

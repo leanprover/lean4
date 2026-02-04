@@ -9,6 +9,9 @@ prelude
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

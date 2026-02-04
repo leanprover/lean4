@@ -8,9 +8,11 @@ module
 prelude
 public import Init.Data.Range.Basic
 import all Init.Data.Range.Basic
-public import Init.Data.List.Range
-public import Init.Data.List.Monadic
-public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.List.Control
+import Init.Data.List.Monadic
+import Init.Data.List.Range
+import Init.Data.Nat.Div.Lemmas
+import Init.TacticsExtra
 
 public section
 

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Time.Date.Unit.Day
+import Init.Data.Fin.Lemmas
 
 public section
 

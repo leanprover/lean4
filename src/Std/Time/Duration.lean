@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Time.Date
+public import Init.Data.Order.Lemmas
+public import Init.Data.String.Basic
 
 public section
 

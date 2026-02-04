@@ -9,11 +9,12 @@ module
 
 prelude
 import all Init.Prelude -- for unfolding `Name.beq`
-public import Init.Syntax
-public import Init.Data.Array.GetLit
-public import Init.Data.Option.BasicAux
-public meta import Init.Data.Array.Basic
-public meta import Init.Syntax
+public import Init.Data.Array.Basic
+public import Init.MetaTypes
+import Init.Data.Array.GetLit
+import Init.Data.Char.Basic
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 

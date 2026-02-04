@@ -9,7 +9,15 @@ prelude
 public import Init.Data.Nat.Compare
 public import Std.Data.DTreeMap.Internal.Balanced
 public import Std.Data.DTreeMap.Internal.Ordered
-import Init.BinderPredicates
+public import Init.BinderPredicates
+public import Init.Data.Option.BasicAux
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Omega
+import Init.RCases
+import Init.WFTactics
 
 @[expose] public section
 

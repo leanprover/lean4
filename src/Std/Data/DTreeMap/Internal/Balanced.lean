@@ -8,6 +8,11 @@ module
 prelude
 public import Init.Data.AC
 public import Std.Data.DTreeMap.Internal.Def
+import Init.Classical
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.RCases
 
 @[expose] public section
 

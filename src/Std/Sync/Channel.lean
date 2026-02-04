@@ -10,6 +10,10 @@ public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.IO
 import Init.Data.Vector.Basic
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Option.BasicAux
+import Init.Omega
 
 public section
 

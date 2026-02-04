@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
 public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
@@ -14,24 +13,20 @@ public import Lake.CLI.Shake
 import Lake.Version
 import Lake.Build.Run
 import Lake.Build.Targets
-import Lake.Build.Job.Monad
-import Lake.Build.Job.Register
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
 import Lake.Load.Workspace
 import Lake.Util.IO
 import Lake.Util.Git
-import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
 import Lake.CLI.Init
 import Lake.CLI.Help
 import Lake.CLI.Build
-import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
-import Init.Data.String.Search
+import Init.Data.String.Modify
 
 -- # CLI
 

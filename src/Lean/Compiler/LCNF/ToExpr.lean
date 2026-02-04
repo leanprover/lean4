@@ -7,6 +7,9 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

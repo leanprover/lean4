@@ -7,6 +7,12 @@ module
 
 prelude
 public import Init.Data.Int.Gcd
+import Init.Classical
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.RCases
 
 public section
 

@@ -9,6 +9,7 @@ module
 
 prelude
 public import Init.SizeOf
+public import Init.Tactics
 
 public section
 set_option linter.missingDocs true -- keep it documented

@@ -9,6 +9,9 @@ prelude
 public import Lean.DeclarationRange
 public import Lean.DocString.Markdown
 public import Init.Data.String.Extra
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Init.Data.Int.Order
 
 @[expose] public section
 

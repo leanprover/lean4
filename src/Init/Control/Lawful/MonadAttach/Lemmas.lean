@@ -6,10 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.MonadAttach
 import all Init.Control.MonadAttach
-public import Init.Control.Lawful.Lemmas
-public import Init.Control.Lawful.MonadLift.Lemmas
+public import Init.Classical
+public import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.MonadLift.Basic
+import Init.Control.Lawful.MonadLift.Lemmas
+import Init.RCases
 
 public theorem LawfulMonadAttach.canReturn_bind_imp' [Monad m] [LawfulMonad m]
     [MonadAttach m] [LawfulMonadAttach m]

@@ -6,9 +6,18 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
 public import Init.Ext
 import Init.Data.Order.Lemmas
+public import Init.Data.Nat.Div.Basic
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Omega
+import Init.TacticsExtra
 
 @[expose] public section
 

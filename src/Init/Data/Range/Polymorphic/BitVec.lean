@@ -7,9 +7,13 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Instances
-public import Init.Data.Order.Lemmas
-public import Init.Data.UInt
 import Init.Omega
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
 
 open Std Std.PRange
 

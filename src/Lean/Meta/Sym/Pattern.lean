@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Data.AssocList
-import Lean.Util.FoldConsts
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
@@ -16,9 +15,10 @@ import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
+import Init.Data.List.MapIdx
+import Init.Data.Nat.Linear
 namespace Lean.Meta.Sym
 open Internal
 

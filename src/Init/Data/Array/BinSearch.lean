@@ -6,7 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.Bool
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.WFTactics
 
 public section
 universe u v

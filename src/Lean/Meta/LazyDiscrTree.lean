@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

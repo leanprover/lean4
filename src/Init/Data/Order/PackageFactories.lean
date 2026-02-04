@@ -7,6 +7,9 @@ module
 
 prelude
 public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
+public import Init.Data.Order.FactoriesExtra
+import Init.Data.Bool
+import Init.Data.Order.Lemmas
 
 namespace Std
 

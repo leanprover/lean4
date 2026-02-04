@@ -7,11 +7,19 @@ module
 prelude
 public import Init.Grind.Ordered.Ring
 public import Init.Grind.Ring.Field
-public import Init.Data.Ord.Basic
 import all Init.Data.Ord.Basic
-public import Init.Data.AC
 import all Init.Data.AC
 import Init.LawfulBEqTactics
+public import Init.Data.Bool
+public import Init.Data.RArray
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Order.Lemmas
+import Init.Grind.Ordered.Order
+import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 

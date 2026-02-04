@@ -6,12 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
-import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.CongrInfo
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 namespace Lean.Meta.Sym.Simp
 open Internal
 

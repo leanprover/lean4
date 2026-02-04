@@ -8,9 +8,25 @@ module
 prelude
 import all Init.Data.List.Control
 public import Init.Data.List.Monadic
-public import Init.Data.List.Nat.InsertIdx
 import all Init.Data.Array.Basic
 import all Init.Data.Array.Set
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.Nat.Erase
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 

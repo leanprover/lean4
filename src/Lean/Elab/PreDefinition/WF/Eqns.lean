@@ -8,10 +8,6 @@ module
 prelude
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Meta.ArgsPacker.Basic
-import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
-import Lean.Elab.PreDefinition.Basic
 
 namespace Lean.Elab.WF
 open Meta

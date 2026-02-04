@@ -9,6 +9,10 @@ prelude
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Fin.OverflowAware
 import Init.Grind
+import Init.Data.Fin.Lemmas
+import Init.Data.Int.OfNat
+import Init.Data.Nat.Linear
+import Init.Data.Option.Lemmas
 
 public section
 

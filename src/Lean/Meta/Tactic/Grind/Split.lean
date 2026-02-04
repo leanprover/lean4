@@ -11,6 +11,11 @@ import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Internalize
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.MapIdx
+import Init.Grind.Util
+import Init.Omega
 public section
 namespace Lean.Meta.Grind
 

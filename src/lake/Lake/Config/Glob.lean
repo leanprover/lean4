@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Util.Path
-import Lake.Util.Name
+import Init.Data.ToString.Name
+import Lean.Data.Name
 
 open Lean (Name)
 open System (FilePath)

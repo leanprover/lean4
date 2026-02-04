@@ -7,6 +7,10 @@ module
 
 prelude
 public import Std.Sat.AIG.Relabel
+import Init.ByCases
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 @[expose] public section
 

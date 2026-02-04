@@ -7,9 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.Count
 import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.List.Nat.Count
 
 public section
 

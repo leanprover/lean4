@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Simp.Basic
+import Init.Data.Format.Macro
 
 public section
 

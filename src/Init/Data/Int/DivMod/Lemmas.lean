@@ -6,8 +6,19 @@ Authors: Jeremy Avigad, Mario Carneiro, Kim Morrison, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Div.Lemmas
 import Init.TacticsExtra
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Nat.Div.Basic
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Classical
+import Init.Data.Bool
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 

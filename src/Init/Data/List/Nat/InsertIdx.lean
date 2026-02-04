@@ -6,7 +6,15 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Nat.Modify
+public import Init.GetElem
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Erase
+import Init.Data.List.Lemmas
+import Init.Data.List.Nat.Modify
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 

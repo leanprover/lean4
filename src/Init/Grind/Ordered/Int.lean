@@ -8,6 +8,9 @@ module
 prelude
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
+import Init.Classical
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

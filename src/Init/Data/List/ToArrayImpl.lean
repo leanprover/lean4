@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.List.Basic
+public import Init.Prelude
 
 public section
 

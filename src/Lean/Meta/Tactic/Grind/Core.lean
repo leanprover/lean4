@@ -9,10 +9,11 @@ public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Internalize
+import Init.Data.Int.Order
+import Init.Omega
 public section
 namespace Lean.Meta.Grind
 

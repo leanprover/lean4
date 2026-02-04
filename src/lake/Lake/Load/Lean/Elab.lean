@@ -6,16 +6,13 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Load.Config
-public import Lean.Environment
 import Lean.Compiler.IR
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
-import Lake.DSL.Attributes
-import Lake.Load.Config
-import Lake.Build.Trace
 import Lake.Util.JsonObject
+import Init.System.Platform
+import Lake.DSL.AttributesCore
 
 /-! # Lean Configuration Elaborator
 

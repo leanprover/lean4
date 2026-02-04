@@ -6,9 +6,19 @@ Authors: Kim Morrison, Robin Arnez
 module
 
 prelude
-public import Init.Data.Rat.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
-import Init.Hints
+public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Order.Classes
+public import Init.Data.Rat.Basic
+import Init.ByCases
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Data.Rat.Lemmas
+import Init.Omega
 
 /-!
 # The dyadic rationals

@@ -16,6 +16,10 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
 import Lean.Meta.Injective
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.MapIdx
+import Init.Omega
 
 public section
 

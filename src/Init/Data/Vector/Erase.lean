@@ -6,8 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Erase
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Erase
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Vector.Lemmas
+import Init.Omega
 
 public section
 

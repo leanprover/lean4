@@ -6,7 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.PropLemmas
+public import Init.Grind.Tactics
+import Init.PropLemmas
 
 public section
 /-!

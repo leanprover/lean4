@@ -7,7 +7,16 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Int
-public import Init.Data.Range.Polymorphic.Lemmas
+public import Init.Data.List.BasicAux
+public import Init.Data.Range.Polymorphic.Iterators
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Option.Lemmas
+import Init.Data.Range.Polymorphic.Lemmas
+import Init.Omega
 
 public section
 

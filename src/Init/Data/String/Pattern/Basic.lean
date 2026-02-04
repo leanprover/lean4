@@ -6,9 +6,12 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.Data.String.Basic
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.String.Defs
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Iterators.Consumers.Loop
+import Init.Omega
 
 set_option doc.verso true
 

@@ -6,8 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Nat.Simproc
 import Init.TacticsExtra
+public import Init.Data.Nat.Dvd
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Classical
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Simproc
+import Init.Omega
+import Init.RCases
 
 public section
 

@@ -10,6 +10,9 @@ public import Lean.Meta.Instances
 public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Types
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

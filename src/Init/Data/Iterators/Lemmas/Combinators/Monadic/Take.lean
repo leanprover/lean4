@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.Take
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Monadic.Basic
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 

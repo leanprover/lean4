@@ -6,7 +6,14 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
+public import Init.Data.Int.Basic
+import Init.ByCases
+import Init.Classical
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.RCases
 
 public section
 

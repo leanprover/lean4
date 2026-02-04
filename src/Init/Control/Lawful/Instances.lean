@@ -12,6 +12,8 @@ public import Init.Control.Option
 import all Init.Control.Option
 import all Init.Control.State
 public import Init.Control.StateRef
+public import Init.Control.State
+public import Init.Ext
 
 public section
 

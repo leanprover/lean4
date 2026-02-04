@@ -6,9 +6,14 @@ Authors: Kim Morrison, Sebastian Graf, Paul Reichert
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.List.MinMax
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.List.Basic
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
 
 public section
 

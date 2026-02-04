@@ -8,9 +8,13 @@ module
 prelude
 public import Init.System.IOError
 public import Init.System.FilePath
-public import Init.Data.Ord.UInt
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+public import Init.Data.Ord.Basic
+public import Init.Data.String.Basic
+import Init.Data.List.MapIdx
+import Init.Data.Ord.UInt
+import Init.Data.ToString.Macro
 
 public section
 

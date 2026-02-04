@@ -7,7 +7,10 @@ module
 prelude
 
 public import Init.Grind.Ordered.Module
-public import Init.Grind.Ring.Basic
+import Init.Classical
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

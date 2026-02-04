@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 open Lean Meta
 

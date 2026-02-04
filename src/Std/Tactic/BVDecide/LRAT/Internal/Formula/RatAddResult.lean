@@ -7,6 +7,12 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+import Init.ByCases
+import Init.Data.Int.OfNat
+import Init.Data.Int.Order
+import Init.Data.Nat.Linear
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 @[expose] public section
 

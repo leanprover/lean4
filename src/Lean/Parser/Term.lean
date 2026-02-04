@@ -7,10 +7,10 @@ module
 
 prelude
 public import Lean.Parser.Term.Basic
-meta import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Doc
 import Lean.DocString.Parser
 public import Lean.DocString.Formatter
+import Lean.Parser.Term.Basic
 
 public section
 

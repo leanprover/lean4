@@ -9,7 +9,10 @@ prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
 public meta import Lean.Parser.Syntax
-import Lean.ExtraModUses
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.String.Modify
+import Init.Omega
 
 public section
 

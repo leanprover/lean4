@@ -13,6 +13,10 @@ public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.ModPkgExt
 import Lean.Compiler.IR.SimpleGroundExpr
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.While
 
 public section
 

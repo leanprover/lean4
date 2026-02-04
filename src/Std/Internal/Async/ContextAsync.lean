@@ -6,9 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time
 public import Std.Internal.UV
-public import Std.Internal.Async.Basic
 public import Std.Internal.Async.Timer
 public import Std.Sync.CancellationContext
 

@@ -9,8 +9,8 @@ prelude
 public import Init.Data.String.FindPos
 import all Init.Data.String.FindPos
 import Init.Data.String.OrderInstances
-import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
+import Init.Data.Order.Lemmas
 
 public section
 

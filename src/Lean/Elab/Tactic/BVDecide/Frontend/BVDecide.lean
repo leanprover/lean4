@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
 public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
 import Lean.Meta.Native
+import Init.Data.Int.Order
 
 public section
 

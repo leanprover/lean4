@@ -7,6 +7,9 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 namespace Lean.Meta.Grind
 
 /-!

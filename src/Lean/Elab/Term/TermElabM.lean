@@ -10,7 +10,6 @@ public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 public import Lean.Elab.Attributes
-public import Lean.Elab.Config
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange

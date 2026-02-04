@@ -6,10 +6,23 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Find
 import Init.Data.List.Nat.Sum
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Range
+public import Init.Data.Array.Attach
+public import Init.Data.Option.BasicAux
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.MapIdx
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Count
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Nat.Find
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 

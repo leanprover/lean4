@@ -5,13 +5,14 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Int.LemmasAux
-public import Init.Data.Int.Cooper
 import all Init.Data.Int.Gcd
-public import Init.Data.AC
 import all Init.Data.AC
 import Init.LawfulBEqTactics
-public import Init.Data.Int.LemmasAux
+public import Init.Data.Bool
+public import Init.Data.Int.Gcd
+public import Init.Data.RArray
+import Init.Data.Int.Cooper
+import Init.Data.Int.LemmasAux
 public section
 namespace Int.Linear
 

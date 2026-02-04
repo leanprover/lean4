@@ -6,10 +6,20 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.UInt.Bitwise
 import Init.Data.Char.Lemmas
 public import Init.Data.ByteArray.Basic
 import Init.Data.ByteArray.Lemmas
+public import Init.Data.UInt.Basic
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Linear
+import Init.Data.Nat.MinMax
+import Init.Data.Option.Lemmas
+import Init.Data.UInt.Bitwise
+import Init.Data.UInt.Lemmas
+import Init.Omega
 
 /-!
 # UTF-8 decoding

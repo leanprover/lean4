@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.Util
-import Lean.Meta.Transform
 import Lean.Meta.Sym.Eta
 namespace Lean.Meta.Sym
 

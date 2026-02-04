@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Data.TreeSet.Raw.Slice
-public import Std.Data.TreeSet.Basic
 
 /-!
 This module provides slice notation for `TreeSet` slices and implements an iterator

@@ -7,10 +7,10 @@ module
 prelude
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
-import Lean.Meta.SameCtorUtils
-import Lean.Data.Array
 import Lean.Meta.CtorRecognizer
 import Lean.Structure
+import Init.Data.Int.Order
+import Init.Omega
 public section
 namespace Lean.Meta
 

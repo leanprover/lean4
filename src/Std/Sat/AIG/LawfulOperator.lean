@@ -7,6 +7,10 @@ module
 
 prelude
 public import Std.Sat.AIG.Basic
+import Init.Data.Int.Order
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
 
 @[expose] public section
 

@@ -7,6 +7,7 @@ module
 prelude
 public import Init.WF
 import Init.NotationExtra
+import Init.WFTactics
 
 /-!
 # Computable Acc.rec and WellFounded.fix

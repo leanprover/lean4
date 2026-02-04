@@ -8,12 +8,9 @@ module
 prelude
 import Lean.Meta.Tactic.Ext
 import Lean.Elab.Tactic.RCases
-import Lean.Elab.Tactic.Repeat
-import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
 import Lean.Linter.Basic
 -- These public imports are needed because for now we make `extCore` public.
-public import Lean.Expr
 public import Lean.Elab.Term.TermElabM
 
 /-!

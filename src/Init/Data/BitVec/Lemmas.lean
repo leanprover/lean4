@@ -9,11 +9,21 @@ prelude
 import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.BasicAux
 public import Init.Data.Fin.Lemmas
-public import Init.Data.Int.Bitwise.Lemmas
-public import Init.Data.Int.LemmasAux
-public import Init.Data.BitVec.Bootstrap
 public import Init.Data.List.BasicAux
 import Init.Data.List.Lemmas
+public import Init.Data.BitVec.Basic
+import Init.ByCases
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.MinMax
+import Init.Data.Nat.Mod
+import Init.Data.Nat.Simproc
+import Init.Data.Order.Factories
+import Init.TacticsExtra
 
 public section
 

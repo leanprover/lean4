@@ -10,6 +10,10 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.PProdN
 public import Lean.Meta.ArgsPacker.Basic
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Init.While
 
 public section
 

@@ -6,7 +6,19 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
+public import Init.Data.List.Lemmas
+public import Init.Data.Nat.MinMax
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Find
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 

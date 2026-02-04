@@ -8,9 +8,19 @@ module
 prelude
 public import Init.Data.String.Decode
 public import Init.Data.String.Defs
-public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
 import Init.Data.Char.Lemmas
+public import Init.Data.Char.Basic
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 /-!
 # Strings

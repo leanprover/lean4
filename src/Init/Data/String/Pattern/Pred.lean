@@ -7,8 +7,11 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
+public import Init.Data.String.Basic
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 set_option doc.verso true
 

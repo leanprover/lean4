@@ -6,9 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Linear
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.Omega
 
 public section
 

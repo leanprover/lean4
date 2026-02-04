@@ -10,6 +10,14 @@ public import Init.Data.Dyadic.Basic
 import Init.Data.Dyadic.Instances
 import Init.Grind.Ordered.Rat
 import Init.Grind.Ordered.Field
+import Init.ByCases
+import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 namespace Dyadic
 

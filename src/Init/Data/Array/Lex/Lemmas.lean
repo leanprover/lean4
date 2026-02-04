@@ -8,9 +8,14 @@ module
 prelude
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
-public import Init.Data.Array.Lemmas
-public import Init.Data.List.Lex
 import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.BEq
+import Init.Data.Array.DecidableEq
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Lex
+import Init.Data.Nat.Order
+import Init.Data.Range.Polymorphic.Lemmas
 
 public section
 

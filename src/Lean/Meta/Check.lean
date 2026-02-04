@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Sorry
-import Lean.AddDecl
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.OriginalConstKind
 
 public section
 

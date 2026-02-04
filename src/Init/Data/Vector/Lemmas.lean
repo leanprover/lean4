@@ -9,7 +9,17 @@ prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Vector.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Array.Find
+public import Init.Data.List.MapIdx
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Count
+import Init.Data.Array.Find
+import Init.Data.Array.OfFn
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 public section
 

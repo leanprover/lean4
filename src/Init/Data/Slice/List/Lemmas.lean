@@ -12,8 +12,13 @@ import all Init.Data.Slice.List.Iterator
 import all Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Range.Polymorphic.Lemmas
-public import Init.Data.Slice.Lemmas
-public import Init.Data.Iterators.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Iterators.Lemmas.Producers.List
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Order
+import Init.Data.Nat.Simproc
+import Init.Data.Slice.Lemmas
 
 open Std Std.PRange Std.Slice
 

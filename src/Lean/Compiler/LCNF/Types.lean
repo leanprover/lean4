@@ -8,7 +8,10 @@ module
 prelude
 public import Lean.Compiler.BorrowedAnnotation
 public import Lean.Meta.InferType
-import Lean.AddDecl
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
+import Lean.OriginalConstKind
 
 public section
 

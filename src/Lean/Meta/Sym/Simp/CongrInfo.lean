@@ -7,6 +7,9 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.FunInfo
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 namespace Lean.Meta.Sym
 
 def isFixedPrefix? (argKinds : Array CongrArgKind) : Option Nat :=

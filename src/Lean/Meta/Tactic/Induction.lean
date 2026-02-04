@@ -11,6 +11,8 @@ public import Lean.Meta.Tactic.Revert
 public import Lean.Meta.Tactic.Intro
 public import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.WHNF
+import Init.Data.Int.Order
+import Init.Omega
 public section
 namespace Lean.Meta
 

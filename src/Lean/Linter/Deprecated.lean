@@ -10,6 +10,8 @@ public import Lean.Meta.Basic
 import Lean.Linter.Basic
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
+import Init.Data.Int.Order
+import Init.Omega
 
 public section
 

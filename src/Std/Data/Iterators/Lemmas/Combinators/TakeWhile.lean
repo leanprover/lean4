@@ -9,7 +9,12 @@ prelude
 public import Std.Data.Iterators.Combinators.TakeWhile
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Lemmas.Consumers
-public import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.List.TakeDrop
+import Init.Data.List.ToArray
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 @[expose] public section
 

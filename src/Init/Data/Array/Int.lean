@@ -6,11 +6,10 @@ Authors: Kim Morrison, Sebastian Graf, Paul Reichert
 module
 
 prelude
-public import Init.Data.List.Int.Sum
-public import Init.Data.Array.Lemmas
-public import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.List.MinMax
+public import Init.Data.Array.Basic
+import Init.Data.Array.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.List.Int.Sum
 
 public section
 

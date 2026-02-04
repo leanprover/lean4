@@ -10,6 +10,9 @@ public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
 public import Lean.Elab.Open
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.System.Platform
 
 public section
 

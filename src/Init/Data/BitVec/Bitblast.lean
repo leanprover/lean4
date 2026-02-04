@@ -7,12 +7,21 @@ module
 
 prelude
 import all Init.Data.Nat.Bitwise.Basic
-public import Init.Data.Int.DivMod
 import all Init.Data.Int.DivMod
 import all Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Decidable
 public import Init.Data.BitVec.Folds
-import Init.BinderPredicates
+public import Init.BinderPredicates
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Nat.Lemmas
+import Init.ByCases
+import Init.Classical
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Decidable
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Mod
+import Init.Data.Nat.Simproc
+import Init.TacticsExtra
 
 @[expose] public section
 

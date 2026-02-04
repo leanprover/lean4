@@ -11,11 +11,10 @@ public import Lean.Elab.DocString.Builtin.Postponed
 public meta import Lean.Elab.DocString.Builtin.Postponed
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
-import Lean.Elab.Open
 public import Lean.Parser
-import Lean.Meta.Reduce
-import Lean.Elab.Tactic.Doc
-import Lean.Data.EditDistance
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 
 namespace Lean.Doc

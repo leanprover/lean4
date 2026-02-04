@@ -11,6 +11,11 @@ public import Init.Data.AC
 public import Std.Tactic.BVDecide.Normalize.Bool
 public import Std.Tactic.BVDecide.Normalize.Canonicalize
 public import Init.Data.SInt.Basic
+import Init.ByCases
+import Init.Data.BEq
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Omega
 
 @[expose] public section
 

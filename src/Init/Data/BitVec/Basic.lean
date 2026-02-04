@@ -6,8 +6,18 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Nat.Bitwise.Lemmas
 public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Bool
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Bitwise.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Meta.Defs
+import Init.Omega
+import Init.WFTactics
 
 @[expose] public section
 

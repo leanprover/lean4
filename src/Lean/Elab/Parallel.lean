@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Task
-import Init.System.IO
 
 /-!
 # Iterator-based parallelization for Lean's tactic monads.

@@ -13,12 +13,14 @@ public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Lemmas
 import all Init.Data.Range.Polymorphic.Lemmas
-public import Init.Data.Slice.Lemmas
-public import Init.Data.Iterators.Lemmas
 import Init.Data.Slice.List.Lemmas
-import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.List.Control
+public import Init.Data.Nat.MinMax
+public import Init.Data.Slice.Array.Basic
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Order
 
 open Std Std.Iterators Std.PRange Std.Slice
 

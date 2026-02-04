@@ -9,9 +9,12 @@ prelude
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.BEq
-public import Init.Classical
 public import Init.Ext
+public import Init.Data.Option.BasicAux
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
 
 public section
 

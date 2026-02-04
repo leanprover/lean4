@@ -7,8 +7,11 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.Transform
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Omega
 
 public section
 

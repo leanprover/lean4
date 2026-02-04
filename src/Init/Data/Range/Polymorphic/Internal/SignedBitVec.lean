@@ -25,6 +25,8 @@ on bit vectors. It is only used internally for the construction of ranges on sig
 (see `Init.Data.Range.Polymorphic.SInt`).
 -/
 
+public section
+
 open Std Std.PRange
 
 namespace BitVec.Signed
@@ -40,6 +42,10 @@ theorem intMaxSealed_def : intMaxSealed n = ↑(2 ^ (n - 1) - 1 : Nat) := (rfl)
 seal intMinSealed intMaxSealed
 
 def rotate (x : BitVec n) : BitVec n := x + intMinSealed n
+
+theorem rotate_eq_add {x : BitVec n} :
+    rotate x = x + intMinSealed n :=
+  (rfl)
 
 theorem intMaxSealed_eq_intMinSealed_add :
     intMaxSealed n = intMinSealed n + ↑(2 ^ n - 1 : Nat) := by

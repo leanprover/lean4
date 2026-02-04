@@ -394,7 +394,7 @@ private theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostconditi
       (it.filterMapWithPostcondition (n := o) fg).toList := by
   induction it using IterM.inductSteps with | step it ihy ihs
   letI : MonadLift n o := ⟨monadLift⟩
-  haveI : LawfulMonadLift n o := ⟨by simp +instances [this], by simp +instances [this]⟩
+  haveI : LawfulMonadLift n o := ⟨LawfulMonadLiftT.monadLift_pure, LawfulMonadLiftT.monadLift_bind⟩
   rw [toList_eq_match_step, toList_eq_match_step, step_filterMapWithPostcondition,
     bind_assoc, step_filterMapWithPostcondition, step_filterMapWithPostcondition]
   simp only [bind_assoc, liftM_bind]

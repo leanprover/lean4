@@ -159,7 +159,7 @@ This is the default implementation of the `IteratorLoop` class.
 It simply iterates through the iterator using `IterM.step`. For certain iterators, more efficient
 implementations are possible and should be used instead.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, instance_reducible, expose]
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
@@ -211,7 +211,7 @@ theorem IteratorLoop.wellFounded_of_productive {α β : Type w} {m : Type w → 
 /--
 This `ForIn'`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.
 -/
-@[always_inline, inline]
+@[always_inline, inline, instance_reducible, expose]
 def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type x → Type x'}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
@@ -224,7 +224,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
-@[always_inline, inline]
+@[always_inline, inline, instance_reducible, expose]
 def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
     [MonadLiftT m n] :

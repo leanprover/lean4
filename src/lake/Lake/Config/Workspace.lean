@@ -310,7 +310,7 @@ to run executables.
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
-    ("LAKE_ARTIFACT_CACHE", toString self.enableArtifactCache),
+    ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

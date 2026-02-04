@@ -149,6 +149,7 @@ def eraseCodeDecl (decl : CodeDecl pu) : CompilerM Unit := do
   match decl with
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl _ => eraseFunDecl decl
+  | .sset .. | .uset .. => return ()
 
 /--
 Erase all free variables occurring in `decls` from the local context.

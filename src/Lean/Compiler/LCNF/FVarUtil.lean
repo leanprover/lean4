@@ -19,30 +19,36 @@ class TraverseFVar (α : Type) where
 export TraverseFVar (mapFVarM forFVarM)
 
 partial def Expr.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : Expr) : m Expr := do
-  match e with
-  | .app fn arg => return e.updateApp! (← mapFVarM f fn) (← mapFVarM f arg)
-  | .fvar fvarId => return e.updateFVar! (← f fvarId)
-  | .lam _ ty body _ => return e.updateLambdaE! (← mapFVarM f ty) (← mapFVarM f body)
-  | .forallE _ ty body _ => return e.updateForallE! (← mapFVarM f ty) (← mapFVarM f body)
-  | .bvar .. | .sort .. => return e
-  | .mdata .. | .const .. | .lit .. => return e
-  | .letE ..  | .proj .. | .mvar .. => unreachable! -- LCNF types do not have this kind of expr
+  if e.hasFVar then
+    match e with
+    | .app fn arg => return e.updateApp! (← mapFVarM f fn) (← mapFVarM f arg)
+    | .fvar fvarId => return e.updateFVar! (← f fvarId)
+    | .lam _ ty body _ => return e.updateLambdaE! (← mapFVarM f ty) (← mapFVarM f body)
+    | .forallE _ ty body _ => return e.updateForallE! (← mapFVarM f ty) (← mapFVarM f body)
+    | .bvar .. | .sort .. => return e
+    | .mdata .. | .const .. | .lit .. => return e
+    | .letE ..  | .proj .. | .mvar .. => unreachable! -- LCNF types do not have this kind of expr
+  else
+    return e
 
 partial def Expr.forFVarM [Monad m] (f : FVarId → m Unit) (e : Expr) : m Unit := do
-  match e with
-  | .app fn arg =>
-    forFVarM f fn
-    forFVarM f arg
-  | .fvar fvarId => f fvarId
-  | .lam _ ty body .. =>
-    forFVarM f ty
-    forFVarM f body
-  | .forallE _ ty body .. =>
-    forFVarM f ty
-    forFVarM f body
-  | .bvar .. | .sort .. => return
-  | .mdata .. | .const .. | .lit .. => return
-  | .mvar .. | .letE .. | .proj .. => unreachable! -- LCNF types do not have this kind of expr
+  if e.hasFVar then
+    match e with
+    | .app fn arg =>
+      forFVarM f fn
+      forFVarM f arg
+    | .fvar fvarId => f fvarId
+    | .lam _ ty body .. =>
+      forFVarM f ty
+      forFVarM f body
+    | .forallE _ ty body .. =>
+      forFVarM f ty
+      forFVarM f body
+    | .bvar .. | .sort .. => return
+    | .mdata .. | .const .. | .lit .. => return
+    | .mvar .. | .letE .. | .proj .. => unreachable! -- LCNF types do not have this kind of expr
+  else
+    return ()
 
 instance : TraverseFVar Expr where
   mapFVarM := Expr.mapFVarM
@@ -190,11 +196,15 @@ instance : TraverseFVar (CodeDecl pu) where
     | .fun decl _ => return .fun (← mapFVarM f decl)
     | .jp decl => return .jp (← mapFVarM f decl)
     | .let decl => return .let (← mapFVarM f decl)
+    | .uset var i y _ => return .uset (← f var) i (← f y)
+    | .sset var i offset y ty _ => return .sset (← f var) i offset (← f y) (← mapFVarM f ty)
   forFVarM f decl :=
     match decl with
     | .fun decl _ => forFVarM f decl
     | .jp decl => forFVarM f decl
     | .let decl => forFVarM f decl
+    | .uset var i y _ => do f var; f y
+    | .sset var i offset y ty _ => do f var; f y; forFVarM f ty
 
 instance : TraverseFVar (Alt pu) where
   mapFVarM f alt := do

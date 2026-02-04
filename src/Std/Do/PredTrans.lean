@@ -60,18 +60,38 @@ The type of predicate transformers for a given `ps : PostShape` and return type 
 predicate transformer `x : PredTrans ps α` is a function that takes a postcondition `Q : PostCond α
 ps` and returns a precondition `x.apply Q : Assertion ps`.
  -/
-@[ext]
 structure PredTrans (ps : PostShape) (α : Type u) : Type u where
-  /-- Apply the predicate transformer to a postcondition. -/
-  apply : PostCond α ps → Assertion ps
-  /-- The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
-  So the stronger the postcondition, the stronger the resulting precondition. -/
-  conjunctive : PredTrans.Conjunctive apply
+  /-- The function implementing the predicate transformer. -/
+  trans : PostCond α ps → Assertion ps
+  /--
+  The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
+  So the stronger the postcondition, the stronger the resulting precondition.
+  -/
+  conjunctiveRaw : PredTrans.Conjunctive trans
 
 namespace PredTrans
 
+/--
+Apply the predicate transformer to a postcondition.
+-/
+-- This definition is intentionally a semi-reducible wrapper over the `trans` structure field.
+-- This improves kernel reduction performance because the kernel is less eager to unfold a `def`.
+def apply (t : PredTrans ps α) (Q : PostCond α ps) : Assertion ps := t.trans Q
+
+/--
+The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
+So the stronger the postcondition, the stronger the resulting precondition.
+-/
+theorem conjunctive (t : PredTrans ps α) : Conjunctive t.apply :=
+  t.conjunctiveRaw
+
 theorem mono (t : PredTrans ps α) : Monotonic t.apply :=
   Conjunctive.mono t.apply t.conjunctive
+
+@[ext]
+theorem ext {t₁ t₂ : PredTrans ps α} (h : ∀ Q, t₁.apply Q = t₂.apply Q) : t₁ = t₂ := by
+  cases t₁; cases t₂; congr
+  funext Q; exact h Q
 
 /--
 Given a fixed postcondition, the *stronger* predicate transformer will yield a *weaker*
@@ -86,14 +106,14 @@ The identity predicate transformer that transforms the postcondition's assertion
 value into an assertion about `a`.
 -/
 def pure (a : α) : PredTrans ps α :=
-  { apply := fun Q => Q.1 a, conjunctive := by intro _ _; simp }
+  { trans := fun Q => Q.1 a, conjunctiveRaw := by intro _ _; simp }
 
 /--
 Sequences two predicate transformers by composing them.
 -/
 def bind (x : PredTrans ps α) (f : α → PredTrans ps β) : PredTrans ps β :=
-  { apply := fun Q => x.apply (fun a => (f a).apply Q, Q.2),
-    conjunctive := by
+  { trans := fun Q => x.apply (fun a => (f a).apply Q, Q.2),
+    conjunctiveRaw := by
       intro Q₁ Q₂
       apply SPred.bientails.of_eq
       dsimp
@@ -105,18 +125,22 @@ def bind (x : PredTrans ps α) (f : α → PredTrans ps β) : PredTrans ps β :=
 The predicate transformer that always returns the same precondition `P`; `(const P).apply Q = P`.
 -/
 def const (P : Assertion ps) : PredTrans ps α :=
-  { apply := fun Q => P, conjunctive := by intro _ _; simp [SPred.and_self.to_eq] }
+  { trans := fun Q => P, conjunctiveRaw := by intro _ _; simp [SPred.and_self.to_eq] }
 
 instance : Monad (PredTrans ps) where
   pure := pure
   bind := bind
 
 @[simp]
-theorem pure_apply (a : α) (Q : PostCond α ps) :
-  (PredTrans.pure a : PredTrans ps α).apply Q = Q.1 a := by rfl
+theorem pure_eq_pure {ps} {α} (a : α) :
+    PredTrans.pure (ps := ps) a = Pure.pure a := by rfl
 
 @[simp]
-theorem Pure_pure_apply (a : α) (Q : PostCond α ps) :
+theorem bind_eq_bind {ps} {α β} (x : PredTrans ps α) (f : α → PredTrans ps β) :
+    PredTrans.bind (ps := ps) x f = Bind.bind x f := by rfl
+
+@[simp]
+theorem pure_apply (a : α) (Q : PostCond α ps) :
   (Pure.pure a : PredTrans ps α).apply Q = Q.1 a := by rfl
 
 @[simp]
@@ -140,9 +164,9 @@ theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
 
 instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
   LawfulMonad.mk' (PredTrans ps)
-    (id_map := by simp +unfoldPartialApp [Functor.map, bind, pure])
-    (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure])
-    (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind])
+    (id_map := by simp +unfoldPartialApp [Functor.map, bind, pure, apply])
+    (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure, apply])
+    (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind, apply])
 
 /--
 Adds the ability to make assertions about a state of type `σ` to a predicate transformer with
@@ -154,12 +178,12 @@ states, by interpreting them as states.
 -/
 -- Think: modifyGetM
 def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α where
-  apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2)
-  conjunctive := by
+  trans := fun Q s => (x.run s).apply (fun (a, s) => Q.1 a s, Q.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     ext s
-    dsimp only [SPred.and_cons, ExceptConds.and]
+    dsimp only [SPred.and_cons, ExceptConds.and, StateT.run]
     rw [← ((x s).conjunctive _ _).to_eq]
 
 /--
@@ -171,8 +195,8 @@ This can be used for all kinds of exception-like effects, such as early terminat
 them as exceptions.
 -/
 def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α where
-  apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
-  conjunctive := by
+  trans Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp
@@ -188,8 +212,8 @@ interpreting `OptionT (PredTrans ps) α` into `PredTrans (.except PUnit ps) α`,
 `Option` as being equivalent to `Except PUnit`.
 -/
 def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans (.except PUnit ps) α where
-  apply Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
-  conjunctive := by
+  trans Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp

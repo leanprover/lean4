@@ -102,7 +102,6 @@ static const lean_string_object l_Lean_Json_Parser_numWithDecimals___closed__1_v
 static const lean_object* l_Lean_Json_Parser_numWithDecimals___closed__1 = (const lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__1_value;
 static const lean_ctor_object l_Lean_Json_Parser_numWithDecimals___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__1_value)}};
 static const lean_object* l_Lean_Json_Parser_numWithDecimals___closed__2 = (const lean_object*)&l_Lean_Json_Parser_numWithDecimals___closed__2_value;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
@@ -3498,14 +3497,14 @@ x_16 = lean_nat_dec_lt(x_15, x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_17 = l_instNatCastInt___lam__0(x_3);
+x_17 = lean_nat_to_int(x_3);
 x_18 = lean_unsigned_to_nat(10u);
 x_19 = lean_nat_pow(x_18, x_14);
-x_20 = l_instNatCastInt___lam__0(x_19);
+x_20 = lean_nat_to_int(x_19);
 x_21 = lean_int_mul(x_17, x_20);
 lean_dec(x_20);
 lean_dec(x_17);
-x_22 = l_instNatCastInt___lam__0(x_13);
+x_22 = lean_nat_to_int(x_13);
 x_23 = lean_int_add(x_21, x_22);
 lean_dec(x_22);
 lean_dec(x_21);
@@ -3542,14 +3541,14 @@ x_29 = lean_nat_dec_lt(x_28, x_27);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_30 = l_instNatCastInt___lam__0(x_3);
+x_30 = lean_nat_to_int(x_3);
 x_31 = lean_unsigned_to_nat(10u);
 x_32 = lean_nat_pow(x_31, x_27);
-x_33 = l_instNatCastInt___lam__0(x_32);
+x_33 = lean_nat_to_int(x_32);
 x_34 = lean_int_mul(x_30, x_33);
 lean_dec(x_33);
 lean_dec(x_30);
-x_35 = l_instNatCastInt___lam__0(x_26);
+x_35 = lean_nat_to_int(x_26);
 x_36 = lean_int_add(x_34, x_35);
 lean_dec(x_35);
 lean_dec(x_34);
@@ -3601,14 +3600,14 @@ x_46 = lean_nat_dec_lt(x_45, x_43);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
-x_47 = l_instNatCastInt___lam__0(x_3);
+x_47 = lean_nat_to_int(x_3);
 x_48 = lean_unsigned_to_nat(10u);
 x_49 = lean_nat_pow(x_48, x_43);
-x_50 = l_instNatCastInt___lam__0(x_49);
+x_50 = lean_nat_to_int(x_49);
 x_51 = lean_int_mul(x_47, x_50);
 lean_dec(x_50);
 lean_dec(x_47);
-x_52 = l_instNatCastInt___lam__0(x_42);
+x_52 = lean_nat_to_int(x_42);
 x_53 = lean_int_add(x_51, x_52);
 lean_dec(x_52);
 lean_dec(x_51);
@@ -3694,7 +3693,7 @@ if (x_77 == 0)
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
 lean_dec(x_71);
 lean_dec(x_70);
-x_78 = l_instNatCastInt___lam__0(x_72);
+x_78 = lean_nat_to_int(x_72);
 x_79 = lean_int_mul(x_68, x_78);
 lean_dec(x_78);
 lean_dec(x_68);
@@ -3768,7 +3767,7 @@ else
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
 lean_dec(x_71);
 lean_dec(x_70);
-x_90 = l_instNatCastInt___lam__0(x_72);
+x_90 = lean_nat_to_int(x_72);
 x_91 = lean_int_mul(x_68, x_90);
 lean_dec(x_90);
 lean_dec(x_68);

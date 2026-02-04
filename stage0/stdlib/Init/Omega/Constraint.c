@@ -192,7 +192,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Omega_bmod__coeffs_spec__0(lean_object*, lean_object*, lean_object*);
@@ -2389,7 +2388,7 @@ lean_dec(x_8);
 x_10 = lean_int_sub(x_6, x_9);
 lean_dec(x_9);
 lean_dec(x_6);
-x_11 = l_instNatCastInt___lam__0(x_1);
+x_11 = lean_nat_to_int(x_1);
 x_12 = lean_int_ediv(x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_10);

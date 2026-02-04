@@ -421,7 +421,7 @@ inductive Code (pu : Purity) where
   | return (fvarId : FVarId)
   | unreach (type : Expr)
   | uset (var : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
-  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 end
@@ -497,10 +497,13 @@ inductive CodeDecl (pu : Purity) where
   | let (decl : LetDecl pu)
   | fun (decl : FunDecl pu) (h : pu = .pure := by purity_tac)
   | jp (decl : FunDecl pu)
+  | uset (var : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
+  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
+  | .uset var .. | .sset var .. => var
 
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
@@ -511,6 +514,8 @@ where
       | .let decl => go (i-1) (.let decl code)
       | .fun decl _ => go (i-1) (.fun decl code)
       | .jp decl => go (i-1) (.jp decl code)
+      | .uset var idx y _ => go (i-1) (.uset var idx y code)
+      | .sset var idx offset y ty _ => go (i-1) (.sset var idx offset y ty code)
     else
       code
 
@@ -1017,14 +1022,17 @@ def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
     return false
 
 private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
-  match e with
-  | .forallE _ d b _ => collectType b ∘ collectType d
-  | .lam _ d b _     => collectType b ∘ collectType d
-  | .app f a         => collectType f ∘ collectType a
-  | .fvar fvarId     => fun s => s.insert fvarId
-  | .mdata _ b       => collectType b
-  | .proj .. | .letE .. => unreachable!
-  | _                => id
+  if e.hasFVar then
+    match e with
+    | .forallE _ d b _ => collectType b ∘ collectType d
+    | .lam _ d b _     => collectType b ∘ collectType d
+    | .app f a         => collectType f ∘ collectType a
+    | .fvar fvarId     => fun s => s.insert fvarId
+    | .mdata _ b       => collectType b
+    | .proj .. | .letE .. => unreachable!
+    | _                => id
+  else
+    id
 
 private def collectArg (arg : Arg pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match arg with
@@ -1071,6 +1079,13 @@ end
 
 @[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
   collectType e s
+
+def CodeDecl.collectUsed (codeDecl : CodeDecl pu) (s : FVarIdHashSet := ∅) : FVarIdHashSet :=
+  match codeDecl with
+  | .let decl => collectLetValue decl.value <| collectType decl.type s
+  | .jp decl | .fun decl _ => decl.collectUsed s
+  | .sset var _ _ y ty _ => s.insert var |>.insert y |> collectType ty
+  | .uset var _ y _ => s.insert var |>.insert y
 
 /--
 Traverse the given block of potentially mutually recursive functions

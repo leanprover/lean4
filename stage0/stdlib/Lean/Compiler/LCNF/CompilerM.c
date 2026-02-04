@@ -4033,20 +4033,38 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_eraseCodeDecl___redArg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+switch (lean_obj_tag(x_2)) {
+case 0:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = l_Lean_Compiler_LCNF_eraseLetDecl___redArg(x_1, x_5, x_3);
 return x_6;
 }
-else
+case 1:
 {
 lean_object* x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = 1;
 x_9 = l_Lean_Compiler_LCNF_eraseFunDecl___redArg(x_1, x_7, x_8, x_3);
 return x_9;
+}
+case 2:
+{
+lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_2, 0);
+x_11 = 1;
+x_12 = l_Lean_Compiler_LCNF_eraseFunDecl___redArg(x_1, x_10, x_11, x_3);
+return x_12;
+}
+default: 
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_box(0);
+x_14 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_14, 0, x_13);
+return x_14;
+}
 }
 }
 }
@@ -4354,7 +4372,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__2));
 x_2 = lean_unsigned_to_nat(20u);
-x_3 = lean_unsigned_to_nat(214u);
+x_3 = lean_unsigned_to_nat(215u);
 x_4 = ((lean_object*)(l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8558,7 +8576,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(676u);
+x_3 = lean_unsigned_to_nat(681u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_normCodeImp___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_normCodeImp___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

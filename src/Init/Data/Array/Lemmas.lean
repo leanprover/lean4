@@ -1978,6 +1978,14 @@ theorem append_eq_append_iff {ws xs ys zs : Array α} :
     · left; exact ⟨as.toList, by simp⟩
     · right; exact ⟨cs.toList, by simp⟩
 
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : Array α} (h : ws.size = xs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [← Array.toList_inj] using List.append_eq_append_iff_of_size_eq_left h
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : Array α} (h : ys.size = zs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [← Array.toList_inj] using List.append_eq_append_iff_of_size_eq_right h
+
 @[grind =] theorem set_append {xs ys : Array α} {i : Nat} {x : α} (h : i < (xs ++ ys).size) :
     (xs ++ ys).set i x =
       if h' : i < xs.size then

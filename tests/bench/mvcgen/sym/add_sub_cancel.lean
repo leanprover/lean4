@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2025 Lean FRO LLC. All rights reserved.
+Copyright (c) 2026 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
@@ -81,4 +81,5 @@ def runBenchUsingMeta (sizes : List Nat) : MetaM Unit := do
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-#eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800]
+#eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+-- #eval runBenchUsingMeta [1000]

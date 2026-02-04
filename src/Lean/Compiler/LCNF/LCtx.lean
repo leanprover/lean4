@@ -77,6 +77,7 @@ mutual
     | .let decl k => eraseCode k <| lctx.eraseLetDecl decl
     | .jp decl k | .fun decl k _ => eraseCode k <| eraseFunDecl lctx decl
     | .cases c => eraseAlts c.alts lctx
+    | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => eraseCode k lctx
     | _ => lctx
 end
 

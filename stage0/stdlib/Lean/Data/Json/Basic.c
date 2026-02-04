@@ -112,7 +112,6 @@ static const lean_string_object l_Lean_JsonNumber_instRepr___lam__0___closed__3_
 static const lean_object* l_Lean_JsonNumber_instRepr___lam__0___closed__3 = (const lean_object*)&l_Lean_JsonNumber_instRepr___lam__0___closed__3_value;
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lean_JsonNumber_instRepr___lam__0___closed__4;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Lean_JsonNumber_instRepr___lam__0___closed__5;
 static const lean_ctor_object l_Lean_JsonNumber_instRepr___lam__0___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_JsonNumber_instRepr___lam__0___closed__0_value)}};
 static const lean_object* l_Lean_JsonNumber_instRepr___lam__0___closed__6 = (const lean_object*)&l_Lean_JsonNumber_instRepr___lam__0___closed__6_value;
@@ -1355,7 +1354,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_JsonNumber_instRepr___lam__0___closed__4;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -1458,7 +1457,7 @@ lean_dec(x_3);
 x_6 = lean_nat_mul(x_1, x_5);
 lean_dec(x_5);
 lean_dec(x_1);
-x_7 = l_instNatCastInt___lam__0(x_6);
+x_7 = lean_nat_to_int(x_6);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
@@ -1468,7 +1467,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_instNatCastInt___lam__0(x_1);
+x_10 = lean_nat_to_int(x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_3);

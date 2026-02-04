@@ -57,6 +57,8 @@ def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
+  | .uset var _ y _ => s.contains var || s.contains y
+  | .sset var _ _ y ty _ => s.contains var || s.contains y || (typeDepOn ty s)
 
 /--
 Return `true` is `c` depends on a free variable in `s`.

@@ -218,11 +218,12 @@ instance Result.instWP : WP Result (.except Error .pure) where
   | .div => PredTrans.const ⌜False⌝
 
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
-  wp_pure := by intros; ext Q; simp [wp, PredTrans.pure, pure, Except.pure, Id.run]
+  wp_pure := by intros; ext Q; simp only [wp, ExceptT.run_pure, Id.run_pure,
+    PredTrans.pushExcept_apply, PredTrans.pure_apply]
   wp_bind x f := by
-    simp only [instWP, bind]
+    simp only [wp, ExceptT.run_pure, Id.run_pure, ExceptT.run_throw, bind]
     ext Q
-    cases x <;> simp [PredTrans.bind, PredTrans.const]
+    cases x <;> simp
 
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
     (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by

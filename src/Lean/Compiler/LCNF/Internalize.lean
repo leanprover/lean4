@@ -158,6 +158,17 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
   | .jp decl => return .jp (← internalizeFunDecl decl)
+  | .uset var i y _ =>
+    -- Something weird should be happening if these become erased...
+    let .fvar var ← normFVar var | unreachable!
+    let .fvar y ← normFVar y | unreachable!
+    return .uset var i y
+  | .sset var i offset y ty _ =>
+    let .fvar var ← normFVar var | unreachable!
+    let .fvar y ← normFVar y | unreachable!
+    let ty ← normExpr ty
+    return .sset var i offset y ty
+
 
 end Internalize
 

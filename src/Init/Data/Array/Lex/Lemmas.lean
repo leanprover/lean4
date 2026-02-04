@@ -14,7 +14,6 @@ import Init.Data.Array.DecidableEq
 import Init.Data.Array.Lemmas
 import Init.Data.Bool
 import Init.Data.List.Lex
-import Init.Data.Nat.Order
 import Init.Data.Range.Polymorphic.Lemmas
 
 public section

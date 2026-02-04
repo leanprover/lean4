@@ -16,8 +16,6 @@ import Init.Data.Array.Monadic
 public import Init.Data.List.Control
 public import Init.Data.Order.Lemmas
 import Init.Data.Array.Bootstrap
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.List.Pairwise

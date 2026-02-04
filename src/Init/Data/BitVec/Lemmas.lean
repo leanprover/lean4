@@ -22,7 +22,6 @@ import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
 import Init.Data.Nat.Simproc
-import Init.Data.Order.Factories
 import Init.TacticsExtra
 
 public section

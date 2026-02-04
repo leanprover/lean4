@@ -11,8 +11,6 @@ public import Init.Data.Option.Attach
 public import Init.Data.List.OfFn
 import Init.ByCases
 import Init.Data.Array.Bootstrap
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Range

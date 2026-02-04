@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Vector.Basic
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.OfFn
 import Init.Omega

@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Ext
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas

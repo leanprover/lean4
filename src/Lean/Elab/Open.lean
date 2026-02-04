@@ -9,8 +9,6 @@ prelude
 public import Lean.Elab.Util
 public import Lean.Parser.Command
 meta import Lean.Parser.Command
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

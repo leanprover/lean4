@@ -9,8 +9,6 @@ prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 import Init.Data.BitVec.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Omega
 

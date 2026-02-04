@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.String.Defs
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Iterators.Consumers.Loop
 import Init.Omega
 

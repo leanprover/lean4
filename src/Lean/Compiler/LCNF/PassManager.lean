@@ -8,10 +8,6 @@ module
 prelude
 public import Lean.Compiler.LCNF.CompilerM
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 
 public section

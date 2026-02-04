@@ -15,7 +15,6 @@ public import Init.Data.Slice.Array
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 public import Init.Data.Range
-import Init.Data.Int.Lemmas
 import Init.Data.Iterators.Lemmas
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop

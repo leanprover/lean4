@@ -8,10 +8,6 @@ module
 prelude
 public import Init.Data.Vector.Basic
 import Init.Data.Array.InsertIdx
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Data.Vector.Lemmas
 import Init.Omega
 

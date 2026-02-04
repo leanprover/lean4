@@ -9,8 +9,6 @@ public import Init.Grind.Ring.Field
 public import Init.Data.Rat.Basic
 import Init.Data.Rat.Lemmas
 import Init.ByCases
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 public section
 namespace Lean.Grind.Field.NormNum

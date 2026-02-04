@@ -11,8 +11,6 @@ import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Extract
 import Init.Data.Array.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

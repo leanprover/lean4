@@ -10,8 +10,6 @@ public import Init.Data.Vector.Basic
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Extract
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Vector.Lemmas
 import Init.Omega
 

@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Instances
 import Init.Omega
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 
 public section
 

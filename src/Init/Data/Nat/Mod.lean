@@ -7,9 +7,6 @@ module
 
 prelude
 public import Init.Grind.Tactics
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.Omega
 import Init.RCases

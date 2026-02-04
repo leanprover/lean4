@@ -11,7 +11,6 @@ public import Init.Data.Nat.Div.Basic
 import Init.ByCases
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Omega
 

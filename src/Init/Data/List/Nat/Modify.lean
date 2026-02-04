@@ -10,8 +10,6 @@ prelude
 public import Init.Ext
 public import Init.NotationExtra
 import Init.ByCases
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Erase
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.TakeDrop

@@ -13,8 +13,6 @@ import Init.Data.String.Termination
 import Init.Data.String.Lemmas.FindPos
 import Init.ByCases
 import Init.Data.Array.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Option.Lemmas
 import Init.Omega
 

@@ -9,9 +9,6 @@ prelude
 public import Init.Grind.Ring.Basic
 public import Init.Data.Nat.Div.Basic
 import Init.ByCases
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Init.RCases
 import Init.TacticsExtra

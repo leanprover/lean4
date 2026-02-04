@@ -13,10 +13,6 @@ public import Init.Data.Array.DecidableEq
 public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.MapIdx
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 import Init.Omega

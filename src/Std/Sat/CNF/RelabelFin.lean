@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Nat.Order
 public import Std.Sat.CNF.Relabel
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.MinMax
 import Init.Data.Option.Lemmas
 import Init.Omega

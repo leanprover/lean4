@@ -10,8 +10,6 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Job.Monad
 import Lake.Build.Index
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 /-! # Build Runner

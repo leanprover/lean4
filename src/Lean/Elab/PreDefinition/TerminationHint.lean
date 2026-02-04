@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Term
 meta import Lean.Parser.Term
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

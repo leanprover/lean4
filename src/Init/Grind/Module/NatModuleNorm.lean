@@ -6,11 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ordered.Linarith
-import Init.Classical
 import Init.Data.AC
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
 import Init.Omega
 @[expose] public section
 namespace Lean.Grind.Linarith

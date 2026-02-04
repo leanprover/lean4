@@ -7,9 +7,6 @@ module
 
 prelude
 public import Init.Grind.Ordered.Ring
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Lemmas
 import Init.Omega
 

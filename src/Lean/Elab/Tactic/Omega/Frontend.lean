@@ -11,7 +11,6 @@ public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Elab.Tactic.Config
 public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
-import Init.Data.Int.Lemmas
 import Init.Data.Int.Pow
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Dvd

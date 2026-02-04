@@ -10,8 +10,6 @@ public import Init.Data.Ord.Basic
 import Init.Omega
 import Init.ByCases
 import Init.Data.Array.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.WFTactics
 
 public section

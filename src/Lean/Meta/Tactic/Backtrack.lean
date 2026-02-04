@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.Iterator
 public import Lean.Meta.Tactic.IndependentOf
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Linear
 import Init.Omega
 

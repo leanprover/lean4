@@ -10,8 +10,6 @@ public import Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
 import Init.Data.Array.OfFn
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

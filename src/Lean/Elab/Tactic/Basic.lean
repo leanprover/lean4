@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

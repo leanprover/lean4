@@ -10,7 +10,6 @@ prelude
 import all Init.Data.List.Attach
 public import Init.Data.List.Attach
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Impl
 import Init.Data.List.Range
 import Init.Data.List.Sublist

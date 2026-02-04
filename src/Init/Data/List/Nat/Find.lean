@@ -8,8 +8,6 @@ module
 prelude
 public import Init.BinderPredicates
 public import Init.NotationExtra
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Find
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.TakeDrop

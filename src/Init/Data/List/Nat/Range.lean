@@ -9,8 +9,6 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Ext
 import Init.ByCases
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Erase
 import Init.Data.List.Find
 import Init.Data.List.Nat.TakeDrop

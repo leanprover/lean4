@@ -8,8 +8,6 @@ module
 prelude
 public import Std.Data.DTreeMap.Internal.WF.Defs
 public import Std.Data.DTreeMap.Internal.Cell
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Linear
 import Init.Omega
 

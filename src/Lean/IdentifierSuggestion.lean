@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Elab.DeclModifiers
 import all Lean.Elab.ErrorUtils
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 namespace Lean

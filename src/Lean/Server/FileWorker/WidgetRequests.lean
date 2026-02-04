@@ -11,8 +11,6 @@ prelude
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling
 import Lean.PrettyPrinter.Delaborator.Builtins
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

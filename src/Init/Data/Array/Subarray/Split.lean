@@ -9,8 +9,6 @@ module
 prelude
 public import Init.Data.Array.Subarray
 import all Init.Data.Array.Subarray
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

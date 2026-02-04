@@ -9,8 +9,6 @@ prelude
 public import Std.Data.HashMap.Basic
 public import Std.Data.DTreeMap.Internal.WF.Lemmas
 public meta import Std.Data.HashMap.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Find
 import Init.Data.List.Pairwise
 import Init.Data.Prod

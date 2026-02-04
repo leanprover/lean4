@@ -13,8 +13,6 @@ import Init.Grind.Ordered.Field
 import Init.ByCases
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Option.Lemmas
 import Init.Omega

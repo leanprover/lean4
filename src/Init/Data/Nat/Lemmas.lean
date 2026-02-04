@@ -13,9 +13,6 @@ import Init.TacticsExtra
 public import Init.Data.Nat.Div.Basic
 public import Init.PropLemmas
 import Init.ByCases
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.Data.Nat.Linear
 import Init.Data.Nat.MinMax

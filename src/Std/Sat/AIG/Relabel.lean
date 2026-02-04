@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Sat.AIG.Lemmas
 import Init.ByCases
-import Init.Data.Int.Order
 import Init.Omega
 
 @[expose] public section

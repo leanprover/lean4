@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.DiscrTree.Types
 public import Lean.CoreM
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Omega
 public section

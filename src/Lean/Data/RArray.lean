@@ -9,10 +9,6 @@ module
 prelude
 public import Lean.Meta.DecLevel
 public import Init.Data.RArray
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 
 public section

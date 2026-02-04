@@ -12,8 +12,6 @@ public meta import Lean.Elab.DocString.Builtin.Postponed
 public import Lean.DocString.Syntax
 public import Lean.Elab.InfoTree
 public import Lean.Parser
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 

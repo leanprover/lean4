@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp
 import Init.ByCases
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

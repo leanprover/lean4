@@ -11,7 +11,6 @@ public import Init.Data.Array.DecidableEq
 public import Init.Data.List.Attach
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 set_option doc.verso true

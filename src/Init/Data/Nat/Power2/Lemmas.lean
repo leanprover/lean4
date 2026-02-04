@@ -11,9 +11,6 @@ public import Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2.Basic
 public import Init.PropLemmas
 import Init.ByCases
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas

@@ -9,8 +9,6 @@ prelude
 import Init.Data.List.MinMax
 public import Init.BinderPredicates
 public import Init.NotationExtra
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.MinMax

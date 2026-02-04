@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.RangeIterator
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 import Init.Omega

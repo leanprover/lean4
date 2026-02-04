@@ -11,8 +11,6 @@ public import Init.Data.List.OfFn
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Monadic
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.FinRange
 import Init.Data.Option.Lemmas
 import Init.Omega

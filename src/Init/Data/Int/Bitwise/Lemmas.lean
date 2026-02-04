@@ -11,8 +11,6 @@ import all Init.Data.Int.Bitwise.Basic
 public import Init.Data.Int.DivMod.Basic
 import Init.ByCases
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas

@@ -11,8 +11,6 @@ public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 public import Init.Data.RArray
 public import Init.Data.ToString.Macro
 import Init.Data.BitVec.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 @[expose] public section

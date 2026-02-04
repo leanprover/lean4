@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Grind.Ordered.Ring
 import all Init.Data.AC
-import Init.Data.Int.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 import Init.RCases
 

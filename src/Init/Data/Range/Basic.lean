@@ -9,8 +9,6 @@ prelude
 public import Init.Control.Basic
 public import Init.Grind.Tactics
 public meta import Init.Grind.Tactics
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Init.WFTactics
 

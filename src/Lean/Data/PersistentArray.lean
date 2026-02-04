@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Nat.Fold
 public import Init.Data.UInt.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.String.Defs
 import Init.Data.ToString.Macro
 import Init.Omega

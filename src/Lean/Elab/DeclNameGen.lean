@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Command
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.String.Modify
 import Init.Omega
 

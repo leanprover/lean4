@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.PrettyPrinter
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

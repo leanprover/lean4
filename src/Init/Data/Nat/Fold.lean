@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.List.FinRange
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Lemmas
 import Init.Omega
 

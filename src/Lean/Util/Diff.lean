@@ -13,8 +13,6 @@ public import Std.Data.HashMap.Basic
 public import Init.Data.String.Basic
 public import Init.Data.Range.Polymorphic.RangeIterator
 public import Init.While
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
 import Init.Data.ToString.Macro

@@ -12,8 +12,6 @@ public import Lean.Data.Name
 import Lake.Util.Name
 import Init.Data.String.TakeDrop
 public import Init.Data.String.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Option.Coe
 import Init.Omega
 

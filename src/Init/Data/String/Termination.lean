@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Splits
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Option.Lemmas
 import Init.Omega
 

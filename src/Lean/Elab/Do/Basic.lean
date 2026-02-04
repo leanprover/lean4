@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

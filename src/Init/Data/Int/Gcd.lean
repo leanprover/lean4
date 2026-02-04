@@ -8,10 +8,7 @@ module
 prelude
 public import Init.Data.Nat.Lcm
 public import Init.Data.Int.DivMod.Basic
-import Init.Classical
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Dvd
 import Init.Omega

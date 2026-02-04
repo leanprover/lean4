@@ -12,8 +12,6 @@ public import Init.Data.Queue
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
 public import Init.Grind.Config
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Linear
 meta import Init.Data.String.Basic
 import Init.Omega

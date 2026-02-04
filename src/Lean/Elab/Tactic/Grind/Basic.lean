@@ -8,8 +8,6 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.Intro
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind

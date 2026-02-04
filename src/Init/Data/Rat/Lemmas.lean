@@ -11,11 +11,8 @@ public import Init.Data.Int.Gcd
 import Init.ByCases
 import Init.Data.Bool
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Dvd
-import Init.Data.Order.Lemmas
 import Init.Omega
 import Init.TacticsExtra
 

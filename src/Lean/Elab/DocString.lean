@@ -9,8 +9,6 @@ public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 import Lean.DocString.Syntax
 import Lean.BuiltinDocAttr
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 set_option linter.missingDocs true

@@ -9,8 +9,6 @@ prelude
 public import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Linear
 import Init.Omega
 

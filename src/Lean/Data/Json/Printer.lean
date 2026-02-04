@@ -9,8 +9,6 @@ prelude
 public import Lean.Data.Format
 public import Lean.Data.Json.Basic
 import Init.Data.String.Search
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.UInt.Lemmas
 import Init.Omega
 

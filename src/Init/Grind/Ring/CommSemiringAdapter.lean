@@ -8,8 +8,6 @@ prelude
 public import Init.Grind.Ring.Envelope
 public import Init.Grind.Ring.CommSolver
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 @[expose] public section
 namespace Lean.Grind

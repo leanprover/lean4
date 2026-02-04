@@ -15,8 +15,6 @@ import Lean.Meta.WHNF
 import Lean.Compiler.NoncomputableAttr
 import Lean.Compiler.LCNF.Util
 import Init.Data.Format.Macro
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Lean.OriginalConstKind
 

@@ -9,7 +9,6 @@ prelude
 public import Std.Time.Date.Unit.Month
 import all Std.Time.Date.Unit.Month
 import Init.Data.Bool
-import Init.Data.Order.Lemmas
 
 public section
 

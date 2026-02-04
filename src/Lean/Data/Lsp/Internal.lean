@@ -11,8 +11,6 @@ public import Lean.Data.Lsp.Basic
 public import Lean.Data.JsonRpc
 public import Lean.Data.DeclarationRange
 public import Init.Data.Array.GetLit
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

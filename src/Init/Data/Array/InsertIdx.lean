@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Array.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.InsertIdx
 import Init.Data.List.ToArray
 import Init.Data.Nat.Lemmas

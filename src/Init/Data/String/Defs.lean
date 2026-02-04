@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.String.PosRaw
 import Init.Data.ByteArray.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 /-!

@@ -11,8 +11,6 @@ public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 meta import Lake.Config.InputFileConfig
 meta import Lake.Config.LeanExeConfig

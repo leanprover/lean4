@@ -10,8 +10,6 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Util
 meta import Lean.Parser.Do
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

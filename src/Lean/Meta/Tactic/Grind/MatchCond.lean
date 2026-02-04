@@ -9,7 +9,6 @@ import Init.Grind
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Grind.ProveEq
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Init.Data.Int.Order
 public section
 namespace Lean.Meta.Grind
 /-

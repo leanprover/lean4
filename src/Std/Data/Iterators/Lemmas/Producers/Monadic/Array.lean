@@ -10,8 +10,6 @@ public import Std.Data.Iterators.Producers.Monadic.Array
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
 public import Init.Data.Array.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.TakeDrop
 import Init.Omega

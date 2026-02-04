@@ -11,10 +11,6 @@ public import Lake.Util.Date
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 
 /-! # Version

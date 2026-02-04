@@ -9,8 +9,6 @@ public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.SameCtorUtils
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Simp.Attr

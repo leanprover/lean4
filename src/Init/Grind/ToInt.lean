@@ -10,10 +10,7 @@ import Init.LawfulBEqTactics
 public import Init.Data.Int.DivMod.Basic
 public meta import Init.Grind.Tactics
 import Init.ByCases
-import Init.Classical
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

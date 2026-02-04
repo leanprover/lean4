@@ -9,8 +9,6 @@ prelude
 public import Init.Data.Function
 public import Init.Ext
 public import Init.NotationExtra
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.Basic
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Sublist

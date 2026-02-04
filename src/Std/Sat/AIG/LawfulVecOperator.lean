@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Sat.AIG.RefVec
-import Init.Data.Int.Order
 import Init.Omega
 
 @[expose] public section

@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree.Basic
 import Lean.Meta.Sym.Offset
-import Init.Data.Int.Order
 import Init.Omega
 namespace Lean.Meta.Sym
 open DiscrTree

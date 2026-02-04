@@ -12,7 +12,6 @@ public import Init.Ext
 public import Init.NotationExtra
 import Init.ByCases
 import Init.Data.Bool
-import Init.Data.Int.Order
 import Init.Data.List.Find
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist

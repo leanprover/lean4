@@ -12,9 +12,6 @@ public import Init.BinderPredicates
 public import Init.Data.Bool
 public import Init.Data.Nat.Log2
 import Init.ByCases
-import Init.Classical
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Lemmas
 import Init.Omega

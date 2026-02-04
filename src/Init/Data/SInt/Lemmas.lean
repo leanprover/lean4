@@ -11,7 +11,6 @@ public import Init.Data.SInt.Basic
 import all Init.Data.SInt.Basic
 import all Init.Data.BitVec.Basic
 import all Init.Data.UInt.Basic
-import Init.Data.Order.Lemmas
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Int.Order
 import Init.ByCases

@@ -13,10 +13,7 @@ import Init.LawfulBEqTactics
 public import Init.Data.Bool
 public import Init.Data.RArray
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Lemmas
-import Init.Data.Order.Lemmas
 import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics

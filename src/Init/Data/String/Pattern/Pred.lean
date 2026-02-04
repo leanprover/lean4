@@ -9,8 +9,6 @@ prelude
 public import Init.Data.String.Pattern.Basic
 import Init.Data.String.Termination
 public import Init.Data.String.Basic
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 set_option doc.verso true

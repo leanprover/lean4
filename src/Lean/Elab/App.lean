@@ -11,10 +11,6 @@ public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 
 public section

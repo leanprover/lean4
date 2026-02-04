@@ -12,10 +12,7 @@ public import Init.Data.Range.Polymorphic.Iterators
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Range
-import Init.Data.Nat.Order
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas

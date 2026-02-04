@@ -15,7 +15,6 @@ import Init.Data.Array.Bootstrap
 import Init.Data.Array.MapIdx
 import Init.Data.Bool
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Count
 import Init.Data.List.Find
 import Init.Data.List.Impl

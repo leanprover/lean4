@@ -10,7 +10,6 @@ public import Init.ShareCommon
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
-import Init.Data.Int.Order
 import Init.Data.ToString.Macro
 import Init.Omega
 

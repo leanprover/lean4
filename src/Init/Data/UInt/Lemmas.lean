@@ -12,7 +12,6 @@ import all Init.Data.UInt.BasicAux
 import all Init.Data.Fin.Bitwise
 import all Init.Data.BitVec.BasicAux
 import all Init.Data.BitVec.Basic
-import Init.Data.Order.Lemmas
 public import Init.Data.Nat.Div.Lemmas
 public import Init.Data.Order.Classes
 public import Init.Ext

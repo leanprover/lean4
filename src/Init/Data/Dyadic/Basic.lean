@@ -12,8 +12,6 @@ public import Init.Data.Order.Classes
 public import Init.Data.Rat.Basic
 import Init.ByCases
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Option.Lemmas

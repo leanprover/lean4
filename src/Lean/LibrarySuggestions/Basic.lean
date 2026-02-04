@@ -10,7 +10,6 @@ public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
 public import Init.Data.Random
 public import Lean.Elab.Tactic.Grind.Annotated
-import Init.Data.Int.Order
 import Init.Omega
 
 /-!

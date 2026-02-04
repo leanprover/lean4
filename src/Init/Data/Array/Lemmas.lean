@@ -16,8 +16,6 @@ import Init.ByCases
 import Init.Data.Array.DecidableEq
 import Init.Data.Bool
 import Init.Data.Fin.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Find
 import Init.Data.List.Nat.Basic
 import Init.Data.List.Nat.Modify

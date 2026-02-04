@@ -8,10 +8,8 @@ module
 prelude
 public import Init.Grind.Module.Basic
 import Init.ByCases
-import Init.Classical
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
 import Init.Data.Int.Pow
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Lemmas

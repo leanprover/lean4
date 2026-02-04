@@ -13,7 +13,7 @@ public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
 meta import all Lake.Util.OpaqueType
 import Lake.Util.OpaqueType
-meta import Lean.DocString.Syntax
+import Lean.DocString.Syntax
 
 set_option doc.verso true
 

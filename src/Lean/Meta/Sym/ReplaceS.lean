@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.AlphaShareBuilder
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 namespace Lean.Meta.Sym
 open Internal

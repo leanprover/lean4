@@ -9,8 +9,6 @@ prelude
 public import Init.GetElem
 import Init.ByCases
 import Init.Data.Bool
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Count
 import Init.Data.List.Lemmas
 import Init.Data.List.Sublist

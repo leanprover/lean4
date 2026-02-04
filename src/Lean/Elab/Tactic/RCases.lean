@@ -9,8 +9,6 @@ prelude
 public import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
 import Lean.Meta.Tactic.Replace
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Lean.Elab.Binders
 import Lean.Meta.Tactic.Generalize

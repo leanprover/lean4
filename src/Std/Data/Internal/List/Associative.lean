@@ -13,15 +13,12 @@ import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.LemmasExtra
 public import Init.Data.Bool
 import Init.ByCases
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Count
 import Init.Data.List.Erase
 import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
-import Init.Data.Order.Lemmas
 import Init.Data.Prod
 import Init.Omega
 

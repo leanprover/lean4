@@ -14,8 +14,6 @@ public import Init.Data.Char.Basic
 import Init.ByCases
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lemmas
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop

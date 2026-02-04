@@ -9,7 +9,6 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.Canonicalizer
 public import Init.Omega
-import Init.Data.Int.Order
 
 public section
 

@@ -12,8 +12,6 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Grind.Util
 import Init.Omega
 public section

@@ -10,8 +10,6 @@ public import Init.Data.ByteArray
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
 public import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 /-!

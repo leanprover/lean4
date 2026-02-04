@@ -11,10 +11,6 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Shif
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Init.Data.BitVec.Bootstrap
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
-import Init.Data.Nat.Order
-import Init.Data.Order.Lemmas
 import Init.Omega
 
 @[expose] public section

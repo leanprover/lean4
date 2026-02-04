@@ -13,6 +13,7 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
 import Init.Data.Nat.Linear
 import Init.Data.Option.Lemmas
+import Init.Data.Int.Linear
 
 public section
 

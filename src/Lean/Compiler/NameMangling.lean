@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Setup
 import Init.Data.String.TakeDrop
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.UInt.Lemmas
 import Init.Omega
 

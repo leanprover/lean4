@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Vector.Basic
-public import Init.Data.Slice.Array.Lemmas
+public meta import Init.Grind.Tactics
+public import Init.Tactics
 
 public section
 

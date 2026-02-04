@@ -18,7 +18,6 @@ public import Init.Data.RArray
 public import Init.Ext
 import Init.Data.Hashable
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.Order
 import Init.Data.Nat.Linear
 import Init.Grind.Ordered.Order
 import Init.Omega

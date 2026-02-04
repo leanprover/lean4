@@ -13,8 +13,6 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.AppBuilder
 import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 import Init.While
 namespace Lean.Meta.Sym.Simp

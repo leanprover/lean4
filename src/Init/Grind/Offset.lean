@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Grind.Tactics
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

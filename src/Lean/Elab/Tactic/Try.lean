@@ -12,8 +12,6 @@ public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Parallel
 public meta import Lean.Elab.Command
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 public section
 namespace Lean.Elab.Tactic

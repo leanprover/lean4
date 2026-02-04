@@ -15,8 +15,6 @@ import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Server.InfoUtils
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 

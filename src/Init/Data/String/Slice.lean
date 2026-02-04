@@ -10,13 +10,9 @@ public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Nat.Order
 import Init.Data.Option.Lemmas
-import Init.Data.Order.Lemmas
 import Init.Data.String.Termination
 import Init.Omega
 

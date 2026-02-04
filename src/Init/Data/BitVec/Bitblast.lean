@@ -14,7 +14,6 @@ public import Init.BinderPredicates
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Nat.Lemmas
 import Init.ByCases
-import Init.Classical
 import Init.Data.BitVec.Bootstrap
 import Init.Data.BitVec.Decidable
 import Init.Data.Int.Pow

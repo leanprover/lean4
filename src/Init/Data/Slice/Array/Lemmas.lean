@@ -20,7 +20,6 @@ public import Init.Data.Nat.MinMax
 public import Init.Data.Slice.Array.Basic
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.TakeDrop
-import Init.Data.Nat.Order
 
 open Std Std.Iterators Std.PRange Std.Slice
 

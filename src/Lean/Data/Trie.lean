@@ -10,7 +10,6 @@ module
 prelude
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
-import Init.Data.Int.Order
 import Init.Omega
 
 public section

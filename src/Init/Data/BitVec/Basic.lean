@@ -10,8 +10,6 @@ public import Init.Data.Int.Bitwise.Basic
 public import Init.Data.Bool
 public import Init.Data.Int.DivMod.Basic
 public import Init.WF
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Linear

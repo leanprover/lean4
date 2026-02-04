@@ -18,8 +18,6 @@ import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Meta.Tactic.FunIndInfo
 import Lean.Data.Array
 import Lean.Meta.Tactic.Replace
-import Init.Data.Int.Lemmas
-import Init.Data.Int.Order
 import Init.Omega
 
 /-!

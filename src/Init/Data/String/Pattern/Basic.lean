@@ -389,11 +389,11 @@ instance (s : Slice) [BackwardPattern pat] :
   IsPlausibleStep it
     | .yield it' (.rejected p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.startPos),
       BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = none ∧
-      p₁ = it.internalState.currPos ∧ p₂ = it.internalState.currPos.prev h ∧
+      p₁ = it.internalState.currPos.prev h ∧ p₂ = it.internalState.currPos  ∧
       it'.internalState.currPos = it.internalState.currPos.prev h
     | .yield it' (.matched p₁ p₂) => ∃ (h : it.internalState.currPos ≠ s.startPos), ∃ pos,
       BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) = some pos ∧
-      p₁ = it.internalState.currPos ∧ p₂ = Slice.Pos.ofSliceTo pos ∧
+      p₁ = Slice.Pos.ofSliceTo pos  ∧ p₂ = it.internalState.currPos  ∧
       it'.internalState.currPos = Slice.Pos.ofSliceTo pos
     | .done => it.internalState.currPos = s.startPos
     | .skip _ => False
@@ -404,10 +404,10 @@ instance (s : Slice) [BackwardPattern pat] :
       match h' : BackwardPattern.dropSuffixOfNonempty? pat (s.sliceTo it.internalState.currPos) (by simpa) with
       | some pos =>
         pure (.deflate ⟨.yield ⟨⟨Slice.Pos.ofSliceTo pos⟩⟩
-          (.matched it.internalState.currPos (Slice.Pos.ofSliceTo pos)), by simp [h, h']⟩)
+          (.matched (Slice.Pos.ofSliceTo pos) it.internalState.currPos ), by simp [h, h']⟩)
       | none =>
         pure (.deflate ⟨.yield ⟨⟨it.internalState.currPos.prev h⟩⟩
-          (.rejected it.internalState.currPos (it.internalState.currPos.prev h)), by simp [h, h']⟩)
+          (.rejected (it.internalState.currPos.prev h) it.internalState.currPos), by simp [h, h']⟩)
 
 private def finitenessRelation (s : Slice) [BackwardPattern pat] [StrictBackwardPattern pat] :
     Std.Iterators.FinitenessRelation (DefaultBackwardSearcher pat s) Id where

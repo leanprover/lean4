@@ -246,3 +246,10 @@ end
 #guard " ".revFind? (· = ' ') = some " ".startPos
 #guard " ".endsWith (·.isWhitespace) = true
 #guard " ".endsWith (· = ' ') = true
+
+#eval IO.appDir
+
+def run (s : String) (pat) : List S :=
+  String.Slice.Pattern.ForwardSliceSearcher.iter pat.toSlice s.toSlice
+    |>.map (fun | .matched b e => S.m b.offset.byteIdx e.offset.byteIdx | .rejected b e => S.r b.offset.byteIdx e.offset.byteIdx)
+    |>.toList

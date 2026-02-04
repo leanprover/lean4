@@ -260,8 +260,8 @@ where
   collectResets (c : Code .impure) : StateRefT (PersistentHashSet FVarId) CompilerM Unit := do
     match c with
     | .let decl k =>
-      if decl.value matches .reset .. then
-        modify fun s => s.insert decl.fvarId
+      if let .reset _ var := decl.value then
+        modify fun s => s.insert var
       collectResets k
     | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => collectResets k
     | .jp decl k => collectResets decl.value; collectResets k

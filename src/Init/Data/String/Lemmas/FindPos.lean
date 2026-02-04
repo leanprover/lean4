@@ -52,9 +52,14 @@ theorem posGT_eq_posGE {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
   (rfl)
 
 @[simp]
+theorem posGE_inc {s : Slice} {p : Pos.Raw} {h : p.inc ≤ s.rawEndPos} :
+    s.posGE p.inc h = s.posGT p (by simpa) :=
+  (rfl)
+
+@[simp]
 theorem lt_offset_posGT {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
     p < (s.posGT p h).offset :=
-  Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE])
+  Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE, -posGE_inc])
 
 @[simp]
 theorem posGT_le_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
@@ -68,7 +73,39 @@ theorem lt_posGT_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos}
 
 theorem posGT_eq_iff {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
     s.posGT p h = q ↔ p < q.offset ∧ ∀ q', p < q'.offset → q ≤ q' := by
-  simp [posGT_eq_posGE, posGE_eq_iff]
+  simp [posGT_eq_posGE, -posGE_inc, posGE_eq_iff]
+
+@[simp]
+theorem Pos.posGE_offset {s : Slice} {p : s.Pos} : s.posGE p.offset (by simp) = p := by
+  simp [posGE_eq_iff, Pos.le_iff]
+
+@[simp]
+theorem offset_posGE_eq_self_iff {s : Slice} {p : String.Pos.Raw} {h} :
+    (s.posGE p h).offset = p ↔ p.IsValidForSlice s :=
+  ⟨fun h' => by simpa [h'] using (s.posGE p h).isValidForSlice,
+   fun h' => by simpa using congrArg Pos.offset (Pos.posGE_offset (p := s.pos p h'))⟩
+
+theorem posGE_eq_pos {s : Slice} {p : String.Pos.Raw} (h : p.IsValidForSlice s) :
+    s.posGE p h.le_rawEndPos = s.pos p h := by
+  simpa using Pos.posGE_offset (p := s.pos p h)
+
+theorem pos_eq_posGE {s : Slice} {p : String.Pos.Raw} {h} :
+    s.pos p h = s.posGE p h.le_rawEndPos := by
+  simp [posGE_eq_pos h]
+
+@[simp]
+theorem Pos.posGT_offset {s : Slice} {p : s.Pos} {h} :
+    s.posGT p.offset h = p.next (by simpa using h) := by
+  rw [posGT_eq_iff, ← Pos.lt_iff]
+  simp [← Pos.lt_iff]
+
+theorem posGT_eq_next {s : Slice} {p : String.Pos.Raw} {h} (h' : p.IsValidForSlice s) :
+    s.posGT p h = (s.pos p h').next (by simpa [Pos.ext_iff] using Pos.Raw.ne_of_lt h) := by
+  simpa using Pos.posGT_offset (h := h) (p := s.pos p h')
+
+theorem next_eq_posGT {s : Slice} {p : s.Pos} {h} :
+    p.next h = s.posGT p.offset (by simpa) := by
+  simp
 
 end Slice
 
@@ -96,9 +133,14 @@ theorem posGT_eq_posGE {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} :
   (rfl)
 
 @[simp]
+theorem posGE_inc {s : String} {p : Pos.Raw} {h : p.inc ≤ s.rawEndPos} :
+    s.posGE p.inc h = s.posGT p (by simpa) :=
+  (rfl)
+
+@[simp]
 theorem lt_offset_posGT {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} :
     p < (s.posGT p h).offset :=
-  Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE])
+  Std.lt_of_lt_of_le p.lt_inc (by simp [posGT_eq_posGE, -posGE_inc])
 
 @[simp]
 theorem posGT_le_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
@@ -112,7 +154,7 @@ theorem lt_posGT_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos
 
 theorem posGT_eq_iff {s : String} {p : Pos.Raw} {h : p < s.rawEndPos} {q : s.Pos} :
     s.posGT p h = q ↔ p < q.offset ∧ ∀ q', p < q'.offset → q ≤ q' := by
-  simp [posGT_eq_posGE, posGE_eq_iff]
+  simp [posGT_eq_posGE, -posGE_inc, posGE_eq_iff]
 
 theorem posGE_toSlice {s : String} {p : Pos.Raw} (h : p ≤ s.toSlice.rawEndPos) :
     s.toSlice.posGE p h = (s.posGE p (by simpa)).toSlice := by
@@ -129,5 +171,37 @@ theorem posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.toSlice.rawEndPos) :
 theorem posGT_eq_posGT_toSlice {s : String} {p : Pos.Raw} (h : p < s.rawEndPos) :
     s.posGT p h = Pos.ofToSlice (s.toSlice.posGT p (by simpa)) := by
   simp [posGT]
+
+@[simp]
+theorem Pos.posGE_offset {s : String} {p : s.Pos} : s.posGE p.offset (by simp) = p := by
+  simp [posGE_eq_iff, Pos.le_iff]
+
+@[simp]
+theorem offset_posGE_eq_self_iff {s : String} {p : String.Pos.Raw} {h} :
+    (s.posGE p h).offset = p ↔ p.IsValid s :=
+  ⟨fun h' => by simpa [h'] using (s.posGE p h).isValid,
+   fun h' => by simpa using congrArg Pos.offset (Pos.posGE_offset (p := s.pos p h'))⟩
+
+theorem posGE_eq_pos {s : String} {p : String.Pos.Raw} (h : p.IsValid s) :
+    s.posGE p h.le_rawEndPos = s.pos p h := by
+  simpa using Pos.posGE_offset (p := s.pos p h)
+
+theorem pos_eq_posGE {s : String} {p : String.Pos.Raw} {h} :
+    s.pos p h = s.posGE p h.le_rawEndPos := by
+  simp [posGE_eq_pos h]
+
+@[simp]
+theorem Pos.posGT_offset {s : String} {p : s.Pos} {h} :
+    s.posGT p.offset h = p.next (by simpa using h) := by
+  rw [posGT_eq_iff, ← Pos.lt_iff]
+  simp [← Pos.lt_iff]
+
+theorem posGT_eq_next {s : String} {p : String.Pos.Raw} {h} (h' : p.IsValid s) :
+    s.posGT p h = (s.pos p h').next (by simpa [Pos.ext_iff] using Pos.Raw.ne_of_lt h) := by
+  simpa using Pos.posGT_offset (h := h) (p := s.pos p h')
+
+theorem next_eq_posGT {s : String} {p : s.Pos} {h} :
+    p.next h = s.posGT p.offset (by simpa) := by
+  simp
 
 end String

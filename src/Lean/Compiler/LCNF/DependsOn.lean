@@ -51,6 +51,9 @@ private partial def depOn (c : Code pu) : M Bool :=
 @[inline] def Arg.dependsOn (arg : Arg pu) (s : FVarIdSet) :  Bool :=
   argDepOn arg s
 
+@[inline] def LetValue.dependsOn (value : LetValue pu) (s : FVarIdSet) :  Bool :=
+  letValueDepOn value s
+
 @[inline] def LetDecl.dependsOn (decl : LetDecl pu) (s : FVarIdSet) :  Bool :=
   decl.depOn s
 

@@ -539,6 +539,14 @@ def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
   | .uset var .. | .sset var .. => var
 
+def Code.toCodeDecl! : Code pu → CodeDecl pu
+| .let decl _ => .let decl
+| .fun decl _ _ => .fun decl
+| .jp decl _ => .jp decl
+| .uset var i y _ _ => .uset var i y
+| .sset var i offset ty y _ _ => .sset var i offset ty y
+| _ => unreachable!
+
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
 where

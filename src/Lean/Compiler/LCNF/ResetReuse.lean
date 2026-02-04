@@ -9,8 +9,30 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.LiveVars
+import Lean.Compiler.LCNF.DependsOn
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
+
+/-!
+Remark: the insertResetReuse transformation is applied before we have
+inserted `inc/dec` instructions, and performed lower level optimizations
+that introduce the instructions `release` and `set`.
+-/
+
+/-!
+Remark: the functions `S`, `D` and `R` defined here implement the
+corresponding functions in the paper "Counting Immutable Beans"
+
+Here are the main differences:
+- We use the State monad to manage the generation of fresh variable names.
+- Support for join points, and `uset` and `sset` instructions for unboxed data.
+- `D` uses the auxiliary function `Dmain`.
+- `Dmain` returns a pair `(b, found)` to avoid quadratic behavior when checking
+  the last occurrence of the variable `x`.
+- Because we have join points in the actual implementation, a variable may be live even if it
+  does not occur in a function body. See example at `livevars.lean`.
+-/
 
 structure Context where
   /--
@@ -49,7 +71,100 @@ def mayReuse (c₁ c₂ : CtorInfo) : ReuseM Bool :=
      because it produces counterintuitive behavior. -/
   ((← read).relaxedReuse || c₁.name.getPrefix == c₂.name.getPrefix)
 
+/--
+Replace `ctor` applications with `reuse` applications if compatible.
+`w` contains the "memory cell" being reused.
+-/
+partial def S (w : FVarId) (info : CtorInfo) (b : Code .impure) :
+    ReuseM (Code .impure) :=
+  go b
+where
+  go (c : Code .impure) : ReuseM (Code .impure) := do
+    match c with
+    | .let decl k =>
+      match decl.value with
+      | .ctor info' ys =>
+        if ← mayReuse info info' then
+          let updateNecessary := info.cidx != info'.cidx
+          return .let (← decl.update decl.type (.reuse w info' updateNecessary ys)) k
+        else
+          let k ← go k
+          return c.updateCont! k
+      | _ =>
+        let k ← go k
+        return c.updateCont! k
+    | .jp decl k =>
+      let value ← go decl.value
+      if value == decl.value then
+        return c.updateCont! (← go k)
+      else
+        return c.updateFun! (← decl.updateValue value) k
+    | .cases cs => return c.updateAlts! (← cs.alts.mapM (·.mapCodeM go))
+    | .return .. | .jmp .. | .unreach .. => return c
+    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ =>
+      let k ← go k
+      return c.updateCont! k
+
+def tryS (x : FVarId) (info : CtorInfo) (b : Code .impure) : ReuseM (Code .impure) := do
+  -- TODO refactor this
+  let w ← mkFreshFVarId
+  let b' ← S w info b
+  if b == b' then
+    return b
+  else
+    let decl := { fvarId := w, binderName := `_x, type := ImpureType.tobject, value := .reset info.size x }
+    modifyLCtx fun lctx => lctx.addLetDecl decl
+    return .let decl b'
+
+def isCtorUsing (b : CodeDecl .impure) (x : FVarId) : Bool :=
+  match b with
+  | .let { value := .ctor _ args _, .. } => args.any (·.dependsOn { x })
+  | _ => false
+
+inductive UseClassification where
+  | ownedArg
+  | other
+  | none
+
+def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
+  match b with
+  | .let { value := .fap f args, .. } =>
+    if let some sig ← getImpureSignature? f then
+      let mut result := .none
+      for arg in args, param in sig.params do
+        if let .fvar y := arg then
+          if y == x then
+            result :=
+              match result, param.borrow with
+              | .ownedArg, true => .other
+              | .ownedArg, false => .ownedArg
+              | .other, _ => .other
+              | .none, true => .other
+              | .none, false => .ownedArg
+      return result
+    else
+      -- TODO: check if e@ is possible in pattern match above
+      if (LetValue.fap f args).dependsOn { x } then
+        return .ownedArg
+      else
+        return .none
+  | .let { value := e@(.pap ..), .. } | .let { value := e@(.fvar ..), .. } =>
+    if e.dependsOn { x } then
+      return .ownedArg
+    else
+      return .none
+  | _ =>
+    if b.dependsOn { x } then
+      return .other
+    else
+      return .none
+
+
 mutual
+
+partial def Dfinalize (x : FVarId) (info : CtorInfo) : Code .impure × Bool → ReuseM (Code .impure)
+  | (b, true) => return b
+  | (b, false) => tryS x info b
 
 /--
 Given `Dmain x info b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
@@ -58,23 +173,48 @@ and `flag == true` if `x` is live in `b`.
 Note that, in the function `D` defined in the paper, for each `let x := e; F`,
 `D` checks whether `x` is live in `F` or not. This is great for clarity but it
 is expensive: `O(n^2)` where `n` is the size of the function body. -/
-partial def Dmain (x : FVarId) (info : CtorInfo) (k : Code .impure) : ReuseM (Code .impure × Bool) := do
-  match k with
+partial def Dmain (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .impure × Bool) := do
+  match c with
   | .cases cs =>
-    if ← k.isFVarLiveIn x then
+    if ← c.isFVarLiveIn x then
       /- If `x` is live in `e`, we recursively process each branch. -/
       let alts ← cs.alts.mapM fun alt => alt.mapCodeM fun b => D x info b
-      return (k.updateAlts! alts, true)
+      return (c.updateAlts! alts, true)
     else
-      return (k, false)
-  | .jp decl k => sorry
-  | .let decl k => sorry
-  | .sset .. | .uset .. => sorry
+      return (c, false)
+  | .jp decl k =>
+    let (k, found) ← Dmain x info k
+    let (value, _ /- found' -/ ) ← Dmain x info decl.value
+    /- If `found' == true`, then `Dmain k` must also have returned `(b, true)` since
+       we assume the IR does not have dead join points. So, if `x` is live in `j` (i.e., `v`),
+       then it must also live in `b` since `j` is reachable from `b` with a `jmp`.
+       On the other hand, `x` may be live in `b` but dead in `j` (i.e., `v`). -/
+    return (c.updateFun! (← decl.updateValue value) k, found)
+  | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ =>
+    let instr := c.toCodeDecl!
+    if isCtorUsing instr x then
+      /- If the scrutinee `x` (the one that is providing memory) is being
+         stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
+         It may work only if the new cell is consumed, but we ignore this case. -/
+      return (c, true)
+    else
+      let (k, found) ← Dmain x info k
+      if found then
+        return (c.updateCont! k, true)
+      else
+        match (← classifyUse c.toCodeDecl! x) with
+        | .ownedArg =>
+          return (c.updateCont! k, true)
+        | .other =>
+          let k ← tryS x info k
+          return (c.updateCont! k, true)
+        | .none =>
+          return (c.updateCont! k, false)
   | .return .. | .jmp .. | .unreach .. =>
-    return (k, ← k.isFVarLiveIn x)
+    return (c, ← c.isFVarLiveIn x)
 
 partial def D (x : FVarId) (info : CtorInfo) (k : Code .impure) : ReuseM (Code .impure) :=
-  sorry
+  Dmain x info k >>= Dfinalize x info
 
 end
 

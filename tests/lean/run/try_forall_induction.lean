@@ -29,3 +29,14 @@ example (n : Nat) : double n = 2 * n := by try?
 
 example : ∀ n, n ≤ fib n + 1 := by try?
 example : ∀ n, double n = 2 * n := by try?
+
+/-! ## Multiple function induction candidates under forall -/
+
+-- When there are multiple calls to the same function, fun_induction needs to specify which call
+example : ∀ n m, fib n + fib m = fib m + fib n := by try?
+
+/-! ## Regular induction under forall (not just function induction) -/
+
+inductive MyNat where | zero | succ : MyNat → MyNat
+
+example : ∀ n : MyNat, n = MyNat.zero ∨ ∃ m, n = MyNat.succ m := by try?

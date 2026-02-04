@@ -954,10 +954,105 @@ private def mkAllIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyn
   let tacs ← info.indCandidates.mapM (mkIndStx · cont)
   mkFirstStx tacs
 
+/-! Helpers for forall-quantified goals -/
+
+/-- Wrap a tactic with `intro <names>;` if names is non-empty. -/
+private def wrapWithIntros (names : Array Name) (tac : TSyntax `tactic) : CoreM (TSyntax `tactic) :=
+  if names.isEmpty then
+    return tac
+  else
+    let idents := names.map mkIdent
+    `(tactic| (intro $idents*; $tac))
+
+/-- Result of collecting under foralls: info, intro names, and fvarId-to-name mapping. -/
+structure UnderForallsResult where
+  info : Try.Info
+  introNames : Array Name
+  /-- Maps FVarIds from the temporary context to their user-facing names -/
+  fvarIdToName : Std.HashMap FVarId Name
+
+/-- Collect fun_induction and induction candidates after stripping leading foralls.
+    Returns collection result or none if goal has no leading foralls. -/
+private def collectUnderForalls (goal : MVarId) (config : Try.Config) :
+    MetaM (Option UnderForallsResult) := goal.withContext do
+  let goalType ← goal.getType
+  unless goalType.isForall do return none
+  forallTelescope goalType fun fvars body => do
+    -- Create a temporary mvar with the body type to collect on
+    let tmpMVar ← mkFreshExprMVar body
+    let tmpGoal := tmpMVar.mvarId!
+    let info ← Try.collect tmpGoal config
+    -- Build intro names and fvarId-to-name mapping in one pass
+    let mut introNames : Array Name := #[]
+    let mut fvarIdToName : Std.HashMap FVarId Name := {}
+    for fvar in fvars do
+      let fvarId := fvar.fvarId!
+      let name ← fvarId.getUserName
+      introNames := introNames.push name
+      fvarIdToName := fvarIdToName.insert fvarId name
+    return some { info, introNames, fvarIdToName }
+
+/-- Generate all induction tactics using names instead of FVarIds (for forall case). -/
+private def mkAllIndStxFromNames (info : Try.Info) (fvarIdToName : Std.HashMap FVarId Name)
+    (cont : TSyntax `tactic) : CoreM (TSyntax `tactic) := do
+  let mut tacs : Array (TSyntax `tactic) := #[]
+  for cand in info.indCandidates do
+    if let some name := fvarIdToName[cand.fvarId]? then
+      let ident := mkIdent name
+      tacs := tacs.push (← `(tactic| induction $ident:term <;> $cont))
+  mkFirstStx tacs
+
+/-- Convert an Expr to term syntax, mapping FVars to names from the given map.
+    Returns none if the expr contains FVars not in the map. -/
+private partial def exprToTermSyntaxWithNames (e : Expr) (fvarIdToName : Std.HashMap FVarId Name) :
+    Option (MetaM (TSyntax `term)) :=
+  match e with
+  | .fvar fvarId =>
+    match fvarIdToName[fvarId]? with
+    | some name => some (pure ⟨mkIdent name⟩)
+    | none => none
+  | .const name _ => some do
+    let ident ← toIdent name
+    pure ⟨ident⟩
+  | .app fn arg =>
+    match exprToTermSyntaxWithNames fn fvarIdToName, exprToTermSyntaxWithNames arg fvarIdToName with
+    | some fnStxM, some argStxM => some do
+      let fnStx ← fnStxM
+      let argStx ← argStxM
+      `($fnStx $argStx)
+    | _, _ => none
+  | _ => none  -- Other expr kinds not supported
+
+/-- Generate fun_induction tactic syntax using names (for forall case). -/
+private def mkFunIndStxFromNames (uniques : NameSet) (expr : Expr)
+    (fvarIdToName : Std.HashMap FVarId Name) (cont : TSyntax `tactic) :
+    MetaM (Option (TSyntax `tactic)) := do
+  let fn := expr.getAppFn.constName!
+  if uniques.contains fn then
+    -- If it is unambiguous, use `fun_induction foo` without arguments
+    pure (some (← `(tactic| fun_induction $(← toIdent fn):term <;> $cont)))
+  else
+    -- Need to specify which call - convert expr to syntax using names
+    match exprToTermSyntaxWithNames expr fvarIdToName with
+    | some stxM =>
+      let stx ← stxM
+      pure (some (← `(tactic| fun_induction $stx:term <;> $cont)))
+    | none => pure none
+
+/-- Generate all fun_induction tactics using names instead of FVarIds (for forall case). -/
+private def mkAllFunIndStxFromNames (info : Try.Info) (fvarIdToName : Std.HashMap FVarId Name)
+    (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
+  let uniques := info.funIndCandidates.uniques
+  let mut tacs : Array (TSyntax `tactic) := #[]
+  for call in info.funIndCandidates.calls do
+    if let some tac ← mkFunIndStxFromNames uniques call fvarIdToName cont then
+      tacs := tacs.push tac
+  mkFirstStx tacs
+
 /-! Main code -/
 
 /-- Returns tactic for `evalAndSuggest` (unsafe version that can evaluate user generators) -/
-private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic) := do
+private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) (config : Try.Config) : MetaM (TSyntax `tactic) := do
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
@@ -967,6 +1062,23 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
   let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
   let funInds ← mkAllFunIndStx info atomicOrSuggestions
   let inds ← mkAllIndStx info atomicOrSuggestions
+
+  -- Also collect under foralls for induction tactics (only when goal has leading foralls)
+  let underForallsTacs? ← do
+    if let some result ← collectUnderForalls goal config then
+      -- Build atomicOrSuggestions with the info from under foralls (includes equation candidates)
+      let grindUnderForalls ← mkGrindStx result.info
+      let atomicUnderForalls ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grindUnderForalls:tactic | simp_all)
+      let atomicOrSuggestionsUnderForalls ← `(tactic| first | $atomicUnderForalls:tactic | $atomicSuggestions:tactic)
+      -- Use names instead of FVarIds (FVarIds are invalid outside forallTelescope)
+      let funInds' ← mkAllFunIndStxFromNames result.info result.fvarIdToName atomicOrSuggestionsUnderForalls
+      let inds' ← mkAllIndStxFromNames result.info result.fvarIdToName atomicOrSuggestionsUnderForalls
+      let funIndsWrapped ← wrapWithIntros result.introNames funInds'
+      let indsWrapped ← wrapWithIntros result.introNames inds'
+      pure (some (funIndsWrapped, indsWrapped))
+    else
+      pure none
+
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
 
   -- Collect user-defined suggestions (runs after built-in tactics)
@@ -984,14 +1096,20 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
       logWarning m!"try_suggestion generator {entry.name} failed: {e.toMessageData}"
 
   -- Build final tactic: built-ins first, then user suggestions as fallback
-  if userTactics.isEmpty then
-    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
-  else
+  let mut tacs := #[atomic, atomicSuggestions, funInds]
+  if let some (funIndsWithIntro, _) := underForallsTacs? then
+    tacs := tacs.push funIndsWithIntro
+  tacs := tacs.push inds
+  if let some (_, indsWithIntro) := underForallsTacs? then
+    tacs := tacs.push indsWithIntro
+  tacs := tacs.push extra
+  if !userTactics.isEmpty then
     let userAttemptAll ← `(tactic| attempt_all_par $[| $userTactics:tactic]*)
-    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)
+    tacs := tacs.push userAttemptAll
+  mkFirstStx tacs
 
 @[implemented_by mkTryEvalSuggestStxUnsafe]
-private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic)
+private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) (config : Try.Config) : MetaM (TSyntax `tactic)
 
 /-- Wraps a tactic suggestion as a term suggestion by prefixing with `by `. -/
 private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Tactic.TryThis.Suggestion := do
@@ -1028,7 +1146,7 @@ private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (original
     withUnlimitedHeartbeats do
       let goal ← getMainGoal
       let info ← Try.collect goal config
-      let stx ← mkTryEvalSuggestStx goal info
+      let stx ← mkTryEvalSuggestStx goal info config
       if config.wrapWithBy then
         evalAndSuggestWithBy tk stx originalMaxHeartbeats config
       else

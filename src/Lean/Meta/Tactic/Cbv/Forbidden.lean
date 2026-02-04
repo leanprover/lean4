@@ -27,7 +27,7 @@ builtin_initialize cbvForbiddenExt : CbvForbiddenExtension ←
 builtin_initialize
   registerBuiltinAttribute {
     ref   := `cbvForbiddenAttr
-    name  := `cbv_forbidden
+    name  := `cbv_opaque
     descr := "Mark declarations that should not be evaluated during CBV evaluation"
     applicationTime := AttributeApplicationTime.afterCompilation
     add   := fun declName _ kind =>
@@ -36,9 +36,6 @@ builtin_initialize
       let s := cbvForbiddenExt.getState (← getEnv)
       modifyEnv fun env => cbvForbiddenExt.modifyState env fun _ => s.erase declName
   }
-
-/-- Syntax for the `cbv_forbidden` attribute. -/
-syntax (name := Parser.Attr.cbvForbidden) "cbv_forbidden" : attr
 
 /-- Get the set of declarations marked with the `cbv_forbidden` attribute. -/
 def cbvForbidden : CoreM (Std.HashSet Name) := do

@@ -172,10 +172,10 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
     lhs
     cbv
 
-attribute [cbv_forbidden] Std.DHashMap.emptyWithCapacity
-attribute [cbv_forbidden] Std.DHashMap.insert
-attribute [cbv_forbidden] Std.DHashMap.contains
-attribute [cbv_forbidden] Std.DHashMap.getEntry
+attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
+attribute [cbv_opaque] Std.DHashMap.insert
+attribute [cbv_opaque] Std.DHashMap.contains
+attribute [cbv_opaque] Std.DHashMap.getEntry
 
 
 /--

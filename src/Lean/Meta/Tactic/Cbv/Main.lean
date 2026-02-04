@@ -59,12 +59,8 @@ def tryMatcher : Simproc := fun e => do
       <|> reduceRecMatcher
         <| e
 
-<<<<<<< HEAD
-def handleConstApp : Simproc := tryEquations <|> tryUnfold
-=======
 def handleConstApp : Simproc :=
   tryEquations <|> tryUnfold
->>>>>>> wojciech/cbv_upstream1
 
 def betaReduce : Simproc := fun e => do
   -- TODO: Improve term sharing
@@ -142,28 +138,12 @@ def handleConst : Simproc := fun e => do
   Theorem.rewrite thm e
 
 def cbvPre : Simproc :=
-<<<<<<< HEAD
-      isBuiltinValue
-  >>  isProofTerm
-  >>  skipBinders
-  >>  tryMatcher
-  >>  simpControl
-  >>  handleConst
-  >>  simplifyLhs
-  >>  handleProj
-
-def cbvPost : Simproc :=
-      evalGround
-  >>  handleApp
-  >>  zetaReduce
-=======
       isBuiltinValue <|> isProofTerm <|> skipBinders
   >>  (tryMatcher >> simpControl) <|> (handleConst <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=
       evalGround
   >>  (handleApp <|> zetaReduce)
->>>>>>> wojciech/cbv_upstream1
   >>  foldLit
 
 public def cbvEntry (e : Expr) : MetaM Result := do

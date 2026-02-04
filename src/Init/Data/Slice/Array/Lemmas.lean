@@ -228,13 +228,13 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     rw [ListSlice.toList_eq]
-    simp +instances only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
+    simp only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
     · intros
       simp [Subarray.array, Subarray.start, Subarray.stop]
-  simp +instances [this, ListSlice.toList_eq, lslice]
+  simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
 private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :

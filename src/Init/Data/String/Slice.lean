@@ -17,6 +17,7 @@ import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Option.Lemmas
 import Init.Data.String.Termination
 import Init.Omega
+public import Init.Data.String.Positions
 
 set_option doc.verso true
 
@@ -97,6 +98,13 @@ instance : LE Slice where
 
 instance : DecidableLE Slice :=
   fun x y => inferInstanceAs (Decidable (¬x < y))
+
+namespace Subslice
+
+instance {s : Slice} : BEq s.Subslice where
+  beq sl sl' := sl.toSlice == sl'.toSlice
+
+end Subslice
 
 section ForwardPatternUsers
 
@@ -239,7 +247,7 @@ namespace SplitInclusiveIterator
 
 variable {pat : ρ} [ToForwardSearcher pat σ]
 
-instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
+instance : Std.Iterator (SplitInclusiveIterator pat s) Id s.Subslice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -253,7 +261,7 @@ instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
-        let slice := s.slice! currPos endPos
+        let slice := s.subslice! currPos endPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
           by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
@@ -265,7 +273,7 @@ instance : Std.Iterator (SplitInclusiveIterator pat s) Id Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos != s.endPos then
-          let slice := s.sliceFrom currPos
+          let slice := s.subsliceFrom currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -304,6 +312,11 @@ instance [Monad n] {s} :
 
 end SplitInclusiveIterator
 
+@[specialize pat]
+def splitToSubsliceInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitInclusiveIterator pat s) s.Subslice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+
 /--
 Splits a slice at each subslice that matches the pattern {name}`pat`. Unlike {name}`split` the
 matched subslices are included at the end of each subslice.
@@ -316,10 +329,9 @@ Examples:
  * {lean}`("coffee tea water".toSlice.splitInclusive " tea ").toList == ["coffee tea ".toSlice, "water".toSlice]`
  * {lean}`("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
 -/
-@[specialize pat]
-def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
-    Std.Iter (α := SplitInclusiveIterator pat s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+@[inline]
+def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :=
+  (s.splitToSubsliceInclusive pat |>.map Subslice.toSlice : Std.Iter Slice)
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -544,7 +556,18 @@ Examples:
 -/
 @[inline]
 def all (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
-  s.dropWhile pat |>.isEmpty
+  go s.startPos
+where
+  @[specialize pat]
+  go (curr : s.Pos) : Bool :=
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
+      else
+        curr = s.endPos
+    else
+      curr = s.endPos
+  termination_by curr
 
 end ForwardPatternUsers
 
@@ -850,71 +873,6 @@ where
     simp [String.Pos.Raw.lt_iff] at h ⊢
     omega
 
-structure PosIterator (s : Slice) where
-  currPos : s.Pos
-deriving Inhabited
-
-set_option doc.verso false
-/--
-Creates an iterator over all valid positions within {name}`s`.
-
-Examples
- * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
- * {lean}`("abc".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
- * {lean}`("ab∀c".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
- * {lean}`("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
--/
-def positions (s : Slice) : Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.startPos }}
-
-set_option doc.verso true
-
-namespace PosIterator
-
-instance [Pure m] :
-    Std.Iterator (PosIterator s) m { p : s.Pos // p ≠ s.endPos } where
-  IsPlausibleStep it
-    | .yield it' out =>
-      ∃ h : it.internalState.currPos ≠ s.endPos,
-        it'.internalState.currPos = it.internalState.currPos.next h ∧
-        it.internalState.currPos = out
-    | .skip _ => False
-    | .done => it.internalState.currPos = s.endPos
-  step := fun ⟨⟨currPos⟩⟩ =>
-    if h : currPos = s.endPos then
-      pure (.deflate ⟨.done, by simp [h]⟩)
-    else
-      pure (.deflate ⟨.yield ⟨⟨currPos.next h⟩⟩ ⟨currPos, h⟩, by simp [h]⟩)
-
-private def finitenessRelation [Pure m] :
-    Std.Iterators.FinitenessRelation (PosIterator s) m where
-  Rel := InvImage WellFoundedRelation.rel
-      (fun it => s.utf8ByteSize - it.internalState.currPos.offset.byteIdx)
-  wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation {it it'} h := by
-    simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, _⟩ := h'
-      have h3 := Char.utf8Size_pos (it.internalState.currPos.get h1)
-      have h4 := it.internalState.currPos.isValidForSlice.le_utf8ByteSize
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff] at h1 h2 h4
-      omega
-    · cases h'
-    · cases h
-
-@[no_expose]
-instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
-  .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.IteratorLoop (PosIterator s) m n :=
-  .defaultImplementation
-
-docs_to_verso positions
-
-end PosIterator
-
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`.
 
@@ -929,72 +887,6 @@ def chars (s : Slice) :=
 @[deprecated "There is no constant-time length function on slices. Use `s.positions.length` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
 def length (s : Slice) : Nat :=
   s.positions.length
-
-structure RevPosIterator (s : Slice) where
-  currPos : s.Pos
-deriving Inhabited
-
-set_option doc.verso false
-/--
-Creates an iterator over all valid positions within {name}`s`, starting from the last valid
-position and iterating towards the first one.
-
-Examples
- * {lean}`("abc".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', 'b', 'a']`
- * {lean}`("abc".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [2, 1, 0]`
- * {lean}`("ab∀c".toSlice.revPositions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['c', '∀', 'b', 'a']`
- * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
--/
-def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.endPos }}
-
-set_option doc.verso true
-
-namespace RevPosIterator
-
-instance [Pure m] :
-    Std.Iterator (RevPosIterator s) m { p : s.Pos // p ≠ s.endPos } where
-  IsPlausibleStep it
-    | .yield it' out =>
-      ∃ h : it.internalState.currPos ≠ s.startPos,
-        it'.internalState.currPos = it.internalState.currPos.prev h ∧
-        it.internalState.currPos.prev h = out
-    | .skip _ => False
-    | .done => it.internalState.currPos = s.startPos
-  step := fun ⟨⟨currPos⟩⟩ =>
-    if h : currPos = s.startPos then
-      pure (.deflate ⟨.done, by simp [h]⟩)
-    else
-      let prevPos := currPos.prev h
-      pure (.deflate ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩)
-
-private def finitenessRelation [Pure m] :
-    Std.Iterators.FinitenessRelation (RevPosIterator s) m where
-  Rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.currPos.offset.byteIdx)
-  wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation {it it'} h := by
-    simp_wf
-    obtain ⟨step, h, h'⟩ := h
-    cases step
-    · cases h
-      obtain ⟨h1, h2, _⟩ := h'
-      have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
-      omega
-    · cases h'
-    · cases h
-
-@[no_expose]
-instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
-  .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.IteratorLoop (RevPosIterator s) m n :=
-  .defaultImplementation
-
-docs_to_verso revPositions
-
-end RevPosIterator
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end

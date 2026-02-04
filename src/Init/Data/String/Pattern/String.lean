@@ -133,9 +133,9 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
           let nextStackPos := stackPos.inc
           let nextNeedlePos := needlePos.inc
           if h : nextNeedlePos = needle.rawEndPos then
-            -- Safety: the section from `nextStackPos.decreaseBy needle.utf8ByteSize` to `nextStackPos`
+            -- Safety: the section from `nextStackPos.unoffsetBy nextNeedlePos` to `nextStackPos`
             -- (exclusive) is exactly the needle, so it must represent a valid range.
-            let res := .matched (s.pos! (nextStackPos.decreaseBy needle.utf8ByteSize)) (s.pos! nextStackPos)
+            let res := .matched (s.pos! (nextStackPos.unoffsetBy nextNeedlePos)) (s.pos! nextStackPos)
             -- Invariants still satisfied
             pure (.deflate ⟨.yield ⟨.proper needle table htable nextStackPos 0
               (by simp [Pos.Raw.lt_iff] at hn ⊢; omega)⟩ res,
@@ -181,8 +181,8 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                   simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂
                   omega⟩⟩)
             else
-              let oldBasePos := s.pos! (stackPos.decreaseBy needlePos.byteIdx)
-              let newBasePos := s.pos! (stackPos.decreaseBy newNeedlePos)
+              let oldBasePos := s.pos! (stackPos.unoffsetBy needlePos)
+              let newBasePos := s.pos! (stackPos.unoffsetBy ⟨newNeedlePos⟩)
               let res := .rejected oldBasePos newBasePos
               -- Invariants still satisfied by definition of the prefix table
               pure (.deflate ⟨.yield ⟨.proper needle table htable stackPos ⟨newNeedlePos⟩
@@ -274,7 +274,7 @@ def startsWith (pat : Slice) (s : Slice) : Bool :=
 @[inline]
 def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
   if startsWith pat s then
-    some <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
+    some <| s.pos! <| pat.rawEndPos
   else
     none
 

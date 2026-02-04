@@ -20,6 +20,7 @@ public import Init.Data.String.Basic
 import Init.Data.Char.Lemmas
 import Init.Data.Char.Order
 import Init.Data.List.Lex
+public import Init.Data.String.Lemmas.Split2
 
 public section
 

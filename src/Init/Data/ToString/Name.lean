@@ -39,7 +39,7 @@ private partial def needsNoEscapeAsciiRest (s : String) (i : Nat) : Bool :=
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def needsNoEscape (s : String) (h : s.utf8ByteSize > 0) : Bool :=
-  needsNoEscapeAscii s h || isIdFirst s.front && (s.toRawSubstring.drop 1).all isIdRest
+  needsNoEscapeAscii s h || isIdFirst s.front && (s.drop 1).all isIdRest
 
 -- If you change this, also change the corresponding function in `Init.Meta`.
 @[inline] private def escape (s : String) : String :=

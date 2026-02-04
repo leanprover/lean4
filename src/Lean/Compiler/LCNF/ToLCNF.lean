@@ -14,6 +14,8 @@ import Lean.Meta.CasesInfo
 import Lean.Meta.WHNF
 import Lean.Compiler.NoncomputableAttr
 import Lean.AddDecl
+import Lean.Compiler.LCNF.Util
+
 public section
 namespace Lean.Compiler.LCNF
 namespace ToLCNF

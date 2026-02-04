@@ -74,7 +74,7 @@ structure Pass where
   /--
   The actual pass function, operating on the `Decl`s.
   -/
-  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phase.toPurity))
+  run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phaseOut.toPurity))
 
 instance : Inhabited Pass where
   default := { phase := .base, name := default, run := fun decls => return decls }
@@ -102,6 +102,7 @@ structure PassManager where
   basePasses : Array Pass
   monoPasses : Array Pass
   monoPassesNoLambda : Array Pass
+  impurePasses : Array Pass
   deriving Inhabited
 
 namespace Pass
@@ -200,7 +201,8 @@ def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager 
     return { manager with basePasses := (← installer.install manager.basePasses) }
   | .mono =>
     return { manager with monoPasses := (← installer.install manager.monoPasses) }
-  | .impure => panic! "Pass manager support for impure unimplemented" -- TODO
+  | .impure =>
+    return { manager with impurePasses := (← installer.install manager.impurePasses) }
 
 private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName

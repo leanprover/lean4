@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.ScopedEnvExtension
-
+import Lean.OriginalConstKind
 public section
-
 namespace Lean
 
 /--
@@ -126,8 +124,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible do
           throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .instanceReducible =>
         unless statusOld matches .semireducible do
           throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
@@ -138,8 +136,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
       | .reducible =>
         throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
       | .irreducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` nor `[instance_reducible]` expected{suffix}"
       | .instanceReducible =>
         unless statusOld matches .semireducible do
           throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
@@ -147,17 +145,7 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
 
-/-
-**Note**: Some instances are not definitions, but theorems. Thus, they don't need the `[instance_reducible]` attribute,
-but the current frontend adds the attribute `[instance_reducible]` when pre-processing the command `instance` before
-we know whether its type is a proposition or not. Thus, we just skip these annotations for now.
--/
-private def ignoreAttr (status : ReducibilityStatus) (declName : Name) : CoreM Bool := do
-  let .instanceReducible := status | return false
-  return !(← getConstInfo declName).isDefinition
-
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
-  if (← ignoreAttr status declName) then return ()
   Attribute.Builtin.ensureNoArgs stx
   validate declName status attrKind
   let ns ← getCurrNamespace
@@ -194,7 +182,7 @@ builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `instance_reducible
-    descr           := "semireducible declaration"
+    descr           := "instance reducible declaration"
     add             := addAttr .instanceReducible
     applicationTime := .afterTypeChecking
  }
@@ -219,9 +207,15 @@ def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   return (← getReducibilityStatus declName) matches .irreducible
 
+def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
+  getReducibilityStatusCore env declName matches .instanceReducible
+
+/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
+def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInstanceReducibleCore (← getEnv) declName
+
 /-- Set the given declaration as `[irreducible]` -/
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.irreducible
-
 
 end Lean

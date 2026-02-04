@@ -58,7 +58,7 @@ jobs:
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - name: Restore Cache
       if: env.should_update_stage0 == 'yes'
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         # NOTE: must be in sync with `restore-cache` in `build-template.yml`
         path: |

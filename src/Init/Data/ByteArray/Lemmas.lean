@@ -286,4 +286,21 @@ theorem extract_zero_max_size {a : ByteArray} {i : Nat} : a.extract 0 (max i a.s
   ext1
   simp [Nat.le_max_right]
 
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : ByteArray} (h : ws.size = xs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [ByteArray.ext_iff] using Array.append_eq_append_iff_of_size_eq_left h
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : ByteArray} (h : ys.size = zs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [ByteArray.ext_iff] using Array.append_eq_append_iff_of_size_eq_right h
+
+@[simp]
+theorem size_push {bs : ByteArray} {b : UInt8} : (bs.push b).size = bs.size + 1 := by
+  rw [ByteArray.size, data_push, Array.size_push, ← ByteArray.size]
+
+theorem ext_getElem {a b : ByteArray} (h₀ : a.size = b.size) (h : ∀ (i : Nat) hi hi', a[i]'hi = b[i]'hi') : a = b := by
+  rw [ByteArray.ext_iff]
+  apply Array.ext (by simpa using h₀)
+  simpa [← ByteArray.getElem_eq_getElem_data]
+
 end ByteArray

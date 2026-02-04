@@ -150,7 +150,6 @@ static const lean_ctor_object l_Prod_repr___redArg___closed__2_value = {.m_heade
 static const lean_object* l_Prod_repr___redArg___closed__2 = (const lean_object*)&l_Prod_repr___redArg___closed__2_value;
 static const lean_ctor_object l_Prod_repr___redArg___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Prod_repr___redArg___closed__2_value),((lean_object*)(((size_t)(1) << 1) | 1))}};
 static const lean_object* l_Prod_repr___redArg___closed__3 = (const lean_object*)&l_Prod_repr___redArg___closed__3_value;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Prod_repr___redArg___closed__4;
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Std_Format_joinSep___redArg(lean_object*, lean_object*, lean_object*);
@@ -1047,7 +1046,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Repr_addAppParen___closed__2;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -1184,7 +1183,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Sigma_repr___redArg___closed__4;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2775,7 +2774,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_repr___redArg___closed__4;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

@@ -149,6 +149,7 @@ def eraseCodeDecl (decl : CodeDecl pu) : CompilerM Unit := do
   match decl with
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl _ => eraseFunDecl decl
+  | .sset .. | .uset .. => return ()
 
 /--
 Erase all free variables occurring in `decls` from the local context.
@@ -274,10 +275,12 @@ See `normExprImp`
 private partial def normLetValueImp (s : FVarSubst pu) (e : LetValue pu) (translator : Bool) : LetValue pu :=
   match e with
   | .erased | .lit .. => e
-  | .proj _ _ fvarId _ => match normFVarImp s fvarId translator with
+  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _  =>
+    match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateProj! fvarId'
     | .erased => .erased
-  | .const _ _ args _ => e.updateArgs! (normArgsImp s args translator)
+  | .const _ _ args _ | .ctor _ args _ | .fap _ args _ | .pap _ args _ =>
+    e.updateArgs! (normArgsImp s args translator)
   | .fvar fvarId args => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateFVar! fvarId' (normArgsImp s args translator)
     | .erased => .erased
@@ -462,8 +465,16 @@ mutual
         let alts ← c.alts.mapMonoM fun alt =>
           match alt with
           | .alt _ params k _ => return alt.updateAlt! (← normParams params) (← normCodeImp k)
-          | .default k => return alt.updateCode (← normCodeImp k)
+          | .default k | .ctorAlt _ k _ => return alt.updateCode (← normCodeImp k)
         return code.updateCases! resultType discr alts
+    | .sset fvarId i offset y ty k _ =>
+      withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      withNormFVarResult (← normFVar y) fun y => do
+        return code.updateSset! fvarId i offset y (← normExpr ty) (← normCodeImp k)
+    | .uset fvarId offset y k _ =>
+      withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      withNormFVarResult (← normFVar y) fun y => do
+        return code.updateUset! fvarId offset y (← normCodeImp k)
 end
 
 @[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m pu t] (decl : FunDecl pu) : m (FunDecl pu) := do

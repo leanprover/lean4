@@ -3,21 +3,21 @@ import Lean.Compiler.LCNF.Probing
 
 open Lean.Compiler.LCNF
 
+/--
+trace: [Compiler.saveBase] size: 3
+    def f a : Bool :=
+      let _x.1 := 1;
+      let _x.2 := instDecidableEqNat a _x.1;
+      let _x.3 := decide ◾ _x.2;
+      return _x.3
+[Compiler.saveMono] size: 2
+    def f a : Bool :=
+      let _x.1 := 1;
+      let _x.2 := Nat.decEq a _x.1;
+      return _x.2
+-/
+#guard_msgs in
+set_option trace.Compiler.saveBase true in
+set_option trace.Compiler.saveMono true in
 def f (a : Nat) : Bool :=
   decide (a = 1)
-
--- This is only required until the new code generator is enabled.
-run_meta Lean.Compiler.compile #[``f]
-
-def countCalls : Probe (Decl .pure) Nat :=
-  Probe.getLetValues .pure >=>
-  Probe.filter (fun e => return e matches .const `Decidable.decide ..) >=>
-  Probe.count
-
-#eval do
-  let numCalls <- Probe.runOnDeclsNamed #[`f] (phase := .base) <| countCalls
-  assert! numCalls == #[1]
-
-#eval do
-  let numCalls <- Probe.runOnDeclsNamed #[`f] (phase := .mono) <| countCalls
-  assert! numCalls == #[0]

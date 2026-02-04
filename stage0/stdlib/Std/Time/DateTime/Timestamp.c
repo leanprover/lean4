@@ -84,7 +84,6 @@ LEAN_EXPORT lean_object* l_Std_Time_instLTTimestamp;
 uint8_t l_Std_Time_Duration_instDecidableLt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_instDecidableLtTimestamp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableLtTimestamp___boxed(lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOfNatTimestamp(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instToStringTimestamp___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instToStringTimestamp___lam__0___boxed(lean_object*);
@@ -607,7 +606,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instOfNatTimestamp(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 x_3 = l_Std_Time_instReprTimestamp_repr___redArg___closed__14;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);

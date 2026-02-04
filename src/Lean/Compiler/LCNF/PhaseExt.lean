@@ -86,16 +86,30 @@ def setDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : E
     getTransparencyExt phase |>.modifyState env fun s =>
       (declName :: s.1, s.2.insert declName)
 
-abbrev DeclExtState (pu : Purity) := PHashMap Name (Decl pu)
+abbrev AbstractDeclExtState (pu : Purity) (β : Purity → Type) := PHashMap Name (β pu)
+
+private def sortedEntries (s : AbstractDeclExtState pu β) (lt : β pu → β pu → Bool) : Array (β pu) :=
+  let decls := s.foldl (init := #[]) fun ps _ v => ps.push v
+  decls.qsort lt
+
+private def replayFn (phase : Phase) : ReplayFn (AbstractDeclExtState phase.toPurity β) :=
+  fun oldState newState _ otherState =>
+    newState.foldl (init := otherState) fun otherState k v =>
+      if oldState.contains k then
+        otherState
+      else
+        otherState.insert k v
+
+private def statsFn (state : AbstractDeclExtState pu β) : Format :=
+  let numEntries := state.foldl (init := 0) (fun count _ _ => count + 1)
+  format "number of local entries: " ++ format numEntries
+
+abbrev DeclExtState (pu : Purity) := AbstractDeclExtState pu Decl
 
 private abbrev declLt (a b : Decl pu) :=
   Name.quickLt a.name b.name
 
-private def sortedDecls (s : DeclExtState pu) : Array (Decl pu) :=
-  let decls := s.foldl (init := #[]) fun ps _ v => ps.push v
-  decls.qsort declLt
-
-private abbrev findAtSorted? (decls : Array (Decl pu)) (declName : Name) : Option (Decl pu) :=
+private abbrev findDeclAtSorted? (decls : Array (Decl pu)) (declName : Name) : Option (Decl pu) :=
   let tmpDecl : Decl pu := default
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
@@ -114,7 +128,7 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
     exportEntriesFnEx env s level := Id.run do
-      let mut entries := sortedDecls s
+      let mut entries := sortedEntries s declLt
       if level != .private then
         entries := entries.filterMap fun decl => do
           guard <| isDeclPublic env decl.name
@@ -123,25 +137,63 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
           else
             some { decl with value := .extern { entries := [.opaque] } }
       return entries
-    statsFn := fun s =>
-      let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
-      format "number of local entries: " ++ format numEntries
+    statsFn := statsFn,
     asyncMode := .sync,
-    replay? := some <| fun oldState newState _ otherState =>
-      newState.foldl (init := otherState) fun otherState k v =>
-        if oldState.contains k then
-          otherState
-        else
-          otherState.insert k v
+    replay? := some (replayFn phase)
   }
+
 
 builtin_initialize baseExt : DeclExt .pure ← mkDeclExt .base
 builtin_initialize monoExt : DeclExt .pure ← mkDeclExt .mono
-builtin_initialize impureExt : DeclExt .impure ← mkDeclExt .impure
+builtin_initialize impureExt : EnvExtension (DeclExtState .impure) ←
+  registerEnvExtension (mkInitial := pure {}) (asyncMode := .sync) (replay? := some (replayFn .impure))
+
+
+abbrev SigExtState (pu : Purity) := AbstractDeclExtState pu Signature
+
+@[expose] def SigExt (pu : Purity) :=
+   PersistentEnvExtension (Signature pu) (Signature pu) (SigExtState pu)
+
+instance : Inhabited (SigExt pu) :=
+  inferInstanceAs (Inhabited (PersistentEnvExtension (Signature pu) (Signature pu) (SigExtState pu)))
+
+private abbrev sigLt (a b : Signature pu) :=
+  Name.quickLt a.name b.name
+
+private abbrev findSigAtSorted? (sigs : Array (Signature pu)) (declName : Name) : Option (Signature pu) :=
+  let tmpSig : Signature pu := default
+  let tmpSig := { tmpSig with name := declName }
+  sigs.binSearch tmpSig sigLt
+
+def mkSigDeclExt (phase : Phase) (name : Name := by exact decl_name%) :
+    IO (SigExt phase.toPurity) :=
+  registerPersistentEnvExtension {
+    name,
+    mkInitial := pure {},
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun s sig => s.insert sig.name sig
+    exportEntriesFnEx env s level := Id.run do
+      let mut entries := sortedEntries s sigLt
+      if level != .private then
+        entries := entries.filterMap fun sig => do
+          guard <| isDeclPublic env sig.name
+          some sig
+      return entries
+    statsFn := statsFn,
+    asyncMode := .sync,
+    replay? := some (replayFn phase)
+  }
+
+builtin_initialize impureSigExt : SigExt .impure ← mkSigDeclExt .impure
 
 def getDeclCore? (env : Environment) (ext : DeclExt pu) (declName : Name) : Option (Decl pu) :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName
+  | some modIdx => findDeclAtSorted? (ext.getModuleEntries env modIdx) declName
+  | none        => ext.getState env |>.find? declName
+
+def getSigCore? (env : Environment) (ext : SigExt pu) (declName : Name) : Option (Signature pu) :=
+  match env.getModuleIdxFor? declName with
+  | some modIdx => findSigAtSorted? (ext.getModuleEntries env modIdx) declName
   | none        => ext.getState env |>.find? declName
 
 def getBaseDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
@@ -150,8 +202,11 @@ def getBaseDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
 def getMonoDecl? (declName : Name) : CoreM (Option (Decl .pure)) := do
   return getDeclCore? (← getEnv) monoExt declName
 
-def getImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
-  return getDeclCore? (← getEnv) impureExt declName
+def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
+  return impureExt.getState (← getEnv) |>.find? declName
+
+def getImpureSignature? (declName : Name) : CoreM (Option (Signature .impure)) := do
+  return impureSigExt.getState (← getEnv) |>.find? declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl .pure) : Environment :=
   baseExt.addEntry env decl
@@ -160,7 +215,8 @@ def saveMonoDeclCore (env : Environment) (decl : Decl .pure) : Environment :=
   monoExt.addEntry env decl
 
 def saveImpureDeclCore (env : Environment) (decl : Decl .impure) : Environment :=
-  impureExt.addEntry env decl
+  let env := impureExt.modifyState env (fun s => s.insert decl.name decl)
+  impureSigExt.addEntry env decl.toSignature
 
 def Decl.saveBase (decl : Decl .pure) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
@@ -184,7 +240,7 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option (Decl phase.toP
   match phase with
   | .base => getBaseDecl? declName
   | .mono => getMonoDecl? declName
-  | .impure => getImpureDecl? declName
+  | .impure => throwError "Internal compiler error: getDecl? on impure is unuspported for now"
 
 @[inline]
 def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
@@ -201,11 +257,5 @@ def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option (Decl 
 def getLocalDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do
   let some decl ← getLocalDeclAt? declName (← getPhase) | return none
   return some ⟨_, decl⟩
-
-def getExt (phase : Phase) : DeclExt phase.toPurity :=
-  match phase with
-  | .base => baseExt
-  | .mono => monoExt
-  | .impure => impureExt
 
 end Lean.Compiler.LCNF

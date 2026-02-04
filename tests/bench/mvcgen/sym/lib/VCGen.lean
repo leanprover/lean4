@@ -23,75 +23,6 @@ theorem Spec.MonadState_get_StateT {m ps} [Monad m] [WPMonad m ps] {σ} {Q : Pos
   simp only [Triple, WP.get_MonadState, WP.get_StateT, SPred.entails.refl]
 
 /-!
-Some auxiliary theorems for generating smaller proof terms
--/
-
-namespace TacticHelpers
-
-universe u v
-variable {m : Type u → Type v} {ps : PostShape.{u}}
-
-theorem apply0_pre_post {α : Type u} [WP m ps]
-    {x : m α}
-    {P : Assertion ps} {P' : Assertion ps}
-    {Q Q' : PostCond α ps}
-    (h : Triple x P' Q') (hpre : P ⊢ₛ P') (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q := by
-  apply SPred.entails.trans hpre
-  apply SPred.entails.trans (Triple.iff.mp h)
-  apply (wp x).mono _ _ hpost
-
-theorem apply0_pre {α : Type u} [WP m ps]
-    {x : m α}
-    {P : Assertion ps} {P' : Assertion ps}
-    {Q : PostCond α ps}
-    (h : Triple x P' Q) (hpre : P ⊢ₛ P') : P ⊢ₛ wp⟦x⟧ Q :=
-  apply0_pre_post h hpre .rfl
-
-theorem apply1_pre_post {α σ : Type u} [WP m (.arg σ ps)]
-    {x : m α} {s : σ}
-    {P : Assertion ps} {P' : Assertion (.arg σ ps)}
-    {Q Q' : PostCond α (.arg σ ps)}
-    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s := by
-  apply SPred.entails.trans hpre
-  apply SPred.entails.trans (Triple.iff.mp h)
-  apply (wp x).mono _ _ hpost
-
-theorem apply1_pre {α σ : Type u} [WP m (.arg σ ps)]
-    {x : m α} {s : σ}
-    {P : Assertion ps} {P' : Assertion (.arg σ ps)}
-    {Q : PostCond α (.arg σ ps)}
-    (h : Triple x P' Q) (hpre : P ⊢ₛ P' s) : P ⊢ₛ wp⟦x⟧ Q s :=
-  apply1_pre_post h hpre .rfl
-
-theorem apply2_pre_post {α σ₁ σ₂ : Type u} [WP m (.arg σ₁ (.arg σ₂ ps))]
-    {x : m α} {s₁ : σ₁} {s₂ : σ₂}
-    {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))}
-    {Q Q' : PostCond α (.arg σ₁ (.arg σ₂ ps))}
-    (h : Triple x P' Q') (hpre : P ⊢ₛ P' s₁ s₂) (hpost : Q' ⊢ₚ Q) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ := by
-  apply SPred.entails.trans hpre
-  apply SPred.entails.trans (Triple.iff.mp h)
-  apply (wp x).mono _ _ hpost
-
-theorem apply2_pre {α σ₁ σ₂ : Type u} [WP m (.arg σ₁ (.arg σ₂ ps))]
-    {x : m α} {s₁ : σ₁} {s₂ : σ₂}
-    {P : Assertion ps} {P' : Assertion (.arg σ₁ (.arg σ₂ ps))}
-    {Q : PostCond α (.arg σ₁ (.arg σ₂ ps))}
-    (h : Triple x P' Q) (hpre : P ⊢ₛ P' s₁ s₂) : P ⊢ₛ wp⟦x⟧ Q s₁ s₂ :=
-  apply2_pre_post h hpre .rfl
-
-meta def knownApplyTheorems : Std.HashMap (Bool × Bool × Nat) Name := .ofList [
-    -- (pre, post, excess args)
-    ((true, false, 0), ``apply0_pre),
-    ((true, false, 1), ``apply1_pre),
-    ((true, false, 2), ``apply2_pre),
-    ((true, true, 0), ``apply0_pre_post),
-    ((true, true, 1), ``apply1_pre_post),
-    ((true, true, 2), ``apply2_pre_post),
-  ]
-
-end TacticHelpers
-
-/-!
 Creating backward rules for registered specifications
 -/
 
@@ -103,29 +34,8 @@ meta def SpecTheorems.findSpec (database : SpecTheorems) (e : Expr) : MetaM (Opt
   let specs := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   return specs[0]?
 
-meta def mkApplyTheorem (pre post : Bool) (us : List Level) (m ps α instWP prog P Q h : Expr) (ss : Array Expr) (ys : Array Expr) : Option Expr := do
-  let thm ← TacticHelpers.knownApplyTheorems.get? (pre, post, ss.size)
-  let mut σs := #[]
-  let mut ps := ps
-  for _ in [:ss.size] do
-    let (σ, ps') ← ps.app2? ``PostShape.arg
-    σs := σs.push σ
-    ps := ps'
-  let mut prf := mkConst thm us
-  prf := mkApp3 prf m ps α
-  prf := mkAppN prf σs
-  prf := mkApp2 prf instWP prog
-  prf := mkAppN prf ss
-  if pre then prf := mkApp prf ys[0]! -- P'
-  prf := mkApp prf P
-  if post then prf := mkApp prf ys[ys.size-2]! -- Q'
-  prf := mkApp2 prf Q h
-  if pre then prf := mkApp prf ys[1]! -- hpre
-  if post then prf := mkApp prf ys[ys.size-1]! -- hpost
-  return prf
-
-open TacticHelpers in
 meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+  let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   -- Create a backward rule for the spec we look up in the database.
   -- In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
   -- given by the use site.
@@ -153,35 +63,31 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
     let wp := mkApp5 (mkConst ``WP.wp us) m ps instWP α prog
     let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
     let Pss := mkAppN P ss  -- P s₁ ... sₙ
-    let typeP := mkApp (mkConst ``SPred [u]) σs
+    let typeP ← preprocessExpr (mkApp (mkConst ``SPred [u]) σs)
       -- Note that this is the type of `P s₁ ... sₙ`,
       -- which is `Assertion ps'`, but we don't know `ps'`
-    let typeQ := mkApp2 (mkConst ``PostCond [u]) α ps
+    let typeQ ← preprocessExpr (mkApp2 (mkConst ``PostCond [u]) α ps)
     let mut declInfos := #[]
     if needPreVC then
       let nmP' ← mkFreshUserName `P
       let nmHPre ← mkFreshUserName `hpre
-      let entailment P' := pure <| mkApp3 (mkConst ``SPred.entails [u]) σs P' Pss
-      declInfos := #[(nmP', .strictImplicit, fun _ => pure typeP),
+      let entailment P' := preprocessExpr <| mkApp3 (mkConst ``SPred.entails [u]) σs P' Pss
+      declInfos := #[(nmP', .default, fun _ => pure typeP),
                      (nmHPre, .default, fun xs => entailment xs[0]!)]
     if needPostVC then
       let nmQ' ← mkFreshUserName `Q
       let nmHPost ← mkFreshUserName `hpost
       let entailment Q' := pure <| mkApp3 (mkConst ``PostCond.entails [u]) ps Q Q'
       declInfos := declInfos ++
-                   #[(nmQ', .strictImplicit, fun _ => pure typeQ),
+                   #[(nmQ', .default, fun _ => pure typeQ),
                      (nmHPost, .default, fun xs => entailment xs[0]!)]
     withLocalDecls declInfos fun ys => liftMetaM ∘ mkLambdaFVars (ss ++ ys) =<< do
       if !needPreVC && !needPostVC && excessArgs.isEmpty then
         -- Still need to unfold the triple in the spec type
-        let entailment := mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
-        let prf := mkApp2 (mkConst ``id [0]) entailment spec
+        let entailment ← preprocessExpr <| mkApp3 (mkConst ``SPred.entails [u]) σs P wpApplyQ
+        let prf ← mkExpectedTypeHint spec entailment
         -- check prf
         return prf
-      -- Sadly, the following does not yield a kernel checking speedup (on the contrary), so it's pointless:
-      -- if let some prf := mkApplyTheorem needPreVC needPostVC us m ps α instWP prog P Q spec ss ys then
-      --   -- check prf
-      --   return prf
       let mut prf := spec
       let P := Pss  -- P s₁ ... sₙ
       let wpApplyQ := mkAppN wpApplyQ ss  -- wp⟦prog⟧ Q s₁ ... sₙ
@@ -209,7 +115,10 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps in
         -- check prf
       return prf
   let res ← abstractMVars spec
-  mkBackwardRuleFromExpr res.expr res.paramNames.toList
+  let type ← preprocessExpr (← Sym.inferType res.expr)
+  trace[Elab.Tactic.Do.vcgen] "Type of new auxiliary spec apply theorem: {type}"
+  let spec ← Meta.mkAuxLemma res.paramNames.toList type res.expr
+  mkBackwardRuleFromDecl spec
 
 end Lean.Elab.Tactic.Do.SpecAttr
 
@@ -242,35 +151,35 @@ abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State SymM)
 
 namespace VCGen
 
+@[inline]
+meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
+    (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
+  if let some b := cache.get? key then
+    return (b, cache)
+  let b ← fallback
+  return (b, cache.insert key b)
+
 meta def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM BackwardRule := do
   let mkRuleSlow := specThm.mkBackwardRuleFromSpec m σs ps instWP excessArgs
   let s ← get
   let .global decl := specThm.proof | mkRuleSlow
-  let key := (decl, m, excessArgs.size)
-  if let some p := s.specBackwardRuleCache.get? key then
-    return p
-  let rule ← mkRuleSlow
-  set { s with specBackwardRuleCache := s.specBackwardRuleCache.insert key rule }
+  let (rule, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decl, m, excessArgs.size) mkRuleSlow
+  set { s with specBackwardRuleCache }
   return rule
 
 meta def unfoldTriple (goal : MVarId) : SymM MVarId := goal.withContext do
   let type ← goal.getType
   unless type.isAppOf ``Triple do return goal
   let type ← unfoldDefinition type
-  let goal' ← mkFreshExprSyntheticOpaqueMVar type
-  goal.assign goal'
-  preprocessMVar goal'.mvarId!  -- need to reinstate subterm sharing. TODO: replace `unfoldDefinition`
+  let goal ← goal.replaceTargetDefEq (← shareCommon type)
+  preprocessMVar goal  -- need to reinstate subterm sharing
 
 open Lean.Elab.Tactic.Do in
 meta def simplifyTarget (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
   let target ← goal.getType
   let_expr ent@SPred.entails σs P T := target | return goal
   let some T ← reduceProjBeta? T | return goal -- very slight simplification
-  let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp3 ent σs P T)
-  goal.assign goal'
-  -- Experiments suggest that `reduceProjBeta?` maintains subterm sharing so we don't need to
-  -- `preprocessMVar goal'.mvarId!` here
-  return goal'.mvarId!
+  goal.replaceTargetDefEq (mkApp3 ent σs P T)
 
 meta def preprocessGoal (goal : MVarId) : VCGenM (Option MVarId) := do
   let mut goal := goal
@@ -307,16 +216,15 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
       | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
     return .goals goals
 
-  let f := T.getAppFn
-  unless f.isConstOf ``PredTrans.apply do return .noProgramFoundInTarget T
-  let args := T.getAppArgs
+  T.withApp fun apply args => do
+  unless apply.isConstOf ``PredTrans.apply do return .noProgramFoundInTarget T
   let wp := args[2]!
-  let_expr WP.wp m ps instWP _α e := wp | failure
+  let_expr WP.wp m ps instWP _α e := wp | return .noProgramFoundInTarget T
   -- `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`, where `e` is the program.
   -- We call `s₁ ... sₙ` the excess state args; the backward rules need to account for these.
   -- Excess state args are introduced by the spec of `get` (see lambda case above).
   let excessArgs := args.drop 4
-  let e := e.headBeta -- better do this work just once
+  let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
   -- Apply registered specifications.
@@ -346,7 +254,6 @@ meta def work (goal : MVarId) : VCGenM Unit := do
     let some (goal, worklist') := worklist.dequeue? | break
     worklist := worklist'
     let some goal ← preprocessGoal goal | continue
-    -- let goal ← preprocessMVar goal
     let res ← solve goal
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>

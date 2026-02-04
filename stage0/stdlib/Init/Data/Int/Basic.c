@@ -17,10 +17,8 @@ lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Int_negSucc___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instNatCastInt___lam__0(lean_object*);
-static const lean_closure_object l_instNatCastInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instNatCastInt___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_instNatCastInt___closed__0 = (const lean_object*)&l_instNatCastInt___closed__0_value;
-LEAN_EXPORT const lean_object* l_instNatCastInt = (const lean_object*)&l_instNatCastInt___closed__0_value;
+static const lean_closure_object l_instNatCastInt_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_ofNat___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT const lean_object* l_instNatCastInt = (const lean_object*)&l_instNatCastInt_value;
 LEAN_EXPORT lean_object* l_instOfNat(lean_object*);
 static const lean_string_object l_Int_term_x2d_x5b___x2b1_x5d___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Int"};
 static const lean_object* l_Int_term_x2d_x5b___x2b1_x5d___closed__0 = (const lean_object*)&l_Int_term_x2d_x5b___x2b1_x5d___closed__0_value;
@@ -213,14 +211,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_int_neg_succ_of_nat(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instNatCastInt___lam__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

@@ -95,10 +95,12 @@ def internalizeArgs (args : Array (Arg pu)) : InternalizeM pu (Array (Arg pu)) :
 private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (LetValue pu) := do
   match e with
   | .erased | .lit .. => return e
-  | .proj _ _ fvarId _ => match (← normFVar fvarId) with
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ =>
+    match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateProj! fvarId'
     | .erased => return .erased
-  | .const _ _ args _ => return e.updateArgs! (← internalizeArgs args)
+  | .const _ _ args _ | .fap _ args _ | .pap _ args _ | .ctor _ args _ =>
+    return e.updateArgs! (← internalizeArgs args)
   | .fvar fvarId args => match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateFVar! fvarId' (← internalizeArgs args)
     | .erased => return .erased
@@ -135,12 +137,19 @@ partial def internalizeCode (code : Code pu) : InternalizeM pu (Code pu) := do
   | .cases c =>
     withNormFVarResult (← normFVar c.discr) fun discr => do
       let resultType ← internalizeExpr c.resultType
-      let internalizeAltCode (k : Code pu) : InternalizeM pu (Code pu) :=
-        internalizeCode k
       let alts ← c.alts.mapM fun
-        | .alt ctorName params k _ => return .alt ctorName (← params.mapM internalizeParam) (← internalizeAltCode k)
-        | .default k => return .default (← internalizeAltCode k)
+        | .alt ctorName params k _ => return .alt ctorName (← params.mapM internalizeParam) (← internalizeCode k)
+        | .default k => return .default (← internalizeCode k)
+        | .ctorAlt i k _ => return .ctorAlt i (← internalizeCode k)
       return .cases ⟨c.typeName, resultType, discr, alts⟩
+  | .sset fvarId i offset y ty k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+    withNormFVarResult (← normFVar y) fun y => do
+      return .sset fvarId i offset y (← internalizeExpr ty) (← internalizeCode k)
+  | .uset fvarId offset y k _ =>
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+    withNormFVarResult (← normFVar y) fun y => do
+      return .uset fvarId offset y (← internalizeCode k)
 
 end
 
@@ -149,6 +158,17 @@ partial def internalizeCodeDecl (decl : CodeDecl pu) : InternalizeM pu (CodeDecl
   | .let decl => return .let (← internalizeLetDecl decl)
   | .fun decl _ => return .fun (← internalizeFunDecl decl)
   | .jp decl => return .jp (← internalizeFunDecl decl)
+  | .uset var i y _ =>
+    -- Something weird should be happening if these become erased...
+    let .fvar var ← normFVar var | unreachable!
+    let .fvar y ← normFVar y | unreachable!
+    return .uset var i y
+  | .sset var i offset y ty _ =>
+    let .fvar var ← normFVar var | unreachable!
+    let .fvar y ← normFVar y | unreachable!
+    let ty ← normExpr ty
+    return .sset var i offset y ty
+
 
 end Internalize
 

@@ -199,17 +199,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___00L
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 42, .m_capacity = 42, .m_length = 41, .m_data = "Lean.Compiler.LCNF.getOtherDeclImpureType"};
-static const lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__0_value;
-static const lean_string_object l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 37, .m_capacity = 37, .m_length = 36, .m_data = "Other decl impure type unimplemented"};
-static const lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__1 = (const lean_object*)&l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__1_value;
-static lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_register___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_initFn_00___x40_Lean_Compiler_LCNF_MonoTypes_3322084883____hygCtx___hyg_2__spec__0___redArg___lam__1(lean_object* x_1) {
 _start:
 {
@@ -3106,71 +3095,6 @@ lean_dec(x_2);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = ((lean_object*)(l_panic___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__0___closed__0));
-x_6 = lean_panic_fn(x_5, x_1);
-x_7 = lean_apply_3(x_6, x_2, x_3, lean_box(0));
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0(x_1, x_2, x_3);
-return x_5;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__1));
-x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(103u);
-x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__0));
-x_5 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_toMonoType_visitApp_spec__1___closed__0));
-x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2;
-x_5 = l_panic___at___00Lean_Compiler_LCNF_getOtherDeclImpureType_spec__0(x_4, x_1, x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(x_1, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclImpureType___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Compiler_LCNF_getOtherDeclImpureType(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_5;
-}
-}
 lean_object* initialize_Lean_Compiler_LCNF_Util(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_BaseTypes(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
@@ -3236,8 +3160,6 @@ l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherD
 lean_mark_persistent(l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1___redArg___closed__1);
 l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1___redArg___closed__2 = _init_l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1___redArg___closed__2();
 lean_mark_persistent(l_Lean_Compiler_LCNF_CacheExtension_insert___at___00Lean_Compiler_LCNF_getOtherDeclMonoType_spec__1___redArg___closed__2);
-l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2 = _init_l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_getOtherDeclImpureType___redArg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

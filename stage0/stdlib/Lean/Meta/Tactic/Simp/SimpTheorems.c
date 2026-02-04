@@ -960,6 +960,7 @@ LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___a
 LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflProof_spec__0_spec__0___at___00Lean_Meta_addSimpTheorem_spec__2___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflProof_spec__0_spec__0___at___00Lean_Meta_addSimpTheorem_spec__2(lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_isRflProof_spec__0_spec__0___at___00Lean_Meta_addSimpTheorem_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_instBEqAttributeKind_beq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_addSimpTheorem(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addSimpTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Lean_Meta_mkSimpExt___auto__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Parser"};
@@ -21802,20 +21803,31 @@ return x_14;
 LEAN_EXPORT lean_object* l_Lean_Meta_addSimpTheorem(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-uint8_t x_12; uint8_t x_26; 
-x_26 = l_Lean_isPrivateName(x_2);
-if (x_26 == 0)
+uint8_t x_12; uint8_t x_26; uint8_t x_27; 
+x_26 = 1;
+x_27 = l_Lean_instBEqAttributeKind_beq(x_5, x_26);
+if (x_27 == 0)
 {
-uint8_t x_27; 
-x_27 = 1;
-x_12 = x_27;
+uint8_t x_28; 
+x_28 = l_Lean_isPrivateName(x_2);
+if (x_28 == 0)
+{
+uint8_t x_29; 
+x_29 = 1;
+x_12 = x_29;
 goto block_25;
 }
 else
 {
-uint8_t x_28; 
-x_28 = 0;
-x_12 = x_28;
+x_12 = x_27;
+goto block_25;
+}
+}
+else
+{
+uint8_t x_30; 
+x_30 = 0;
+x_12 = x_30;
 goto block_25;
 }
 block_25:

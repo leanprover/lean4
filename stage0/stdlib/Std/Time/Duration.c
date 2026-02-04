@@ -103,7 +103,6 @@ LEAN_EXPORT lean_object* l_Std_Time_instReprDuration__1___lam__0___boxed(lean_ob
 static const lean_closure_object l_Std_Time_instReprDuration__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Time_instReprDuration__1___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Std_Time_instReprDuration__1___closed__0 = (const lean_object*)&l_Std_Time_instReprDuration__1___closed__0_value;
 LEAN_EXPORT const lean_object* l_Std_Time_instReprDuration__1 = (const lean_object*)&l_Std_Time_instReprDuration__1___closed__0_value;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_instInhabitedDuration___closed__0;
 static lean_object* l_Std_Time_instInhabitedDuration___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedDuration;
@@ -958,20 +957,19 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instInhabitedDuration___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Time_instToStringDuration___lam__0___closed__1;
-x_2 = l_Std_Time_instInhabitedDuration___closed__0;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Time_instInhabitedDuration___closed__0;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instInhabitedDuration() {
@@ -986,7 +984,7 @@ LEAN_EXPORT lean_object* l_Std_Time_instOfNatDuration(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 x_3 = l_Std_Time_instToStringDuration___lam__0___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);

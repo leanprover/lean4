@@ -23,13 +23,12 @@ private partial def collectUsedDecls (code : Code pu) (s : NameSet := {}) : Name
   | .cases c =>
     c.alts.foldl (init := s) fun s alt =>
       match alt with
-      | .default k => collectUsedDecls k s
-      | .alt _ _ k _ => collectUsedDecls k s
+      | .default k | .alt _ _ k _ | .ctorAlt _ k _ => collectUsedDecls k s
   | _ => s
 where
   collectLetValue (e : LetValue pu) (s : NameSet) : NameSet :=
     match e with
-    | .const declName .. => s.insert declName
+    | .const declName .. | .fap declName .. | .pap declName .. => s.insert declName
     | _ => s
 
 private def shouldExportBody (decl : Decl pu) : CompilerM Bool := do

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector
-// Imports: public import Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Lex public import Init.Data.Vector.MapIdx public import Init.Data.Vector.Count public import Init.Data.Vector.DecidableEq public import Init.Data.Vector.Zip public import Init.Data.Vector.OfFn public import Init.Data.Vector.Range public import Init.Data.Vector.Erase public import Init.Data.Vector.Monadic public import Init.Data.Vector.InsertIdx public import Init.Data.Vector.FinRange public import Init.Data.Vector.Extract public import Init.Data.Vector.Perm public import Init.Data.Vector.Find public import Init.Data.Vector.Algebra public import Init.Data.Vector.Stream
+// Imports: public import Init.Data.Vector.Basic public import Init.Data.Vector.Lemmas public import Init.Data.Vector.Lex public import Init.Data.Vector.MapIdx public import Init.Data.Vector.Count public import Init.Data.Vector.DecidableEq public import Init.Data.Vector.Zip public import Init.Data.Vector.OfFn public import Init.Data.Vector.Range public import Init.Data.Vector.Erase public import Init.Data.Vector.Monadic public import Init.Data.Vector.InsertIdx public import Init.Data.Vector.FinRange public import Init.Data.Vector.Extract public import Init.Data.Vector.Perm public import Init.Data.Vector.Find public import Init.Data.Vector.Algebra public import Init.Data.Vector.Stream public import Init.Data.Vector.Nat public import Init.Data.Vector.Int
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,8 @@ lean_object* initialize_Init_Data_Vector_Perm(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Find(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Algebra(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Stream(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Nat(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Int(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector(uint8_t builtin) {
 lean_object * res;
@@ -88,6 +90,12 @@ res = initialize_Init_Data_Vector_Algebra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Stream(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Nat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

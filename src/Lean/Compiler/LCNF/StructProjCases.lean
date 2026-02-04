@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.PrettyPrinter
+import Lean.Compiler.LCNF.MonoTypes
 
 public section
 

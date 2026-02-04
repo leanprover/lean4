@@ -130,7 +130,7 @@ protected theorem apply_minOn_le_of_mem [LE β] [DecidableLE β] [IsLinearPreord
   | x :: xs =>
     fun_induction xs.foldl (init := x) (_root_.minOn f) generalizing y
     · simp only [mem_cons] at hx
-      simp_all [le_refl _]
+      simp_all
     · rename_i x y _ ih
       simp at ih ⊢
       rcases mem_cons.mp hx with rfl | hx

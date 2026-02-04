@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.GlobalInstances -- **TODO**: Delete after update stage0
+public import Lean.Meta.Basic
 import Lean.ReducibilityAttrs
 public section
 namespace Lean.Meta
@@ -19,8 +19,7 @@ private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool :
     let status ← getReducibilityStatus info.name
     if status == .reducible then
       return true
-    -- **TODO**: Delete `isGlobalInstance` after update stage0
-    else if m == .instances && (isGlobalInstance (← getEnv) info.name || status == .instanceReducible) then
+    else if m == .instances && status == .instanceReducible then
       return true
     else
       return false

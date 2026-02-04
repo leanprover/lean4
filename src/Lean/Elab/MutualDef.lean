@@ -359,7 +359,9 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
       let header := headers[i]
-      if header.modifiers.isNonrec then
+      -- Instances are always nonrec but we don't want to adjust `header.modifiers` as it is also
+      -- used for nested where/let rec declarations.
+      if header.modifiers.isNonrec || header.isInstance then
         loop (i+1) fvars
       else
         withAuxDecl header.shortDeclName header.type header.declName fun fvar => loop (i+1) (fvars.push fvar)
@@ -1485,6 +1487,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let mut view ←
       withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
         mkDefView modifiers d[1]
+    if ds.size > 1 && view.isInstance then
+      throwErrorAt d "cannot use `instance` in `mutual` block; consider splitting into separate `mutual` `def`s"
     if view.kind != .example && view.value matches `(declVal| := rfl) then
       view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]

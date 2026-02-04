@@ -175,7 +175,6 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   if modifiers.recKind matches .nonrec then
     logWarning "Unnecessary use of `nonrec`, instances are always non-recursive."
-  let modifiers := { modifiers with recKind := .nonrec }
   let (binders, type) := expandDeclSig stx[4]
   let declId ← match stx[3].getOptional? with
     | some declId =>

@@ -90,8 +90,12 @@ end AxiomaticInstances
 
 section LE
 
+@[simp]
 public theorem le_refl {α : Type u} [LE α] [Refl (α := α) (· ≤ ·)] (a : α) : a ≤ a := by
   simp [Refl.refl]
+
+public theorem le_of_eq [LE α] [Refl (α := α) (· ≤ ·)] {a b : α} : a = b → a ≤ b :=
+  (· ▸ le_refl _)
 
 public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
@@ -225,6 +229,18 @@ public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α]
   simp only [lt_iff_le_and_not_ge, hle, true_and, Classical.not_not, imp_false]
   intro hge
   exact hne.elim <| Std.Antisymm.antisymm a b hle hge
+
+public theorem ne_of_lt {α : Type u} [LT α] [Std.Irrefl (α := α) (· < ·)] {a b : α} : a < b → a ≠ b :=
+  fun h h' => absurd (h' ▸ h) (h' ▸ lt_irrefl)
+
+public theorem le_iff_lt_or_eq [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α] {a b : α} :
+    a ≤ b ↔ a < b ∨ a = b := by
+  refine ⟨fun h => ?_, fun h => h.elim le_of_lt le_of_eq⟩
+  simp [Classical.or_iff_not_imp_left, Std.lt_iff_le_and_not_ge, h, ← Std.le_antisymm_iff]
+
+public theorem lt_iff_le_and_ne [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrder α] {a b : α} :
+    a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [le_iff_lt_or_eq, or_and_right] using Std.ne_of_lt
 
 end LT
 end Std

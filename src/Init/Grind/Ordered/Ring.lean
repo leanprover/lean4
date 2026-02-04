@@ -44,7 +44,7 @@ theorem neg_one_lt_zero : (-1 : R) < 0 := by
 
 theorem ofNat_nonneg (x : Nat) : (OfNat.ofNat x : R) ≥ 0 := by
   induction x
-  next => simp [OfNat.ofNat, Zero.zero]; apply le_refl
+  next => simp [OfNat.ofNat, Zero.zero]
   next n ih =>
     have := OrderedRing.zero_lt_one (R := R)
     rw [Semiring.ofNat_succ]
@@ -134,8 +134,8 @@ theorem lt_of_intCast_lt_intCast (a b : Int) : (a : R) < (b : R) → a < b := by
     omega
 
 theorem natCast_le_natCast_of_le (a b : Nat) : a ≤ b → (a : R) ≤ (b : R) := by
-  induction a generalizing b <;> cases b <;> simp
-  next => simp [Semiring.natCast_zero, Std.IsPreorder.le_refl]
+  induction a generalizing b <;> cases b <;> simp [- Std.le_refl]
+  next => simp [Semiring.natCast_zero]
   next n =>
     have := ofNat_nonneg (R := R) n
     simp [Semiring.ofNat_eq_natCast] at this

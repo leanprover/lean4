@@ -663,7 +663,7 @@ public def LinearPreorderPackage.ofOrd (α : Type u)
         isGE_compare]
     decidableLE := args.decidableLE
     decidableLT := args.decidableLT
-    le_refl a := by simp [← isLE_compare]
+    le_refl a := by simp
     le_total a b := by cases h : compare a b <;> simp [h, ← isLE_compare (a := a), ← isGE_compare (a := a)]
     le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans }
 

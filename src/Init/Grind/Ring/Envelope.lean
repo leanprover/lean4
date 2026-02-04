@@ -393,7 +393,7 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfSemiring.Q α) 
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [Semiring.add_comm]; exact le_refl (a₁ + a₂)
+    simp [Semiring.add_comm]
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b

@@ -11,6 +11,7 @@ public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.LiveVars
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.IR.CompilerM
 
 namespace Lean.Compiler.LCNF
 
@@ -129,9 +130,10 @@ inductive UseClassification where
 def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
   match b with
   | .let { value := .fap f args, .. } =>
-    if let some sig ← getImpureSignature? f then
+    -- TODO: change this to getImpureSignature in later refactoring phases
+    if let some decl := IR.findEnvDecl (← getEnv) f then
       let mut result := .none
-      for arg in args, param in sig.params do
+      for arg in args, param in decl.params do
         if let .fvar y := arg then
           if y == x then
             result :=

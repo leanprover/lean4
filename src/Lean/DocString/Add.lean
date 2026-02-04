@@ -98,6 +98,51 @@ def parseVersoDocString
 
 
 
+open Lean.Parser Command in
+/--
+Reports parse errors from a Verso docstring parse failure.
+
+When Verso docstring parsing fails at parse time, a `parseFailure` node is created containing the
+raw text, because emitting an error at that stage could lead to unwanted parser backtracking. This
+function reports the actual error messages with proper source positions.
+-/
+def reportVersoParseFailure
+    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [MonadResolveName m]
+    (parseFailure : Syntax) : m Unit := do
+  let some rawAtom := parseFailure[0]?
+    | return  -- malformed node, nothing to report
+  let some startPos := rawAtom.getPos? (canonicalOnly := true)
+    | return
+  let some endPos := rawAtom.getTailPos? (canonicalOnly := true)
+    | return
+
+  let text ← getFileMap
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+  have endPos_valid : endPos ≤ text.source.rawEndPos := by
+    unfold endPos; split <;> simp [*]
+
+  let env ← getEnv
+  let ictx : InputContext :=
+    .mk text.source (← getFileName) (fileMap := text)
+      (endPos := endPos) (endPos_valid := endPos_valid)
+  let pmctx : ParserModuleContext := {
+    env,
+    options := ← getOptions,
+    currNamespace := ← getCurrNamespace,
+    openDecls := ← getOpenDecls
+  }
+  let s := mkParserState text.source |>.setPos startPos
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
+
+  for (pos, _, err) in s.allErrors do
+    logMessage {
+      fileName := ← getFileName,
+      pos := text.toPosition pos,
+      data := err.toString,
+      severity := .error
+    }
+
 open Lean.Doc in
 open Lean.Parser.Command in
 /--

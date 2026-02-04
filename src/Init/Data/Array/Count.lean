@@ -9,7 +9,7 @@ prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Count
-import Init.Grind.Util
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
 
 public section
 

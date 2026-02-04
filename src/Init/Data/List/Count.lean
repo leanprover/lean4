@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Sublist
-import Init.Grind.Util
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
 
 public section
 

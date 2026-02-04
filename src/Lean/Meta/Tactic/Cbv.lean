@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Cbv.Main
 public import Lean.Meta.Tactic.Cbv.Util
-public import Lean.Meta.Tactic.Cbv.Types
 
 public section
 

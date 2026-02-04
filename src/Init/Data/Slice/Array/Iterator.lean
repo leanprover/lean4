@@ -51,8 +51,7 @@ private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (Subarr
     simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
     split at h
     · cases h
-      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage,
-        Nat.lt_wfRel, sizeOf_nat]
+      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage, sizeOf_nat]
       exact Nat.sub_succ_lt_self _ _ ‹_›
     · cases h
 

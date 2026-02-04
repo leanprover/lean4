@@ -398,10 +398,10 @@ structure LeanQueryModuleResponse where
 
 /-- Name of a declaration in a given module. -/
 structure LeanDeclIdent where
-  /-- Name of the module that this identifier is in. -/
-  module : Name
+  /-- Uri of the module that this identifier is in. -/
+  uri  : DocumentUri
   /-- Name of the declaration. -/
-  decl   : Name
+  decl : Name
   deriving FromJson, ToJson
 
 /--

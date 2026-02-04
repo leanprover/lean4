@@ -25,10 +25,6 @@ open Lean.Meta.Sym.Simp
 builtin_initialize cbvTheoremsLookup : EnvExtension CbvTheoremsLookupState ←
   registerEnvExtension (pure {}) (asyncMode := .local)
 
-/--
-Get or create cached Theorems for function equations.
-Retrieves equations via `getEqnsFor?` and caches the resulting Theorems object.
--/
 public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
@@ -44,39 +40,31 @@ public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
         { cache with eqnTheorems := cache.eqnTheorems.insert fnName thms }
     return thms
 
-/--
-Get or create cached Theorem for unfold equation.
-Retrieves unfold equation via `getUnfoldEqnFor?` and caches the resulting Theorem.
--/
 public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
-    -- Compute theorem from unfold equation
+
     let some unfoldEqn ← getUnfoldEqnFor? fnName (nonRec := true) | return none
     let thm ← mkTheoremFromDecl unfoldEqn
-    -- Store in cache
+
     modifyEnv fun env =>
       cbvTheoremsLookup.modifyState env fun cache =>
         { cache with unfoldTheorems := cache.unfoldTheorems.insert fnName thm }
     return some thm
 
-/--
-Get or create cached Theorems for match equations.
-Retrieves match equations via `Match.getEquationsFor` and caches the resulting Theorems object.
--/
 public def getMatchTheorems (matcherName : Name) : MetaM Theorems := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
   if let some thms := cache.matchTheorems.find? matcherName then
     return thms
   else
-    -- Compute theorems from match equation names
+
     let eqns ← Match.getEquationsFor matcherName
     let thms := Theorems.insertMany {} <| ← eqns.eqnNames.mapM mkTheoremFromDecl
-    -- Store in cache
+
     modifyEnv fun env =>
       cbvTheoremsLookup.modifyState env fun cache =>
         { cache with matchTheorems := cache.matchTheorems.insert matcherName thms }

@@ -55,7 +55,12 @@ def tryMatcher : Simproc := fun e => do
       <|> reduceRecMatcher
         <| e
 
+<<<<<<< HEAD
 def handleConstApp : Simproc := tryEquations <|> tryUnfold
+=======
+def handleConstApp : Simproc :=
+  tryEquations <|> tryUnfold
+>>>>>>> wojciech/cbv_upstream1
 
 def betaReduce : Simproc := fun e => do
   -- TODO: Improve term sharing
@@ -69,14 +74,14 @@ def handleApp : Simproc := fun e => do
   match fn with
   | .const constName _ =>
     let info ← getConstInfo constName
-    guardSimproc (fun _ => info.hasValue) handleConstApp >> reduceRecMatcher <| e
+    (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
   | _ => return .rfl
 
 def foldLit : Simproc := fun e => do
  let some n := e.rawNatLit? | return .rfl
  -- TODO: check performance of sharing
-  return .step (mkNatLit n) (← Sym.mkEqRefl e)
+  return .step (← Sym.share <| mkNatLit n) (← Sym.mkEqRefl e)
 
 def zetaReduce : Simproc := fun e => do
   let .letE _ _ value body _ := e | return .rfl
@@ -133,6 +138,7 @@ def handleConst : Simproc := fun e => do
   Theorem.rewrite thm e
 
 def cbvPre : Simproc :=
+<<<<<<< HEAD
       isBuiltinValue
   >>  isProofTerm
   >>  skipBinders
@@ -146,6 +152,14 @@ def cbvPost : Simproc :=
       evalGround
   >>  handleApp
   >>  zetaReduce
+=======
+      isBuiltinValue <|> isProofTerm <|> skipBinders
+  >>  (tryMatcher >> simpControl) <|> (handleConst <|> simplifyLhs <|> handleProj)
+
+def cbvPost : Simproc :=
+      evalGround
+  >>  (handleApp <|> zetaReduce)
+>>>>>>> wojciech/cbv_upstream1
   >>  foldLit
 
 public def cbvEntry (e : Expr) : MetaM Result := do

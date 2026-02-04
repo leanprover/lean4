@@ -763,7 +763,7 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
     constructor
     intro a
     suffices ([a] == [a]) = true by
-      simpa only [List.instBEq, List.beq, Bool.and_true]
+      simpa only [BEq.beq, List.beq, Bool.and_true]
     simp
   · intro h
     infer_instance
@@ -776,7 +776,7 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
     intro a b h
     apply singleton_inj.1
     apply eq_of_beq
-    simp only [List.instBEq, List.beq]
+    simp only [BEq.beq, List.beq]
     simpa
   · intro h
     infer_instance

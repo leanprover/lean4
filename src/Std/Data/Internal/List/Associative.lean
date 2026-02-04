@@ -8118,7 +8118,7 @@ private local instance [Ord α] : DecidableLE ((a : α) × β a) :=
 
 private theorem leSigmaOfOrd_total [Ord α] [OrientedOrd α] (a b : (a : α) × β a) :
     a ≤ b ∨ b ≤ a := by
-  simp only [leSigmaOfOrd]
+  simp only [LE.le]
   rw [← OrientedCmp.isGE_iff_isLE]
   cases compare b.fst a.fst <;> trivial
 

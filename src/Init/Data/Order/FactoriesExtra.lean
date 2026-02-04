@@ -95,8 +95,8 @@ public instance instLawfulOrderOrd_ofOrd (α : Type u) [Ord α] [OrientedOrd α]
     haveI := LE.ofOrd α
     LawfulOrderOrd α :=
   letI := LE.ofOrd α
-  { isLE_compare := by simp [LE.ofOrd]
-    isGE_compare := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
+  { isLE_compare := by simp [LE.le]
+    isGE_compare := by simp [LE.le, OrientedCmp.isGE_eq_isLE] }
 
 attribute [local instance] LT.ofOrd in
 /--

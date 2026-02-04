@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Linear  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.Rat.Lemmas  -- shake: keep (used in `init_grind_norm`)
 public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_norm`)
 public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)

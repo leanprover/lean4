@@ -633,7 +633,6 @@ static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     lean_object ** objs = lean_ctor_obj_cptr(o);
     lean_dec(objs[i]);
-    objs[i] = lean_box(0);
 }
 
 static inline size_t lean_ctor_get_usize(b_lean_obj_arg o, unsigned i) {

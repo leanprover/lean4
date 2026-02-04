@@ -1502,6 +1502,20 @@ def Slice.Pos.toReplaceEnd {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤
 theorem Slice.Pos.offset_sliceTo {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
 
+@[simp]
+theorem Slice.Pos.ofSliceTo_startPos {s : Slice} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).startPos = s.startPos := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem Slice.Pos.ofSliceTo_endPos {s : Slice} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).endPos = pos := by
+  simp [Pos.ext_iff]
+
+theorem Slice.Pos.ofSliceTo_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos = ofSliceTo pos' ↔ pos = pos' := by
+  simp [Pos.ext_iff]
+
 theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
   obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← Pos.ofCopy_inj, ← ofSliceFrom_inj])
@@ -2249,6 +2263,20 @@ def Pos.ofReplaceEnd {s : String} {p₀ : s.Pos} (pos : (s.sliceTo p₀).Pos) : 
 @[simp]
 theorem Pos.offset_ofSliceTo {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
     (ofSliceTo pos).offset = pos.offset := (rfl)
+
+@[simp]
+theorem Pos.ofSliceTo_startPos {s : String} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).startPos = s.startPos := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem Pos.ofSliceTo_endPos {s : String} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).endPos = pos := by
+  simp [Pos.ext_iff]
+
+theorem Pos.ofSliceTo_inj {s : String} {p₀ : s.Pos} {pos pos' : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos = ofSliceTo pos' ↔ pos = pos' := by
+  simp [Pos.ext_iff, Slice.Pos.ext_iff]
 
 @[simp]
 theorem Pos.ofSliceTo_le {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :

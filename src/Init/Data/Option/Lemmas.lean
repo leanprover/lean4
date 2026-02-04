@@ -883,6 +883,10 @@ theorem guard_or_guard : (guard p a).or (guard q a) = guard (fun x => p x || q x
   simp only [guard]
   split <;> simp_all
 
+theorem any_or_of_any_left {o₁ o₂ : Option α} {f : α → Bool} (h : o₁.any f) :
+    (o₁.or o₂).any f := by
+  cases o₁ <;> simp_all
+
 /-! ### `orElse` -/
 
 /-- The `simp` normal form of `o <|> o'` is `o.or o'` via `orElse_eq_orElse` and `orElse_eq_or`. -/

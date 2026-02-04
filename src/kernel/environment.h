@@ -33,7 +33,7 @@ public:
     explicit diagnostics(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit diagnostics(obj_arg o):object_ref(o) {}
     ~diagnostics() {}
-    void record_unfold(name const & decl_name);
+    void record_unfold(name const & decl_name, bool defeq);
 };
 
 /*

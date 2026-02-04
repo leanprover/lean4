@@ -75,7 +75,7 @@ private:
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;
-    optional<expr> unfold_definition_core(expr const & e);
+    optional<expr> unfold_definition_core(expr const & e, bool in_defeq);
 
     bool is_def_eq_binding(expr t, expr s);
     bool is_def_eq(level const & l1, level const & l2);
@@ -166,7 +166,7 @@ public:
     expr whnf_core_cheap(expr const & e) {
         return whnf_core(e, true, true);
     }
-    optional<expr> unfold_definition(expr const & e);
+    optional<expr> unfold_definition(expr const & e, bool in_defeq);
 };
 
 void initialize_type_checker();

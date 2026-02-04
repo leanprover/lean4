@@ -459,7 +459,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
                 if (m_diag) {
                     auto f = get_app_fn(e);
                     if (is_constant(f))
-                        m_diag->record_unfold(const_name(f));
+                        m_diag->record_unfold(const_name(f), false);
                 }
                 /* iota-reduction and quotient reduction rules */
                 return whnf_core(*r, cheap_rec, cheap_proj);
@@ -494,14 +494,14 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
     return none_constant_info();
 }
 
-optional<expr> type_checker::unfold_definition_core(expr const & e) {
+optional<expr> type_checker::unfold_definition_core(expr const & e, bool in_defeq) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
             levels const & us = const_levels(e);
             unsigned len = length(us);
             if (len == d->get_num_lparams()) {
                 if (m_diag) {
-                    m_diag->record_unfold(d->get_name());
+                    m_diag->record_unfold(d->get_name(), in_defeq);
                 }
                 if (len > 0) {
                     auto it = m_st->m_unfold.find(e);
@@ -520,10 +520,10 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
 }
 
 /* Unfold head(e) if it is a constant */
-optional<expr> type_checker::unfold_definition(expr const & e) {
+optional<expr> type_checker::unfold_definition(expr const & e, bool in_defeq) {
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
-        if (auto f  = unfold_definition_core(f0)) {
+        if (auto f  = unfold_definition_core(f0, in_defeq)) {
             buffer<expr> args;
             get_app_rev_args(e, args);
             return some_expr(mk_rev_app(*f, args));
@@ -531,7 +531,7 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
             return none_expr();
         }
     } else {
-        return unfold_definition_core(e);
+        return unfold_definition_core(e, in_defeq);
     }
 }
 
@@ -672,7 +672,7 @@ expr type_checker::whnf(expr const & e) {
         } else if (auto v = reduce_nat(t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
-        } else if (auto next_t = unfold_definition(t1)) {
+        } else if (auto next_t = unfold_definition(t1, false)) {
             t = *next_t;
         } else {
             auto r = t1;
@@ -900,21 +900,21 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         if (auto s_n_new = try_unfold_proj_app(s_n)) {
             s_n = *s_n_new;
         } else {
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n, true), false, true);
         }
     } else if (!d_t && d_s) {
         /* If `t_n` is a projection application, we try to unfold it instead. See comment above. */
         if (auto t_n_new = try_unfold_proj_app(t_n)) {
             t_n = *t_n_new;
         } else {
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            s_n = whnf_core(*unfold_definition(s_n, true), false, true);
         }
     } else {
         int c = compare(d_t->get_hints(), d_s->get_hints());
         if (c < 0) {
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n, true), false, true);
         } else if (c > 0) {
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            s_n = whnf_core(*unfold_definition(s_n, true), false, true);
         } else {
             if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s) && d_t->get_hints().is_regular()) {
                 // Optimization:
@@ -930,8 +930,8 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
                     }
                 }
             }
-            t_n = whnf_core(*unfold_definition(t_n), false, true);
-            s_n = whnf_core(*unfold_definition(s_n), false, true);
+            t_n = whnf_core(*unfold_definition(t_n, true), false, true);
+            s_n = whnf_core(*unfold_definition(s_n, true), false, true);
         }
     }
     switch (quick_is_def_eq(t_n, s_n)) {

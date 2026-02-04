@@ -1,3 +1,5 @@
+module
+
 -- Since we do not have ENNReal in core, we just axiomatize it all for this test
 
 opaque ENNReal : Type

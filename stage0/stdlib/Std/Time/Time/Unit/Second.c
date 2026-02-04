@@ -41,7 +41,6 @@ static const lean_closure_object l_Std_Time_Second_instToStringOrdinal___closed_
 static const lean_object* l_Std_Time_Second_instToStringOrdinal___closed__0 = (const lean_object*)&l_Std_Time_Second_instToStringOrdinal___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instToStringOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instToStringOrdinal___boxed(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__0;
 lean_object* lean_int_add(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__1;
@@ -289,7 +288,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(59u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -347,7 +346,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_6 = l_instNatCastInt___lam__0(x_2);
+x_6 = lean_nat_to_int(x_2);
 x_7 = l_Std_Time_Second_instOfNatOrdinal___closed__4;
 x_8 = lean_int_sub(x_6, x_3);
 lean_dec(x_6);
@@ -662,7 +661,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_instOfNatOffset(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -670,7 +669,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -727,7 +726,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat___redArg(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -735,7 +734,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofNat(uint8_t x_1, lean_objec
 _start:
 {
 lean_object* x_4; 
-x_4 = l_instNatCastInt___lam__0(x_2);
+x_4 = lean_nat_to_int(x_2);
 return x_4;
 }
 }
@@ -752,7 +751,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin___redArg(lean_object* x
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -760,7 +759,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin(uint8_t x_1, lean_objec
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }

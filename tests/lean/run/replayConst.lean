@@ -1,7 +1,7 @@
 import Lean.Elab.Tactic.Basic
 import Std.Tactic.BVDecide
 
-/-! `replayConst` should be able to replay constants using `native_decide`. -/
+/-! `replayConst` should be able to replay constants using additional axioms. -/
 
 open Lean Lean.Meta Lean.Elab.Tactic in
 elab "replay" ts:tacticSeq : tactic => do

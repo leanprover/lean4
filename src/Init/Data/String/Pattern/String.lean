@@ -8,8 +8,10 @@ module
 prelude
 public import Init.Data.String.Pattern.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-import Init.Data.String.Termination
 public import Init.Data.Vector.Basic
+public import Init.Data.String.FindPos
+import Init.Data.String.Termination
+import Init.Data.String.Lemmas.FindPos
 
 set_option doc.verso true
 
@@ -148,15 +150,15 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
             let basePos := s.pos! stackPos
             -- Since we report (mis)matches by code point and not by byte, missing in the first byte
             -- means that we should skip ahead to the next code point.
-            let nextStackPos := s.findNextPos stackPos h₁
+            let nextStackPos := s.posGT stackPos h₁
             let res := .rejected basePos nextStackPos
             -- Invariants still satisfied
             pure (.deflate ⟨.yield ⟨.proper needle table htable nextStackPos.offset 0
               (by simp [Pos.Raw.lt_iff] at hn ⊢; omega)⟩ res,
                by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [Pos.Raw.lt_iff] at hn ⊢; omega,
                 Or.inl (by
-                  have := lt_offset_findNextPos h₁
-                  have t₀ := (findNextPos _ _ h₁).isValidForSlice.le_utf8ByteSize
+                  have := lt_offset_posGT (h := h₁)
+                  have t₀ := (posGT _ _ h₁).isValidForSlice.le_utf8ByteSize
                   simp [nextStackPos, Pos.Raw.lt_iff] at this ⊢; omega)⟩⟩)
           else
             let newNeedlePos := table[needlePos.byteIdx - 1]'(by simp [Pos.Raw.lt_iff] at hn; omega)
@@ -165,19 +167,16 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
               let basePos := s.pos! (stackPos.unoffsetBy needlePos)
               -- Since we report (mis)matches by code point and not by byte, missing in the first byte
               -- means that we should skip ahead to the next code point.
-              let nextStackPos := (s.pos? stackPos).getD (s.findNextPos stackPos h₁)
+              let nextStackPos := s.posGE stackPos (Pos.Raw.le_of_lt h₁)
               let res := .rejected basePos nextStackPos
               -- Invariants still satisfied
               pure (.deflate ⟨.yield ⟨.proper needle table htable nextStackPos.offset 0
                 (by simp [Pos.Raw.lt_iff] at hn ⊢; omega)⟩ res,
                  by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [Pos.Raw.lt_iff] at hn ⊢; omega, by
-                  simp only [pos?, Pos.Raw.isValidForSlice_eq_true_iff, nextStackPos]
-                  split
-                  · exact Or.inr (by simp [Pos.Raw.lt_iff]; omega)
-                  · refine Or.inl ?_
-                    have := lt_offset_findNextPos h₁
-                    have t₀ := (findNextPos _ _ h₁).isValidForSlice.le_utf8ByteSize
-                    simp [Pos.Raw.lt_iff] at this ⊢; omega⟩⟩)
+                  have h₂ := le_offset_posGE (h := Pos.Raw.le_of_lt h₁)
+                  have h₃ := (s.posGE _ (Pos.Raw.le_of_lt h₁)).isValidForSlice.le_utf8ByteSize
+                  simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂
+                  omega⟩⟩)
             else
               let oldBasePos := s.pos! (stackPos.decreaseBy needlePos.byteIdx)
               let newBasePos := s.pos! (stackPos.decreaseBy newNeedlePos)
@@ -264,8 +263,7 @@ def startsWith (pat : Slice) (s : Slice) : Bool :=
     have hs := by
       simp [Pos.Raw.le_iff] at h ⊢
       omega
-    have hp := by
-      simp [Pos.Raw.le_iff]
+    have hp := by simp
     Internal.memcmpSlice s pat s.startPos.offset pat.startPos.offset pat.rawEndPos hs hp
   else
     false
@@ -301,7 +299,7 @@ def endsWith (pat : Slice) (s : Slice) : Bool :=
       simp [sStart, Pos.Raw.le_iff] at h ⊢
       omega
     have hp := by
-      simp [patStart, Pos.Raw.le_iff] at h ⊢
+      simp [patStart] at h ⊢
     Internal.memcmpSlice s pat sStart patStart pat.rawEndPos hs hp
   else
     false

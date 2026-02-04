@@ -556,9 +556,10 @@ def main (decls : Array (Decl .pure)) : CompilerM (Array (Decl .pure)) := do
 end Specialize
 
 public def specialize : Pass where
-  phase := .base
-  name  := `specialize
-  run   := Specialize.main
+  phase    := .base
+  phaseOut := .base
+  name     := `specialize
+  run      := Specialize.main
 
 builtin_initialize
   registerTraceClass `Compiler.specialize (inherited := true)

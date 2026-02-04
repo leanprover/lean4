@@ -177,7 +177,6 @@ attribute [cbv_opaque] Std.DHashMap.insert
 attribute [cbv_opaque] Std.DHashMap.contains
 attribute [cbv_opaque] Std.DHashMap.getEntry
 
-
 /--
 error: unsolved goals
 ⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true

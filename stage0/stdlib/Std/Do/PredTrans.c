@@ -13,6 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pure___redArg___lam__0(lean_object*, lean_object*);
@@ -62,6 +65,31 @@ LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushOption___redArg___lam__1(lean_ob
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushOption___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushOption(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_pushOption___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_PredTrans_apply___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Do_PredTrans_apply(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instLE(lean_object* x_1, lean_object* x_2) {
 _start:
 {

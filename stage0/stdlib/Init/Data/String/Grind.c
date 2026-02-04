@@ -286,10 +286,9 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
-static const lean_closure_object l_String_Pos_Raw_instToIntCiOfNatInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instNatCastInt___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_String_Pos_Raw_instToIntCiOfNatInt___closed__0 = (const lean_object*)&l_String_Pos_Raw_instToIntCiOfNatInt___closed__0_value;
-LEAN_EXPORT const lean_object* l_String_Pos_Raw_instToIntCiOfNatInt = (const lean_object*)&l_String_Pos_Raw_instToIntCiOfNatInt___closed__0_value;
+lean_object* l_Int_ofNat___boxed(lean_object*);
+static const lean_closure_object l_String_Pos_Raw_instToIntCiOfNatInt_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_ofNat___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT const lean_object* l_String_Pos_Raw_instToIntCiOfNatInt = (const lean_object*)&l_String_Pos_Raw_instToIntCiOfNatInt_value;
 LEAN_EXPORT lean_object* l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize(lean_object*);
@@ -695,7 +694,7 @@ LEAN_EXPORT lean_object* l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize(le
 _start:
 {
 lean_object* x_2; 
-x_2 = ((lean_object*)(l_String_Pos_Raw_instToIntCiOfNatInt___closed__0));
+x_2 = lean_alloc_closure((void*)(l_Int_ofNat___boxed), 1, 0);
 return x_2;
 }
 }
@@ -712,7 +711,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pos_instToIntCoOfNatIntHAddCastUtf8ByteS
 _start:
 {
 lean_object* x_2; 
-x_2 = ((lean_object*)(l_String_Pos_Raw_instToIntCiOfNatInt___closed__0));
+x_2 = lean_alloc_closure((void*)(l_Int_ofNat___boxed), 1, 0);
 return x_2;
 }
 }

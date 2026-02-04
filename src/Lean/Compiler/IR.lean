@@ -47,8 +47,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls := decls.map Decl.pushProj
-  logDecls `push_proj decls
   if compiler.reuse.get (← getOptions) then
     decls := decls.map (Decl.insertResetReuse (← getEnv))
     logDecls `reset_reuse decls

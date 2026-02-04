@@ -7,13 +7,13 @@ import Lean
     x + 2
 
 /--
-trace: [Compiler.result] size: 2
+trace: [Compiler.saveMono] size: 2
     def g c : Nat :=
       let _x.1 := 2;
       let _x.2 := Nat.add c _x.1;
       return _x.2
 -/
 #guard_msgs in
-set_option trace.Compiler.result true in
+set_option trace.Compiler.saveMono true in
 def g (c : Nat) : Nat :=
   f true false c

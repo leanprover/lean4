@@ -2491,6 +2491,7 @@ where
       let decl ← match info with
         | .thmInfo thm   => pure <| .thmDecl thm
         | .defnInfo defn => pure <| .defnDecl defn
+        | .axiomInfo ax  => pure <| .axiomDecl ax
         | _              =>
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be

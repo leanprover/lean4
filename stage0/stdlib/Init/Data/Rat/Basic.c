@@ -116,7 +116,6 @@ LEAN_EXPORT lean_object* l_instReprRat___lam__0___boxed(lean_object*, lean_objec
 static const lean_closure_object l_instReprRat___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instReprRat___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instReprRat___closed__0 = (const lean_object*)&l_instReprRat___closed__0_value;
 LEAN_EXPORT const lean_object* l_instReprRat = (const lean_object*)&l_instReprRat___closed__0_value;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_int_div_exact(lean_object*, lean_object*);
 lean_object* lean_nat_div_exact(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_maybeNormalize___redArg(lean_object*, lean_object*, lean_object*);
@@ -785,7 +784,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc(x_3);
-x_6 = l_instNatCastInt___lam__0(x_3);
+x_6 = lean_nat_to_int(x_3);
 x_7 = lean_int_div_exact(x_1, x_6);
 lean_dec(x_6);
 lean_dec(x_1);
@@ -818,7 +817,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_inc(x_3);
-x_10 = l_instNatCastInt___lam__0(x_3);
+x_10 = lean_nat_to_int(x_3);
 x_11 = lean_int_div_exact(x_1, x_10);
 lean_dec(x_10);
 lean_dec(x_1);
@@ -862,7 +861,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_4);
-x_7 = l_instNatCastInt___lam__0(x_4);
+x_7 = lean_nat_to_int(x_4);
 x_8 = lean_int_div_exact(x_1, x_7);
 lean_dec(x_7);
 lean_dec(x_1);
@@ -898,7 +897,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_5);
-x_8 = l_instNatCastInt___lam__0(x_5);
+x_8 = lean_nat_to_int(x_5);
 x_9 = lean_int_div_exact(x_1, x_8);
 lean_dec(x_8);
 lean_dec(x_1);
@@ -994,7 +993,7 @@ LEAN_EXPORT lean_object* l_Rat_instNatCast___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }

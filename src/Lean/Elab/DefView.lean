@@ -162,15 +162,9 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
-  /-
-  **Note**: add `instance_reducible` attribute if declaration is not already marked with `@[reducible]`
-  -/
-  let modifiers       := if modifiers.anyAttr fun attr => attr.name == `reducible then
-    modifiers
-  else
-    modifiers.addAttr { name := `instance_reducible }
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
+  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let (binders, type) := expandDeclSig stx[4]

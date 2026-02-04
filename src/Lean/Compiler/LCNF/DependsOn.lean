@@ -30,9 +30,9 @@ private def argDepOn (a : Arg pu) : M Bool := do
 private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
-  | .proj _ _ fvarId _ => fvarDepOn fvarId
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .uproj _ fvarId _ | .sproj _ _ fvarId _ => fvarDepOn fvarId
   | .fvar fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
-  | .const _ _ args _ => args.anyM argDepOn
+  | .const _ _ args _ | .ctor _ args _ | .fap _ args _ | .pap _ args _ => args.anyM argDepOn
 
 private def LetDecl.depOn (decl : LetDecl pu) : M Bool :=
   typeDepOn decl.type <||> letValueDepOn decl.value
@@ -45,6 +45,7 @@ private partial def depOn (c : Code pu) : M Bool :=
   | .jmp fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
+  | .sset fv1 _ _ fv2 _ k _ | .uset fv1 _ fv2 k _ => fvarDepOn fv1 <||> fvarDepOn fv2 <||> depOn k
 
 @[inline] def LetDecl.dependsOn (decl : LetDecl pu) (s : FVarIdSet) :  Bool :=
   decl.depOn s
@@ -56,6 +57,8 @@ def CodeDecl.dependsOn (decl : CodeDecl pu) (s : FVarIdSet) : Bool :=
   match decl with
   | .let decl => decl.dependsOn s
   | .jp decl | .fun decl _ => decl.dependsOn s
+  | .uset var _ y _ => s.contains var || s.contains y
+  | .sset var _ _ y ty _ => s.contains var || s.contains y || (typeDepOn ty s)
 
 /--
 Return `true` is `c` depends on a free variable in `s`.

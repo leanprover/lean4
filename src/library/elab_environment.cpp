@@ -65,6 +65,17 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * obj_env, le
     });
 }
 
+extern "C" LEAN_EXPORT lean_object * lean_kernel_def_to_recursor(lean_object * obj_env, lean_object * a) {
+    elab_environment env(obj_env);
+    return catch_kernel_exceptions<object*>([&]() {
+        auto rec_info = type_checker(env.to_kernel_env()).def_to_recursor(definition_val(a));
+        if (rec_info)
+            return mk_option_some(rec_info->steal());
+        else
+            return mk_option_none();
+    });
+}
+
 /* getBelieverTrustLevel (_ : Unit) : UInt32 */
 extern "C" LEAN_EXPORT uint32 lean_internal_get_believer_trust_level(obj_arg) {
    return LEAN_BELIEVER_TRUST_LEVEL;

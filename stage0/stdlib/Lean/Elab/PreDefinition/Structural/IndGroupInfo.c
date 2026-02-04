@@ -2780,7 +2780,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoRec___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2___closed__6));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(128u);
+x_3 = lean_unsigned_to_nat(134u);
 x_4 = ((lean_object*)(l_Lean_getConstInfoRec___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2___closed__5));
 x_5 = ((lean_object*)(l_Lean_getConstInfoRec___at___00Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__2___closed__4));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3029,7 +3029,7 @@ lean_inc(x_28);
 lean_dec_ref(x_27);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc_ref(x_29);
-x_30 = lean_ctor_get(x_28, 4);
+x_30 = lean_ctor_get(x_28, 5);
 lean_inc(x_30);
 lean_dec(x_28);
 x_40 = l_Lean_Elab_Structural_IndGroupInfo_numMotives(x_17);
@@ -3158,16 +3158,16 @@ x_37 = lean_array_get_size(x_35);
 x_38 = lean_nat_dec_le(x_36, x_22);
 if (x_38 == 0)
 {
-x_7 = lean_box(0);
-x_8 = x_35;
+x_7 = x_35;
+x_8 = lean_box(0);
 x_9 = x_36;
 x_10 = x_37;
 goto block_16;
 }
 else
 {
-x_7 = lean_box(0);
-x_8 = x_35;
+x_7 = x_35;
+x_8 = lean_box(0);
 x_9 = x_22;
 x_10 = x_37;
 goto block_16;
@@ -3232,7 +3232,7 @@ return x_65;
 block_16:
 {
 lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = l_Array_toSubarray___redArg(x_8, x_9, x_10);
+x_11 = l_Array_toSubarray___redArg(x_7, x_9, x_10);
 x_12 = l_Subarray_toArray___redArg(x_11);
 x_13 = lean_array_size(x_12);
 x_14 = 0;

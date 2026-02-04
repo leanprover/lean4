@@ -1450,7 +1450,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoRec___at___00__private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__6));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(128u);
+x_3 = lean_unsigned_to_nat(134u);
 x_4 = ((lean_object*)(l_Lean_getConstInfoRec___at___00__private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__5));
 x_5 = ((lean_object*)(l_Lean_getConstInfoRec___at___00__private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0___closed__4));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1732,11 +1732,11 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 lean_dec_ref(x_22);
-x_24 = lean_ctor_get(x_23, 2);
+x_24 = lean_ctor_get(x_23, 3);
 lean_inc(x_24);
-x_25 = lean_ctor_get(x_23, 3);
+x_25 = lean_ctor_get(x_23, 4);
 lean_inc(x_25);
-x_26 = lean_ctor_get(x_23, 4);
+x_26 = lean_ctor_get(x_23, 5);
 lean_inc(x_26);
 lean_dec(x_23);
 x_27 = lean_nat_add(x_24, x_25);
@@ -1747,8 +1747,8 @@ x_29 = lean_string_dec_eq(x_20, x_28);
 lean_dec_ref(x_20);
 if (x_29 == 0)
 {
-x_8 = lean_box(0);
-x_9 = x_27;
+x_8 = x_27;
+x_9 = lean_box(0);
 x_10 = x_26;
 goto block_14;
 }
@@ -1757,8 +1757,8 @@ else
 lean_object* x_30; 
 lean_dec(x_26);
 x_30 = lean_unsigned_to_nat(1u);
-x_8 = lean_box(0);
-x_9 = x_27;
+x_8 = x_27;
+x_9 = lean_box(0);
 x_10 = x_30;
 goto block_14;
 }
@@ -1814,9 +1814,9 @@ return x_43;
 block_14:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_nat_add(x_9, x_10);
+x_11 = lean_nat_add(x_8, x_10);
 lean_dec(x_10);
-lean_dec(x_9);
+lean_dec(x_8);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);

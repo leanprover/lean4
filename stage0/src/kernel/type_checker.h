@@ -25,6 +25,7 @@ class type_checker {
 public:
     class state {
         typedef expr_map<expr> infer_cache;
+        typedef lean::unordered_map<name, constant_info, name_hash_fn, name_eq_fn> primrec_cache;
         typedef lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;
@@ -34,6 +35,7 @@ public:
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
         expr_map<expr>            m_unfold;
+        primrec_cache             m_primrec_cache;
         friend type_checker;
     public:
         state(environment const & env);
@@ -70,6 +72,7 @@ private:
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
+    optional<constant_info> find_as_rec(name const & n);
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<expr> reduce_proj_core(expr c, unsigned idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
@@ -167,6 +170,8 @@ public:
         return whnf_core(e, true, true);
     }
     optional<expr> unfold_definition(expr const & e);
+
+    optional<recursor_val> def_to_recursor(definition_val const & d);
 };
 
 void initialize_type_checker();

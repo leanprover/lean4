@@ -34,6 +34,8 @@ LEAN_EXPORT lean_object* l_Lean_isInductiveCore___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_isInductive___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInductive___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInductive(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_task_get_own(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRecCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRec___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -454,15 +456,36 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec_ref(x_4);
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
-lean_dec(x_5);
 if (x_6 == 7)
 {
-uint8_t x_7; 
-x_7 = 1;
-return x_7;
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_5, 2);
+lean_inc_ref(x_7);
+lean_dec(x_5);
+x_8 = lean_task_get_own(x_7);
+if (lean_obj_tag(x_8) == 7)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc_ref(x_9);
+lean_dec_ref(x_8);
+x_10 = lean_ctor_get(x_9, 5);
+lean_inc(x_10);
+lean_dec_ref(x_9);
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = lean_nat_dec_lt(x_11, x_10);
+lean_dec(x_10);
+return x_12;
 }
 else
 {
+lean_dec(x_8);
+return x_3;
+}
+}
+else
+{
+lean_dec(x_5);
 return x_3;
 }
 }
@@ -1484,7 +1507,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(104u);
+x_3 = lean_unsigned_to_nat(110u);
 x_4 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__1));
 x_5 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1631,7 +1654,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(114u);
+x_3 = lean_unsigned_to_nat(120u);
 x_4 = ((lean_object*)(l_Lean_isDefn_x3f___redArg___lam__0___closed__0));
 x_5 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1779,7 +1802,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(121u);
+x_3 = lean_unsigned_to_nat(127u);
 x_4 = ((lean_object*)(l_Lean_isCtor_x3f___redArg___lam__0___closed__0));
 x_5 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1927,7 +1950,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(128u);
+x_3 = lean_unsigned_to_nat(134u);
 x_4 = ((lean_object*)(l_Lean_isRec_x3f___redArg___lam__0___closed__0));
 x_5 = ((lean_object*)(l_Lean_isInductiveCore_x3f___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

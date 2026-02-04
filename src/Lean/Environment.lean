@@ -1803,6 +1803,12 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
       |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
+  let pkenv := env.setExporting false |>.toKernelEnv
+  let constants := constants.map fun c =>
+    if c.isDefinition then
+      pkenv.find? c.name |>.getD c
+    else
+      c
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := getIRExtraConstNames env level
@@ -2690,6 +2696,9 @@ opaque whnf (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except K
 -- `Kernel.Environment` base variant
 @[extern "lean_kernel_check"]
 opaque check (env : Lean.Environment) (lctx : LocalContext) (a : Expr) : Except Kernel.Exception Expr
+
+@[extern "lean_kernel_def_to_recursor"]
+opaque defToRecursor (env : Lean.Environment) (a : DefinitionVal) : Except Kernel.Exception (Option RecursorVal)
 
 end Kernel
 

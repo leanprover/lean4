@@ -271,6 +271,15 @@ expr const & get_app_fn(expr const & e) {
     return *it;
 }
 
+expr const & get_app_fn_n(expr const & e, unsigned n) {
+    expr const * it = &e;
+    while (is_app(*it) && n > 0) {
+        it = &(app_fn(*it));
+        n--;
+    }
+    return *it;
+}
+
 unsigned get_app_num_args(expr const & e) {
     expr const * it = &e;
     unsigned n = 0;

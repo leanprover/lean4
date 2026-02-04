@@ -3,8 +3,13 @@ set_option grind.debug true
 
 open Std Lean.Grind
 
-example [CommRing α] (x : α) : (x + 1)*(x - 1) = x^2 - 1 := by
+theorem foo [CommRing α] (x : α) : (x + 1)*(x - 1) = x^2 - 1 := by
   grind
+
+-- #print Lean.Grind.CommRing.Expr.toPoly_k
+-- #print Lean.Grind.CommRing.Expr.denote
+-- #print CommRing.Stepwise.imp_1eq_cert
+-- #print foo._proof_1_1
 
 example [CommRing α] [IsCharP α 256] (x : α) : (x + 16)*(x - 16) = x^2 := by
   grind

@@ -149,7 +149,7 @@ def handleConst : Simproc := fun e => do
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
   >>  isOpaqueApp
-  >> (tryMatcher >> simpControl)
+  >>  (tryMatcher >> simpControl)
     <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=

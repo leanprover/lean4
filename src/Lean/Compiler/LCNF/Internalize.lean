@@ -104,6 +104,15 @@ private partial def internalizeLetValue (e : LetValue pu) : InternalizeM pu (Let
   | .fvar fvarId args => match (← normFVar fvarId) with
     | .fvar fvarId' => return e.updateFVar! fvarId' (← internalizeArgs args)
     | .erased => return .erased
+  | .reset n fvarId _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateReset! n fvarId'
+    | .erased => return .erased
+  | .reuse fvarId info updateHeader args _ =>
+    match (← normFVar fvarId) with
+    | .fvar fvarId' => return e.updateReuse! fvarId' info updateHeader (← internalizeArgs args)
+    | .erased => return .erased
+
 
 def internalizeLetDecl (decl : LetDecl pu) : InternalizeM pu (LetDecl pu) := do
   let binderName ← refreshBinderName decl.binderName

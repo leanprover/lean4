@@ -336,6 +336,14 @@ inductive LetValue (pu : Purity) where
   Partial application of a function.
   -/
   | pap (fn : Name) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
+  /--
+  The reset instruction from Counting Immutable Beans. `n` is the amount of object fields stored in
+  the constructor in `var`.
+  -/
+  | reset (n : Nat) (var : FVarId) (h : pu = .impure := by purity_tac)
+  /-- `reuse x in ctor_i ys` instruction in the paper. `updateHeader` is set if the tag in the new
+      ctor differs from the one in the old ctor and thus needs to be updated. -/
+  | reuse (var : FVarId) (i : CtorInfo) (updateHeader : Bool) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
@@ -367,6 +375,26 @@ private unsafe def LetValue.updateFVarImp (e : LetValue pu) (fvarId' : FVarId) (
 
 @[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu
 
+private unsafe def LetValue.updateResetImp (e : LetValue pu) (n' : Nat) (fvarId' : FVarId) : LetValue pu :=
+  match e with
+  | .reset n fvarId _ => if n == n' && fvarId == fvarId' then e else .reset n' fvarId'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateResetImp] opaque LetValue.updateReset! (e : LetValue pu) (n' : Nat) (fvarId' : FVarId) : LetValue pu
+
+private unsafe def LetValue.updateReuseImp (e : LetValue pu) (var' : FVarId) (i' : CtorInfo)
+    (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .reuse var i updateHeader args _ =>
+    if var == var' && ptrEq i i' && updateHeader == updateHeader' && ptrEq args args' then
+      e
+    else
+      .reuse var' i' updateHeader' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateReuseImp] opaque LetValue.updateReuse! (e : LetValue pu)
+    (var' : FVarId) (i' : CtorInfo) (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu
+
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
@@ -374,6 +402,8 @@ private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg 
   | .pap declName args _  => if ptrEq args args' then e else .pap declName args'
   | .fap declName args _  => if ptrEq args args' then e else .fap declName args'
   | .ctor info args _  => if ptrEq args args' then e else .ctor info args'
+  | .reuse var info updateHeader args _ =>
+    if ptrEq args args' then e else .reuse var info updateHeader args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu
@@ -390,6 +420,10 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .oproj i var _ => mkApp2 (.const `oproj []) (ToExpr.toExpr i) (.fvar var)
   | .uproj i var _ => mkApp2 (.const `uproj []) (ToExpr.toExpr i) (.fvar var)
   | .sproj i offset var _ => mkApp3 (.const `sproj []) (ToExpr.toExpr i) (ToExpr.toExpr offset) (.fvar var)
+  | .reset n var _ => mkApp2 (.const `reset []) (ToExpr.toExpr n) (.fvar var)
+  | .reuse var i updateHeader args _ =>
+    mkAppN (.const `reuse []) <|
+      #[.fvar var, .const i.name [], ToExpr.toExpr updateHeader] ++ (args.map Arg.toExpr)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -1047,8 +1081,10 @@ private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSe
   match e with
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _  => collectArgs args s
-  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _ => s.insert fvarId
+  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _
+  | .reset _ fvarId _  => s.insert fvarId
   | .lit .. | .erased => s
+  | .reuse fvarId _ _ args _ => collectArgs args <| s.insert fvarId
 
 private partial def collectParams (ps : Array (Param pu)) (s : FVarIdHashSet) : FVarIdHashSet :=
   ps.foldl (init := s) fun s p => collectType p.type s

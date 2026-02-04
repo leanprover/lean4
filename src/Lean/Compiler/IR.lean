@@ -38,18 +38,10 @@ public section
 
 namespace Lean.IR
 
-register_builtin_option compiler.reuse : Bool := {
-  defValue := true
-  descr    := "heuristically insert reset/reuse instruction pairs"
-}
-
 def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  if compiler.reuse.get (← getOptions) then
-    decls := decls.map (Decl.insertResetReuse (← getEnv))
-    logDecls `reset_reuse decls
   decls := decls.map Decl.elimDead
   logDecls `elim_dead decls
   decls := decls.map Decl.simpCase
@@ -61,7 +53,7 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
-  if compiler.reuse.get (← getOptions) then
+  if Compiler.LCNF.compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.expandResetReuse
     logDecls `expand_reset_reuse decls
   decls := decls.map Decl.pushProj

@@ -78,14 +78,18 @@ def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarI
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
     return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
   | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
+  | .reset n fvarId _ => return e.updateReset! n (← f fvarId)
+  | .reuse fvarId i updateHeader args _ =>
+    return e.updateReuse! (← f fvarId) i updateHeader (← args.mapM (TraverseFVar.mapFVarM f))
 
 def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue pu) : m Unit := do
   match e with
   | .lit .. | .erased => return ()
-  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ => f fvarId
+  | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _
+  | .reset _ fvarId _ => f fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
     args.forM (TraverseFVar.forFVarM f)
-  | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)
+  | .fvar fvarId args | .reuse fvarId _ _ args _ => f fvarId; args.forM (TraverseFVar.forFVarM f)
 
 instance : TraverseFVar (LetValue pu) where
   mapFVarM := LetValue.mapFVarM

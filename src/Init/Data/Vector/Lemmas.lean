@@ -1042,11 +1042,11 @@ theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
 theorem exists_mem_iff_exists_getElem {P : α → Prop} {xs : Vector α n} :
-    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.exists_mem_iff_exists_getElem]
 
 theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Vector α n} :
-    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
 
 @[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]

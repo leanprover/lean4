@@ -2534,11 +2534,11 @@ def Pos.prevn {s : String} (p : s.Pos) (n : Nat) : s.Pos :=
 
 theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
   fun_induction nextn with
-  | case1 => simp [Slice.Pos.le_iff]
+  | case1 => simp
   | case2 p n h ih =>
     simp only [Pos.le_iff] at *
     exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_lt_of_le lt_next ih)
-  | case3 => simp [Slice.Pos.le_iff]
+  | case3 => simp
 
 theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
     p ≤ p.nextn n := by
@@ -2546,11 +2546,11 @@ theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
 
 theorem Slice.Pos.prevn_le {s : Slice} {p : s.Pos} {n : Nat} : p.prevn n ≤ p := by
   fun_induction prevn with
-  | case1 => simp [le_iff]
+  | case1 => simp
   | case2 p n h ih =>
     simp only [Pos.le_iff] at *
     exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_le_of_lt ih prev_lt)
-  | case3 => simp [le_iff]
+  | case3 => simp
 
 theorem Pos.prevn_le {s : String} {p : s.Pos} {n : Nat} :
     p.prevn n ≤ p := by

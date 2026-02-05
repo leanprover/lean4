@@ -591,7 +591,7 @@ def r := 15
 /--
 error: Unknown role `r`
 
-Hint: Use the full name of the shadowed role:
+Hint: `r` shadows a role. Use the full name of the shadowed role:
   _̲ro̲o̲t̲_̲.̲r̲
 -/
 #guard_msgs in
@@ -612,7 +612,7 @@ def lit := 5
 /--
 error: Unknown role `lit`
 
-Hint: Use the full name of the shadowed role:
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
   • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲
   • L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
 -/

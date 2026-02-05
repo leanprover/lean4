@@ -40,7 +40,7 @@ def testQualifiedLit2 := 1
 /--
 error: Unknown role `lit`
 
-Hint: Use the full name of the shadowed role:
+Hint: `lit` shadows a role. Use the full name of the shadowed role:
   L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
 -/
 #guard_msgs in

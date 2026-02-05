@@ -565,7 +565,7 @@ def testQualifiedLit := 1
 
 -- {lit} fails when shadowed
 /--
-error: `lit : Type` is not a role
+error: `lit : Type` is not registered as a a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   L̲e̲a̲n̲.̲D̲o̲c̲.̲lit
@@ -593,7 +593,7 @@ namespace ShadowedNonBuiltin
 def r := 15
 
 /--
-error: `r : Nat` is not a role
+error: `r : Nat` is not registered as a a role
 
 Hint: `r` shadows a role. Use the full name of the shadowed role:
   _̲ro̲o̲t̲_̲.̲r̲
@@ -614,7 +614,7 @@ namespace Inner
 def lit := 5
 
 /--
-error: `lit : Nat` is not a role
+error: `lit : Nat` is not registered as a a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   • l̵i̵t̵D̲o̲u̲b̲l̲e̲S̲h̲a̲d̲o̲w̲e̲d̲.̲l̲i̲t̲

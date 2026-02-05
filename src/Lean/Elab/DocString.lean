@@ -1320,7 +1320,7 @@ private def throwUnknownDocElem {α β : Type}
   let resolved? ← try some <$> realizeGlobalConstNoOverload name catch | _ => pure none
   if let some resolved := resolved? then
     let info ← getConstInfo resolved
-    throwErrorAt name m!"`{name} : {info.type}` is not a {kind}{hint}"
+    throwErrorAt name m!"`{name} : {info.type}` is not registered as a a {kind}{hint}"
   else
     throwErrorAt name m!"Unknown {kind} `{name}`{hint}"
 

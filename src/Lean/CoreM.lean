@@ -730,11 +730,12 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) (mayPostpone := true) : CoreM Unit := do
   let env ← getEnv
-  if mayPostpone && env.header.isModule && !decls.any (isMarkedMeta env) && (← compiler.postponeCompile.getM) then
+  if mayPostpone && env.header.isModule then --&& !decls.any (isMarkedMeta env) && (← compiler.postponeCompile.getM) then
     for decl in decls do
       trace[Compiler.init] "postponing compilation of {decl}"
       modifyEnv (postponedCompileDeclsExt.addEntry · { declName := decl, logErrors })
-    return
+    if !decls.any (isMarkedMeta env) && (← compiler.postponeCompile.getM) then
+      return
 
   if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked

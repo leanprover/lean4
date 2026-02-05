@@ -1136,7 +1136,9 @@ def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtensi
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=
   (env.getModuleIdxFor? declName).bind (fun modIdx =>
-    findAtSorted? (ext.getModuleIREntries env modIdx) declName <|> findAtSorted? (ext.getModuleEntries env modIdx) declName)
+    --findAtSorted? (ext.getModuleEntries env modIdx) declName <|>
+    -- When
+    guard (getIRPhases env declName != .runtime) *> findAtSorted? (ext.getModuleIREntries env modIdx) declName)
   <|> findInState? (ext.getState env) declName
 
 end Lean.Compiler.LCNF

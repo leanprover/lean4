@@ -13,6 +13,7 @@ import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
 
 import all Lean.Compiler.CSimpAttr
+import Lean.Compiler.IR.EmitC
 
 open Lean
 
@@ -31,8 +32,8 @@ def mkIRData (env : Environment) : IO ModuleData :=
 
 
 public def main (args : List String) : IO UInt32 := do
-  let [setupFile, mod, irFile] := args | do
-    IO.println s!"usage: leanir <setup.json> <module> <output.ir>"
+  let [setupFile, mod, irFile, c] := args | do
+    IO.println s!"usage: leanir <setup.json> <module> <output.ir> <output.c>"
     return 1
 
   let mod := mod.toName
@@ -45,17 +46,38 @@ public def main (args : List String) : IO UInt32 := do
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported)
       s imports setup.options.toOptions
+  let env := env.setMainModule mod
   let is := Lean.Compiler.CSimp.ext.ext.toEnvExtension.getState env
   let newState ← Lean.Compiler.CSimp.ext.ext.addImportedFn is.importedEntries { env := env, opts := {} }
   let env := Lean.Compiler.CSimp.ext.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 
+  let is := Meta.instanceExtension.ext.toEnvExtension.getState env
+  let newState ← Meta.instanceExtension.ext.addImportedFn is.importedEntries { env := env, opts := {} }
+  let env := Meta.instanceExtension.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
+  let is := classExtension.toEnvExtension.getState env
+  let newState ← classExtension.addImportedFn is.importedEntries { env := env, opts := {} }
+  let env := classExtension.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
 
+  let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
+  let env := postponedCompileDeclsExt.setState env (decls.foldl (fun s e => s.insert e.declName e) {})
+
+  let decls := Compiler.LCNF.impureSigExt.getModuleEntries env modIdx
+  let decls := decls.filter (isExtern env ·.name)
+  let env := decls.foldl (fun env decl => Compiler.LCNF.impureSigExt.addEntry env decl) env
+  let env := decls.foldl (fun env decl => Compiler.LCNF.setDeclPublic env decl.name) env
+
   -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
   -- unchanged and also for calculation of `extraConstNames` above
+  -- TODO: do manually-added externs only as others need more state sync around ground exprs etc
   let is := Lean.IR.declMapExt.toEnvExtension.getState env
-  let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => (d::decls, m.insert d.name d)) is.state
+  let unbox : Name → Name
+    | .str f "_boxed" => f
+    | f => f
+  let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => if isExtern env (unbox d.name) then (d::decls, m.insert d.name d) else (decls, m)) is.state
   let env := Lean.IR.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 
   let some mod := env.header.moduleData[modIdx]? | unreachable!
@@ -64,12 +86,16 @@ public def main (args : List String) : IO UInt32 := do
   let _ : MonadAlwaysExcept _ CoreM := inferInstance
   let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := setup.options.toOptions })
       (s := { env }) try
-    let decls := postponedCompileDeclsExt.getModuleEntries env modIdx
+    let decls := postponedCompileDeclsExt.getModuleEntries (← getEnv) modIdx
     modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => s.insert e.declName e) {}))
+    --dbg_trace (← Compiler.LCNF.getImpureSignature? ``Task.get).isSome
     --withOptions (Compiler.compiler.checkMeta.set · false) do
     --withOptions (·.set `trace.Compiler true) do
-    --withOptions (·.set `trace.compiler.ir true) do
+    --withOptions (·.set `trace.Compiler.simp.inline true) do
+    --withOptions (·.set `trace.compiler.ir.result true) do
     for decl in decls do
+      if !(postponedCompileDeclsExt.getState (← getEnv) |>.contains decl.declName) then
+        continue
       match (← getConstInfo decl.declName) with
       | .defnInfo info =>
         modifyEnv (postponedCompileDeclsExt.modifyState · fun s => info.all.foldl (·.erase) s)
@@ -94,6 +120,13 @@ public def main (args : List String) : IO UInt32 := do
 
   -- Make sure to change the module name so we derive a different base address
   saveModuleData irFile (env.mainModule ++ `ir) (← mkIRData env)
+
+  let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
+    | IO.eprintln s!"failed to create '{c}'"
+      return 1
+  let data ← IO.ofExcept <| IR.emitC env env.mainModule
+  out.write data.toUTF8
+
   return 0
 where doCompile logErrors decls := do
   let state ← Core.saveState

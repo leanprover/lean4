@@ -393,8 +393,7 @@ def mkTypeCorrectApp (e : Expr) (args : Array (Arg .pure)) : M Expr := do
     let type ← Meta.inferType e
     if type.getNumHeadForalls < args.size then
       -- expose foralls
-      Meta.withTransparency .all <| -- just in case
-        Meta.forallBoundedTelescope type args.size Meta.mkForallFVars
+      Meta.forallBoundedTelescope type args.size Meta.mkForallFVars
     else
       return type
   go type 0 #[]

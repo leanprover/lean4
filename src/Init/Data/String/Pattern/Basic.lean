@@ -290,12 +290,14 @@ def memcmpSlice (lhs rhs : Slice) (lstart : String.Pos.Raw) (rstart : String.Pos
     (by
       have := lhs.startInclusive_le_endExclusive
       have := lhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
+        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
       omega)
     (by
       have := rhs.startInclusive_le_endExclusive
       have := rhs.endExclusive.isValid.le_utf8ByteSize
-      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq] at *
+      simp [String.Pos.le_iff, Pos.Raw.le_iff, Slice.utf8ByteSize_eq,
+        -String.Pos.byteIdx_offset_le_utf8ByteSize] at *
       omega)
 
 end Internal

@@ -85,7 +85,7 @@ partial def S (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .
   if changed then
     let decl := {
       fvarId := w,
-      binderName := (← mkFreshBinderName `_x),
+      binderName := (← mkFreshBinderName),
       type := ImpureType.tobject,
       value := .reset info.size x
     }

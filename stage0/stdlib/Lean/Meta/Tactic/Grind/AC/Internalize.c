@@ -1837,7 +1837,7 @@ if (lean_is_exclusive(x_30)) {
  lean_dec_ref(x_30);
  x_32 = lean_box(0);
 }
-x_228 = lean_ctor_get_uint8(x_31, sizeof(void*)*10 + 23);
+x_228 = lean_ctor_get_uint8(x_31, sizeof(void*)*11 + 23);
 lean_dec(x_31);
 if (x_228 == 0)
 {

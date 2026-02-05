@@ -6136,7 +6136,7 @@ if (lean_obj_tag(x_11) == 1)
 {
 lean_object* x_21; uint8_t x_22; 
 x_21 = lean_ctor_get(x_2, 0);
-x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*2 + 13);
+x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*3 + 13);
 if (x_22 == 0)
 {
 lean_dec(x_7);

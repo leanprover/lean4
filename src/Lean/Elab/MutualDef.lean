@@ -1219,7 +1219,7 @@ where
           if !(← isProp header.type) then
             setReducibilityStatus header.declName .implicitReducible
         | .def =>
-          if (← isClass? header.type).isSome then
+          if (← isClass? header.type).isSome /-TODO-/ && !header.type.getForallBody.constName? matches ``Decidable | ``DecidableEq then
             logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[implicit_reducible]`"
         | _ => pure ()
 

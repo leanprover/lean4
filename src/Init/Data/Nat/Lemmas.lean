@@ -867,7 +867,7 @@ theorem div_eq_self {m n : Nat} : m / n = m ↔ m = 0 ∨ n = 1 := by
     · simp
     simp only [hb, false_or]
     rw [← Nat.mul_right_inj hb, ← Nat.add_left_cancel_iff, mod_add_div]
-    sorry
+    simp +contextual [mod_eq_of_lt]
 
 protected theorem div_ne_zero_iff : a / b ≠ 0 ↔ b ≠ 0 ∧ b ≤ a := by simp
 
@@ -1559,7 +1559,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   | 0 => simp
   | x + 1 =>
     rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
-    sorry
+    simp +arith [m_pos]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   match x with

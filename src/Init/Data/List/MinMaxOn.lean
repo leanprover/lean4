@@ -249,7 +249,7 @@ protected theorem minOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
   · simp at h
   · rename_i n ih
     simp only [ne_eq, replicate_eq_nil_iff] at ih
-    sorry
+    simp +contextual [List.replicate, List.minOn_cons, ih]
 
 /-! ### maxOn -/
 

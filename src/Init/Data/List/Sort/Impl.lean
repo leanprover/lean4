@@ -56,8 +56,6 @@ where go : List α → List α → List α → List α
       go xs (y :: ys) (x :: acc)
     else
       go (x :: xs) ys (y :: acc)
-  termination_by l₁ l₂ _ => l₁.length + l₂.length
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 private theorem mergeTR_go_eq : mergeTR.go le l₁ l₂ acc = acc.reverse ++ merge l₁ l₂ le := by
   induction l₁ generalizing l₂ acc with
@@ -115,8 +113,6 @@ where run : {n : Nat} → { l : List α // l.length = n } → List α
   | _+2, xs =>
     let (l, r) := splitInTwo xs
     mergeTR (run l) (run r) le
-  termination_by n _ => n
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Split a list in two equal parts, reversing the first part.

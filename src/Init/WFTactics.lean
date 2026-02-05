@@ -19,14 +19,16 @@ user, and this tactic should no longer be necessary. Calls to `simp_wf` can be r
 by plain calls to `simp`.
 -/
 macro "simp_wf" : tactic =>
-  `(tactic| sorry)
+  `(tactic| try simp +unfoldPartialApp +zetaDelta [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
 
 /--
 This tactic is used internally by lean before presenting the proof obligations from a well-founded
 definition to the user via `decreasing_by`. It is not necessary to use this tactic manually.
 -/
 macro "clean_wf" : tactic =>
-  `(tactic| sorry)
+  `(tactic| simp +unfoldPartialApp +zetaDelta -failIfUnchanged
+     only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
+           WellFoundedRelation.rel, sizeOf_nat, reduceCtorEq])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.
@@ -37,7 +39,7 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| linarith)
 -/
 syntax "decreasing_trivial" : tactic
 
--- macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp +arith -failIfUnchanged) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp +arith -failIfUnchanged) <;> done)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| omega)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
 
@@ -75,5 +77,4 @@ on the recursive definition, and it can also be globally extended by adding
 more definitions for `decreasing_tactic` (or `decreasing_trivial`,
 which this tactic calls). -/
 macro "decreasing_tactic" : tactic =>
-  -- TODO: restore after bootstrap: `(tactic| decreasing_with first | decreasing_trivial | subst_vars; decreasing_trivial)
-  `(tactic| all_goals sorry)
+  `(tactic| decreasing_with first | decreasing_trivial | subst_vars; decreasing_trivial)

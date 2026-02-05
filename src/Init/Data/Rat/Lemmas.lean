@@ -520,7 +520,7 @@ protected theorem inv_mul_cancel (a : Rat) (h : a ≠ 0) : a⁻¹ * a = 1 :=
   Eq.trans (Rat.mul_comm _ _) (Rat.mul_inv_cancel _ h)
 
 protected theorem inv_eq_of_mul_eq_one {a b : Rat} (h : a * b = 1) : a⁻¹ = b := by
-  have : a ≠ 0 := by intro h; sorry
+  have : a ≠ 0 := by intro h; simp_all +decide
   simpa [← Rat.mul_assoc, Rat.inv_mul_cancel _ this, eq_comm] using congrArg (a⁻¹ * ·) h
 
 protected theorem inv_inv (a : Rat) : a⁻¹⁻¹ = a :=
@@ -864,7 +864,7 @@ protected theorem inv_pos {a : Rat} : 0 < a⁻¹ ↔ 0 < a := by
 
 protected theorem pow_pos {a : Rat} {n : Nat} (h : 0 < a) : 0 < a ^ n := by
   induction n with
-  | zero => sorry
+  | zero => simp +decide
   | succ k ih => rw [Rat.pow_succ]; exact Rat.mul_pos ih h
 
 protected theorem pow_nonneg {a : Rat} {n : Nat} (h : 0 ≤ a) : 0 ≤ a ^ n := by

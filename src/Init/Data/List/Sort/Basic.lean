@@ -41,8 +41,6 @@ def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a �
       x :: merge xs (y :: ys) le
     else
       y :: merge (x :: xs) ys le
-termination_by xs.length + ys.length
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 @[simp] theorem nil_merge (ys : List α) : merge [] ys le = ys := by simp [merge]
 @[simp] theorem merge_right (xs : List α) : merge xs [] le = xs := by
@@ -82,7 +80,6 @@ def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b 
     have := by simpa using lr.1.2
     merge (mergeSort lr.1 le) (mergeSort lr.2 le) le
 termination_by xs => xs.length
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Given an ordering relation `le : α → α → Bool`,

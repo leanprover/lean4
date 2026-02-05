@@ -30,7 +30,7 @@ theorem succ?_eq_none {x : BitVec n} :
   · refine fun h => Classical.not_not.mp fun _ => ?_
     simp [Nat.mod_eq_of_lt (a := x.toNat + 1) (b := 2 ^ n) (by omega)] at h
   · have := Nat.two_pow_pos n
-    sorry
+    simp +contextual [show 2 ^ n - 1 + 1 = 2 ^ n by omega]
 
 theorem succ?_eq_some {x y : BitVec n} :
     succ? x = some y ↔ x.toNat < 2 ^ n - 1 ∧ y.toNat = x.toNat + 1 := by
@@ -56,10 +56,19 @@ theorem succ?_eq_some {x y : BitVec n} :
 
 instance : LawfulUpwardEnumerable (BitVec n) where
   ne_of_lt := by
-    sorry
+    simp +contextual [UpwardEnumerable.LT, ← BitVec.toNat_inj, succMany?] at ⊢
+    omega
   succMany?_zero := by simp [UpwardEnumerable.succMany?, BitVec.toNat_lt_twoPow_of_le]
   succMany?_add_one a b := by
-    sorry
+    simp +contextual [← BitVec.toNat_inj, succMany?, succ?]
+    split <;> split
+    · rename_i h
+      simp [← BitVec.toNat_inj, Nat.mod_eq_of_lt (a := b.toNat + a + 1) ‹_›]
+      all_goals omega
+    · omega
+    · have : b.toNat + a + 1 = 2 ^ n := by omega
+      simp [this]
+    · simp
 
 instance : LawfulUpwardEnumerableLE (BitVec n) where
   le_iff x y := by

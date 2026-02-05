@@ -37,10 +37,15 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let g := decls.size
     let cache := cache.insert decls decl
     let decls := decls.push decl
-    have hdag' : IsDAG α decls := sorry -- TODO: restore after bootstrap
-    have hzero' : 0 < decls.size := sorry -- TODO: restore after bootstrap
-    have hconst' : decls[0] = Decl.false := sorry -- TODO: restore after bootstrap
-    ⟨⟨decls, cache, hdag', hzero', hconst'⟩, ⟨g, false, sorry⟩⟩
+    have hdag := by
+      intro i lhs rhs h1 h2
+      simp only [Array.getElem_push] at h2
+      split at h2
+      · apply hdag <;> assumption
+      · contradiction
+    have hzero' := by simp [decls]
+    have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+    ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
@@ -90,15 +95,15 @@ where
         let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
         ⟨⟨decls, cache, hdag, hzero, hconst⟩, ref⟩
       -- Left Neutrality
-      | .some true, _ => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨rhs, rinv, sorry⟩⟩
+      | .some true, _ => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨rhs, rinv, by assumption⟩⟩
       -- Right Neutrality
-      | _, .some true => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, sorry⟩⟩
+      | _, .some true => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
       -- No constant inputs
       | _, _ =>
         if lhs == rhs then
            -- Idempotency
           if linv == rinv then
-            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, sorry⟩⟩
+            ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
           -- Contradiction
           else
             let ref := mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
@@ -108,10 +113,18 @@ where
           let g := decls.size
           let cache := cache.insert decls decl
           let decls := decls.push decl
-          have hdag' : IsDAG α decls := sorry -- TODO: restore after bootstrap
-          have hzero' : 0 < decls.size := sorry -- TODO: restore after bootstrap
-          have hconst' : decls[0] = Decl.false := sorry -- TODO: restore after bootstrap
-          ⟨⟨decls, cache, hdag', hzero', hconst'⟩, ⟨g, false, sorry⟩⟩
+          have hdag := by
+            intro i lhs rhs h1 h2
+            simp only [Array.getElem_push] at h2
+            simp_all
+            split at h2
+            · apply hdag <;> assumption
+            · injection h2 with hl hr
+              simp [← hl, ← hr]
+              omega
+          have hzero' := by simp [decls]
+          have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+          ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 end AIG
 

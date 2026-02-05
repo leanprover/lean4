@@ -23,13 +23,13 @@ theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : a
 private theorem List.size_toArrayAux {as : List α} {bs : Array α} : (as.toArrayAux bs).size = as.length + bs.size := by
   induction as generalizing bs with
   | nil => simp [toArrayAux]
-  | cons a as ih => sorry
+  | cons a as ih => simp +arith [toArrayAux, *]
 
 private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Array α} (h : as.toArrayAux cs = bs.toArrayAux ds) (hlen : cs.size = ds.size) : as = bs ∧ cs = ds := by
   match as, bs with
   | [], []    => simp [toArrayAux] at h; simp [h]
-  | a::as, [] => simp [toArrayAux] at h; rw [← h] at hlen; sorry
-  | [], b::bs => simp [toArrayAux] at h; rw [h] at hlen; sorry
+  | a::as, [] => simp [toArrayAux] at h; rw [← h] at hlen; simp +arith [size_toArrayAux] at hlen
+  | [], b::bs => simp [toArrayAux] at h; rw [h] at hlen; simp +arith [size_toArrayAux] at hlen
   | a::as, b::bs =>
     simp [toArrayAux] at h
     have : (cs.push a).size = (ds.push b).size := by simp [*]
@@ -57,7 +57,7 @@ where
       let b ← f as[i]
       go (i+1) ⟨acc.val.push b, by simp [acc.property]⟩ hlt
   termination_by as.size - i
-  -- decreasing_by decreasing_trivial_pre_omega
+  decreasing_by decreasing_trivial_pre_omega
 
 @[inline] private unsafe def mapMonoMImp [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
   go 0 as

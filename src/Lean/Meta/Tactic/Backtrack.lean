@@ -147,8 +147,6 @@ private def run (goals : List MVarId) (n : Nat) (curr acc : List MVarId) : MetaM
           | some l => (withTraceNode trace
               (fun _ => return m!"⏬ discharger generated new subgoals") do
             run goals n (l ++ gs) acc)
-  termination_by n
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 A wrapper around `run`, which works on "independent" goals separately first,

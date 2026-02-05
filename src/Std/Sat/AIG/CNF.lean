@@ -11,8 +11,6 @@ public import Std.Sat.AIG.Lemmas
 
 public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 
 /-!
 This module contains an implementation of a verified Tseitin transformation on AIGs. The key results

@@ -61,7 +61,7 @@ structure Pass where
   Resulting phase.
   -/
   phaseOut : Phase := phase
-  phaseInv : phaseOut ≥ phase := by sorry
+  phaseInv : phaseOut ≥ phase := by simp +arith +decide
   /--
   Whether IR validation checks should always run after this pass, regardless
   of configuration options.
@@ -77,7 +77,7 @@ structure Pass where
   run : Array (Decl phase.toPurity) → CompilerM (Array (Decl phaseOut.toPurity))
 
 instance : Inhabited Pass where
-  default := { phase := .base, name := default, run := fun decls => return decls, phaseInv := sorry }
+  default := { phase := .base, name := default, run := fun decls => return decls }
 
 /--
 Can be used to install, remove, replace etc. passes by tagging a declaration
@@ -113,7 +113,6 @@ def mkPerDeclaration (name : Name) (phase : Phase)
   phase := phase
   name := name
   run := fun xs => xs.mapM run
-  phaseInv := sorry
 
 end Pass
 

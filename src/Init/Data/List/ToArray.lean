@@ -21,11 +21,10 @@ We prefer to pull `List.toArray` outwards past `Array` operations.
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace Array
 
-@[simp] theorem toList_set (xs : Array α) (i x) (h : i < xs.size) :
+@[simp] theorem toList_set (xs : Array α) (i x h) :
     (xs.set i x).toList = xs.toList.set i x := rfl
 
 theorem swap_def (xs : Array α) (i j : Nat) (hi hj) :
@@ -88,7 +87,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp, grind =] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
   simp [back?, List.getLast?_eq_getElem?]
 
-@[simp, grind =] theorem back_toArray (l : List α) (h : 0 < l.toArray.size) :
+@[simp, grind =] theorem back_toArray (l : List α) (h) :
     l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
   simp [back, List.getLast_eq_getElem]
 

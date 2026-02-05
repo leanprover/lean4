@@ -11,8 +11,6 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Revers
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 This module contains the verification of the bitblaster for `BitVec.reverse` from
 `Impl.Operations.Reverse`.

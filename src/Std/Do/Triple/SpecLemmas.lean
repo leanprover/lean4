@@ -20,8 +20,6 @@ set_option linter.missingDocs true
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 # Hoare triple specifications for select functions
 

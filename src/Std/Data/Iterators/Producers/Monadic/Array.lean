@@ -96,7 +96,16 @@ private def ArrayIterator.instFinitenessRelation [Pure m] :
       (fun it => it.internalState.array.size - it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
-    sorry
+    simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    · cases h
+      obtain ⟨h, h', h'', rfl⟩ := h'
+      rw [h] at h''
+      rw [h, h']
+      omega
+    · cases h'
+    · cases h
 
 instance ArrayIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
   exact Finite.of_finitenessRelation ArrayIterator.instFinitenessRelation

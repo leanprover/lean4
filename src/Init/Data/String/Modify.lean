@@ -194,7 +194,8 @@ def modify (s : String) (i : Pos.Raw) (f : Char → Char) : String :=
   else
     mapAux f (p.modify f h) (p.pastModify f h)
 termination_by p.remainingBytes
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
+decreasing_by
+  simp [remainingBytes_pastModify, ← Pos.lt_iff_remainingBytes_lt]
 
 /--
 Applies the function `f` to every character in a string, returning a string that contains the

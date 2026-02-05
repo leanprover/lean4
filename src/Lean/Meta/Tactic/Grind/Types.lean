@@ -1930,8 +1930,6 @@ where
         go lhsTerms (.next id₂ rhs rhsTerms)
       else
         go (.next id₁ lhs lhsTerms) rhsTerms
-  termination_by (sizeOf lhsTerms, sizeOf rhsTerms)
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 private def propagateDiseqOf (id : Nat) (lhs rhs : Expr) : GoalM Unit := do
   visitLhs (← getRootENode lhs).sTerms
@@ -2042,8 +2040,6 @@ where
       else
         let (s, p) ← go (.next id₁ rhs rhsTerms) lhsTerms
         return (.next id₂ lhs s, .diseqs id₂ (← getParents rhsRoot.self) p)
-  termination_by (sizeOf rhsTerms, sizeOf lhsTerms)
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 def PendingSolverPropagations.propagate (p : PendingSolverPropagations) : GoalM Unit := do
   go p.data

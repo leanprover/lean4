@@ -11,8 +11,6 @@ public import Std.Tactic.BVDecide.LRAT.Internal.CNF
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
 implementation in `Implementation`.

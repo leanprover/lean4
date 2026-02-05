@@ -13,7 +13,6 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace List
 
@@ -38,7 +37,7 @@ theorem getElem_modifyHead {l : List α} {f : α → α} {i} (h : i < (l.modifyH
   | nil => simp at h
   | cons hd tl => cases i <;> simp
 
-@[simp] theorem getElem_modifyHead_zero {l : List α} {f : α → α} {h : 0 < (l.modifyHead f).length} :
+@[simp] theorem getElem_modifyHead_zero {l : List α} {f : α → α} {h} :
     (l.modifyHead f)[0] = f (l[0]'(by simpa using h)) := by simp [getElem_modifyHead]
 
 @[simp] theorem getElem_modifyHead_succ {l : List α} {f : α → α} {n} (h : n + 1 < (l.modifyHead f).length) :
@@ -204,10 +203,10 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
   simp at h
   simp [h]
 
-@[simp] theorem getElem_modify_eq (f : α → α) (i) (l : List α) (h : i < (l.modify i f).length) :
+@[simp] theorem getElem_modify_eq (f : α → α) (i) (l : List α) (h) :
     (l.modify i f)[i] = f (l[i]'(by simpa using h)) := by simp [getElem_modify]
 
-@[simp] theorem getElem_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) (h' : j < (l.modify i f).length) :
+@[simp] theorem getElem_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) (h') :
     (l.modify i f)[j] = l[j]'(by simpa using h') := by simp [getElem_modify, h]
 
 theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :

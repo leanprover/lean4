@@ -683,15 +683,15 @@ public scoped instance instMaxOfOrd {α : Type u} [Ord α] :
 
 public instance instLawfulOrderLeftLeaningMinOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderLeftLeaningMin α where
-  min_eq_left a b := by sorry
+  min_eq_left a b := by simp +contextual only [← Std.isLE_compare, min, ↑reduceIte, implies_true]
   min_eq_right a b := by
-    sorry
+    simp +contextual only [← Std.isLE_compare, min, Bool.false_eq_true, ↑reduceIte, implies_true]
 
 public instance instLawfulOrderLeftLeaningMaxOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
     LawfulOrderLeftLeaningMax α where
-  max_eq_left a b := by sorry
+  max_eq_left a b := by simp +contextual only [← Std.isLE_compare, max, ↑reduceIte, implies_true]
   max_eq_right a b := by
-    sorry
+    simp +contextual only [← Std.isLE_compare, max, Bool.false_eq_true, ↑reduceIte, implies_true]
 
 end FactoryInstances
 

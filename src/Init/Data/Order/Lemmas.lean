@@ -103,7 +103,7 @@ public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· �
 
 public theorem le_antisymm_iff {α : Type u} [LE α] [Antisymm (α := α) (· ≤ ·)]
     [Refl (α := α) (· ≤ ·)] {a b : α} : a ≤ b ∧ b ≤ a ↔ a = b :=
-  ⟨fun | ⟨hab, hba⟩ => le_antisymm hab hba, by sorry⟩
+  ⟨fun | ⟨hab, hba⟩ => le_antisymm hab hba, by simp +contextual [le_refl]⟩
 
 public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] {a b c : α}
     (hab : a ≤ b) (hbc : b ≤ c) : a ≤ c :=
@@ -401,8 +401,8 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderIn
 
 public theorem LawfulOrderLeftLeaningMin.of_eq {α : Type u} [LE α] [Min α] [DecidableLE α]
     (min_eq : ∀ a b : α, min a b = if a ≤ b then a else b) : LawfulOrderLeftLeaningMin α where
-  min_eq_left a b := by sorry
-  min_eq_right a b := by sorry
+  min_eq_left a b := by simp +contextual [min_eq]
+  min_eq_right a b := by simp +contextual [min_eq]
 
 attribute [local instance] Min.leftLeaningOfLE
 public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMin α :=
@@ -538,8 +538,8 @@ public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderSu
 
 public theorem LawfulOrderLeftLeaningMax.of_eq {α : Type u} [LE α] [Max α] [DecidableLE α]
     (min_eq : ∀ a b : α, max a b = if b ≤ a then a else b) : LawfulOrderLeftLeaningMax α where
-  max_eq_left a b := by sorry
-  max_eq_right a b := by sorry
+  max_eq_left a b := by simp +contextual [min_eq]
+  max_eq_right a b := by simp +contextual [min_eq]
 
 attribute [local instance] Max.leftLeaningOfLE
 public instance [LE α] [DecidableLE α] : LawfulOrderLeftLeaningMax α :=

@@ -102,7 +102,7 @@ theorem ISize.toBitVec_one : (1 : ISize).toBitVec = 1#System.Platform.numBits :=
 
 theorem ISize.toNat_toBitVec_ofNat_of_lt {n : Nat} (h : n < 2^32) :
     (ofNat n).toBitVec.toNat = n :=
-  Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le h (by cases USize.size_eq <;> sorry))
+  Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le h (by cases USize.size_eq <;> simp_all +decide))
 
 @[simp] theorem Int8.toInt_ofInt {n : Int} : toInt (ofInt n) = n.bmod Int8.size := by
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt]

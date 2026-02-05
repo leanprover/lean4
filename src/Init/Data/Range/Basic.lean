@@ -40,8 +40,6 @@ universe u v
         loop b (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left])
     else
       pure b
-  termination_by range.stop - i
-  -- decreasing_by sorry -- TODO: restore after bootstrap
   have := range.step_pos
   loop init range.start (by simp)
 
@@ -58,8 +56,6 @@ instance [Monad m] : ForIn' m Range Nat inferInstance where
       loop (i + range.step)
     else
       pure ⟨⟩
-  termination_by range.stop - i
-  -- decreasing_by sorry -- TODO: restore after bootstrap
   have := range.step_pos
   loop range.start
 

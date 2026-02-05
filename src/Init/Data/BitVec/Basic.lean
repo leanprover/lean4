@@ -739,8 +739,6 @@ def hash (bv : BitVec n) : UInt64 :=
     bv.toFin.val.toUInt64
   else
     mixHash (bv.toFin.val.toUInt64) (hash ((bv >>> 64).setWidth (n - 64)))
-termination_by n
--- decreasing_by sorry -- TODO: restore after bootstrap
 
 instance : Hashable (BitVec n) where
   hash := hash

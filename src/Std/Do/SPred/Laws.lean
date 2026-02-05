@@ -59,7 +59,7 @@ theorem bientails.refl (P : SPred σs) : P ⊣⊢ₛ P := by
 
 theorem bientails.trans {P Q R : SPred σs} : (P ⊣⊢ₛ Q) → (Q ⊣⊢ₛ R) → (P ⊣⊢ₛ R) := by
   induction σs
-  case nil => sorry
+  case nil => simp +contextual only [bientails, implies_true]
   case cons σ σs ih => intro hpq hqr s; exact ih (hpq s) (hqr s)
 
 instance : Trans (@bientails σs) bientails bientails where

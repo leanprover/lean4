@@ -19,7 +19,6 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 namespace Array
 
 open Nat
@@ -81,7 +80,7 @@ theorem find?_eq_findSome?_guard {xs : Array α} : find? p xs = findSome? (Optio
 @[simp, grind =] theorem getElem?_zero_filterMap {f : α → Option β} {xs : Array α} : (xs.filterMap f)[0]? = xs.findSome? f := by
   cases xs; simp [← List.head?_eq_getElem?]
 
-@[simp, grind =] theorem getElem_zero_filterMap {f : α → Option β} {xs : Array α} (h : 0 < (xs.filterMap f).size) :
+@[simp, grind =] theorem getElem_zero_filterMap {f : α → Option β} {xs : Array α} (h) :
     (xs.filterMap f)[0] = (xs.findSome? f).get (by cases xs; simpa [List.length_filterMap_eq_countP] using h) := by
   cases xs; simp [← getElem?_zero_filterMap]
 
@@ -223,7 +222,7 @@ grind_pattern get_find?_mem => (xs.find? p).get h
     (xs.filter p)[0]? = xs.find? p := by
   cases xs; simp [← List.head?_eq_getElem?]
 
-@[simp, grind =] theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h : 0 < (xs.filter p).size) :
+@[simp, grind =] theorem getElem_zero_filter {p : α → Bool} {xs : Array α} (h) :
     (xs.filter p)[0] =
       (xs.find? p).get (by cases xs; simpa [← List.countP_eq_length_filter] using h) := by
   cases xs
@@ -330,7 +329,7 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Array �
   rfl
 
 theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < xs.size), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs⟩
   simp [List.find?_eq_some_iff_getElem]
 
@@ -618,7 +617,7 @@ theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
 theorem findFinIdx?_eq_pmap_findIdx? {xs : Array α} {p : α → Bool} :
     xs.findFinIdx? p =
       (xs.findIdx? p).pmap
-        (fun i m => by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, sorry⟩)
+        (fun i m => by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, m.choose⟩)
         (fun i h => h) := by
   simp [findIdx?_eq_map_findFinIdx?_val, Option.pmap_map]
 

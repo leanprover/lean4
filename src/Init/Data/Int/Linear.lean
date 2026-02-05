@@ -414,7 +414,7 @@ attribute [local simp] Poly.denote_append
 
 theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   fun_induction p₁.combine' fuel p₂ <;>
-    sorry
+    simp_all +zetaDelta [denote, ← Int.add_mul]
 
 theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   simp [combine, denote_combine']

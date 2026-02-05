@@ -1449,7 +1449,7 @@ where
     else
       Syntax.mkCApp (Name.mkStr2 "Array" (String.Internal.append "mkArray" (toString xs.size))) args
   termination_by xs.size - i
-  -- decreasing_by decreasing_trivial_pre_omega
+  decreasing_by decreasing_trivial_pre_omega
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := private quoteArray

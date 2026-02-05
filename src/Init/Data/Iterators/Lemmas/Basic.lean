@@ -31,7 +31,6 @@ def Iter.inductSteps {α β} [Iterator α Id β] [Finite α Id]
     (fun {it' _} _ => inductSteps motive step it')
     (fun {it'} _ => inductSteps motive step it')
 termination_by it.finitelyManySteps
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Induction principle for productive iterators: One can define a function `f` that maps every
@@ -47,6 +46,5 @@ def Iter.inductSkips {α β} [Iterator α Id β] [Productive α Id]
   (it : Iter (α := α) β) : motive it :=
   step it (fun {it'} _ => inductSkips motive step it')
 termination_by it.finitelyManySkips
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 end Std

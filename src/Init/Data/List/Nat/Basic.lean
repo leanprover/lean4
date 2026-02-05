@@ -130,7 +130,7 @@ theorem getElem?_intersperse_two_mul_add_one (h : i + 1 < l.length) :
   · contradiction
   · rename_i hn _
     have ⟨_, tl, _⟩ := ne_nil_iff_exists_cons.mp hn
-    cases tl <;> cases i <;> sorry
+    cases tl <;> cases i <;> simp_all +arith
 
 @[grind =]
 theorem getElem?_intersperse :
@@ -164,14 +164,16 @@ theorem getElem?_intersperse :
   omega
 
 @[grind =]
-theorem getElem_intersperse (h : i < (l.intersperse sep).length) :
+theorem getElem_intersperse (h) :
     (l.intersperse sep)[i] =
       if i % 2 = 0 then l[i / 2]'(by simp at h; omega) else sep := by
   split
   · have p : i = 2 * (i / 2) := by omega
-    sorry
+    conv => lhs; simp +singlePass only [p]
+    rw [getElem_intersperse_two_mul]
   · have p : i = 2 * (i / 2) + 1 := by omega
-    sorry
+    conv => lhs; simp +singlePass only [p]
+    rw [getElem_intersperse_two_mul_add_one]
 
 theorem getElem_eq_getElem_intersperse_two_mul (h : i < l.length) :
     l[i] = (l.intersperse sep)[2 * i]'(by rw [length_intersperse]; omega) := by

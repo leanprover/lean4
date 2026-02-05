@@ -1685,7 +1685,7 @@ theorem contains_of_contains_insertMany_list' [TransCmp cmp] [BEq α] [LawfulBEq
     (h' : contains (insertMany t l) k = true)
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) = none) :
     contains t k = true :=
-  Impl.Const.contains_of_contains_insertMany_list' (l := l) h
+  Impl.Const.contains_of_contains_insertMany_list' h
     (by simpa [Impl.Const.insertMany_eq_insertMany!] using h')
     (by simpa [compare_eq_iff_beq, BEq.comm] using w)
 

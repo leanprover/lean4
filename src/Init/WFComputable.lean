@@ -41,7 +41,6 @@ public instance wfRel {r : α → α → Prop} : WellFoundedRelation { val // Ac
     {a : α} (t : Acc r a) : motive a t :=
   intro a (fun _ h => t.inv h) (fun _ hr => recC intro (t.inv hr))
 termination_by Subtype.mk a t
--- decreasing_by sorry -- TODO: restore after bootstrap
 
 @[csimp] public theorem rec_eq_recC : @Acc.rec = @Acc.recC := by
   funext α r motive intro a t
@@ -89,7 +88,6 @@ namespace WellFounded
     (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   F x (fun y _ => fixC hwf F y)
 termination_by hwf.wrap x
--- decreasing_by sorry -- TODO: restore after bootstrap
 
 unseal fixC
 

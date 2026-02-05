@@ -10,8 +10,6 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 This module contains the logic to turn a `BVLogicalExpr` into an `AIG` with maximum subterm sharing,
 through the use of a cache that re-uses sub-circuits if possible. Additionally a term level cache

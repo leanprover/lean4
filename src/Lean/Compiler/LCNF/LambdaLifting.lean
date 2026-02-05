@@ -203,7 +203,6 @@ def lambdaLifting : Pass where
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl =>
       return decls ++ (← decl.lambdaLifting false true (suffix := `_lam))
-  phaseInv := sorry
 
 /--
 During eager lambda lifting, we inspect declarations that are not inlineable or instances (doing it

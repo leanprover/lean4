@@ -11,8 +11,6 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroEx
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 This module contains the verification of the bitblaster `BitVec.zeroExtend` from `Impl.Operations.ZeroExtend`.
 -/

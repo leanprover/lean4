@@ -79,7 +79,7 @@ protected theorem max_eq_max (a : Nat) : Nat.max a b = max a b := rfl
   simp [Nat.max_def]
 
 @[simp] protected theorem max_zero (a : Nat) : max a 0 = a := by
-  sorry
+  simp +contextual [Nat.max_def]
 
 @[simp] protected theorem add_max_add_right (a b c : Nat) : max (a + c) (b + c) = max a b + c := by
   rw [Nat.max_def, Nat.max_def]

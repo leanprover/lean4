@@ -172,7 +172,6 @@ def appendTrees :  RBNode α β → RBNode α β → RBNode α β
    | a, node red b kx vx c   => node red (appendTrees a b) kx vx c
    | node red a kx vx b,   c => node red a kx vx (appendTrees b c)
 termination_by x y => x.size + y.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 section Erase
 

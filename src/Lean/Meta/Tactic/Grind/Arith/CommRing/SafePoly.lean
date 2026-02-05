@@ -44,8 +44,6 @@ private def combine (p₁ p₂ : Poly) : RingM Poly := withIncRecDepth do
         return .add k m₁ (← combine p₁ p₂)
     | .gt => return .add k₁ m₁ (← combine p₁ (.add k₂ m₂ p₂))
     | .lt => return .add k₂ m₂ (← combine (.add k₁ m₁ p₁) p₂)
-termination_by (sizeOf p₁, sizeOf p₂)
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 private def mul (p₁ : Poly) (p₂ : Poly) : RingM Poly :=
   go p₁ (.num 0)

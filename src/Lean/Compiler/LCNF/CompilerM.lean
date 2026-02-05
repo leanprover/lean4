@@ -107,18 +107,9 @@ def findLetValue? (fvarId : FVarId) : CompilerM (Option (LetValue pu)) := do
   let some { value, .. } ← findLetDecl? fvarId | return none
   return some value
 
-private unsafe def isConstructorAppImpl (fvarId : FVarId) : CompilerM Bool := do
-  let some v ← findLetValue? (pu := .pure) fvarId | return false
-  match v with
-  | .const declName _ _ =>
-    let env ← getEnv
-    match env.find? declName with
-    | some (.ctorInfo ..) => return true
-    | _ => return false
-  | _ => return false
-
-@[implemented_by isConstructorAppImpl]
-opaque isConstructorApp (fvarId : FVarId) : CompilerM Bool
+def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
+  let some (.const declName _ _) ← findLetValue? fvarId | return false
+  return (← getEnv).find? declName matches some (.ctorInfo ..)
 
 def Arg.isConstructorApp (arg : Arg pu) : CompilerM Bool := do
   let .fvar fvarId := arg | return false

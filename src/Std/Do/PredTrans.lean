@@ -164,9 +164,9 @@ theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
 
 instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
   LawfulMonad.mk' (PredTrans ps)
-    (id_map := by sorry)
-    (pure_bind := by sorry)
-    (bind_assoc := by sorry)
+    (id_map := by simp +unfoldPartialApp [Functor.map, bind, pure, apply])
+    (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure, apply])
+    (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind, apply])
 
 /--
 Adds the ability to make assertions about a state of type `σ` to a predicate transformer with

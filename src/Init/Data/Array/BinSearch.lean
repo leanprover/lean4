@@ -30,7 +30,6 @@ namespace Array
       else binSearchAux lt found as k lo ⟨m-1, by omega⟩ (by simp; omega)
     else found (some a)
 termination_by lo hi => hi.1 - lo.1
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Binary search for an element equivalent to `k` in the sorted array `as`. Returns the element from
@@ -90,7 +89,6 @@ are inclusive, and default to searching the entire array.
     else do
       as.modifyM mid <| fun v => merge v
 termination_by lo hi => hi.1 - lo.1
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /--
 Inserts an element `k` into a sorted array `as` such that the resulting array is sorted.

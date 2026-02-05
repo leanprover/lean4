@@ -147,7 +147,7 @@ theorem toList_rco_eq_singleton {m n : Int} (h : n = m + 1) :
 theorem toList_rco_eq_cons_iff {m n a : Int} :
     (m...n).toList = a :: xs ↔ m = a ∧ m < n ∧ ((m + 1)...n).toList = xs := by
   rw [Rco.toList_eq_if_roo]
-  split <;> sorry
+  split <;> simp +contextual [*, Roo.toList_eq_match_rco, eq_comm]
 
 theorem toList_rco_eq_cons {m n : Int} (h : m < n) :
     (m...n).toList = m :: ((m + 1)...n).toList := by

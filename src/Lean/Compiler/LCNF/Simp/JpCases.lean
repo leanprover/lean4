@@ -123,7 +123,7 @@ private def mkJpAlt (decls : Array (CodeDecl .pure)) (params : Array (Param .pur
 where
   go : InternalizeM .pure JpCasesAlt := do
     let mut paramsNew := #[]
-    let singleton : FVarIdSet := ({} : FVarIdSet).insert params[targetParamIdx]!.fvarId
+    let singleton : FVarIdSet := { params[targetParamIdx]!.fvarId }
     let dependsOnDiscr := k.dependsOn singleton || decls.any (·.dependsOn singleton)
     for h : i in *...params.size do
       let param := params[i]

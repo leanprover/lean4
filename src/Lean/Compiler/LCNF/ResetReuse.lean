@@ -16,46 +16,48 @@ import Lean.Compiler.IR.CompilerM
 namespace Lean.Compiler.LCNF
 
 /-!
-Remark: the insertResetReuse transformation is applied before we have
-inserted `inc/dec` instructions, and performed lower level optimizations
-that introduce the instructions `release` and `set`.
--/
+This module implements the insertion of reset-reuse instructions into lambda pure as described in
+"Counting Immutable Beans" (https://arxiv.org/pdf/1908.05647). The insertion happens before we
+add low-level reference counting and other memory management related operations. In addition to the
+IR specified in the paper this implementation supports join points and several operations for
+unboxed data.
 
-/-!
-Remark: the functions `S`, `D` and `R` defined here implement the
-corresponding functions in the paper "Counting Immutable Beans"
+The algorithm attempts to identify situations where we potentially free a piece of memory and
+shortly after re-allocate memory of the same shape as the memory that was just freed. It then
+inserts addition instructions to attempt to reuse the memory right away instead of going through the
+allocator.
 
-Here are the main differences:
-- We use the State monad to manage the generation of fresh variable names.
-- Support for join points, and `uset` and `sset` instructions for unboxed data.
-- `D` uses the auxiliary function `Dmain`.
-- `Dmain` returns a pair `(b, found)` to avoid quadratic behavior when checking
-  the last occurrence of the variable `x`.
-- Because we have join points in the actual implementation, a variable may be live even if it
-  does not occur in a function body. See example at `livevars.lean`.
+For this the paper defines three functions:
+- `R` (called `Decl.insertResetReuse` here) which looks for candidates that might be elligible for
+  reuse. For these variables it invokes `D`.
+- `D` which looks for code regions in which the target variable is dead (i.e. no longer read from),
+  it then invokes `S`. If `S` succeeds it inserts a `reset` instruction to match the `reuse`
+  inserted by `S`.
+- `S` which looks for allocations where reusing the target variable could be useful and replaces the
+  allocation instructions with `reuse` instructions, otherwise fails and returns the code unmodified.
 -/
 
 structure Context where
   /--
   Contains all variables in `cases` statements in the current path
   and variables that are already in `reset` statements when we
-  invoke `R`.
+  invoke `insertResetReuse`.
 
   We use this information to prevent double-reset in code such as
   ```
-  case x_i : obj of
-  Prod.mk →
-    case x_i : obj of
-    Prod.mk →
+  case x_i with
+  | Prod.mk =>
+    case x_i with
+    | Prod.mk =>
     ...
   ```
 
   A variable can already be in a `reset` statement when we
-  invoke `R` because we execute it with and without `relaxedReuse`.
+  invoke `insertResetReuse` because we execute it with and without `relaxedReuse`.
   -/
   alreadyFound : PersistentHashSet FVarId := {}
   /--
-  If `relaxedReuse := true`, then allow memory cells from different
+  If `relaxedReuse = true`, then allow memory cells from different
   constructors to be reused. For example, we can reuse a `PSigma.mk`
   to allocate a `Prod.mk`. To avoid counterintuitive behavior,
   we first try `relaxedReuse := false`, and then `relaxedReuse := true`.
@@ -67,22 +69,34 @@ abbrev ReuseM := ReaderT Context CompilerM
 def mayReuse (c₁ c₂ : CtorInfo) : ReuseM Bool :=
   return c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &&
   /- The following condition is a heuristic.
-     If `relaxedReuse := false`, then we don't want to reuse cells from
+     If `relaxedReuse = false`, then we don't want to reuse cells from
      different constructors even when they are compatible
      because it produces counterintuitive behavior. -/
   ((← read).relaxedReuse || c₁.name.getPrefix == c₂.name.getPrefix)
 
 /--
-Replace `ctor` applications with `reuse` applications if compatible.
-`w` contains the "memory cell" being reused.
+This function corresponds to `S` from the paper. Assuming that `x` is dead in `c`, `S` attempts to
+find potential reuse opportunities for the memory used for `x`. If it finds them it inserts `reset`,
+`reuse` pairs, otherwise returns the code unchanged.
 -/
-partial def S (w : FVarId) (info : CtorInfo) (b : Code .impure) :
-    ReuseM (Code .impure × Bool) :=
-  go b
+partial def S (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .impure) := do
+  let w ← mkFreshFVarId
+  let (c, changed) ← go w c
+  if changed then
+    let decl := {
+      fvarId := w,
+      binderName := (← mkFreshBinderName `_x),
+      type := ImpureType.tobject,
+      value := .reset info.size x
+    }
+    modifyLCtx fun lctx => lctx.addLetDecl decl
+    return .let decl c
+  else
+    return c
 where
-  go (c : Code .impure) : ReuseM (Code .impure × Bool) := do
+  go (w : FVarId) (c : Code .impure) : ReuseM (Code .impure × Bool) := do
     let goK (k : Code .impure) : ReuseM (Code .impure × Bool) := do
-      let (k, changed) ← go k
+      let (k, changed) ← go w k
       return (c.updateCont! k, changed)
     match c with
     | .let decl@{ value := .ctor info' ys _, .. } k =>
@@ -93,14 +107,14 @@ where
       else
         goK k
     | .jp decl k =>
-      let (value, changed) ← go decl.value
+      let (value, changed) ← go w decl.value
       if changed then
         return (c.updateFun! (← decl.updateValue value) k, changed)
       else
         goK k
     | .cases cs =>
       let result ← cs.alts.mapM fun alt => do
-        let (altCode, changed) ← go alt.getCode
+        let (altCode, changed) ← go w alt.getCode
         return (alt.updateCode altCode, changed)
       let (alts, altsChanged) := result.unzip
       return (c.updateAlts! alts, altsChanged.any id)
@@ -108,29 +122,30 @@ where
     | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ | .let _ k =>
       goK k
 
-def tryS (x : FVarId) (info : CtorInfo) (b : Code .impure) : ReuseM (Code .impure) := do
-  let w ← mkFreshFVarId
-  let (b', changed) ← S w info b
-  if changed then
-    let decl := { fvarId := w, binderName := (← mkFreshBinderName `_x), type := ImpureType.tobject, value := .reset info.size x }
-    modifyLCtx fun lctx => lctx.addLetDecl decl
-    return .let decl b'
-  else
-    return b
-
-def isCtorUsing (b : CodeDecl .impure) (x : FVarId) : Bool :=
-  match b with
+def isCtorUsing (instr : CodeDecl .impure) (x : FVarId) : Bool :=
+  match instr with
   | .let { value := .ctor _ args _, .. } => args.any (·.dependsOn { x })
   | _ => false
 
--- TODO document
 inductive UseClassification where
+  /--
+  The value under scrutiny is passed as an owned argument to a function
+  -/
   | ownedArg
+  /--
+  The value under scrutiny is used but not as an owned argument.
+  -/
   | other
+  /--
+  The value under scrutiny is not used.
+  -/
   | none
 
-def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
-  match b with
+/--
+Check how the variable `x` is used in `instr` if at all.
+-/
+def classifyUse (instr : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
+  match instr with
   | .let { value := e@(.fap f args _), .. } =>
     -- TODO: change this to getImpureSignature in later refactoring phases
     if let some decl := IR.findEnvDecl (← getEnv) f then
@@ -157,78 +172,83 @@ def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification :
     else
       return .none
   | _ =>
-    if b.dependsOn { x } then
+    if instr.dependsOn { x } then
       return .other
     else
       return .none
 
-
 mutual
 
-partial def Dfinalize (x : FVarId) (info : CtorInfo) : Code .impure × Bool → ReuseM (Code .impure)
-  | (b, true) => return b
-  | (b, false) => tryS x info b
 
 /--
-Given `Dmain x info c`, the resulting pair `(newC, flag)` contains the new body `newC`,
-and `flag == true` if `x` is live in `b`.
-
-Note that, in the function `D` defined in the paper, for each `let x := e; F`,
-`D` checks whether `x` is live in `F` or not. This is great for clarity but it
-is expensive: `O(n^2)` where `n` is the size of the function body.
--/
-partial def Dmain (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .impure × Bool) := do
-  match c with
-  | .cases cs =>
-    if ← c.isFVarLiveIn x then
-      /- If `x` is live in `e`, we recursively process each branch. -/
-      let alts ← cs.alts.mapM fun alt => alt.mapCodeM fun b => D x info b
-      return (c.updateAlts! alts, true)
-    else
-      return (c, false)
-  | .jp decl k =>
-    let (k, found) ← Dmain x info k
-    let (value, _ /- found' -/ ) ← Dmain x info decl.value
-    /- If `found' == true`, then `Dmain k` must also have returned `(b, true)` since
-       we assume the IR does not have dead join points. So, if `x` is live in `j` (i.e., `v`),
-       then it must also live in `b` since `j` is reachable from `b` with a `jmp`.
-       On the other hand, `x` may be live in `b` but dead in `j` (i.e., `v`). -/
-    return (c.updateFun! (← decl.updateValue value) k, found)
-  | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ =>
-    let instr := c.toCodeDecl!
-    if isCtorUsing instr x then
-      /- If the scrutinee `x` (the one that is providing memory) is being
-         stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
-         It may work only if the new cell is consumed, but we ignore this case. -/
-      return (c, true)
-    else
-      let (k, found) ← Dmain x info k
-      if found then
-        return (c.updateCont! k, true)
-      else
-        match (← classifyUse instr x) with
-        | .ownedArg =>
-          return (c.updateCont! k, true)
-        | .other =>
-          let k ← tryS x info k
-          return (c.updateCont! k, true)
-        | .none =>
-          return (c.updateCont! k, false)
-  | .return .. | .jmp .. | .unreach .. =>
-    return (c, ← c.isFVarLiveIn x)
-
-/--
-This function corresponds to `D` from the paper. It looks for positions in `k` where `x` is not live
+This function corresponds to `D` from the paper. It looks for positions in `c` where `x` is not live
 anymore and then invokes `S` to look for reuse opportunities after these positions.
 -/
-partial def D (x : FVarId) (info : CtorInfo) (k : Code .impure) : ReuseM (Code .impure) :=
-  Dmain x info k >>= Dfinalize x info
+partial def D (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .impure) := do
+  let (c, xAlive) ← go c
+  if xAlive then
+    return c
+  else
+    S x info c
+where
+  /--
+  Given `go c`, the resulting pair `(newC, alive)` contains the new body `newC`, and `alive = true`
+  if `x` is live during any point in `c`. Once we find a subexpression with `alive = false` we can
+  start to attempt reset-reuse insertion through `S`.
+
+  Note that, in the function `D` defined in the paper, for each `let x := e; F`, `D` checks whether
+  `x` is live in `F` or not. This is great for clarity but it is expensive: `O(n^2)` where `n` is
+  the size of the function body.
+  -/
+  go (c : Code .impure) : ReuseM (Code .impure × Bool) := do
+    match c with
+    | .cases cs =>
+      if ← c.isFVarLiveIn x then
+        /- If `x` is live in `c`, we recursively process each branch. -/
+        let alts ← cs.alts.mapM (·.mapCodeM (D x info))
+        return (c.updateAlts! alts, true)
+      else
+        return (c, false)
+    | .jp decl k =>
+      let (k, found) ← go k
+      let (value, _ /- found' -/ ) ← go decl.value
+      /-
+      If `found' == true`, then `go k` must also have returned `(k, true)` since
+      we assume the IR does not have dead join points. So, if `x` is live in `decl`,
+      then it must also live in `k` since `decl` is reachable from `k` with a `jmp`.
+      On the other hand, `x` may be live in `k` but dead in `decl`.
+      -/
+      return (c.updateFun! (← decl.updateValue value) k, found)
+    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ =>
+      let instr := c.toCodeDecl!
+      if isCtorUsing instr x then
+        /-
+        If the scrutinee `x` (the one that is providing memory) is being
+        stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
+        It may work only if the new cell is consumed, but we ignore this case.
+        -/
+        return (c, true)
+      else
+        let (k, found) ← go k
+        if found then
+          return (c.updateCont! k, true)
+        else
+          match (← classifyUse instr x) with
+          | .ownedArg =>
+            return (c.updateCont! k, true)
+          | .other =>
+            let k ← S x info k
+            return (c.updateCont! k, true)
+          | .none =>
+            return (c.updateCont! k, false)
+    | .return .. | .jmp .. | .unreach .. =>
+      return (c, ← c.isFVarLiveIn x)
 
 end
 
 /--
-This function corresponds to `R` from the paper. It searches for and inserts reset-reuse
-opportunities into `c`.
+This function corresponds to `R` from the paper. It searches for memory cells that could be relevant
+for reuse and then invokes `D` and `S` to attempt reuse.
 -/
 partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := do
   match c with

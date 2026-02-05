@@ -194,6 +194,7 @@ structure EnvironmentHeader where
   importAllModules : Array EffectiveImport := modules.filter (·.importAll)
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
+  cmdLineOptions : Options  := {}
   deriving Nonempty
 
 /--
@@ -317,6 +318,10 @@ private def isQuotInit (env : Environment) : Bool :=
 @[extern "lean_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
   (cancelTk? : @& Option IO.CancelToken) : Except Exception Environment
+
+@[export lean_environment_get_opts]
+def getOpts (env : Environment) : Options :=
+  env.header.cmdLineOptions
 
 /--
 Add declaration to kernel without type checking it.
@@ -2255,6 +2260,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
       regions      := modules.flatMap (·.parts.map (·.2)) ++ modules.filterMap (·.irData?.map (·.2))
+      cmdLineOptions := opts
     }
   }
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false

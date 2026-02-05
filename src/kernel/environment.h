@@ -84,6 +84,7 @@ public:
 
     diagnostics get_diag() const;
     environment set_diag(diagnostics const & diag) const;
+    options get_opts() const;
 
     bool is_quot_initialized() const;
 

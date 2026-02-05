@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
+#include "library/time_task.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -160,21 +161,41 @@ static bool is_eager_reduce(expr const & e) {
     return is_const(get_app_fn(e), *g_eager_reduce) && get_app_num_args(e) == 2;
 }
 
-expr type_checker::infer_app(expr const & e, bool infer_only) {
-    if (!infer_only) {
-        expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
-        expr a_type = infer_type_core(app_arg(e), infer_only);
-        expr d_type = binding_domain(f_type);
-        if (is_eager_reduce(app_arg(e))) {
-            // If argument is of the form `eagerReduce`, set m_eager_reduction mode
-            flet<bool> scope(m_eager_reduce, true);
-            if (!is_def_eq(a_type, d_type)) {
-                throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
-            }
-        } else if (!is_def_eq(a_type, d_type)) {
+expr type_checker::infer_app_core(expr const & e) {
+    bool infer_only = false;
+    if (!is_app(e)) return infer_type_core(e, infer_only);
+    expr f_type = ensure_pi_core(infer_app_core(app_fn(e)), e);
+    expr a_type = infer_type_core(app_arg(e), infer_only);
+    expr d_type = binding_domain(f_type);
+    if (is_eager_reduce(app_arg(e))) {
+        // If argument is of the form `eagerReduce`, set m_eager_reduction mode
+        flet<bool> scope(m_eager_reduce, true);
+        if (!is_def_eq(a_type, d_type)) {
             throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
         }
-        return instantiate(binding_body(f_type), app_arg(e));
+    } else if (!is_def_eq(a_type, d_type)) {
+        throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
+    }
+    return instantiate(binding_body(f_type), app_arg(e));
+}
+
+expr type_checker::infer_app(expr const & e, bool infer_only) {
+    if (!infer_only) {
+        std::string label = "kernel.infer_app";
+        auto f = e;
+        while (true) {
+            f = get_app_fn(f);
+            if (is_lambda(f))
+                f = binding_body(f);
+            else
+                break;
+        }
+        if (is_const(f)) label += "." + const_name(f).to_string();
+        if (is_proj(f)) label += "._prof." + proj_sname(f).to_string() + "." + std::to_string(proj_idx(f).get_small_value());
+        if (is_fvar(f)) label += "._fvar";
+        if (is_lambda(f)) label += "._lam";
+        time_task task(label, env().get_opts());
+        return infer_app_core(e);
     } else {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
@@ -272,6 +293,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
     check_system("type checker", /* do_check_interrupted */ true);
+    time_task task("kernel.infer_other", env().get_opts());
 
     auto it = m_st->m_infer_type[infer_only].find(e);
     if (it != m_st->m_infer_type[infer_only].end())

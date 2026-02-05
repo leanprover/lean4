@@ -63,6 +63,7 @@ private:
     expr infer_constant(expr const & e, bool infer_only);
     expr infer_lambda(expr const & e, bool infer_only);
     expr infer_pi(expr const & e, bool infer_only);
+    expr infer_app_core(expr const & e);
     expr infer_app(expr const & e, bool infer_only);
     expr infer_proj(expr const & e, bool infer_only);
     expr infer_let(expr const & e, bool infer_only);

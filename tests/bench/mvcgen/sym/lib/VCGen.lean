@@ -482,3 +482,23 @@ example :
   mvcgen'
   grind
 -/
+
+def step (v : Nat) : StateM Nat Unit := do
+  let s ← get
+  set (s + v)
+  let s ← get
+  set (s - v)
+
+def loop (n : Nat) : StateM Nat Unit := do
+  match n with
+  | 0 => pure ()
+  | n+1 => step n; loop n
+
+set_option maxRecDepth 100000
+set_option maxHeartbeats 10000000
+
+example : ∀ post, ⦃post⦄ loop 100 ⦃⇓_ => post⦄ := by
+  intro post
+  simp only [loop, step]
+  mvcgen'
+  sorry

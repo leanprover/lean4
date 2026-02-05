@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
-public import Lean.Compiler.LCNF.PhaseExt
 
 public section
 

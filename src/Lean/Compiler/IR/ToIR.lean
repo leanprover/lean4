@@ -14,7 +14,7 @@ public section
 namespace Lean.IR
 
 open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LCtx LCNF.LetDecl
-  LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.getMonoDecl? LCNF.FVarSubst LCNF.MonadFVarSubst
+  LCNF.LetValue LCNF.LitValue LCNF.Param LCNF.FVarSubst LCNF.MonadFVarSubst
   LCNF.MonadFVarSubstState LCNF.addSubst LCNF.normLetValue LCNF.normFVar LCNF.getType LCNF.CtorInfo)
 
 namespace ToIR

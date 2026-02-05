@@ -6061,8 +6061,8 @@ if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; 
 x_55 = l_Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1___closed__3;
-x_15 = x_49;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_49;
 x_17 = x_55;
 goto block_33;
 }
@@ -6072,8 +6072,8 @@ lean_object* x_56;
 x_56 = lean_ctor_get(x_54, 0);
 lean_inc(x_56);
 lean_dec_ref(x_54);
-x_15 = x_49;
-x_16 = lean_box(0);
+x_15 = lean_box(0);
+x_16 = x_49;
 x_17 = x_56;
 goto block_33;
 }
@@ -6104,7 +6104,7 @@ lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21;
 x_18 = lean_box(0);
 x_19 = lean_array_size(x_17);
 x_20 = 0;
-x_21 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1_spec__3(x_14, x_1, x_17, x_19, x_20, x_18, x_15, x_4, x_5, x_6, x_7);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__1_spec__3(x_14, x_1, x_17, x_19, x_20, x_18, x_16, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_17);
 lean_dec_ref(x_14);
 if (lean_obj_tag(x_21) == 0)

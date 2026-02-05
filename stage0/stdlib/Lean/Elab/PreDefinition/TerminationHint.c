@@ -3037,7 +3037,7 @@ return x_77;
 }
 else
 {
-lean_object* x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; uint8_t x_88; lean_object* x_89; uint8_t x_90; lean_object* x_97; lean_object* x_116; uint8_t x_117; 
+lean_object* x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_88; uint8_t x_89; uint8_t x_90; lean_object* x_97; lean_object* x_116; uint8_t x_117; 
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
@@ -3088,8 +3088,8 @@ block_87:
 lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
 x_83 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_83, 0, x_17);
-lean_ctor_set(x_83, 1, x_80);
-lean_ctor_set(x_83, 2, x_81);
+lean_ctor_set(x_83, 1, x_81);
+lean_ctor_set(x_83, 2, x_80);
 lean_ctor_set_uint8(x_83, sizeof(void*)*3, x_82);
 lean_ctor_set_uint8(x_83, sizeof(void*)*3 + 1, x_79);
 if (lean_is_scalar(x_18)) {
@@ -3110,9 +3110,9 @@ lean_dec(x_2);
 x_92 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_92, 0, x_17);
 lean_ctor_set(x_92, 1, x_91);
-lean_ctor_set(x_92, 2, x_89);
+lean_ctor_set(x_92, 2, x_88);
 lean_ctor_set_uint8(x_92, sizeof(void*)*3, x_90);
-lean_ctor_set_uint8(x_92, sizeof(void*)*3 + 1, x_88);
+lean_ctor_set_uint8(x_92, sizeof(void*)*3 + 1, x_89);
 x_93 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_93, 0, x_92);
 x_94 = lean_apply_2(x_3, lean_box(0), x_93);
@@ -3151,16 +3151,16 @@ x_105 = lean_unsigned_to_nat(3u);
 x_106 = l_Lean_Syntax_getArg(x_17, x_105);
 if (lean_obj_tag(x_97) == 0)
 {
-x_88 = x_100;
-x_89 = x_106;
+x_88 = x_106;
+x_89 = x_100;
 x_90 = x_100;
 goto block_96;
 }
 else
 {
 lean_dec_ref(x_97);
-x_88 = x_100;
-x_89 = x_106;
+x_88 = x_106;
+x_89 = x_100;
 x_90 = x_101;
 goto block_96;
 }
@@ -3186,8 +3186,8 @@ lean_dec(x_107);
 if (lean_obj_tag(x_97) == 0)
 {
 x_79 = x_108;
-x_80 = x_111;
-x_81 = x_110;
+x_80 = x_110;
+x_81 = x_111;
 x_82 = x_108;
 goto block_87;
 }
@@ -3195,8 +3195,8 @@ else
 {
 lean_dec_ref(x_97);
 x_79 = x_108;
-x_80 = x_111;
-x_81 = x_110;
+x_80 = x_110;
+x_81 = x_111;
 x_82 = x_100;
 goto block_87;
 }

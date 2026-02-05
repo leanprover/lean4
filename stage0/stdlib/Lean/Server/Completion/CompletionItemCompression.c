@@ -1344,19 +1344,19 @@ block_238:
 {
 lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; uint8_t x_228; 
 x_221 = ((lean_object*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__1));
-x_222 = lean_string_append(x_219, x_221);
+x_222 = lean_string_append(x_218, x_221);
 x_223 = lean_string_append(x_222, x_220);
 lean_dec_ref(x_220);
 x_224 = ((lean_object*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__2));
 x_225 = lean_string_append(x_223, x_224);
 x_226 = ((lean_object*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressItemDataFast___closed__1));
 x_227 = lean_string_append(x_225, x_226);
-x_228 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_218);
+x_228 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_219);
 if (x_228 == 0)
 {
 lean_object* x_229; lean_object* x_230; 
-x_229 = lean_string_append(x_227, x_218);
-lean_dec_ref(x_218);
+x_229 = lean_string_append(x_227, x_219);
+lean_dec_ref(x_219);
 x_230 = lean_string_append(x_229, x_226);
 x_214 = x_230;
 goto block_217;
@@ -1365,13 +1365,13 @@ else
 {
 lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; 
 x_231 = lean_unsigned_to_nat(0u);
-x_232 = lean_string_utf8_byte_size(x_218);
-lean_inc_ref(x_218);
+x_232 = lean_string_utf8_byte_size(x_219);
+lean_inc_ref(x_219);
 x_233 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___lam__0___boxed), 6, 2);
 lean_closure_set(x_233, 0, x_232);
-lean_closure_set(x_233, 1, x_218);
+lean_closure_set(x_233, 1, x_219);
 x_234 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_234, 0, x_218);
+lean_ctor_set(x_234, 0, x_219);
 lean_ctor_set(x_234, 1, x_231);
 lean_ctor_set(x_234, 2, x_232);
 x_235 = l_String_Slice_positions(x_234);
@@ -1400,8 +1400,8 @@ if (x_241 == 0)
 {
 lean_object* x_245; 
 x_245 = ((lean_object*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__3));
-x_218 = x_242;
-x_219 = x_244;
+x_218 = x_244;
+x_219 = x_242;
 x_220 = x_245;
 goto block_238;
 }
@@ -1409,8 +1409,8 @@ else
 {
 lean_object* x_246; 
 x_246 = ((lean_object*)(l___private_Lean_Server_Completion_CompletionItemCompression_0__Lean_Lsp_ResolvableCompletionList_compressMarkupContentFast___closed__4));
-x_218 = x_242;
-x_219 = x_244;
+x_218 = x_244;
+x_219 = x_242;
 x_220 = x_246;
 goto block_238;
 }

@@ -9468,7 +9468,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__1));
 x_2 = lean_unsigned_to_nat(47u);
-x_3 = lean_unsigned_to_nat(1789u);
+x_3 = lean_unsigned_to_nat(1792u);
 x_4 = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__0));
 x_5 = ((lean_object*)(l_Array_swapAt_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9664,7 +9664,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__1));
 x_2 = lean_unsigned_to_nat(7u);
-x_3 = lean_unsigned_to_nat(1871u);
+x_3 = lean_unsigned_to_nat(1874u);
 x_4 = ((lean_object*)(l_Array_insertIdx_x21___redArg___closed__0));
 x_5 = ((lean_object*)(l_Array_swapAt_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

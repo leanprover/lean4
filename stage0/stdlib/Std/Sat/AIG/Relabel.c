@@ -15,8 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_relabel___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_relabel(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Relabel_0__Std_Sat_AIG_Decl_relabel_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Relabel_0__Std_Sat_AIG_Decl_relabel_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabel___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Std_Sat_AIG_relabel___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Id_instMonad___lam__0, .m_arity = 4, .m_num_fixed = 0, .m_objs = {} };
@@ -123,54 +121,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Std_Sat_AIG_Decl_relabel___redArg(x_3, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Relabel_0__Std_Sat_AIG_Decl_relabel_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_box(0);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
-}
-case 1:
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec_ref(x_1);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-default: 
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
-lean_dec_ref(x_1);
-x_11 = lean_apply_2(x_4, x_9, x_10);
-return x_11;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Relabel_0__Std_Sat_AIG_Decl_relabel_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Std_Sat_AIG_Relabel_0__Std_Sat_AIG_Decl_relabel_match__1_splitter___redArg(x_3, x_4, x_5, x_6);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabel___redArg___lam__0(lean_object* x_1, lean_object* x_2) {

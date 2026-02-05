@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+source ../env_bench.sh
+source "$TEST_DIR/util.sh"
+
+NAME="$1"
+FILE="$(realpath "$1")"
+OUT="$FILE.measurements.jsonl"
+TOPIC="misc/$(basename "$1" .sh)"
+source "$1"

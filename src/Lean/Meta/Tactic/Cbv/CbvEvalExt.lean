@@ -56,7 +56,6 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
   }
 
 def getCbvEvalLemmas (target : Name) : CoreM (Option Theorems) := do
-  trace[Meta.Tactic.cbv] "trying to get user lemmas for: {target}"
   let s := cbvEvalExt.getState (← getEnv)
   return (s.lemmas.find? target)
 
@@ -71,7 +70,6 @@ builtin_initialize
     applicationTime := AttributeApplicationTime.afterCompilation
     add   := fun lemmaName _ kind => do
       let ((targetName, thm), _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
-      trace[Meta.Tactic.cbv] "Adding {targetName} : {lemmaName}"
       cbvEvalExt.add { target := targetName, thm := thm } kind
   }
 

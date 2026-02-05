@@ -41,6 +41,10 @@ theorem Slice.Pos.endPos_le {s : Slice} (p : s.Pos) : s.endPos ≤ p ↔ p = s.e
   ⟨fun h => Std.le_antisymm (le_endPos _) h, by simp +contextual⟩
 
 @[simp]
+theorem Slice.Pos.lt_endPos_iff {s : Slice} (p : s.Pos) : p < s.endPos ↔ p ≠ s.endPos := by
+  simp [← endPos_le, Std.not_le]
+
+@[simp]
 theorem Pos.le_startPos {s : String} (p : s.Pos) : p ≤ s.startPos ↔ p = s.startPos :=
   ⟨fun h => Std.le_antisymm h (startPos_le _), by simp +contextual⟩
 
@@ -67,6 +71,14 @@ theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
 
 theorem Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q ≤ Slice.Pos.ofSliceFrom r ↔ q ≤ r := by
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+theorem Slice.Pos.ofSliceTo_lt_ofSliceTo_iff {s : Slice} {p : s.Pos}
+    {q r : (s.sliceTo p).Pos} : Slice.Pos.ofSliceTo q < Slice.Pos.ofSliceTo r ↔ q < r := by
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+theorem Slice.Pos.ofSliceTo_le_ofSliceTo_iff {s : Slice} {p : s.Pos}
+    {q r : (s.sliceTo p).Pos} : Slice.Pos.ofSliceTo q ≤ Slice.Pos.ofSliceTo r ↔ q ≤ r := by
   simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 @[simp]

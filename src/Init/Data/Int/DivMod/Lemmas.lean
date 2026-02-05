@@ -3008,4 +3008,10 @@ protected theorem dvd_eq_false_of_mod_ne_zero {a b : Int} (h : b % a != 0) : (a 
   simp [eq_of_beq] at h
   simp [Int.dvd_iff_emod_eq_zero, h]
 
+theorem ext_ediv_emod {n a b : Int} (h0 : a / n = b / n) (h1 : a % n = b % n) : a = b :=
+  (mul_ediv_add_emod a n).symm.trans (h0 ▸ h1 ▸ mul_ediv_add_emod b n)
+
+theorem ext_ediv_emod_iff (n a b : Int) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
+  ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_ediv_emod h0 h1⟩
+
 end Int

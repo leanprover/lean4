@@ -87,14 +87,10 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
   `optConfig` is of the form `("(" "config" ":=" term ")")?`
 -/
 def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
-  let cfg ← match kind with
+  match kind with
     | .simp    => elabSimpConfigCore optConfig
     | .simpAll => pure (← elabSimpConfigCtxCore optConfig).toConfig
     | .dsimp   => pure { (← elabDSimpConfigCore optConfig) with }
-  if Simp.backward.dsimp.instances.get (← getOptions) then
-    return { cfg with instances := true }
-  else
-    return cfg
 
 inductive ResolveSimpIdResult where
   | none

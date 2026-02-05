@@ -665,3 +665,9 @@
     <<: *time
     cmd: leanchecker --fresh Init
     max_runs: 1
+- attributes:
+    description: cbv tactic (leroy compiler verification course)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/leroy.lean

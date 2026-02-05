@@ -577,7 +577,11 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
         let config ← elabSimpConfig configStx (kind := .simpAll)
         let mut argsArray : TSyntaxArray [`Lean.Parser.Tactic.simpErase, `Lean.Parser.Tactic.simpLemma] := #[]
         if config.suggestions then
-          let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal)
+          let lsConfig : LibrarySuggestions.Config := { caller := some "simp_all" }
+          let lsConfig := match config.maxSuggestions with
+            | some n => { lsConfig with maxSuggestions := n }
+            | none => lsConfig
+          let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal) lsConfig
           for sugg in suggestions do
             let ident := mkIdent sugg.name
             let candidates ← resolveGlobalConst ident

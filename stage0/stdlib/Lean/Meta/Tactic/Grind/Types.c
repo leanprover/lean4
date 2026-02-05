@@ -4205,7 +4205,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withGTransparency___redArg___lam__1(l
 _start:
 {
 uint8_t x_5; uint8_t x_14; 
-x_14 = lean_ctor_get_uint8(x_4, sizeof(void*)*10 + 30);
+x_14 = lean_ctor_get_uint8(x_4, sizeof(void*)*11 + 30);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -22533,7 +22533,7 @@ x_108 = l_Lean_Meta_Grind_getConfig___redArg(x_7);
 x_109 = lean_ctor_get(x_108, 0);
 lean_inc(x_109);
 lean_dec_ref(x_108);
-x_185 = lean_ctor_get_uint8(x_109, sizeof(void*)*10 + 30);
+x_185 = lean_ctor_get_uint8(x_109, sizeof(void*)*11 + 30);
 lean_dec(x_109);
 if (x_185 == 0)
 {
@@ -26382,7 +26382,7 @@ x_216 = l_Lean_Meta_Grind_getConfig___redArg(x_208);
 x_217 = lean_ctor_get(x_216, 0);
 lean_inc(x_217);
 lean_dec_ref(x_216);
-x_218 = lean_ctor_get_uint8(x_217, sizeof(void*)*10 + 30);
+x_218 = lean_ctor_get_uint8(x_217, sizeof(void*)*11 + 30);
 lean_dec(x_217);
 if (x_218 == 0)
 {
@@ -49551,12 +49551,12 @@ if (lean_is_exclusive(x_105)) {
  lean_dec_ref(x_105);
  x_107 = lean_box(0);
 }
-x_138 = lean_ctor_get_uint8(x_104, sizeof(void*)*10 + 9);
+x_138 = lean_ctor_get_uint8(x_104, sizeof(void*)*11 + 9);
 lean_dec(x_104);
 if (x_138 == 0)
 {
 uint8_t x_139; 
-x_139 = lean_ctor_get_uint8(x_106, sizeof(void*)*10 + 10);
+x_139 = lean_ctor_get_uint8(x_106, sizeof(void*)*11 + 10);
 lean_dec(x_106);
 if (x_139 == 0)
 {
@@ -49733,12 +49733,12 @@ if (lean_is_exclusive(x_142)) {
  lean_dec_ref(x_142);
  x_144 = lean_box(0);
 }
-x_175 = lean_ctor_get_uint8(x_141, sizeof(void*)*10 + 9);
+x_175 = lean_ctor_get_uint8(x_141, sizeof(void*)*11 + 9);
 lean_dec(x_141);
 if (x_175 == 0)
 {
 uint8_t x_176; 
-x_176 = lean_ctor_get_uint8(x_143, sizeof(void*)*10 + 10);
+x_176 = lean_ctor_get_uint8(x_143, sizeof(void*)*11 + 10);
 lean_dec(x_143);
 if (x_176 == 0)
 {
@@ -50120,7 +50120,7 @@ x_80 = l_Lean_Meta_Grind_getConfig___redArg(x_4);
 x_81 = lean_ctor_get(x_80, 0);
 lean_inc(x_81);
 lean_dec_ref(x_80);
-x_82 = lean_ctor_get_uint8(x_81, sizeof(void*)*10 + 10);
+x_82 = lean_ctor_get_uint8(x_81, sizeof(void*)*11 + 10);
 lean_dec(x_81);
 if (x_82 == 0)
 {

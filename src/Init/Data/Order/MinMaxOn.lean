@@ -142,12 +142,12 @@ public theorem maxOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
 public theorem maxOn_eq_left [le : LE β] [DecidableLE β] {f : α → β} {x y : α} (h : f y ≤ f x) :
     maxOn f x y = x := by
   simp only [maxOn_eq_minOn]
-  exact @minOn_eq_left (h := by simpa [LE.opposite_def]) ..
+  exact @minOn_eq_left (h := by simpa +instances [LE.opposite_def]) ..
 
 public theorem maxOn_eq_right [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : ¬ f y ≤ f x) :
     maxOn f x y = y := by
   simp only [maxOn_eq_minOn]
-  exact @minOn_eq_right (h := by simpa [LE.opposite_def]) ..
+  exact @minOn_eq_right (h := by simpa +instances [LE.opposite_def]) ..
 
 public theorem maxOn_eq_right_of_lt
     [LE β] [DecidableLE β] [LT β] [Total (α := β) (· ≤ ·)] [LawfulOrderLT β]

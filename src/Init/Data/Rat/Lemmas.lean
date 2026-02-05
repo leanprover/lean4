@@ -642,7 +642,7 @@ theorem ofScientific_ofNat_ofNat :
 /-! ### `≤` and `<` -/
 
 @[simp] theorem num_nonneg {q : Rat} : 0 ≤ q.num ↔ 0 ≤ q := by
-  simp [instLE, Rat.blt, imp.swap]
+  simp +instances [instLE, Rat.blt, imp.swap]
 
 @[simp]
 theorem num_eq_zero {q : Rat} : q.num = 0 ↔ q = 0 := by

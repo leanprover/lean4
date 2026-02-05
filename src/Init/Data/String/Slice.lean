@@ -51,18 +51,6 @@ instance : HAppend String String.Slice String where
 open Pattern
 
 /--
-Checks whether a slice is empty.
-
-Empty slices have {name}`utf8ByteSize` {lean}`0`.
-
-Examples:
- * {lean}`"".toSlice.isEmpty = true`
- * {lean}`" ".toSlice.isEmpty = false`
--/
-@[inline]
-def isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
-
-/--
 Checks whether {name}`s1` and {name}`s2` represent the same string, even if they are slices of
 different base strings or different slices within the same string.
 

@@ -104,7 +104,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 @[simp] theorem map_throw [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) (e : ε) :
     f <$> (throw e : ExceptT ε m α) = (throw e : ExceptT ε m β) := by
-  simp only [ExceptT.instMonad, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
+  simp only [Functor.map, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
     pure_bind]
 
 /-! Note that the `MonadControl` instance for `ExceptT` is not monad-generic. -/

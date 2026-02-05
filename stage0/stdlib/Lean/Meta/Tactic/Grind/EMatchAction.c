@@ -9488,7 +9488,7 @@ if (x_37 == 0)
 {
 lean_object* x_38; uint8_t x_39; 
 x_38 = lean_ctor_get(x_36, 0);
-x_39 = lean_ctor_get_uint8(x_38, sizeof(void*)*10);
+x_39 = lean_ctor_get_uint8(x_38, sizeof(void*)*11);
 lean_dec(x_38);
 if (x_39 == 0)
 {
@@ -9753,7 +9753,7 @@ lean_object* x_80; uint8_t x_81;
 x_80 = lean_ctor_get(x_36, 0);
 lean_inc(x_80);
 lean_dec(x_36);
-x_81 = lean_ctor_get_uint8(x_80, sizeof(void*)*10);
+x_81 = lean_ctor_get_uint8(x_80, sizeof(void*)*11);
 lean_dec(x_80);
 if (x_81 == 0)
 {

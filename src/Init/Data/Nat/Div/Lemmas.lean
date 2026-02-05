@@ -247,4 +247,10 @@ theorem mod_eq_mod_iff {x y z : Nat} :
     replace h := congrArg (· % z) h
     simpa using h
 
+theorem ext_div_mod {n a b : Nat} (h0 : a / n = b / n) (h1 : a % n = b % n) : a = b :=
+  (div_add_mod a n).symm.trans (h0 ▸ h1 ▸ div_add_mod b n)
+
+theorem ext_div_mod_iff (n a b : Nat) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
+  ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_div_mod h0 h1⟩
+
 end Nat

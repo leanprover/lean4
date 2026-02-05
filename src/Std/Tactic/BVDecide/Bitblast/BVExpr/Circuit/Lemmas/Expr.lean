@@ -161,7 +161,7 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
     apply (goCache aig expr cache).result.property
 
 set_option maxHeartbeats 400000
-
+set_option backward.dsimp.instances true in -- **TODO**: Try to remove it.
 mutual
 
 

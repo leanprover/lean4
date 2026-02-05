@@ -185,7 +185,7 @@ theorem lex_trans {r : α → α → Prop}
 protected theorem lt_trans [LT α]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  simp only [instLT, List.lt] at h₁ h₂ ⊢
+  simp only [LT.lt, List.lt] at h₁ h₂ ⊢
   exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
 
 instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :

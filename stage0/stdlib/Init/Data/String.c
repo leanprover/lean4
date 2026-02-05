@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String
-// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Iterator public import Init.Data.String.Lemmas public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify public import Init.Data.String.Termination public import Init.Data.String.ToSlice public import Init.Data.String.Search public import Init.Data.String.Legacy public import Init.Data.String.Grind
+// Imports: public import Init.Data.String.Basic public import Init.Data.String.Bootstrap public import Init.Data.String.Decode public import Init.Data.String.Defs public import Init.Data.String.Extra public import Init.Data.String.Iterator public import Init.Data.String.Lemmas public import Init.Data.String.Bootstrap public import Init.Data.String.Slice public import Init.Data.String.Pattern public import Init.Data.String.Stream public import Init.Data.String.PosRaw public import Init.Data.String.Substring public import Init.Data.String.TakeDrop public import Init.Data.String.Modify public import Init.Data.String.Termination public import Init.Data.String.ToSlice public import Init.Data.String.Search public import Init.Data.String.Legacy public import Init.Data.String.OrderInstances public import Init.Data.String.FindPos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,8 @@ lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_String_ToSlice(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Legacy(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Grind(uint8_t builtin);
+lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+lean_object* initialize_Init_Data_String_FindPos(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String(uint8_t builtin) {
 lean_object * res;
@@ -95,7 +96,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Legacy(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Grind(builtin);
+res = initialize_Init_Data_String_OrderInstances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

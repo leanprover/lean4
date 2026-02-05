@@ -74,7 +74,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 
 @[simp] theorem mk_beq_mk [BEq α] {xs ys : Array α} {h : xs.size = n} {h' : ys.size = n} :
     (Vector.mk xs h == Vector.mk ys h') = (xs == ys) := by
-  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, h, h']
+  simp [BEq.beq, isEqv, Array.isEqv, h, h']
 
 @[simp] theorem mk_append_mk {xs ys : Array α} (h : xs.size = n) (h' : ys.size = m) :
     Vector.mk xs h ++ Vector.mk ys h' = Vector.mk (xs ++ ys) (by simp [h, h']) := rfl
@@ -359,7 +359,7 @@ private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs 
 
 @[simp, grind =] theorem toArray_beq_toArray [BEq α] {xs : Vector α n} {ys : Vector α n} :
     (xs.toArray == ys.toArray) = (xs == ys) := by
-  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, xs.2, ys.2]
+  simp [BEq.beq, isEqv, Array.isEqv, xs.2, ys.2]
 
 @[simp, grind =] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
 
@@ -1052,11 +1052,11 @@ theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
 theorem exists_mem_iff_exists_getElem {P : α → Prop} {xs : Vector α n} :
-    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.exists_mem_iff_exists_getElem]
 
 theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Vector α n} :
-    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < n), P (xs[i]) := by
   cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
 
 @[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]

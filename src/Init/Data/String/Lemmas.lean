@@ -12,6 +12,7 @@ public import Init.Data.String.Lemmas.Search
 public import Init.Data.String.Lemmas.FindPos
 public import Init.Data.String.Lemmas.Basic
 public import Init.Data.String.Lemmas.Order
+public import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.Order.Lemmas
 public import Init.Data.String.Basic
 import Init.Data.Char.Lemmas

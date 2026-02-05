@@ -10111,7 +10111,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* x_1, l
 _start:
 {
 uint8_t x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*10 + 14);
+x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*11 + 14);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 x_10 = 1;

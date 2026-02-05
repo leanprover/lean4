@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Sym
@@ -78,6 +79,14 @@ def handleApp : Simproc := fun e => do
   | .lam .. => betaReduce e
   | _ => return .rfl
 
+def isOpaqueApp : Simproc := fun e => do
+  let some fnName := e.getAppFn.constName? | return .rfl
+  return .rfl (← isCbvOpaque fnName)
+
+def isOpaqueConst : Simproc := fun e => do
+  let .const constName _ := e | return .rfl
+  return .rfl (← isCbvOpaque  constName)
+
 def foldLit : Simproc := fun e => do
  let some n := e.rawNatLit? | return .rfl
  -- TODO: check performance of sharing
@@ -139,7 +148,9 @@ def handleConst : Simproc := fun e => do
 
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
-  >>  (tryMatcher >> simpControl) <|> (handleConst <|> simplifyAppFn <|> handleProj)
+  >>  isOpaqueApp
+  >>  (tryMatcher >> simpControl)
+    <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=
       evalGround

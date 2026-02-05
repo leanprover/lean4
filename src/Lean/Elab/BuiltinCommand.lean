@@ -30,8 +30,13 @@ namespace Lean.Elab.Command
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
   | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    runTermElabM fun _ => do
-      addVersoModDocString range ⟨args.getD 0 .missing⟩
+    let docSyntax := args.getD 0 .missing
+    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+      -- Report parser errors without attempting elaboration
+      runTermElabM fun _ => reportVersoParseFailure docSyntax
+    else
+      runTermElabM fun _ => do
+        addVersoModDocString range ⟨docSyntax⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)

@@ -630,6 +630,18 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp
 
+/--
+Checks whether a slice is empty.
+
+Empty slices have {name}`utf8ByteSize` {lean}`0`.
+
+Examples:
+ * {lean}`"".toSlice.isEmpty = true`
+ * {lean}`" ".toSlice.isEmpty = false`
+-/
+@[inline]
+def Slice.isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
+
 @[deprecated String.toRawSubstring (since := "2025-11-18")]
 def toSubstring (s : String) : Substring.Raw :=
   s.toRawSubstring

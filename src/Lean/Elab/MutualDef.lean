@@ -359,9 +359,7 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
       let header := headers[i]
-      -- Instances are always nonrec but we don't want to adjust `header.modifiers` as it is also
-      -- used for nested where/let rec declarations.
-      if header.modifiers.isNonrec || header.isInstance then
+      if header.modifiers.isNonrec then
         loop (i+1) fvars
       else
         withAuxDecl header.shortDeclName header.type header.declName fun fvar => loop (i+1) (fvars.push fvar)

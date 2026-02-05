@@ -301,6 +301,11 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.terminationBy? matches some {structural := false, ..} ||
     preDef.termination.decreasingBy?.isSome
 
+def ensureNoRecursiveInstance (preDef : PreDefinition) : TermElabM Unit := do
+  if preDef.kind == .instance then
+    if let some recApp := preDef.value.find? hasRecAppSyntax then
+      let stx := getRecAppSyntax? recApp |>.get!
+      Lean.throwErrorAt stx <| m!"Invalid recursive use of `instance`"  ++ .hint' "Consider using a separate `def` to define the implementation of this instance."
 
 def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) :
     TermElabM Unit := withLCtx {} {} do
@@ -308,6 +313,7 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
     withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
         trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+        ensureNoRecursiveInstance preDef
       let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
       let preDefs ← betaReduceLetRecApps preDefs
       let cliques := partitionPreDefs preDefs

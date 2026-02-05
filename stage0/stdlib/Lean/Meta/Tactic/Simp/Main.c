@@ -3834,7 +3834,7 @@ if (lean_is_exclusive(x_9)) {
  lean_dec_ref(x_9);
  x_11 = lean_box(0);
 }
-x_19 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 16);
+x_19 = lean_ctor_get_uint8(x_1, sizeof(void*)*3 + 16);
 if (x_19 == 0)
 {
 lean_object* x_30; uint8_t x_31; 
@@ -5094,7 +5094,7 @@ if (lean_is_exclusive(x_9)) {
  x_11 = lean_box(0);
 }
 x_12 = lean_st_ref_get(x_7);
-x_32 = lean_ctor_get_uint8(x_10, sizeof(void*)*2 + 15);
+x_32 = lean_ctor_get_uint8(x_10, sizeof(void*)*3 + 15);
 lean_dec(x_10);
 if (x_32 == 0)
 {
@@ -5373,7 +5373,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; uint8_t x_30; 
 x_29 = lean_ctor_get(x_3, 0);
-x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*2 + 11);
+x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*3 + 11);
 if (x_30 == 0)
 {
 uint8_t x_31; 
@@ -6147,7 +6147,7 @@ if (x_168 == 0)
 {
 lean_object* x_169; uint8_t x_170; 
 x_169 = lean_ctor_get(x_3, 0);
-x_170 = lean_ctor_get_uint8(x_169, sizeof(void*)*2 + 11);
+x_170 = lean_ctor_get_uint8(x_169, sizeof(void*)*3 + 11);
 if (x_170 == 0)
 {
 uint8_t x_171; 
@@ -7886,12 +7886,12 @@ if (x_19 == 0)
 lean_object* x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; 
 x_20 = lean_ctor_get(x_3, 3);
 lean_inc_ref(x_20);
-x_21 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 3);
-x_22 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 4);
-x_23 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 7);
-x_24 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 8);
-x_25 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 19);
-x_26 = lean_ctor_get_uint8(x_17, sizeof(void*)*2 + 21);
+x_21 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 3);
+x_22 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 4);
+x_23 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 7);
+x_24 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 8);
+x_25 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 19);
+x_26 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 21);
 lean_dec(x_17);
 x_27 = !lean_is_exclusive(x_20);
 if (x_27 == 0)
@@ -8150,12 +8150,12 @@ if (x_90 == 0)
 lean_object* x_91; uint8_t x_92; uint8_t x_93; uint8_t x_94; uint8_t x_95; uint8_t x_96; uint8_t x_97; lean_object* x_98; lean_object* x_99; uint8_t x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; uint8_t x_107; uint8_t x_108; uint8_t x_109; lean_object* x_110; uint64_t x_111; lean_object* x_112; lean_object* x_113; 
 x_91 = lean_ctor_get(x_3, 3);
 lean_inc_ref(x_91);
-x_92 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 3);
-x_93 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 4);
-x_94 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 7);
-x_95 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 8);
-x_96 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 19);
-x_97 = lean_ctor_get_uint8(x_88, sizeof(void*)*2 + 21);
+x_92 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 3);
+x_93 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 4);
+x_94 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 7);
+x_95 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 8);
+x_96 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 19);
+x_97 = lean_ctor_get_uint8(x_88, sizeof(void*)*3 + 21);
 lean_dec(x_88);
 x_98 = lean_ctor_get(x_91, 0);
 lean_inc_ref(x_98);
@@ -9515,7 +9515,7 @@ lean_object* x_12; uint8_t x_13;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec_ref(x_11);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*2);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*3);
 lean_dec(x_12);
 if (x_13 == 0)
 {
@@ -13475,7 +13475,7 @@ lean_object* x_92; uint8_t x_93;
 x_92 = lean_ctor_get(x_91, 0);
 lean_inc(x_92);
 lean_dec_ref(x_91);
-x_93 = lean_ctor_get_uint8(x_92, sizeof(void*)*2);
+x_93 = lean_ctor_get_uint8(x_92, sizeof(void*)*3);
 lean_dec(x_92);
 if (x_93 == 0)
 {
@@ -13878,7 +13878,7 @@ lean_object* x_204; uint8_t x_205; lean_object* x_206;
 x_204 = lean_ctor_get(x_203, 0);
 lean_inc(x_204);
 lean_dec_ref(x_203);
-x_205 = lean_ctor_get_uint8(x_200, sizeof(void*)*2);
+x_205 = lean_ctor_get_uint8(x_200, sizeof(void*)*3);
 lean_dec(x_200);
 x_206 = l_Lean_Meta_Simp_simpArrow___closed__15;
 if (x_205 == 0)
@@ -17916,7 +17916,7 @@ uint8_t x_189;
 x_189 = lean_ctor_get_uint8(x_4, sizeof(void*)*4 + 8);
 if (x_189 == 1)
 {
-lean_object* x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_202; uint8_t x_286; lean_object* x_287; lean_object* x_288; lean_object* x_301; lean_object* x_302; uint8_t x_303; uint8_t x_306; lean_object* x_307; lean_object* x_308; uint8_t x_311; lean_object* x_337; uint8_t x_338; lean_object* x_339; lean_object* x_340; lean_object* x_341; lean_object* x_342; lean_object* x_343; lean_object* x_344; lean_object* x_345; lean_object* x_346; lean_object* x_347; lean_object* x_360; lean_object* x_361; lean_object* x_362; lean_object* x_408; uint8_t x_409; 
+lean_object* x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_202; lean_object* x_286; uint8_t x_287; lean_object* x_288; lean_object* x_301; lean_object* x_302; uint8_t x_303; uint8_t x_306; lean_object* x_307; lean_object* x_308; uint8_t x_311; lean_object* x_337; uint8_t x_338; lean_object* x_339; lean_object* x_340; lean_object* x_341; lean_object* x_342; lean_object* x_343; lean_object* x_344; lean_object* x_345; lean_object* x_346; lean_object* x_347; lean_object* x_360; lean_object* x_361; lean_object* x_362; lean_object* x_408; uint8_t x_409; 
 x_190 = lean_ctor_get(x_4, 0);
 lean_inc(x_190);
 x_191 = lean_ctor_get(x_4, 1);
@@ -18322,7 +18322,7 @@ x_292 = lean_array_push(x_291, x_197);
 x_293 = lean_nat_add(x_5, x_290);
 x_294 = lean_array_push(x_6, x_197);
 x_295 = lean_box(x_189);
-x_296 = lean_box(x_286);
+x_296 = lean_box(x_287);
 x_297 = lean_alloc_closure((void*)(l___private_Lean_Meta_HaveTelescope_0__Lean_Meta_simpHaveTelescopeAux___at___00Lean_Meta_simpHaveTelescope___at___00Lean_Meta_Simp_simpHaveTelescope_spec__0_spec__0___lam__1___boxed), 22, 14);
 lean_closure_set(x_297, 0, x_1);
 lean_closure_set(x_297, 1, x_2);
@@ -18350,8 +18350,8 @@ block_305:
 lean_object* x_304; 
 x_304 = lean_expr_abstract(x_302, x_6);
 lean_dec_ref(x_302);
-x_286 = x_303;
-x_287 = lean_box(0);
+x_286 = lean_box(0);
+x_287 = x_303;
 x_288 = x_304;
 goto block_300;
 }
@@ -18371,8 +18371,8 @@ else
 {
 lean_dec_ref(x_307);
 lean_inc_ref(x_192);
-x_286 = x_306;
-x_287 = lean_box(0);
+x_286 = lean_box(0);
+x_287 = x_306;
 x_288 = x_192;
 goto block_300;
 }
@@ -20421,7 +20421,7 @@ if (lean_is_exclusive(x_10)) {
  lean_dec_ref(x_10);
  x_12 = lean_box(0);
 }
-x_13 = lean_ctor_get_uint8(x_11, sizeof(void*)*2 + 19);
+x_13 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 19);
 lean_dec(x_11);
 x_14 = 1;
 if (x_13 == 0)
@@ -21047,7 +21047,7 @@ lean_object* x_39; uint8_t x_40;
 x_39 = lean_ctor_get(x_38, 0);
 lean_inc(x_39);
 lean_dec_ref(x_38);
-x_40 = lean_ctor_get_uint8(x_39, sizeof(void*)*2 + 22);
+x_40 = lean_ctor_get_uint8(x_39, sizeof(void*)*3 + 22);
 lean_dec(x_39);
 if (x_40 == 0)
 {
@@ -26768,7 +26768,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_10, 0);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 12);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*3 + 12);
 if (x_13 == 0)
 {
 lean_dec(x_12);
@@ -26786,9 +26786,9 @@ else
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; uint8_t x_18; 
 lean_free_object(x_10);
-x_14 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 3);
-x_15 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 19);
-x_16 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 28);
+x_14 = lean_ctor_get_uint8(x_12, sizeof(void*)*3 + 3);
+x_15 = lean_ctor_get_uint8(x_12, sizeof(void*)*3 + 19);
+x_16 = lean_ctor_get_uint8(x_12, sizeof(void*)*3 + 28);
 lean_dec(x_12);
 x_17 = lean_st_ref_take(x_4);
 x_18 = !lean_is_exclusive(x_17);
@@ -27395,7 +27395,7 @@ lean_object* x_162; uint8_t x_163;
 x_162 = lean_ctor_get(x_10, 0);
 lean_inc(x_162);
 lean_dec(x_10);
-x_163 = lean_ctor_get_uint8(x_162, sizeof(void*)*2 + 12);
+x_163 = lean_ctor_get_uint8(x_162, sizeof(void*)*3 + 12);
 if (x_163 == 0)
 {
 lean_object* x_164; 
@@ -27414,9 +27414,9 @@ return x_164;
 else
 {
 uint8_t x_165; uint8_t x_166; uint8_t x_167; lean_object* x_168; lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; uint32_t x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; uint32_t x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; uint8_t x_197; uint8_t x_198; uint8_t x_199; uint8_t x_220; 
-x_165 = lean_ctor_get_uint8(x_162, sizeof(void*)*2 + 3);
-x_166 = lean_ctor_get_uint8(x_162, sizeof(void*)*2 + 19);
-x_167 = lean_ctor_get_uint8(x_162, sizeof(void*)*2 + 28);
+x_165 = lean_ctor_get_uint8(x_162, sizeof(void*)*3 + 3);
+x_166 = lean_ctor_get_uint8(x_162, sizeof(void*)*3 + 19);
+x_167 = lean_ctor_get_uint8(x_162, sizeof(void*)*3 + 28);
 lean_dec(x_162);
 x_168 = lean_st_ref_take(x_4);
 x_169 = lean_ctor_get(x_168, 0);
@@ -37559,7 +37559,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_cacheResult___redArg(lean_object* x_1,
 _start:
 {
 uint8_t x_6; 
-x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 1);
+x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 1);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -38680,7 +38680,7 @@ if (x_27 == 0)
 lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_28 = lean_ctor_get(x_26, 0);
 x_29 = lean_ctor_get(x_28, 0);
-x_30 = lean_ctor_get_uint8(x_28, sizeof(void*)*2 + 1);
+x_30 = lean_ctor_get_uint8(x_28, sizeof(void*)*3 + 1);
 x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_add(x_14, x_31);
 lean_dec(x_14);
@@ -39143,7 +39143,7 @@ x_111 = lean_ctor_get(x_26, 0);
 lean_inc(x_111);
 lean_dec(x_26);
 x_112 = lean_ctor_get(x_111, 0);
-x_113 = lean_ctor_get_uint8(x_111, sizeof(void*)*2 + 1);
+x_113 = lean_ctor_get_uint8(x_111, sizeof(void*)*3 + 1);
 x_114 = lean_unsigned_to_nat(1u);
 x_115 = lean_nat_add(x_14, x_114);
 lean_dec(x_14);
@@ -39576,7 +39576,7 @@ if (lean_is_exclusive(x_192)) {
  x_194 = lean_box(0);
 }
 x_195 = lean_ctor_get(x_193, 0);
-x_196 = lean_ctor_get_uint8(x_193, sizeof(void*)*2 + 1);
+x_196 = lean_ctor_get_uint8(x_193, sizeof(void*)*3 + 1);
 x_197 = lean_unsigned_to_nat(1u);
 x_198 = lean_nat_add(x_178, x_197);
 lean_dec(x_178);
@@ -39983,7 +39983,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Sim
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 2);
+x_12 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 2);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
@@ -40821,7 +40821,7 @@ lean_object* x_11; uint8_t x_12;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec_ref(x_10);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*2 + 20);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 20);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -41014,7 +41014,7 @@ lean_object* x_12; uint8_t x_13;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec_ref(x_11);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*2 + 20);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*3 + 20);
 lean_dec(x_12);
 if (x_13 == 0)
 {
@@ -43124,7 +43124,7 @@ lean_object* x_11; uint8_t x_12;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec_ref(x_10);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*2 + 20);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 20);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -43616,7 +43616,7 @@ lean_object* x_11; uint8_t x_12;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec_ref(x_10);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*2 + 20);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 20);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -51694,7 +51694,7 @@ lean_object* x_33; uint8_t x_34;
 x_33 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_33);
 lean_dec_ref(x_5);
-x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*2 + 13);
+x_34 = lean_ctor_get_uint8(x_33, sizeof(void*)*3 + 13);
 lean_dec_ref(x_33);
 if (x_34 == 0)
 {
@@ -52789,7 +52789,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_16; uint8_t x_17; 
 x_16 = lean_ctor_get(x_1, 0);
-x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*2 + 13);
+x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*3 + 13);
 if (x_17 == 0)
 {
 x_11 = lean_box(0);

@@ -10,6 +10,7 @@ public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
 import Lean.ReducibilityAttrs
 import Lean.Meta.WHNF
+import Lean.AddDecl
 public section
 namespace Lean.Meta
 
@@ -235,10 +236,9 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   unless status matches .reducible | .instanceReducible do
     let info ← getConstInfo declName
     if info.isDefinition then
-      -- **TODO**: uncomment after update stage0
-      -- logWarning m!"instance `{declName}` must be marked with @[reducible] or @[instance_reducible]"
-      pure ()
-  addGlobalInstance declName attrKind
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[instance_reducible]`"
+    else if wasOriginallyDefn (← getEnv) declName then
+      logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
@@ -368,15 +368,4 @@ def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
 def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
   return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
 
-end Meta
-
--- **TODO**: Move to `ReducibilityAttrs.lean` after update stage0
-def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
-  getReducibilityStatusCore env declName matches .instanceReducible
-    || Meta.isInstanceCore env declName -- **TODO**: Delete after update stage0
-
-/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
-def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
-  return isInstanceReducibleCore (← getEnv) declName
-
-end Lean
+end Lean.Meta

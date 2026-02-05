@@ -1,4 +1,5 @@
 import Std
+set_option cbv.warning false
 
 def function (n : Nat) : Nat := match n with
   | 0 => 0 + 1
@@ -171,52 +172,17 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
     lhs
     cbv
 
+attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
+attribute [cbv_opaque] Std.DHashMap.insert
+attribute [cbv_opaque] Std.DHashMap.contains
+attribute [cbv_opaque] Std.DHashMap.getEntry
 
-section
-attribute [local cbv_forbidden] Std.DHashMap.emptyWithCapacity
-attribute [local cbv_forbidden] Std.DHashMap.insert
-attribute [local cbv_forbidden] Std.DHashMap.contains
-attribute [local cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_empty
-attribute [local cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_insert
-
-example : ((Std.HashMap.emptyWithCapacity : Std.HashMap Nat Nat).insert 5 3).contains 5 = true := by
+/--
+error: unsolved goals
+⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
+-/
+#guard_msgs in
+example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
   conv =>
     lhs
     cbv
-end
-
-section
-
-
-#check Std.Iter.toList_take_of_finite
-
-example : (#[1,2,3].iter.take 2).toList = [1,2] := by
-  simp?
-
-
-theorem myLen {α β : Type w} [Std.Iterator α Id β] [Std.Iterators.Finite α Id]
-    [Std.IteratorLoop α Id Id] [Std.LawfulIteratorLoop α Id Id]
-    {it : Std.Iter (α := α) β} :
-    it.length = it.toList.length := by
-  simp
-
-attribute [cbv_forbidden] List.iter
-attribute [cbv_forbidden] Array.iter
-attribute [cbv_forbidden] Std.Iter.take
-attribute [cbv_forbidden] Std.Iter.toList
-attribute [cbv_forbidden] Std.Iter.length
-attribute [cbv_forbidden] Std.Iter.toArray
-attribute [cbv_eval Std.Iter.toList] Std.Iter.toList_take_of_finite
-attribute [cbv_eval Std.Iter.toList] Array.toList_iter
-attribute [cbv_eval Std.Iter.toList] List.toList_iter
-attribute [cbv_eval Std.Iter.length] myLen
-
-theorem iter_length_test : ((List.replicate 1 1).iter.take 2).toList = [1] := by
-  conv =>
-    lhs
-    cbv
-
-
-#print iter_length_test
-
-end

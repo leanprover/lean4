@@ -239,7 +239,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   if axioms.isEmpty then
     logInfo m!"'{constName}' does not depend on any axioms"
   else
-    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.toList}"
+    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.map MessageData.ofConstName |>.toList}"
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do

@@ -12,6 +12,7 @@ open Std.Do
 
 set_option grind.warning false
 set_option mvcgen.warning false
+set_option warn.sorry false
 
 namespace Code
 
@@ -481,7 +482,7 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen <;> simp_all
 
 theorem test_sum :
@@ -557,8 +558,11 @@ instance : Monad Result where
   | .fail e => .fail e
   | .div => .div
 
-instance : LawfulMonad Result := by
-  apply LawfulMonad.mk' <;> (simp only [instMonadResult]; grind)
+instance : LawfulMonad Result :=
+  LawfulMonad.mk' _
+    (by dsimp only [Functor.map]; grind)
+    (by dsimp only [bind]; grind)
+    (by dsimp only [bind]; grind)
 
 instance Result.instWP : WP Result (.except Error .pure) where
   wp x := match x with
@@ -567,16 +571,17 @@ instance Result.instWP : WP Result (.except Error .pure) where
   | .div => PredTrans.const ⌜False⌝
 
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
-  wp_pure := by intros; ext Q; simp [wp, PredTrans.pure, pure, Except.pure, Id.run]
+  wp_pure := by intros; ext Q; simp only [wp, ExceptT.run_pure, Id.run_pure,
+    PredTrans.pushExcept_apply, PredTrans.pure_apply]
   wp_bind x f := by
-    simp only [instWP, bind]
+    simp only [wp, ExceptT.run_pure, Id.run_pure, ExceptT.run_throw, bind]
     ext Q
-    cases x <;> simp [PredTrans.bind, PredTrans.const]
+    cases x <;> simp
 
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
     intro hspec
-    simp only [instWP] at hspec
+    simp only [wp] at hspec
     split at hspec <;> simp_all
 
 /-- Kinds of unsigned integers -/

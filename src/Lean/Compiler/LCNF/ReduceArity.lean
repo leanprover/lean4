@@ -188,6 +188,7 @@ def Decl.reduceArity (decl : Decl .pure) : CompilerM (Array (Decl .pure)) := do
 
 def reduceArity : Pass where
   phase := .mono
+  phaseOut := .mono
   name  := `reduceArity
   run   := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.reduceArity)

@@ -51,7 +51,8 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
-/-- Simplifies the expression by simulating call-by-value evaluation. -/
+/-- `cbv` performs simplification that closely mimics call-by-value evaluation,
+using equations associated with definitions and the matchers. -/
 syntax (name := cbv) "cbv" : conv
 
 /--

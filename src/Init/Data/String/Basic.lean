@@ -1502,6 +1502,20 @@ def Slice.Pos.toReplaceEnd {s : Slice} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤
 theorem Slice.Pos.offset_sliceTo {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
 
+@[simp]
+theorem Slice.Pos.ofSliceTo_startPos {s : Slice} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).startPos = s.startPos := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem Slice.Pos.ofSliceTo_endPos {s : Slice} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).endPos = pos := by
+  simp [Pos.ext_iff]
+
+theorem Slice.Pos.ofSliceTo_inj {s : Slice} {p₀ : s.Pos} {pos pos' : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos = ofSliceTo pos' ↔ pos = pos' := by
+  simp [Pos.ext_iff]
+
 theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.endPos) :
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
   obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← Pos.ofCopy_inj, ← ofSliceFrom_inj])
@@ -1739,38 +1753,6 @@ theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
 theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
     p.toSlice.copy = p.cast copy_toSlice.symm :=
   Pos.ext (by simp)
-
-/-- Given a byte position within a string slice, obtains the smallest valid position that is
-strictly greater than the given byte position. -/
-@[inline]
-def Slice.findNextPos (offset : String.Pos.Raw) (s : Slice) (_h : offset < s.rawEndPos) : s.Pos :=
-  go offset.inc
-where
-  go (offset : String.Pos.Raw) : s.Pos :=
-    if h : offset < s.rawEndPos then
-      if h' : (s.getUTF8Byte offset h).IsUTF8FirstByte then
-        s.pos offset (Pos.Raw.isValidForSlice_iff_isUTF8FirstByte.2 (Or.inr ⟨_, h'⟩))
-      else
-        go offset.inc
-    else
-      s.endPos
-  termination_by s.utf8ByteSize - offset.byteIdx
-  decreasing_by
-    simp only [Pos.Raw.lt_iff, byteIdx_rawEndPos, utf8ByteSize_eq, Pos.Raw.byteIdx_inc] at h ⊢
-    omega
-
-private theorem Slice.le_offset_findNextPosGo {s : Slice} {o : String.Pos.Raw} (h : o ≤ s.rawEndPos) :
-    o ≤ (findNextPos.go s o).offset := by
-  fun_induction findNextPos.go with
-  | case1 => simp
-  | case2 x h₁ h₂ ih =>
-    refine Pos.Raw.le_of_lt (Pos.Raw.lt_of_lt_of_le Pos.Raw.lt_inc (ih ?_))
-    rw [Pos.Raw.le_iff, Pos.Raw.byteIdx_inc]
-    exact Nat.succ_le_iff.2 h₁
-  | case3 x h => exact h
-
-theorem Slice.lt_offset_findNextPos {s : Slice} {o : String.Pos.Raw} (h) : o < (s.findNextPos o h).offset :=
-  Pos.Raw.lt_of_lt_of_le Pos.Raw.lt_inc (le_offset_findNextPosGo (Pos.Raw.inc_le.2 h))
 
 theorem Slice.Pos.prevAuxGo_le_self {s : Slice} {p : Nat} {h : p < s.utf8ByteSize} :
     prevAux.go p h ≤ ⟨p⟩ := by
@@ -2044,6 +2026,15 @@ theorem Slice.Pos.next_le_of_lt {s : Slice} {p q : s.Pos} {h} : p < q → p.next
 theorem Pos.ofToSlice_le_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
     ofToSlice p ≤ q ↔ p ≤ q.toSlice := Iff.rfl
 
+theorem Pos.ofToSlice_lt_iff {s : String} {p : s.toSlice.Pos} {q : s.Pos} :
+    ofToSlice p < q ↔ p < q.toSlice := Iff.rfl
+
+theorem Pos.lt_ofToSlice_iff {s : String} {p : s.Pos} {q : s.toSlice.Pos} :
+    p < ofToSlice q ↔ p.toSlice < q := Iff.rfl
+
+theorem Pos.le_ofToSlice_iff {s : String} {p : s.Pos} {q : s.toSlice.Pos} :
+    p ≤ ofToSlice q ↔ p.toSlice ≤ q := Iff.rfl
+
 @[simp]
 theorem Pos.toSlice_lt_toSlice_iff {s : String} {p q : s.Pos} :
     p.toSlice < q.toSlice ↔ p < q := Iff.rfl
@@ -2272,6 +2263,20 @@ def Pos.ofReplaceEnd {s : String} {p₀ : s.Pos} (pos : (s.sliceTo p₀).Pos) : 
 @[simp]
 theorem Pos.offset_ofSliceTo {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :
     (ofSliceTo pos).offset = pos.offset := (rfl)
+
+@[simp]
+theorem Pos.ofSliceTo_startPos {s : String} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).startPos = s.startPos := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem Pos.ofSliceTo_endPos {s : String} {pos : s.Pos} :
+    ofSliceTo (s.sliceTo pos).endPos = pos := by
+  simp [Pos.ext_iff]
+
+theorem Pos.ofSliceTo_inj {s : String} {p₀ : s.Pos} {pos pos' : (s.sliceTo p₀).Pos} :
+    ofSliceTo pos = ofSliceTo pos' ↔ pos = pos' := by
+  simp [Pos.ext_iff, Slice.Pos.ext_iff]
 
 @[simp]
 theorem Pos.ofSliceTo_le {s : String} {p₀ : s.Pos} {pos : (s.sliceTo p₀).Pos} :

@@ -103,10 +103,10 @@ theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' (α := β) (m := n) it init f = IterM.DefaultConsumers.forIn' (n := n)
         (fun _ _ f x => monadLift x >>= f) γ (fun _ _ _ => True) it init _ (fun _ => id) (return ⟨← f · · ·, trivial⟩) := by
-  simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : f = (Subtype.val <$> (⟨·, trivial⟩) <$> f · · ·) := by simp
   rw [this, hl.lawful (fun _ _ f x => monadLift x >>= f) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp [IteratorLoop.defaultImplementation]
+  simp +instances [IteratorLoop.defaultImplementation]
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]

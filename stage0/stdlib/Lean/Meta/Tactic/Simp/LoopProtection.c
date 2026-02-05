@@ -1825,7 +1825,7 @@ _start:
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*2 + 2);
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3 + 2);
 if (x_6 == 0)
 {
 if (x_1 == 0)

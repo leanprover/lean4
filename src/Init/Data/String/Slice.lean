@@ -47,18 +47,6 @@ instance : HAppend String String.Slice String where
 open Pattern
 
 /--
-Checks whether a slice is empty.
-
-Empty slices have {name}`utf8ByteSize` {lean}`0`.
-
-Examples:
- * {lean}`"".toSlice.isEmpty = true`
- * {lean}`" ".toSlice.isEmpty = false`
--/
-@[inline]
-def isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
-
-/--
 Checks whether {name}`s1` and {name}`s2` represent the same string, even if they are slices of
 different base strings or different slices within the same string.
 
@@ -66,7 +54,7 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp [h, String.Pos.Raw.le_iff]
+    have h1 := by simp
     have h2 := by simp [h, String.Pos.Raw.le_iff]
     Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else

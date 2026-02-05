@@ -9,11 +9,9 @@ add_library(
   dynlib.cpp
   replace_visitor.cpp
   num.cpp
-  class.cpp
   util.cpp
   print.cpp
   annotation.cpp
-  reducible.cpp
   init_module.cpp
   profiling.cpp
   time_task.cpp

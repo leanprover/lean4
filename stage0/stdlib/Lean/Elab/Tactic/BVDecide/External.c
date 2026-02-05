@@ -63,7 +63,6 @@ uint8_t lean_uint8_sub(uint8_t, uint8_t);
 lean_object* l___private_Std_Internal_Parsec_ByteArray_0__Std_Internal_Parsec_ByteArray_digitsCore_go(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_External_0__Lean_Elab_Tactic_BVDecide_External_ModelParser_parsePartialAssignment_wsLit(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Elab_Tactic_BVDecide_External_ModelParser_parsePartialAssignment_spec__0(lean_object*);
@@ -740,7 +739,7 @@ x_83 = lean_nat_dec_eq(x_80, x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; lean_object* x_85; 
-x_84 = l_instNatCastInt___lam__0(x_80);
+x_84 = lean_nat_to_int(x_80);
 x_85 = lean_int_neg(x_84);
 lean_dec(x_84);
 lean_ctor_set(x_78, 1, x_85);
@@ -771,7 +770,7 @@ x_90 = lean_nat_dec_eq(x_87, x_89);
 if (x_90 == 0)
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; 
-x_91 = l_instNatCastInt___lam__0(x_87);
+x_91 = lean_nat_to_int(x_87);
 x_92 = lean_int_neg(x_91);
 lean_dec(x_91);
 x_93 = lean_alloc_ctor(0, 2, 0);
@@ -1044,7 +1043,7 @@ x_158 = lean_nat_dec_eq(x_154, x_157);
 if (x_158 == 0)
 {
 lean_object* x_159; lean_object* x_160; lean_object* x_161; 
-x_159 = l_instNatCastInt___lam__0(x_154);
+x_159 = lean_nat_to_int(x_154);
 x_160 = lean_int_neg(x_159);
 lean_dec(x_159);
 if (lean_is_scalar(x_156)) {

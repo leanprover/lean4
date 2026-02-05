@@ -7,14 +7,14 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Lean.Meta.Tactic.Cbv.Types
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Eqns
 
 
 namespace Lean.Meta.Sym.Simp
 
-public def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=
+def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=
   Array.foldl Theorems.insert thms toInsert
 
 end Lean.Meta.Sym.Simp
@@ -22,13 +22,19 @@ end Lean.Meta.Sym.Simp
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-builtin_initialize cbvTheoremsLookup : EnvExtension CbvTheoremsLookupState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)
-
 /--
 Get or create cached Theorems for function equations.
 Retrieves equations via `getEqnsFor?` and caches the resulting Theorems object.
 -/
+public structure CbvTheoremsLookupState where
+  eqnTheorems : PHashMap Name Theorems := {}
+  unfoldTheorems : PHashMap Name Theorem := {}
+  matchTheorems : PHashMap Name Theorems := {}
+  deriving Inhabited
+
+builtin_initialize cbvTheoremsLookup : EnvExtension CbvTheoremsLookupState ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
 public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
@@ -44,39 +50,29 @@ public def getEqnTheorems (fnName : Name) : MetaM Theorems := do
         { cache with eqnTheorems := cache.eqnTheorems.insert fnName thms }
     return thms
 
-/--
-Get or create cached Theorem for unfold equation.
-Retrieves unfold equation via `getUnfoldEqnFor?` and caches the resulting Theorem.
--/
 public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
-    -- Compute theorem from unfold equation
     let some unfoldEqn ← getUnfoldEqnFor? fnName (nonRec := true) | return none
     let thm ← mkTheoremFromDecl unfoldEqn
-    -- Store in cache
+
     modifyEnv fun env =>
       cbvTheoremsLookup.modifyState env fun cache =>
         { cache with unfoldTheorems := cache.unfoldTheorems.insert fnName thm }
     return some thm
 
-/--
-Get or create cached Theorems for match equations.
-Retrieves match equations via `Match.getEquationsFor` and caches the resulting Theorems object.
--/
 public def getMatchTheorems (matcherName : Name) : MetaM Theorems := do
   let env ← getEnv
   let cache := cbvTheoremsLookup.getState env
   if let some thms := cache.matchTheorems.find? matcherName then
     return thms
   else
-    -- Compute theorems from match equation names
     let eqns ← Match.getEquationsFor matcherName
     let thms := Theorems.insertMany {} <| ← eqns.eqnNames.mapM mkTheoremFromDecl
-    -- Store in cache
+
     modifyEnv fun env =>
       cbvTheoremsLookup.modifyState env fun cache =>
         { cache with matchTheorems := cache.matchTheorems.insert matcherName thms }

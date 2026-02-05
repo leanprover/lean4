@@ -101,7 +101,7 @@ static const lean_ctor_object l_Lean_Compiler_LCNF_InferType_Pure_inferConstType
 static const lean_object* l_Lean_Compiler_LCNF_InferType_Pure_inferConstType___redArg___closed__1 = (const lean_object*)&l_Lean_Compiler_LCNF_InferType_Pure_inferConstType___redArg___closed__1_value;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getPhase___redArg(lean_object*);
-lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f___redArg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_instantiateTypeLevelParams___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_erasedExpr;
@@ -2211,7 +2211,7 @@ lean_dec_ref(x_9);
 x_11 = lean_unbox(x_10);
 lean_dec(x_10);
 lean_inc(x_1);
-x_12 = l_Lean_Compiler_LCNF_getDeclAt_x3f___redArg(x_1, x_11, x_5);
+x_12 = l_Lean_Compiler_LCNF_getDeclAt_x3f(x_1, x_11, x_4, x_5);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -8487,7 +8487,8 @@ return x_10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Alt_inferType(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+switch (lean_obj_tag(x_2)) {
+case 0:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_2, 2);
@@ -8496,14 +8497,24 @@ lean_dec_ref(x_2);
 x_9 = l_Lean_Compiler_LCNF_Code_inferType(x_1, x_8, x_3, x_4, x_5, x_6);
 return x_9;
 }
-else
+case 1:
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_2, 0);
+x_10 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_10);
 lean_dec_ref(x_2);
 x_11 = l_Lean_Compiler_LCNF_Code_inferType(x_1, x_10, x_3, x_4, x_5, x_6);
 return x_11;
+}
+default: 
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_2, 0);
+lean_inc_ref(x_12);
+lean_dec_ref(x_2);
+x_13 = l_Lean_Compiler_LCNF_Code_inferType(x_1, x_12, x_3, x_4, x_5, x_6);
+return x_13;
+}
 }
 }
 }

@@ -230,7 +230,11 @@ def mkGrindParams
   let params ← if only then Grind.mkOnlyParams config else Grind.mkDefaultParams config
   let mut params ← elabGrindParams params ps (lax := config.lax) (only := only)
   if config.suggestions then
-    params ← elabGrindSuggestions params (← LibrarySuggestions.select mvarId { caller := some "grind" })
+    let lsConfig : LibrarySuggestions.Config := { caller := some "grind" }
+    let lsConfig := match config.maxSuggestions with
+      | some n => { lsConfig with maxSuggestions := n }
+      | none => lsConfig
+    params ← elabGrindSuggestions params (← LibrarySuggestions.select mvarId lsConfig)
   if config.locals then
     params ← elabGrindLocals params
   trace[grind.debug.inj] "{params.extensions[0]!.inj.getOrigins.map (·.pp)}"

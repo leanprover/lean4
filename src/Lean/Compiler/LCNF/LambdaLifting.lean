@@ -198,6 +198,7 @@ Eliminate all local function declarations.
 -/
 def lambdaLifting : Pass where
   phase      := .mono
+  phaseOut   := .mono
   name       := `lambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl =>
@@ -211,6 +212,7 @@ their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
+  phaseOut   := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do

@@ -278,7 +278,6 @@ static const lean_string_object l_Lean_Doc_instReprListItem_repr___redArg___clos
 static const lean_object* l_Lean_Doc_instReprListItem_repr___redArg___closed__8 = (const lean_object*)&l_Lean_Doc_instReprListItem_repr___redArg___closed__8_value;
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lean_Doc_instReprListItem_repr___redArg___closed__9;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Lean_Doc_instReprListItem_repr___redArg___closed__10;
 static const lean_ctor_object l_Lean_Doc_instReprListItem_repr___redArg___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Doc_instReprListItem_repr___redArg___closed__0_value)}};
 static const lean_object* l_Lean_Doc_instReprListItem_repr___redArg___closed__11 = (const lean_object*)&l_Lean_Doc_instReprListItem_repr___redArg___closed__11_value;
@@ -3562,7 +3561,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Doc_instReprListItem_repr___redArg___closed__9;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

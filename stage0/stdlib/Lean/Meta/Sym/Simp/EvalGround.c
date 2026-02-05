@@ -113,7 +113,6 @@ static lean_object* l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_S
 lean_object* l_Lean_Meta_Sym_getRatValue_x3f(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_instToExprRat_mkInt(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3384,7 +3383,7 @@ x_33 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_34 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_35 = l_Lean_instToExprRat_mkInt(x_28);
 lean_dec(x_28);
-x_36 = l_instNatCastInt___lam__0(x_29);
+x_36 = lean_nat_to_int(x_29);
 x_37 = l_Lean_instToExprRat_mkInt(x_36);
 lean_dec(x_36);
 x_38 = l_Lean_mkApp6(x_32, x_33, x_33, x_33, x_34, x_35, x_37);
@@ -3513,7 +3512,7 @@ x_41 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_42 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_43 = l_Lean_instToExprRat_mkInt(x_36);
 lean_dec(x_36);
-x_44 = l_instNatCastInt___lam__0(x_37);
+x_44 = lean_nat_to_int(x_37);
 x_45 = l_Lean_instToExprRat_mkInt(x_44);
 lean_dec(x_44);
 x_46 = l_Lean_mkApp6(x_40, x_41, x_41, x_41, x_42, x_43, x_45);
@@ -7554,7 +7553,7 @@ x_37 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_38 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_39 = l_Lean_instToExprRat_mkInt(x_32);
 lean_dec(x_32);
-x_40 = l_instNatCastInt___lam__0(x_33);
+x_40 = lean_nat_to_int(x_33);
 x_41 = l_Lean_instToExprRat_mkInt(x_40);
 lean_dec(x_40);
 x_42 = l_Lean_mkApp6(x_36, x_37, x_37, x_37, x_38, x_39, x_41);
@@ -7612,7 +7611,7 @@ x_54 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_55 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_56 = l_Lean_instToExprRat_mkInt(x_49);
 lean_dec(x_49);
-x_57 = l_instNatCastInt___lam__0(x_50);
+x_57 = lean_nat_to_int(x_50);
 x_58 = l_Lean_instToExprRat_mkInt(x_57);
 lean_dec(x_57);
 x_59 = l_Lean_mkApp6(x_53, x_54, x_54, x_54, x_55, x_56, x_58);
@@ -7765,7 +7764,7 @@ x_45 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_46 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_47 = l_Lean_instToExprRat_mkInt(x_40);
 lean_dec(x_40);
-x_48 = l_instNatCastInt___lam__0(x_41);
+x_48 = lean_nat_to_int(x_41);
 x_49 = l_Lean_instToExprRat_mkInt(x_48);
 lean_dec(x_48);
 x_50 = l_Lean_mkApp6(x_44, x_45, x_45, x_45, x_46, x_47, x_49);
@@ -7823,7 +7822,7 @@ x_62 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_63 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryRat___redArg___closed__15;
 x_64 = l_Lean_instToExprRat_mkInt(x_57);
 lean_dec(x_57);
-x_65 = l_instNatCastInt___lam__0(x_58);
+x_65 = lean_nat_to_int(x_58);
 x_66 = l_Lean_instToExprRat_mkInt(x_65);
 lean_dec(x_65);
 x_67 = l_Lean_mkApp6(x_61, x_62, x_62, x_62, x_63, x_64, x_66);

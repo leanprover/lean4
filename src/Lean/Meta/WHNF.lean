@@ -490,7 +490,8 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   | .all     => return true
   | .default => return !(← isIrreducible info.name)
   | _ =>
-    if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+    let status ← getReducibilityStatus info.name
+    if status matches .reducible | .instanceReducible then
       return true
     else if hasMatchPatternAttribute (← getEnv) info.name then
       return true

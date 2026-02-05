@@ -701,36 +701,64 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
 /-! # Helper functions for processing Syntax programmatically -/
 
 /--
-  Create an identifier copying the position from `src`.
-  To refer to a specific constant, use `mkCIdentFrom` instead. -/
+Creates an identifier with its position copied from `src`.
+
+To refer to a specific constant without a risk of variable capture, use `mkCIdentFrom` instead.
+-/
 def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
   ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 
+/--
+Creates an identifier with its position copied from the syntax returned by `getRef`.
+
+To refer to a specific constant without a risk of variable capture, use `mkCIdentFromRef` instead.
+-/
 def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m Ident := do
   return mkIdentFrom (← getRef) val canonical
 
 /--
-  Create an identifier referring to a constant `c` copying the position from `src`.
-  This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
-  be captured. -/
+Creates an identifier referring to a constant `c`. The identifier's position is copied from `src`.
+
+This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally be captured.
+-/
 def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
   ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString id).toRawSubstring id [.decl c []]⟩
 
+/--
+Creates an identifier referring to a constant `c`. The identifier's position is copied from the
+syntax returned by `getRef`.
+
+This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally be captured.
+-/
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
   return mkCIdentFrom (← getRef) c canonical
 
+/--
+Creates an identifier that refers to a constant `c`. The identifier has no source position.
+
+This variant of `mkIdent` makes sure that the identifier cannot accidentally be captured.
+-/
 def mkCIdent (c : Name) : Ident :=
   mkCIdentFrom Syntax.missing c
 
+/--
+Creates an identifier from a name. The resulting identifier has no source position.
+-/
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 
+/--
+Creates a group node, as if it were parsed by `Lean.Parser.group`.
+-/
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
 
+/--
+Creates an array of syntax, separated by `sep`.
+-/
 def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run do
   let mut i := 0
   let mut r := #[]
@@ -742,22 +770,45 @@ def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run do
     i := i + 1
   return r
 
+/--
+Creates an optional node.
+
+Optional nodes consist of null nodes that contain either zero or one element.
+-/
 def mkOptionalNode (arg : Option Syntax) : Syntax :=
   match arg with
   | some arg => mkNullNode #[arg]
   | none     => mkNullNode #[]
 
+/--
+Creates a hole (`_`). The hole's position is copied from `ref`.
+-/
 def mkHole (ref : Syntax) (canonical := false) : Syntax :=
   mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
 
 namespace Syntax
 
+/--
+Creates the syntax of a separated array of items. `sep` is inserted between each item from `a`, and
+the result is wrapped in a null node.
+-/
 def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
+/--
+Constructs a typed separated array from elements by adding suitable separators.
+The provided array should not include the separators.
+
+Like `Syntax.TSepArray.ofElems` but for untyped syntax.
+-/
 def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
 ⟨mkSepArray elems (if String.Internal.isEmpty sep then mkNullNode else mkAtom sep)⟩
 
+/--
+Constructs a typed separated array from elements by adding suitable separators.
+The provided array should not include the separators.
+The generated separators' source location is that of the syntax returned by `getRef`.
+-/
 def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax) : m (SepArray sep) := do
   let ref ← getRef;
   return ⟨mkSepArray elems (if String.Internal.isEmpty sep then mkNullNode else mkAtomFrom ref sep)⟩
@@ -766,8 +817,8 @@ instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
 
 /--
-Constructs a typed separated array from elements.
-The given array does not include the separators.
+Constructs a typed separated array from elements by adding suitable separators.
+The provided array should not include the separators.
 
 Like `Syntax.SepArray.ofElems` but for typed syntax.
 -/
@@ -777,33 +828,77 @@ def TSepArray.ofElems {sep} (elems : Array (TSyntax k)) : TSepArray k sep :=
 instance : Coe (TSyntaxArray k) (TSepArray k sep) where
   coe := TSepArray.ofElems
 
-/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
+/--
+Creates syntax representing a Lean term application, but avoids degenerate empty applications.
+-/
 def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
   | #[]  => fn
   | args => ⟨mkNode `Lean.Parser.Term.app #[fn, mkNullNode args.raw]⟩
 
+/--
+Creates syntax representing a Lean constant application, but avoids degenerate empty applications.
+-/
 def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
   mkApp (mkCIdent fn) args
 
+/--
+Creates a literal of the given kind. It is the caller's responsibility to ensure that the provided
+literal is a valid atom for the provided kind.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
+/--
+Creates literal syntax for the given character.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
   mkLit charLitKind (Char.quote val) info
 
+/--
+Creates literal syntax for the given string.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
+/--
+Creates literal syntax for a number, which is provided as a string. The caller must ensure that the
+string is a valid token for the `num` token parser.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
 
+/--
+Creates literal syntax for a natural number.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkNatLit (val : Nat) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind (toString val) info
 
+/--
+Creates literal syntax for a number in scientific notation. The caller must ensure that the provided
+string is a valid scientific notation literal.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 
+/--
+Creates literal syntax for a name. The caller must ensure that the provided string is a valid name
+literal.
+
+If `info` is provided, then the literal's source information is copied from it.
+-/
 def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
@@ -894,9 +989,10 @@ def isNatLit? (s : Syntax) : Option Nat :=
 def isFieldIdx? (s : Syntax) : Option Nat :=
   isNatLitAux fieldIdxKind s
 
-/-- Decodes a 'scientific number' string which is consumed by the `OfScientific` class.
-  Takes as input a string such as `123`, `123.456e7` and returns a triple `(n, sign, e)` with value given by
-  `n * 10^-e` if `sign` else `n * 10^e`.
+/--
+Decodes a 'scientific number' string which is consumed by the `OfScientific` class. Takes as input a
+string such as `123`, `123.456e7` and returns a triple `(n, sign, e)` with value given by
+`n * 10^-e` if `sign` else `n * 10^e`.
 -/
 partial def decodeScientificLitVal? (s : String) : Option (Nat × Bool × Nat) :=
   let len := String.Internal.length s
@@ -1286,8 +1382,17 @@ def HygieneInfo.mkIdent (s : HygieneInfo) (val : Name) (canonical := false) : Id
   let id := { extractMacroScopes src.getId with name := val.eraseMacroScopes }.review
   ⟨Syntax.ident (SourceInfo.fromRef src canonical) (Name.Internal.Meta.toString val).toRawSubstring id []⟩
 
-/-- Reflect a runtime datum back to surface syntax (best-effort). -/
+/--
+Converts a runtime value into surface syntax that denotes it.
+
+Instances do not need to guarantee that the resulting syntax will always re-elaborate into an
+equivalent value. For example, the syntax may omit implicit arguments that can usually be found
+automatically.
+-/
 class Quote (α : Type) (k : SyntaxNodeKind := `term) where
+  /--
+  Returns syntax for the given value.
+  -/
   quote : α → TSyntax k
 
 export Quote (quote)
@@ -1438,12 +1543,19 @@ end Array
 
 namespace Lean.Syntax
 
+/--
+Extracts the non-separator elements of a separated array.
+-/
 def SepArray.getElems (sa : SepArray sep) : Array Syntax :=
   sa.elemsAndSeps.getSepElems
 
+@[inherit_doc SepArray.getElems]
 def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
   .mk sa.elemsAndSeps.getSepElems
 
+/--
+Adds an element to the end of a separated array, adding a separator as needed.
+-/
 def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
   if sa.elemsAndSeps.isEmpty then
     { elemsAndSeps := #[e] }

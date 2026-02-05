@@ -80,7 +80,7 @@ section MonadLift
 
 @[simp]
 theorem monadLift_StateT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg σ ps)) :
-  wp⟦MonadLift.monadLift x : StateT σ m α⟧ Q = fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2) := by simp [wp, MonadLift.monadLift, StateT.lift]
+  wp⟦MonadLift.monadLift x : StateT σ m α⟧ Q = fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2) := by simp [wp, MonadLift.monadLift]
 
 @[simp]
 theorem monadLift_ReaderT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg ρ ps)) :
@@ -89,12 +89,12 @@ theorem monadLift_ReaderT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (
 @[simp]
 theorem monadLift_ExceptT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except ε ps)) :
   wp⟦MonadLift.monadLift x : ExceptT ε m α⟧ Q = wp⟦x⟧ (fun a => Q.1 a, Q.2.2) := by
-    simp [wp, MonadLift.monadLift, ExceptT.lift, ExceptT.mk]
+    simp [wp, MonadLift.monadLift]
 
 @[simp]
 theorem monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except PUnit ps)) :
   wp⟦MonadLift.monadLift x : OptionT m α⟧ Q = wp⟦x⟧ (fun a => Q.1 a, Q.2.2) := by
-    simp [wp, MonadLift.monadLift, OptionT.lift, OptionT.mk]
+    simp [wp, MonadLift.monadLift]
 
 @[simp]
 theorem monadLift_trans [WP o ps] [MonadLift n o] [MonadLiftT m n] :
@@ -184,7 +184,7 @@ theorem getModify_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
 @[simp]
 theorem read_ReaderT [Monad m] [WPMonad m ps] :
     wp⟦MonadReaderOf.read : ReaderT ρ m ρ⟧ Q = fun r => Q.1 r r := by
-  simp [wp, MonadReaderOf.read, ReaderT.read]
+  simp [wp, MonadReaderOf.read]
 
 @[simp]
 theorem adapt_ReaderT [WP m ps] (f : ρ → ρ') :
@@ -193,22 +193,25 @@ theorem adapt_ReaderT [WP m ps] (f : ρ → ρ') :
 @[simp]
 theorem get_StateT [Monad m] [WPMonad m ps] :
     wp⟦MonadStateOf.get : StateT σ m σ⟧ Q = fun s => Q.1 s s := by
-  simp [wp, MonadStateOf.get, StateT.get]
+  suffices h : wp⟦get : StateT σ m σ⟧ Q = fun s => Q.1 s s from h
+  simp [wp]
 
 @[simp]
 theorem set_StateT [Monad m] [WPMonad m ps] (x : σ) :
     wp⟦MonadStateOf.set x : StateT σ m PUnit⟧ Q = fun _ => Q.1 ⟨⟩ x := by
-  simp [wp, set, StateT.set]
+  suffices h : wp⟦set x : StateT σ m PUnit⟧ Q = fun _ => Q.1 ⟨⟩ x from h
+  simp [wp]
 
 @[simp]
 theorem modifyGet_StateT [Monad m] [WPMonad m ps] (f : σ → α × σ) :
     wp⟦MonadStateOf.modifyGet f : StateT σ m α⟧ Q = fun s => Q.1 (f s).1 (f s).2 := by
-  simp [wp, MonadStateOf.modifyGet, StateT.modifyGet]
+  suffices h : wp⟦modifyGet f : StateT σ m α⟧ Q = fun s => Q.1 (f s).1 (f s).2 from h
+  simp [wp]
 
 @[simp]
 theorem adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') :
     wp⟦ExceptT.adapt f x : ExceptT ε' m α⟧ Q = wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2) := by
-  simp [wp, ExceptT.adapt, ExceptT.mk, Except.mapError]
+  simp [wp, ExceptT.run_adapt, Except.mapError, -ExceptT_run]
   congr
   ext x
   cases x <;> simp
@@ -216,24 +219,27 @@ theorem adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') :
 @[simp]
 theorem get_EStateM :
     wp⟦MonadStateOf.get : EStateM ε σ σ⟧ Q = fun s => Q.1 s s := by
-  simp [wp, MonadStateOf.get, EStateM.get]
+  suffices h : wp⟦get : EStateM ε σ σ⟧ Q = fun s => Q.1 s s from h
+  simp [wp, PredTrans.apply]
 
 @[simp]
 theorem set_EStateM (x : σ) :
     wp⟦MonadStateOf.set x : EStateM ε σ PUnit⟧ Q = fun _ => Q.1 ⟨⟩ x := by
-  simp [wp, set, EStateM.set]
+  suffices h : wp⟦set x : EStateM ε σ PUnit⟧ Q = fun _ => Q.1 ⟨⟩ x from h
+  simp [wp, PredTrans.apply]
 
 @[simp]
 theorem modifyGet_EStateM (f : σ → α × σ) :
     wp⟦MonadStateOf.modifyGet f : EStateM ε σ α⟧ Q = fun s => Q.1 (f s).1 (f s).2 := by
-  simp [wp, MonadStateOf.modifyGet, EStateM.modifyGet]
+  suffices h : wp⟦modifyGet f : EStateM ε σ α⟧ Q = fun s => Q.1 (f s).1 (f s).2 from h
+  simp [wp, PredTrans.apply]
 
 @[simp]
 theorem adaptExcept_EStateM (f : ε → ε') :
     wp⟦EStateM.adaptExcept f x : EStateM ε' σ α⟧ Q = wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2) := by
-  simp [wp, EStateM.adaptExcept]
+  simp [wp, PredTrans.apply]
   ext s
-  cases (x s) <;> simp
+  cases (x.run s) <;> rfl
 
 end MonadLift
 
@@ -356,12 +362,12 @@ theorem restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
 @[simp]
 theorem restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
     wp⟦MonadControl.restoreM (m:=m) x : ReaderT ρ m α⟧ Q = fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2) := by
-  simp [wp, MonadControl.restoreM]
+  simp [wp, ReaderT.run, MonadControl.restoreM]
 
 @[simp]
 theorem restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     wp⟦MonadControl.restoreM (m:=m) x : ExceptT ε m α⟧ Q = wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2) := by
-  simp [wp, MonadControl.restoreM]
+  simp [wp, MonadControl.restoreM, -ExceptT_run]
   congr
   ext
   split <;> rfl
@@ -369,7 +375,7 @@ theorem restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
 @[simp]
 theorem restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     wp⟦MonadControl.restoreM (m:=m) x : OptionT m α⟧ Q = wp⟦x⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2) := by
-  simp [wp, MonadControl.restoreM]
+  simp [wp, MonadControl.restoreM, -OptionT_run]
   congr
   ext
   split <;> rfl
@@ -416,27 +422,28 @@ theorem throwThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem throw_Except :
     wp⟦MonadExceptOf.throw e : Except ε α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run]
+  simp [wp, MonadExceptOf.throw, Id.run, ExceptT.run]
 
 @[simp]
 theorem throw_ExceptT [Monad m] [WPMonad m ps] :
     wp⟦MonadExceptOf.throw e : ExceptT ε m α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, ExceptT.mk]
+  simp [wp, MonadExceptOf.throw]
 
 @[simp]
 theorem throw_Option :
     wp⟦MonadExceptOf.throw e : Option α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, Id.run]
+  simp [wp, MonadExceptOf.throw, Id.run, OptionT.run]
 
 @[simp]
 theorem throw_OptionT [Monad m] [WPMonad m ps] :
     wp⟦MonadExceptOf.throw e : OptionT m α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, OptionT.fail, OptionT.mk]
+  simp [wp, MonadExceptOf.throw, OptionT.fail]
 
 @[simp]
 theorem throw_EStateM :
     wp⟦MonadExceptOf.throw e : EStateM ε σ α⟧ Q = Q.2.1 e := by
-  simp [wp, MonadExceptOf.throw, EStateM.throw]
+  simp only [PredTrans.apply, wp]
+  rfl
 
 @[simp]
 theorem throw_ReaderT [WP m sh] [Monad m] [MonadExceptOf ε m] :
@@ -477,14 +484,16 @@ theorem tryCatchThe [MonadExceptOf ε m] [WP m ps] :
 @[simp]
 theorem tryCatch_Except :
     wp⟦MonadExceptOf.tryCatch x h : Except ε α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, PredTrans.pure, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
+  simp only [wp, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
     PredTrans.pushExcept_apply]
   cases x <;> simp
 
 @[simp]
 theorem tryCatch_ExceptT [Monad m] [WPMonad m ps] :
     wp⟦MonadExceptOf.tryCatch x h : ExceptT ε m α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, MonadExceptOf.tryCatch, ExceptT.tryCatch, ExceptT.mk, bind, PredTrans.pushExcept_apply]
+  simp only [wp, MonadExceptOf.tryCatch, ExceptT.tryCatch, ExceptT.run_mk,
+    PredTrans.pushExcept_apply, bind]
+  simp only [ExceptT.run]
   congr
   ext x
   cases x <;> simp
@@ -492,14 +501,16 @@ theorem tryCatch_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem tryCatch_Option :
     wp⟦MonadExceptOf.tryCatch x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, PredTrans.pure, Id.run, MonadExceptOf.tryCatch, Option.tryCatch,
+  simp only [wp, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
     PredTrans.pushOption_apply]
   cases x <;> simp
 
 @[simp]
 theorem tryCatch_OptionT [Monad m] [WPMonad m ps] :
     wp⟦MonadExceptOf.tryCatch x h : OptionT m α⟧ Q = wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2) := by
-  simp only [wp, MonadExceptOf.tryCatch, OptionT.tryCatch, OptionT.mk, bind, PredTrans.pushOption_apply]
+  simp only [wp, MonadExceptOf.tryCatch, OptionT.tryCatch, OptionT.run_mk,
+    PredTrans.pushOption_apply, bind]
+  simp only [OptionT.run]
   congr
   ext x
   cases x <;> simp
@@ -509,7 +520,7 @@ open EStateM.Backtrackable in
 theorem tryCatch_EStateM {ε σ δ α x h Q} [EStateM.Backtrackable δ σ]:
     wp⟦MonadExceptOf.tryCatch x h : EStateM ε σ α⟧ Q = fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s := by
   ext s
-  simp only [wp, MonadExceptOf.tryCatch, EStateM.tryCatch]
+  simp only [PredTrans.apply, wp, EStateM.run, MonadExceptOf.tryCatch, EStateM.tryCatch]
   cases x s <;> simp
 
 @[simp]
@@ -525,7 +536,7 @@ theorem tryCatch_StateT [WP m sh] [Monad m] [MonadExceptOf ε m] :
 @[simp]
 theorem tryCatch_lift_ExceptT [WP m sh] [Monad m] [MonadExceptOf ε m] :
     wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : ExceptT ε' m α⟧ Q = wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2) := by
-  simp only [wp, MonadExceptOf.tryCatch, tryCatchThe, PredTrans.pushExcept_apply, ExceptT.mk]
+  simp only [wp, MonadExceptOf.tryCatch, PredTrans.pushExcept_apply, ExceptT.mk]
   congr
   ext x
   split <;> rfl
@@ -533,7 +544,7 @@ theorem tryCatch_lift_ExceptT [WP m sh] [Monad m] [MonadExceptOf ε m] :
 @[simp]
 theorem tryCatch_lift_OptionT [WP m sh] [Monad m] [MonadExceptOf ε m] :
     wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : OptionT m α⟧ Q = wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2) := by
-  simp only [wp, MonadExceptOf.tryCatch, tryCatchThe, PredTrans.pushOption_apply, OptionT.mk]
+  simp only [wp, MonadExceptOf.tryCatch, PredTrans.pushOption_apply, OptionT.mk]
   congr
   ext x
   split <;> rfl
@@ -563,7 +574,7 @@ open EStateM.Backtrackable in
 theorem orElse_EStateM {ε σ δ α x h Q} [EStateM.Backtrackable δ σ]:
     wp⟦OrElse.orElse x h : EStateM ε σ α⟧ Q = fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s := by
   ext s
-  simp only [wp, OrElse.orElse, EStateM.orElse]
+  simp only [PredTrans.apply, wp, EStateM.run, OrElse.orElse, EStateM.orElse]
   cases x s <;> simp
 
 @[simp]
@@ -579,12 +590,14 @@ theorem orElse_ExceptT [Monad m] [WPMonad m ps] :
 @[simp]
 theorem orElse_Option  :
     wp⟦OrElse.orElse x h : Option α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
-  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Id.run]
+  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Id.run, OptionT.run]
 
 @[simp]
 theorem orElse_OptionT [Monad m] [WPMonad m ps] :
     wp⟦OrElse.orElse x h : OptionT m α⟧ Q = wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2) := by
-  simp [OrElse.orElse, Alternative.orElse, OptionT.orElse, OptionT.mk, wp]
+  simp only [wp, OrElse.orElse, Alternative.orElse, OptionT.orElse, OptionT.run_mk,
+    PredTrans.pushOption_apply, bind]
+  simp only [OptionT.run]
   congr
   ext x
   cases x <;> simp

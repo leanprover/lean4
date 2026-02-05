@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Basic
-// Imports: public import Init.Data.Array.InsertIdx public import Init.Data.Array.Range public import Init.Data.Range public import Init.Data.Slice.Array.Iterator
+// Imports: public import Init.Data.Array.InsertIdx public import Init.Data.Array.Range public import Init.Data.Range public import Init.Data.Slice.Array.Iterator import Init.Data.Array.Nat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -45,7 +45,6 @@ static const lean_string_object l_instReprVector_repr___redArg___closed__14_valu
 static const lean_object* l_instReprVector_repr___redArg___closed__14 = (const lean_object*)&l_instReprVector_repr___redArg___closed__14_value;
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_instReprVector_repr___redArg___closed__15;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_instReprVector_repr___redArg___closed__16;
 static const lean_ctor_object l_instReprVector_repr___redArg___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_instReprVector_repr___redArg___closed__0_value)}};
 static const lean_object* l_instReprVector_repr___redArg___closed__17 = (const lean_object*)&l_instReprVector_repr___redArg___closed__17_value;
@@ -813,7 +812,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprVector_repr___redArg___closed__15;
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -4357,7 +4356,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Vector_eraseIdx_x21___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(391u);
+x_3 = lean_unsigned_to_nat(392u);
 x_4 = ((lean_object*)(l_Vector_eraseIdx_x21___redArg___closed__1));
 x_5 = ((lean_object*)(l_Vector_eraseIdx_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4479,7 +4478,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Vector_eraseIdx_x21___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(404u);
+x_3 = lean_unsigned_to_nat(405u);
 x_4 = ((lean_object*)(l_Vector_insertIdx_x21___redArg___closed__0));
 x_5 = ((lean_object*)(l_Vector_eraseIdx_x21___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7124,6 +7123,7 @@ lean_object* initialize_Init_Data_Array_InsertIdx(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Nat(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin) {
 lean_object * res;
@@ -7139,6 +7139,9 @@ res = initialize_Init_Data_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Array_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instReprVector_repr___redArg___closed__7 = _init_l_instReprVector_repr___redArg___closed__7();

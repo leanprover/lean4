@@ -88,6 +88,8 @@ class Semiring (α : Type u) extends Add α, Mul α where
   -/
   nsmul_eq_natCast_mul : ∀ n : Nat, ∀ a : α, n • a = Nat.cast n * a := by intros; rfl
 
+attribute [instance_reducible] Semiring.npow Semiring.ofNat Semiring.natCast
+
 /--
 A ring, i.e. a type equipped with addition, negation, multiplication, and a map from the integers,
 satisfying appropriate compatibilities.
@@ -111,6 +113,8 @@ class Ring (α : Type u) extends Semiring α, Neg α, Sub α where
   intCast_ofNat : ∀ n : Nat, Int.cast (OfNat.ofNat (α := Int) n) = OfNat.ofNat (α := α) n := by intros; rfl
   /-- The canonical map from the integers is consistent with negation. -/
   intCast_neg : ∀ i : Int, Int.cast (R := α) (-i) = -Int.cast i := by intros; rfl
+
+attribute [instance_reducible] Ring.intCast Ring.zsmul
 
 /--
 A commutative semiring, i.e. a semiring with commutative multiplication.

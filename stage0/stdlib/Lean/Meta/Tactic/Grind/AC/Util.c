@@ -1650,7 +1650,7 @@ if (x_20 == 0)
 {
 lean_object* x_21; uint8_t x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; 
 x_21 = lean_ctor_get(x_19, 0);
-x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*10 + 20);
+x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*11 + 20);
 lean_dec(x_21);
 if (x_22 == 0)
 {
@@ -2022,7 +2022,7 @@ lean_object* x_70; uint8_t x_71; lean_object* x_72; uint8_t x_73; lean_object* x
 x_70 = lean_ctor_get(x_19, 0);
 lean_inc(x_70);
 lean_dec(x_19);
-x_71 = lean_ctor_get_uint8(x_70, sizeof(void*)*10 + 20);
+x_71 = lean_ctor_get_uint8(x_70, sizeof(void*)*11 + 20);
 lean_dec(x_70);
 if (x_71 == 0)
 {

@@ -7,18 +7,19 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Lean.Meta.Tactic.Cbv.Types
 public import Lean.Meta.Sym.Simp.SimpM
-public import Lean.Meta.Sym.Simp.Theorems
-public import Lean.Meta.Sym.Simp.Rewrite
-public import Lean.Meta.Tactic.Cbv.Forbidden
-public import Lean.Meta.Tactic.Cbv.CbvEvalExt
+public import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Sym
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
+
+public register_builtin_option cbv.warning : Bool := {
+  defValue := true
+  descr    := "disable `cbv` usage warning"
+}
 
 def skipBinders : Simproc := fun e => do
   return .rfl (e.isLambda || e.isForall)
@@ -32,14 +33,6 @@ def reduceRecMatcher : Simproc := fun e => do
     return .step e' (← Sym.mkEqRefl e')
   else
     return .rfl
-
-def tryUserLemmas : Simproc := fun e => do
-  unless e.isApp do return .rfl
-  let some appFn := e.getAppFn.constName? | return .rfl
-  let some names ← getCbvEvalLemmas appFn | return .rfl
-  trace[Meta.Tactic.cbv] "found user lemmas: {names}"
-  let thms := Theorems.insertMany {} <| ← names.mapM (do mkTheoremFromDecl ·)
-  (simpAppArgs >> thms.rewrite (d := dischargeNone)) e
 
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
@@ -86,13 +79,13 @@ def handleApp : Simproc := fun e => do
   | .lam .. => betaReduce e
   | _ => return .rfl
 
-def isForbiddenApp : Simproc := fun e => do
+def isOpaqueApp : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
-  return .rfl (← isForbidden fnName)
+  return .rfl (← isCbvOpaque fnName)
 
-def isForbiddenConst : Simproc := fun e => do
+def isOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
-  return .rfl (← isForbidden  constName)
+  return .rfl (← isCbvOpaque  constName)
 
 def foldLit : Simproc := fun e => do
  let some n := e.rawNatLit? | return .rfl
@@ -126,7 +119,7 @@ def handleProj : Simproc := fun e => do
     let newProof ← mkCongrArg congrArgFun proof
     return .step (← Lean.Expr.updateProjS! e e') newProof
 
-def simplifyLhs : Simproc := fun e => do
+def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl
     let fn := e.getAppFn
     unless fn.isLambda || fn.isConst do
@@ -155,11 +148,13 @@ def handleConst : Simproc := fun e => do
 
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
-  >>  (tryMatcher >> simpControl) <|> ((isForbiddenConst >> handleConst) <|> (tryUserLemmas >> isForbiddenApp) <|> simplifyLhs <|> handleProj)
+  >>  isOpaqueApp
+  >>  (tryMatcher >> simpControl)
+    <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=
       evalGround
-  >>  ((handleApp) <|> zetaReduce)
+  >>  (handleApp <|> zetaReduce)
   >>  foldLit
 
 public def cbvEntry (e : Expr) : MetaM Result := do

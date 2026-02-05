@@ -29,7 +29,7 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
     (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
     (h : ∀ a m b, f a m b = g a b) :
     forIn' x b f = forIn x b g := by
-  simp [instForInOfForIn']
+  simp [forIn]
   congr
   apply funext
   intro a

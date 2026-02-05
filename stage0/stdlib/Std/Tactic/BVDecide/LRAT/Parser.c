@@ -68,7 +68,6 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__2;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__3;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__4;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__5;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseId(lean_object*);
@@ -891,7 +890,7 @@ x_40 = lean_nat_dec_eq(x_37, x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; lean_object* x_42; 
-x_41 = l_instNatCastInt___lam__0(x_37);
+x_41 = lean_nat_to_int(x_37);
 x_42 = lean_int_neg(x_41);
 lean_dec(x_41);
 lean_ctor_set(x_35, 1, x_42);
@@ -922,7 +921,7 @@ x_47 = lean_nat_dec_eq(x_44, x_46);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-x_48 = l_instNatCastInt___lam__0(x_44);
+x_48 = lean_nat_to_int(x_44);
 x_49 = lean_int_neg(x_48);
 lean_dec(x_48);
 x_50 = lean_alloc_ctor(0, 2, 0);
@@ -1032,7 +1031,7 @@ x_78 = lean_nat_dec_eq(x_74, x_77);
 if (x_78 == 0)
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; 
-x_79 = l_instNatCastInt___lam__0(x_74);
+x_79 = lean_nat_to_int(x_74);
 x_80 = lean_int_neg(x_79);
 lean_dec(x_79);
 if (lean_is_scalar(x_76)) {
@@ -2666,7 +2665,7 @@ x_93 = lean_nat_dec_eq(x_90, x_92);
 if (x_93 == 0)
 {
 lean_object* x_94; lean_object* x_95; 
-x_94 = l_instNatCastInt___lam__0(x_90);
+x_94 = lean_nat_to_int(x_90);
 x_95 = lean_int_neg(x_94);
 lean_dec(x_94);
 lean_ctor_set(x_88, 1, x_95);
@@ -2697,7 +2696,7 @@ x_100 = lean_nat_dec_eq(x_97, x_99);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; 
-x_101 = l_instNatCastInt___lam__0(x_97);
+x_101 = lean_nat_to_int(x_97);
 x_102 = lean_int_neg(x_101);
 lean_dec(x_101);
 x_103 = lean_alloc_ctor(0, 2, 0);
@@ -2807,7 +2806,7 @@ x_131 = lean_nat_dec_eq(x_127, x_130);
 if (x_131 == 0)
 {
 lean_object* x_132; lean_object* x_133; lean_object* x_134; 
-x_132 = l_instNatCastInt___lam__0(x_127);
+x_132 = lean_nat_to_int(x_127);
 x_133 = lean_int_neg(x_132);
 lean_dec(x_132);
 if (lean_is_scalar(x_129)) {
@@ -3079,7 +3078,7 @@ if (x_94 == 0)
 lean_object* x_95; lean_object* x_96; 
 lean_free_object(x_89);
 lean_dec_ref(x_1);
-x_95 = l_instNatCastInt___lam__0(x_91);
+x_95 = lean_nat_to_int(x_91);
 x_96 = lean_int_neg(x_95);
 lean_dec(x_95);
 x_2 = x_92;
@@ -3112,7 +3111,7 @@ if (x_101 == 0)
 {
 lean_object* x_102; lean_object* x_103; 
 lean_dec_ref(x_1);
-x_102 = l_instNatCastInt___lam__0(x_98);
+x_102 = lean_nat_to_int(x_98);
 x_103 = lean_int_neg(x_102);
 lean_dec(x_102);
 x_2 = x_99;
@@ -11110,7 +11109,7 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tact
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 x_4 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(x_1, x_3);
 lean_dec(x_3);
 return x_4;

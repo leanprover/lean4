@@ -260,6 +260,6 @@ end Check
 def Decl.check (decl : Decl pu) : CompilerM Unit := do
   match pu with
   | .pure => Check.Pure.run do decl.value.forCodeM (Check.Pure.checkFunDeclCore decl.name decl.params decl.type)
-  | .impure => panic! "Check for impure unimplemented" -- TODO
+  | .impure => return () -- TODO: port the IR check once it actually makes sense to
 
 end Lean.Compiler.LCNF

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source ../env_bench.sh
+source "$TEST_DIR/util.sh"
+source_init "$1"
+
+run_before "$1"
+
+TOPIC="elab/$(basename "$1" .lean)"
+
+exec_capture "$1" \
+  "$TEST_DIR/measure.py" -t "$TOPIC" -o "$1.measurements.jsonl" -d -- \
+  lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true "${TEST_LEAN_ARGS[@]}" "$1"
+
+normalize_mvar_suffixes "$1"
+normalize_reference_urls "$1"
+extract_measurements "$1" "$TOPIC"
+check_exit "$1"
+
+run_after "$1"

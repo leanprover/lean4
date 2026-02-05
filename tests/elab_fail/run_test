@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source ../env_test.sh
+source "$TEST_DIR/util.sh"
+source_init "$1"
+
+run_before "$1"
+
+# `--root` to infer same private names as in the server
+# Elab.inServer to allow for arbitrary `#eval`
+exec_capture "$1" \
+  lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true "${TEST_LEAN_ARGS[@]}" "$1"
+
+normalize_mvar_suffixes "$1"
+normalize_reference_urls "$1"
+normalize_measurements "$1"
+check_exit "$1" 1
+check_out "$1"
+
+run_after "$1"

@@ -347,7 +347,6 @@ section ServerM
   structure ReferenceData where
     loadingTask : ServerTask Unit
     references : References
-    ileanPkgs  : Std.TreeMap System.FilePath VersionedPkgId
     finalizedWorkerILeanVersions : Std.TreeMap DocumentUri Nat
     pendingWaitForILeanRequests : Array WaitForILeanRequest
 
@@ -362,23 +361,6 @@ section ServerM
     let refs := rd.references
     let rd := { rd with references := { pkgCtx := {}, pkgs := {} } }
     return { rd with references := ← f refs }
-
-  def ReferenceData.findPkg (rd : ReferenceData) (ileanPath : System.FilePath) : IO (ReferenceData × VersionedPkgId) := do
-    let some ileanDir := ileanPath.parent
-      | throw <| IO.userError s!"Got invalid .ilean path: '{ileanPath}'"
-    if let some pkg := rd.ileanPkgs.get? ileanDir then
-      return (rd, pkg)
-    let manifestPath := ileanDir / "ilean-manifest.json"
-    let .ok manifest ← EIO.toBaseIO do
-        IO.FS.readFile manifestPath
-      | throw <| IO.userError s!"Cannot read .ilean manifest at '{manifestPath}'"
-    let .ok manifest := Json.parse manifest
-      | throw <| IO.userError s!"Cannot parse .ilean manifest at '{manifestPath}'"
-    let .ok (manifest : IleanManifest) := fromJson? manifest
-      | throw <| IO.userError s!"Cannot parse .ilean manifest at '{manifestPath}'"
-    let pkg := manifest.pkg
-    let rd := { rd with ileanPkgs := rd.ileanPkgs.insert ileanDir pkg }
-    return (rd, pkg)
 
   def ReferenceData.modifyPendingWaitForILeanRequests (rd : ReferenceData)
       (f : Array WaitForILeanRequest → Array WaitForILeanRequest) : ReferenceData :=
@@ -455,13 +437,6 @@ section ServerM
       let rd ← get
       let rd ← rd.modifyReferencesM (m := IO) f
       set rd
-
-  def findPkg (ileanPath : System.FilePath) : ServerM VersionedPkgId := do
-    (← read).referenceData.atomically do
-      let rd ← get
-      let (rd, pkg) ← rd.findPkg ileanPath
-      set rd
-      return pkg
 
   def getFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).get? uri
@@ -1316,10 +1291,8 @@ section NotificationHandling
     if ! ileanChanges.isEmpty then
       let oleanSearchPath ← Lean.searchPathRef.get
       for (c, path) in ileanChanges do
-        let pkg ← try
-          findPkg path
-        catch _ =>
-          continue
+        let some pkg ← PkgContext.ileanPathToPkg? path
+          | continue
         if let FileChangeType.Deleted := c.type then
           modifyReferences (·.removeIlean pkg path)
           continue
@@ -1641,6 +1614,8 @@ def initAndRunWatchdogAux : ServerM Unit := do
   let st ← read
   try
     discard $ st.hIn.readLspNotificationAs "initialized" InitializedParams
+    let ileanWatchers := (← PkgContext.getPkgContext).ileanRoots.roots.valuesArray.map fun root =>
+      { globPattern := .relative { baseUri := pathToUri root, pattern := "**/*.ilean" } }
     writeMessage {
       id := RequestID.str "register_lean_watcher"
       method := "client/registerCapability"
@@ -1649,7 +1624,7 @@ def initAndRunWatchdogAux : ServerM Unit := do
           id := "lean_watcher"
           method := "workspace/didChangeWatchedFiles"
           registerOptions := some <| toJson {
-            watchers := #[ { globPattern := "**/*.lean" }, { globPattern := "**/*.ilean" } ]
+            watchers := #[{ globPattern := .pattern "**/*.lean" }] ++ ileanWatchers
             : DidChangeWatchedFilesRegistrationOptions
             }
         }]
@@ -1705,13 +1680,13 @@ results in requests that need references.
 -/
 def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit := do
   let task ← ServerTask.IO.asTask do
-    let oleanSearchPath ← Lean.searchPathRef.get
-    for path in ← oleanSearchPath.findAllWithExt "ilean" do
+    for path in ← PkgContext.findAllIleans do
+      let some pkg ← PkgContext.ileanPathToPkg? path
+        | continue
       try
         let ilean ← Ilean.load path
         referenceData.atomically do
           let rd ← get
-          let (rd, pkg) ← rd.findPkg path
           let rd := rd.modifyReferences (·.addIlean pkg path ilean)
           set rd
       catch _ =>
@@ -1755,7 +1730,6 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
     references := ← References.empty
     finalizedWorkerILeanVersions := ∅
     pendingWaitForILeanRequests := #[]
-    ileanPkgs := {}
   }
   startLoadingReferences referenceData
   let fileWorkersRef ← IO.mkRef ({} : Std.TreeMap DocumentUri FileWorker)

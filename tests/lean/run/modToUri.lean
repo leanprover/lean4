@@ -5,15 +5,17 @@ open Lean.Server
 
 def buildPkgContext
     (sourceRoots : Array (VersionedPkgId × Array (Name × String)))
-    (dependencies : Array (VersionedPkgId × Array VersionedPkgId)) :
+    (dependencies : Array (VersionedPkgId × Array VersionedPkgId))
+    (ileanRoots : Array (VersionedPkgId × String)) :
     PkgContext :=
   let sourceRoots : Array (VersionedPkgId × PkgContext.PkgSourceRoots) := sourceRoots.map fun (pkg, pkgRoots) =>
     let pkgRoots := pkgRoots.map fun (name, path) => (name, System.FilePath.mk path)
     (pkg, Std.TreeMap.ofArray (cmp := Name.quickCmp) pkgRoots)
   let sourceRoots := Std.TreeMap.ofArray sourceRoots
   let dependencies := Std.TreeMap.ofArray dependencies
-  let envVar := PkgContext.formatEnvVar sourceRoots dependencies
-  PkgContext.ofEnvVarContent envVar
+  let ileanRoots := Std.TreeMap.ofArray <| ileanRoots.map fun (pkg, root) => (pkg, System.FilePath.mk root)
+  let env := PkgContext.Env.format sourceRoots dependencies ileanRoots
+  PkgContext.Env.parse env
 
 def c : PkgContext := buildPkgContext
   #[
@@ -31,6 +33,14 @@ def c : PkgContext := buildPkgContext
     ("D_v1", #[.core]),
     ("D_v2", #[.core]),
     (.core, #[])
+  ]
+  #[
+    ("A_v1", "/A_v1/ileans"),
+    ("B_v1", "/B_v1/ileans"),
+    ("C_v1", "/C_v1/ileans"),
+    ("D_v1", "/D_v1/ileans"),
+    ("D_v2", "/D_v2/ileans"),
+    (.core, "/core/ileans"),
   ]
 
 /--
@@ -57,7 +67,19 @@ info: { sourceRoots := Std.TreeMap.ofList [("A_v1",
                                      ("C_v1", Std.TreeSet.ofList ["A_v1", "C_v1"]),
                                      ("D_v1", Std.TreeSet.ofList ["A_v1", "B_v1", "D_v1"]),
                                      ("D_v2", Std.TreeSet.ofList ["C_v1", "D_v2"]),
-                                     ("core", Std.TreeSet.ofList ["A_v1", "B_v1", "C_v1", "D_v1", "D_v2", "core"])] } }
+                                     ("core", Std.TreeSet.ofList ["A_v1", "B_v1", "C_v1", "D_v1", "D_v2", "core"])] },
+  ileanRoots := { roots := Std.TreeMap.ofList [("A_v1", FilePath.mk "/A_v1/ileans"),
+                            ("B_v1", FilePath.mk "/B_v1/ileans"),
+                            ("C_v1", FilePath.mk "/C_v1/ileans"),
+                            ("D_v1", FilePath.mk "/D_v1/ileans"),
+                            ("D_v2", FilePath.mk "/D_v2/ileans"),
+                            ("core", FilePath.mk "/core/ileans")],
+                  pkgs := Std.TreeMap.ofList [(FilePath.mk "/A_v1/ileans", "A_v1"),
+                           (FilePath.mk "/B_v1/ileans", "B_v1"),
+                           (FilePath.mk "/C_v1/ileans", "C_v1"),
+                           (FilePath.mk "/D_v1/ileans", "D_v1"),
+                           (FilePath.mk "/D_v2/ileans", "D_v2"),
+                           (FilePath.mk "/core/ileans", "core")] } }
 -/
 #guard_msgs in
 #eval c

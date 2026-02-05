@@ -203,17 +203,6 @@ open IO
 open Lsp
 open Elab
 
-/--
-Manifest for the .ilean files of a specific package.
-Placed in the directory as `ilean-manifest.json` for the .ileans of a specific package.
--/
-structure IleanManifest where
-  /-- Version of the manifest format. -/
-  version : Nat := 1
-  /-- Name of the package that the .ileans in this directory are for. -/
-  pkg     : VersionedPkgId
-  deriving FromJson, ToJson
-
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   /-- Version number of the ilean format. -/

@@ -183,67 +183,32 @@ structure PkgContext.Dependencies where
   dependedOnBy : Std.TreeMap VersionedPkgId (Std.TreeSet VersionedPkgId) := {}
   deriving Inhabited, Repr
 
+structure PkgContext.ILeanRoots where
+  roots : Std.TreeMap VersionedPkgId FilePath := {}
+  pkgs : Std.TreeMap FilePath VersionedPkgId := {}
+  deriving Inhabited, Repr
+
 structure PkgContext where
   sourceRoots : PkgContext.SourceRoots := {}
   dependencies : PkgContext.Dependencies := {}
+  ileanRoots : PkgContext.ILeanRoots := {}
   deriving Inhabited, Repr
 
 namespace PkgContext
 
-def ofEnvVarContent (var : String) : PkgContext := Id.run do
-  -- TODO: define
-  let .ok (.obj envVarObj) := Json.parse var
-    | panic! "PkgSourceRoots.ofEnvVar: Cannot parse LEAN_PKG_CTX environment variable"
-  let some (.obj sourceRootsObj) := envVarObj.get? "sourceRoots"
-    | panic! "PkgSourceRoots.ofEnvVar: Cannot parse 'sourceRoots' field in LEAN_PKG_CTX environment variable"
-  let some (.obj dependenciesObj) := envVarObj.get? "dependencies"
-    | panic! "PkgSourceRoots.ofEnvVar: Cannot parse 'dependencies' field in LEAN_PKG_CTX environment variable"
+structure Env where
+  /-- LEAN_SRC_ROOTS environment variable -/
+  sourceRoots : String
+  /-- LEAN_PKG_DEPS environment variable -/
+  dependencies : String
+  /-- LEAN_ILEAN_ROOTS environment variable -/
+  ileanRoots : String
 
-  let mut sourceRoots : SourceRoots := {}
-  for (k, v) in sourceRootsObj do
-    let pkgId := k
-    let .obj pkgSourceRootsObj := v
-      | panic! s!"PkgSourceRoots.ofEnvVar: Cannot parse source roots of package '{k}' in LEAN_PKG_CTX environment variable"
-    let mut pkgSourceRoots : PkgSourceRoots := {}
-    for (k, v) in pkgSourceRootsObj do
-      let modulePrefix := k.toName
-      let .str path := v
-        | panic! s!"PkgSourceRoots.ofEnvVar: Cannot parse path of package '{k}' in LEAN_PKG_CTX environment variable"
-      pkgSourceRoots := pkgSourceRoots.insert modulePrefix path
-    sourceRoots := sourceRoots.insert pkgId pkgSourceRoots
-
-  let mut dependsOn : Std.TreeMap VersionedPkgId (Std.TreeSet VersionedPkgId) := {}
-  let mut dependedOnBy : Std.TreeMap VersionedPkgId (Std.TreeSet VersionedPkgId) := {}
-  for (k, v) in dependenciesObj do
-    let pkgId := k
-    let .arr depsArr := v
-      | panic! s!"PkgSourceRoots.ofEnvVar: Cannot parse dependencies of package '{k}' in LEAN_PKG_CTX environment variable"
-    let deps := depsArr.map fun dep => Id.run do
-      let .str dep := dep
-        | panic! s!"PkgSourceRoots.ofEnvVar: Cannot parse a dependency of package '{k}' in LEAN_PKG_CTX environment variable"
-      return dep
-    let deps := Std.TreeSet.ofArray deps |>.insert pkgId
-    dependsOn := dependsOn.insert pkgId deps
-    for dep in deps do
-      dependedOnBy := dependedOnBy.alter dep fun
-        | none => some { pkgId }
-        | some inverseDeps => some <| inverseDeps.insert pkgId
-
-  return {
-    sourceRoots
-    dependencies := { dependsOn, dependedOnBy }
-  }
-
-def ofEnvVar : BaseIO PkgContext := do
-  -- TODO: define
-  let some var ← IO.getEnv "LEAN_PKG_CTX"
-    | return {}
-  return ofEnvVarContent var
-
-def formatEnvVar
+def Env.format
     (sourceRoots : Std.TreeMap VersionedPkgId PkgSourceRoots)
-    (dependencies : Std.TreeMap VersionedPkgId (Array VersionedPkgId)) :
-    String := Id.run do
+    (dependencies : Std.TreeMap VersionedPkgId (Array VersionedPkgId))
+    (ileanRoots : Std.TreeMap VersionedPkgId FilePath) :
+    Env := Id.run do
   let mut sourceRootsObj : Std.TreeMap.Raw String Json := ∅
   for (pkg, roots) in sourceRoots do
     let mut pkgSourceRootsObj : Std.TreeMap.Raw String Json := ∅
@@ -254,11 +219,82 @@ def formatEnvVar
   for (pkg, deps) in dependencies do
     let depsArr := deps.map Json.str
     dependenciesObj := dependenciesObj.insert pkg (.arr depsArr)
-  let mut envVarObj : Std.TreeMap.Raw String Json := Std.TreeMap.Raw.ofArray #[
-    ("sourceRoots", Json.obj sourceRootsObj),
-    ("dependencies", Json.obj dependenciesObj)
-  ]
-  return Json.compress (.obj envVarObj)
+  let mut ileanRootsObj : Std.TreeMap.Raw String Json := ∅
+  for (pkg, path) in ileanRoots do
+    ileanRootsObj := ileanRootsObj.insert pkg (.str path.toString)
+  return {
+    sourceRoots := Json.compress (.obj sourceRootsObj)
+    dependencies := Json.compress (.obj dependenciesObj)
+    ileanRoots := Json.compress (.obj ileanRootsObj)
+  }
+
+def Env.parse (env : Env) : PkgContext := Id.run do
+  let .ok (.obj sourceRootsObj) := Json.parse env.sourceRoots
+    | panic! "PkgContext.Env.parse: Cannot parse LEAN_SRC_ROOTS environment variable"
+  let .ok (.obj dependenciesObj) := Json.parse env.dependencies
+    | panic! "PkgContext.Env.parse: Cannot parse LEAN_PKG_DEPS environment variable"
+  let .ok (.obj ileanRootsObj) := Json.parse env.ileanRoots
+    | panic! "PkgContext.Env.parse: Cannot parse LEAN_ILEAN_ROOTS environment variable"
+
+  let mut sourceRoots : SourceRoots := {}
+  for (k, v) in sourceRootsObj do
+    let pkgId := k
+    let .obj pkgSourceRootsObj := v
+      | panic! s!"PkgContext.Env.parse: Cannot parse source roots of package '{k}' in LEAN_SRC_ROOTS environment variable"
+    let mut pkgSourceRoots : PkgSourceRoots := {}
+    for (k, v) in pkgSourceRootsObj do
+      let modulePrefix := k.toName
+      let .str path := v
+        | panic! s!"PkgContext.Env.parse: Cannot parse path of package '{k}' in LEAN_SRC_ROOTS environment variable"
+      pkgSourceRoots := pkgSourceRoots.insert modulePrefix path
+    sourceRoots := sourceRoots.insert pkgId pkgSourceRoots
+
+  let mut dependsOn : Std.TreeMap VersionedPkgId (Std.TreeSet VersionedPkgId) := {}
+  let mut dependedOnBy : Std.TreeMap VersionedPkgId (Std.TreeSet VersionedPkgId) := {}
+  for (k, v) in dependenciesObj do
+    let pkgId := k
+    let .arr depsArr := v
+      | panic! s!"PkgContext.Env.parse: Cannot parse dependencies of package '{k}' in LEAN_PKG_DEPS environment variable"
+    let deps := depsArr.map fun dep => Id.run do
+      let .str dep := dep
+        | panic! s!"PkgContext.Env.parse: Cannot parse a dependency of package '{k}' in LEAN_PKG_DEPS environment variable"
+      return dep
+    let deps := Std.TreeSet.ofArray deps |>.insert pkgId
+    dependsOn := dependsOn.insert pkgId deps
+    for dep in deps do
+      dependedOnBy := dependedOnBy.alter dep fun
+        | none => some { pkgId }
+        | some inverseDeps => some <| inverseDeps.insert pkgId
+
+  let mut ileanRoots : Std.TreeMap VersionedPkgId FilePath := {}
+  let mut ileanPkgs : Std.TreeMap FilePath VersionedPkgId := {}
+  for (k, v) in ileanRootsObj do
+    let pkgId := k
+    let .str pathStr := v
+      | panic! s!"PkgContext.Env.parse: Cannot parse path of package '{k} in LEAN_ILEAN_ROOTS environment variable"
+    let path := FilePath.mk pathStr
+    ileanRoots := ileanRoots.insert pkgId path
+    ileanPkgs := ileanPkgs.insert path pkgId
+
+  return {
+    sourceRoots
+    dependencies := { dependsOn, dependedOnBy }
+    ileanRoots := { roots := ileanRoots, pkgs := ileanPkgs }
+  }
+
+def ofEnv : BaseIO PkgContext := do
+  -- TODO: define
+  let some sourceRoots ← IO.getEnv "LEAN_SRC_ROOTS"
+    | return {}
+  let some dependencies ← IO.getEnv "LEAN_PKG_DEPS"
+    | return {}
+  let some ileanRoots ← IO.getEnv "LEAN_ILEAN_ROOTS"
+    | return {}
+  return Env.parse {
+    sourceRoots
+    dependencies
+    ileanRoots
+  }
 
 partial def transitivelyDependsOn (c : PkgContext) (pkg? : Option VersionedPkgId) : Std.TreeSet VersionedPkgId := Id.run do
   let some pkg := pkg?
@@ -311,6 +347,16 @@ def pathToMod'? (c : PkgContext) (path : FilePath) : Option GlobalModId := do
       }
   none
 
+def ileanRoot'? (c : PkgContext) (pkg : VersionedPkgId) : Option FilePath := do
+  c.ileanRoots.roots.get? pkg
+
+def ileanPkg'? (c : PkgContext) (path : FilePath) : Option VersionedPkgId := do
+  c.ileanRoots.pkgs.get? path
+
+def ileanPathToPkg'? (c : PkgContext) (path : FilePath) : Option VersionedPkgId := do
+  let ileanRoot ← path.parent
+  c.ileanPkg'? ileanRoot
+
 private builtin_initialize pkgContextMutex : Std.Mutex (Option PkgContext) ← Std.Mutex.new none
 
 /--
@@ -323,17 +369,26 @@ def getPkgContext : BaseIO PkgContext := do
   pkgContextMutex.atomically do
     if let some pkgContext ← get then
       return pkgContext
-    let pkgContext ← PkgContext.ofEnvVar
+    let pkgContext ← PkgContext.ofEnv
     set <| some pkgContext
     return pkgContext
 
 def modToPath? (modId : GlobalModId) : BaseIO (Option FilePath) := do
   let c ← getPkgContext
-  return modToPath'? c modId
+  return c.modToPath'? modId
 
 def pathToMod? (path : FilePath) : BaseIO (Option GlobalModId) := do
   let c ← getPkgContext
-  return pathToMod'? c path
+  return c.pathToMod'? path
+
+def ileanPathToPkg? (path : FilePath) : BaseIO (Option VersionedPkgId) := do
+  let c ← getPkgContext
+  return c.ileanPathToPkg'? path
+
+def findAllIleans : IO (Array FilePath) := do
+  let c ← getPkgContext
+  let ileanSearchPath : SearchPath := c.ileanRoots.roots.values
+  ileanSearchPath.findAllWithExt "ilean"
 
 end PkgContext
 

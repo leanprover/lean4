@@ -26,8 +26,28 @@ structure WorkspaceFolder where
 -- DidChangeWorkspaceFoldersParams,
 -- WorkspaceFoldersChangeEvent
 
+structure RelativePattern where
+  baseUri : DocumentUri
+  pattern : String
+  deriving FromJson, ToJson
+
+inductive GlobPattern where
+  | pattern (pat : String)
+  | relative (pat : RelativePattern)
+
+instance : FromJson GlobPattern where
+  fromJson? j := do
+    match j with
+    | .str pat => return .pattern pat
+    | _ => return .relative <| ← fromJson? j
+
+instance : ToJson GlobPattern where
+  toJson
+    | .pattern pat => .str pat
+    | .relative pat => toJson pat
+
 structure FileSystemWatcher where
-  globPattern : String
+  globPattern : GlobPattern
   kind? : Option Nat := none
   deriving FromJson, ToJson
 

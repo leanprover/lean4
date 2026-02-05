@@ -4605,9 +4605,9 @@ goto block_49;
 block_42:
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_39 = lean_nat_add(x_36, x_38);
+x_39 = lean_nat_add(x_37, x_38);
 lean_dec(x_38);
-lean_dec(x_36);
+lean_dec(x_37);
 if (lean_is_scalar(x_33)) {
  x_40 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -4626,7 +4626,7 @@ if (lean_is_scalar(x_23)) {
 lean_ctor_set(x_41, 0, x_35);
 lean_ctor_set(x_41, 1, x_25);
 lean_ctor_set(x_41, 2, x_26);
-lean_ctor_set(x_41, 3, x_37);
+lean_ctor_set(x_41, 3, x_36);
 lean_ctor_set(x_41, 4, x_40);
 return x_41;
 }
@@ -4652,8 +4652,8 @@ if (lean_obj_tag(x_28) == 0)
 lean_object* x_47; 
 x_47 = lean_ctor_get(x_28, 0);
 lean_inc(x_47);
-x_36 = x_46;
-x_37 = x_45;
+x_36 = x_45;
+x_37 = x_46;
 x_38 = x_47;
 goto block_42;
 }
@@ -4661,8 +4661,8 @@ else
 {
 lean_object* x_48; 
 x_48 = lean_unsigned_to_nat(0u);
-x_36 = x_46;
-x_37 = x_45;
+x_36 = x_45;
+x_37 = x_46;
 x_38 = x_48;
 goto block_42;
 }
@@ -11366,11 +11366,11 @@ goto block_44;
 block_19:
 {
 lean_object* x_17; 
-x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_14);
+x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_15);
 x_1 = x_12;
 x_2 = x_17;
-x_3 = x_15;
-x_4 = x_13;
+x_3 = x_13;
+x_4 = x_14;
 goto _start;
 }
 block_27:
@@ -11387,9 +11387,9 @@ lean_dec_ref(x_23);
 x_26 = lean_ctor_get(x_20, 1);
 lean_inc(x_26);
 lean_dec_ref(x_20);
-x_13 = x_25;
-x_14 = x_24;
-x_15 = x_22;
+x_13 = x_22;
+x_14 = x_25;
+x_15 = x_24;
 x_16 = x_26;
 goto block_19;
 }
@@ -11567,8 +11567,8 @@ lean_dec_ref(x_19);
 x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_dec(x_17);
-x_10 = x_21;
-x_11 = x_18;
+x_10 = x_18;
+x_11 = x_21;
 x_12 = x_22;
 goto block_14;
 }
@@ -11598,11 +11598,11 @@ return x_8;
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_10, 1);
+x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 x_3 = x_12;
-x_4 = x_11;
+x_4 = x_10;
 x_5 = x_13;
 goto block_9;
 }

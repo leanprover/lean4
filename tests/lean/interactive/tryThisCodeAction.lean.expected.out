@@ -11,4 +11,34 @@
      [{"range":
        {"start": {"line": 0, "character": 21},
         "end": {"line": 0, "character": 26}},
-       "newText": "simp only"}]}]}}]
+       "newText": "simp only"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///tryThisCodeAction.lean"},
+    "range":
+    {"start": {"line": 0, "character": 22},
+     "end": {"line": 0, "character": 22}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: simp only:
+{"title": "Try this: simp only",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///tryThisCodeAction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 0, "character": 21},
+       "end": {"line": 0, "character": 26}},
+      "newText": "simp only"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///tryThisCodeAction.lean"},
+   "range":
+   {"start": {"line": 0, "character": 22}, "end": {"line": 0, "character": 22}},
+   "context": {"diagnostics": []}}}}

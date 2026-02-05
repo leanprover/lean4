@@ -2478,6 +2478,7 @@ theorem Slice.Pos.ofSlice_inj {s : Slice} {p₀ p₁ : s.Pos} {h} (pos₁ pos₂
 @[inline]
 def Pos.ofSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos :=
   ofToSlice (Slice.Pos.ofSlice pos)
+
 @[simp]
 theorem Pos.offset_ofSlice {s : String} {p₀ p₁ : s.Pos} {h} {pos : (s.slice p₀ p₁ h).Pos} :
     (Pos.ofSlice pos).offset = pos.offset.offsetBy p₀.offset := (rfl)

@@ -385,20 +385,16 @@ theorem Slice.Pos.Splits.le_iff_exists_eq_append {s : Slice} {p₁ p₂ : s.Pos}
 theorem Slice.Pos.Splits.lt_iff_exists_eq_append {s : Slice} {p₁ p₂ : s.Pos} {t₁ t₂ t₃ t₄ : String}
     (h : p₁.Splits t₁ t₂) (h' : p₂.Splits t₃ t₄) :
     p₁ < p₂ ↔ ∃ t₅, t₅ ≠ "" ∧ t₃ = t₁ ++ t₅ ∧ t₂ = t₅ ++ t₄ := by
-  refine ⟨fun hp => ?_, ?_⟩
-  · refine ⟨(s.slice p₁ p₂ (Std.le_of_lt hp)).copy, ?_, ?_, ?_⟩
-    · rw [ne_eq, copy_eq_empty_iff, isEmpty_slice]
-      apply Std.ne_of_lt hp
-    · simp only [← toByteArray_inj, toByteArray_append, h'.toByteArray_eq_left,
-        h.toByteArray_eq_left, toByteArray_copy_slice]
-      rw [← ByteArray.extract_eq_extract_append_extract _ (by simp) (Std.le_of_lt hp)]
-    · simp only [← toByteArray_inj, h.toByteArray_eq_right, size_toByteArray, utf8ByteSize_copy,
-        toByteArray_append, toByteArray_copy_slice, h'.toByteArray_eq_right,
-        ByteArray.extract_append_extract, byteIdx_offset_le_utf8ByteSize, Nat.max_eq_right]
-      rw [Nat.min_eq_left (Std.le_of_lt hp)]
-  · rintro ⟨t₅, ht₅, rfl, rfl⟩
-    rw [Slice.Pos.lt_iff, h.offset_eq_rawEndPos, h'.offset_eq_rawEndPos]
-    simpa [Pos.Raw.lt_iff, Nat.pos_iff_ne_zero, String.utf8ByteSize_eq_zero_iff]
+  rw [Std.lt_iff_le_and_ne, h.le_iff_exists_eq_append h']
+  refine ⟨?_, ?_⟩
+  · rintro ⟨⟨t₅, ⟨rfl, rfl⟩⟩, h₂⟩
+    refine ⟨t₅, fun hx => ?_, rfl, rfl⟩
+    simp [hx] at h h'
+    exact h₂ (h.pos_eq h')
+  · rintro ⟨t₅, ⟨ht₅, rfl, rfl⟩⟩
+    refine ⟨⟨t₅, rfl, rfl⟩, fun hx => ht₅ ?_⟩
+    have := h.eq_left (hx ▸ h')
+    simpa [eq_comm (a := t₁)] using (h.eq_left (hx ▸ h') :)
 
 theorem Pos.Splits.le_iff_exists_eq_append {s : String} {p₁ p₂ : s.Pos} {t₁ t₂ t₃ t₄ : String}
     (h : p₁.Splits t₁ t₂) (h' : p₂.Splits t₃ t₄) : p₁ ≤ p₂ ↔ ∃ t₅, t₃ = t₁ ++ t₅ ∧ t₂ = t₅ ++ t₄ := by

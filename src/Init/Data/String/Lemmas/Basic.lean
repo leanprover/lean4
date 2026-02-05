@@ -34,6 +34,14 @@ theorem append_eq_empty_iff {s t : String} : s ++ t = "" ↔ s = "" ∧ t = "" :
   rw [← toList_inj]; simp
 
 @[simp]
+theorem append_eq_left_iff {s t : String} : s ++ t = s ↔ t = "" := by
+  rw [← toList_inj]; simp
+
+@[simp]
+theorem append_eq_right_iff {s t : String} : s ++ t = t ↔ s = "" := by
+  rw [← toList_inj]; simp
+
+@[simp]
 theorem push_ne_empty : push s c ≠ "" := by
   rw [ne_eq, ← toList_inj]; simp
 

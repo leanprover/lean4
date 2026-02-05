@@ -122,6 +122,7 @@ def isCtorUsing (b : CodeDecl .impure) (x : FVarId) : Bool :=
   | .let { value := .ctor _ args _, .. } => args.any (·.dependsOn { x })
   | _ => false
 
+-- TODO document
 inductive UseClassification where
   | ownedArg
   | other
@@ -129,7 +130,7 @@ inductive UseClassification where
 
 def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
   match b with
-  | .let { value := .fap f args, .. } =>
+  | .let { value := e@(.fap f args _), .. } =>
     -- TODO: change this to getImpureSignature in later refactoring phases
     if let some decl := IR.findEnvDecl (← getEnv) f then
       let mut result := .none
@@ -145,8 +146,7 @@ def classifyUse (b : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification :
               | .none, false => .ownedArg
       return result
     else
-      -- TODO: check if e@ is possible in pattern match above
-      if (LetValue.fap f args).dependsOn { x } then
+      if e.dependsOn { x } then
         return .ownedArg
       else
         return .none
@@ -169,12 +169,13 @@ partial def Dfinalize (x : FVarId) (info : CtorInfo) : Code .impure × Bool → 
   | (b, false) => tryS x info b
 
 /--
-Given `Dmain x info b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
+Given `Dmain x info c`, the resulting pair `(newC, flag)` contains the new body `newC`,
 and `flag == true` if `x` is live in `b`.
 
 Note that, in the function `D` defined in the paper, for each `let x := e; F`,
 `D` checks whether `x` is live in `F` or not. This is great for clarity but it
-is expensive: `O(n^2)` where `n` is the size of the function body. -/
+is expensive: `O(n^2)` where `n` is the size of the function body.
+-/
 partial def Dmain (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Code .impure × Bool) := do
   match c with
   | .cases cs =>
@@ -215,13 +216,18 @@ partial def Dmain (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Co
   | .return .. | .jmp .. | .unreach .. =>
     return (c, ← c.isFVarLiveIn x)
 
+/--
+This function corresponds to `D` from the paper. It looks for positions in `k` where `x` is not live
+anymore and then invokes `S` to look for reuse opportunities after these positions.
+-/
 partial def D (x : FVarId) (info : CtorInfo) (k : Code .impure) : ReuseM (Code .impure) :=
   Dmain x info k >>= Dfinalize x info
 
 end
 
 /--
-R from the paper
+This function corresponds to `R` from the paper. It searches for and inserts reset-reuse
+opportunities into `c`.
 -/
 partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := do
   match c with

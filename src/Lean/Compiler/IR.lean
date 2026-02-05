@@ -13,7 +13,6 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.SimpCase
-public import Lean.Compiler.IR.ResetReuse
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
 public import Lean.Compiler.IR.Borrow

@@ -178,20 +178,6 @@ private def guardMinColumn (min : Nat) : ParserFn :=
 private def withCurrentColumn (p : Nat → ParserFn) : ParserFn := fun c s =>
   p (c.currentColumn s) c s
 
-private def bol : ParserFn := fun c s =>
-  let position := c.fileMap.toPosition s.pos
-  let col := position |>.column
-  if col == 0 then s else s.mkErrorAt s!"beginning of line at {position}" s.pos
-
-private def bolThen (p : ParserFn) (description : String) : ParserFn := fun c s =>
-  let position := c.fileMap.toPosition s.pos
-  let col := position |>.column
-  if col == 0 then
-    let s := p c s
-    if s.hasError then
-      s.mkErrorAt description s.pos
-    else s
-  else s.mkErrorAt description s.pos
 
 /--
 We can only start a nestable block if we're immediately after a newline followed by a sequence of
@@ -812,20 +798,6 @@ public def metadataContents : Parser :=
 def withPercents : ParserFn → ParserFn := fun p =>
   adaptUncacheableContextFn (fun c => {c with tokens := c.tokens.insert "%%%" "%%%"}) p
 
-open Lean.Parser.Term in
-/--
-Parses a metadata block, which contains the contents of a Lean structure initialization but is
-surrounded by `%%%` on each side.
--/
-public def metadataBlock : ParserFn :=
-  nodeFn ``metadata_block <|
-    opener >>
-    withPercents metadataContents.fn >>
-    closer
-where
-  opener := atomicFn (bolThen (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >> eatSpaces >> ignoreFn (chFn '\n')
-  closer := bolThen (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >> eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
-
 /--
 Records that the parser is presently parsing a list.
 -/
@@ -852,7 +824,67 @@ public structure BlockCtxt where
   The nested list context, innermost first.
   -/
   inLists : List InList := []
+  /--
+  The position at which the document content starts, used to allow headers on the first line of a
+  docstring (e.g. `/-! # Header -/`). With the default value `⟨1, 0⟩`, the beginning-of-line check
+  is unaffected for normal documents.
+  -/
+  docStartPosition : Position := ⟨1, 0⟩
 deriving Inhabited, Repr
+
+/--
+Computes the `BlockCtxt` for parsing a docstring that starts at `startPos` in the given file map.
+When the docstring content starts mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set
+to the position after any leading spaces so that headers on the first line are recognized.
+-/
+public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw) : BlockCtxt :=
+  let position := text.toPosition startPos
+  if position.column == 0 then {}
+  else
+    -- Skip leading spaces to find where content actually starts
+    let pos := Id.run do
+      if h : startPos ≤ text.source.rawEndPos then
+        let mut pos := text.source.posGE startPos h
+        while h : pos ≠ text.source.endPos do
+          if pos.get h == ' ' then
+            pos := pos.next h
+          else
+            break
+        return pos.offset
+      else text.source.rawEndPos
+    { docStartPosition := text.toPosition pos }
+
+private def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
+  let position := c.fileMap.toPosition s.pos
+  if position.column == 0 then s
+  else if position.line == ctxt.docStartPosition.line
+      && position.column ≤ ctxt.docStartPosition.column then s
+  else s.mkErrorAt s!"beginning of line at {position}" s.pos
+
+private def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
+  let position := c.fileMap.toPosition s.pos
+  if position.column == 0
+    || (position.line == ctxt.docStartPosition.line
+        && position.column ≤ ctxt.docStartPosition.column) then
+    let s := p c s
+    if s.hasError then
+      s.mkErrorAt description s.pos
+    else s
+  else s.mkErrorAt description s.pos
+
+open Lean.Parser.Term in
+/--
+Parses a metadata block, which contains the contents of a Lean structure initialization but is
+surrounded by `%%%` on each side.
+-/
+public def metadataBlock (ctxt : BlockCtxt := {}) : ParserFn :=
+  nodeFn ``metadata_block <|
+    opener >>
+    withPercents metadataContents.fn >>
+    closer
+where
+  opener := atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >> eatSpaces >> ignoreFn (chFn '\n')
+  closer := bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >> eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
 
 /--
 Succeeds when the parser is looking at an ordered list indicator.
@@ -1006,7 +1038,7 @@ mutual
   public partial def header (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``header <|
       guardMinColumn ctxt.minIndent >>
-      atomicFn (bol >>
+      atomicFn (bol ctxt >>
         withCurrentColumn fun c =>
           withInfoSyntaxFn (many1Fn (skipChFn '#')) (fun info => fakeAtom "header(" (info := info)) >>
           withCurrentColumn fun c' =>
@@ -1054,12 +1086,12 @@ mutual
       out
 
     codeFrom (col width : Nat) :=
-      atomicFn (bol >> takeWhileFn (· == ' ') >> guardMinColumn col >>
+      atomicFn (bol ctxt >> takeWhileFn (· == ' ') >> guardMinColumn col >>
         notFollowedByFn (atLeastFn width (skipChFn '`')) "ending fence") >>
       manyFn (satisfyFn (· != '\n') "non-newline") >> satisfyFn (· == '\n') "newline"
 
     closeFence (col width : Nat) :=
-      bol >> takeWhileFn (· == ' ') >> guardColumn (· == col) s!"column {col}" >>
+      bol ctxt >> takeWhileFn (· == ' ') >> guardColumn (· == col) s!"column {col}" >>
       atomicFn (asStringFn (repFn width (skipChFn '`'))) >>
       notFollowedByFn (skipChFn '`') "extra `" >>
       takeWhileFn (· == ' ') >> (satisfyFn (· == '\n') "newline" <|> eoiFn)
@@ -1117,7 +1149,7 @@ mutual
 
     closeFence (line width : Nat) :=
       let str := String.ofList (.replicate width ':')
-      bolThen (description := s!"closing '{str}' for directive from line {line}")
+      bolThen ctxt (description := s!"closing '{str}' for directive from line {line}")
         (eatSpaces >>
          asStringFn (strFn str) >> notFollowedByFn (chFn ':') "':'" >>
          eatSpaces >>
@@ -1150,7 +1182,7 @@ mutual
   -/
   public partial def linkRef (c : BlockCtxt) : ParserFn :=
     nodeFn ``link_ref <|
-      atomicFn (ignoreFn (bol >> eatSpaces >> guardMinColumn c.minIndent) >> chFn '[' >> nodeFn strLitKind (asStringFn (quoted := true) (nameStart >> manyFn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
+      atomicFn (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> chFn '[' >> nodeFn strLitKind (asStringFn (quoted := true) (nameStart >> manyFn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
       eatSpaces >>
       nodeFn strLitKind (asStringFn (quoted := true) (takeWhileFn (· != '\n'))) >>
       ignoreFn (satisfyFn (· == '\n') "newline" <|> eoiFn)
@@ -1161,7 +1193,7 @@ mutual
   -/
   public partial def footnoteRef (c : BlockCtxt) : ParserFn :=
     nodeFn ``footnote_ref <|
-      atomicFn (ignoreFn (bol >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >> nodeFn strLitKind (asStringFn (quoted := true) (many1Fn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
+      atomicFn (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >> nodeFn strLitKind (asStringFn (quoted := true) (many1Fn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
       eatSpaces >>
       notFollowedByFn blockOpener "block opener" >> guardMinColumn c.minIndent >> textLine
 
@@ -1169,7 +1201,7 @@ mutual
   Parses a block.
   -/
   public partial def block (c : BlockCtxt) : ParserFn :=
-    block_command c <|> unorderedList c <|> orderedList c <|> definitionList c <|> header c <|> codeBlock c <|> directive c <|> blockquote c <|> linkRef c <|> footnoteRef c <|> para c <|> metadataBlock
+    block_command c <|> unorderedList c <|> orderedList c <|> definitionList c <|> header c <|> codeBlock c <|> directive c <|> blockquote c <|> linkRef c <|> footnoteRef c <|> para c <|> metadataBlock c
 
   /--
   Parses zero or more blocks.
@@ -1184,7 +1216,7 @@ mutual
   /--
   Parses some number of blank lines followed by zero or more blocks.
   -/
-  public partial def document (blockContext : BlockCtxt := {}) : ParserFn := ignoreFn (manyFn blankLine) >> blocks blockContext
+  public partial def document (blockContext : BlockCtxt := {}) : ParserFn := ignoreFn (takeWhileFn (· == ' ')) >> ignoreFn (manyFn blankLine) >> blocks blockContext
 end
 
 section

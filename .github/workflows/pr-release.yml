@@ -396,6 +396,18 @@ jobs:
       # We next automatically create a Batteries branch using this toolchain.
       # Batteries doesn't itself have a mechanism to report results of CI from this branch back to Lean
       # Instead this is taken care of by Mathlib CI, which will fail if Batteries fails.
+
+      # Generate a token from the mathlib-nightly-testing GitHub App for cross-org access
+      - name: Generate GitHub App token for leanprover-community repos
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
+        id: mathlib-app-token
+        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        with:
+          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
+          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
+          owner: leanprover-community
+          repositories: batteries,mathlib4-nightly-testing
+
       - name: Cleanup workspace
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
@@ -407,7 +419,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: leanprover-community/batteries
-          token: ${{ secrets.MATHLIB4_BOT }}
+          token: ${{ steps.mathlib-app-token.outputs.token }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
           filter: tree:0
@@ -467,7 +479,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: leanprover-community/mathlib4-nightly-testing
-          token: ${{ secrets.MATHLIB4_BOT }}
+          token: ${{ steps.mathlib-app-token.outputs.token }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
           filter: tree:0

@@ -83,4 +83,10 @@ def getStringValue? (e : Expr) : Option String :=
   | .lit (.strVal s) => some s
   | _ => none
 
+def getBoolValue? (e : Expr) : Option Bool :=
+  match_expr e with
+  | Bool.true => true
+  | Bool.false => false
+  | _ => none
+
 end Lean.Meta.Sym

@@ -437,6 +437,7 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
   | Char => evalBinPred getCharValue? (mkConst ``Char.eq_eq_true) (mkConst ``Char.eq_eq_false) (. = .) a b
   | String => evalBinPred getStringValue? (mkConst ``String.eq_eq_true) (mkConst ``String.eq_eq_false) (. = .) a b
+  | Bool => evalBinPred getBoolValue? (mkConst ``Bool.eq_eq_true) (mkConst ``Bool.eq_eq_false) (. = .) a b
   | _ => return .rfl
 
 def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=

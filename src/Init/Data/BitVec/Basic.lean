@@ -1023,7 +1023,12 @@ def foldIntR' {s : Type} (x : BitVec w) (start k : Nat) (acc : s)
   to the user: -/
 
 /-- Recursively add `l`-long chunks of `x`, treating the chunks as natural numbers. -/
-def foldAddNat (l : Nat) (x : BitVec w) : BitVec l := foldNatR x 0 l 0#l BitVec.add
+def foldAddNat (l : Nat) (x : BitVec w) : BitVec l :=
+  if h : l = 0 then
+    (0#0).cast (by omega)
+  else
+    let k := if w % l = 0 then  w / l else w / l + 1
+    foldNatR x 0 k 0#l BitVec.add
 
 /-- Recursively add `l`-long chunks of `x`, treating the chunks as integer numbers. -/
 def foldAddInt (l : Nat) (x : BitVec w) : BitVec l := foldIntR x 0 l 0#l BitVec.add

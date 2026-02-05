@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import Init.Data.ByteArray.Lemmas
+import Init.Data.Nat.MinMax
 
 /-!
 # Basic lemmas about strings
@@ -29,6 +31,14 @@ theorem push_inj : push s c = push t d ↔ s = t ∧ c = d := by
 
 @[simp]
 theorem append_eq_empty_iff {s t : String} : s ++ t = "" ↔ s = "" ∧ t = "" := by
+  rw [← toList_inj]; simp
+
+@[simp]
+theorem append_eq_left_iff {s t : String} : s ++ t = s ↔ t = "" := by
+  rw [← toList_inj]; simp
+
+@[simp]
+theorem append_eq_right_iff {s t : String} : s ++ t = t ↔ s = "" := by
   rw [← toList_inj]; simp
 
 @[simp]
@@ -67,5 +77,15 @@ theorem Pos.byte_toSlice {s : String} {p : s.Pos} {h} :
 theorem Pos.byte_eq_byte_toSlice {s : String} {p : s.Pos} {h} :
     p.byte h = p.toSlice.byte (ne_of_apply_ne Pos.ofToSlice (by simpa)) := by
   simp
+
+theorem Slice.toByteArray_copy_slice {s : Slice} {p₁ p₂ : s.Pos} {h} :
+    (s.slice p₁ p₂ h).copy.toByteArray = s.copy.toByteArray.extract p₁.offset.byteIdx p₂.offset.byteIdx := by
+  simp [toByteArray_copy, ByteArray.extract_extract]
+  rw [Nat.min_eq_left]
+  simpa [String.Pos.le_iff, Pos.Raw.le_iff] using p₂.str_le_endExclusive
+
+theorem toByteArray_copy_slice {s : String} {p₁ p₂ : s.Pos} {h} :
+    (s.slice p₁ p₂ h).copy.toByteArray = s.toByteArray.extract p₁.offset.byteIdx p₂.offset.byteIdx := by
+  simp [← slice_toSlice, Slice.toByteArray_copy_slice]
 
 end String

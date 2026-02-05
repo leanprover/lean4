@@ -1309,6 +1309,22 @@ private def shadowedHint {α : Type}
   mkSuggestion name m!"`{name}` shadows a {kind}. Use the full name of the shadowed {kind}:" ss
 
 /--
+Throws an appropriate error for an unknown doc element (role/directive/code block/command).
+Distinguishes "name resolves but isn't registered" from "name doesn't resolve at all",
+and includes shadowed-name suggestions when applicable.
+-/
+private def throwUnknownDocElem {α β : Type}
+    (envEntries : NameMap (Array Name)) (builtins : NameMap α)
+    (name : Ident) (kind : String) : DocM β := do
+  let hint ← shadowedHint envEntries builtins name kind
+  let resolved? ← try some <$> realizeGlobalConstNoOverload name catch | _ => pure none
+  if let some resolved := resolved? then
+    let info ← getConstInfo resolved
+    throwErrorAt name m!"`{name} : {info.type}` is not a {kind}{hint}"
+  else
+    throwErrorAt name m!"Unknown {kind} `{name}`{hint}"
+
+/--
 Elaborates the syntax of an inline document element to an actual inline document element.
 -/
 public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline) :=
@@ -1386,8 +1402,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    let hint ← shadowedHint (docRoleExt.getState (← getEnv)) (← builtinDocRoles.get) name "role"
-    throwErrorAt name m!"Unknown role `{name}`{hint}"
+    throwUnknownDocElem (docRoleExt.getState (← getEnv)) (← builtinDocRoles.get) name "role"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1453,8 +1468,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    let hint ← shadowedHint (docDirectiveExt.getState (← getEnv)) (← builtinDocDirectives.get) name "directive"
-    throwErrorAt name m!"Unknown directive `{name}`{hint}"
+    throwUnknownDocElem (docDirectiveExt.getState (← getEnv)) (← builtinDocDirectives.get) name "directive"
   | `(block| ```%$opener | $s ```) =>
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := opener.getRange? then
@@ -1497,8 +1511,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    let hint ← shadowedHint (docCodeBlockExt.getState (← getEnv)) (← builtinDocCodeBlocks.get) name "code block"
-    throwErrorAt name m!"Unknown code block `{name}`{hint}"
+    throwUnknownDocElem (docCodeBlockExt.getState (← getEnv)) (← builtinDocCodeBlocks.get) name "code block"
   | `(block| command{$name $args*}) =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
@@ -1517,8 +1530,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    let hint ← shadowedHint (docCommandExt.getState (← getEnv)) (← builtinDocCommands.get) name "document command"
-    throwErrorAt name m!"Unknown document command `{name}`{hint}"
+    throwUnknownDocElem (docCommandExt.getState (← getEnv)) (← builtinDocCommands.get) name "document command"
   | `(block|%%%$_*%%%) =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)

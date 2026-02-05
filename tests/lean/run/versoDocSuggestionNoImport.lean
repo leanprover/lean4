@@ -38,7 +38,7 @@ def testQualifiedLit2 := 1
 
 -- {lit} fails when shadowed
 /--
-error: Unknown role `lit`
+error: `lit : Type` is not a role
 
 Hint: `lit` shadows a role. Use the full name of the shadowed role:
   L̲e̲a̲n̲.̲D̲o̲c̲.̲lit

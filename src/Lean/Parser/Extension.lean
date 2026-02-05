@@ -160,7 +160,7 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   | Entry.token tk =>
     match addTokenConfig s.tokens tk with
     | Except.ok tokens => { s with tokens }
-    | _                => unreachable!
+    | Except.error e   => panic! s!"ParserExtension.addEntryImpl: {e}"
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
   | Entry.category catName declName behavior =>
@@ -170,7 +170,7 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories }
-    | _ => unreachable!
+    | Except.error e       => panic! s!"ParserExtension.addEntryImpl: {e}"
 
 /-- Parser aliases for making `ParserDescr` extensible -/
 inductive AliasValue (α : Type) where

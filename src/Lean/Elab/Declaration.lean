@@ -326,7 +326,8 @@ def elabMutual : CommandElab := fun stx => do
         else
           throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
-    recordExtraModUseFromDecl (isMeta := false) declName
+    withExporting (isExporting := !isPrivateName declName && attrs.any (·.kind != .local)) do
+      recordExtraModUseFromDecl (isMeta := false) declName
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName

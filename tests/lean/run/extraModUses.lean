@@ -82,7 +82,7 @@ Is rev mod use: false
 syntax "hi" : term
 
 /--
-info: Entries: [import Init.Notation]
+info: Entries: [public import Init.Notation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -171,7 +171,21 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, public import Init.Prelude, import Init.Prelude]
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+Local attribute applications are tracked as private.
+-/
+
+#eval resetExtraModUses
+
+attribute [local grind =] List.append
+
+/--
+info: Entries: [import Init.Grind.Attr, import Init.Prelude]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -231,13 +245,27 @@ The syntax node kind in `syntax` declarations get recorded as a `meta` dependenc
 syntax "test_me " Lean.Parser.Term.ident : term
 
 /--
-info: Entries: [meta import Lean.Parser.Term, import Init.Notation]
+info: Entries: [public meta import Lean.Parser.Term, public import Init.Notation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
 
 /-!
-The syntax node kind in quotations get recorded as a `meta` dependency.
+The categories in `syntax` declarations get recorded as a `meta` dependency.
+-/
+
+#eval resetExtraModUses
+
+syntax "test_me " rcasesPat : term
+
+/--
+info: Entries: [public import Init.RCases, public import Init.Notation]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+The quotation parser gets recorded as a `meta` dependency.
 -/
 
 #eval resetExtraModUses

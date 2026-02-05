@@ -12,6 +12,7 @@ import Lean.Compiler.IR.RC
 import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.ToImpure
 import Init.While
+import Lean.Compiler.LCNF.PhaseExt
 
 public section
 

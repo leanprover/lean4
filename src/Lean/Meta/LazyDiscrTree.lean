@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
+import Init.Omega
 
 public section
 

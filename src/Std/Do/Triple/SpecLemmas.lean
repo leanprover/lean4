@@ -10,11 +10,19 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
-public import Init.Data.Iterators.ToIterator
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+public import Init.Data.Range
+import Init.Data.Iterators.Lemmas
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Mod
+import Init.Data.Slice.Lemmas
+import Init.Omega
 
 set_option linter.missingDocs true
 

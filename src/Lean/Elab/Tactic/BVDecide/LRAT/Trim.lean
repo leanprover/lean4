@@ -10,6 +10,7 @@ public import Init.Data.Nat.Fold
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Data.HashMap
 import Init.Data.Range.Polymorphic
+import Init.Omega
 
 public section
 

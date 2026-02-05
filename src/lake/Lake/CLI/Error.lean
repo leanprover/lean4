@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.ToString
 public import Init.System.FilePath
-import Init.Data.ToString.Name
 
 open Lean (Name)
 

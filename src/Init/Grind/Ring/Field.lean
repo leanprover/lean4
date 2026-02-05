@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+public import Init.Data.Nat.Div.Basic
+import Init.ByCases
+import Init.Omega
+import Init.RCases
+import Init.TacticsExtra
 
 public section
 

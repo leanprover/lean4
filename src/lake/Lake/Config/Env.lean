@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.Cache
 public import Lake.Config.InstallPath
+import Init.System.Platform
 
 open System
 open Lean hiding SearchPath

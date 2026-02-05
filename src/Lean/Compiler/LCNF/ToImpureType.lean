@@ -6,9 +6,9 @@ Authors: Cameron Zwarich, Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.Irrelevant
 import Lean.Compiler.LCNF.MonoTypes
+import Init.Data.Format.Macro
 
 namespace Lean.Compiler.LCNF
 

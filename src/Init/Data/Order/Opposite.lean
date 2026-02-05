@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Data.Order.ClassesExtra
-public import Init.Data.Order.LemmasExtra
+public import Init.Data.Order.Classes
+import Init.Data.Order.FactoriesExtra
+import Init.Data.Order.Lemmas
 
 public section
 

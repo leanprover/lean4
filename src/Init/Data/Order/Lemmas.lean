@@ -10,6 +10,7 @@ public import Init.Data.Order.Factories
 import all Init.Data.Order.Factories
 public import Init.Classical
 public import Init.Data.BEq
+import Init.Data.Bool
 
 namespace Std
 

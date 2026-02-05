@@ -8,6 +8,11 @@ module
 prelude
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Nat.Gcd
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Dvd
+import Init.PropLemmas
+import Init.RCases
 
 public section
 

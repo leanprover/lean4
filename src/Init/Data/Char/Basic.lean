@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.BasicAux
+import Init.Data.Nat.Div.Basic
 
 @[expose] public section
 

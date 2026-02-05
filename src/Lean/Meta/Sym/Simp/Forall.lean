@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 namespace Lean.Meta.Sym.Simp
 

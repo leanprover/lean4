@@ -10,6 +10,7 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Job.Monad
 import Lake.Build.Index
+import Init.Omega
 
 /-! # Build Runner
 

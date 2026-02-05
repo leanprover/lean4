@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Meta.FunInfo
-import Lean.Util.FVarSubset
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
 import Lean.Meta.Tactic.Grind.SynthInstance

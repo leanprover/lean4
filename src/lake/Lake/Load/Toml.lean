@@ -6,13 +6,16 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Config.Package
 public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
-meta import Lake.Config.Package
+import Init.Omega
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.PackageConfig
 
 open Lean Parser
 open System (FilePath)

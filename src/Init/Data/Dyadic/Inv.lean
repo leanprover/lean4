@@ -7,8 +7,7 @@ module
 
 prelude
 public import Init.Data.Dyadic.Basic
-import Init.Data.Dyadic.Round
-import Init.Grind.Ordered.Ring
+import Init.Data.Rat.Lemmas
 
 /-!
 # Inversion for dyadic numbers

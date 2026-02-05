@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Sat.CNF
 public import Std.Sat.AIG.Lemmas
+import Init.ByCases
+import Init.Omega
 
 public section
 

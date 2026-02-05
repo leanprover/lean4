@@ -34,3 +34,4 @@ public import Init.Data.List.MapIdx
 public import Init.Data.List.OfFn
 public import Init.Data.List.FinRange
 public import Init.Data.List.Lex
+public import Init.Data.List.Range

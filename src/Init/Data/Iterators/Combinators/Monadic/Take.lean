@@ -6,9 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
-public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Classical
+import Init.ByCases
+import Init.Omega
 
 @[expose] public section
 

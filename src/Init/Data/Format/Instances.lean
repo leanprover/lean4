@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
 import Init.Data.String.Search
+public import Init.Data.ToString.Basic
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 

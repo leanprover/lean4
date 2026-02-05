@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Basic
+import Init.Omega
 
 set_option doc.verso true
 

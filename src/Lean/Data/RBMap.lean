@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.Ord.Basic
 public import Init.Data.Nat.Linear
+public import Init.Data.Array.Basic
+import Init.WFTactics
 
 public section
 

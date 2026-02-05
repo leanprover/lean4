@@ -5,11 +5,14 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Nat.Basic
 public import Init.Data.Rat.Basic
-public import Init.Data.Int.Basic
-public import Init.Data.UInt.Basic
 public import Init.Data.SInt.Basic
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Nat.Dvd
+public import Init.Data.String.Basic
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.Order
+import Init.Data.UInt.Lemmas
 public section
 namespace Lean.Sym
 

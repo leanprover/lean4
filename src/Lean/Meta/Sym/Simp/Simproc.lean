@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Result
 namespace Lean.Meta.Sym.Simp
 

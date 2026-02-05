@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.ULift
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Iterators.Lemmas.Monadic.Basic
 
 public section
 

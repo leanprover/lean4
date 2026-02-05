@@ -22,6 +22,8 @@ public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 

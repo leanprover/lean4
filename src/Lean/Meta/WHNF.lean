@@ -10,11 +10,11 @@ public import Lean.Structure
 public import Lean.Util.Recognizers
 public import Lean.Util.SafeExponentiation
 public import Lean.Meta.GetUnfoldableConst
-public import Lean.Meta.FunInfo
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Transform
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

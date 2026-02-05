@@ -6,9 +6,15 @@ Authors: Mario Carneiro, Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Lemmas
 public import Init.Ext
-import Init.Data.Order.Lemmas
+public import Init.Data.Nat.Div.Basic
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Omega
+import Init.TacticsExtra
 
 @[expose] public section
 
@@ -986,7 +992,7 @@ For the induction:
   let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
     if hi : i.1 = j then _root_.cast (by simp [← hi]) x
     else match j with
-      | 0 => by omega
+      | 0 => False.elim (by omega)
       | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
   go _ _ (by omega) last
 

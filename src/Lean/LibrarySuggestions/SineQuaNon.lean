@@ -6,9 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.CoreM
-public import Lean.Meta.Basic
-import Lean.Meta.Instances
 import all Lean.LibrarySuggestions.SymbolFrequency
 public import Lean.LibrarySuggestions.Basic
 

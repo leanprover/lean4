@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Lambda
-import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.AbstractS
@@ -15,6 +13,8 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.AppBuilder
 import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
+import Init.Omega
+import Init.While
 namespace Lean.Meta.Sym.Simp
 
 /-!

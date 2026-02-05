@@ -6,9 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
 public import Init.Data.List.MinMax
-import Init.Data.Nat.Order
+import Init.Data.Bool
+import Init.Data.List.Count
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Data.Nat.MinMax
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 

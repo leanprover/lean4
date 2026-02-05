@@ -8,11 +8,10 @@ prelude
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.DocString
-import Lean.ExtraModUses
-import Lean.ProjFns
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.WHNF
+public import Init.Data.Format.Macro
 public section
 
 /-!

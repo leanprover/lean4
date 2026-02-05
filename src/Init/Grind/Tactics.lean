@@ -7,7 +7,6 @@ module
 prelude
 public import Init.Core
 public import Init.Grind.Interactive
-public import Init.Grind.Config
 public section
 namespace Lean.Parser.Tactic
 open Parser.Tactic.Grind

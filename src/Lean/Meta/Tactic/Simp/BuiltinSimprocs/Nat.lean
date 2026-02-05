@@ -10,6 +10,8 @@ public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
 public import Lean.Meta.LitValues
 public import Lean.Meta.Offset
 import Lean.Util.SafeExponentiation
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.Simproc
 public section
 namespace Nat
 open Lean Meta Simp

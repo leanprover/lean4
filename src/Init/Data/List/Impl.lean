@@ -6,7 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Bootstrap
+public import Init.Ext
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Option.Lemmas
 
 public section
 

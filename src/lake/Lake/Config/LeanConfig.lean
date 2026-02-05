@@ -12,6 +12,7 @@ public import Lake.Config.MetaClasses
 meta import all Lake.Config.Meta
 import Lake.Util.Name
 import Init.Data.String.Modify
+import Lake.Config.Meta
 
 open System Lean
 

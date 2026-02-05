@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 

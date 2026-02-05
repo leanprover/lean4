@@ -6,10 +6,11 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Int.Lemmas
-public import Init.ByCases
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Int.Lemmas
 
 public section
 

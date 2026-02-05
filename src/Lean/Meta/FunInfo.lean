@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.InferType
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

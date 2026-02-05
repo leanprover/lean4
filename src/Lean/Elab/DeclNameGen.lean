@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Command
+import Init.Data.String.Modify
+import Init.Omega
 
 public section
 

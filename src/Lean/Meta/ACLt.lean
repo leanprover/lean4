@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.DiscrTree.Main
-import Lean.Meta.WHNF
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.Meta.FunInfo
 public section
 namespace Lean
 

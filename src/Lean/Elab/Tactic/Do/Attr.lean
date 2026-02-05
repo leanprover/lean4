@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp
 public import Std.Tactic.Do.Syntax
+import Init.While
 
 public section
 

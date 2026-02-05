@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Range
 import Init.Data.Range.Polymorphic.Lemmas
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 @[expose] public section
 

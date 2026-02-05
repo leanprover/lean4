@@ -6,13 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Basic
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Total
 import all Init.Data.Iterators.Consumers.Monadic.Total
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Option.Lemmas
 
 public section
 

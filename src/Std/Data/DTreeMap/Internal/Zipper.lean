@@ -9,6 +9,13 @@ prelude
 public import Std.Data.Iterators.Lemmas.Producers.Slice
 public import Init.Data.Slice
 public import Std.Data.DTreeMap.Internal.Lemmas
+public import Init.Data.Iterators.Combinators.FilterMap
+import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
 
 namespace Std.DTreeMap.Internal
 

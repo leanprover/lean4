@@ -8,7 +8,13 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Range
+public import Init.Data.Vector.Attach
+import Init.Data.Array.Find
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.Subtype.Basic
 
 public section
 

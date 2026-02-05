@@ -9,6 +9,9 @@ prelude
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
 import all Init.Data.UInt.Basic
+public import Init.Data.UInt.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Grind.Ring.ToInt
 
 public section
 

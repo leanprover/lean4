@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.ToIRType
+public import Lean.Compiler.IR.ToIRType
 
 public section
 

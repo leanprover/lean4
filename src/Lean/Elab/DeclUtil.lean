@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Check
 public import Lean.Parser.Command
-meta import Lean.Parser.Command
 
 public section
 

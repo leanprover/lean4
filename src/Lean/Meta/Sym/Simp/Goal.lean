@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Util
-import Lean.Meta.AppBuilder
 import Lean.Meta.Sym.InferType
 namespace Lean.Meta.Sym
 /-!

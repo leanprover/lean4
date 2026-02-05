@@ -6,8 +6,13 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
-public import Init.Data.List.Zip
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
+import Init.Data.List.Zip
+import Init.Data.Option.Lemmas
 
 public section
 

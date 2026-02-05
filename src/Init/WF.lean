@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.BinderNameHint
-public import Init.Data.Nat.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Basic
 
 public section
 
@@ -486,7 +487,7 @@ def Nat.fix : (x : α) → motive x :=
   let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
     Nat.rec
       (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
-      (fun _ ih x hfuel => F x (fun y hy => ih y (Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+      (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
   fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
 
 protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :

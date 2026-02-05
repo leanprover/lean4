@@ -13,6 +13,7 @@ import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
 import Lean.Meta.Transform
+import Init.Omega
 namespace Lean.Compiler.LCNF
 namespace Specialize
 

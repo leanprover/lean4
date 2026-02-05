@@ -9,6 +9,8 @@ prelude
 import Init.ByCases
 import Init.Ext
 public import Init.PropLemmas
+public import Init.Data.Char.Basic
+import Init.Classical
 
 public section
 

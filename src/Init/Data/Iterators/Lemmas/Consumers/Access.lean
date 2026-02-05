@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Access
-import Init.Data.Iterators.Lemmas.Basic
 
 namespace Std.Iter
 open Std.Iterators

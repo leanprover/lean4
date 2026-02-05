@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Basic
 import Init.Data.ByteArray.Lemmas
 import Init.Data.String.Lemmas.Basic
+import Init.Data.Nat.MinMax
 
 /-!
 # `Splits` predicates on `String.Pos` and `String.Slice.Pos`.

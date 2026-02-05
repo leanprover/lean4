@@ -6,17 +6,15 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.IsRelevant
-import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Util.CollectLevelParams
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 

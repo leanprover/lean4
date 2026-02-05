@@ -9,7 +9,7 @@ prelude
 public import Init.WF
 import Init.Classical
 import Init.Ext
-import Init.NotationExtra
+public import Init.NotationExtra
 
 set_option doc.verso true
 set_option linter.missingDocs true

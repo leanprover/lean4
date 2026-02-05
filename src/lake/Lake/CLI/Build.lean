@@ -8,12 +8,11 @@ module
 prelude
 public import Lake.CLI.Error
 public import Lake.Config.Workspace
-import Lake.Config.Monad
 import Lake.Build.Infos
 import Lake.Build.Job.Monad
 public import Lake.Build.Job.Register
 import Lake.Util.IO
-import Init.Data.String.Search
+import Init.Data.Iterators.Consumers
 
 open System Lean
 

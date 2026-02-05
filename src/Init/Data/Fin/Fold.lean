@@ -7,7 +7,12 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Fin.Lemmas
+public import Init.Ext
+import Init.Data.Fin.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
+import Init.WFTactics
 
 public section
 

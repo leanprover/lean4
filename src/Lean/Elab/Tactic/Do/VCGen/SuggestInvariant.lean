@@ -9,10 +9,9 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Util.OccursCheck
-import Lean.PrettyPrinter.Delaborator
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Std.Tactic.Do -- Needed for use of `mleave` in quote
+import Init.Data.Array.Mem
 
 namespace Lean.Elab.Tactic.Do
 

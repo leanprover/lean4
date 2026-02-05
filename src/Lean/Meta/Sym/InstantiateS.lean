@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.LooseBVarsS
 import Init.Grind
 namespace Lean.Meta.Sym

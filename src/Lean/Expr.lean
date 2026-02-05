@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Hashable
 public import Lean.Level
+import Init.Omega
 
 public section
 

@@ -7,13 +7,12 @@ module
 
 prelude
 public import Init.Data.List.MinMaxOn
-import Init.Data.List.MinMaxOn
-public import Init.Data.List.Pairwise
-public import Init.Data.Subtype.Order
-import Init.Data.Order.Lemmas
 import Init.Data.List.Nat.TakeDrop
-import Init.Data.Order.Opposite
-import Init.Data.Nat.Order
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Sublist
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 

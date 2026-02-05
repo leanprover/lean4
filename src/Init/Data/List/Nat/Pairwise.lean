@@ -6,7 +6,12 @@ Authors: Mario Carneiro, James Gallicchio
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
+public import Init.NotationExtra
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
 
 public section
 

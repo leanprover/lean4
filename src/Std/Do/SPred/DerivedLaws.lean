@@ -8,6 +8,8 @@ module
 prelude
 public import Init.ByCases
 public import Std.Do.SPred.Laws
+import Init.Classical
+import Init.TacticsExtra
 
 @[expose] public section
 

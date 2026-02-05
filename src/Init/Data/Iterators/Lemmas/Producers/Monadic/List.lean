@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 public import Init.Data.Iterators.Producers.Monadic.List
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.List.ToArray
 
 @[expose] public section
 

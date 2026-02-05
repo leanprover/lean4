@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Nat.Control
 public import Lean.Data.PersistentArray
 public import Lean.Expr
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 

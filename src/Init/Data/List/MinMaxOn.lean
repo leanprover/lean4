@@ -7,13 +7,14 @@ module
 
 prelude
 public import Init.Data.Order.MinMaxOn
-public import Init.Data.Int.OfNat
 public import Init.Data.List.Lemmas
 public import Init.Data.List.TakeDrop
 import Init.Data.Order.Lemmas
 import Init.Data.List.Sublist
 import Init.Data.List.MinMax
-import Init.Data.Order.Opposite
+public import Init.Data.Option.Lemmas
+import Init.ByCases
+import Init.Data.Bool
 
 set_option doc.verso true
 set_option linter.missingDocs true

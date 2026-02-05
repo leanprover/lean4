@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.System.IO
-import Lake.DSL -- registers builtins
+import Lake.DSL -- shake: keep (registers builtins)
 import Lake.CLI.Main
 
 public def main (args : List String) : IO UInt32 := do

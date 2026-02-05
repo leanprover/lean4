@@ -9,6 +9,7 @@ public import Lean.Compiler.InitAttr
 public import Lean.Compiler.LCNF.ToLCNF
 import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherInfo
+import Init.While
 public section
 namespace Lean.Compiler.LCNF
 /--

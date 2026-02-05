@@ -7,7 +7,13 @@ module
 
 prelude
 public import Init.Grind.Module.Basic
-public import Init.Grind.Ordered.Order
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Nat.Lemmas
+import Init.Grind.Ordered.Order
+import Init.Omega
+import Init.RCases
 
 public section
 

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.ScopedEnvExtension
-import Lean.OriginalConstKind
 public section
 namespace Lean
 

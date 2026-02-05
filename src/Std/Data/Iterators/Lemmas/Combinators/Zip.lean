@@ -9,6 +9,11 @@ prelude
 public import Std.Data.Iterators.Combinators.Zip
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.ToArray
+import Init.Data.List.Zip
 
 @[expose] public section
 

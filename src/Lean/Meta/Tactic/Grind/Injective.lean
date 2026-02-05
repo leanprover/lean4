@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.FunInfo
+import Init.Data.Function
+import Init.Data.Range.Polymorphic.Iterators
 public section
 namespace Lean.Meta.Grind
 

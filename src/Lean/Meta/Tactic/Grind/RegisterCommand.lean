@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-meta import Lean.Meta.Tactic.Grind.Attr
+public meta import Init.Data.ToString.Name
 public section
 namespace Lean.Meta.Grind
 

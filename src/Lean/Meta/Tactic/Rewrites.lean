@@ -7,13 +7,11 @@ module
 
 prelude
 public import Lean.Meta.LazyDiscrTree
-public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.Rewrite
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Util.Heartbeats
-import Lean.Linter.Deprecated
 
 public section
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+public import Init.Data.Array.GetLit
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section

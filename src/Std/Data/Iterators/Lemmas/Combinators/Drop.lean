@@ -9,6 +9,12 @@ prelude
 public import Std.Data.Iterators.Combinators.Drop
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.Drop
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.Option.Lemmas
 
 @[expose] public section
 

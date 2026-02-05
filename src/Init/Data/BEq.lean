@@ -6,7 +6,8 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Bool
+public import Init.Grind.Tactics
+import Init.Data.Bool
 
 public section
 

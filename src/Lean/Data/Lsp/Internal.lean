@@ -7,10 +7,11 @@ Authors: Joscha Mennicken
 module
 
 prelude
-public import Lean.Expr
 public import Lean.Data.Lsp.Basic
 public import Lean.Data.JsonRpc
 public import Lean.Data.DeclarationRange
+public import Init.Data.Array.GetLit
+import Init.Omega
 
 public section
 

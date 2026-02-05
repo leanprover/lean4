@@ -8,9 +8,7 @@ module
 prelude
 public import Lean.Meta.Structure
 public import Lean.Elab.MutualInductive
-import Lean.Linter.Basic
-import Lean.DocString
-import Lean.DocString.Extension
+import Init.Omega
 
 public section
 

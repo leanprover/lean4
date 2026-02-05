@@ -8,7 +8,9 @@ module
 prelude
 import all Init.Data.Array.Count
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 public section
 

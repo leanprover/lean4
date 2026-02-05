@@ -6,9 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Lemmas
 import all Init.Data.List.Control
 import all Init.Data.Option.Instances
+public import Init.Data.List.Control
+public import Init.Data.Option.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Lemmas
 
 public section
 

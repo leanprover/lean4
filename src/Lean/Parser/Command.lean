@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-meta import Lean.Parser.Basic
 
 public section
 

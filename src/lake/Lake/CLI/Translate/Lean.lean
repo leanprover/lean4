@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Config.Package
 import Lake.DSL.Syntax
-import Lake.Config.Package
 meta import Lean.Parser.Module
 meta import Lake.Config.LeanLibConfig
 meta import Lake.Config.LeanExeConfig

@@ -11,7 +11,8 @@ public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Parallel
-meta import Lean.Elab.Command
+public meta import Lean.Elab.Command
+import Init.Omega
 public section
 namespace Lean.Elab.Tactic
 open Meta

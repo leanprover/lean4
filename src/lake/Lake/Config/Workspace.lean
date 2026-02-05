@@ -12,6 +12,8 @@ public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
+import Lean.DocString.Syntax
 
 set_option doc.verso true
 

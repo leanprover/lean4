@@ -6,9 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Perm
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Perm
+import Init.Omega
 
 public section
 

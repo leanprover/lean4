@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.OtherDecl
+import Init.Omega
 
 public section
 

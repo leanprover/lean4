@@ -6,7 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Range
+public import Init.BinderPredicates
+public import Init.NotationExtra
+import Init.Data.List.Find
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
 
 public section
 

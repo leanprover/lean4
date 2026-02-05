@@ -13,7 +13,6 @@ public import Lean.Elab.PreDefinition.WF.Fix
 public import Lean.Elab.PreDefinition.WF.Unfold
 public import Lean.Elab.PreDefinition.WF.Preprocess
 public import Lean.Elab.PreDefinition.WF.GuessLex
-import Lean.ExtraModUses
 
 public section
 

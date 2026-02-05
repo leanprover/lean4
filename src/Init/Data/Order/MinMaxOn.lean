@@ -6,9 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.NotationExtra
-public import Init.Data.Order.Lemmas
 public import Init.Data.Order.Opposite
+import Init.Data.Order.Lemmas
 
 open Std
 open scoped OppositeOrderInstances

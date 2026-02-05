@@ -9,6 +9,7 @@ prelude
 public import Lake.Config.Defaults
 public import Lake.Config.MetaClasses
 meta import all Lake.Config.Meta
+import Lake.Config.Meta
 
 open System
 namespace Lake

@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Array.Bootstrap
 public import Init.Data.Array.Lemmas
-public import Init.Data.Array.DecidableEq
 import Init.Data.List.MinMax
-import Init.Data.List.ToArray
+public import Init.Data.Order.Classes
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.DecidableEq
+import Init.Data.List.TakeDrop
+import Init.Data.Order.Lemmas
 
 namespace Array
 

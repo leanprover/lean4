@@ -6,7 +6,7 @@ Author: David Thrane Christiansen
 module
 prelude
 public import Lean.DocString.Syntax
-import Lean.Parser.Term.Basic
+import Init.While
 
 set_option linter.missingDocs true
 

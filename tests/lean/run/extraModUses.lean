@@ -1,7 +1,5 @@
 module
 
-prelude
-public import Init.Prelude
 import all Lean.ExtraModUses
 public meta import Lean.Elab.Tactic.Basic
 

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
-public import Init.Data.Option.Lemmas
+import Init.Data.Option.Lemmas
 
 /-!
 # Monadic `flatMap` combinator

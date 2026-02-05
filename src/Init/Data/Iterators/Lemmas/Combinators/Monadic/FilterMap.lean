@@ -7,10 +7,14 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import all Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Control.Lawful.MonadAttach.Lemmas
 import Init.Data.Array.Monadic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.List.Control
+import Init.Data.Bool
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Iterators.Lemmas.Monadic.Basic
 
 public section
 

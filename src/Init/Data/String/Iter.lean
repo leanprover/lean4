@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Consumers.Collect
 
 set_option doc.verso true
 

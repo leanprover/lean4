@@ -6,12 +6,11 @@ Authors: Mario Carneiro, Sebastian Ullrich
 module
 
 prelude
-public import Init.Prelude
-public import Init.System.IO
 public import Lean.Util.Path
-import Lean.Environment
 import Lean.ExtraModUses
 import Lean.Parser.Module
+import Init.Data.Range.Polymorphic.Iterators
+meta import Lean.Parser.Module
 
 /-! # Shake: A Lean import minimizer
 

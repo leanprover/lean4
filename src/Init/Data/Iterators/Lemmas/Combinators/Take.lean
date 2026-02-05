@@ -8,7 +8,13 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.Take
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Take
-public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.List.Nat.TakeDrop
 
 @[expose] public section
 

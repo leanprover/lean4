@@ -10,6 +10,11 @@ public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.AdditionalOperations
 import all Std.Data.DHashMap.AdditionalOperations
+import Init.ByCases
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 public section
 

@@ -8,6 +8,10 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Module
+import Init.Data.Nat.Lemmas
+import Init.Grind.Ordered.Order
+import Init.Omega
+import Init.RCases
 
 public section
 

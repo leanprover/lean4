@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.RelabelFin
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula
+import Init.Data.Array.Bootstrap
 
 @[expose] public section
 

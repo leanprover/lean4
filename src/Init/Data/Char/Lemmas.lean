@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-public import Init.Data.UInt.Lemmas
+public import Init.Data.Char.Basic
+public import Init.Ext
+import Init.Data.UInt.Lemmas
 
 public section
 

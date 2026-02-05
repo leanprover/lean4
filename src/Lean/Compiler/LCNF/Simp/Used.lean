@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Simp.SimpM
+import Init.Omega
 
 public section
 

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Sym.AlphaShareCommon
 public import Lean.Meta.CongrTheorems
 public section

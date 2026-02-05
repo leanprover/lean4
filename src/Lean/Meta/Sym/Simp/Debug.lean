@@ -5,14 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Discharger
-import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Util
-import Lean.Meta.Tactic.Util
-import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym
 open Simp
 /-!

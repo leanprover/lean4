@@ -6,8 +6,9 @@ Author: Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Basic
 public import Init.Data.String.Lemmas.Splits
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 /-!
 # Helpers for termination arguments about functions operating on strings

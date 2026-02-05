@@ -7,9 +7,12 @@ module
 
 prelude
 public import Std.Data.HashMap.Basic
-meta import Std.Data.HashMap.Basic
 public import Std.Data.DTreeMap.Internal.WF.Lemmas
-public import Init.Data.Order.ClassesExtra
+public meta import Std.Data.HashMap.Basic
+import Init.Data.List.Find
+import Init.Data.List.Pairwise
+import Init.Data.Prod
+import Init.Omega
 
 @[expose] public section
 

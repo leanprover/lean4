@@ -7,10 +7,12 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
+public import Init.Data.String.Basic
+import Init.Omega
 public import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Lemmas.Order
+import Init.Data.Option.Lemmas
 
 set_option doc.verso true
 

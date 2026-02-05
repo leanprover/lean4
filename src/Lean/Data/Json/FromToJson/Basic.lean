@@ -8,6 +8,8 @@ module
 
 prelude
 public import Lean.Data.Json.Printer
+public import Init.Data.ToString.Macro
+import Init.Data.Array.GetLit
 
 public section
 

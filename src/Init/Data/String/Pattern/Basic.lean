@@ -6,13 +6,15 @@ Authors: Henrik Böving, Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Basic
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.String.Defs
+import Init.Data.Iterators.Consumers.Loop
+import Init.Omega
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Termination
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Order
+public import Init.Data.String.Basic
 
 set_option doc.verso true
 

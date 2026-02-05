@@ -7,8 +7,13 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Monadic
-public import Init.Data.List.FinRange
+public import Init.Data.List.OfFn
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Monadic
+import Init.Data.Fin.Lemmas
+import Init.Data.List.FinRange
+import Init.Data.Option.Lemmas
+import Init.Omega
 
 public section
 

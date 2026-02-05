@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Do.WP
-meta import Std.Do.SPred.Notation
 
 set_option linter.missingDocs true
 

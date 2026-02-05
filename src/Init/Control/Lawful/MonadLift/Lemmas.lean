@@ -6,9 +6,9 @@ Authors: Quang Dao
 module
 
 prelude
-public import Init.Control.Id
 public import Init.Control.Lawful.Basic
 public import Init.Control.Lawful.MonadLift.Basic
+import Init.Ext
 
 public section
 

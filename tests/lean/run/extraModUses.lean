@@ -179,6 +179,20 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
+Local attribute applications are tracked as private.
+-/
+
+#eval resetExtraModUses
+
+attribute [local grind =] List.append
+
+/--
+info: Entries: [import Init.Grind.Attr, import Init.Prelude]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
 Coercion instances are recorded as dependencies.
 -/
 
@@ -239,7 +253,21 @@ Is rev mod use: false
 #guard_msgs in #eval showExtraModUses
 
 /-!
-The syntax node kind in quotations get recorded as a `meta` dependency.
+The categories in `syntax` declarations get recorded as a `meta` dependency.
+-/
+
+#eval resetExtraModUses
+
+syntax "test_me " rcasesPat : term
+
+/--
+info: Entries: [public import Init.RCases, public import Init.Notation]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses
+
+/-!
+The quotation parser gets recorded as a `meta` dependency.
 -/
 
 #eval resetExtraModUses

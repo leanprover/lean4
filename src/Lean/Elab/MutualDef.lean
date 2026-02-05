@@ -1488,7 +1488,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
         mkDefView modifiers d[1]
     if ds.size > 1 && view.isInstance then
-      throwErrorAt d <| "cannot use `instance` in `mutual` block"  ++ .hint' "You can use `mutual` `defs` to define the code of this instance, followed by non-mutual `instance … := ` commands to register it as an instance."
+      Lean.throwErrorAt d <| m!"cannot use `instance` in `mutual` block"  ++ .hint' "You can use `mutual` `defs` to define the code of this instance, followed by non-mutual `instance … := ` commands to register it as an instance."
     if view.kind != .example && view.value matches `(declVal| := rfl) then
       view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]

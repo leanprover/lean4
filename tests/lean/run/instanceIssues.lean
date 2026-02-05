@@ -9,7 +9,9 @@ def test [Monad m] (xs : Vector' α a) : m Unit :=
 termination_by sizeOf xs
 
 /--
-error: cannot use `instance` in `mutual` block; consider splitting into separate `mutual` `def`s
+error: cannot use `instance` in `mutual` block
+
+Hint: You can use `mutual` `defs` to define the code of this instance, followed by non-mutual `instance … := ` commands to register it as an instance.
 -/
 #guard_msgs in
 mutual

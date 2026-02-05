@@ -45,9 +45,7 @@ LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
 # Test `LAKE_ARTIFACT_CACHE` setting and default
 LAKE_ARTIFACT_CACHE=true test_eq "true" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE=false test_eq "false" env printenv LAKE_ARTIFACT_CACHE
-# FIXME: Currently fails on Windows due to a platform inconsistency in how
-# Lean configures the environments of spawned processes
-# LAKE_ARTIFACT_CACHE= test_eq "" env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE= test_eq "false" -d ../../examples/hello env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE= test_eq "true" -f enableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
 test_cmd rm lake-manifest.json

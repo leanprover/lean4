@@ -399,7 +399,7 @@ mutual
   partial def specializeApp? (e : LetValue .pure) : SpecializeM (Option (LetValue .pure)) := do
     let .const declName us args := e | return none
     if args.isEmpty then return none
-    if (← Meta.isInstance declName) then return none
+    if (← isInstanceReducible declName) then return none
     let some specEntry ← getSpecEntry? declName | return none
     unless (← shouldSpecialize specEntry args) do return none
     let some ⟨.pure, decl⟩ ← getDecl? declName | return none
@@ -556,9 +556,10 @@ def main (decls : Array (Decl .pure)) : CompilerM (Array (Decl .pure)) := do
 end Specialize
 
 public def specialize : Pass where
-  phase := .base
-  name  := `specialize
-  run   := Specialize.main
+  phase    := .base
+  phaseOut := .base
+  name     := `specialize
+  run      := Specialize.main
 
 builtin_initialize
   registerTraceClass `Compiler.specialize (inherited := true)

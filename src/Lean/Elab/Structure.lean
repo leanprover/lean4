@@ -1498,7 +1498,7 @@ private def addParentInstances (parents : Array StructureParentInfo) : MetaM Uni
   let instParents := instParents.filter fun parent =>
     !resOrders.any (fun resOrder => resOrder[1...*].any (· == parent.structName))
   for instParent in instParents do
-    addInstance instParent.projFn AttributeKind.global (eval_prio default)
+    registerInstance instParent.projFn AttributeKind.global (eval_prio default)
 
 @[builtin_inductive_elab Lean.Parser.Command.«structure»]
 def elabStructureCommand : InductiveElabDescr where

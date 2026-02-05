@@ -52,15 +52,14 @@ example (α β : Type) (p q : Prop) : q → β → p → α → True := by
   sym_simp []
 
 /--
-trace: α✝ : Sort ?u.1921
-x : α✝
-α : Type
+trace: α : Type u
+x : α
 p : Prop
 h : α → p → True → α
 ⊢ α → p → True → α
 -/
 #guard_msgs in
-example (α : Type) (p : Prop) (h : α → p → True → α) : α → p → x = x → α := by
+example (α : Type u) (x : α) (p : Prop) (h : α → p → True → α) : α → p → x = x → α := by
   sym_simp []
   trace_state
   exact h
@@ -68,29 +67,27 @@ example (α : Type) (p : Prop) (h : α → p → True → α) : α → p → x =
 set_option linter.unusedVariables false
 
 /--
-trace: α✝ : Sort u_1
-x : α✝
-α : Type
+trace: α : Type
+x : α
 q : Prop
 h : False
 ⊢ ∀ (a b : α), q
 -/
 #guard_msgs in
-example (α : Type) (q : Prop) (h : False) : (a : α) → x = x → (b : α) → True → q := by
+example (α : Type) (x : α) (q : Prop) (h : False) : (a : α) → x = x → (b : α) → True → q := by
   sym_simp []
   trace_state
   cases h
 
 /--
-trace: α✝ : Sort u_1
-x : α✝
-α : Type
+trace: α : Sort u
+x : α
 p q : Prop
 h : False
 ⊢ ∀ (a : α) {b : α}, q
 -/
 #guard_msgs in
-example (α : Type) (p q : Prop) (h : False) : (a : α) → x = x → {b : α} → True → (q ∧ True) := by
+example (α : Sort u) (x : α) (p q : Prop) (h : False) : (a : α) → x = x → {b : α} → True → (q ∧ True) := by
   sym_simp [and_true]
   trace_state
   cases h

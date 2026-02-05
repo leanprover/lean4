@@ -198,6 +198,7 @@ Eliminate all local function declarations.
 -/
 def lambdaLifting : Pass where
   phase      := .mono
+  phaseOut   := .mono
   name       := `lambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl =>
@@ -211,10 +212,11 @@ their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
+  phaseOut   := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if decl.inlineable || (← Meta.isInstance decl.name) then
+      if decl.inlineable || (← isInstanceReducible decl.name) then
         return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (allowEtaContraction := false) (suffix := `_elam))

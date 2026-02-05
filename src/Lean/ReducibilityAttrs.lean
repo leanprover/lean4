@@ -4,25 +4,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.ScopedEnvExtension
-
+import Lean.OriginalConstKind
 public section
-
 namespace Lean
 
 /--
 Reducibility status for a definition.
 -/
 inductive ReducibilityStatus where
-  | reducible | semireducible | irreducible
+  | reducible | semireducible | irreducible | instanceReducible
   deriving Inhabited, Repr, BEq
 
 def ReducibilityStatus.toAttrString : ReducibilityStatus → String
   | .reducible => "[reducible]"
   | .irreducible => "[irreducible]"
   | .semireducible => "[semireducible]"
+  | .instanceReducible => "[instance_reducible]"
 
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
@@ -111,35 +110,40 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
   -- downstream non-`module`s.
   withoutExporting do
   unless allowUnsafeReducibility.get (← getOptions) do
-    match (← getConstInfo declName) with
-    | .defnInfo _ =>
-      let statusOld := getReducibilityStatusCore (← getEnv) declName
-      match attrKind with
-      | .scoped =>
-        throwError "failed to set reducibility status for `{.ofConstName declName}`, the `scoped` modifier is not recommended for this kind of attribute{suffix}"
-      | .global =>
-        if (← getEnv).getModuleIdxFor? declName matches some _ then
-          throwError "failed to set reducibility status, `{.ofConstName declName}` has not been defined in this file, consider using the `local` modifier{suffix}"
-        match status with
-        | .reducible =>
-          unless statusOld matches .semireducible do
-            throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
-        | .irreducible =>
-          unless statusOld matches .semireducible do
-            throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
-        | .semireducible =>
-          throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
-      | .local =>
-        match status with
-        | .reducible =>
-          throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
-        | .irreducible =>
-          unless statusOld matches .semireducible do
-            throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
-        | .semireducible =>
-          unless statusOld matches .irreducible do
-            throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
-    | _ => throwError "failed to set reducibility status, `{.ofConstName declName}` is not a definition{suffix}"
+    unless (← getConstInfo declName).isDefinition do
+      throwError "failed to set reducibility status, `{.ofConstName declName}` is not a definition{suffix}"
+    let statusOld := getReducibilityStatusCore (← getEnv) declName
+    match attrKind with
+    | .scoped =>
+      throwError "failed to set reducibility status for `{.ofConstName declName}`, the `scoped` modifier is not recommended for this kind of attribute{suffix}"
+    | .global =>
+      if (← getEnv).getModuleIdxFor? declName matches some _ then
+        throwError "failed to set reducibility status, `{.ofConstName declName}` has not been defined in this file, consider using the `local` modifier{suffix}"
+      match status with
+      | .reducible =>
+        unless statusOld matches .semireducible do
+          throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+      | .irreducible =>
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
+      | .instanceReducible =>
+        unless statusOld matches .semireducible do
+          throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+      | .semireducible =>
+        throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
+    | .local =>
+      match status with
+      | .reducible =>
+        throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
+      | .irreducible =>
+        unless statusOld matches .semireducible | .instanceReducible do
+          throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` nor `[instance_reducible]` expected{suffix}"
+      | .instanceReducible =>
+        unless statusOld matches .semireducible do
+          throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+      | .semireducible =>
+        unless statusOld matches .irreducible do
+          throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"
 
 private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   Attribute.Builtin.ensureNoArgs stx
@@ -174,6 +178,15 @@ builtin_initialize
     applicationTime := .afterTypeChecking
  }
 
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `instance_reducible
+    descr           := "instance reducible declaration"
+    add             := addAttr .instanceReducible
+    applicationTime := .afterTypeChecking
+ }
+
 /-- Return the reducibility attribute for the given declaration. -/
 def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusCore (← getEnv) declName
@@ -188,19 +201,21 @@ def setReducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
 
 /-- Return `true` if the given declaration has been marked as `[reducible]`. -/
 def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getReducibilityStatus declName) with
-  | .reducible => return true
-  | _ => return false
+  return (← getReducibilityStatus declName) matches .reducible
 
 /-- Return `true` if the given declaration has been marked as `[irreducible]` -/
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getReducibilityStatus declName) with
-  | .irreducible => return true
-  | _ => return false
+  return (← getReducibilityStatus declName) matches .irreducible
+
+def isInstanceReducibleCore (env : Environment) (declName : Name) : Bool :=
+  getReducibilityStatusCore env declName matches .instanceReducible
+
+/-- Return `true` if the given declaration has been marked as `[instance_reducible]`. -/
+def isInstanceReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInstanceReducibleCore (← getEnv) declName
 
 /-- Set the given declaration as `[irreducible]` -/
 def setIrreducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.irreducible
-
 
 end Lean

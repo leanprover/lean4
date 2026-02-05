@@ -12,6 +12,7 @@ public import Init.Data.List.Nat.Range
 public import Init.Data.List.Nat.Sublist
 public import Init.Data.List.Nat.TakeDrop
 public import Init.Data.List.Nat.Count
+public import Init.Data.List.Nat.Sum
 public import Init.Data.List.Nat.Erase
 public import Init.Data.List.Nat.Find
 public import Init.Data.List.Nat.BEq

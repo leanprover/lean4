@@ -4,14 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
 import all Lean.Elab.ErrorUtils
-
 public section
-
 namespace Lean.Elab
 open Lean.Parser.Term
 
@@ -1224,6 +1221,14 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+
+    -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
+    -- should happen before attribute application as `[instance]` will check for it.
+    for header in headers do
+      if header.kind == .instance && !header.modifiers.anyAttr (·.name matches `reducible | `irreducible) then
+        if !(← isProp header.type) then
+          setReducibilityStatus header.declName .instanceReducible
+
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&

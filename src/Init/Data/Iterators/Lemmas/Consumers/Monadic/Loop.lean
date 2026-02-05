@@ -103,10 +103,10 @@ theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' (α := β) (m := n) it init f = IterM.DefaultConsumers.forIn' (n := n)
         (fun _ _ f x => monadLift x >>= f) γ (fun _ _ _ => True) it init _ (fun _ => id) (return ⟨← f · · ·, trivial⟩) := by
-  simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : f = (Subtype.val <$> (⟨·, trivial⟩) <$> f · · ·) := by simp
   rw [this, hl.lawful (fun _ _ f x => monadLift x >>= f) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp [IteratorLoop.defaultImplementation]
+  simp +instances [IteratorLoop.defaultImplementation]
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
@@ -870,6 +870,26 @@ theorem IterM.first?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Mo
   simp only [first?]
   have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
     (P := fun b g s => s = ForInStep.done (some b)) (by simp)
+  simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
+  rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
+  simp only [flip, pure_bind]
+  congr
+  ext s
+  split <;> try (simp [*]; done)
+  simp only [DefaultConsumers.forIn_eq, *]
+  exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
+
+theorem IterM.isEmpty_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Productive α m]
+    [LawfulIteratorLoop α m m] {it : IterM (α := α) m β} :
+    it.isEmpty = (do
+      match (← it.step).inflate.val with
+      | .yield _ _ => return .up false
+      | .skip it' => it'.isEmpty
+      | .done => return .up true) := by
+  simp only [isEmpty]
+  have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
+    (P := fun _ _ s => s = ForInStep.done (ULift.up false)) (by simp)
   simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
   rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
   simp only [flip, pure_bind]

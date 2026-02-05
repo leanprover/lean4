@@ -1024,8 +1024,8 @@ private def applyAttributesCore
       withRef attr.stx do withLogging do
       let env ← getEnv
       match getAttributeImpl env attr.name with
-      | Except.error errMsg => throwError errMsg
-      | Except.ok attrImpl  =>
+      | .error errMsg => throwError errMsg
+      | .ok attrImpl  =>
         let runAttr := attrImpl.add declName attr.stx attr.kind
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition

@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
+import Lean.Compiler.NoncomputableAttr
+import Lean.AddDecl
 
 public section
 
@@ -21,13 +23,12 @@ private partial def collectUsedDecls (code : Code pu) (s : NameSet := {}) : Name
   | .cases c =>
     c.alts.foldl (init := s) fun s alt =>
       match alt with
-      | .default k => collectUsedDecls k s
-      | .alt _ _ k _ => collectUsedDecls k s
+      | .default k | .alt _ _ k _ | .ctorAlt _ k _ => collectUsedDecls k s
   | _ => s
 where
   collectLetValue (e : LetValue pu) (s : NameSet) : NameSet :=
     match e with
-    | .const declName .. => s.insert declName
+    | .const declName .. | .fap declName .. | .pap declName .. => s.insert declName
     | _ => s
 
 private def shouldExportBody (decl : Decl pu) : CompilerM Bool := do
@@ -139,7 +140,7 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
-      modify (·.insert decl.name)
+      modify (·.insert ref)
       if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
         -- check transitively through local decls
         if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then

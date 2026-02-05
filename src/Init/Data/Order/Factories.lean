@@ -23,7 +23,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMin α` instance.
 -/
-@[inline]
+@[inline, instance_reducible]
 public def _root_.Min.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Min α where
   min a b := if a ≤ b then a else b
 
@@ -33,7 +33,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMax α` instance.
 -/
-@[inline]
+@[inline, instance_reducible]
 public def _root_.Max.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Max α where
   max a b := if b ≤ a then a else b
 
@@ -208,7 +208,7 @@ public instance LawfulOrderLT.of_lt {α : Type u} [LT α] [i : Asymm (α := α) 
     haveI := LE.ofLT α
     LawfulOrderLT α :=
   letI := LE.ofLT α
-  { lt_iff a b := by simpa [LE.ofLT, Classical.not_not] using i.asymm a b }
+  { lt_iff a b := by simpa +instances [LE.ofLT, Classical.not_not] using i.asymm a b }
 
 /--
 If an `LT α` instance is asymmetric and its negation is transitive, then `LE.ofLT α` represents a
@@ -253,7 +253,7 @@ public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
   letI := LE.ofLT α
   { le_min_iff a b c := by
       open Classical in
-      simp only [LE.ofLT, ← Decidable.not_iff_not (a := ¬ min b c < a)]
+      simp +instances only [LE.ofLT, ← Decidable.not_iff_not (a := ¬ min b c < a)]
       simpa [Decidable.imp_iff_not_or] using min_lt_iff a b c }
 
 /--
@@ -282,7 +282,7 @@ public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
   letI := LE.ofLT α
   { max_le_iff a b c := by
       open Classical in
-      simp only [LE.ofLT, ← Decidable.not_iff_not ( a := ¬ c < max a b)]
+      simp +instances only [LE.ofLT, ← Decidable.not_iff_not ( a := ¬ c < max a b)]
       simpa [Decidable.imp_iff_not_or] using lt_max_iff a b c }
 
 /--

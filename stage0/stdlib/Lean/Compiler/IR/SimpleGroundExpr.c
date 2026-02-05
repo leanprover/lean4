@@ -140,7 +140,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_addSimpleGroundDecl(lean_object*, lean_object
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getSimpleGroundExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getSimpleGroundExpr___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getSimpleGroundExprWithResolvedRefs(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_IR_isSimpleGroundDecl_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_IR_isSimpleGroundDecl_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1934,72 +1934,70 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_10; 
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-if (lean_is_exclusive(x_3)) {
- lean_ctor_release(x_3, 0);
- lean_ctor_release(x_3, 1);
- x_5 = x_3;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_9; 
+x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
+if (lean_is_exclusive(x_2)) {
+ lean_ctor_release(x_2, 0);
+ lean_ctor_release(x_2, 1);
+ x_4 = x_2;
 } else {
- lean_dec_ref(x_3);
- x_5 = lean_box(0);
+ lean_dec_ref(x_2);
+ x_4 = lean_box(0);
 }
 lean_inc_ref(x_1);
-x_10 = l_Lean_IR_getSimpleGroundExpr(x_1, x_4);
-if (lean_obj_tag(x_10) == 1)
+x_9 = l_Lean_IR_getSimpleGroundExpr(x_1, x_3);
+if (lean_obj_tag(x_9) == 1)
 {
-lean_object* x_11; 
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+if (lean_obj_tag(x_10) == 4)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_dec_ref(x_9);
+lean_dec(x_4);
+lean_dec(x_3);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-if (lean_obj_tag(x_11) == 4)
-{
-lean_object* x_12; lean_object* x_13; 
 lean_dec_ref(x_10);
-lean_dec(x_5);
-lean_dec(x_4);
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-lean_dec_ref(x_11);
-lean_inc(x_2);
+x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_2);
-lean_ctor_set(x_13, 1, x_12);
-x_3 = x_13;
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_11);
+x_2 = x_13;
 goto _start;
 }
 else
 {
-lean_dec(x_11);
-lean_dec(x_2);
+lean_dec(x_10);
 lean_dec_ref(x_1);
-x_6 = x_10;
-goto block_9;
+x_5 = x_9;
+goto block_8;
 }
 }
 else
 {
-lean_dec(x_2);
 lean_dec_ref(x_1);
-x_6 = x_10;
-goto block_9;
+x_5 = x_9;
+goto block_8;
 }
-block_9:
+block_8:
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-if (lean_is_scalar(x_5)) {
- x_8 = lean_alloc_ctor(0, 2, 0);
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+if (lean_is_scalar(x_4)) {
+ x_7 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_8 = x_5;
+ x_7 = x_4;
 }
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_4);
-return x_8;
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_3);
+return x_7;
 }
 }
 }
@@ -2011,7 +2009,7 @@ x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
-x_5 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(x_1, x_3, x_4);
+x_5 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_IR_getSimpleGroundExprWithResolvedRefs_spec__0(x_1, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec_ref(x_5);

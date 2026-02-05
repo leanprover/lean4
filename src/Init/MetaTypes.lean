@@ -309,12 +309,17 @@ structure Config where
   -/
   suggestions : Bool := false
   /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
+  /--
   If `locals` is `true`, `simp` will unfold all definitions from the current file.
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
   /--
-  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If `instances` is `true`, `simp` will visit instance arguments.
   If option `backward.dsimp.instances` is `true`, it overrides this field.
   -/
   instances : Bool := false

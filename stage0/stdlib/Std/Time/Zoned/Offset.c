@@ -52,7 +52,6 @@ LEAN_EXPORT uint8_t l_Std_Time_TimeZone_instDecidableEqOffset_decEq(lean_object*
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instDecidableEqOffset_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_instDecidableEqOffset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instDecidableEqOffset___boxed(lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instInhabitedOffset___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedOffset;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instOrdOffset___lam__0(lean_object*);
@@ -242,7 +241,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -355,9 +354,9 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-x_17 = lean_string_append(x_14, x_16);
+x_17 = lean_string_append(x_13, x_16);
 lean_dec_ref(x_16);
-x_3 = x_13;
+x_3 = x_14;
 x_4 = x_15;
 x_5 = x_17;
 goto block_12;
@@ -412,8 +411,8 @@ lean_object* x_37; lean_object* x_38;
 x_37 = lean_nat_abs(x_19);
 lean_dec(x_19);
 x_38 = l_Nat_reprFast(x_37);
-x_13 = x_20;
-x_14 = x_34;
+x_13 = x_34;
+x_14 = x_20;
 x_15 = x_22;
 x_16 = x_38;
 goto block_18;
@@ -432,8 +431,8 @@ lean_dec(x_41);
 x_44 = l_Nat_reprFast(x_43);
 x_45 = lean_string_append(x_42, x_44);
 lean_dec_ref(x_44);
-x_13 = x_20;
-x_14 = x_34;
+x_13 = x_34;
+x_14 = x_20;
 x_15 = x_22;
 x_16 = x_45;
 goto block_18;

@@ -29,19 +29,19 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
   let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
   let declNames := preDefs.toList.map (·.declName)
 
-  preDefs.forM fun preDef =>
-    unless preDef.kind.isTheorem do
-      markAsRecursive preDef.declName
-
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+        (isRecursive := true)
     else
       withEnableInfoTree false do
         addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
-      preDefsNonrec.forM (addNonRec docCtx · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
+          (isRecursive := true)
+      preDefsNonrec.forM fun preDefNonRec =>
+        addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := declNames)
+          (cacheProofs := cacheProofs) (isRecursive := true)
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:

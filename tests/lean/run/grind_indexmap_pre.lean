@@ -31,8 +31,8 @@ variable {m : IndexMap α β} {a : α} {b : β} {i : Nat}
 
 def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
-  keys := Array.emptyWithCapacity capacity
-  values := Array.emptyWithCapacity capacity
+  keys    := Array.emptyWithCapacity capacity
+  values  := Array.emptyWithCapacity capacity
   size_keys' := sorry
   WF := sorry
 
@@ -64,8 +64,8 @@ variable [LawfulBEq α] [LawfulHashable α]
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]'(by sorry)
-  getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
-  getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
+  getElem? m a  := m.indices[a]?.bind (fun i => (m.values[i]?))
+  getElem! m a  := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem?_def := sorry
@@ -104,16 +104,16 @@ If the key is not present, the map is unchanged.
   | some i =>
     if w : i = m.size - 1 then
       { indices := m.indices.erase a
-        keys := m.keys.pop
-        values := m.values.pop
+        keys    := m.keys.pop
+        values  := m.values.pop
         size_keys' := sorry
         WF := sorry }
     else
       let lastKey := m.keys.back sorry
       let lastValue := m.values.back sorry
       { indices := (m.indices.erase a).insert lastKey i
-        keys := m.keys.pop.set i lastKey sorry
-        values := m.values.pop.set i lastValue sorry
+        keys    := m.keys.pop.set i lastKey sorry
+        values  := m.values.pop.set i lastValue sorry
         size_keys' := sorry
         WF := sorry }
   | none => m

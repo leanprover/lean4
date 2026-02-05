@@ -66,7 +66,7 @@ public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b
 
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
-  le_refl a := by simp [← isLE_compare]
+  le_refl a := by simp
   le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans
   le_total a b := Total.total a b
 

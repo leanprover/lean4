@@ -60,6 +60,140 @@ def Purity.withAssertPurity [Inhabited α] (is : Purity) (should : Purity)
 
 scoped macro "purity_tac" : tactic => `(tactic| first | with_reducible rfl | assumption)
 
+namespace ImpureType
+
+/-!
+This section defines the low level IR types used in the impure phase of LCNF.
+-/
+
+/--
+`float` is a 64-bit floating point number.
+-/
+@[inline, expose, match_pattern]
+def float : Expr := .const ``Float []
+
+
+/--
+`float32` is a 32-bit floating point number.
+-/
+@[inline, expose, match_pattern]
+def float32 : Expr := .const ``Float32 []
+
+/--
+`uint8` is an 8-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint8 : Expr := .const ``UInt8 []
+
+/--
+`uint16` is a 16-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint16 : Expr := .const ``UInt16 []
+
+/--
+`uint32` is a 32-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint32 : Expr := .const ``UInt32 []
+
+/--
+`uint64` is a 64-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint64 : Expr := .const ``UInt64 []
+
+/--
+`usize` represents the C `size_t` type. It has a separate representation because depending on the
+target architecture it has a different width and we try to generate platform independent C code.
+
+We generally assume that `sizeof(size_t) == sizeof(void)`.
+-/
+@[inline, expose, match_pattern]
+def usize : Expr := .const ``USize []
+
+/--
+`erased` represents type arguments, propositions and proofs which are no longer relevant at this
+point in time.
+-/
+@[inline, expose, match_pattern]
+def erased : Expr := .const ``lcErased []
+
+/-
+`object` is a pointer to a value in the heap.
+-/
+@[inline, expose, match_pattern]
+def object : Expr := .const `obj []
+
+/--
+`tobject` is either an `object` or a `tagged` pointer.
+
+Crucially the RC the RC operations for `tobject` are slightly more expensive because we
+first need to test whether the `tobject` is really a pointer or not.
+-/
+@[inline, expose, match_pattern]
+def tobject : Expr := .const `tobj []
+
+/--
+tagged` is a tagged pointer (i.e., the least significant bit is 1) storing a scalar value.
+-/
+@[inline, expose, match_pattern]
+def tagged : Expr := .const `tagged []
+
+/--
+`void` is used to identify uses of the state token from `BaseIO` which do no longer need
+to be passed around etc. at this point in the pipeline.
+-/
+@[inline, expose, match_pattern]
+def void : Expr := .const ``lcVoid []
+
+/--
+Whether the type is a scalar as opposed to a pointer (or a value disguised as a pointer).
+-/
+def Lean.Expr.isScalar : Expr → Bool
+  | ImpureType.float    => true
+  | ImpureType.float32  => true
+  | ImpureType.uint8    => true
+  | ImpureType.uint16   => true
+  | ImpureType.uint32   => true
+  | ImpureType.uint64   => true
+  | ImpureType.usize    => true
+  | _        => false
+
+/--
+Whether the type is an object which is to say a pointer or a value disguised as a pointer.
+-/
+def Lean.Expr.isObj : Expr → Bool
+  | ImpureType.object  => true
+  | ImpureType.tagged  => true
+  | ImpureType.tobject => true
+  | ImpureType.void    => true
+  | _       => false
+
+/--
+Whether the type might be an actual pointer (crucially this excludes `tagged`).
+-/
+def Lean.Expr.isPossibleRef : Expr → Bool
+  | ImpureType.object | ImpureType.tobject => true
+  | _ => false
+
+/--
+Whether the type is a pointer for sure.
+-/
+def Lean.Expr.isDefiniteRef : Expr → Bool
+  | ImpureType.object => true
+  | _ => false
+
+/--
+The boxed version of types.
+-/
+def Lean.Expr.boxed : Expr → Expr
+  | ImpureType.object | ImpureType.float | ImpureType.float32 => ImpureType.object
+  | ImpureType.void | ImpureType.tagged | ImpureType.uint8 | ImpureType.uint16 => ImpureType.tagged
+  | _ => ImpureType.tobject
+
+end ImpureType
+
 structure Param (pu : Purity) where
   fvarId     : FVarId
   binderName : Name
@@ -91,6 +225,15 @@ def LitValue.toExpr : LitValue → Expr
   | .uint64 v => .app (.const ``UInt64.ofNat []) (.lit (.natVal (UInt64.toNat v)))
   | .usize v => .app (.const ``USize.ofNat []) (.lit (.natVal (UInt64.toNat v)))
 
+def LitValue.impureTypeScalarNumLit (e : Expr) (n : Nat) : LitValue :=
+  match e with
+  | ImpureType.uint8 => .uint8 n.toUInt8
+  | ImpureType.uint16 => .uint16 n.toUInt16
+  | ImpureType.uint32 => .uint32 n.toUInt32
+  | ImpureType.uint64 => .uint64 n.toUInt64
+  | ImpureType.usize => .usize n.toUInt64
+  | _ => panic! s!"Provided invalid type to impureTypeScalarNumLit: {e}"
+
 inductive Arg (pu : Purity) where
   | erased
   | fvar (fvarId : FVarId)
@@ -120,12 +263,79 @@ private unsafe def Arg.updateFVarImp (arg : Arg pu) (fvarId' : FVarId) : Arg pu 
 
 @[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg pu) (fvarId' : FVarId) : Arg pu
 
+/-- Constructor information.
+
+   - `name` is the Name of the Constructor in Lean.
+   - `cidx` is the Constructor index (aka tag).
+   - `size` is the number of arguments of type `object/tobject`.
+   - `usize` is the number of arguments of type `usize`.
+   - `ssize` is the number of bytes used to store scalar values.
+
+Recall that a Constructor object contains a header, then a sequence of
+pointers to other Lean objects, a sequence of `USize` (i.e., `size_t`)
+scalar values, and a sequence of other scalar values. -/
+structure CtorInfo where
+  name : Name
+  cidx : Nat
+  size : Nat
+  usize : Nat
+  ssize : Nat
+  deriving Inhabited, BEq, Repr, Hashable
+
+def CtorInfo.isRef (info : CtorInfo) : Bool :=
+  info.size > 0 || info.usize > 0 || info.ssize > 0
+
+def CtorInfo.isScalar (info : CtorInfo) : Bool :=
+  !info.isRef
+
+def CtorInfo.type (info : CtorInfo) : Expr :=
+  if info.isRef then ImpureType.object else ImpureType.tagged
+
 inductive LetValue (pu : Purity) where
+  /--
+  A literal value.
+  -/
   | lit (value : LitValue)
+  /--
+  An erased value that is irrelevant for computation.
+  -/
   | erased
+  /--
+  A projection from a pure LCNF value.
+  -/
   | proj (typeName : Name) (idx : Nat) (struct : FVarId) (h : pu = .pure := by purity_tac)
+  /--
+  A pure application of a constant.
+  -/
   | const (declName : Name) (us : List Level) (args : Array (Arg pu)) (h : pu = .pure := by purity_tac)
+  /--
+  An application of a free variable
+  -/
   | fvar (fvarId : FVarId) (args : Array (Arg pu))
+  /--
+  Allocating a constructor.
+  -/
+  | ctor (i : CtorInfo) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
+  /--
+  Projecting objects out of a value.
+  -/
+  | oproj (i : Nat) (var : FVarId) (h : pu = .impure := by purity_tac)
+  /--
+  Projecting USize scalars out of a value.
+  -/
+  | uproj (i : Nat) (var : FVarId) (h : pu = .impure := by purity_tac)
+  /--
+  Projecting non-USize scalars out of a value
+  -/
+  | sproj (n : Nat) (offset : Nat) (var : FVarId) (h : pu = .impure := by purity_tac)
+  /--
+  Full, impure, application of a function.
+  -/
+  | fap (fn : Name) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
+  /--
+  Partial application of a function.
+  -/
+  | pap (fn : Name) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
@@ -136,6 +346,9 @@ def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
 private unsafe def LetValue.updateProjImp (e : LetValue pu) (fvarId' : FVarId) : LetValue pu :=
   match e with
   | .proj s i fvarId _ => if fvarId == fvarId' then e else .proj s i fvarId'
+  | .sproj i offset fvarId _ => if fvarId == fvarId' then e else .sproj i offset fvarId'
+  | .uproj i fvarId _ => if fvarId == fvarId' then e else .uproj i fvarId'
+  | .oproj i fvarId _ => if fvarId == fvarId' then e else .oproj i fvarId'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateProjImp] opaque LetValue.updateProj! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
@@ -158,6 +371,9 @@ private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg 
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
   | .fvar fvarId args => if ptrEq args args' then e else .fvar fvarId args'
+  | .pap declName args _  => if ptrEq args args' then e else .pap declName args'
+  | .fap declName args _  => if ptrEq args args' then e else .fap declName args'
+  | .ctor info args _  => if ptrEq args args' then e else .ctor info args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu
@@ -169,6 +385,11 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .proj n i s _ => .proj n i (.fvar s)
   | .const n us as _ => mkAppN (.const n us) (as.map Arg.toExpr)
   | .fvar fvarId as => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
+  | .ctor i as _ => mkAppN (.const i.name []) (as.map Arg.toExpr)
+  | .fap fn as _ | .pap fn as _ => mkAppN (.const fn []) (as.map Arg.toExpr)
+  | .oproj i var _ => mkApp2 (.const `oproj []) (ToExpr.toExpr i) (.fvar var)
+  | .uproj i var _ => mkApp2 (.const `uproj []) (ToExpr.toExpr i) (.fvar var)
+  | .sproj i offset var _ => mkApp3 (.const `sproj []) (ToExpr.toExpr i) (ToExpr.toExpr offset) (.fvar var)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -181,6 +402,7 @@ mutual
 
 inductive Alt (pu : Purity) where
   | alt (ctorName : Name) (params : Array (Param pu)) (code : Code pu) (h : pu = .pure := by purity_tac)
+  | ctorAlt (info : CtorInfo) (code : Code pu) (h : pu = .impure := by purity_tac)
   | default (code : Code pu)
 
 inductive FunDecl (pu : Purity) where
@@ -198,6 +420,8 @@ inductive Code (pu : Purity) where
   | cases (cases : Cases pu)
   | return (fvarId : FVarId)
   | unreach (type : Expr)
+  | uset (var : FVarId) (i : Nat) (y : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 end
@@ -267,15 +491,19 @@ def Cases.getCtorNames (c : Cases pu) : NameSet :=
     match alt with
     | .default _ => ctorNames
     | .alt ctorName .. => ctorNames.insert ctorName
+    | .ctorAlt info .. => ctorNames.insert info.name
 
 inductive CodeDecl (pu : Purity) where
   | let (decl : LetDecl pu)
   | fun (decl : FunDecl pu) (h : pu = .pure := by purity_tac)
   | jp (decl : FunDecl pu)
+  | uset (var : FVarId) (i : Nat) (y : FVarId) (h : pu = .impure := by purity_tac)
+  | sset (var : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
 def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
+  | .uset var .. | .sset var .. => var
 
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
@@ -286,6 +514,8 @@ where
       | .let decl => go (i-1) (.let decl code)
       | .fun decl _ => go (i-1) (.fun decl code)
       | .jp decl => go (i-1) (.jp decl code)
+      | .uset var idx y _ => go (i-1) (.uset var idx y code)
+      | .sset var idx offset y ty _ => go (i-1) (.sset var idx offset y ty code)
     else
       code
 
@@ -335,8 +565,9 @@ instance : BEq (FunDecl pu) where
 def Alt.getCode : Alt pu → Code pu
   | .default k => k
   | .alt _ _ k _ => k
+  | .ctorAlt _ k _ => k
 
-def Alt.getParams : Alt pu → Array (Param pu)
+def Alt.getParams : Alt .pure → Array (Param .pure)
   | .default _ => #[]
   | .alt _ ps _ _ => ps
 
@@ -344,11 +575,13 @@ def Alt.forCodeM [Monad m] (alt : Alt pu) (f : Code pu → m Unit) : m Unit := d
   match alt with
   | .default k => f k
   | .alt _ _ k _ => f k
+  | .ctorAlt _ k _ => f k
 
 private unsafe def updateAltCodeImp (alt : Alt pu) (k' : Code pu) : Alt pu :=
   match alt with
   | .default k => if ptrEq k k' then alt else .default k'
   | .alt ctorName ps k _ => if ptrEq k k' then alt else .alt ctorName ps k'
+  | .ctorAlt info k _ => if ptrEq k k' then alt else .ctorAlt info k'
 
 @[implemented_by updateAltCodeImp] opaque Alt.updateCode (alt : Alt pu) (c : Code pu) : Alt pu
 
@@ -389,6 +622,8 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
   | .let decl k => if ptrEq k k' then c else .let decl k'
   | .fun decl k _ => if ptrEq k k' then c else .fun decl k'
   | .jp decl k => if ptrEq k k' then c else .jp decl k'
+  | .sset fvarId i offset y ty k _ => if ptrEq k k' then c else .sset fvarId i offset y ty k'
+  | .uset fvarId offset y k _ => if ptrEq k k' then c else .uset fvarId offset y k'
   | _ => unreachable!
 
 @[implemented_by updateContImp] opaque Code.updateCont! (c : Code pu) (k' : Code pu) : Code pu
@@ -421,6 +656,32 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
   | _ => unreachable!
 
 @[implemented_by updateUnreachImp] opaque Code.updateUnreach! (c : Code pu) (type' : Expr) : Code pu
+
+@[inline] private unsafe def updateSsetImp (c : Code pu) (fvarId' : FVarId) (i' : Nat)
+    (offset' : Nat) (y' : FVarId) (ty' : Expr) (k' : Code pu) : Code pu :=
+  match c with
+  | .sset fvarId i offset y ty k _ =>
+    if ptrEq fvarId fvarId' && i == i' && offset == offset' && ptrEq y y' && ptrEq ty ty' && ptrEq k k' then
+      c
+    else
+      .sset fvarId' i' offset' y' ty' k'
+  | _ => unreachable!
+
+@[implemented_by updateSsetImp] opaque Code.updateSset! (c : Code pu) (fvarId' : FVarId) (i' : Nat)
+    (offset' : Nat) (y' : FVarId) (ty' : Expr) (k' : Code pu) : Code pu
+
+@[inline] private unsafe def updateUsetImp (c : Code pu) (fvarId' : FVarId)
+    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu :=
+  match c with
+  | .sset fvarId i offset y ty k _ =>
+    if ptrEq fvarId fvarId' && offset == offset' && ptrEq y y' && ptrEq k k' then
+      c
+    else
+      .uset fvarId' offset' y' k'
+  | _ => unreachable!
+
+@[implemented_by updateUsetImp] opaque Code.updateUset! (c : Code pu) (fvarId' : FVarId)
+    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
 
 private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then
@@ -490,7 +751,7 @@ partial def Code.size (c : Code pu) : Nat :=
 where
   go (c : Code pu) (n : Nat) : Nat :=
     match c with
-    | .let _ k => go k (n+1)
+    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k (n + 1)
     | .jp decl k | .fun decl k _ => go k <| go decl.value n
     | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
     | .jmp .. => n+1
@@ -508,7 +769,7 @@ where
 
   go (c : Code pu) : EStateM Unit Nat Unit := do
     match c with
-    | .let _ k => inc; go k
+    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => inc; go k
     | .jp decl k | .fun decl k _ => inc; go decl.value; go k
     | .cases c => inc; c.alts.forM fun alt => go alt.getCode
     | .jmp .. => inc
@@ -520,7 +781,7 @@ where
   go (c : Code pu) : m Unit := do
     f c
     match c with
-    | .let _ k => go k
+    | .let _ k | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ => go k
     | .fun decl k _ | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .unreach .. | .return .. | .jmp .. => return ()
@@ -600,13 +861,13 @@ def DeclValue.isCodeAndM [Monad m] (v : DeclValue pu) (f : Code pu → m Bool) :
   | .extern .. => pure false
 
 /--
-Declaration being processed by the Lean to Lean compiler passes.
+The signature of a declaration being processed by the Lean to Lean compiler passes.
 -/
-structure Decl (pu : Purity) where
+structure Signature (pu : Purity) where
   /--
   The name of the declaration from the `Environment` it came from
   -/
-  name  : Name
+  name : Name
   /--
   Universe level parameter names.
   -/
@@ -614,28 +875,14 @@ structure Decl (pu : Purity) where
   /--
   The type of the declaration. Note that this is an erased LCNF type
   instead of the fully dependent one that might have been the original
-  type of the declaration in the `Environment`.
+  type of the declaration in the `Environment`. Furthermore, once in the
+  impure staged of LCNF this type is only the return type.
   -/
   type  : Expr
   /--
   Parameters.
   -/
   params : Array (Param pu)
-  /--
-  The body of the declaration, usually changes as it progresses
-  through compiler passes.
-  -/
-  value : DeclValue pu
-  /--
-  We set this flag to true during LCNF conversion. When we receive
-  a block of functions to be compiled, we set this flag to `true`
-  if there is an application to the function in the block containing
-  it. This is an approximation, but it should be good enough because
-  in the frontend, we invoke the compiler with blocks of strongly connected
-  components only.
-  We use this information to control inlining.
-  -/
-  recursive : Bool := false
   /--
   We set this flag to false during LCNF conversion if the Lean function
   associated with this function was tagged as partial or unsafe. This
@@ -660,6 +907,27 @@ structure Decl (pu : Purity) where
   exhaust resources or output a looping computation.
   -/
   safe : Bool := true
+  deriving Inhabited, BEq
+
+/--
+Declaration being processed by the Lean to Lean compiler passes.
+-/
+structure Decl (pu : Purity) extends Signature pu where
+  /--
+  The body of the declaration, usually changes as it progresses
+  through compiler passes.
+  -/
+  value : DeclValue pu
+  /--
+  We set this flag to true during LCNF conversion. When we receive
+  a block of functions to be compiled, we set this flag to `true`
+  if there is an application to the function in the block containing
+  it. This is an approximation, but it should be good enough because
+  in the frontend, we invoke the compiler with blocks of strongly connected
+  components only.
+  We use this information to control inlining.
+  -/
+  recursive : Bool := false
   /--
   We store the inline attribute at LCNF declarations to make sure we can set them for
   auxiliary declarations created during compilation.
@@ -746,7 +1014,7 @@ def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
   let env ← getEnv
   if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
-  else if Meta.isInstanceCore env decl.name then
+  else if (← isInstanceReducible decl.name) then
     return true -- `decl` is "fuel" for code specialization
   else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized
@@ -754,14 +1022,17 @@ def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
     return false
 
 private partial def collectType (e : Expr) : FVarIdHashSet → FVarIdHashSet :=
-  match e with
-  | .forallE _ d b _ => collectType b ∘ collectType d
-  | .lam _ d b _     => collectType b ∘ collectType d
-  | .app f a         => collectType f ∘ collectType a
-  | .fvar fvarId     => fun s => s.insert fvarId
-  | .mdata _ b       => collectType b
-  | .proj .. | .letE .. => unreachable!
-  | _                => id
+  if e.hasFVar then
+    match e with
+    | .forallE _ d b _ => collectType b ∘ collectType d
+    | .lam _ d b _     => collectType b ∘ collectType d
+    | .app f a         => collectType f ∘ collectType a
+    | .fvar fvarId     => fun s => s.insert fvarId
+    | .mdata _ b       => collectType b
+    | .proj .. | .letE .. => unreachable!
+    | _                => id
+  else
+    id
 
 private def collectArg (arg : Arg pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match arg with
@@ -775,8 +1046,8 @@ private def collectArgs (args : Array (Arg pu)) (s : FVarIdHashSet) : FVarIdHash
 private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSet :=
   match e with
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
-  | .const _ _ args _ => collectArgs args s
-  | .proj _ _ fvarId _ => s.insert fvarId
+  | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _  => collectArgs args s
+  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _ => s.insert fvarId
   | .lit .. | .erased => s
 
 private partial def collectParams (ps : Array (Param pu)) (s : FVarIdHashSet) : FVarIdHashSet :=
@@ -795,15 +1066,26 @@ partial def Code.collectUsed (code : Code pu) (s : FVarIdHashSet := {}) : FVarId
     let s := collectType c.resultType s
     c.alts.foldl (init := s) fun s alt =>
       match alt with
-      | .default k => k.collectUsed s
+      | .default k | .ctorAlt _ k _  => k.collectUsed s
       | .alt _ ps k _ => k.collectUsed <| collectParams ps s
   | .return fvarId => s.insert fvarId
   | .unreach type => collectType type s
   | .jmp fvarId args => collectArgs args <| s.insert fvarId
+  | .sset var _ _ y _ k _ | .uset var _ y k _ =>
+    let s := s.insert var
+    let s := s.insert y
+    k.collectUsed s
 end
 
 @[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
   collectType e s
+
+def CodeDecl.collectUsed (codeDecl : CodeDecl pu) (s : FVarIdHashSet := ∅) : FVarIdHashSet :=
+  match codeDecl with
+  | .let decl => collectLetValue decl.value <| collectType decl.type s
+  | .jp decl | .fun decl _ => decl.collectUsed s
+  | .sset var _ _ y ty _ => s.insert var |>.insert y |> collectType ty
+  | .uset var _ y _ => s.insert var |>.insert y
 
 /--
 Traverse the given block of potentially mutually recursive functions
@@ -827,10 +1109,13 @@ where
     | .cases c => c.alts.forM fun alt => visit alt.getCode
     | .unreach .. | .jmp .. | .return .. => return ()
     | .let decl k =>
-      if let .const declName _ _ _ := decl.value then
+      match decl.value with
+      | .const declName .. | .fap declName .. | .pap declName .. =>
         if decls.any (·.name == declName) then
           modify fun s => s.insert declName
+      | _ => pure ()
       visit k
+    | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => visit k
 
   go : StateM NameSet Unit :=
     decls.forM (·.value.forCodeM visit)

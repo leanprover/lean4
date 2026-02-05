@@ -174,6 +174,19 @@ LEAN_EXPORT lean_object* l_Std_Iter_first_x3f___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_Total_first_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Iter_isEmpty___redArg___lam__1___closed__0;
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_Iter_isEmpty___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Iter_isEmpty___redArg___lam__1___boxed, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Iter_isEmpty___redArg___closed__0 = (const lean_object*)&l_Std_Iter_isEmpty___redArg___closed__0_value;
+LEAN_EXPORT uint8_t l_Std_Iter_isEmpty___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Iter_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Iter_Total_isEmpty___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_Total_isEmpty___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Iter_Total_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_Total_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_length___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_length___redArg___lam__1(lean_object*, lean_object*, lean_object*);
@@ -2470,6 +2483,125 @@ lean_dec(x_3);
 return x_7;
 }
 }
+static lean_object* _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Iter_isEmpty___redArg___lam__1___closed__0;
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+x_5 = l_Std_Iter_isEmpty___redArg___lam__1(x_1, x_2, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Iter_isEmpty___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_3 = ((lean_object*)(l_Std_Iter_first_x3f___redArg___closed__0));
+x_4 = ((lean_object*)(l_Std_Iter_isEmpty___redArg___closed__0));
+x_5 = 1;
+x_6 = lean_box(x_5);
+x_7 = lean_apply_6(x_1, x_3, lean_box(0), lean_box(0), x_2, x_6, x_4);
+x_8 = lean_unbox(x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Iter_isEmpty___redArg(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Iter_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_6 = ((lean_object*)(l_Std_Iter_first_x3f___redArg___closed__0));
+x_7 = ((lean_object*)(l_Std_Iter_isEmpty___redArg___closed__0));
+x_8 = 1;
+x_9 = lean_box(x_8);
+x_10 = lean_apply_6(x_4, x_6, lean_box(0), lean_box(0), x_5, x_9, x_7);
+x_11 = lean_unbox(x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_isEmpty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_Iter_isEmpty(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Iter_Total_isEmpty___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_3 = ((lean_object*)(l_Std_Iter_first_x3f___redArg___closed__0));
+x_4 = ((lean_object*)(l_Std_Iter_isEmpty___redArg___closed__0));
+x_5 = 1;
+x_6 = lean_box(x_5);
+x_7 = lean_apply_6(x_1, x_3, lean_box(0), lean_box(0), x_2, x_6, x_4);
+x_8 = lean_unbox(x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_Total_isEmpty___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Iter_Total_isEmpty___redArg(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Iter_Total_isEmpty(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_7 = ((lean_object*)(l_Std_Iter_first_x3f___redArg___closed__0));
+x_8 = ((lean_object*)(l_Std_Iter_isEmpty___redArg___closed__0));
+x_9 = 1;
+x_10 = lean_box(x_9);
+x_11 = lean_apply_6(x_4, x_7, lean_box(0), lean_box(0), x_6, x_10, x_8);
+x_12 = lean_unbox(x_11);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Iter_Total_isEmpty___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = l_Std_Iter_Total_isEmpty(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+x_8 = lean_box(x_7);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Iter_length___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2667,6 +2799,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Iter_isEmpty___redArg___lam__1___closed__0 = _init_l_Std_Iter_isEmpty___redArg___lam__1___closed__0();
+lean_mark_persistent(l_Std_Iter_isEmpty___redArg___lam__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

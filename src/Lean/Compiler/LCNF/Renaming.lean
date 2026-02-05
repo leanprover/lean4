@@ -50,8 +50,13 @@ partial def Code.applyRenaming (code : Code pu) (r : Renaming) : CompilerM (Code
       match alt with
       | .default k => return alt.updateCode (← k.applyRenaming r)
       | .alt _ ps k _ => return alt.updateAlt! (← ps.mapMonoM (·.applyRenaming r)) (← k.applyRenaming r)
+      | .ctorAlt _ k _ => return alt.updateCode (← k.applyRenaming r)
     return code.updateAlts! alts
   | .jmp .. | .unreach .. | .return .. => return code
+  | .sset fvarId i offset y ty k _ =>
+    return code.updateSset! fvarId i offset y ty (← k.applyRenaming r)
+  | .uset fvarId offset y k _ =>
+    return code.updateUset! fvarId offset y (← k.applyRenaming r)
 end
 
 def Decl.applyRenaming (decl : Decl pu) (r : Renaming) : CompilerM (Decl pu) := do

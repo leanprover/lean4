@@ -676,7 +676,7 @@ def Decl.elimDeadBranches (decls : Array (Decl .pure)) : CompilerM (Array (Decl 
   decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
 
 def elimDeadBranches : Pass :=
-  { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }
+  { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono, phaseOut := .mono }
 
 builtin_initialize
   registerTraceClass `Compiler.elimDeadBranches (inherited := true)

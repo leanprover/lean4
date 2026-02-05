@@ -76,7 +76,7 @@ def etaPolyApp? (letDecl : LetDecl .pure) : OptionT SimpM (FunDecl .pure) := do
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| (← hasLocalInst info.type)
-  guard <| !(← Meta.isInstance declName)
+  guard <| !(← isInstanceReducible declName)
   let some ⟨.pure, decl⟩ ← getDecl? declName | failure
   guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type

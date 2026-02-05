@@ -375,9 +375,6 @@ if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   endif()
 endif()
 
-# Python
-find_package(PythonInterp)
-
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 # Pick up `llvm-config` to setup LLVM flags.
@@ -668,6 +665,13 @@ endif()
 
 add_subdirectory(initialize)
 add_subdirectory(shell)
+
+# The relative path doesn't work once the CMakeLists.txt files have been copied into the stage0 dir.
+# Since stage0 needs no tests, we just ignore them instead of fixing the path.
+if(NOT STAGE EQUAL 0)
+  add_subdirectory(../tests "${CMAKE_CURRENT_BINARY_DIR}/tests")
+endif()
+
 # to be included in `leanshared` but not the smaller `leanshared_*` (as it would pull
 # in the world)
 add_library(leaninitialize STATIC $<TARGET_OBJECTS:initialize>)

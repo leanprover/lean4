@@ -8,7 +8,9 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+import Lean.ReducibilityAttrs
 import Lean.Meta.WHNF
+import Lean.AddDecl
 public section
 namespace Lean.Meta
 
@@ -230,10 +232,42 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
-  addGlobalInstance declName attrKind
+  let status ← getReducibilityStatus declName
+  unless status matches .reducible | .instanceReducible do
+    let info ← getConstInfo declName
+    if info.isDefinition then
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[instance_reducible]`"
+    else if wasOriginallyDefn (← getEnv) declName then
+      logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+
+/-
+Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
+to elaborate `instance` command.
+
+**Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
+However, this was not a robust solution because:
+
+- We have scoped instances, and `isInstance declName` returns true only if the scope is active.
+
+- We have auxiliary declarations used to construct instances manually, such as:
+  ```
+  def lt_wfRel : WellFoundedRelation Nat
+  ```
+  `isInstance` also returns `false` for this kind of declaration.
+
+In both cases, the declaration may be (or may have been) used to construct an instance, but `isInstance`
+returns `false`. We claim it is a mistake to check the reducibility status using `isInstance`.
+`isInstance` indicates whether a declaration is available for the type class resolution mechanism,
+not its transparency status.
+
+Thus, we added a new transparency setting and set it here.
+-/
+def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  setReducibilityStatus declName .instanceReducible
+  addInstance declName attrKind prio
 
 /--
 Registers type class instances.

@@ -23,6 +23,7 @@ partial def hashAlt (alt : Alt pu) : UInt64 :=
   match alt with
   | .alt ctorName ps k _ => mixHash (mixHash (hash ctorName) (hash ps)) (hashCode k)
   | .default k => hashCode k
+  | .ctorAlt info k _ => mixHash (hash info) (hashCode k)
 
 partial def hashAlts (alts : Array (Alt pu)) : UInt64 :=
   alts.foldl (fun r a => mixHash r (hashAlt a)) 7
@@ -36,6 +37,10 @@ partial def hashCode (code : Code pu) : UInt64 :=
   | .unreach type => hash type
   | .jmp fvarId args => mixHash (hash fvarId) (hash args)
   | .cases c => mixHash (mixHash (hash c.discr) (hash c.resultType)) (hashAlts c.alts)
+  | .sset fvarId i offset y ty k _ =>
+    mixHash (mixHash (hash fvarId) (hash i)) (mixHash (mixHash (hash offset) (hash y)) (mixHash (hash ty) (hashCode k)))
+  | .uset fvarId offset y k _ =>
+    mixHash (mixHash (hash fvarId) (hash offset)) (mixHash (hash y) (hashCode k))
 
 end
 
@@ -43,6 +48,7 @@ instance : Hashable (Code pu) where
   hash c := hashCode c
 
 deriving instance Hashable for DeclValue
+deriving instance Hashable for Signature
 deriving instance Hashable for Decl
 
 end Lean.Compiler.LCNF

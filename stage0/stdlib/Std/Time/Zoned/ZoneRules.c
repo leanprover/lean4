@@ -257,7 +257,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___lam__0(
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone(lean_object*, lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_TimeZone_ZoneRules_UTC___closed__0;
 static const lean_string_object l_Std_Time_TimeZone_ZoneRules_UTC___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "UTC"};
 static const lean_object* l_Std_Time_TimeZone_ZoneRules_UTC___closed__1 = (const lean_object*)&l_Std_Time_TimeZone_ZoneRules_UTC___closed__1_value;
@@ -1991,7 +1990,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_13; 
+uint8_t x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; lean_object* x_13; 
 x_4 = 0;
 if (lean_obj_tag(x_3) == 0)
 {
@@ -2016,11 +2015,11 @@ block_12:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_7);
+lean_ctor_set(x_9, 1, x_5);
 lean_ctor_set(x_9, 2, x_8);
 lean_ctor_set_uint8(x_9, sizeof(void*)*3, x_4);
 lean_ctor_set_uint8(x_9, sizeof(void*)*3 + 1, x_6);
-lean_ctor_set_uint8(x_9, sizeof(void*)*3 + 2, x_5);
+lean_ctor_set_uint8(x_9, sizeof(void*)*3 + 2, x_7);
 x_10 = l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___closed__0;
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
@@ -2038,9 +2037,9 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_box(0);
 lean_inc(x_1);
 x_17 = l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___lam__0(x_1, x_16);
-x_5 = x_15;
+x_5 = x_13;
 x_6 = x_14;
-x_7 = x_13;
+x_7 = x_15;
 x_8 = x_17;
 goto block_12;
 }
@@ -2050,9 +2049,9 @@ lean_object* x_18;
 x_18 = lean_ctor_get(x_2, 0);
 lean_inc(x_18);
 lean_dec_ref(x_2);
-x_5 = x_15;
+x_5 = x_13;
 x_6 = x_14;
-x_7 = x_13;
+x_7 = x_15;
 x_8 = x_18;
 goto block_12;
 }
@@ -2064,7 +2063,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

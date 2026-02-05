@@ -27,11 +27,11 @@ theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
       IterM.DefaultConsumers.forIn' (n := m) (fun _ _ f x => f x.run) γ (fun _ _ _ => True)
         it.toIterM init _ (fun _ => id)
           (fun out h acc => return ⟨← f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc, trivial⟩) := by
-  simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : ∀ a b c, f a b c = (Subtype.val <$> (⟨·, trivial⟩) <$> f a b c) := by simp
   simp +singlePass only [this]
   rw [hl.lawful (fun _ _ f x => f x.run) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp [IteratorLoop.defaultImplementation]
+  simp +instances [IteratorLoop.defaultImplementation]
 
 theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
@@ -77,7 +77,7 @@ theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
       letI : ForIn' m (IterM (α := α) Id β) β _ := IterM.instForIn'
       ForIn'.forIn' it.toIterM init
         (fun out h acc => f out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc) := by
-  simp [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
+  simp +instances [ForIn'.forIn', Iter.instForIn', IterM.instForIn', monadLift]
 
 theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
@@ -951,11 +951,35 @@ theorem Iter.first?_eq_match_step {α β : Type w} [Iterator α Id β] [Iterator
   generalize it.toIterM.step.run.inflate = s
   rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.first?_eq_first?_toIterM]
 
-theorem Iter.first?_eq_head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+@[simp, grind =]
+theorem Iter.head?_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
-    it.first? = it.toList.head? := by
+    it.toList.head? = it.first? := by
   induction it using Iter.inductSteps with | step it ihy ihs
   rw [first?_eq_match_step, toList_eq_match_step]
+  cases it.step using PlausibleIterStep.casesOn <;> simp [*]
+
+theorem Iter.isEmpty_eq_isEmpty_toIterM {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    {it : Iter (α := α) β} :
+  it.isEmpty = it.toIterM.isEmpty.run.down := (rfl)
+
+theorem Iter.isEmpty_eq_match_step {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Productive α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.isEmpty = match it.step.val with
+      | .yield _ _ => false
+      | .skip it' => it'.isEmpty
+      | .done => true := by
+  rw [Iter.isEmpty_eq_isEmpty_toIterM, IterM.isEmpty_eq_match_step]
+  simp only [Id.run_bind, step]
+  generalize it.toIterM.step.run.inflate = s
+  rcases s with ⟨_|_|_, _⟩ <;> simp [Iter.isEmpty_eq_isEmpty_toIterM]
+
+@[simp, grind =]
+theorem Iter.isEmpty_toList {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    [Finite α Id] [LawfulIteratorLoop α Id Id] {it : Iter (α := α) β} :
+    it.toList.isEmpty = it.isEmpty := by
+  induction it using Iter.inductSteps with | step it ihy ihs
+  rw [isEmpty_eq_match_step, toList_eq_match_step]
   cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
 end Std

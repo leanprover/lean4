@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.Irrelevant
 
 public section
 
@@ -16,7 +18,6 @@ namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
   typeParams : FVarIdHashSet := {}
-  noncomputableVars : Std.HashMap FVarId Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
@@ -25,34 +26,17 @@ def Param.toMono (param : Param .pure) : ToMonoM (Param .pure) := do
     modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def throwNoncomputableError {α : Type} (declName : Name) : ToMonoM α :=
-  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
-
-def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
-  if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwNoncomputableError declName
-
-def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
-  if let some declName := (← get).noncomputableVars.get? fvarId then
-    modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
-
 @[inline]
-def argToMonoBase (check : FVarId → ToMonoM Unit) (arg : Arg .pure) : ToMonoM (Arg .pure) := do
+def argToMono (arg : Arg .pure) : ToMonoM (Arg .pure) := do
   match arg with
   | .erased | .type .. => return .erased
   | .fvar fvarId =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      check fvarId
       return arg
 
-def argToMono (arg : Arg .pure) : ToMonoM (Arg .pure) := argToMonoBase checkFVarUse arg
-
-def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg .pure) : ToMonoM (Arg .pure) :=
-  argToMonoBase (checkFVarUseDeferred resultFVar) arg
-
-def argsToMonoWithFnType (resultFVar : FVarId) (args : Array (Arg .pure)) (type : Expr)
+def argsToMonoWithFnType (args : Array (Arg .pure)) (type : Expr)
     : ToMonoM (Array (Arg .pure)) := do
   let mut remainingType : Option Expr := some type
   let mut result := Array.emptyWithCapacity args.size
@@ -62,14 +46,14 @@ def argsToMonoWithFnType (resultFVar : FVarId) (args : Array (Arg .pure)) (type 
       if d.isErased then
         pure .erased
       else
-        argToMonoDeferredCheck resultFVar arg
+        argToMono arg
     else
       remainingType := none
-      argToMonoDeferredCheck resultFVar arg
+      argToMono arg
     result := result.push monoArg
   return result
 
-def argsToMonoRedArg (resultFVar : FVarId) (args : Array (Arg .pure)) (params : Array (Param .pure))
+def argsToMonoRedArg (args : Array (Arg .pure)) (params : Array (Param .pure))
     (redArgs : Array (Arg .pure)) : ToMonoM (Array (Arg .pure)) := do
   let mut result := #[]
   let mut argIdx := 0
@@ -78,23 +62,23 @@ def argsToMonoRedArg (resultFVar : FVarId) (args : Array (Arg .pure)) (params : 
     | .fvar fvarId =>
       while params[argIdx]!.fvarId != fvarId do
         argIdx := argIdx + 1
-      let arg ← argToMonoDeferredCheck resultFVar args[argIdx]!
+      let arg ← argToMono args[argIdx]!
       argIdx := argIdx + 1
       result := result.push arg
     | .erased | .type _ => pure ()
   for arg in args[params.size...*] do
-    let arg ← argToMonoDeferredCheck resultFVar arg
+    let arg ← argToMono arg
     result := result.push arg
   return result
 
-def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array (Arg .pure))
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array (Arg .pure))
     : ToMonoM (LetValue .pure) := do
   let argsNewParams : Array (Arg .pure) := .replicate ctorInfo.numParams .erased
-  let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM (argToMonoDeferredCheck resultFVar)
+  let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM argToMono
   let argsNew := argsNewParams ++ argsNewFields
   return .const ctorInfo.name [] argsNew
 
-partial def LetValue.toMono (e : LetValue .pure) (resultFVar : FVarId) : ToMonoM (LetValue .pure) := do
+partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := do
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
@@ -125,48 +109,43 @@ partial def LetValue.toMono (e : LetValue .pure) (resultFVar : FVarId) : ToMonoM
       unreachable!
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       if let some info ← hasTrivialStructure? ctorInfo.induct then
-        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono resultFVar
+        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono
       else
-        ctorAppToMono resultFVar ctorInfo args
+        ctorAppToMono ctorInfo args
     else
       let env ← getEnv
-      if isNoncomputable env declName && !(isExtern env declName) then
-        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
       if let some monoDecl ← getMonoDecl? declName then
         if args.size >= monoDecl.params.size then
           if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
                              (.return retFVar)) := monoDecl.value then
             let redArgDeclName := declName ++ `_redArg
             if callName == redArgDeclName && retFVar == resultFVar then
-              let args ← argsToMonoRedArg resultFVar args monoDecl.params callArgs
+              let args ← argsToMonoRedArg args monoDecl.params callArgs
               return .const redArgDeclName [] args
-        let args ← argsToMonoWithFnType resultFVar args monoDecl.type
+        let args ← argsToMonoWithFnType args monoDecl.type
         return .const declName [] args
       else
-        let args ← args.mapM (argToMonoDeferredCheck resultFVar)
+        let args ← args.mapM argToMono
         return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      checkFVarUseDeferred resultFVar fvarId
-      return .fvar fvarId (← args.mapM (argToMonoDeferredCheck resultFVar))
-  | .proj structName fieldIdx baseFVar =>
-    if (← get).typeParams.contains baseFVar then
+      return .fvar fvarId (← args.mapM argToMono)
+  | .proj structName fieldIdx fvarId =>
+    if (← get).typeParams.contains fvarId then
       return .erased
-    else
-      checkFVarUseDeferred resultFVar baseFVar
-      if let some info ← hasTrivialStructure? structName then
-        if info.fieldIdx == fieldIdx then
-          return .fvar baseFVar #[]
-        else
-          return .erased
+    else if let some info ← hasTrivialStructure? structName then
+      if info.fieldIdx == fieldIdx then
+        return .fvar fvarId #[]
       else
-        return e
+        return .erased
+    else
+      return e
 
 def LetDecl.toMono (decl : LetDecl .pure) : ToMonoM (LetDecl .pure) := do
   let type ← toMonoType decl.type
-  let value ← decl.value.toMono decl.fvarId
+  let value ← decl.value.toMono
   decl.update type value
 
 def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
@@ -370,11 +349,8 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
-  | .return fvarId =>
-    checkFVarUse fvarId
-    return code
+  | .return .. => return code
   | .cases c =>
-    checkFVarUse c.discr
     if h : c.typeName == ``Decidable then
       decToMono c h
     else if h : c.typeName == ``Nat then

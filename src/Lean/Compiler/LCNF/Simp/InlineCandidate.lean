@@ -56,7 +56,7 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
       if (← inBasePhase) then
-        if (← Meta.isInstance decl.name) then
+        if (← isInstanceReducible decl.name) then
           unless decl.name == ``instDecidableEqBool do
             /-
             TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.

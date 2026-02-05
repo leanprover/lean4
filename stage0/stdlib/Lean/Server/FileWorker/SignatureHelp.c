@@ -87,7 +87,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_st
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_stop_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -95,10 +95,9 @@ uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-lean_object* l_String_Slice_pos_x3f(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_String_Basic_0__String_Slice_findNextPos_go(lean_object*, lean_object*);
+lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "--"};
 static const lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0 = (const lean_object*)&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__0_value;
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -111,8 +110,8 @@ static lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Ser
 static const lean_ctor_object l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__6 = (const lean_object*)&l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__6_value;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -197,10 +196,14 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___boxed(lean_object*, lean_object*, lean_object*);
-static const lean_ctor_object l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_ctor_object l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0_value;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_ctor_object l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__1 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__1_value;
+static const lean_ctor_object l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__1_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__2 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__2_value;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(lean_object*, size_t, size_t);
@@ -212,8 +215,6 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Server_File
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__0;
 static const lean_closure_object l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__2___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1 = (const lean_object*)&l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1_value;
-static const lean_ctor_object l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
-static const lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__2 = (const lean_object*)&l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__2_value;
 lean_object* l_Lean_Syntax_findStack_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -1240,16 +1241,19 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-switch (lean_obj_tag(x_5)) {
+lean_object* x_6; 
+x_6 = lean_box(0);
+switch (lean_obj_tag(x_4)) {
 case 0:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_5, 0);
+lean_dec(x_5);
+x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
@@ -1257,266 +1261,329 @@ return x_8;
 case 1:
 {
 uint8_t x_9; 
-x_9 = !lean_is_exclusive(x_5);
+lean_dec(x_5);
+x_9 = !lean_is_exclusive(x_4);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_5, 0);
+x_10 = lean_ctor_get(x_4, 0);
 x_11 = lean_string_utf8_next_fast(x_1, x_10);
 lean_dec(x_10);
-lean_ctor_set_tag(x_5, 0);
-lean_ctor_set(x_5, 0, x_11);
-{
-lean_object* _tmp_5 = x_3;
-x_6 = _tmp_5;
-}
+lean_ctor_set_tag(x_4, 0);
+lean_ctor_set(x_4, 0, x_11);
+x_5 = x_6;
 goto _start;
 }
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_5, 0);
+x_13 = lean_ctor_get(x_4, 0);
 lean_inc(x_13);
-lean_dec(x_5);
+lean_dec(x_4);
 x_14 = lean_string_utf8_next_fast(x_1, x_13);
 lean_dec(x_13);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
-{
-lean_object* _tmp_4 = x_15;
-lean_object* _tmp_5 = x_3;
-x_5 = _tmp_4;
-x_6 = _tmp_5;
-}
+x_4 = x_15;
+x_5 = x_6;
 goto _start;
 }
 }
 case 2:
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_17 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_17);
-x_18 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_18);
-x_19 = lean_ctor_get(x_5, 2);
-lean_inc(x_19);
-x_20 = lean_ctor_get(x_5, 3);
-lean_inc(x_20);
-if (lean_is_exclusive(x_5)) {
- lean_ctor_release(x_5, 0);
- lean_ctor_release(x_5, 1);
- lean_ctor_release(x_5, 2);
- lean_ctor_release(x_5, 3);
- x_21 = x_5;
-} else {
- lean_dec_ref(x_5);
- x_21 = lean_box(0);
-}
-x_22 = lean_nat_dec_lt(x_19, x_4);
+uint8_t x_17; 
+x_17 = !lean_is_exclusive(x_4);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_18 = lean_ctor_get(x_4, 0);
+x_19 = lean_ctor_get(x_4, 1);
+x_20 = lean_ctor_get(x_4, 2);
+x_21 = lean_ctor_get(x_4, 3);
+x_22 = lean_nat_dec_lt(x_20, x_3);
 if (x_22 == 0)
 {
 lean_object* x_23; uint8_t x_24; 
-lean_dec(x_21);
-lean_dec(x_19);
-lean_dec_ref(x_18);
-lean_dec_ref(x_17);
-x_23 = lean_unsigned_to_nat(0u);
-x_24 = lean_nat_dec_lt(x_23, x_20);
+lean_free_object(x_4);
 lean_dec(x_20);
+lean_dec_ref(x_19);
+lean_dec_ref(x_18);
+x_23 = lean_unsigned_to_nat(0u);
+x_24 = lean_nat_dec_lt(x_23, x_21);
+lean_dec(x_21);
 if (x_24 == 0)
 {
-lean_inc(x_6);
-return x_6;
+return x_5;
 }
 else
 {
 lean_object* x_25; 
+lean_dec(x_5);
 x_25 = lean_box(3);
-{
-lean_object* _tmp_4 = x_25;
-lean_object* _tmp_5 = x_3;
-x_5 = _tmp_4;
-x_6 = _tmp_5;
-}
+x_4 = x_25;
+x_5 = x_6;
 goto _start;
 }
 }
 else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; uint8_t x_32; uint8_t x_33; 
-x_27 = lean_ctor_get(x_17, 0);
-x_28 = lean_ctor_get(x_17, 1);
-x_29 = lean_ctor_get(x_17, 2);
-lean_inc(x_19);
-x_30 = lean_string_get_byte_fast(x_1, x_19);
-x_31 = lean_nat_add(x_28, x_20);
+x_27 = lean_ctor_get(x_18, 0);
+x_28 = lean_ctor_get(x_18, 1);
+x_29 = lean_ctor_get(x_18, 2);
+lean_inc(x_20);
+x_30 = lean_string_get_byte_fast(x_1, x_20);
+x_31 = lean_nat_add(x_28, x_21);
 x_32 = lean_string_get_byte_fast(x_27, x_31);
 x_33 = lean_uint8_dec_eq(x_30, x_32);
 if (x_33 == 0)
 {
-lean_object* x_34; lean_object* x_35; uint8_t x_39; 
+lean_object* x_34; uint8_t x_35; 
+lean_dec(x_5);
 x_34 = lean_unsigned_to_nat(0u);
-x_39 = lean_nat_dec_eq(x_20, x_34);
+x_35 = lean_nat_dec_eq(x_21, x_34);
+if (x_35 == 0)
+{
+lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
+x_36 = lean_unsigned_to_nat(1u);
+x_37 = lean_nat_sub(x_21, x_36);
+lean_dec(x_21);
+x_38 = lean_array_fget_borrowed(x_19, x_37);
+lean_dec(x_37);
+x_39 = lean_nat_dec_eq(x_38, x_34);
 if (x_39 == 0)
 {
-lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
-x_40 = lean_unsigned_to_nat(1u);
-x_41 = lean_nat_sub(x_20, x_40);
-lean_dec(x_20);
-x_42 = lean_array_fget_borrowed(x_18, x_41);
-lean_dec(x_41);
-x_43 = lean_nat_dec_eq(x_42, x_34);
-if (x_43 == 0)
+lean_inc(x_38);
+lean_ctor_set(x_4, 3, x_38);
+x_5 = x_6;
+goto _start;
+}
+else
 {
-lean_object* x_44; 
-lean_inc(x_42);
+lean_object* x_41; 
+x_41 = l_String_Slice_posGE___redArg(x_2, x_20);
+lean_ctor_set(x_4, 3, x_34);
+lean_ctor_set(x_4, 2, x_41);
+x_5 = x_6;
+goto _start;
+}
+}
+else
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 lean_dec(x_21);
-x_44 = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(x_44, 0, x_17);
-lean_ctor_set(x_44, 1, x_18);
-lean_ctor_set(x_44, 2, x_19);
-lean_ctor_set(x_44, 3, x_42);
-{
-lean_object* _tmp_4 = x_44;
-lean_object* _tmp_5 = x_3;
-x_5 = _tmp_4;
-x_6 = _tmp_5;
-}
-goto _start;
-}
-else
-{
-lean_object* x_46; 
-lean_inc(x_19);
-x_46 = l_String_Slice_pos_x3f(x_2, x_19);
-if (lean_obj_tag(x_46) == 0)
-{
-lean_object* x_47; lean_object* x_48; 
-x_47 = lean_nat_add(x_19, x_40);
-lean_dec(x_19);
-x_48 = l___private_Init_Data_String_Basic_0__String_Slice_findNextPos_go(x_2, x_47);
-x_35 = x_48;
-goto block_38;
-}
-else
-{
-lean_object* x_49; 
-lean_dec(x_19);
-x_49 = lean_ctor_get(x_46, 0);
-lean_inc(x_49);
-lean_dec_ref(x_46);
-x_35 = x_49;
-goto block_38;
-}
-}
-}
-else
-{
-lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-lean_dec(x_21);
+x_43 = lean_unsigned_to_nat(1u);
+x_44 = lean_nat_add(x_20, x_43);
 lean_dec(x_20);
-x_50 = lean_unsigned_to_nat(1u);
-x_51 = lean_nat_add(x_19, x_50);
-lean_dec(x_19);
-x_52 = l___private_Init_Data_String_Basic_0__String_Slice_findNextPos_go(x_2, x_51);
-x_53 = lean_alloc_ctor(2, 4, 0);
-lean_ctor_set(x_53, 0, x_17);
-lean_ctor_set(x_53, 1, x_18);
-lean_ctor_set(x_53, 2, x_52);
-lean_ctor_set(x_53, 3, x_34);
-{
-lean_object* _tmp_4 = x_53;
-lean_object* _tmp_5 = x_3;
-x_5 = _tmp_4;
-x_6 = _tmp_5;
-}
-goto _start;
-}
-block_38:
-{
-lean_object* x_36; 
-if (lean_is_scalar(x_21)) {
- x_36 = lean_alloc_ctor(2, 4, 0);
-} else {
- x_36 = x_21;
-}
-lean_ctor_set(x_36, 0, x_17);
-lean_ctor_set(x_36, 1, x_18);
-lean_ctor_set(x_36, 2, x_35);
-lean_ctor_set(x_36, 3, x_34);
-{
-lean_object* _tmp_4 = x_36;
-lean_object* _tmp_5 = x_3;
-x_5 = _tmp_4;
-x_6 = _tmp_5;
-}
+x_45 = l_String_Slice_posGE___redArg(x_2, x_44);
+lean_ctor_set(x_4, 3, x_34);
+lean_ctor_set(x_4, 2, x_45);
+x_5 = x_6;
 goto _start;
 }
 }
 else
 {
-lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; uint8_t x_59; 
-x_55 = lean_unsigned_to_nat(1u);
-x_56 = lean_nat_add(x_19, x_55);
-lean_dec(x_19);
-x_57 = lean_nat_add(x_20, x_55);
+lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
+x_47 = lean_unsigned_to_nat(1u);
+x_48 = lean_nat_add(x_20, x_47);
 lean_dec(x_20);
-x_58 = lean_nat_sub(x_29, x_28);
-x_59 = lean_nat_dec_eq(x_57, x_58);
-if (x_59 == 0)
+x_49 = lean_nat_add(x_21, x_47);
+lean_dec(x_21);
+x_50 = lean_nat_sub(x_29, x_28);
+x_51 = lean_nat_dec_eq(x_49, x_50);
+if (x_51 == 0)
 {
-lean_object* x_60; 
-lean_dec(x_58);
-if (lean_is_scalar(x_21)) {
- x_60 = lean_alloc_ctor(2, 4, 0);
-} else {
- x_60 = x_21;
-}
-lean_ctor_set(x_60, 0, x_17);
-lean_ctor_set(x_60, 1, x_18);
-lean_ctor_set(x_60, 2, x_56);
-lean_ctor_set(x_60, 3, x_57);
-x_5 = x_60;
+lean_dec(x_50);
+lean_ctor_set(x_4, 3, x_49);
+lean_ctor_set(x_4, 2, x_48);
 goto _start;
 }
 else
 {
-lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-lean_dec(x_57);
-lean_dec(x_21);
+lean_object* x_53; lean_object* x_54; lean_object* x_55; 
+lean_dec(x_49);
+lean_free_object(x_4);
+lean_dec_ref(x_19);
 lean_dec_ref(x_18);
-lean_dec_ref(x_17);
-x_62 = lean_nat_sub(x_56, x_58);
+lean_dec(x_5);
+x_53 = lean_nat_sub(x_48, x_50);
+lean_dec(x_50);
+lean_dec(x_48);
+x_54 = l_String_Slice_pos_x21(x_2, x_53);
+lean_dec(x_53);
+x_55 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_55, 0, x_54);
+return x_55;
+}
+}
+}
+}
+else
+{
+lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; 
+x_56 = lean_ctor_get(x_4, 0);
+x_57 = lean_ctor_get(x_4, 1);
+x_58 = lean_ctor_get(x_4, 2);
+x_59 = lean_ctor_get(x_4, 3);
+lean_inc(x_59);
+lean_inc(x_58);
+lean_inc(x_57);
+lean_inc(x_56);
+lean_dec(x_4);
+x_60 = lean_nat_dec_lt(x_58, x_3);
+if (x_60 == 0)
+{
+lean_object* x_61; uint8_t x_62; 
 lean_dec(x_58);
-lean_dec(x_56);
-x_63 = l_String_Slice_pos_x21(x_2, x_62);
-lean_dec(x_62);
-x_64 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_64, 0, x_63);
-return x_64;
+lean_dec_ref(x_57);
+lean_dec_ref(x_56);
+x_61 = lean_unsigned_to_nat(0u);
+x_62 = lean_nat_dec_lt(x_61, x_59);
+lean_dec(x_59);
+if (x_62 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_63; 
+lean_dec(x_5);
+x_63 = lean_box(3);
+x_4 = x_63;
+x_5 = x_6;
+goto _start;
+}
+}
+else
+{
+lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; lean_object* x_69; uint8_t x_70; uint8_t x_71; 
+x_65 = lean_ctor_get(x_56, 0);
+x_66 = lean_ctor_get(x_56, 1);
+x_67 = lean_ctor_get(x_56, 2);
+lean_inc(x_58);
+x_68 = lean_string_get_byte_fast(x_1, x_58);
+x_69 = lean_nat_add(x_66, x_59);
+x_70 = lean_string_get_byte_fast(x_65, x_69);
+x_71 = lean_uint8_dec_eq(x_68, x_70);
+if (x_71 == 0)
+{
+lean_object* x_72; uint8_t x_73; 
+lean_dec(x_5);
+x_72 = lean_unsigned_to_nat(0u);
+x_73 = lean_nat_dec_eq(x_59, x_72);
+if (x_73 == 0)
+{
+lean_object* x_74; lean_object* x_75; lean_object* x_76; uint8_t x_77; 
+x_74 = lean_unsigned_to_nat(1u);
+x_75 = lean_nat_sub(x_59, x_74);
+lean_dec(x_59);
+x_76 = lean_array_fget_borrowed(x_57, x_75);
+lean_dec(x_75);
+x_77 = lean_nat_dec_eq(x_76, x_72);
+if (x_77 == 0)
+{
+lean_object* x_78; 
+lean_inc(x_76);
+x_78 = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(x_78, 0, x_56);
+lean_ctor_set(x_78, 1, x_57);
+lean_ctor_set(x_78, 2, x_58);
+lean_ctor_set(x_78, 3, x_76);
+x_4 = x_78;
+x_5 = x_6;
+goto _start;
+}
+else
+{
+lean_object* x_80; lean_object* x_81; 
+x_80 = l_String_Slice_posGE___redArg(x_2, x_58);
+x_81 = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(x_81, 0, x_56);
+lean_ctor_set(x_81, 1, x_57);
+lean_ctor_set(x_81, 2, x_80);
+lean_ctor_set(x_81, 3, x_72);
+x_4 = x_81;
+x_5 = x_6;
+goto _start;
+}
+}
+else
+{
+lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
+lean_dec(x_59);
+x_83 = lean_unsigned_to_nat(1u);
+x_84 = lean_nat_add(x_58, x_83);
+lean_dec(x_58);
+x_85 = l_String_Slice_posGE___redArg(x_2, x_84);
+x_86 = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(x_86, 0, x_56);
+lean_ctor_set(x_86, 1, x_57);
+lean_ctor_set(x_86, 2, x_85);
+lean_ctor_set(x_86, 3, x_72);
+x_4 = x_86;
+x_5 = x_6;
+goto _start;
+}
+}
+else
+{
+lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
+x_88 = lean_unsigned_to_nat(1u);
+x_89 = lean_nat_add(x_58, x_88);
+lean_dec(x_58);
+x_90 = lean_nat_add(x_59, x_88);
+lean_dec(x_59);
+x_91 = lean_nat_sub(x_67, x_66);
+x_92 = lean_nat_dec_eq(x_90, x_91);
+if (x_92 == 0)
+{
+lean_object* x_93; 
+lean_dec(x_91);
+x_93 = lean_alloc_ctor(2, 4, 0);
+lean_ctor_set(x_93, 0, x_56);
+lean_ctor_set(x_93, 1, x_57);
+lean_ctor_set(x_93, 2, x_89);
+lean_ctor_set(x_93, 3, x_90);
+x_4 = x_93;
+goto _start;
+}
+else
+{
+lean_object* x_95; lean_object* x_96; lean_object* x_97; 
+lean_dec(x_90);
+lean_dec_ref(x_57);
+lean_dec_ref(x_56);
+lean_dec(x_5);
+x_95 = lean_nat_sub(x_89, x_91);
+lean_dec(x_91);
+lean_dec(x_89);
+x_96 = l_String_Slice_pos_x21(x_2, x_95);
+lean_dec(x_95);
+x_97 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_97, 0, x_96);
+return x_97;
+}
 }
 }
 }
 }
 default: 
 {
-lean_inc(x_6);
-return x_6;
+return x_5;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_object* x_6; 
+x_6 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-return x_7;
+return x_6;
 }
 }
 static lean_object* _init_l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f___closed__1() {
@@ -1606,7 +1673,7 @@ block_11:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_box(0);
-x_7 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_4, x_6, x_3, x_5, x_6);
+x_7 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_4, x_3, x_5, x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_7) == 0)
@@ -1635,25 +1702,23 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_10; 
-x_10 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_2, x_3, x_4, x_7, x_8);
-return x_10;
+lean_object* x_9; 
+x_9 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(x_1, x_2, x_3, x_6, x_7);
+return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_10; 
-x_10 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec(x_4);
+lean_object* x_9; 
+x_9 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-return x_10;
+return x_9;
 }
 }
 LEAN_EXPORT uint8_t l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_isPositionInLineComment(lean_object* x_1, lean_object* x_2) {
@@ -1835,15 +1900,15 @@ lean_dec(x_106);
 lean_dec(x_104);
 if (x_107 == 0)
 {
-x_92 = x_101;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_101;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_101;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_101;
 x_94 = x_100;
 goto block_96;
 }
@@ -2228,9 +2293,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_92 == 0)
-{
 if (x_93 == 0)
+{
+if (x_92 == 0)
 {
 if (x_94 == 0)
 {
@@ -2394,162 +2459,146 @@ x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Se
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, size_t x_7, size_t x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_11; 
-x_11 = lean_usize_dec_lt(x_8, x_7);
-if (x_11 == 0)
+uint8_t x_9; 
+x_9 = lean_usize_dec_lt(x_6, x_5);
+if (x_9 == 0)
 {
-lean_object* x_12; 
-lean_dec_ref(x_3);
+lean_object* x_10; 
 lean_dec_ref(x_1);
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_9);
-return x_12;
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_7);
+return x_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_38; 
-lean_dec_ref(x_9);
-x_13 = lean_array_uget(x_6, x_8);
-x_38 = lean_ctor_get_uint8(x_13, sizeof(void*)*1);
-if (x_38 == 1)
+lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec_ref(x_7);
+x_11 = lean_array_uget(x_4, x_6);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*1);
+x_13 = lean_box(0);
+x_14 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0));
+if (x_12 == 1)
 {
 goto block_37;
 }
 else
 {
-if (x_5 == 0)
+if (x_3 == 0)
 {
-goto block_33;
+goto block_34;
 }
 else
 {
 goto block_37;
 }
 }
-block_33:
+block_34:
 {
-lean_object* x_14; lean_object* x_15; 
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-lean_dec(x_13);
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_ctor_get(x_11, 0);
+lean_inc(x_15);
+lean_dec(x_11);
 lean_inc_ref(x_1);
-x_15 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(x_1, x_14);
-if (lean_obj_tag(x_15) == 0)
+x_16 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(x_1, x_15);
+if (lean_obj_tag(x_16) == 0)
 {
-uint8_t x_16; 
-x_16 = !lean_is_exclusive(x_15);
-if (x_16 == 0)
+uint8_t x_17; 
+x_17 = !lean_is_exclusive(x_16);
+if (x_17 == 0)
 {
-lean_object* x_17; 
-x_17 = lean_ctor_get(x_15, 0);
-if (lean_obj_tag(x_17) == 1)
+lean_object* x_18; 
+x_18 = lean_ctor_get(x_16, 0);
+if (lean_obj_tag(x_18) == 1)
 {
-lean_object* x_18; lean_object* x_19; 
-lean_dec_ref(x_3);
+lean_object* x_19; lean_object* x_20; 
 lean_dec_ref(x_1);
-x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
-x_19 = lean_alloc_ctor(0, 2, 0);
+x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_2);
-lean_ctor_set(x_15, 0, x_19);
-return x_15;
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_13);
+lean_ctor_set(x_16, 0, x_20);
+return x_16;
 }
 else
 {
-size_t x_20; size_t x_21; 
-lean_free_object(x_15);
-lean_dec(x_17);
-x_20 = 1;
-x_21 = lean_usize_add(x_8, x_20);
-lean_inc_ref(x_3);
-{
-size_t _tmp_7 = x_21;
-lean_object* _tmp_8 = x_3;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-}
+size_t x_21; size_t x_22; 
+lean_free_object(x_16);
+lean_dec(x_18);
+x_21 = 1;
+x_22 = lean_usize_add(x_6, x_21);
+x_6 = x_22;
+x_7 = x_14;
 goto _start;
 }
 }
 else
 {
-lean_object* x_23; 
-x_23 = lean_ctor_get(x_15, 0);
-lean_inc(x_23);
-lean_dec(x_15);
-if (lean_obj_tag(x_23) == 1)
+lean_object* x_24; 
+x_24 = lean_ctor_get(x_16, 0);
+lean_inc(x_24);
+lean_dec(x_16);
+if (lean_obj_tag(x_24) == 1)
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-lean_dec_ref(x_3);
+lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec_ref(x_1);
-x_24 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_24, 0, x_23);
-x_25 = lean_alloc_ctor(0, 2, 0);
+x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_2);
-x_26 = lean_alloc_ctor(0, 1, 0);
+x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
-return x_26;
+lean_ctor_set(x_26, 1, x_13);
+x_27 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+return x_27;
 }
 else
 {
-size_t x_27; size_t x_28; 
-lean_dec(x_23);
-x_27 = 1;
-x_28 = lean_usize_add(x_8, x_27);
-lean_inc_ref(x_3);
-{
-size_t _tmp_7 = x_28;
-lean_object* _tmp_8 = x_3;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-}
+size_t x_28; size_t x_29; 
+lean_dec(x_24);
+x_28 = 1;
+x_29 = lean_usize_add(x_6, x_28);
+x_6 = x_29;
+x_7 = x_14;
 goto _start;
 }
 }
 }
 else
 {
-uint8_t x_30; 
-lean_dec_ref(x_3);
+uint8_t x_31; 
 lean_dec_ref(x_1);
-x_30 = !lean_is_exclusive(x_15);
-if (x_30 == 0)
+x_31 = !lean_is_exclusive(x_16);
+if (x_31 == 0)
 {
-return x_15;
+return x_16;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; 
-x_31 = lean_ctor_get(x_15, 0);
-lean_inc(x_31);
-lean_dec(x_15);
-x_32 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_32, 0, x_31);
-return x_32;
+lean_object* x_32; lean_object* x_33; 
+x_32 = lean_ctor_get(x_16, 0);
+lean_inc(x_32);
+lean_dec(x_16);
+x_33 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_33, 0, x_32);
+return x_33;
 }
 }
 }
 block_37:
 {
-if (x_4 == 0)
+if (x_2 == 0)
 {
-goto block_33;
+goto block_34;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-lean_dec(x_13);
-lean_dec_ref(x_3);
+lean_object* x_35; lean_object* x_36; 
+lean_dec(x_11);
 lean_dec_ref(x_1);
-x_34 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0));
-x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_34);
-lean_ctor_set(x_35, 1, x_2);
+x_35 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__2));
 x_36 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 return x_36;
@@ -2558,19 +2607,19 @@ return x_36;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-uint8_t x_11; uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = lean_unbox(x_4);
-x_12 = lean_unbox(x_5);
-x_13 = lean_unbox_usize(x_7);
-lean_dec(x_7);
-x_14 = lean_unbox_usize(x_8);
-lean_dec(x_8);
-x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_1, x_2, x_3, x_11, x_12, x_6, x_13, x_14, x_9);
-lean_dec_ref(x_6);
-return x_15;
+uint8_t x_9; uint8_t x_10; size_t x_11; size_t x_12; lean_object* x_13; 
+x_9 = lean_unbox(x_2);
+x_10 = lean_unbox(x_3);
+x_11 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_12 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_1, x_9, x_10, x_4, x_11, x_12, x_7);
+lean_dec_ref(x_4);
+return x_13;
 }
 }
 static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0() {
@@ -2913,7 +2962,7 @@ lean_dec(x_5);
 lean_dec_ref(x_17);
 if (lean_obj_tag(x_21) == 0)
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_46; uint8_t x_47; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_45; uint8_t x_46; 
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 lean_dec_ref(x_21);
@@ -2921,158 +2970,157 @@ x_23 = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_
 x_24 = lean_array_to_list(x_22);
 x_25 = l_List_mergeSort___redArg(x_24, x_23);
 x_26 = lean_array_mk(x_25);
-x_46 = lean_array_get_size(x_26);
-x_47 = lean_nat_dec_lt(x_19, x_46);
-if (x_47 == 0)
+x_45 = lean_array_get_size(x_26);
+x_46 = lean_nat_dec_lt(x_19, x_45);
+if (x_46 == 0)
 {
 x_27 = x_7;
-goto block_45;
+goto block_44;
 }
 else
 {
-if (x_47 == 0)
+if (x_46 == 0)
 {
 x_27 = x_7;
-goto block_45;
+goto block_44;
 }
 else
 {
-size_t x_48; uint8_t x_49; 
-x_48 = lean_usize_of_nat(x_46);
-x_49 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_26, x_16, x_48);
-x_27 = x_49;
-goto block_45;
+size_t x_47; uint8_t x_48; 
+x_47 = lean_usize_of_nat(x_45);
+x_48 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_26, x_16, x_47);
+x_27 = x_48;
+goto block_44;
 }
 }
-block_45:
+block_44:
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; size_t x_31; lean_object* x_32; 
+lean_object* x_28; lean_object* x_29; size_t x_30; lean_object* x_31; 
 x_28 = lean_box(0);
-x_29 = lean_box(0);
-x_30 = ((lean_object*)(l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__2));
-x_31 = lean_array_size(x_26);
-x_32 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_29, x_30, x_27, x_7, x_26, x_31, x_16, x_30);
+x_29 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___closed__0));
+x_30 = lean_array_size(x_26);
+x_31 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0(x_4, x_27, x_7, x_26, x_30, x_16, x_29);
 lean_dec_ref(x_26);
-if (lean_obj_tag(x_32) == 0)
+if (lean_obj_tag(x_31) == 0)
 {
-uint8_t x_33; 
-x_33 = !lean_is_exclusive(x_32);
-if (x_33 == 0)
+uint8_t x_32; 
+x_32 = !lean_is_exclusive(x_31);
+if (x_32 == 0)
 {
-lean_object* x_34; lean_object* x_35; 
-x_34 = lean_ctor_get(x_32, 0);
+lean_object* x_33; lean_object* x_34; 
+x_33 = lean_ctor_get(x_31, 0);
+x_34 = lean_ctor_get(x_33, 0);
+lean_inc(x_34);
+lean_dec(x_33);
+if (lean_obj_tag(x_34) == 0)
+{
+lean_ctor_set(x_31, 0, x_28);
+return x_31;
+}
+else
+{
+lean_object* x_35; 
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
-lean_dec(x_34);
-if (lean_obj_tag(x_35) == 0)
-{
-lean_ctor_set(x_32, 0, x_28);
-return x_32;
+lean_dec_ref(x_34);
+lean_ctor_set(x_31, 0, x_35);
+return x_31;
+}
 }
 else
 {
-lean_object* x_36; 
-x_36 = lean_ctor_get(x_35, 0);
+lean_object* x_36; lean_object* x_37; 
+x_36 = lean_ctor_get(x_31, 0);
 lean_inc(x_36);
-lean_dec_ref(x_35);
-lean_ctor_set(x_32, 0, x_36);
-return x_32;
-}
-}
-else
-{
-lean_object* x_37; lean_object* x_38; 
-x_37 = lean_ctor_get(x_32, 0);
+lean_dec(x_31);
+x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
-lean_dec(x_32);
-x_38 = lean_ctor_get(x_37, 0);
-lean_inc(x_38);
-lean_dec(x_37);
-if (lean_obj_tag(x_38) == 0)
+lean_dec(x_36);
+if (lean_obj_tag(x_37) == 0)
 {
-lean_object* x_39; 
-x_39 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_39, 0, x_28);
-return x_39;
+lean_object* x_38; 
+x_38 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_38, 0, x_28);
+return x_38;
 }
 else
 {
-lean_object* x_40; lean_object* x_41; 
-x_40 = lean_ctor_get(x_38, 0);
-lean_inc(x_40);
-lean_dec_ref(x_38);
-x_41 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_41, 0, x_40);
-return x_41;
+lean_object* x_39; lean_object* x_40; 
+x_39 = lean_ctor_get(x_37, 0);
+lean_inc(x_39);
+lean_dec_ref(x_37);
+x_40 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_40, 0, x_39);
+return x_40;
 }
 }
 }
 else
 {
-uint8_t x_42; 
-x_42 = !lean_is_exclusive(x_32);
-if (x_42 == 0)
+uint8_t x_41; 
+x_41 = !lean_is_exclusive(x_31);
+if (x_41 == 0)
 {
-return x_32;
+return x_31;
 }
 else
 {
-lean_object* x_43; lean_object* x_44; 
-x_43 = lean_ctor_get(x_32, 0);
-lean_inc(x_43);
-lean_dec(x_32);
-x_44 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_44, 0, x_43);
-return x_44;
+lean_object* x_42; lean_object* x_43; 
+x_42 = lean_ctor_get(x_31, 0);
+lean_inc(x_42);
+lean_dec(x_31);
+x_43 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_43, 0, x_42);
+return x_43;
 }
 }
 }
 }
 else
 {
-uint8_t x_50; 
+uint8_t x_49; 
 lean_dec_ref(x_4);
-x_50 = !lean_is_exclusive(x_21);
-if (x_50 == 0)
+x_49 = !lean_is_exclusive(x_21);
+if (x_49 == 0)
 {
 return x_21;
 }
 else
 {
-lean_object* x_51; lean_object* x_52; 
-x_51 = lean_ctor_get(x_21, 0);
-lean_inc(x_51);
+lean_object* x_50; lean_object* x_51; 
+x_50 = lean_ctor_get(x_21, 0);
+lean_inc(x_50);
 lean_dec(x_21);
-x_52 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_52, 0, x_51);
-return x_52;
+x_51 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_51, 0, x_50);
+return x_51;
 }
 }
 }
 else
 {
-lean_object* x_53; lean_object* x_54; 
+lean_object* x_52; lean_object* x_53; 
 lean_dec(x_12);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
-x_53 = lean_box(0);
-x_54 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_54, 0, x_53);
-return x_54;
+x_52 = lean_box(0);
+x_53 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_53, 0, x_52);
+return x_53;
 }
 }
 else
 {
-lean_object* x_55; lean_object* x_56; 
+lean_object* x_54; lean_object* x_55; 
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);
-x_55 = lean_box(0);
-x_56 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_56, 0, x_55);
-return x_56;
+x_54 = lean_box(0);
+x_55 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_55, 0, x_54);
+return x_55;
 }
 }
 }

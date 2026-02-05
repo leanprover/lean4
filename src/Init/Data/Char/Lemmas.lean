@@ -48,6 +48,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 

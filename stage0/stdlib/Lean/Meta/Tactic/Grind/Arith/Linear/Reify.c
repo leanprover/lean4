@@ -411,7 +411,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_12, 0);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*10 + 14);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*11 + 14);
 lean_dec(x_14);
 if (x_15 == 0)
 {
@@ -440,7 +440,7 @@ lean_object* x_21; uint8_t x_22;
 x_21 = lean_ctor_get(x_12, 0);
 lean_inc(x_21);
 lean_dec(x_12);
-x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*10 + 14);
+x_22 = lean_ctor_get_uint8(x_21, sizeof(void*)*11 + 14);
 lean_dec(x_21);
 if (x_22 == 0)
 {
@@ -606,7 +606,7 @@ block_47:
 {
 lean_object* x_34; lean_object* x_35; 
 lean_inc_ref(x_1);
-x_34 = l_Lean_mkApp8(x_27, x_16, x_32, x_28, x_31, x_30, x_29, x_33, x_1);
+x_34 = l_Lean_mkApp8(x_27, x_16, x_31, x_29, x_30, x_28, x_32, x_33, x_1);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -691,10 +691,10 @@ lean_object* x_53; lean_object* x_54;
 x_53 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10;
 x_54 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_53);
 x_28 = x_48;
-x_29 = x_52;
-x_30 = x_50;
-x_31 = x_49;
-x_32 = x_51;
+x_29 = x_49;
+x_30 = x_51;
+x_31 = x_50;
+x_32 = x_52;
 x_33 = x_54;
 goto block_47;
 }
@@ -705,10 +705,10 @@ x_55 = lean_ctor_get(x_23, 0);
 lean_inc(x_55);
 lean_dec_ref(x_23);
 x_28 = x_48;
-x_29 = x_52;
-x_30 = x_50;
-x_31 = x_49;
-x_32 = x_51;
+x_29 = x_49;
+x_30 = x_51;
+x_31 = x_50;
+x_32 = x_52;
 x_33 = x_55;
 goto block_47;
 }
@@ -720,10 +720,10 @@ if (lean_obj_tag(x_21) == 0)
 lean_object* x_61; lean_object* x_62; 
 x_61 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10;
 x_62 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_61);
-x_48 = x_57;
-x_49 = x_58;
-x_50 = x_60;
-x_51 = x_59;
+x_48 = x_60;
+x_49 = x_57;
+x_50 = x_59;
+x_51 = x_58;
 x_52 = x_62;
 goto block_56;
 }
@@ -733,10 +733,10 @@ lean_object* x_63;
 x_63 = lean_ctor_get(x_21, 0);
 lean_inc(x_63);
 lean_dec_ref(x_21);
-x_48 = x_57;
-x_49 = x_58;
-x_50 = x_60;
-x_51 = x_59;
+x_48 = x_60;
+x_49 = x_57;
+x_50 = x_59;
+x_51 = x_58;
 x_52 = x_63;
 goto block_56;
 }

@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
+public import Lean.OriginalConstKind
+import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
 
@@ -44,28 +46,6 @@ private def registerNamePrefixes (env : Environment) (name : Name) : Environment
 where go env
   | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
   | _        => env
-
-private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  -- Use `sync` so we can add entries from anywhere without restrictions
-  mkMapDeclarationExtension (asyncMode := .sync)
-
-/--
-Returns the kind of the declaration as originally declared instead of as exported. This information
-is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
-if the declaration was not found.
--/
-def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  -- Use `local` as for asynchronous decls from the current module, `findAsync?` below will yield
-  -- the same result but potentially earlier (after `addConstAsync` instead of `addDecl`)
-  privateConstKindsExt.find? (asyncMode := .local) env declName <|>
-    (env.setExporting false |>.findAsync? declName).map (·.kind)
-
-/--
-Checks whether the declaration was originally declared as a theorem; see also
-`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
--/
-def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
-  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
 declarations with `sorryAx` generate the "declaration uses `sorry`" warning. -/

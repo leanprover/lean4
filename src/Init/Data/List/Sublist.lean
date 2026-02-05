@@ -580,7 +580,7 @@ theorem sublist_flatten_iff {L : List (List α)} {l} :
     · rintro ⟨L', rfl, h⟩
       simp only [flatten_nil, sublist_nil, flatten_eq_nil_iff]
       simp only [getElem?_nil, Option.getD_none, sublist_nil] at h
-      exact (forall_getElem (p := (· = []))).1 h
+      exact (forall_mem_iff_forall_getElem (P := (· = []))).2 h
   | cons l' L ih =>
     simp only [flatten_cons, sublist_append_iff, ih]
     constructor
@@ -1124,9 +1124,11 @@ theorem drop_subset (i) (l : List α) : drop i l ⊆ l :=
 
 grind_pattern drop_subset => drop i l ⊆ l
 
+@[grind →]
 theorem mem_of_mem_take {l : List α} (h : a ∈ l.take i) : a ∈ l :=
   take_subset _ _ h
 
+@[grind →]
 theorem mem_of_mem_drop {i} {l : List α} (h : a ∈ l.drop i) : a ∈ l :=
   drop_subset _ _ h
 

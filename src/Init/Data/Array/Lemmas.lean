@@ -482,9 +482,18 @@ theorem mem_iff_getElem {a} {xs : Array α} : a ∈ xs ↔ ∃ (i : Nat) (h : i 
 theorem mem_iff_getElem? {a} {xs : Array α} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem {P : α → Prop} {xs : Array α} :
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ (hi : i < xs.size), P (xs[i]) := by
+  cases xs; simp [List.exists_mem_iff_exists_getElem]
+
+theorem forall_mem_iff_forall_getElem {P : α → Prop} {xs : Array α} :
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) (hi : i < xs.size), P (xs[i]) := by
+  cases xs; simp [List.forall_mem_iff_forall_getElem]
+
+@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
 theorem forall_getElem {xs : Array α} {p : α → Prop} :
     (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a := by
-  cases xs; simp [List.forall_getElem]
+  exact forall_mem_iff_forall_getElem.symm
 
 /-! ### isEmpty -/
 
@@ -1969,6 +1978,14 @@ theorem append_eq_append_iff {ws xs ys zs : Array α} :
     · left; exact ⟨as.toList, by simp⟩
     · right; exact ⟨cs.toList, by simp⟩
 
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : Array α} (h : ws.size = xs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [← Array.toList_inj] using List.append_eq_append_iff_of_size_eq_left h
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : Array α} (h : ys.size = zs.size) :
+    ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  simpa [← Array.toList_inj] using List.append_eq_append_iff_of_size_eq_right h
+
 @[grind =] theorem set_append {xs ys : Array α} {i : Nat} {x : α} (h : i < (xs ++ ys).size) :
     (xs ++ ys).set i x =
       if h' : i < xs.size then
@@ -2498,10 +2515,6 @@ theorem flatMap_replicate {f : α → Array β} : (replicate n a).flatMap f = (r
 
 @[simp] theorem isEmpty_replicate : (replicate n a).isEmpty = decide (n = 0) := by
   rw [← List.toArray_replicate, List.isEmpty_toArray]
-  simp
-
-@[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
-  rw [← List.toArray_replicate, List.sum_toArray]
   simp
 
 /-! ### Preliminaries about `swap` needed for `reverse`. -/
@@ -4289,19 +4302,31 @@ theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then
 /-! ### sum -/
 
 @[simp, grind =] theorem sum_empty [Add α] [Zero α] : (#[] : Array α).sum = 0 := rfl
+theorem sum_eq_foldr [Add α] [Zero α] {xs : Array α} :
+    xs.sum = xs.foldr (init := 0) (· + ·) :=
+  rfl
 
 -- Without further algebraic hypotheses, there's no useful `sum_push` lemma.
 
 @[simp, grind =]
-theorem sum_eq_sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
+theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
   cases as
   simp [Array.sum, List.sum]
 
+@[deprecated sum_toList (since := "2026-01-14")]
+def sum_eq_sum_toList := @sum_toList
+
 @[simp, grind =]
-theorem sum_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
-  cases as₁
-  cases as₂
-  simp [List.sum_append_nat]
+theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    {as₁ as₂ : Array α} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+  simp [← sum_toList, List.sum_append]
+
+@[simp, grind =]
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by
+  simp [← sum_toList, List.sum_reverse]
 
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}

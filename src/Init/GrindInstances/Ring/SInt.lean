@@ -15,11 +15,11 @@ public section
 
 namespace Lean.Grind
 
-@[expose]
+@[expose, instance_reducible]
 def Int8.natCast : NatCast Int8 where
   natCast x := Int8.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def Int8.intCast : IntCast Int8 where
   intCast x := Int8.ofInt x
 
@@ -70,11 +70,11 @@ example : ToInt.Sub Int8 (.sint 8) := inferInstance
 
 instance : ToInt.Pow Int8 (.sint 8) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, instance_reducible]
 def Int16.natCast : NatCast Int16 where
   natCast x := Int16.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def Int16.intCast : IntCast Int16 where
   intCast x := Int16.ofInt x
 
@@ -125,11 +125,11 @@ example : ToInt.Sub Int16 (.sint 16) := inferInstance
 
 instance : ToInt.Pow Int16 (.sint 16) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, instance_reducible]
 def Int32.natCast : NatCast Int32 where
   natCast x := Int32.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def Int32.intCast : IntCast Int32 where
   intCast x := Int32.ofInt x
 
@@ -180,11 +180,11 @@ example : ToInt.Sub Int32 (.sint 32) := inferInstance
 
 instance : ToInt.Pow Int32 (.sint 32) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, instance_reducible]
 def Int64.natCast : NatCast Int64 where
   natCast x := Int64.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def Int64.intCast : IntCast Int64 where
   intCast x := Int64.ofInt x
 
@@ -235,11 +235,11 @@ example : ToInt.Sub Int64 (.sint 64) := inferInstance
 
 instance : ToInt.Pow Int64 (.sint 64) := ToInt.pow_of_semiring (by simp)
 
-@[expose]
+@[expose, instance_reducible]
 def ISize.natCast : NatCast ISize where
   natCast x := ISize.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def ISize.intCast : IntCast ISize where
   intCast x := ISize.ofInt x
 

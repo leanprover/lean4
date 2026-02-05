@@ -17,11 +17,11 @@ namespace UInt8
 /-- Variant of `UInt8.ofNat_mod_size` replacing `2 ^ 8` with `256`.-/
 theorem ofNat_mod_size' : ofNat (x % 256) = ofNat x := ofNat_mod_size
 
-@[expose]
+@[expose, instance_reducible]
 def natCast : NatCast UInt8 where
   natCast x := UInt8.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def intCast : IntCast UInt8 where
   intCast x := UInt8.ofInt x
 
@@ -37,7 +37,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt8) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt8
@@ -47,11 +47,11 @@ namespace UInt16
 /-- Variant of `UInt16.ofNat_mod_size` replacing `2 ^ 16` with `65536`.-/
 theorem ofNat_mod_size' : ofNat (x % 65536) = ofNat x := ofNat_mod_size
 
-@[expose]
+@[expose, instance_reducible]
 def natCast : NatCast UInt16 where
   natCast x := UInt16.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def intCast : IntCast UInt16 where
   intCast x := UInt16.ofInt x
 
@@ -67,7 +67,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt16) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt16
@@ -77,11 +77,11 @@ namespace UInt32
 /-- Variant of `UInt32.ofNat_mod_size` replacing `2 ^ 32` with `4294967296`.-/
 theorem ofNat_mod_size' : ofNat (x % 4294967296) = ofNat x := ofNat_mod_size
 
-@[expose]
+@[expose, instance_reducible]
 def natCast : NatCast UInt32 where
   natCast x := UInt32.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def intCast : IntCast UInt32 where
   intCast x := UInt32.ofInt x
 
@@ -97,7 +97,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt32) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt32
@@ -107,11 +107,11 @@ namespace UInt64
 /-- Variant of `UInt64.ofNat_mod_size` replacing `2 ^ 64` with `18446744073709551616`.-/
 theorem ofNat_mod_size' : ofNat (x % 18446744073709551616) = ofNat x := ofNat_mod_size
 
-@[expose]
+@[expose, instance_reducible]
 def natCast : NatCast UInt64 where
   natCast x := UInt64.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def intCast : IntCast UInt64 where
   intCast x := UInt64.ofInt x
 
@@ -127,18 +127,18 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt64) = OfNat.o
     rw [Int.toNat_emod (Int.zero_le_ofNat x) (by decide)]
     erw [Int.toNat_natCast]
     rw [Int.toNat_pow_of_nonneg (by decide)]
-    simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+    simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
 
 end UInt64
 
 namespace USize
 
-@[expose]
+@[expose, instance_reducible]
 def natCast : NatCast USize where
   natCast x := USize.ofNat x
 
-@[expose]
+@[expose, instance_reducible]
 def intCast : IntCast USize where
   intCast x := USize.ofInt x
 
@@ -154,7 +154,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : USize) = OfNat.of
     rw [Int.toNat_emod (Int.zero_le_ofNat x)]
     · erw [Int.toNat_natCast]
       rw [Int.toNat_pow_of_nonneg (by decide)]
-      simp only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
+      simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
         Nat.mod_mod_of_dvd, instOfNat]
     · obtain _ | _ := System.Platform.numBits_eq <;> simp_all
 

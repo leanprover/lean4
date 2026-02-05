@@ -10,6 +10,7 @@ import Lean.Util.ForEachExpr
 import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
+import Lean.Compiler.IR.CompilerM
 
 import all Lean.Compiler.CSimpAttr
 
@@ -50,6 +51,13 @@ public def main (args : List String) : IO UInt32 := do
 
   let some modIdx := env.getModuleIdx? mod
     | throw <| IO.userError s!"module '{mod}' not found"
+
+  -- Fill `declMapExt` with functions compiled already in `lean` so the set of "local" decls is
+  -- unchanged and also for calculation of `extraConstNames` above
+  let is := Lean.IR.declMapExt.toEnvExtension.getState env
+  let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d => (d::decls, m.insert d.name d)) is.state
+  let env := Lean.IR.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
+
   let some mod := env.header.moduleData[modIdx]? | unreachable!
   -- Make sure we record the actual IR dependencies, not ourselves
   let env := { env with base.private.header.imports := mod.imports }

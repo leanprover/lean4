@@ -77,45 +77,46 @@ Replace `ctor` applications with `reuse` applications if compatible.
 `w` contains the "memory cell" being reused.
 -/
 partial def S (w : FVarId) (info : CtorInfo) (b : Code .impure) :
-    ReuseM (Code .impure) :=
+    ReuseM (Code .impure × Bool) :=
   go b
 where
-  go (c : Code .impure) : ReuseM (Code .impure) := do
+  go (c : Code .impure) : ReuseM (Code .impure × Bool) := do
+    let goK (k : Code .impure) : ReuseM (Code .impure × Bool) := do
+      let (k, changed) ← go k
+      return (c.updateCont! k, changed)
     match c with
-    | .let decl k =>
-      match decl.value with
-      | .ctor info' ys =>
-        if ← mayReuse info info' then
-          let updateNecessary := info.cidx != info'.cidx
-          return .let (← decl.update decl.type (.reuse w info' updateNecessary ys)) k
-        else
-          let k ← go k
-          return c.updateCont! k
-      | _ =>
-        let k ← go k
-        return c.updateCont! k
-    | .jp decl k =>
-      let value ← go decl.value
-      if value == decl.value then
-        return c.updateCont! (← go k)
+    | .let decl@{ value := .ctor info' ys _, .. } k =>
+      if ← mayReuse info info' then
+        let updateNecessary := info.cidx != info'.cidx
+        let code := .let (← decl.update decl.type (.reuse w info' updateNecessary ys)) k
+        return (code, true)
       else
-        return c.updateFun! (← decl.updateValue value) k
-    | .cases cs => return c.updateAlts! (← cs.alts.mapM (·.mapCodeM go))
-    | .return .. | .jmp .. | .unreach .. => return c
-    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ =>
-      let k ← go k
-      return c.updateCont! k
+        goK k
+    | .jp decl k =>
+      let (value, changed) ← go decl.value
+      if changed then
+        return (c.updateFun! (← decl.updateValue value) k, changed)
+      else
+        goK k
+    | .cases cs =>
+      let result ← cs.alts.mapM fun alt => do
+        let (altCode, changed) ← go alt.getCode
+        return (alt.updateCode altCode, changed)
+      let (alts, altsChanged) := result.unzip
+      return (c.updateAlts! alts, altsChanged.any id)
+    | .return .. | .jmp .. | .unreach .. => return (c, false)
+    | .sset _ _ _ _ _ k _ | .uset _ _ _ k _ | .let _ k =>
+      goK k
 
 def tryS (x : FVarId) (info : CtorInfo) (b : Code .impure) : ReuseM (Code .impure) := do
-  -- TODO refactor this
   let w ← mkFreshFVarId
-  let b' ← S w info b
-  if b == b' then
-    return b
-  else
-    let decl := { fvarId := w, binderName := `_x, type := ImpureType.tobject, value := .reset info.size x }
+  let (b', changed) ← S w info b
+  if changed then
+    let decl := { fvarId := w, binderName := (← mkFreshBinderName `_x), type := ImpureType.tobject, value := .reset info.size x }
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return .let decl b'
+  else
+    return b
 
 def isCtorUsing (b : CodeDecl .impure) (x : FVarId) : Bool :=
   match b with

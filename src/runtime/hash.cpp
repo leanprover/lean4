@@ -21,7 +21,9 @@ static uint64 MurmurHash64A(void const * key, size_t len, uint64 seed) {
     const uint64 * end = data + (len/8);
 
     while (data != end) {
-        uint64 k = *data++;
+        uint64 k;
+        memcpy(&k, data, sizeof(uint64)); 
+        data++;
 
         k *= m;
         k ^= k >> r;

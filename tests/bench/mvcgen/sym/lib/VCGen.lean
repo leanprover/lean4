@@ -28,6 +28,41 @@ Creating backward rules for registered specifications
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
+def nilEntails.{u} (P Q : ULift.{u, 0} Prop) :=
+  SPred.entails (σs := []) P Q
+
+meta def unfoldSPredEntails (e : Expr) : SymM Expr := do
+  let pre (e : Expr) : SymM TransformStep := do
+    if ← isProp e then
+      return .continue e
+    else
+      return .done e
+  let post (e : Expr) : SymM TransformStep := do
+    let f := e.getAppFn
+    unless f.isConstOf ``SPred.entails do return .done e
+    let args := e.getAppArgs
+    unless args.size >= 3 do return .done e
+    let mut σs := args[0]!
+    let mut stateTypes := #[]
+    while σs.isAppOfArity ``List.cons 3 do
+      stateTypes := stateTypes.push (σs.getArg! 1)
+      σs := σs.getArg! 2
+    let canUnfoldCompletely := σs.isAppOf ``List.nil
+    unless canUnfoldCompletely || stateTypes.size > 0 do return .done e
+    let mut res :=
+      let ss := (*...stateTypes.size).toArray.reverse.map mkBVar -- [#3, #2, #1, #0]
+      let P := mkAppN args[1]! ss
+      let Q := mkAppN args[2]! ss
+      if canUnfoldCompletely then
+        mkApp2 (mkConst ``nilEntails f.constLevels!) P Q
+      else
+        mkApp3 (mkConst ``SPred.entails f.constLevels!) σs P Q
+    for σ in stateTypes.reverse do
+      res := mkForall (← mkFreshUserName `s) .default σ res
+    res := mkAppN res args[3...*]
+    return .done res
+  Meta.transform e (pre := pre) (post := post) (skipConstInApp := true)
+
 structure SpecializedWPApplyApp where
   name : Name
   m : Expr
@@ -64,9 +99,18 @@ meta def mkSpecializedWPApply (wp : Expr) (wpRevArgs : Array Expr) : SymM Name :
   let type ← shareCommon type
   trace[Elab.Tactic.Do.vcgen] "specialized `(wp _).apply` result type: {type}"
   let name ← mkFreshUserName `PredTrans.specializedApply
-  let _defn ← mkAuxDefinition name type e (compile := false) -- e is closed, so `_defn` is always `mkConst name`
+  -- e is closed, so `_defn` is always `mkConst name`.
+  -- This will change once we support polymorphic monads.
+  let _defn ← mkAuxDefinition name type e (compile := false)
   enableRealizationsForConst name
   return name
+
+meta def SpecializedWPApplyApp.unfold (app : SpecializedWPApplyApp) : MetaM Expr := do
+  let u ← getLevel app.α
+  let v ← getLevel (mkApp app.m app.α)
+  let wp := mkApp5 (mkConst ``WP.wp [u, v]) app.m app.ps app.instWP app.α app.e
+  let apply := mkApp3 (mkConst ``PredTrans.apply [u]) app.ps app.α wp
+  return mkAppN apply app.excessArgs
 
 meta def SpecTheorems.findSpec (database : SpecTheorems) (e : Expr) : MetaM (Option SpecTheorem) := do
   let candidates ← database.specs.getMatch e
@@ -83,8 +127,11 @@ meta def SpecializedWPApplyApp.rewriteWPApply (app : SpecializedWPApplyApp) (e :
     unless wp.isAppOfArity ``WP.wp 5 do return .done e
     let #[m, _ps, _instWP, α, prog] := wp.getAppArgs | return .done e
     unless ← isDefEqS m app.m do return .done e
-    return .done (mkAppN (mkConst app.name) (#[α, prog] ++ args[3...*]))
-  Meta.transform e (post := post)
+    let res := mkAppN (mkConst app.name) (#[α, prog] ++ args[3...*])
+    check res
+    trace[Elab.Tactic.Do.vcgen] "checked result: {res}"
+    return .done res
+  Meta.transform e (post := post) (skipConstInApp := true)
 
 meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (σs : Expr) (app : SpecializedWPApplyApp) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
@@ -168,6 +215,7 @@ meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (σs : Expr)
   let res ← abstractMVars spec
   let type ← preprocessExpr (← Sym.inferType res.expr)
   let type ← app.rewriteWPApply type
+  let type ← unfoldSPredEntails type
   trace[Elab.Tactic.Do.vcgen] "Type of new auxiliary spec apply theorem: {type}"
   let spec ← Meta.mkAuxLemma res.paramNames.toList type res.expr
   mkBackwardRuleFromDecl spec
@@ -180,8 +228,6 @@ VC generation
 
 public structure VCGen.Context where
   specThms : SpecTheorems
-  /-- The backward rule for `SPred.entails_cons_intro`. -/
-  entailsConsIntroRule : BackwardRule
 
 public structure VCGen.State where
   /--
@@ -257,40 +303,90 @@ meta def unfoldTriple (goal : MVarId) : SymM MVarId := goal.withContext do
   let goal ← goal.replaceTargetDefEq type
   preprocessMVar goal  -- need to reinstate subterm sharing. TODO: replace `unfoldDefinition`?
 
+structure SPredEntailsApp where
+  /-- The level of the `SPred`. -/
+  u : Level
+  /-- `some σs` => `SPred.entails σs`. `none` => `nilEntails`. -/
+  σs? : Option Expr
+  /-- The left-hand side of the entailment. -/
+  H : Expr
+  /-- The right-hand side of the entailment. -/
+  T : Expr
+
+meta def SPredEntailsApp.mkApp (app : SPredEntailsApp) : Expr :=
+  match app.σs? with
+  | some σs => mkApp3 (mkConst ``SPred.entails [app.u]) σs app.H app.T
+  | none => mkApp2 (mkConst ``nilEntails [app.u]) app.H app.T
+
+meta def SPredEntailsApp.σs (app : SPredEntailsApp) : Expr :=
+  match app.σs? with
+  | some σs => σs
+  | none => Do.ProofMode.TypeList.mkNil app.u
+
+meta def SPredEntailsApp.unfold? (app : SPredEntailsApp) : Option Expr :=
+  match app.σs? with
+  | none => { app with σs? := some (Do.ProofMode.TypeList.mkNil app.u) }.mkApp
+  | _ => none
+
+meta def isSPredEntailsApp? (target : Expr) : Option SPredEntailsApp :=
+  if target.isAppOfArity ``SPred.entails 3 then
+    let u := target.getAppFn.constLevels![0]!
+    let args := target.getAppArgs
+    some { u, σs? := some args[0]!, H := args[1]!, T := args[2]! }
+  else if target.isAppOfArity ``nilEntails 2 then
+    let u := target.getAppFn.constLevels![0]!
+    let args := target.getAppArgs
+    some { u, σs? := none, H := args[0]!, T := args[1]! }
+  else
+    none
+
 open Lean.Elab.Tactic.Do in
 meta def simplifyTarget (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
   let target ← goal.getType
-  let_expr ent@SPred.entails σs P T := target | return goal
-  let some T ← reduceProjBeta? T | return goal -- very slight simplification
-  goal.replaceTargetDefEq (mkApp3 ent σs P T)
+  let some app := isSPredEntailsApp? target | return goal
+  let some T ← reduceProjBeta? app.T | return goal -- very slight simplification
+  goal.replaceTargetDefEq { app with T }.mkApp
 
 meta def specializeWPApply (goal : MVarId) : VCGenM MVarId := goal.withContext do
   let target ← goal.getType
-  trace[Elab.Tactic.Do.vcgen] "is it specializable?: {target}"
-  let_expr ent@SPred.entails σs P T := target | return goal
-  T.withAppRev fun apply applyRevArgs => do
+  let some app := isSPredEntailsApp? target | return goal
+  app.T.withAppRev fun apply applyRevArgs => do
   unless apply.isConstOf ``PredTrans.apply do return goal
-  trace[Elab.Tactic.Do.vcgen] "it is a predtrans.apply: {applyRevArgs}"
   applyRevArgs[applyRevArgs.size-3]!.withAppRev fun wp wpRevArgs => do
   unless wp.isConstOf ``WP.wp do return goal
-  trace[Elab.Tactic.Do.vcgen] "wp: {wp}, wpRevArgs: {wpRevArgs}"
   let name ← mkSpecializedWPApplyCached wp wpRevArgs
   -- The args to the specialized `wpApply` def are `[α, e, Q, s₁, ..., sₙ]`.
   -- We take `[α, e]` from `wpRevArgs[0...2].reverse`
   -- and `[Q, s₁, ..., sₙ]` from `applyRevArgs[*...applyRevArgs.size-3].reverse`.
   let T := mkAppRev (mkConst name) (applyRevArgs[*...applyRevArgs.size-3] ++ wpRevArgs[0...2])
-  check T
-  trace[Elab.Tactic.Do.vcgen] "specialized `(wp _).apply` result: {T}"
-  goal.replaceTargetDefEq (mkApp3 ent σs P T)
+  goal.replaceTargetDefEq { app with T }.mkApp
+
+meta def specializeSPredEntails (goal : MVarId) : VCGenM MVarId := goal.withContext do
+  let target ← goal.getType
+  unless target.isAppOfArity ``SPred.entails 3 do return goal
+  let target ← unfoldSPredEntails target
+  goal.replaceTargetDefEq target
+
+meta def introStates (goal : MVarId) : VCGenM MVarId := goal.withContext do
+  let mut target ← goal.getType
+  unless target.isForall do return goal
+--  trace[Elab.Tactic.Do.vcgen] "goal is a forall: {goal}"
+--  let mut forallDepth := 0
+--  repeat do
+--    let .forallE _ _dom rng _ := target | unreachable!
+--    if !rng.isForall || rng.isAppOf ``ULift.down then break
+--    forallDepth := forallDepth + 1
+--    target := rng
+  let IntrosResult.goal _ goal' ← Sym.intros goal | return goal
+  return goal'
 
 meta def preprocessGoal (goal : MVarId) : VCGenM (Option MVarId) := do
   let mut goal := goal
-  if (← goal.getType).isForall then
-    let IntrosResult.goal _ goal' ← Sym.intros goal | failure
-    goal := goal'
   goal ← unfoldTriple goal
   goal ← simplifyTarget goal
   goal ← specializeWPApply goal
+  goal ← specializeSPredEntails goal
+  goal ← introStates goal
   return goal
 
 inductive SolveResult where
@@ -308,21 +404,20 @@ inductive SolveResult where
 meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "target: {target}"
-  let_expr SPred.entails σs _H T := target | return .noEntailment target
+  let some entailsApp := isSPredEntailsApp? target | return .noEntailment target
   -- The goal is of the form `H ⊢ₛ T`. Look for program syntax in `T`.
 
-  if T.isLambda then
+  if entailsApp.T.isLambda then
     -- This happens after applying the `get` spec. We have `T = fun s => wp⟦.. s⟧ Q s`.
     -- Do what `mIntroForall` does, that is, eta-expand. Note that this introduces an
     -- excess state arg `s`.
-    let .goals goals ← (← read).entailsConsIntroRule.apply goal
-      | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
-    return .goals goals
+    let .goal _ goal ← Sym.introN goal 1 | return .noEntailment target
+    return .goals [goal]
 
-  let res? ← isSpecializedWPApplyApp T
+  let res? ← isSpecializedWPApplyApp entailsApp.T
   trace[Elab.Tactic.Do.vcgen] "Monad of specialized wp apply app: {SpecializedWPApplyApp.m <$> res?}"
-  let some app@{ name, m, ps, instWP, α, e, Q, excessArgs : SpecializedWPApplyApp } := res?
-        | return .noProgramFoundInTarget T
+  let some wpApp@{ name, m, ps, instWP, α, e, Q, excessArgs : SpecializedWPApplyApp } := res?
+        | return .noProgramFoundInTarget entailsApp.T
   -- `T` is defeq to the form `wp⟦e⟧ Q s₁ ... sₙ`, where `e` is the program.
   -- We call `s₁ ... sₙ` the excess state args; the backward rules need to account for these.
   -- Excess state args are introduced by the spec of `get` (see lambda case above).
@@ -334,14 +429,25 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     trace[Elab.Tactic.Do.vcgen] "Applying a spec for {e}. Excess args: {excessArgs}"
     let some thm ← (← read).specThms.findSpec e
       | return .noSpecFoundForProgram e
-    let rule ← mkBackwardRuleFromSpecCached thm σs app
+    let rule ← mkBackwardRuleFromSpecCached thm entailsApp.σs wpApp
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply rule {thm.proof} for {e}"
     return .goals goals
 
   return .noStrategyForProgram e
 
+meta def unfoldSpecializedDefs (goal : MVarId) : VCGenM MVarId := goal.withContext do
+  let post (e : Expr) : VCGenM TransformStep := do
+    if let some e := isSPredEntailsApp? e >>= SPredEntailsApp.unfold? then
+      return .done e
+    else if let some app ← isSpecializedWPApplyApp e then
+      return .done (← app.unfold)
+    else
+      return .done e
+  goal.replaceTargetDefEq (← transform (← goal.getType) (post := post) (skipConstInApp := true))
+
 meta def emitVC (goal : MVarId) : VCGenM Unit := do
+  let goal ← unfoldSpecializedDefs goal
   let ty ← goal.getType
   goal.setKind .syntheticOpaque
   if ty.isAppOf ``Std.Do.Invariant then
@@ -356,6 +462,7 @@ meta def work (goal : MVarId) : VCGenM Unit := do
     let some (goal, worklist') := worklist.dequeue? | break
     worklist := worklist'
     let some goal ← preprocessGoal goal | continue
+    trace[Elab.Tactic.Do.vcgen] "preprocessed goal: {goal}"
     let res ← solve goal
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
@@ -446,8 +553,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
           let thm ← mkSpecTheoremFromLocal fvar
           specThms := addSpecTheoremEntry specThms thm
         catch _ => continue
-  let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
-  return { specThms, entailsConsIntroRule }
+  return { specThms }
 
 end VCGen
 
@@ -505,11 +611,10 @@ def loop (n : Nat) : StateM Nat Unit := do
 set_option maxRecDepth 100000
 set_option maxHeartbeats 10000000
 
-set_option trace.Elab.Tactic.Do.vcgen true in
+-- set_option trace.Elab.Tactic.Do.vcgen true in
 set_option diagnostics true in
-example : ∀ post, ⦃post⦄ loop 1 ⦃⇓_ => post⦄ := by
+example : ∀ post, ⦃post⦄ loop 500 ⦃⇓_ => post⦄ := by
   intro post
   simp only [loop, step]
   mvcgen'
-
-  sorry
+  grind

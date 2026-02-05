@@ -319,7 +319,7 @@ structure Config where
   -/
   locals : Bool := false
   /--
-  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If `instances` is `true`, `simp` will visit instance arguments.
   If option `backward.dsimp.instances` is `true`, it overrides this field.
   -/
   instances : Bool := false

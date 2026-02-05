@@ -69,7 +69,7 @@ def beq (s1 s2 : Slice) : Bool :=
 instance : BEq Slice where
   beq := beq
 
-@[inherit_doc Slice.copy]
+@[inline, inherit_doc Slice.copy]
 def toString (s : Slice) : String :=
   s.copy
 

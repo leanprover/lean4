@@ -104,6 +104,7 @@ theorem endExclusive_subslice {s : Slice} {newStart newEnd : s.Pos} {h} :
 Constructs a subslice of {name}`s` given the bounds of the subslice. If the subslice would be
 degenerate, this function panics.
 -/
+@[inline]
 def subslice! (s : Slice) (newStart newEnd : s.Pos) : s.Subslice :=
   if h : newStart ≤ newEnd then
     s.subslice _ _ h

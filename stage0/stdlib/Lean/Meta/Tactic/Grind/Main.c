@@ -4656,7 +4656,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
 x_13 = lean_ctor_get(x_11, 0);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*10 + 15);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*11 + 15);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -4733,7 +4733,7 @@ lean_object* x_31; uint8_t x_32;
 x_31 = lean_ctor_get(x_11, 0);
 lean_inc(x_31);
 lean_dec(x_11);
-x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*10 + 15);
+x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*11 + 15);
 lean_dec(x_31);
 if (x_32 == 0)
 {
@@ -9744,7 +9744,7 @@ lean_object* x_107; uint8_t x_108;
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc(x_107);
 lean_dec_ref(x_106);
-x_108 = lean_ctor_get_uint8(x_107, sizeof(void*)*10 + 15);
+x_108 = lean_ctor_get_uint8(x_107, sizeof(void*)*11 + 15);
 lean_dec(x_107);
 if (x_108 == 0)
 {
@@ -13712,7 +13712,7 @@ x_37 = l_List_mapM_loop___at___00Lean_Meta_Grind_Result_toMessageData_spec__0(x_
 if (lean_obj_tag(x_37) == 0)
 {
 uint8_t x_38; 
-x_38 = lean_ctor_get_uint8(x_15, sizeof(void*)*10 + 14);
+x_38 = lean_ctor_get_uint8(x_15, sizeof(void*)*11 + 14);
 lean_dec_ref(x_15);
 if (x_38 == 0)
 {
@@ -17612,8 +17612,8 @@ lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; lean_object* x
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*10 + 15);
-x_15 = lean_ctor_get_uint8(x_13, sizeof(void*)*10 + 28);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*11 + 15);
+x_15 = lean_ctor_get_uint8(x_13, sizeof(void*)*11 + 28);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -18927,7 +18927,7 @@ lean_object* x_15; uint8_t x_16; uint8_t x_138;
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec_ref(x_14);
-x_138 = lean_ctor_get_uint8(x_15, sizeof(void*)*10 + 30);
+x_138 = lean_ctor_get_uint8(x_15, sizeof(void*)*11 + 30);
 lean_dec(x_15);
 if (x_138 == 0)
 {
@@ -20218,7 +20218,7 @@ x_15 = l_Lean_Meta_isProp(x_14, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
-x_16 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 24);
+x_16 = lean_ctor_get_uint8(x_1, sizeof(void*)*11 + 24);
 if (x_16 == 0)
 {
 uint8_t x_17; 
@@ -20554,7 +20554,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withProtectedMCtx___redArg___lam__6(l
 _start:
 {
 uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 28);
+x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*11 + 28);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 

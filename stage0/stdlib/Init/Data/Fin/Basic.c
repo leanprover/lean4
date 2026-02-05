@@ -92,9 +92,6 @@ LEAN_EXPORT lean_object* l_Fin_instInhabited___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabited___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabited(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabited___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_last(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_last___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_castLT___redArg(lean_object*);
@@ -757,31 +754,6 @@ lean_object* x_3;
 x_3 = l_Fin_instInhabited(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_3(x_3, x_1, lean_box(0), x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_apply_3(x_5, x_3, lean_box(0), x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_1);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Fin_last(lean_object* x_1) {

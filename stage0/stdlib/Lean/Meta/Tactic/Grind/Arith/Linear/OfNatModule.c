@@ -1967,7 +1967,7 @@ lean_object* x_23; uint8_t x_24;
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 lean_dec_ref(x_22);
-x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*10 + 14);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*11 + 14);
 lean_dec(x_23);
 if (x_24 == 0)
 {

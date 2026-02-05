@@ -11,6 +11,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Cbv.Opaque
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
+import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Sym
 
 namespace Lean.Meta.Tactic.Cbv
@@ -69,19 +70,32 @@ def betaReduce : Simproc := fun e => do
   let new ← Sym.share new
   return .step new (← Sym.mkEqRefl new)
 
+def tryCbvTheorems : Simproc := fun e => do
+  unless e.isApp do return .rfl
+  let some fnName := e.getAppFn.constName? | return .rfl
+  let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
+  Theorems.rewrite evalLemmas (d := dischargeNone) e
+
 def handleApp : Simproc := fun e => do
   unless e.isApp do return .rfl
   let fn := e.getAppFn
   match fn with
   | .const constName _ =>
     let info ← getConstInfo constName
-    (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
+    tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
   | _ => return .rfl
 
 def isOpaqueApp : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
-  return .rfl (← isCbvOpaque fnName)
+  let hasTheorems := (← getCbvEvalLemmas fnName).isSome
+  if hasTheorems then
+    let res ← (simpAppArgs >> tryCbvTheorems) e
+    match res with
+    | .rfl false => return .rfl (done := true)
+    | _ => return res
+  else
+    return .rfl (← isCbvOpaque fnName)
 
 def isOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl

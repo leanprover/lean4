@@ -174,14 +174,11 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
 
 attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
 attribute [cbv_opaque] Std.DHashMap.insert
-attribute [cbv_opaque] Std.DHashMap.contains
 attribute [cbv_opaque] Std.DHashMap.getEntry
+attribute [cbv_opaque] Std.DHashMap.contains
+attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_emptyWithCapacity
+attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_insert
 
-/--
-error: unsolved goals
-⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
--/
-#guard_msgs in
 example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
   conv =>
     lhs

@@ -8,25 +8,40 @@ prelude
 public import Lean.Data.NameMap
 public import Lean.ScopedEnvExtension
 public import Lean.Elab.InfoTree
+public import Lean.Meta.Sym.Simp.Theorems
 
 public section
 namespace Lean.Meta.Tactic.Cbv
-
+open Lean.Meta.Sym.Simp
 
 structure CbvEvalEntry where
-  /-- The definition we are registering a rewrite rule for. -/
   target : Name
-  /-- The declaration name of the theorem providing the rewrite rule. -/
-  declName  : Name
-  deriving Inhabited, BEq, Hashable, Repr
+  thm  : Theorem
+  deriving BEq, Inhabited
+
+def mkCbvTheoremFromConst (declName : Name) : MetaM (Name × Theorem) := do
+  let cinfo ← getConstVal declName
+  let us := cinfo.levelParams.map mkLevelParam
+  let val := mkConst declName us
+  let type ← inferType val
+  unless (← isProp type) do
+    throwError "Invalid `cbv` theorem"
+  let fnName ← forallTelescope type fun _ body => do
+    let some (_, lhs, _) := body.eq? | throwError "Equality expected"
+    unless lhs.isApp do throwError "Application expected"
+    let appFn := lhs.getAppFn
+    let some constName := appFn.constName? | throwError "Not a constant application"
+    return constName
+  let thm ← mkTheoremFromDecl declName
+  return (fnName, thm)
 
 structure CbvEvalState where
-  lemmas : NameMap (Array Name) := {}
+  lemmas : NameMap Theorems := {}
   deriving Inhabited
 
 def CbvEvalState.addEntry (s : CbvEvalState) (e : CbvEvalEntry) : CbvEvalState :=
-  let existing := (s.lemmas.find? e.target).getD #[]
-  { s with lemmas := s.lemmas.insert e.target (existing.push e.declName) }
+  let existing := (s.lemmas.find? e.target).getD {}
+  { s with lemmas := s.lemmas.insert e.target (existing.insert e.thm) }
 
 abbrev CbvEvalExtension := SimpleScopedEnvExtension CbvEvalEntry CbvEvalState
 
@@ -40,26 +55,24 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
       return entry
   }
 
-def getCbvEvalLemmas (target : Name) : CoreM (Option <| Array Name) := do
+def getCbvEvalLemmas (target : Name) : CoreM (Option Theorems) := do
   trace[Meta.Tactic.cbv] "trying to get user lemmas for: {target}"
   let s := cbvEvalExt.getState (← getEnv)
   return (s.lemmas.find? target)
 
-/-- Syntax for the `cbv_eval` attribute. -/
-syntax (name := Parser.Attr.cbvEval) "cbv_eval " ident : attr
+syntax (name := Parser.Attr.cbvEval) "cbv_eval" : attr
 
-/-- Register the `cbv_eval` attribute. -/
 builtin_initialize
   registerBuiltinAttribute {
     ref   := `cbvEvalAttr
     name  := `cbv_eval
     descr := "Register a theorem as a rewrite rule for CBV evaluation of a given definition. \
-              Usage: @[cbv_eval targetDef] theorem ..."
+              Usage: @[cbv_eval] theorem ..."
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun lemmaName stx kind => do
-      let fnNameStx ← Attribute.Builtin.getIdent <| stx
-      let targetName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
-      cbvEvalExt.add { target := targetName, declName := lemmaName } kind
+    add   := fun lemmaName _ kind => do
+      let ((targetName, thm), _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
+      trace[Meta.Tactic.cbv] "Adding {targetName} : {lemmaName}"
+      cbvEvalExt.add { target := targetName, thm := thm } kind
   }
 
 end Lean.Meta.Tactic.Cbv

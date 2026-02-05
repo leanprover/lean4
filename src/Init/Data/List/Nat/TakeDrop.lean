@@ -19,7 +19,6 @@ as they required importing more lemmas about natural numbers, and use `omega`.
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace List
 
@@ -43,10 +42,7 @@ theorem length_take_of_le (h : i ≤ length l) : length (take i l) = i := by sim
 length `> i`. Version designed to rewrite from the big list to the small list. -/
 theorem getElem_take' {xs : List α} {i j : Nat} (hi : i < xs.length) (hj : i < j) :
     xs[i] = (xs.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
-  -- TODO: restore proof after bootstrap:
-  -- by have h' : i < (xs.take j).length := length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩
-  --    exact getElem_of_eq (take_append_drop j xs).symm _ ▸ getElem_append_left (h' := h')
-  sorry
+  getElem_of_eq (take_append_drop j xs).symm _ ▸ getElem_append_left ..
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/

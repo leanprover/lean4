@@ -244,7 +244,7 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
   mem_iff_isSome_getElem?.symm
 
 theorem getElem?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
-    t[k]? = some v ↔ ∃ (h : k ∈ t), t[k] = v :=
+    t[k]? = some v ↔ ∃ h, t[k] = v :=
   ExtDTreeMap.Const.get?_eq_some_iff
 
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :

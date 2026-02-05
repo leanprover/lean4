@@ -29,7 +29,7 @@ theorem Pos.next_le_iff_lt {s : String} {p q : s.Pos} {h} : p.next h ≤ q ↔ p
 
 @[simp]
 theorem Slice.Pos.le_startPos {s : Slice} (p : s.Pos) : p ≤ s.startPos ↔ p = s.startPos :=
-  ⟨fun h => Std.le_antisymm h (startPos_le _), by sorry⟩
+  ⟨fun h => Std.le_antisymm h (startPos_le _), by simp +contextual⟩
 
 @[simp]
 theorem Slice.Pos.startPos_lt_iff {s : Slice} (p : s.Pos) : s.startPos < p ↔ p ≠ s.startPos := by
@@ -37,15 +37,15 @@ theorem Slice.Pos.startPos_lt_iff {s : Slice} (p : s.Pos) : s.startPos < p ↔ p
 
 @[simp]
 theorem Slice.Pos.endPos_le {s : Slice} (p : s.Pos) : s.endPos ≤ p ↔ p = s.endPos :=
-  ⟨fun h => Std.le_antisymm (le_endPos _) h, by sorry⟩
+  ⟨fun h => Std.le_antisymm (le_endPos _) h, by simp +contextual⟩
 
 @[simp]
 theorem Pos.le_startPos {s : String} (p : s.Pos) : p ≤ s.startPos ↔ p = s.startPos :=
-  ⟨fun h => Std.le_antisymm h (startPos_le _), by sorry⟩
+  ⟨fun h => Std.le_antisymm h (startPos_le _), by simp +contextual⟩
 
 @[simp]
 theorem Pos.endPos_le {s : String} (p : s.Pos) : s.endPos ≤ p ↔ p = s.endPos :=
-  ⟨fun h => Std.le_antisymm (le_endPos _) h, by sorry⟩
+  ⟨fun h => Std.le_antisymm (le_endPos _) h, by simp +contextual [Std.le_refl]⟩
 
 @[simp]
 theorem Slice.Pos.not_lt_startPos {s : Slice} {p : s.Pos} : ¬ p < s.startPos :=

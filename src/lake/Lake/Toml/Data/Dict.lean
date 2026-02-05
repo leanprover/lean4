@@ -66,7 +66,7 @@ public def findIdx? (k : α) (t : RBDict α β cmp) : Option (Fin t.size) := do
   let i ← t.indices.get? k; if h : i < t.items.size then some ⟨i, h⟩ else none
 
 public def findEntry? (k : α) (t : RBDict α β cmp) : Option (α × β) := do
-  return t.items[← t.findIdx? k]'sorry
+  return t.items[← t.findIdx? k]
 
 @[inline] public def find? (k : α) (t : RBDict α β cmp) : Option β := do
   return (← t.findEntry? k).2

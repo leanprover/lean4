@@ -10,8 +10,6 @@ public import Std.Sat.AIG.RefVec
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 namespace Std
 namespace Sat
 

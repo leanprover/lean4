@@ -350,124 +350,92 @@ def minEntry? : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _ => l.minEntry?
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntry : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _, h => l.minEntry (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntry! [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _ => l.minEntry!
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntryD : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _, fallback => l.minEntryD fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry? : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..) => r.maxEntry?
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ l@(.inner ..), h => l.maxEntry (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry! [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..) => r.maxEntry!
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntryD : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..), fallback => r.maxEntryD fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minKey? : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ .leaf _ => some k
   | .inner _ _ _ l@(inner ..) _ => l.minKey?
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minKey : (t : Impl α β) → (h : t.isEmpty = false) → α
   | .inner _ k _ .leaf _, _ => k
   | .inner _ _ _ l@(.inner ..) _, h => l.minKey (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- The smallest key of `t`. Returns the given fallback value if the map is empty. -/
 def minKey! [Inhabited α] : Impl α β → α
   | .leaf => panic! "Map is empty"
   | .inner _ k _ .leaf _ => k
   | .inner _ _ _ l@(.inner ..) _ => l.minKey!
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minKeyD : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ .leaf _, _ => k
   | .inner _ _ _ l@(.inner ..) _, fallback => l.minKeyD fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxKey? : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ _ .leaf => some k
   | .inner _ _ _ _ r@(.inner ..) => r.maxKey?
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxKey : (t : Impl α β) → (h : t.isEmpty = false) → α
   | .inner _ k _ _ .leaf, _ => k
   | .inner _ _ _ _ l@(.inner ..), h => l.maxKey (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxKey! [Inhabited α] : Impl α β → α
   | .leaf => panic! "Map is empty"
   | .inner _ k _ _ .leaf => k
   | .inner _ _ _ _ r@(.inner ..) => r.maxKey!
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxKeyD : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ _ .leaf, _ => k
   | .inner _ _ _ _ r@(.inner ..), fallback => r.maxKeyD fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
@@ -478,8 +446,6 @@ def entryAtIdx : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n
     | .lt => l'.entryAtIdx hl.left n (by simpa only [Std.Internal.tree_tac] using h)
     | .eq => ⟨k, v⟩
     | .gt => r'.entryAtIdx hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
-termination_by t _ _ _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def entryAtIdx? : Impl α β → Nat → Option ((a : α) × β a)
@@ -833,62 +799,46 @@ def minEntry? : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _ => minEntry? l
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntry : (t : Impl α β) → (h : t.isEmpty = false) → α × β
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _, h => minEntry l (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntry! [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _ => minEntry! l
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def minEntryD : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner ..) _, fallback => minEntryD l fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry? : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..) => maxEntry? r
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry : (t : Impl α β) → (h : t.isEmpty = false) → α × β
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ l@(.inner ..), h => maxEntry l (by simp_all [isEmpty])
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntry! [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..) => maxEntry! r
-termination_by t => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def maxEntryD : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner ..), fallback => maxEntryD r fallback
-termination_by t _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -899,8 +849,6 @@ def entryAtIdx : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n
     | .eq => ⟨k, v⟩
     | .gt =>
       entryAtIdx r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
-termination_by t _ _ _ => t.size
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 /-- Implementation detail of the tree map -/
 def entryAtIdx? : Impl α β → Nat → Option (α × β)

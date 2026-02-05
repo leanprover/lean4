@@ -14,7 +14,6 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace List
 
@@ -105,15 +104,15 @@ theorem mapFinIdx_nil {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx 
     (as.mapFinIdx f).length = as.length := by
   simp [mapFinIdx, length_mapFinIdx_go]
 
-theorem getElem_mapFinIdx_go {as : List α} {f : (i : Nat) → α → (h : i < as.length) → β} {i : Nat} {heq : bs.length + acc.size = as.length} {w : i < (mapFinIdx.go as f bs acc heq).length} :
-    (mapFinIdx.go as f bs acc heq)[i] =
+theorem getElem_mapFinIdx_go {as : List α} {f : (i : Nat) → α → (h : i < as.length) → β} {i : Nat} {h} {w} :
+    (mapFinIdx.go as f bs acc h)[i] =
       if w' : i < acc.size then
         acc[i]
       else
         f i (bs[i - acc.size]'(by simp at w; omega)) (by simp at w; omega) := by
   induction bs generalizing acc with
   | nil =>
-    simp only [length_mapFinIdx_go, length_nil, Nat.zero_add] at w heq
+    simp only [length_mapFinIdx_go, length_nil, Nat.zero_add] at w h
     simp only [mapFinIdx.go, Array.getElem_toList]
     rw [dif_pos]
   | cons _ _ ih =>
@@ -129,7 +128,7 @@ theorem getElem_mapFinIdx_go {as : List α} {f : (i : Nat) → α → (h : i < a
     · have h₃ : i - acc.size = (i - (acc.size + 1)) + 1 := by omega
       simp [h₃]
 
-@[simp, grind =] theorem getElem_mapFinIdx {as : List α} {f : (i : Nat) → α → (h : i < as.length) → β} {i : Nat} {h : i < (as.mapFinIdx f).length} :
+@[simp, grind =] theorem getElem_mapFinIdx {as : List α} {f : (i : Nat) → α → (h : i < as.length) → β} {i : Nat} {h} :
     (as.mapFinIdx f)[i] = f i (as[i]'(by simp at h; omega)) (by simp at h; omega) := by
   simp [mapFinIdx, getElem_mapFinIdx_go]
 

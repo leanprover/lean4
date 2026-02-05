@@ -15,8 +15,6 @@ public import Init.Grind
 
 public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 namespace Vector
 
 /-- The zero vector. -/

@@ -158,7 +158,9 @@ def mkFullAdder (aig : AIG α) (input : FullAdderInput aig) : FullAdderOutput ai
   have haig2 := AIG.LawfulOperator.le_size (f := mkFullAdderCarry) ..
   let outRef := outRef.cast haig2
   have hle := by
-    sorry
+    simp +zetaDelta only
+    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkFullAdderCarry)
+    apply AIG.LawfulOperator.le_size (f := mkFullAdderOut)
   ⟨aig, outRef, carryRef, hle⟩
 
 def blastAdd (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=

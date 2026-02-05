@@ -36,6 +36,7 @@ def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
       r+r+1
     else
       r+r
+decreasing_by apply bitwise_rec_lemma; assumption
 
 /--
 Bitwise and. Usually accessed via the `&&&` operator.

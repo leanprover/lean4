@@ -73,4 +73,4 @@ theorem log2_le_self (n : Nat) : Nat.log2 n ≤ n := by
     have := log2_le_self (n / 2)
     exact Nat.lt_of_le_of_lt this (Nat.div_lt_self (Nat.le_of_lt h) (by decide))
   · apply Nat.zero_le
--- decreasing_by exact Nat.log2_terminates _ ‹_›
+decreasing_by exact Nat.log2_terminates _ ‹_›

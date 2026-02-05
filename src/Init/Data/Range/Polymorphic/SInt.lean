@@ -64,7 +64,7 @@ theorem eq_of_encode_eq [m : HasModel α β] (x y : α) :
 
 theorem encode_inj [m : HasModel α β] {x y : α} :
     m.encode x = m.encode y ↔ x = y := by
-  exact ⟨m.eq_of_encode_eq x y, by sorry⟩
+  exact ⟨m.eq_of_encode_eq x y, by simp +contextual⟩
 
 theorem le_iff [m : HasModel α β] {x y : α} :
     UpwardEnumerable.LE x y ↔ UpwardEnumerable.LE (m.encode x) (m.encode y) := by

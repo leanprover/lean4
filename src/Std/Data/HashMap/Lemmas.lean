@@ -1239,7 +1239,7 @@ theorem getElem_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashab
 
 theorem getElem_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
-    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) {h : k' ∈ insertMany m l} :
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) {h} :
     (insertMany m l)[k'] = v :=
   DHashMap.Const.get_insertMany_list_of_mem k_beq distinct mem
 
@@ -2249,7 +2249,7 @@ theorem getElem?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.get?_insertManyIfNewUnit_list
 
 theorem getElem_insertManyIfNewUnit_list
-    {l : List α} {k : α} {h : k ∈ insertManyIfNewUnit m l} :
+    {l : List α} {k : α} {h} :
     (insertManyIfNewUnit m l)[k] = () :=
   DHashMap.Const.get_insertManyIfNewUnit_list
 
@@ -2416,7 +2416,7 @@ theorem getElem_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l)
-    {h : k' ∈ ofList l} :
+    {h} :
     (ofList l)[k'] = v :=
   DHashMap.Const.get_ofList_of_mem k_beq distinct mem
 
@@ -2560,7 +2560,7 @@ theorem getElem?_unitOfList [EquivBEq α] [LawfulHashable α]
 
 @[simp]
 theorem getElem_unitOfList
-    {l : List α} {k : α} {h : k ∈ unitOfList l} :
+    {l : List α} {k : α} {h} :
     (unitOfList l)[k] = () :=
   DHashMap.Const.get_unitOfList
 

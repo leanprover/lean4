@@ -73,7 +73,25 @@ def splitOnAux (s sep : String) (b : Pos.Raw) (i : Pos.Raw) (j : Pos.Raw) (r : L
     else
       splitOnAux s sep b ((i.unoffsetBy j).next s) 0 r
 termination_by (s.rawEndPos.1 - (j.byteDistance i), sep.rawEndPos.1 - j.1)
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
+decreasing_by
+  focus
+    rename_i h _ _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Pos.Raw.lt_next s _))
+  focus
+    rename_i i₀ j₀ _ eq h'
+    rw [show (j₀.next sep).byteDistance (i₀.next s) = j₀.byteDistance i₀ by
+      change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
+      rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
+    right; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
+      (Pos.Raw.lt_next sep _)
+  focus
+    rename_i h _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (Pos.Raw.lt_next s _)
 
 /--
 Splits a string `s` on occurrences of the separator string `sep`. The default separator is `" "`.

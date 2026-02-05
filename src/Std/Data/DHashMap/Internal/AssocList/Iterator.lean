@@ -40,6 +40,8 @@ def AssocListIterator.finitenessRelation :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
 public instance : Finite (AssocListIterator α β) Id :=
   Finite.of_finitenessRelation AssocListIterator.finitenessRelation

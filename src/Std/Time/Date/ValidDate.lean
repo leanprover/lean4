@@ -66,7 +66,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : ValidDate leap :=
         let bounded := Bounded.LE.mk ordinal.val (And.intro h h₁) |>.sub acc
         let bounded : Bounded.LE 1 monthDays.val := bounded.cast (by omega) (by omega)
         let days₁ : Day.Ordinal := ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right monthDays.property.right)⟩
-        ⟨⟨idx, days₁⟩, Int.le_trans bounded.property.right (by sorry)⟩
+        ⟨⟨idx, days₁⟩, Int.le_trans bounded.property.right (by simp +zetaDelta)⟩
       else by
         let h₂ := Int.not_le.mp h₁
 
@@ -89,15 +89,15 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : ValidDate leap :=
         rw [difference_eq (Int.le_of_lt_add_one h₃)]
 
       termination_by 12 - idx.val.toNat
-      -- decreasing_by
-      --   simp_wf
-      --   simp [Bounded.LE.addTop]
-      --   let gt0 : idx.val ≥ 0 := Int.le_trans (by decide) idx.property.left
-      --   refine Nat.sub_lt_sub_left (Int.toNat_lt gt0 |>.mpr h₃) ?_
-      --   let toNat_lt_lt {n z : Int} (h : 0 ≤ z) (h₁ : 0 ≤ n) : z.toNat < n.toNat ↔ z < n := by
-      --     rw [← Int.not_le, ← Nat.not_le, ← Int.ofNat_le, Int.toNat_of_nonneg h, Int.toNat_of_nonneg h₁]
-      --   rw [toNat_lt_lt (by omega) (by omega)]
-      --   omega
+      decreasing_by
+        simp_wf
+        simp [Bounded.LE.addTop]
+        let gt0 : idx.val ≥ 0 := Int.le_trans (by decide) idx.property.left
+        refine Nat.sub_lt_sub_left (Int.toNat_lt gt0 |>.mpr h₃) ?_
+        let toNat_lt_lt {n z : Int} (h : 0 ≤ z) (h₁ : 0 ≤ n) : z.toNat < n.toNat ↔ z < n := by
+          rw [← Int.not_le, ← Nat.not_le, ← Int.ofNat_le, Int.toNat_of_nonneg h, Int.toNat_of_nonneg h₁]
+        rw [toNat_lt_lt (by omega) (by omega)]
+        omega
 
     go 1 0 (Int.le_trans (by decide) ordinal.property.left) (by cases leap <;> decide)
 

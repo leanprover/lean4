@@ -10,8 +10,6 @@ public import Std.Sat.AIG.LawfulVecOperator
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates
 a style of writing Lean code that minimizes the risk of linearity issues on the `AIG`.

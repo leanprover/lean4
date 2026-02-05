@@ -20,7 +20,7 @@ open Nat
 /-! ### Results about `List.sum` specialized to `Nat` -/
 
 theorem find?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < xs.length), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rw [find?_eq_some_iff_append]
   simp only [Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, and_congr_right_iff]
   intro w

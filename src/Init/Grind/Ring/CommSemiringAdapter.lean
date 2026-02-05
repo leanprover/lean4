@@ -124,7 +124,22 @@ theorem Poly.denoteS_insert {α} [Semiring α] (ctx : Context α) (k : Int) (m :
       intro _ hn
       simp at h <;> simp [*, Mon.denote, denoteS_addConst, add_comm]
     next =>
-      fun_induction insert.go <;> sorry
+      fun_induction insert.go <;> simp_all +zetaDelta [denoteS]
+      next a m p _ _ h₁ h₂ =>
+        intro hk hn
+        cases hn; rename_i hn₁ hn₂
+        replace h₂ : k.toNat + a.toNat = 0 := by
+          apply Int.ofNat_inj.mp
+          rw [Int.natCast_add, Int.toNat_of_nonneg hn₁,
+              Int.toNat_of_nonneg hk, h₂]; rfl
+        rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← natCast_add, h₂]
+        simp
+      next h₁ _ =>
+        intro _ hn; cases hn
+        rw [Int.toNat_add, natCast_add, right_distrib, add_assoc, Mon.eq_of_grevlex h₁] <;> assumption
+      next ih =>
+        intro hk hn; cases hn; rename_i hn₁ hn₂
+        rw [ih hk hn₂, add_left_comm]
 
 theorem Poly.denoteS_concat {α} [Semiring α] (ctx : Context α) (p₁ p₂ : Poly)
     : p₁.NonnegCoeffs → p₂.NonnegCoeffs → (concat p₁ p₂).denoteS ctx = p₁.denoteS ctx + p₂.denoteS ctx := by
@@ -157,11 +172,19 @@ theorem Poly.denoteS_combine {α} [Semiring α] (ctx : Context α) (p₁ p₂ : 
   case case5 k₁ _ _ k₂ _ _ hg _ h ih =>
     intro h₁ h₂
     cases h₁; cases h₂
-    sorry
+    simp +zetaDelta at h
+    rename_i h₁ h₂ h₃ h₄
+    simp [ih h₂ h₄, denoteS, Mon.eq_of_grevlex hg]
+    replace h : k₂.toNat + k₁.toNat = 0 := by
+      rw [← Int.toNat_add, Int.add_comm, h]; rfl; assumption; assumption
+    rw [add_left_comm, ← add_assoc, ← add_assoc, ← right_distrib, ← natCast_add, h]
+    simp
   case case6 hg k h ih =>
     intro h₁ h₂
     cases h₁; cases h₂
-    sorry
+    simp +zetaDelta
+    simp [denoteS, Int.toNat_add, natCast_add, right_distrib, Mon.eq_of_grevlex hg,
+      add_left_comm, add_assoc, *]
   case case7 ih =>
     intro h₁ h₂; cases h₁
     rename_i h₁
@@ -182,7 +205,7 @@ theorem Poly.denoteS_mulMon {α} [CommSemiring α] (ctx : Context α) (k : Int) 
       simp at h; simp [*, Mon.denote, denoteS_mulConst _ _ _ h₁ h₂]
     next =>
       fun_induction mulMon.go <;> simp [denoteS, *]
-      next h => sorry
+      next h => simp +zetaDelta at h; simp [*]
       next =>
         intro h₁ h₂; cases h₂
         rw [Int.toNat_mul]
@@ -210,7 +233,7 @@ theorem Poly.insert_Nonneg (k : Int) (m : Mon) (p : Poly) : k ≥ 0 → p.Nonneg
     fun_induction Poly.insert.go
     next => constructor <;> assumption
     next => cases h₂; assumption
-    next => sorry
+    next => simp +zetaDelta; cases h₂; constructor; omega; assumption
     next => constructor <;> assumption
     next ih =>
       cases h₂; constructor
@@ -322,7 +345,8 @@ theorem Poly.combine_NonnegCoeffs {p₁ p₂ : Poly} : p₁.NonnegCoeffs → p�
   next => intro h₁ h₂; apply addConst_NonnegCoeffs; cases h₂; assumption; assumption
   next ih => intro h₁ h₂; cases h₁; cases h₂; apply ih <;> assumption
   next ih =>
-    sorry
+    simp +zetaDelta; intro h₁ h₂; cases h₁; cases h₂; constructor; apply Int.add_nonneg <;> assumption
+    apply ih <;> assumption
   next ih =>
     intro h₁ h₂; cases h₁; cases h₂; constructor; assumption
     apply ih; assumption

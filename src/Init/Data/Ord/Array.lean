@@ -27,7 +27,6 @@ where go i :=
       | .eq => go (i + 1)
       | .gt => .gt
 termination_by a₁.size - i
--- decreasing_by sorry -- TODO: restore after bootstrap
 
 instance {α} [Ord α] : Ord (Array α) where
   compare := Array.compareLex compare

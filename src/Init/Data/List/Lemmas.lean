@@ -309,7 +309,7 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
 theorem ext_getElem_iff {l₁ l₂ : List α} :
     l₁ = l₂ ↔ l₁.length = l₂.length ∧ ∀ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length), l₁[i]'h₁ = l₂[i]'h₂ := by
   constructor
-  · sorry
+  · simp +contextual
   · exact fun h => ext_getElem h.1 h.2
 
 @[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
@@ -469,7 +469,7 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ i : Nat, l[i]? = s
   let ⟨n, _, e⟩ := getElem_of_mem h
   exact ⟨n, e ▸ getElem?_eq_getElem _⟩
 
-theorem mem_of_getElem {l : List α} {i : Nat} {h : i < l.length} {a : α} (e : l[i] = a) : a ∈ l := by
+theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
   subst e
   simp
 
@@ -755,7 +755,7 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
   | succ n =>
     rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
     rw [Bool.eq_iff_iff]
-    sorry
+    simp +contextual
 
 @[simp] theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
   constructor
@@ -1144,7 +1144,7 @@ theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f
       intro h
       constructor
       · apply w
-      · sorry
+      · simp +contextual
 
 theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
   map_inj_left.2 h
@@ -1622,7 +1622,7 @@ theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {i : Nat} (hi : 
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
 theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
-    l[i]'(eq ▸ h ▸ by sorry) = a := Option.some.inj <| by
+    l[i]'(eq ▸ h ▸ by simp +arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
 
@@ -3289,7 +3289,7 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
 
 @[simp] theorem all_replicate {n : Nat} {a : α} :
     (replicate n a).all f = if n = 0 then true else f a := by
-  cases n <;> sorry
+  cases n <;> simp +contextual [replicate_succ]
 
 theorem any_congr {l₁ l₂ : List α} (w : l₁ = l₂) {p q : α → Bool} (h : ∀ a, p a = q a) :
     l₁.any p = l₂.any q := by

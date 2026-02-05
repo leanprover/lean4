@@ -40,12 +40,20 @@ where
       let patByte := pat.getUTF8Byte ⟨table.size⟩ hs
       let dist := computeDistance patByte table ht h (table[table.size - 1])
         (by have := h (table.size - 1) (by omega); omega)
-      let dist' := if pat.getUTF8Byte ⟨dist.1⟩ (by sorry) = patByte then dist.1 + 1 else dist
-      go (table.push dist') (by sorry) (by sorry) (by sorry)
+      let dist' := if pat.getUTF8Byte ⟨dist.1⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then dist.1 + 1 else dist
+      go (table.push dist') (by simp) (by simp; omega) (by
+        intro i hi
+        by_cases hi' : i = table.size
+        · subst hi'
+          simp [dist']
+          have := dist.2
+          split <;> omega
+        · rw [Array.getElem_push_lt]
+          · apply h
+          · simp at hi
+            omega)
     else
       Vector.mk table (by omega)
-  termination_by pat.utf8ByteSize - table.size
-  decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
   computeDistance (patByte : UInt8) (table : Array Nat)
       (ht : table.size ≤ pat.utf8ByteSize)
@@ -217,6 +225,27 @@ private def finitenessRelation :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    all_goals try
+      cases h
+      revert h'
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep]
+      match it.internalState with
+      | .emptyBefore pos =>
+        rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
+      | .emptyAt pos h =>
+        simp only [forall_exists_index, and_imp]
+        intro x hx h
+        simpa [h, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def,
+          ← Pos.lt_iff_remainingBytes_lt]
+      | .proper needle table ht stackPos needlePos hn =>
+        rintro (⟨newStackPos, newNeedlePos, h₁, h₂, (h|⟨rfl, h⟩)⟩|h)
+        · simp [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, h]
+        · simpa [h₂, ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def, Pos.Raw.lt_iff]
+        · simp [h, ForwardSliceSearcher.toOption, Option.lt]
+      | .atEnd .. => simp
+    · cases h
 
 @[no_expose]
 instance : Std.Iterators.Finite (ForwardSliceSearcher s) Id :=

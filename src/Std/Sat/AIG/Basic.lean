@@ -12,8 +12,6 @@ public import Init.Data.Hashable
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 namespace Std
 namespace Sat
 
@@ -531,10 +529,19 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let decls :=
     aig.decls.push <| .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
-  have hdag : IsDAG α decls := sorry -- TODO: restore after bootstrap
-  have hzero : 0 < decls.size := sorry -- TODO: restore after bootstrap
-  have hconst : decls[0] = Decl.false := sorry -- TODO: restore after bootstrap
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, sorry⟩⟩
+  have hdag := by
+    intro i lhs' rhs' h1 h2
+    simp only [Array.getElem_push] at h2
+    split at h2
+    · apply aig.hdag <;> assumption
+    · injection h2 with hl hr
+      have := input.lhs.hgate
+      have := input.rhs.hgate
+      simp [← hl, ← hr]
+      omega
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -544,10 +551,15 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
-  have hdag : IsDAG α decls := sorry -- TODO: restore after bootstrap
-  have hzero : 0 < decls.size := sorry -- TODO: restore after bootstrap
-  have hconst : decls[0] = Decl.false := sorry -- TODO: restore after bootstrap
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, sorry⟩⟩
+  have hdag := by
+    intro i lhs rhs h1 h2
+    simp only [Array.getElem_push] at h2
+    split at h2
+    · apply aig.hdag <;> assumption
+    · contradiction
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -557,10 +569,15 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push .false
   let cache := aig.cache.noUpdate
-  have hdag : IsDAG α decls := sorry -- TODO: restore after bootstrap
-  have hzero : 0 < decls.size := sorry -- TODO: restore after bootstrap
-  have hconst : decls[0] = Decl.false := sorry -- TODO: restore after bootstrap
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, sorry⟩⟩
+  have hdag := by
+    intro i lhs rhs h1 h2
+    simp only [Array.getElem_push] at h2
+    split at h2
+    · apply aig.hdag <;> assumption
+    · contradiction
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
 /--
 Determine whether `ref` is a `Decl.const` with value `b`.

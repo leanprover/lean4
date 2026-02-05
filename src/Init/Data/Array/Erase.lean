@@ -17,7 +17,6 @@ public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
 
 namespace Array
 
@@ -356,34 +355,34 @@ theorem getElem_eraseIdx {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} (
   rw [← getElem?_eq_getElem, getElem?_eraseIdx]
   split <;> simp
 
-@[simp] theorem eraseIdx_eq_empty_iff {xs : Array α} {i : Nat} {h : i < xs.size} : xs.eraseIdx i = #[] ↔ xs.size = 1 ∧ i = 0 := by
+@[simp] theorem eraseIdx_eq_empty_iff {xs : Array α} {i : Nat} {h} : xs.eraseIdx i = #[] ↔ xs.size = 1 ∧ i = 0 := by
   rcases xs with ⟨xs⟩
   simp only [List.eraseIdx_toArray, mk.injEq, List.eraseIdx_eq_nil_iff, List.size_toArray,
     or_iff_right_iff_imp]
   rintro rfl
   simp_all
 
-theorem eraseIdx_ne_empty_iff {xs : Array α} {i : Nat} {h : i < xs.size} : xs.eraseIdx i ≠ #[] ↔ 2 ≤ xs.size := by
+theorem eraseIdx_ne_empty_iff {xs : Array α} {i : Nat} {h} : xs.eraseIdx i ≠ #[] ↔ 2 ≤ xs.size := by
   rcases xs with ⟨_ | ⟨a, (_ | ⟨b, l⟩)⟩⟩
   · simp
   · simp at h
     simp [h]
   · simp
 
-theorem mem_of_mem_eraseIdx {xs : Array α} {i : Nat} {h : i < xs.size} {a : α} (hm : a ∈ xs.eraseIdx i) : a ∈ xs := by
+theorem mem_of_mem_eraseIdx {xs : Array α} {i : Nat} {h} {a : α} (h : a ∈ xs.eraseIdx i) : a ∈ xs := by
   rcases xs with ⟨xs⟩
-  simpa using List.mem_of_mem_eraseIdx (by simpa using hm)
+  simpa using List.mem_of_mem_eraseIdx (by simpa using h)
 
 grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
-theorem eraseIdx_append_of_lt_size {xs : Array α} {k : Nat} (hk : k < xs.size) (ys : Array α) (h : k < (xs ++ ys).size) :
+theorem eraseIdx_append_of_lt_size {xs : Array α} {k : Nat} (hk : k < xs.size) (ys : Array α) (h) :
     eraseIdx (xs ++ ys) k = eraseIdx xs k ++ ys := by
   rcases xs with ⟨l⟩
   rcases ys with ⟨l'⟩
   simp at hk
   simp [List.eraseIdx_append_of_lt_length, *]
 
-theorem eraseIdx_append_of_size_le {xs : Array α} {k : Nat} (hk : xs.size ≤ k) (ys : Array α) (h : k < (xs ++ ys).size) :
+theorem eraseIdx_append_of_size_le {xs : Array α} {k : Nat} (hk : xs.size ≤ k) (ys : Array α) (h) :
     eraseIdx (xs ++ ys) k = xs ++ eraseIdx ys (k - xs.size) (by simp at h; omega) := by
   rcases xs with ⟨l⟩
   rcases ys with ⟨l'⟩
@@ -403,17 +402,17 @@ theorem eraseIdx_append {xs ys : Array α} (h : k < (xs ++ ys).size) :
     omega
 
 @[grind =]
-theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h : k < (replicate n a).size} :
+theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h} :
     (replicate n a).eraseIdx k = replicate (n - 1) a := by
   simp at h
   simp only [← List.toArray_replicate, List.eraseIdx_toArray]
   simp [List.eraseIdx_replicate, h]
 
-theorem mem_eraseIdx_iff_getElem {x : α} {xs : Array α} {k : Nat} {h : k < xs.size} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
+theorem mem_eraseIdx_iff_getElem {x : α} {xs : Array α} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
   rcases xs with ⟨xs⟩
   simp [List.mem_eraseIdx_iff_getElem, *]
 
-theorem mem_eraseIdx_iff_getElem? {x : α} {xs : Array α} {k : Nat} {h : k < xs.size} : x ∈ xs.eraseIdx k h ↔ ∃ i ≠ k, xs[i]? = some x := by
+theorem mem_eraseIdx_iff_getElem? {x : α} {xs : Array α} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i ≠ k, xs[i]? = some x := by
   rcases xs with ⟨xs⟩
   simp [List.mem_eraseIdx_iff_getElem?, *]
 

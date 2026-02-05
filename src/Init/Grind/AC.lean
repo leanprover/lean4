@@ -140,19 +140,23 @@ attribute [local simp] Seq.erase0_k_var Seq.erase0_k_cons
 
 theorem Seq.erase0_k_eq_erase0 (s : Seq) : s.erase0_k = s.erase0 := by
   fun_induction erase0 s <;> simp
-  next h ih => simp at h; sorry
+  next h ih => simp at h; simp +zetaDelta; simp [← ih, h]
   next x _ _ h₁ h₂ ih =>
     replace h₁ : Nat.beq x 0 = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simp at h₁; assumption
-    sorry
+    simp +zetaDelta [← Seq.beq'_eq, ← ih] at h₂
+    simp [h₁, h₂]
   next x _ _ h₁ h₂ ih =>
     replace h₁ : Nat.beq x 0 = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; simp at h₁; assumption
-    sorry
+    simp +zetaDelta [← Seq.beq'_eq, ← ih] at h₂
+    simp +zetaDelta [h₁, h₂, ← ih]
 
 attribute [local simp] Seq.erase0_k_eq_erase0
 
 theorem Seq.denote_erase0 {α} (ctx : Context α) {inst : Std.LawfulIdentity ctx.op (Var.denote ctx 0)} (s : Seq)
     : s.erase0.denote ctx = s.denote ctx := by
-  fun_induction erase0 s <;> sorry
+  fun_induction erase0 s <;> simp_all +zetaDelta
+  next => rw [Std.LawfulLeftIdentity.left_id (self := inst.toLawfulLeftIdentity)]
+  next => rw [Std.LawfulRightIdentity.right_id (self := inst.toLawfulRightIdentity)]
 
 attribute [local simp] Seq.denote_erase0
 
@@ -265,7 +269,9 @@ attribute [local simp] Seq.eraseDup_k_eq_eraseDup
 
 theorem Seq.denote_eraseDup {α} (ctx : Context α) {inst₁ : Std.Associative ctx.op} {inst₂ : Std.IdempotentOp ctx.op} (s : Seq)
     : s.eraseDup.denote ctx = s.denote ctx := by
-  fun_induction eraseDup s <;> sorry
+  fun_induction eraseDup s <;> simp_all +zetaDelta
+  next ih => simp [← ih, Std.IdempotentOp.idempotent]
+  next ih => simp [← ih, ← Std.Associative.assoc (self := inst₁), Std.IdempotentOp.idempotent]
 
 attribute [local simp] Seq.denote_eraseDup
 

@@ -62,6 +62,13 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    · cases h
+      obtain ⟨_, h2, _⟩ := h'
+      simp [h2]
+    · cases h'
+    · cases h
 
 instance : Std.Iterators.Finite (ForwardCharSearcher s c) Id :=
   .of_finitenessRelation finitenessRelation
@@ -120,6 +127,13 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher 
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    · cases h
+      obtain ⟨_, h1, h2, _⟩ := h'
+      simp [h2]
+    · cases h'
+    · cases h
 
 instance : Std.Iterators.Finite (BackwardCharSearcher s) Id :=
   .of_finitenessRelation finitenessRelation

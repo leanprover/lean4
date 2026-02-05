@@ -25,7 +25,6 @@ Example:
   @[specialize] loop (x : α) (i : Nat) : α :=
     if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
   termination_by n - i
-  -- decreasing_by sorry -- TODO: restore after bootstrap
 
 /--
 Combine all the values that can be represented by `Fin n` with an initial value, starting at `n - 1`
@@ -68,7 +67,7 @@ Fin.foldlM n f x₀ = do
   @[specialize] loop (x : α) (i : Nat) : m α := do
     if h : i < n then f x ⟨i, h⟩ >>= (loop · (i+1)) else pure x
   termination_by n - i
-  -- decreasing_by decreasing_trivial_pre_omega
+  decreasing_by decreasing_trivial_pre_omega
 
 /--
 Folds a monadic function over `Fin n` from right to left, starting with `n-1`.
@@ -99,8 +98,6 @@ Fin.foldrM n f xₙ = do
   @[specialize] loop : {i // i ≤ n} → α → m α
   | ⟨0, _⟩, x => pure x
   | ⟨i+1, h⟩, x => f ⟨i, h⟩ x >>= loop ⟨i, Nat.le_of_lt h⟩
-  termination_by i => i.val
-  -- decreasing_by sorry -- TODO: restore after bootstrap
 
 /-! ### foldlM -/
 

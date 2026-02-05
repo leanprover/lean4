@@ -480,6 +480,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
       exact UpwardEnumerable.le_iff.mpr (UpwardEnumerable.le_refl _)
     case decreasing =>
       simp_wf
+      simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -501,7 +502,8 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
   else
     return acc
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
   case hle =>
     simp only [UpwardEnumerable.le_iff]
@@ -577,8 +579,8 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
--- decreasing_by
---   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -1051,7 +1053,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
     case hle'' =>
       exact UpwardEnumerable.le_refl _
     case decreasing =>
-      simp_wf
+      simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1073,7 +1075,8 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
   else
     return acc
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
   case hle =>
     refine ⟨1, ?_⟩
@@ -1148,8 +1151,8 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
--- decreasing_by
---   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1530,7 +1533,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable
     case hle'' =>
       exact UpwardEnumerable.le_refl _
     case decreasing =>
-      simp_wf
+      simp_wf; simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
@@ -1549,7 +1552,8 @@ private noncomputable def Iterator.instIteratorLoop.loop.wf [UpwardEnumerable α
       | none => return acc'
     | ⟨.done acc', _⟩ => return acc'
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 where finally
   case hle =>
     refine ⟨1, ?_⟩
@@ -1613,8 +1617,8 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α]
       simp [Monadic.step_eq_step, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next⟩⟩ acc (hwf := wf)
--- decreasing_by
---   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
+decreasing_by
+  simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]

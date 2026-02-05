@@ -11,8 +11,6 @@ public import Std.Sat.AIG.LawfulVecOperator
 
 @[expose] public section
 
-set_option debug.byAsSorry true  -- TODO: remove after bootstrap
-
 /-!
 This module contains the implementation of a bitblaster for `BitVec.reverse`.
 -/

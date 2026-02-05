@@ -276,8 +276,6 @@ def Code.inferType (code : Code pu) : CompilerM Expr := do
     | .unreach type => return type
     | .cases c => return c.resultType
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
-termination_by sizeOf code
-decreasing_by all_goals sorry -- TODO: restore after bootstrap
 
 def Code.inferParamType (params : Array (Param pu)) (code : Code pu) : CompilerM Expr := do
   let type ← code.inferType

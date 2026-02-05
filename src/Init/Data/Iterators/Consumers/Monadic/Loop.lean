@@ -149,6 +149,9 @@ def IterM.DefaultConsumers.forIn'.wf {m : Type w → Type w'} {α : Type w} {β 
           (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
     | .done _ => return init
 termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
+decreasing_by
+  · exact Or.inl ⟨out, ‹_›, ‹_›⟩
+  · exact Or.inr ⟨‹_›, rfl⟩
 
 /--
 This is the default implementation of the `IteratorLoop` class.

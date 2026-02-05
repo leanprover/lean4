@@ -204,7 +204,7 @@ partial def Dmain (x : FVarId) (info : CtorInfo) (c : Code .impure) : ReuseM (Co
       if found then
         return (c.updateCont! k, true)
       else
-        match (← classifyUse c.toCodeDecl! x) with
+        match (← classifyUse instr x) with
         | .ownedArg =>
           return (c.updateCont! k, true)
         | .other =>

@@ -573,6 +573,10 @@ mutual
       | .jmp j₁ as₁, .jmp j₂ as₂ => j₁ == j₂ && as₁ == as₂
       | .return r₁, .return r₂ => r₁ == r₂
       | .unreach t₁, .unreach t₂ => t₁ == t₂
+      | .uset v₁ i₁ y₁ k₁ _, .uset v₂ i₂ y₂ k₂ _ =>
+        v₁ == v₂ && i₁ == i₂ && y₁ == y₂ && eqImp k₁ k₂
+      | .sset v₁ i₁ o₁ y₁ ty₁ k₁ _, .sset v₂ i₂ o₂ y₂ ty₂ k₂ _ =>
+        v₁ == v₂ && i₁ == i₂ && o₁ == o₂ && y₁ == y₂ && ty₁ == ty₂ && eqImp k₁ k₂
       | _, _ => false
 
   private unsafe def eqFunDecl (d₁ d₂ : FunDecl pu) : Bool :=
@@ -591,6 +595,7 @@ mutual
     match a₁, a₂ with
     | .default k₁, .default k₂ => eqImp k₁ k₂
     | .alt c₁ ps₁ k₁ _, .alt c₂ ps₂ k₂ _ => c₁ == c₂ && ps₁ == ps₂ && eqImp k₁ k₂
+    | .ctorAlt i₁ k₁ _, .ctorAlt i₂ k₂ _ => i₁ == i₂ && eqImp k₁ k₂
     | _, _ => false
 end
 

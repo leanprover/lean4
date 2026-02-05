@@ -2310,8 +2310,8 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 
 /-! # Squash -/
 
-theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α ↦ True :=
-  ⟨fun _ ↦ trivial, fun _ ↦ trivial, fun _ _ ↦ trivial⟩
+theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α => True :=
+  ⟨fun _ => trivial, fun _ => trivial, fun _ _ => trivial⟩
 
 /-- Always-true relation as a `Setoid`. -/
 protected def Setoid.trivial (α : Sort u) : Setoid α :=

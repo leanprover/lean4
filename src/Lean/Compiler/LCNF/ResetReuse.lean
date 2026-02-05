@@ -242,8 +242,9 @@ partial def Code.insertResetReuse (c : Code .impure) : ReuseM (Code .impure) := 
       return c.updateAlts! alts
   | .jp decl k =>
     let value ← decl.value.insertResetReuse
+    let decl ← decl.updateValue value
     let k ← k.insertResetReuse
-    return c.updateFun! (← decl.updateValue value) k
+    return c.updateFun! decl k
   | .let _ k | .uset _ _ _ k _ | .sset _ _ _ _ _ k _  =>
     return c.updateCont! (← k.insertResetReuse)
   | .return .. | .jmp .. | .unreach .. => return c

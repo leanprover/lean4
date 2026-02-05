@@ -16,6 +16,11 @@ public section
 namespace Lean.Meta
 namespace Simp
 
+register_builtin_option backward.dsimp.instances : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` and `simp` simplify instance terms"
+  }
+
 /-- The result of simplifying some expression `e`. -/
 structure Result where
   /-- The simplified version of `e` -/
@@ -167,6 +172,7 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
 
 def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
   let config ← updateArith config
+  let config ← if backward.dsimp.instances.get (← getOptions) then pure { config with instances := true } else pure config
   return {
     config, simpTheorems, congrTheorems
     metaConfig := (← mkMetaConfig config)

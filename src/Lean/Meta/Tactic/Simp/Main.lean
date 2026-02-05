@@ -23,10 +23,6 @@ register_builtin_option backward.dsimp.proofs : Bool := {
     descr    := "Let `dsimp` simplify proof terms"
   }
 
-register_builtin_option backward.dsimp.instances : Bool := {
-    defValue := false
-    descr    := "Let `dsimp` simplify instance terms"
-  }
 
 register_builtin_option debug.simp.check.have : Bool := {
     defValue := false

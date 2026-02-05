@@ -6640,10 +6640,10 @@ theorem toNat_cpop_not {x : BitVec w} :
 
 /-! ### Horizontal Addition -/
 
-theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
-  a = (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
+theorem append_extractLsb'_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
+  (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
     (by rw [show w + (a_length - 1) * w= 1 * w + (a_length - 1) * w by omega,
-        ← Nat.add_mul, show 1 + (a_length - 1) = a_length by omega]) := by
+        ← Nat.add_mul, show 1 + (a_length - 1) = a_length by omega]) = a := by
   ext i hi
   simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
   split
@@ -6755,7 +6755,7 @@ theorem cast_recursive_addition_eq_of_le' {a_length' w : Nat} (a : BitVec ((a_le
     (extractLsb' 0 (a_length' * w) a).hAddRec a_length' 0#w := by
   simp
   have : extractLsb' ((a_length' + 1) * w) w a ++ extractLsb' 0 ((a_length' + 1) * w) a = a.cast (by simp [Nat.add_mul]; omega) := by
-    rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega)]
+    rw [← append_extractLsb'_of_lt (a := a) (by omega)]
     simp
     ext k hk
     simp only [getElem_append, getElem_extractLsb', Nat.zero_add, getLsbD_cast, dite_eq_ite]
@@ -6839,7 +6839,7 @@ theorem hAddRec_eq_of
       exact Nat.mul_le_mul_right w hlen'
     have := extractLsb'_append_extractLsb' (len := (a_length - 1) * w) (x := a.cast hcast)
     rw [extractLsb'_cast, extractLsb'_cast] at this
-    rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega),
+    rw [← append_extractLsb'_of_lt (a := a) (by omega),
       hAddRec_append_extractLsb' (by omega), hadd (i := a_length - 1) (by omega)]
     let op1 := extractLsb' (2 * (a_length - 1) * w) w b
     let op2 := extractLsb' ((2 * (a_length - 1) + 1) * w) w b
@@ -6847,9 +6847,9 @@ theorem hAddRec_eq_of
     by_cases ht : 2 * (a_length - 1) < b_length - 1
     · conv =>
         rhs
-        rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega),
+        rw [← append_extractLsb'_of_lt (a := b) (by omega),
             hAddRec_append_extractLsb' (by omega),
-            extractLsb'_append_extractLsb'_eq_of_lt (a := extractLsb' 0 ((b_length - 1) * w) b) (by omega), hAddRec_append_extractLsb' (by omega)]
+            ← append_extractLsb'_of_lt (a := extractLsb' 0 ((b_length - 1) * w) b) (by omega), hAddRec_append_extractLsb' (by omega)]
       rw [show extractLsb' (2 * (a_length - 1) * w) w b  = op1 by rfl,
           show extractLsb' ((2 * (a_length - 1) + 1) * w) w b = op2 by rfl,
           show extractLsb' 0 ((a_length - 1) * w) a = taila by rfl,
@@ -6891,7 +6891,7 @@ theorem hAddRec_eq_of
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 - 1 = 0 by omega]
     · conv =>
         rhs
-        rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega),
+        rw [← append_extractLsb'_of_lt (a := b) (by omega),
           hAddRec_append_extractLsb' (by omega)]
       rw [show extractLsb' (2 * (a_length - 1) * w) w b  = op1 by rfl,
           show extractLsb' 0 ((a_length - 1) * w) a = taila by rfl]

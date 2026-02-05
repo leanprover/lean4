@@ -553,17 +553,17 @@ private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr
         else
           argSpec := argSpec.push (.positional name argType)
       if h : args.size < 1 then
-        throwError "Expected at least one parameter"
+        throwError "Expected at least one parameter to `{.ofConstName declName}`"
       else
         if let some expected := argType then
           let final := args[args.size-1]
           let localDecl ← final.fvarId!.getDecl
           unless ← isDefEq localDecl.type expected do
-            throwError "Expected last parameter type to be {expected} but got {localDecl.type}"
+            throwError "Expected type of last parameter to `{.ofConstName declName}` to be `{.ofExpr expected}` but got `{.ofExpr localDecl.type}`"
 
         let expected ← mkAppM ``DocM #[retType]
         unless ← isDefEq ret expected do
-          throwError "Expected return type to be {expected} but got {ret}"
+          throwError "Expected return type of `{.ofConstName declName}` to be `{.ofExpr expected}` but got `{.ofExpr ret}`"
 
       pure argSpec
     let inls ← mkAppM ``TSyntaxArray #[← mkListLit (.const ``SyntaxNodeKind []) [toExpr `inline]]
@@ -1049,10 +1049,42 @@ private unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → Doc
 @[implemented_by codeBlockSuggestionsUnsafe]
 private opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion)))
 
-private def builtinElabName (n : Name) : Option Name :=
-  if (`Lean.Doc).isPrefixOf n then some n
-  else if n matches (.str .anonymous _) then some <| `Lean.Doc ++ n
-  else none
+/--
+Resolves a name against `NameMap` that contains a list of builtin expanders, taking into account
+open namespaces and the current namespace. This is needed because builtin doc roles/code
+blocks/directives are not present in the environment when `Lean` is not imported, so standard name
+resolution (`realizeGlobalConstNoOverload`) won't find them.
+
+This is called as a fallback when the identifier can't be resolved.
+-/
+private def resolveBuiltinDocName {α : Type} (builtins : NameMap α) (x : Name) : TermElabM (Option α) := do
+  if let some v := builtins.get? x then return some v
+
+  -- Builtins shouldn't require a prefix, as they're part of the language.
+  if let some v := builtins.get? (`Lean.Doc ++ x) then return some v
+
+  -- If this fails, try resolving through open namespaces so that {Doc.lit}`foo` will work when
+  -- `Lean` is opened.
+  let openDecls ← getOpenDecls
+  for decl in openDecls do
+    match decl with
+    | .simple ns exs =>
+      if !exs.any (· == x) then
+        if let some v := builtins.get? (ns ++ x) then return some v
+    | .explicit openedId declName =>
+      if openedId == x then
+        if let some v := builtins.get? declName then return some v
+      else if openedId.isPrefixOf x then
+        let candidate := x.replacePrefix openedId declName
+        if let some v := builtins.get? candidate then return some v
+
+  -- Try resolving through current namespace hierarchy
+  let mut ns ← getCurrNamespace
+  while !ns.isAnonymous do
+    if let some v := builtins.get? (ns ++ x) then return some v
+    ns := ns.getPrefix
+
+  return none
 
 private unsafe def roleExpandersForUnsafe (roleName : Ident) :
     TermElabM (Array (Name × (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)))) := do
@@ -1065,8 +1097,7 @@ private unsafe def roleExpandersForUnsafe (roleName : Ident) :
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ builtins
   else
     let x := roleName.getId
-    let hasBuiltin :=
-      (← builtinDocRoles.get).get? x <|> (← builtinDocRoles.get).get? (`Lean.Doc ++ x)
+    let hasBuiltin ← resolveBuiltinDocName (← builtinDocRoles.get) x
     return hasBuiltin.toArray.flatten
 
 
@@ -1085,8 +1116,7 @@ private unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
     let x := codeBlockName.getId
-    let hasBuiltin :=
-      (← builtinDocCodeBlocks.get).get? x <|> (← builtinDocCodeBlocks.get).get? (`Lean.Doc ++ x)
+    let hasBuiltin ← resolveBuiltinDocName (← builtinDocCodeBlocks.get) x
     return hasBuiltin.toArray.flatten
 
 
@@ -1105,8 +1135,7 @@ private unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     return (← names.mapM (fun x => do return (x, ← evalConst _ x))) ++ names'
   else
     let x := directiveName.getId
-    let hasBuiltin :=
-      (← builtinDocDirectives.get).get? x <|> (← builtinDocDirectives.get).get? (`Lean.Doc ++ x)
+    let hasBuiltin ← resolveBuiltinDocName (← builtinDocDirectives.get) x
     return hasBuiltin.toArray.flatten
 
 @[implemented_by directiveExpandersForUnsafe]
@@ -1179,7 +1208,27 @@ private def suggestionName (name : Name) : TermElabM Name := do
     else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
     else pure none
   match name' with
-    | some (.str _ s) => return .str .anonymous s
+    | some (.str _ s) =>
+      -- Check if the simple name is shadowed locally or globally
+      let simpleName := .str .anonymous s
+      let qualifiedBuiltin := `Lean.Doc ++ simpleName
+      -- Local shadowing check
+      if (← resolveLocalName simpleName).isSome then
+        return qualifiedBuiltin
+      -- Global shadowing check: try to resolve the simple name and see
+      -- if it resolves to something other than the builtin role
+      else
+        let resolved? ← try
+          some <$> resolveGlobalConstNoOverload (mkIdent simpleName)
+        catch _ => pure none
+        match resolved? with
+        | some resolved =>
+          -- If it resolves to the builtin, use simple name; otherwise qualified
+          if resolved == qualifiedBuiltin then return simpleName
+          else return qualifiedBuiltin
+        | none =>
+          -- Nothing to shadow
+          return simpleName
     | some n => return n
     | none =>
       -- If it exists, unresolve it
@@ -1204,7 +1253,8 @@ private def mkSuggestion
     DocM MessageData := do
   match (← read).suggestionMode with
   | .interactive =>
-    hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) => { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
+    hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) =>
+      { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
   | .batch =>
     let some ⟨b, e⟩ := ref.getRange?
       | pure m!""
@@ -1223,6 +1273,40 @@ def nameOrBuiltinName [Monad m] [MonadEnv m] (x : Name) : m Name := do
   let env ← getEnv
   if env.contains x then return x
   else return `Lean.Doc ++ x
+
+/--
+Finds registered expander names that `x` is a suffix of, for use in error message hints when the
+name is shadowed. Returns display names suitable for `mkSuggestion`.
+-/
+private def findShadowedNames {α : Type}
+    (nonBuiltIns : NameMap (Array Name)) (builtins : NameMap α) (x : Name) :
+    TermElabM (Array Name) := do
+  if x.isAnonymous then return #[]
+  let mut candidates : NameSet := {}
+  for (fullName, _) in nonBuiltIns do
+    if x.isSuffixOf fullName then
+      candidates := candidates.insert fullName
+  for (fullName, _) in builtins do
+    if x.isSuffixOf fullName then
+      candidates := candidates.insert fullName
+  let mut result := #[]
+  for c in candidates do
+    let displayName ← suggestionName c
+    -- Only suggest if the display name differs from what the user wrote
+    if displayName != x then
+      result := result.push displayName
+  return result
+
+/--
+Builds a hint for an "Unknown role/directive/..." error when the name might be shadowed.
+-/
+private def shadowedHint {α : Type}
+    (envEntries : NameMap (Array Name)) (builtins : NameMap α)
+    (name : Ident) (kind : String) : DocM MessageData := do
+  let candidates ← findShadowedNames envEntries builtins name.getId
+  if candidates.isEmpty then return m!""
+  let ss := candidates.map fun c => (c.toString, none, none)
+  mkSuggestion name m!"`{name}` shadows a {kind}. Use the full name of the shadowed {kind}:" ss
 
 /--
 Elaborates the syntax of an inline document element to an actual inline document element.
@@ -1271,8 +1355,9 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
                 snd.snd := moreInfo.map withSpace
               }
           let ss := ss.qsort (fun x y => x.1 < y.1)
+          let litName ← suggestionName `Lean.Doc.lit
           let litSuggestion :=
-            ( "{lit}" ++ str,
+            ( "{" ++ litName.toString ++ "}" ++ str,
               some "Use the `lit` role:\n",
               some "\nto mark the code as literal text and disable suggestions" )
           let ss := ss.push litSuggestion
@@ -1301,7 +1386,8 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unknown role `{name}`"
+    let hint ← shadowedHint (docRoleExt.getState (← getEnv)) (← builtinDocRoles.get) name "role"
+    throwErrorAt name m!"Unknown role `{name}`{hint}"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1367,7 +1453,8 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unknown directive `{name}`"
+    let hint ← shadowedHint (docDirectiveExt.getState (← getEnv)) (← builtinDocDirectives.get) name "directive"
+    throwErrorAt name m!"Unknown directive `{name}`{hint}"
   | `(block| ```%$opener | $s ```) =>
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := opener.getRange? then
@@ -1410,7 +1497,8 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unknown code block `{name}`"
+    let hint ← shadowedHint (docCodeBlockExt.getState (← getEnv)) (← builtinDocCodeBlocks.get) name "code block"
+    throwErrorAt name m!"Unknown code block `{name}`{hint}"
   | `(block| command{$name $args*}) =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
@@ -1429,7 +1517,8 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unknown document command `{name}`"
+    let hint ← shadowedHint (docCommandExt.getState (← getEnv)) (← builtinDocCommands.get) name "document command"
+    throwErrorAt name m!"Unknown document command `{name}`{hint}"
   | `(block|%%%$_*%%%) =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)

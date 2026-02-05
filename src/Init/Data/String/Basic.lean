@@ -1744,6 +1744,16 @@ theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s = t} :
 theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
   Slice.Pos.ext (by simp)
 
+@[simp]
+theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
+  cases h; simp
+
+@[simp]
+theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h < pos'.cast h ↔ pos < pos' := by
+  cases h; simp
+
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
 def Pos.cast {s t : String} (pos : s.Pos) (h : s = t) : t.Pos where
@@ -1757,6 +1767,16 @@ theorem Pos.offset_cast {s t : String} {pos : s.Pos} {h : s = t} :
 @[simp]
 theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
   Pos.ext (by simp)
+
+@[simp]
+theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
+  cases h; simp
+
+@[simp]
+theorem Pos.cast_lt_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
+    pos.cast h < pos'.cast h ↔ pos < pos' := by
+  cases h; simp
 
 theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
     p.toSlice.copy = p.cast copy_toSlice.symm :=
@@ -1985,9 +2005,13 @@ theorem Pos.lt_of_lt_of_le {s : String} {p q r : s.Pos} : p < q → q ≤ r → 
 theorem Pos.le_endPos {s : String} (p : s.Pos) : p ≤ s.endPos := by
   simpa [Pos.le_iff] using p.isValid.le_rawEndPos
 
+@[simp]
+theorem Slice.Pos.le_endPos {s : Slice} (p : s.Pos) : p ≤ s.endPos :=
+  p.isValidForSlice.le_rawEndPos
+
 theorem Slice.Pos.str_ne_endPos {s : Slice} (p : s.Pos) (h : p ≠ s.endPos) :
     p.str ≠ s.str.endPos :=
-  Pos.ne_of_lt (Pos.lt_of_lt_of_le (p.str_lt_endExclusive h) (Pos.le_endPos _))
+  Pos.ne_of_lt (Pos.lt_of_lt_of_le (p.str_lt_endExclusive h) (String.Pos.le_endPos _))
 
 theorem Pos.le_trans {s : String} {p q r : s.Pos} : p ≤ q → q ≤ r → p ≤ r := by
   simpa [Pos.le_iff] using Pos.Raw.le_trans
@@ -2253,6 +2277,14 @@ theorem Slice.Pos.le_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom 
     p₀ ≤ ofSliceFrom pos := by
   simp [Pos.le_iff, Pos.Raw.le_iff]
 
+theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q < Slice.Pos.ofSliceFrom r ↔ q < r := by
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+theorem Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff {s : Slice} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q ≤ Slice.Pos.ofSliceFrom r ↔ q ≤ r := by
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
 theorem Pos.get_eq_get_ofSliceFrom {s : String} {p₀ : s.Pos}
     {pos : (s.sliceFrom p₀).Pos} {h} :
     pos.get h = (ofSliceFrom pos).get (by rwa [← ofSliceFrom_endPos, ne_eq, ofSliceFrom_inj]) := by
@@ -2510,11 +2542,11 @@ def Pos.prevn {s : String} (p : s.Pos) (n : Nat) : s.Pos :=
 
 theorem Slice.Pos.le_nextn {s : Slice} {p : s.Pos} {n : Nat} : p ≤ p.nextn n := by
   fun_induction nextn with
-  | case1 => simp [Slice.Pos.le_iff]
+  | case1 => simp
   | case2 p n h ih =>
     simp only [Pos.le_iff] at *
     exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_lt_of_le lt_next ih)
-  | case3 => simp [Slice.Pos.le_iff]
+  | case3 => simp
 
 theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
     p ≤ p.nextn n := by
@@ -2522,11 +2554,11 @@ theorem Pos.le_nextn {s : String} {p : s.Pos} {n : Nat} :
 
 theorem Slice.Pos.prevn_le {s : Slice} {p : s.Pos} {n : Nat} : p.prevn n ≤ p := by
   fun_induction prevn with
-  | case1 => simp [le_iff]
+  | case1 => simp
   | case2 p n h ih =>
     simp only [Pos.le_iff] at *
     exact Pos.Raw.le_of_lt (Pos.Raw.lt_of_le_of_lt ih prev_lt)
-  | case3 => simp [le_iff]
+  | case3 => simp
 
 theorem Pos.prevn_le {s : String} {p : s.Pos} {n : Nat} :
     p.prevn n ≤ p := by

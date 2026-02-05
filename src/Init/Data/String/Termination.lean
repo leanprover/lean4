@@ -98,13 +98,6 @@ theorem eq_prev_of_prev?_eq_some {s : Slice} {p q : s.Pos} :
   simpa [prev?] using fun _ h => h.symm
 
 @[simp]
-theorem le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
-  simp [le_iff]
-
-theorem lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
-  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
-
-@[simp]
 theorem lt_next_next {s : Slice} {p : s.Pos} {h h'} : p < (p.next h).next h' :=
   lt_trans p.lt_next (p.next h).lt_next
 
@@ -199,13 +192,6 @@ theorem eq_prev_of_prev?_eq_some {s : String} {p q : s.Pos} (h : p.prev? = some 
     q = p.prev (ne_startPos_of_prev?_eq_some h) := by
   simpa only [← toSlice_inj, toSlice_prev] using Slice.Pos.eq_prev_of_prev?_eq_some
     (by simpa [Pos.map_toSlice_prev?] using congrArg (·.map toSlice) h)
-
-@[simp]
-theorem le_refl {s : String} (p : s.Pos) : p ≤ p := by
-  simp [Pos.le_iff]
-
-theorem lt_trans {s : String} {p q r : s.Pos} : p < q → q < r → p < r := by
-  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
 
 @[simp]
 theorem lt_next_next {s : String} {p : s.Pos} {h h'} : p < (p.next h).next h' :=

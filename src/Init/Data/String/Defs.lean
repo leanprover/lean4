@@ -642,6 +642,20 @@ Examples:
 @[inline]
 def Slice.isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
 
+@[simp]
+theorem Slice.Pos.le_refl {s : Slice} (p : s.Pos) : p ≤ p := by
+  simp [le_iff]
+
+theorem Slice.Pos.lt_trans {s : Slice} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
+@[simp]
+theorem Pos.le_refl {s : String} (p : s.Pos) : p ≤ p := by
+  simp [Pos.le_iff]
+
+theorem Pos.lt_trans {s : String} {p q r : s.Pos} : p < q → q < r → p < r := by
+  simpa [Pos.lt_iff, Pos.Raw.lt_iff] using Nat.lt_trans
+
 @[deprecated String.toRawSubstring (since := "2025-11-18")]
 def toSubstring (s : String) : Substring.Raw :=
   s.toRawSubstring

@@ -51,10 +51,6 @@ theorem Pos.startPos_le {s : String} (p : s.Pos) : s.startPos ≤ p := by
 theorem Slice.Pos.startPos_le {s : Slice} (p : s.Pos) : s.startPos ≤ p := by
   simp [Pos.le_iff, Pos.Raw.le_iff]
 
-@[simp]
-theorem Slice.Pos.le_endPos {s : Slice} (p : s.Pos) : p ≤ s.endPos :=
-  p.isValidForSlice.le_rawEndPos
-
 theorem getUTF8Byte_eq_getUTF8Byte_toSlice {s : String} {p : String.Pos.Raw} {h} :
     s.getUTF8Byte p h = s.toSlice.getUTF8Byte p (by simpa) := by
   simp [Slice.getUTF8Byte]

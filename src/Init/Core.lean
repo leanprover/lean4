@@ -2331,9 +2331,7 @@ and its representation in compiled code is identical to that of `α`.
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
 
-We define `Squash` in terms of `Quotient` rather than just `Quot`. This means that
-`Squash` can be used when a `Quotient` argument is expected, and the setoid will be
-automatically inferred.
+`Squash` is defined in terms of `Quotient`, so `Squash` can be used when a `Quotient` argument is expected.
 -/
 def Squash (α : Sort u) := Quotient (Setoid.trivial α)
 

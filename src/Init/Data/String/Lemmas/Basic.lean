@@ -42,12 +42,19 @@ theorem append_eq_right_iff {s t : String} : s ++ t = t ↔ s = "" := by
   rw [← toList_inj]; simp
 
 @[simp]
+theorem empty_eq_iff : "" = s ↔ s = "" :=
+  eq_comm
+
+@[simp]
 theorem push_ne_empty : push s c ≠ "" := by
   rw [ne_eq, ← toList_inj]; simp
 
 @[simp]
 theorem singleton_ne_empty {c : Char} : singleton c ≠ "" := by
   simp [singleton]
+
+theorem empty_ne_singleton {c : Char} : "" ≠ singleton c := by
+  simp
 
 @[simp]
 theorem Slice.Pos.copy_inj {s : Slice} {p₁ p₂ : s.Pos} : p₁.copy = p₂.copy ↔ p₁ = p₂ := by

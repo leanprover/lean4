@@ -7,11 +7,13 @@ module
 
 prelude
 public import Std.Data.Iterators.Lemmas.Producers.Array
-import Init.Data.Vector.Lemmas
-public import Std.Data.Iterators.Lemmas.Consumers.Collect
 public import Std.Data.Iterators.Producers.Vector
-public import Init.Data.Iterators.Producers.List
-public import Std.Data.Iterators.Lemmas.Producers.Monadic.Vector
+public import Std.Data.Iterators.Producers.Monadic.Vector
+import Init.Data.Vector.Lemmas
+import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.List.TakeDrop
+import Std.Data.Iterators.Lemmas.Producers.Monadic.Vector
 
 @[expose] public section
 
@@ -105,24 +107,34 @@ theorem Vector.toList_iter {xs : Vector β n} :
   simp [← iter_toArray, Vector.toList_toArray]
 
 @[simp, grind =]
-theorem Vector.toArray_iterFromIdx [LawfulMonad Id] {xs : Vector β n} {pos : Nat} :
+theorem Vector.toArray_iterFromIdx {xs : Vector β n} {pos : Nat} :
     (xs.iterFromIdx pos).toArray = xs.toArray.extract pos n := by
   simp [← iterFromIdx_toArray]
 
 @[simp, grind =]
-theorem Vector.toArray_iter [LawfulMonad Id] {xs : Vector β n} :
+theorem Vector.toArray_iter {xs : Vector β n} :
     xs.iter.toArray = xs.toArray := by
   simp [← iter_toArray]
 
 @[simp, grind =]
-theorem Vector.toListRev_iterFromIdx [LawfulMonad Id] {xs : Vector β n} {pos : Nat} :
+theorem Vector.toListRev_iterFromIdx {xs : Vector β n} {pos : Nat} :
     (xs.iterFromIdx pos).toListRev = (xs.toList.drop pos).reverse := by
   simp [Iter.toListRev_eq, Vector.toList_iterFromIdx]
 
 @[simp, grind =]
-theorem Vector.toListRev_toIter [LawfulMonad Id] {xs : Vector β n} :
+theorem Vector.toListRev_toIter {xs : Vector β n} :
     xs.iter.toListRev = xs.toList.reverse := by
   simp [Vector.iter_eq_iterFromIdx]
+
+@[simp, grind =]
+theorem Vector.length_iterFromIdx {xs : Vector β n} {pos : Nat} :
+    (xs.iterFromIdx pos).length = n - pos := by
+  simp [← Iter.length_toList_eq_length]
+
+@[simp, grind =]
+theorem Vector.length_iter {array : Vector β n} :
+    array.iter.length = array.size := by
+  simp [← Iter.length_toList_eq_length]
 
 section Equivalence
 

@@ -154,3 +154,13 @@ theorem Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : N
 theorem Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toListRev = pure array.toListRev := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toListRev_iterFromIdxM]
+
+@[simp, grind =]
+theorem Array.length_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+    (array.iterFromIdxM m pos).length = pure (.up (array.size - pos)) := by
+  simp [← IterM.up_length_toList_eq_length]
+
+@[simp, grind =]
+theorem Array.length_iterM [LawfulMonad m] {array : Array β} :
+    (array.iterM m).length = pure (.up array.size) := by
+  simp [← IterM.up_length_toList_eq_length]

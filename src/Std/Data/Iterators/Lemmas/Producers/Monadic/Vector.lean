@@ -136,3 +136,13 @@ theorem Vector.toListRev_iterFromIdxM [LawfulMonad m] {xs : Vector β n} {pos : 
 theorem Vector.toListRev_toIterM [LawfulMonad m] {xs : Vector β n} :
     (xs.iterM m).toListRev = pure xs.toList.reverse := by
   simp [← Vector.iterM_toArray, Vector.toList_toArray]
+
+@[simp, grind =]
+theorem Vector.length_iterFromIdxM [LawfulMonad m] {xs : Vector β n} {pos : Nat} :
+    (xs.iterFromIdxM m pos).length = pure (.up (n - pos)) := by
+  simp [← IterM.up_length_toList_eq_length]
+
+@[simp, grind =]
+theorem Vector.length_iterM [LawfulMonad m] {xs : Vector β n} :
+    (xs.iterM m).length = pure (.up n) := by
+  simp [← IterM.up_length_toList_eq_length]

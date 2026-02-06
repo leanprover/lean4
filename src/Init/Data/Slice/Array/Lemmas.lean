@@ -431,7 +431,6 @@ public theorem mkSlice_roc_eq_mkSlice_roo {xs : Array α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[lo<...(hi + 1)] := by
   simp [Std.Roc.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice]
 
-@[grind =]
 public theorem mkSlice_roc_eq_mkSlice_rco {xs : Array α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[(lo + 1)...(hi + 1)] := by
   simp [mkSlice_roc_eq_mkSlice_roo, mkSlice_roo_eq_mkSlice_rco]
@@ -480,7 +479,6 @@ public theorem mkSlice_roi_eq_mkSlice_roo {xs : Array α} {lo : Nat} :
   simp [mkSlice_roi_eq_mkSlice_rci, mkSlice_rci_eq_mkSlice_rco,
     mkSlice_roo_eq_mkSlice_rco]
 
-@[grind =]
 public theorem mkSlice_roi_eq_mkSlice_rco {xs : Array α} {lo : Nat} :
     xs[lo<...*] = xs[(lo + 1)...xs.size] := by
   simp [mkSlice_roi_eq_mkSlice_rci, mkSlice_rci_eq_mkSlice_rco]
@@ -561,7 +559,6 @@ public theorem mkSlice_ric_eq_mkSlice_rio {xs : Array α} {hi : Nat} :
     xs[*...=hi] = xs[*...(hi + 1)] := by
   simp [Std.Ric.Sliceable.mkSlice, Std.Rio.Sliceable.mkSlice]
 
-@[grind =]
 public theorem mkSlice_ric_eq_mkSlice_rco {xs : Array α} {hi : Nat} :
     xs[*...=hi] = xs[0...(hi + 1)] := by
   simp [mkSlice_ric_eq_mkSlice_rio, mkSlice_rio_eq_mkSlice_rco]
@@ -595,7 +592,6 @@ public theorem mkSlice_rii_eq_mkSlice_rio {xs : Array α} :
     xs[*...*] = xs[*...xs.size] := by
   simp [mkSlice_rii_eq_mkSlice_rci, mkSlice_rci_eq_mkSlice_rco, mkSlice_rio_eq_mkSlice_rco]
 
-@[grind =]
 public theorem mkSlice_rii_eq_mkSlice_rco {xs : Array α} :
     xs[*...*] = xs[0...xs.size] := by
   simp [mkSlice_rii_eq_mkSlice_rio, mkSlice_rio_eq_mkSlice_rco]

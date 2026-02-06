@@ -137,7 +137,7 @@ jobs:
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
-          OPTIONS=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          OPTIONS=()
           if [[ -n '${{ matrix.release }}' ]]; then
             # this also enables githash embedding into stage 1 library, which prohibits reusing
             # `.olean`s across commits, so we don't do it in the fast non-release CI

@@ -7,6 +7,7 @@ Tests whether the class fields marked as `[reducible]` are properly
 reduced by `unfoldDefinition?`.
 -/
 
+set_option backward.whnf.reducibleClassField true
 set_option allowUnsafeReducibility true
 attribute [reducible] MonadControlT.stM
 

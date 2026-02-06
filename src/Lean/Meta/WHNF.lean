@@ -809,6 +809,11 @@ partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
   else
     return none
 
+register_builtin_option backward.whnf.reducibleClassField : Bool := {
+  defValue := false
+  descr    := "enables better support for unfolding type class fields marked as `[reducible]`"
+}
+
 /--
 Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
 This function has special support for unfolding class fields.
@@ -823,7 +828,9 @@ private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : 
   if fInfo.hasValue then
     recordUnfold fInfo.name
     deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !(← getTransparency) matches .reducible then
+      if !backward.whnf.reducibleClassField.get (← getOptions) then
+        return some e
+      else if !(← getTransparency) matches .reducible then
         return some e
       else if (← isProjInst fInfo.name) then
         let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e

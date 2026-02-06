@@ -958,8 +958,12 @@ Examples:
 abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
   (l.drop start).take (stop - start)
 
-@[simp] theorem extract_eq_drop_take {l : List α} {start stop : Nat} :
+@[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
+
+set_option linter.missingDocs false in
+@[deprecated extract_eq_take_drop (since := "2026-02-06")]
+def extract_eq_drop_take := @extract_eq_take_drop
 
 /-! ### takeWhile -/
 

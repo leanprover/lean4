@@ -377,6 +377,22 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
   rw [drop_take]
   simp
 
+set_option doc.verso true in
+/--
+This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
+lemma {name}`List.extract_eq_drop_take` has been removed.
+-/
+theorem List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.take stop).drop start := by
+  simp only [take_drop]
+  by_cases start ≤ stop
+  · rw [add_sub_of_le ‹_›]
+  · have h₁ : stop - start = 0 := by omega
+    have h₂ : min stop l.length ≤ stop := by omega
+    simp only [Nat.add_zero, List.drop_take_self, List.nil_eq, List.drop_eq_nil_iff,
+      List.length_take, ge_iff_le, h₁]
+    omega
+
 @[simp]
 theorem drop_eq_drop_iff :
     ∀ {l : List α} {i j : Nat}, l.drop i = l.drop j ↔ min i l.length = min j l.length

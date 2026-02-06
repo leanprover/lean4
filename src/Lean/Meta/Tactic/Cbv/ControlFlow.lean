@@ -37,7 +37,7 @@ def simpIteCbv : Simproc := fun e => do
         | .rfl _ =>
           return .rfl (done := true)
         | .step v hv _ =>
-          if (isSameExpr v (← getBoolTrueExpr)) then
+          if (← isBoolTrueExpr v) then
             let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst' hv
             let inst' := mkConst ``instDecidableTrue
             let c' ← getTrueExpr
@@ -46,7 +46,7 @@ def simpIteCbv : Simproc := fun e => do
             -- TODO: use the symbolic version
             let ha ← mkEqTrans h' ha
             return .step a ha (done := false)
-          else if (isSameExpr v (← getBoolFalseExpr)) then
+          else if  (← isBoolFalseExpr v)  then
             let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst' hv
             let inst' := mkConst ``instDecidableFalse
             let c' ← getFalseExpr
@@ -91,7 +91,7 @@ def simpDIteCbv : Simproc := fun e => do
         match evalRes with
         | .rfl _ => return .rfl (done := true)
         | .step v hv _ =>
-          if (isSameExpr v (← getBoolTrueExpr)) then
+          if  (← isBoolTrueExpr v) then
             let h' := mkApp3 (mkConst ``eq_true_of_decide) c inst' hv
             let inst' := mkConst ``instDecidableTrue
             let h ← shareCommon h'
@@ -103,7 +103,7 @@ def simpDIteCbv : Simproc := fun e => do
             let ha := mkApp3 (mkConst ``dite_true f.constLevels!) α a b
             let ha ← mkEqTrans h' ha
             return .step a' ha
-          else if (isSameExpr v (← getBoolFalseExpr)) then
+          else if  (← isBoolFalseExpr v)  then
             let h' := mkApp3 (mkConst ``eq_false_of_decide) c inst' hv
             let inst' := mkConst ``instDecidableFalse
             let h ← shareCommon h'

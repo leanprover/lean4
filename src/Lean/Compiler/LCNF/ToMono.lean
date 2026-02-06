@@ -82,15 +82,7 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
-    if declName == ``Decidable.isTrue then
-      return .const ``Bool.true [] #[]
-    else if declName == ``Decidable.isFalse then
-      return .const ``Bool.false [] #[]
-    else if declName == ``Decidable.decide then
-      -- Decidable.decide is the identity function since Decidable
-      -- and Bool have the same runtime representation.
-      return args[1]!.toLetValue
-    else if declName == ``Quot.mk then
+    if declName == ``Quot.mk then
       return args[2]!.toLetValue
     else if declName == ``Quot.lcInv then
       match args[2]! with

@@ -91,7 +91,7 @@ def isOpaqueApp : Simproc := fun e => do
   if hasTheorems then
     let res ← (simpAppArgs >> tryCbvTheorems) e
     match res with
-    | .rfl false => return .rfl (done := true)
+    | .rfl false => return .rfl
     | _ => return res
   else
     return .rfl (← isCbvOpaque fnName)
@@ -103,7 +103,7 @@ def isOpaqueConst : Simproc := fun e => do
    let res ← (tryCbvTheorems) e
     match res with
     | .rfl false =>
-      return .rfl (done := true)
+      return .rfl
     | _ => return res
   else
     return .rfl (← isCbvOpaque constName)

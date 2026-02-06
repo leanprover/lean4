@@ -84,6 +84,12 @@ def parseVersoDocString
   -- TODO parse one block at a time for error recovery purposes
   let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
+  -- If document succeeded but didn't consume everything, try parsing a block at the stopped
+  -- position to get the actual error message (document uses sepByFn which swallows errors).
+  let s :=
+    if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+      (Doc.Parser.block {}).run ictx pmctx (getTokenTable env) (mkParserState text.source |>.setPos s.pos)
+    else s
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do
       logMessage {
@@ -92,6 +98,14 @@ def parseVersoDocString
         -- TODO end position
         data := err.toString
       }
+    return none
+  if !ictx.atEnd s.pos then
+    -- Fallback: block parse also didn't produce an error
+    logMessage {
+      fileName := (← getFileName),
+      pos := text.toPosition s.pos,
+      data := s!"unexpected '{ictx.get s.pos}'"
+    }
     return none
   return some s.stxStack.back
 
@@ -134,11 +148,25 @@ def reportVersoParseFailure
   let s := mkParserState text.source |>.setPos startPos
   let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
+  -- If document succeeded but didn't consume everything, try parsing a block at the stopped
+  -- position to get the actual error message (document uses sepByFn which swallows errors).
+  let s :=
+    if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+      (Doc.Parser.block {}).run ictx pmctx (getTokenTable env) (mkParserState text.source |>.setPos s.pos)
+    else s
   for (pos, _, err) in s.allErrors do
     logMessage {
       fileName := ← getFileName,
       pos := text.toPosition pos,
       data := err.toString,
+      severity := .error
+    }
+  if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+    -- Fallback: block parse also didn't produce an error
+    logMessage {
+      fileName := ← getFileName,
+      pos := text.toPosition s.pos,
+      data := s!"unexpected '{ictx.get s.pos}'",
       severity := .error
     }
 

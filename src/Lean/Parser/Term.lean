@@ -30,7 +30,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
     let s := Doc.Parser.document {} c' (s.setPos startPos)
     let s :=
-      if !s.allErrors.isEmpty then
+      if !s.allErrors.isEmpty || !c'.atEnd s.pos then
         -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
         -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
         -- consideration. So, at this stage, we push an indication of the failure, and then later,

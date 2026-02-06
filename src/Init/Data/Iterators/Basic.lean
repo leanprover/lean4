@@ -127,6 +127,9 @@ structure IterM {α : Type w} (m : Type w → Type w') (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
 
+/-- Wraps the state of an iterator into an `IterM` object. -/
+add_decl_doc IterM.mk
+
 /--
 An iterator that sequentially emits values of type `β`. It may be finite
 or infinite.
@@ -170,6 +173,9 @@ def x := ([1, 2, 3].iter : Iter Nat)
 structure Iter {α : Type w} (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `Iter` object. -/
+add_decl_doc IterM.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the

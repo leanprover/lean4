@@ -830,16 +830,62 @@ public structure BlockCtxt where
   is unaffected for normal documents.
   -/
   docStartPosition : Position := ⟨1, 0⟩
+  /--
+  The base column of the docstring, derived from the column of the opening delimiter.
+  For indented docstrings (e.g. inside `where` blocks), beginning-of-line checks use this column
+  instead of requiring column 0. With the default value 0, the check is equivalent to `column == 0`.
+  -/
+  baseColumn : Nat := 0
 deriving Inhabited, Repr
 
 /--
-Computes the `BlockCtxt` for parsing a docstring that starts at `startPos` in the given file map.
-When the docstring content starts mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set
-to the position after any leading spaces so that headers on the first line are recognized.
+Finds the minimum column of the first non-whitespace character on each non-empty content line
+between `startPos` and `endPos`, returning `init` if no such line exists.
 -/
-public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw) : BlockCtxt :=
+private def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
+    (init : Nat) : Nat := Id.run do
+  let mut result := init
+  let mut thisLineCol := 0
+  if h : endPos ≤ text.source.rawEndPos then
+    let endPos := text.source.posGE endPos h
+    if h : startPos ≤ text.source.rawEndPos then
+      let mut i := text.source.posGE startPos h
+      let mut afterNewline := false
+      while h : i ≠ text.source.endPos do
+        let c := i.get h
+        i := i.next h
+        if i > endPos then break
+        if c == '\n' then
+          afterNewline := true
+          thisLineCol := 0
+        else if afterNewline && c != ' ' then
+          result := min result thisLineCol
+          afterNewline := false
+        else thisLineCol:= thisLineCol + 1
+  return result
+
+/--
+Computes the `BlockCtxt` for parsing a docstring that starts at `startPos` in the given file map.
+`endPos` is the position of the `-` in the closing delimiter. When the docstring content starts
+mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set to the position after any leading
+spaces so that headers on the first line are recognized. For indented docstrings, `baseColumn` is
+computed as the minimum column among the opening delimiter, closing delimiter, and the least-indented
+non-empty content line.
+-/
+public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw)
+    (endPos : String.Pos.Raw) : BlockCtxt :=
+  -- Compute baseColumn from the opening `/--` or `/-!` delimiter, the closing `-/` delimiter,
+  -- and the least-indented non-empty content line.
+  -- `startPos` points to just after `/--`, so subtract 3 to get the column of `/`.
+  -- Both `/--` and `/-!` are 3 ASCII bytes.
+  let openCol := (text.toPosition (startPos.decreaseBy 3)).column
+  let closeCol := (text.toPosition endPos).column
+  let baseColumn := min openCol closeCol
+  -- Scan content lines to find the minimum indentation of any non-empty line.
+  -- We look for non-whitespace characters that appear after a newline and check their column.
+  let baseColumn := minContentIndent text startPos endPos baseColumn
   let position := text.toPosition startPos
-  if position.column == 0 then {}
+  if position.column ≤ baseColumn then { baseColumn }
   else
     -- Skip leading spaces to find where content actually starts
     let pos := Id.run do
@@ -852,18 +898,18 @@ public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw) :
             break
         return pos.offset
       else text.source.rawEndPos
-    { docStartPosition := text.toPosition pos }
+    { docStartPosition := text.toPosition pos, baseColumn }
 
 private def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
-  if position.column == 0 then s
+  if position.column ≤ ctxt.baseColumn then s
   else if position.line == ctxt.docStartPosition.line
       && position.column ≤ ctxt.docStartPosition.column then s
   else s.mkErrorAt s!"beginning of line at {position}" s.pos
 
 private def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
-  if position.column == 0
+  if position.column ≤ ctxt.baseColumn
     || (position.line == ctxt.docStartPosition.line
         && position.column ≤ ctxt.docStartPosition.column) then
     let s := p c s
@@ -1038,16 +1084,30 @@ mutual
   public partial def header (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``header <|
       guardMinColumn ctxt.minIndent >>
-      atomicFn (bol ctxt >>
-        withCurrentColumn fun c =>
-          withInfoSyntaxFn (many1Fn (skipChFn '#')) (fun info => fakeAtom "header(" (info := info)) >>
-          withCurrentColumn fun c' =>
-            skipChFn ' ' >> takeWhileFn (· == ' ') >> lookaheadFn (satisfyFn (· != '\n') "non-newline") >>
-            (show ParserFn from fun _ s => s.pushSyntax <| Syntax.mkNumLit (toString <| c' - c - 1)) >>
-            fakeAtom ")") >>
+      -- Atomic: confirm this is a header by finding # at beginning of line.
+      -- Consumes leading spaces so that errors after this point are not backtracked.
+      atomicFn (bol ctxt >> takeWhileFn (· == ' ') >>
+        lookaheadFn (skipChFn '#')) >>
+      -- Non-backtrackable: the # must be at the base column (or on the first line)
+      checkNonIndented >>
+      withCurrentColumn fun c =>
+        withInfoSyntaxFn (many1Fn (skipChFn '#')) (fun info => fakeAtom "header(" (info := info)) >>
+        withCurrentColumn fun c' =>
+          skipChFn ' ' >> takeWhileFn (· == ' ') >> lookaheadFn (satisfyFn (· != '\n') "non-newline") >>
+          (show ParserFn from fun _ s => s.pushSyntax <| Syntax.mkNumLit (toString <| c' - c - 1)) >>
+          fakeAtom ")" >>
       fakeAtom "{" >>
       textLine (allowNewlines := false) >>
       fakeAtomHere "}"
+  where
+    checkNonIndented : ParserFn := fun c s =>
+      let position := c.fileMap.toPosition s.pos
+      let positionOk :=
+        position.column ≤ ctxt.baseColumn ||
+        (position.line == ctxt.docStartPosition.line &&
+         position.column ≤ ctxt.docStartPosition.column)
+      if positionOk then s
+      else s.mkErrorAt s!"'#' (header) to start at column {ctxt.baseColumn}" s.pos
 
   /--
   Parses a code block. The resulting string literal has already had the fences' leading indentation

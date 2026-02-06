@@ -28,7 +28,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let endPos := c.prev (c.prev commentEndPos)
     let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
-    let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos
+    let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos endPos
     let s := Doc.Parser.document blockCtxt c' (s.setPos startPos)
     let s :=
       if !s.allErrors.isEmpty then

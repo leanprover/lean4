@@ -668,6 +668,8 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 uint32 val = base[source].m_num;
                 if (val < limit) {
                     pc += val;
+                } else {
+                    pc += limit;
                 }
                 break;
             }

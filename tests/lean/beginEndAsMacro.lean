@@ -14,5 +14,5 @@ theorem ex1 (x : Nat) : x + 0 = 0 + x :=
 
 theorem ex2 (x : Nat) : x + 0 = 0 + x :=
   begin
-    rw [Nat.zero_add]
+    rw [Nat.add_zero]
   end  -- error should be shown here

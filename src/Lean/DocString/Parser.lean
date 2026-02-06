@@ -831,9 +831,10 @@ public structure BlockCtxt where
   -/
   docStartPosition : Position := ⟨1, 0⟩
   /--
-  The base column of the docstring, derived from the column of the opening delimiter.
-  For indented docstrings (e.g. inside `where` blocks), beginning-of-line checks use this column
-  instead of requiring column 0. With the default value 0, the check is equivalent to `column == 0`.
+  The base column of the docstring, which is the least indentation of any non-empty line in it,
+  including the opening and closing delimiters. For indented docstrings (e.g. inside `where`
+  blocks), beginning-of-line checks use this column instead of requiring column 0. With the default
+  value 0, the check is equivalent to `column == 0`.
   -/
   baseColumn : Nat := 0
 deriving Inhabited, Repr
@@ -872,8 +873,8 @@ spaces so that headers on the first line are recognized. For indented docstrings
 computed as the minimum column among the opening delimiter, closing delimiter, and the least-indented
 non-empty content line.
 -/
-public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw)
-    (endPos : String.Pos.Raw) : BlockCtxt :=
+public def BlockCtxt.forDocString (text : FileMap)
+    (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : BlockCtxt :=
   -- Compute baseColumn from the opening `/--` or `/-!` delimiter, the closing `-/` delimiter,
   -- and the least-indented non-empty content line.
   -- `startPos` points to just after `/--`, so subtract 3 to get the column of `/`.
@@ -901,17 +902,17 @@ public def BlockCtxt.forDocString (text : FileMap) (startPos : String.Pos.Raw)
     { docStartPosition := text.toPosition pos, baseColumn }
 
 private def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
-  let position := c.fileMap.toPosition s.pos
-  if position.column ≤ ctxt.baseColumn then s
-  else if position.line == ctxt.docStartPosition.line
-      && position.column ≤ ctxt.docStartPosition.column then s
-  else s.mkErrorAt s!"beginning of line at {position}" s.pos
+  let pos := c.fileMap.toPosition s.pos
+  if pos.column ≤ ctxt.baseColumn then s
+  else if pos.line == ctxt.docStartPosition.line && pos.column ≤ ctxt.docStartPosition.column then s
+  else s.mkErrorAt s!"beginning of line at {pos}" s.pos
 
 private def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
-  if position.column ≤ ctxt.baseColumn
-    || (position.line == ctxt.docStartPosition.line
-        && position.column ≤ ctxt.docStartPosition.column) then
+  let positionOk :=
+    position.column ≤ ctxt.baseColumn ||
+    (position.line == ctxt.docStartPosition.line && position.column ≤ ctxt.docStartPosition.column)
+  if positionOk then
     let s := p c s
     if s.hasError then
       s.mkErrorAt description s.pos
@@ -929,8 +930,12 @@ public def metadataBlock (ctxt : BlockCtxt := {}) : ParserFn :=
     withPercents metadataContents.fn >>
     closer
 where
-  opener := atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >> eatSpaces >> ignoreFn (chFn '\n')
-  closer := bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >> eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
+  opener :=
+    atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >>
+    eatSpaces >> ignoreFn (chFn '\n')
+  closer :=
+    bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >>
+    eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
 
 /--
 Succeeds when the parser is looking at an ordered list indicator.

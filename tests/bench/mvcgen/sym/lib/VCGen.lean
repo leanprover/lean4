@@ -28,26 +28,89 @@ Creating backward rules for registered specifications
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
+/--
+Look up a `SpecTheorem` in the `@[spec]` database. Picks the spec with the highest priority
+among all specs that match the given program `e`.
+-/
 meta def SpecTheorems.findSpec (database : SpecTheorems) (e : Expr) : MetaM (Option SpecTheorem) := do
   let candidates ← database.specs.getMatch e
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   let specs := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   return specs[0]?
 
-meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+/--
+Create a backward rule for the `SpecTheorem` that was looked up in the database.
+In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
+given by the use site, and perhaps emit verification conditions for spec lemmas that would not
+apply everywhere.
+
+### General idea
+
+Consider the spec theorem `Spec.bind`:
+```
+Spec.bind : ∀ {m : Type u → Type v} {ps : PostShape} [inst : Monad m] [inst_1 : WPMonad m ps]
+  {α β : Type u} {x : m α} {f : α → m β} {Q : PostCond β ps},
+  ⦃wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.snd)⦄ (x >>= f) ⦃Q⦄
+```
+This theorem is already in "WP-form", so its postcondition `Q` is schematic (i.e., a ∀-bound var).
+However, its precondition `wp⟦x⟧ ...` is not. Hence we must emit a VC for the precondition:
+```
+prf : ∀ {m : Type u → Type v} {ps : PostShape} [inst : Monad m] [inst_1 : WPMonad m ps]
+  {α β : Type u} {x : m α} {f : α → m β} {Q : PostCond β ps}
+  (P : Assertion ps) (hpre : P ⊢ₛ wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.snd)),
+  P ⊢ₛ wp⟦x >>= f⟧ Q
+```
+(Note that `P ⊢ₛ wp⟦x >>= f⟧ Q` is the definition of `⦃P⦄ (x >>= f) ⦃Q⦄`.)
+Where `prf` is constructed by doing `SPred.entails.trans hpre spec` under the forall telescope.
+The conclusion of this rule applies to any situation where `bind` is the top-level symbol in the
+program.
+
+Similarly, a VC is generated for the postcondition if it isn't schematic.
+
+Furthermore, when there are excess state arguments `[s₁, ..., sₙ]` involved, we rather need to
+specialize the backward rule for that:
+```
+... : ∀ {m : Type u → Type v} {ps : PostShape} [inst : Monad m] [inst_1 : WPMonad m ps]
+  {α β : Type u} {x : m α} {f : α → m β} {Q : PostCond β ps}
+  (P : Assertion ...) (hpre : P ⊢ₛ wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.snd) s₁ ... sₙ),
+  P ⊢ₛ wp⟦x >>= f⟧ Q s₁ ... sₙ
+```
+
+### Caching
+
+It turns out we can cache backward rules for the cache key `(specThm, m, excessArgs.size)`.
+This is very important for performance and helps getting rid of the overhead imposed by the
+generality of `Std.Do`. We do that in the `VCGenM` wrapper `mkBackwardRuleFromSpecCached`.
+Furthermore, in order to avoid re-checking the same proof in the kernel, we generate an auxiliary
+lemma for the backward rule.
+
+### Specialization and unfolding of `Std.Do` abbreviations and defs
+
+It is unnecessary to use the `bind` rule in full generality. It is much more efficient to specialize
+it for the particular monad, postshape and `WP` instance. In doing so we can also unfold many
+`Std.Do` abbrevations, such as `Assertion ps` and `PostCond α ps`.
+We do that by doing `unfoldReducible` on the forall telescope. The type for `StateM Nat` and one
+excess state arg `s` becomes
+```
+prf : ∀ (α : Type) (x : StateT Nat Id α) (β : Type) (f : α → StateT Nat Id β)
+        (Q : (β → Nat → ULift Prop) × ExceptConds (PostShape.arg Nat PostShape.pure)) (s : Nat)
+        (P : ULift Prop) (hpre : P ⊢ₛ wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.snd) s),
+        P ⊢ₛ wp⟦x >>= f⟧ Q s
+```
+We are still investigating how to get rid of more unfolding overhead, such as for `wp` and
+`List.rec`.
+-/
+meta def SpecTheorem.mkBackwardRuleFromSpec (specThm : SpecTheorem)
+    (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
-  -- Create a backward rule for the spec we look up in the database.
-  -- In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
-  -- given by the use site.
   let (xs, _bs, spec, specTy) ← specThm.proof.instantiate
   let_expr f@Triple m' ps' instWP' α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
-  unless ← isDefEqGuarded m m' do -- TODO: Try isDefEqS?
-    Term.throwTypeMismatchError none m m' spec
-  unless ← isDefEqGuarded ps ps' do
-    Term.throwTypeMismatchError none ps ps' spec
-  unless ← isDefEqGuarded instWP instWP' do
-    Term.throwTypeMismatchError none instWP instWP' spec
+  -- Using `isDefEq` here is fine. Firstly, it's cached, so performance isn't an issue.
+  -- Secondly, the equated terms are never large. Thirdly, `isDefEqS` fails for type class instances.
+  unless ← isDefEqGuarded m m' do throwError "Failed to equate {m} and {m'} when instantiating {spec}"
+  unless ← isDefEqGuarded ps ps' do throwError "Failed to equate {ps} and {ps'} when instantiating {spec}"
+  unless ← isDefEqGuarded instWP instWP' do throwError "Failed to equate {instWP} and {instWP'} when instantiating {spec}"
 
   -- We must ensure that P and Q are pattern variables so that the spec matches for every potential
   -- P and Q. We do so by introducing VCs accordingly.
@@ -159,6 +222,7 @@ meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
   let b ← fallback
   return (b, cache.insert key b)
 
+/-- See the documentation for `SpecTheorem.mkBackwardRuleFromSpec` for more details. -/
 meta def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM BackwardRule := do
   let mkRuleSlow := specThm.mkBackwardRuleFromSpec m σs ps instWP excessArgs
   let s ← get
@@ -167,6 +231,7 @@ meta def mkBackwardRuleFromSpecCached (specThm : SpecTheorem) (m σs ps instWP :
   set { s with specBackwardRuleCache }
   return rule
 
+/-- Unfold `⦃P⦄ x ⦃Q⦄` into `P ⊢ₛ wp⟦x⟧ Q`. -/
 meta def unfoldTriple (goal : MVarId) : SymM MVarId := goal.withContext do
   let type ← goal.getType
   unless type.isAppOf ``Triple do return goal
@@ -175,12 +240,28 @@ meta def unfoldTriple (goal : MVarId) : SymM MVarId := goal.withContext do
   preprocessMVar goal  -- need to reinstate subterm sharing
 
 open Lean.Elab.Tactic.Do in
+/--
+Do a very targeted simplification to turn `P ⊢ₛ (fun _ => T, Q.snd).fst s` into `P ⊢ₛ T`.
+This often arises as follows during backward reasoning:
+```
+  P ⊢ₛ wp⟦get >>= set⟧ Q
+= P ⊢ₛ wp⟦get⟧ (fun a => wp⟦set a⟧ Q, Q.snd)
+= P ⊢ₛ (fun s => (fun a => wp⟦set a⟧ Q, Q.snd).fst s s)
+= P s ⊢ₛ (fun a => wp⟦set a⟧ Q, Q.snd).fst s s
+-- This is where we simplify!
+= P s ⊢ₛ wp⟦set s⟧ Q s
+= P s ⊢ₛ Q.fst s s
+-/
 meta def simplifyTarget (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
   let target ← goal.getType
   let_expr ent@SPred.entails σs P T := target | return goal
   let some T ← reduceProjBeta? T | return goal -- very slight simplification
   goal.replaceTargetDefEq (mkApp3 ent σs P T)
 
+/--
+Preprocess a goal, potentially closing it. This function assumes and preserves that the goal has is
+normalized according to `Sym.preprocessMVar`.
+-/
 meta def preprocessGoal (goal : MVarId) : VCGenM (Option MVarId) := do
   let mut goal := goal
   if (← goal.getType).isForall then
@@ -202,6 +283,13 @@ inductive SolveResult where
   /-- Successfully discharged the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
+/--
+The main VC generation function.
+Looks at a goal of the form `P ⊢ₛ T`. Then
+* If `T` is a lambda, introduce another state variable.
+* If `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`, look up a spec theorem for `e`. Produce the backward
+  rule to apply this spec theorem and then apply it ot the goal.
+-/
 meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "target: {target}"
@@ -209,9 +297,9 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- The goal is of the form `H ⊢ₛ T`. Look for program syntax in `T`.
 
   if T.isLambda then
-    -- This happens after applying the `get` spec. We have `T = fun s => wp⟦.. s⟧ Q s`.
+    -- This happens after applying the `get` spec. We have `T = (fun s => (wp⟦e⟧ Q, Q.snd).fst s s)`.
     -- Do what `mIntroForall` does, that is, eta-expand. Note that this introduces an
-    -- excess state arg `s`.
+    -- extra state arg `s` to reduce away the lambda.
     let .goals goals ← (← read).entailsConsIntroRule.apply goal
       | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
     return .goals goals
@@ -239,6 +327,9 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
 
   return .noStrategyForProgram e
 
+/--
+Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+-/
 meta def emitVC (goal : MVarId) : VCGenM Unit := do
   let ty ← goal.getType
   goal.setKind .syntheticOpaque
@@ -269,6 +360,11 @@ public structure Result where
   invariants : Array MVarId
   vcs : Array MVarId
 
+/--
+Generate verification conditions for a goal of the form `P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ` by repeatedly
+decomposing `e` using registered `@[spec]` theorems.
+Return the VCs and invariant goals.
+-/
 public meta partial def main (goal : MVarId) (ctx : Context) : SymM Result := do
   let ((), state) ← StateRefT'.run (ReaderT.run (work goal) ctx) {}
   for h : idx in [:state.invariants.size] do
@@ -279,7 +375,10 @@ public meta partial def main (goal : MVarId) (ctx : Context) : SymM Result := do
     mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag).eraseMacroScopes)
   return { invariants := state.invariants, vcs := state.vcs }
 
-/-- This function is best ignored; it's copied from `Lean.Elab.Tactic.Do.mkSpecContext`. -/
+/--
+This function is best ignored; it's copied from `Lean.Elab.Tactic.Do.mkSpecContext`
+and is more complex than necessary ATM.
+-/
 meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGen.Context := do
   let mut specThms ← getSpecTheorems
   let mut simpStuff := #[]
@@ -364,28 +463,24 @@ Local tests for faster iteration:
 -/
 
 /-
-example : ⦃⌜True⌝⦄ (pure (f := StateM Nat) false) ⦃⇓_ => ⌜True⌝⦄ := by
-  set_option trace.Elab.Tactic.Do.spec true in
-  set_option trace.Elab.Tactic.Do.vcgen true in
-  --set_option pp.all true in
-  mvcgen'
-  grind
+def step (v : Nat) : StateM Nat Unit := do
+  let s ← get
+  set (s + v)
+  let s ← get
+  set (s - v)
 
-example : ⦃⌜True⌝⦄ (get (m := StateM Nat) >>= set) ⦃⇓_ => ⌜True⌝⦄ := by
-  set_option trace.Elab.Tactic.Do.spec true in
-  set_option trace.Elab.Tactic.Do.vcgen true in
-  --set_option pp.all true in
-  mvcgen'
-  grind
+def loop (n : Nat) : StateM Nat Unit := do
+  match n with
+  | 0 => pure ()
+  | n+1 => step n; loop n
 
-example :
-  ⦃post⦄
-  do
-    let s ← get (m := StateM Nat)
-    set (s + v)
-    let s ← get
-    set (s - v)
-  ⦃⇓_ => post⦄ := by
+set_option maxRecDepth 10000
+set_option maxHeartbeats 10000000
+
+set_option trace.Elab.Tactic.Do.vcgen true in
+example : ⦃post⦄ loop 1 ⦃⇓_ => post⦄ := by
+  intro post
+  simp only [loop, step]
   mvcgen'
   grind
 -/

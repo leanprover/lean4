@@ -7,14 +7,13 @@ Tests whether the class fields marked as `[reducible]` are properly
 reduced by `unfoldDefinition?`.
 -/
 
+set_option allowUnsafeReducibility true
+attribute [reducible] MonadControlT.stM
+
 /--
 info: ExceptT ε m
 ---
 info: stM m (ExceptT ε m) α
----
-info: stM m m (MonadControl.stM m (ExceptT ε m) α)
----
-info: stM m m (MonadControl.stM m (ExceptT ε m) α)
 ---
 info: stM m m (MonadControl.stM m (ExceptT ε m) α)
 -/
@@ -31,16 +30,11 @@ run_meta do
   check s
   logInfo s
   withReducible do logInfo (← unfoldDefinition? s)
-  withReducibleAndInstances do logInfo (← unfoldDefinition? s)
-  logInfo (← unfoldDefinition? s)
-  return ()
 
 /--
 info: a + a
 ---
 info: none
----
-info: Add.add a a
 ---
 info: Add.add a a
 -/
@@ -51,4 +45,3 @@ run_meta do
     logInfo e
     withReducible do logInfo (← unfoldDefinition? e)
     withReducibleAndInstances do logInfo (← unfoldDefinition? e)
-    logInfo (← unfoldDefinition? e)

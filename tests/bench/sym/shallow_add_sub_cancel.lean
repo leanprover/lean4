@@ -175,6 +175,4 @@ def runBenchUsingSym : MetaM Unit := do
     solveUsingSym n
 
 #eval runBenchUsingSym
-set_option diagnostics true in
-set_option diagnostics.threshold 1  in
-#eval solveUsingSym 500
+#eval solveUsingSym 1000

@@ -1,23 +1,27 @@
-import Lean
-import UserAttr.BlaAttr
+module
+
+public import UserAttr.BlaAttr
+meta import Lean
+
+public section
 
 attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff
 
-@[bla] def f (x : Nat) := x + 2
-@[bla] def g (x : Nat) := x + 1
+@[bla, expose] def f (x : Nat) := x + 2
+@[bla, expose] def g (x : Nat) := x + 1
 
 @[foo 10] def h1 (x : Nat) := 2*x + 1
 @[foo 20 important] def h2 (x : Nat) := 2*x + 1
 
 open Lean in
-def hasBlaAttr (declName : Name) : CoreM Bool :=
+meta def hasBlaAttr (declName : Name) : CoreM Bool :=
   return blaAttr.hasTag (← getEnv) declName
 
 #eval hasBlaAttr ``f
 #eval hasBlaAttr ``id
 
 open Lean in
-def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
+meta def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
   return fooAttr.getParam? (← getEnv) declName
 
 #eval getFooAttrInfo? ``f

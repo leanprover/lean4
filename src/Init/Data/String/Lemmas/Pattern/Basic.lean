@@ -152,6 +152,11 @@ structure IsLongestMatchAt (pat : ρ) [ForwardPatternModel pat] {s : Slice} (sta
   le : startPos ≤ endPos
   isLongestMatch_sliceFrom : IsLongestMatch pat (Slice.Pos.sliceFrom _ _ le)
 
+theorem isLongestMatchAt_iff {pat : ρ} [ForwardPatternModel pat] {s : Slice} {pos₁ pos₂ : s.Pos} :
+    IsLongestMatchAt pat pos₁ pos₂ ↔
+      ∃ (h : pos₁ ≤ pos₂), IsLongestMatch pat (Slice.Pos.sliceFrom _ _ h) :=
+  ⟨fun ⟨h, h'⟩ => ⟨h, h'⟩, fun ⟨h, h'⟩ => ⟨h, h'⟩⟩
+
 theorem IsLongestMatchAt.lt {pat : ρ} [ForwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) : startPos < endPos := by
   have := h.isLongestMatch_sliceFrom.ne_startPos
@@ -174,6 +179,10 @@ Predicate stating that there is a (longest) match starting at the given position
 -/
 structure MatchesAt (pat : ρ) [ForwardPatternModel pat] {s : Slice} (pos : s.Pos) : Prop where
   exists_isMatchAt : ∃ endPos, IsLongestMatchAt pat pos endPos
+
+theorem matchesAt_iff_exists_isLongestMatchAt {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+    {pos : s.Pos} : MatchesAt pat pos ↔ ∃ endPos, IsLongestMatchAt pat pos endPos :=
+  ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
 
 theorem matchesAt_iff_exists_isLongestMatch {pat : ρ} [ForwardPatternModel pat] {s : Slice}
     {pos : s.Pos} :

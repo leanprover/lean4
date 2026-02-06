@@ -99,4 +99,45 @@ theorem Slice.utf8ByteSize_eq_size_toByteArray_copy {s : Slice} :
     s.utf8ByteSize = s.copy.toByteArray.size := by
   simp [utf8ByteSize_eq]
 
+section Iterate
+
+/-
+These lemmas are slightly evil because they are non-definitional equalities between slices, but they
+are useful and they are at least equalities between slices with definitionally equal underlying
+strings, so it should be fine.
+-/
+
+@[simp]
+theorem Slice.sliceTo_sliceFrom {s : Slice} {pos pos'} :
+    (s.sliceFrom pos).sliceTo pos' =
+      s.slice pos (Slice.Pos.ofSliceFrom pos') Slice.Pos.le_ofSliceFrom := by
+  ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
+
+@[simp]
+theorem Slice.sliceFrom_sliceTo {s : Slice} {pos pos'} :
+    (s.sliceTo pos).sliceFrom pos' =
+      s.slice (Slice.Pos.ofSliceTo pos') pos Slice.Pos.ofSliceTo_le := by
+  ext <;> simp [String.Pos.ext_iff]
+
+@[simp]
+theorem Slice.sliceFrom_sliceFrom {s : Slice} {pos pos'} :
+    (s.sliceFrom pos).sliceFrom pos' =
+      s.sliceFrom (Slice.Pos.ofSliceFrom pos') := by
+  ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
+
+@[simp]
+theorem Slice.sliceTo_sliceTo {s : Slice} {pos pos'} :
+    (s.sliceTo pos).sliceTo pos' = s.sliceTo (Slice.Pos.ofSliceTo pos') := by
+  ext <;> simp [String.Pos.ext_iff]
+
+end Iterate
+
+theorem Slice.copy_eq_copy_slice {s : Slice} {pos₁ pos₂ : s.Pos} {h} :
+    s.copy = (s.sliceTo pos₁).copy ++ (s.slice pos₁ pos₂ h).copy ++ (s.sliceFrom pos₂).copy := by
+  simp [copy_eq_copy_sliceTo (pos := pos₂), copy_eq_copy_sliceTo (pos := Slice.Pos.sliceTo _ _ h)]
+
+theorem copy_toByteArray_sliceTo {s : String} {pos : s.Pos} :
+    (s.sliceTo pos).copy.toByteArray = s.toByteArray.extract 0 pos.offset.byteIdx := by
+  simp [Slice.toByteArray_copy]
+
 end String

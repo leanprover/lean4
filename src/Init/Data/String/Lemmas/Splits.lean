@@ -405,4 +405,34 @@ theorem Pos.Splits.lt_iff_exists_eq_append {s : String} {p₁ p₂ : s.Pos} {t�
     p₁ < p₂ ↔ ∃ t₅, t₅ ≠ "" ∧ t₃ = t₁ ++ t₅ ∧ t₂ = t₅ ++ t₄ := by
   rw [← toSlice_lt, (splits_toSlice_iff.2 h).lt_iff_exists_eq_append (splits_toSlice_iff.2 h')]
 
+-- TODO
+theorem Pos.Raw.isValidForSlice_iff_exists_append {s : Slice} {p : Pos.Raw} :
+    p.IsValidForSlice s ↔ ∃ t₁ t₂, s.copy = t₁ ++ t₂ ∧ p = t₁.rawEndPos := by
+  rw [← isValid_copy_iff, isValid_iff_exists_append]
+
+def Slice.Pos.Splits.rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
+    (h : p.Splits t₁ (t₂ ++ t₃)) : s.Pos :=
+  s.pos (p.offset.increaseBy t₂.utf8ByteSize)
+    (Pos.Raw.isValidForSlice_iff_exists_append.2
+      ⟨t₁ ++ t₂, t₃, by simpa [append_assoc] using h.eq_append,
+        by simp [Pos.Raw.ext_iff, h.offset_eq_rawEndPos]⟩)
+
+theorem Slice.Pos.Splits.splits_rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
+    (h : p.Splits t₁ (t₂ ++ t₃)) : h.rotateRight.Splits (t₁ ++ t₂) t₃ where
+  eq_append := by simpa [append_assoc] using h.eq_append
+  offset_eq_rawEndPos := by simp [rotateRight, Pos.Raw.ext_iff, h.offset_eq_rawEndPos]
+
+theorem Slice.copy_slice_eq_iff_splits {s : Slice} {pos₁ pos₂ : s.Pos} :
+    (∃ h, (s.slice pos₁ pos₂ h).copy = t) ↔
+    ∃ t₁ t₂, pos₁.Splits t₁ (t ++ t₂) ∧ pos₂.Splits (t₁ ++ t) t₂ := by
+  refine ⟨?_, fun ⟨t₁, t₂, ht₁, ht₂⟩ => ?_⟩
+  · rintro ⟨h, rfl⟩
+    refine ⟨(s.sliceTo pos₁).copy, (s.sliceFrom pos₂).copy,
+      ⟨by simpa [append_assoc] using copy_eq_copy_slice, by simp⟩, ⟨copy_eq_copy_slice, ?_⟩⟩
+    simp [Pos.Raw.ext_iff, Slice.Pos.le_iff, Pos.Raw.le_iff, Pos.Raw.byteDistance_eq] at ⊢ h
+    omega
+  · have h : pos₁ ≤ pos₂ := (ht₁.le_iff_exists_eq_append ht₂).2 ⟨t, rfl, rfl⟩
+    exact ⟨h, by simpa [ht₂.eq_append, ht₁.eq_left pos₁.splits, ht₂.eq_right pos₂.splits] using
+      (copy_eq_copy_slice (h := h)).symm⟩
+
 end String

@@ -1434,7 +1434,7 @@ theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
   (byte_copy _).symm
 
 /-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
-@[inline]
+@[inline, expose]
 def Slice.Pos.ofSliceFrom {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos where
   offset := pos.offset.offsetBy p₀.offset
   isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.1 pos.isValidForSlice

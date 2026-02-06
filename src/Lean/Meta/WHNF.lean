@@ -776,22 +776,32 @@ private def isProjInst (declName : Name) : MetaM Bool := do
   return true
 
 /--
-Auxiliary method for unfolding a class projection.
+Auxiliary method for unfolding a class projection. Recall that class fields are not marked with
+`[reducible]`, but we want to reduce them when the transparency setting is `.instances`.
+For example, given `a b : Nat`, the term `a ≤ b` is `LE.le Nat instLENat a b`.
+Unfolding the class field `LE.le` gives `instLENat.1 a b`. This method goes further and
+reduces the instance projection to return `Nat.le a b`.
 -/
 partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
   let f := e.getAppFn
   let .const declName us := f | return none
   unless (← isProjInst declName) do return none
   let some fInfo ← withDefault <| getUnfoldableConst? declName | return none
-  deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-  let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return none
+  deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e' => do
+  /-
+  Continuing the example: after delta-beta reducing `LE.le`, we get `e'` which is
+  `instLENat.1 a b`. We consider the unfolding successful if this instance projection
+  reduces to `Nat.le a b` using `.instances` reducibility.
+  -/
+  let some r ← withReducibleAndInstances <| reduceProj? e'.getAppFn | return none
   recordUnfold declName
-  return some <| mkAppN r e.getAppArgs |>.headBeta
+  return some <| mkAppN r e'.getAppArgs |>.headBeta
 
 /--
 Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
 Recall that class instance projections are not marked with `[reducible]` because we want them to be
 in "reducible canonical form".
+See `unfoldProjInst?`
 -/
 partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
   if (← getTransparency) matches .instances then
@@ -799,6 +809,16 @@ partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
   else
     return none
 
+/--
+Default unfolding function. `e` is of the form `f.{us} a₁ ... aₙ`, and `fInfo` is the `ConstantInfo` for `f`.
+This function has special support for unfolding class fields.
+The support is particularly important when the user marks a class field as `[reducible]` and
+the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
+and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
+which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
+a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
+`.instances` reducibility, ultimately returning `Nat.le a b`.
+-/
 private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
   if fInfo.hasValue then
     recordUnfold fInfo.name

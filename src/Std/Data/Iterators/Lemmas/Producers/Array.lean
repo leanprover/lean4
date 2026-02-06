@@ -88,7 +88,7 @@ theorem Array.toListRev_iterFromIdx {array : Array β} {pos : Nat} :
   simp [Iter.toListRev_eq, Array.toList_iterFromIdx]
 
 @[simp, grind =]
-theorem Array.toListRev_toIter {array : Array β} :
+theorem Array.toListRev_iter {array : Array β} :
     array.iter.toListRev = array.toListRev := by
   simp [Array.iter_eq_iterFromIdx]
 

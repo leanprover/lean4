@@ -15,13 +15,15 @@ import Std.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.List.TakeDrop
 import Std.Data.Iterators.Lemmas.Producers.Monadic.Vector
 
+set_option doc.verso true
+
 @[expose] public section
 
 /-!
 # Lemmas about vector iterators
 
-This module provides lemmas about the interactions of `Vector.iter` with `Iter.step` and various
-collectors.
+This module provides lemmas about the interactions of {name}`Vector.iter` with {name}`Iter.step` and
+various collectors.
 -/
 
 open Std Std.Iterators
@@ -132,8 +134,8 @@ theorem Vector.length_iterFromIdx {xs : Vector β n} {pos : Nat} :
   simp [← Iter.length_toList_eq_length]
 
 @[simp, grind =]
-theorem Vector.length_iter {array : Vector β n} :
-    array.iter.length = array.size := by
+theorem Vector.length_iter {xs : Vector β n} :
+    xs.iter.length = n := by
   simp [← Iter.length_toList_eq_length]
 
 section Equivalence

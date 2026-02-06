@@ -151,7 +151,7 @@ theorem Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : N
   simp [IterM.toListRev_eq, Array.toList_iterFromIdxM]
 
 @[simp, grind =]
-theorem Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
+theorem Array.toListRev_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toListRev = pure array.toListRev := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toListRev_iterFromIdxM]
 

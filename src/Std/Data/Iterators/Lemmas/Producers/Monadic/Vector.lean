@@ -133,7 +133,7 @@ theorem Vector.toListRev_iterFromIdxM [LawfulMonad m] {xs : Vector β n} {pos : 
   simp [← Vector.iterFromIdxM_toArray, Vector.toList_toArray]
 
 @[simp, grind =]
-theorem Vector.toListRev_toIterM [LawfulMonad m] {xs : Vector β n} :
+theorem Vector.toListRev_iterM [LawfulMonad m] {xs : Vector β n} :
     (xs.iterM m).toListRev = pure xs.toList.reverse := by
   simp [← Vector.iterM_toArray, Vector.toList_toArray]
 

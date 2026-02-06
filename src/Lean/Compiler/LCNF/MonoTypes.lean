@@ -63,7 +63,6 @@ where
     match f with
     | .const ``lcErased _ => return erasedExpr
     | .const ``lcAny _ => return anyExpr
-    | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []

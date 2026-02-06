@@ -443,20 +443,6 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 @[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
-@[inline]
-instance exists_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
-else isFalse fun ⟨h', _⟩ => h h'
-
-@[inline]
-instance forall_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
-else isTrue fun h2 => absurd h2 h
-
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
 @[simp, bool_to_prop] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
@@ -594,11 +580,12 @@ instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
 instance [DecidablePred p] : DecidablePred (p ∘ f) :=
   fun x => inferInstanceAs (Decidable (p (f x)))
 
-/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
-(This is sometimes taken as an alternate definition of decidability.) -/
-@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
-  | true, h => isTrue (h.1 rfl)
-  | false, h => isFalse (mt h.2 Bool.noConfusion)
+/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`. -/
+abbrev decidable_of_bool (b : Bool) (h : b ↔ a) : Decidable a :=
+  Decidable.intro b
+    (match b, h with
+    | true, h => h.1 rfl
+    | false, h => mt h.2 Bool.noConfusion)
 
 protected theorem Decidable.not_forall {p : α → Prop} [Decidable (∃ x, ¬p x)]
     [∀ x, Decidable (p x)] : (¬∀ x, p x) ↔ ∃ x, ¬p x :=

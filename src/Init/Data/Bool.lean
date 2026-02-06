@@ -32,16 +32,18 @@ abbrev xor : Bool → Bool → Bool := bne
 recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
-  match inst true, inst false with
-  | isFalse ht, _ => isFalse fun h => absurd (h _) ht
-  | _, isFalse hf => isFalse fun h => absurd (h _) hf
-  | isTrue ht, isTrue hf => isTrue fun | true => ht | false => hf
+  Decidable.intro (p true && p false)
+    (match inst true, inst false with
+    | isFalse ht, _ => fun h => absurd (h _) ht
+    | isTrue _, isFalse hf => fun h => absurd (h _) hf
+    | isTrue ht, isTrue hf => fun | true => ht | false => hf)
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∃ x, p x) :=
-  match inst true, inst false with
-  | isTrue ht, _ => isTrue ⟨_, ht⟩
-  | _, isTrue hf => isTrue ⟨_, hf⟩
-  | isFalse ht, isFalse hf => isFalse fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf
+  Decidable.intro (p true || p false)
+    (match inst true, inst false with
+    | isTrue ht, _ => ⟨_, ht⟩
+    | isFalse _, isTrue hf => ⟨_, hf⟩
+    | isFalse ht, isFalse hf => fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf)
 
 @[simp] theorem default_bool : default = false := rfl
 
@@ -66,6 +68,7 @@ theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
 @[simp] theorem decide_eq_true  {b : Bool} [Decidable (b = true)]  : decide (b = true)  =  b := by cases b <;> simp
 @[simp] theorem decide_eq_false {b : Bool} [Decidable (b = false)] : decide (b = false) = !b := by cases b <;> simp
+
 theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
 theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 
@@ -601,15 +604,15 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
   cases dp with | _ p => simp [p]
 
 @[bool_to_prop]
-theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := by simp
+theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := rfl
 
 @[bool_to_prop]
-theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := by simp
+theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := rfl
 
 @[bool_to_prop]
-theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
-    (decide p == decide q) = decide (p ↔ q) := by
-  cases dp with | _ p => simp [p]
+theorem decide_beq_decide (p q : Prop) [dp : Decidable p] [dq : Decidable q] :
+    (decide p == decide q) = decide (p ↔ q) :=
+  rfl
 
 end Bool
 

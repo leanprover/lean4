@@ -28,6 +28,9 @@ set_option trace.grind.lia.model true in
 example (a b c d e : Int) : test1 a b c d e  := by
   (fail_if_success cutsat); sorry
 
+-- TODO: this should not be necessary (compare to 20 before)
+set_option synthInstance.maxSize 400 in
+
 /-- info: false -/
 #guard_msgs (info) in
 #eval test1 101 0 5335 0 0

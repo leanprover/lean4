@@ -37,13 +37,9 @@ in whnf that can be regarded as the reason for the failure of `expr` to fully re
 private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := withIncRecDepth do
   let expr ← whnf expr
   let numArgs := expr.getAppNumArgs
-  if (← getEnv).contains `Decidable.intro then
-    -- If it's the Bool recursor or the Decidable recursor, then blame the major premise.
-    if numArgs ≥ 4 ∧ (expr.isAppOf ``Bool.rec || expr.isAppOf ``Decidable.rec) then
-      return ← blameDecideReductionFailure (expr.getArg! 3 numArgs)
-  else
-    if numArgs ≥ 5 ∧ expr.isAppOf ``Decidable.rec then
-      return ← blameDecideReductionFailure (expr.getArg! 4 numArgs)
+  -- If it's the Bool recursor or the Decidable recursor, then blame the major premise.
+  if numArgs ≥ 4 ∧ (expr.isAppOf ``Bool.rec || expr.isAppOf ``Decidable.rec) then
+    return ← blameDecideReductionFailure (expr.getArg! 3 numArgs)
   -- If it's the Decidable constructor, then blame the first parameter.
   if expr.isAppOfArity `Decidable.intro 3 then
     return ← blameDecideReductionFailure expr.appFn!.appArg!
@@ -64,14 +60,9 @@ private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := wi
             unless expr''.isConstOf ``Bool.true || expr''.isConstOf ``Bool.false do
               return ← blameDecideReductionFailure expr''
           else if type.isAppOf ``Decidable then
-            if (← getEnv).contains `Decidable.intro then
-              let expr'' ← whnf (.proj ``Decidable 0 expr')
-              unless expr''.isConstOf ``Bool.true || expr''.isConstOf ``Bool.false do
-                return ← blameDecideReductionFailure expr''
-            else
-              let expr'' ← whnf expr'
-              unless expr''.isAppOf ``isTrue || expr''.isAppOf ``isFalse do
-                return ← blameDecideReductionFailure expr''
+            let expr'' ← whnf (.proj ``Decidable 0 expr')
+            unless expr''.isConstOf ``Bool.true || expr''.isConstOf ``Bool.false do
+              return ← blameDecideReductionFailure expr''
   return expr
 
 def elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr := do

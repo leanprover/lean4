@@ -14,7 +14,7 @@ Ty.denote : Ty → Type
 MonadControl.liftWith : {m : Type u → Type v} →
   {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m lcAny) → m α) → n α
 MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m lcAny → n α
-Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive lcAny) → (◾ → motive lcAny) → motive lcAny
+Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (Bool → ◾ → motive lcAny) → motive lcAny
 Lean.getConstInfo : {m : Type → Type} → [Monad m] → [MonadEnv m] → [MonadError m] → Name → m ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
   Context → ST.Ref lcAny State → Core.Context → ST.Ref lcAny Core.State → lcVoid → EST.Out Exception lcAny α
@@ -40,7 +40,7 @@ Ty.denote : lcErased
 MonadControl.liftWith : {m n : lcErased} →
   [self : MonadControl lcAny lcAny] → {α : lcErased} → (({β : lcErased} → lcAny → lcAny) → lcAny) → lcAny
 MonadControl.restoreM : {m n : lcErased} → [self : MonadControl lcAny lcAny] → {α : lcErased} → lcAny → lcAny
-Decidable.casesOn : {p motive : lcErased} → Bool → (lcErased → lcAny) → (lcErased → lcAny) → lcAny
+Decidable.casesOn : {p motive : lcErased} → Bool → (Bool → lcErased → lcAny) → lcAny
 Lean.getConstInfo : {m : lcErased} → [Monad lcAny] → [MonadEnv lcAny] → [MonadError lcAny] → Name → lcAny
 Lean.Meta.instMonadMetaM : Monad lcAny
 Lean.Meta.inferType : Expr → Context → lcAny → Core.Context → lcAny → lcVoid → EST.Out Exception lcAny Expr

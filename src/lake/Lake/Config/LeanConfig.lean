@@ -9,6 +9,7 @@ prelude
 public import Lake.Build.Target.Basic
 public import Lake.Config.Dynlib
 public import Lake.Config.MetaClasses
+public import Init.Data.String.Modify
 meta import all Lake.Config.Meta
 import Lake.Util.Name
 import Init.Data.String.Modify
@@ -43,6 +44,7 @@ namespace Backend
 
 public instance : Inhabited Backend := ⟨.default⟩
 
+@[inline]
 public def ofString? (s : String) : Option Backend :=
   match s with
   | "c" => some .c
@@ -118,6 +120,7 @@ public def leancArgs : BuildType → Array String
 | minSizeRel => #["-Os", "-DNDEBUG"]
 | release => #["-O3", "-DNDEBUG"]
 
+@[inline]
 public def ofString? (s : String) : Option BuildType :=
   match s.decapitalize with
   | "debug" => some .debug

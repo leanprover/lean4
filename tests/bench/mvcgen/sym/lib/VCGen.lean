@@ -497,6 +497,7 @@ def loop (n : Nat) : StateM Nat Unit := do
 set_option maxRecDepth 100000
 set_option maxHeartbeats 10000000
 
+set_option diagnostics true in
 example : ∀ post, ⦃post⦄ loop 100 ⦃⇓_ => post⦄ := by
   intro post
   simp only [loop, step]

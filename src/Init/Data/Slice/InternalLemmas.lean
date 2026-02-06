@@ -64,3 +64,8 @@ theorem fold_internalIter [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] [IteratorLoop α Id Id] [Iterators.Finite α Id] {s : Slice γ} :
     (Internal.iter s).fold (init := init) f = s.foldl (init := init) f := by
   rfl
+
+theorem foldM_internalIter {m : Type w → Type w'} [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m] [Iterators.Finite α Id] {s : Slice γ} {f : δ → β → m δ} :
+    (Internal.iter s).foldM (init := init) f = s.foldlM (init := init) f := by
+  rfl

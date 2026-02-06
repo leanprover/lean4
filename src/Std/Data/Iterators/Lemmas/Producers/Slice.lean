@@ -90,4 +90,25 @@ theorem toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator (Slice γ) Id α 
     s.toListRev = s.iter.toListRev := by
   simp
 
+theorem forIn_iter {β : Type v}
+    {m : Type w → Type x} [Monad m] {δ : Type w}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoop α Id m]
+    [LawfulIteratorLoop α Id m]
+    [Finite α Id] {s : Slice γ}
+    {init : δ} {f : β → δ → m (ForInStep δ)} :
+    ForIn.forIn s.iter init f = ForIn.forIn s init f := by
+  simp [Internal.iter_eq_internalIter, forIn_internalIter]
+
+theorem fold_iter [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id Id] [Iterators.Finite α Id] {s : Slice γ} :
+    s.iter.fold (init := init) f = s.foldl (init := init) f := by
+  simp [Internal.iter_eq_internalIter, fold_internalIter]
+
+theorem foldM_iter {m : Type w → Type w'} [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [IteratorLoop α Id m] [Iterators.Finite α Id] {s : Slice γ} {f : δ → β → m δ} :
+    s.iter.foldM (init := init) f = s.foldlM (init := init) f := by
+  simp [Internal.iter_eq_internalIter, foldM_internalIter]
+
 end Std.Slice

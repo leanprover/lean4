@@ -691,7 +691,7 @@ public theorem toList_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
 @[simp, grind =]
 public theorem toArray_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     xs[lo...hi].toArray = xs.toArray.extract lo hi := by
-  simp [← Subarray.toArray_toList]
+  simp [← Subarray.toArray_toList, Std.Internal.List.extract_eq_drop_take']
 
 @[simp, grind =]
 public theorem size_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :

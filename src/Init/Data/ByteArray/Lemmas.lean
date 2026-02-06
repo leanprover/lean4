@@ -312,7 +312,7 @@ theorem ext_getElem {a b : ByteArray} (h₀ : a.size = b.size) (h : ∀ (i : Nat
 theorem _root_.List.toByteArray_inj {l l' : List UInt8} : l.toByteArray = l'.toByteArray ↔ l = l' := by
   simp [ByteArray.ext_iff]
 
-theorem _root_.ByteArray.extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
+theorem extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
     (hi : i + len ≤ as.size) (hj : j + len ≤ bs.size) :
     as.extract i (i + len) = bs.extract j (j + len) ↔ ∀ k, (hk : k < len) → as[i + k] = bs[j + k] := by
   induction len with

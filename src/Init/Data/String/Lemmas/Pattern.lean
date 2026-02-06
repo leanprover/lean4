@@ -8,3 +8,5 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.Basic
 public import Init.Data.String.Lemmas.Pattern.Memcmp
+public import Init.Data.String.Lemmas.Pattern.Pred
+public import Init.Data.String.Lemmas.Pattern.Char

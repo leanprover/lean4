@@ -2509,7 +2509,7 @@ theorem hAddRec_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
     let proof_new_layer_length : 0 < l_length' := by omega
     let proof_sum_eq : hAddRec new_layer ((l_length + 1) / 2) 0#w = k := by
       rw [← proof]
-      apply BitVec.hAddRec_eq_of (a := new_layer) (by omega) (b := l) (by omega) (by omega)
+      apply BitVec.hAddRec_eq_of (x := new_layer) (by omega) (y := l) (by omega)
     apply hAddRec_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
     exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
 

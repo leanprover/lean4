@@ -142,6 +142,8 @@ example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Na
 example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
   post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
 
+set_option backward.whnf.reducibleClassField true
+
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
   throwing_loop
@@ -151,10 +153,8 @@ theorem throwing_loop_spec :
   dsimp +instances only [throwing_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
   mspec
-  mspec
   case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
   case post.success =>
-    mspec
     mspec
     mspec
     simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SPred.down_pure, SPred.entails_nil,

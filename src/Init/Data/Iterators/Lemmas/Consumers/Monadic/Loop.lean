@@ -113,6 +113,7 @@ theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m
   have : f = (Subtype.val <$> (⟨·, trivial⟩) <$> f · · ·) := by simp
   rw [this, hl.lawful (fun _ _ f x => monadLift x >>= f) (wf := IteratorLoop.wellFounded_of_finite)]
   simp +instances [IteratorLoop.defaultImplementation]
+  try rfl
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
@@ -137,7 +138,7 @@ theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m 
   subst_eqs
   simp only [← funext_iff] at h
   rw [← h]
-  rfl
+  try rfl
 
 @[congr] theorem IterM.forIn_congr {α β : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Monad m]

@@ -823,7 +823,9 @@ private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : 
   if fInfo.hasValue then
     recordUnfold fInfo.name
     deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if (← isProjInst fInfo.name) then
+      if !(← getTransparency) matches .reducible then
+        return some e
+      else if (← isProjInst fInfo.name) then
         let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
         return mkAppN r e.getAppArgs |>.headBeta
       else

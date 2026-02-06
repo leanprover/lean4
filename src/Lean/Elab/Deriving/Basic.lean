@@ -124,7 +124,23 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
       -- Success
       trace[Elab.Deriving] "Argument {i} option succeeded{indentExpr classExpr}"
       -- Create the type for the declaration itself.
-      let xs' := xs.set! i declVal
+      let mut xs' := xs.set! i declVal
+      -- For instance-implicit class parameters, use the target type's instances
+      -- to avoid diamonds where the unfolded type has different sub-instances.
+      for j in [:xs'.size], bi in bis do
+        if bi.isInstImplicit then
+          -- Get the type of this argument, replacing the unfolded type with target type
+          let argTy ← instantiateMVars (← inferType xs[j]!)
+          let targetArgTy := argTy.replace fun e =>
+            if e == val then declVal else none
+          if let some targetInst ← synthInstance? targetArgTy then
+            -- Check if the target instance is defeq to what we synthesized
+            let origInst ← instantiateMVars xs[j]!
+            if ← isDefEq origInst targetInst then
+              xs' := xs'.set! j targetInst
+            else
+              trace[Elab.Deriving] "Warning: target type has different instance for {targetArgTy}, \
+                  using unfolded type's instance to ensure type safety"
       let instType := mkAppN cls xs'
       return { instType, instVal }
     try

@@ -274,19 +274,19 @@ protected theorem min_eq_max {min : Min α} {xs : List α} {h} :
     xs.min h = (letI := min.oppositeMax; xs.max h) := by
   simp only [List.min, List.max]
   rw [Min.oppositeMax_def]
-  simp
+  simp; try rfl
 
 protected theorem max_eq_min {max : Max α} {xs : List α} {h} :
     xs.max h = (letI := max.oppositeMin; xs.min h) := by
   simp only [List.min, List.max]
   rw [Max.oppositeMin_def]
-  simp
+  simp; try rfl
 
 protected theorem max?_eq_min? {max : Max α} {xs : List α} :
     xs.max? = (letI := max.oppositeMin; xs.min?) := by
   simp only [List.min?, List.max?]
   rw [Max.oppositeMin_def]
-  simp
+  first | simp | rfl
 
 @[simp]
 protected theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α]

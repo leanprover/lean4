@@ -310,8 +310,8 @@ scoped instance instRxiLawfulHasSize : Rxi.LawfulHasSize (BitVec n) where
     rw [← rotate_rotate (x := lo), ← rotate_rotate (x := lo')]
     generalize rotate lo = lo
     generalize rotate lo' = lo'
-    simp +instances only [succ?_rotate, Option.map_eq_map, Option.map_eq_some_iff, rotate_inj, exists_eq_right,
-      instRxiHasSize, rotate_rotate]
+    simp only [succ?_rotate, Option.map_eq_map, Option.map_eq_some_iff, rotate_inj, exists_eq_right,
+      Rxi.HasSize.size, rotate_rotate]
     letI := BitVec.instRxiHasSize (n := n)
     exact Rxi.size_eq_succ_of_succ?_eq_some lo lo'
 

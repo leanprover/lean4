@@ -43,3 +43,45 @@ Some mismatched *formatting_
 A b c d e f.
 -/
 def x := 5
+
+-- Unmatched closing bracket in docstring (issue #12118)
+/--
+@ +2:0...*
+error: '{'; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', *, + or -
+-/
+#guard_msgs (positions := true) in
+/--
+}
+-/
+def z := 0
+
+-- Unmatched closing bracket in module docstring
+/--
+@ +2:0...*
+error: '{'; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', *, + or -
+-/
+#guard_msgs (positions := true) in
+/-!
+}
+-/
+
+-- Unmatched closing square bracket in docstring
+/--
+@ +2:0...*
+error: '{'; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', *, + or -
+-/
+#guard_msgs (positions := true) in
+/--
+]
+-/
+def w := 0
+
+-- Unmatched closing square bracket in module docstring
+/--
+@ +2:0...*
+error: '{'; expected %%% (at line beginning), '![', '$$', '$', '[', '[^', *, + or -
+-/
+#guard_msgs (positions := true) in
+/-!
+]
+-/

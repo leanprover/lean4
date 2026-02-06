@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Unfold
-// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Meta.Tactic.Simp.Types import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Simp.BuiltinSimprocs import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.Refl
+// Imports: public import Lean.Elab.PreDefinition.Basic public import Lean.Meta.Tactic.Simp.Types import Lean.Elab.PreDefinition.EqnsUtils import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Simp.Main import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.Refl import Init.Simproc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -623,7 +623,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_W
 static const lean_string_object l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 52, .m_capacity = 52, .m_length = 51, .m_data = "failed to finish proof for equational theorem for `"};
 static const lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__13 = (const lean_object*)&l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__13_value;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__14;
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_SimprocsArray_add(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12574,7 +12574,7 @@ x_41 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_41, 0, x_12);
 lean_ctor_set_uint64(x_41, sizeof(void*)*1, x_40);
 lean_ctor_set(x_3, 0, x_41);
-x_42 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_24, x_37, x_3, x_6);
+x_42 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_24, x_37, x_3, x_5, x_6);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -12973,7 +12973,7 @@ lean_ctor_set_uint8(x_125, sizeof(void*)*7, x_14);
 lean_ctor_set_uint8(x_125, sizeof(void*)*7 + 1, x_21);
 lean_ctor_set_uint8(x_125, sizeof(void*)*7 + 2, x_22);
 lean_ctor_set_uint8(x_125, sizeof(void*)*7 + 3, x_23);
-x_126 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_24, x_120, x_125, x_6);
+x_126 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_24, x_120, x_125, x_5, x_6);
 if (lean_obj_tag(x_126) == 0)
 {
 lean_object* x_127; lean_object* x_128; lean_object* x_129; 
@@ -13285,7 +13285,7 @@ lean_ctor_set_uint8(x_204, sizeof(void*)*7, x_182);
 lean_ctor_set_uint8(x_204, sizeof(void*)*7 + 1, x_189);
 lean_ctor_set_uint8(x_204, sizeof(void*)*7 + 2, x_190);
 lean_ctor_set_uint8(x_204, sizeof(void*)*7 + 3, x_191);
-x_205 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_192, x_199, x_204, x_6);
+x_205 = l_Lean_Meta_Simp_mkContext___redArg(x_11, x_192, x_199, x_204, x_5, x_6);
 if (lean_obj_tag(x_205) == 0)
 {
 lean_object* x_206; lean_object* x_207; lean_object* x_208; 
@@ -16991,9 +16991,9 @@ lean_object* initialize_Lean_Meta_Tactic_Simp_Types(uint8_t builtin);
 lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Delta(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin);
+lean_object* initialize_Init_Simproc(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Unfold(uint8_t builtin) {
 lean_object * res;
@@ -17014,13 +17014,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00__private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq_spec__2_spec__2_spec__4___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00__private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq_spec__2_spec__2_spec__4___redArg___closed__0();

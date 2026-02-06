@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LibrarySuggestions.SymbolFrequency
-// Imports: public import Lean.CoreM public import Lean.Meta.Basic import Lean.Meta.InferType import Lean.Meta.FunInfo import Lean.AddDecl import Lean.LibrarySuggestions.Basic
+// Imports: public import Lean.Meta.Basic import Lean.LibrarySuggestions.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1724,7 +1724,7 @@ lean_inc(x_60);
 lean_dec_ref(x_59);
 x_61 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35));
 x_62 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__36));
-x_63 = lean_unsigned_to_nat(75u);
+x_63 = lean_unsigned_to_nat(71u);
 x_64 = lean_unsigned_to_nat(24u);
 x_69 = l_Lean_Exception_toMessageData(x_60);
 x_70 = lean_alloc_closure((void*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___lam__0___boxed), 2, 1);
@@ -1856,7 +1856,7 @@ lean_inc(x_110);
 lean_dec_ref(x_109);
 x_111 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35));
 x_112 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__36));
-x_113 = lean_unsigned_to_nat(75u);
+x_113 = lean_unsigned_to_nat(71u);
 x_114 = lean_unsigned_to_nat(24u);
 x_119 = l_Lean_Exception_toMessageData(x_110);
 x_120 = lean_alloc_closure((void*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___lam__0___boxed), 2, 1);
@@ -2007,7 +2007,7 @@ lean_inc(x_163);
 lean_dec_ref(x_162);
 x_164 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35));
 x_165 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__36));
-x_166 = lean_unsigned_to_nat(75u);
+x_166 = lean_unsigned_to_nat(71u);
 x_167 = lean_unsigned_to_nat(24u);
 x_172 = l_Lean_Exception_toMessageData(x_163);
 x_173 = lean_alloc_closure((void*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___lam__0___boxed), 2, 1);
@@ -2203,7 +2203,7 @@ lean_inc(x_231);
 lean_dec_ref(x_230);
 x_232 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35));
 x_233 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__36));
-x_234 = lean_unsigned_to_nat(75u);
+x_234 = lean_unsigned_to_nat(71u);
 x_235 = lean_unsigned_to_nat(24u);
 x_240 = l_Lean_Exception_toMessageData(x_231);
 x_241 = lean_alloc_closure((void*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___lam__0___boxed), 2, 1);
@@ -2417,7 +2417,7 @@ lean_inc(x_302);
 lean_dec_ref(x_301);
 x_303 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35));
 x_304 = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__36));
-x_305 = lean_unsigned_to_nat(75u);
+x_305 = lean_unsigned_to_nat(71u);
 x_306 = lean_unsigned_to_nat(24u);
 x_311 = l_Lean_Exception_toMessageData(x_302);
 x_312 = lean_alloc_closure((void*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___lam__0___boxed), 2, 1);
@@ -3157,30 +3157,14 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Lean_CoreM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
-lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin);
-lean_object* initialize_Lean_AddDecl(uint8_t builtin);
 lean_object* initialize_Lean_LibrarySuggestions_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_LibrarySuggestions_SymbolFrequency(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_CoreM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_FunInfo(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_AddDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_LibrarySuggestions_Basic(builtin);

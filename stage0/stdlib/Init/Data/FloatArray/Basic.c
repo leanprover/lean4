@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.FloatArray.Basic
-// Imports: public import Init.Data.Float import Init.Ext public import Init.Data.Array.DecidableEq
+// Imports: public import Init.Data.Float import Init.Ext public import Init.GetElem
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1593,7 +1593,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Float(uint8_t builtin);
 lean_object* initialize_Init_Ext(uint8_t builtin);
-lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* initialize_Init_GetElem(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin) {
 lean_object * res;
@@ -1605,7 +1605,7 @@ lean_dec_ref(res);
 res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_DecidableEq(builtin);
+res = initialize_Init_GetElem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_FloatArray_empty___closed__0 = _init_l_FloatArray_empty___closed__0();

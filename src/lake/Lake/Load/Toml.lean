@@ -137,14 +137,14 @@ public protected def LeanOption.decodeToml (v : Value) : EDecodeM LeanOption := 
 public instance : DecodeToml LeanOption := ⟨LeanOption.decodeToml⟩
 
 public protected def BuildType.decodeToml (v : Value) : EDecodeM BuildType := do
-  match inline <| BuildType.ofString? (← v.decodeString) with
+  match BuildType.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'debug', 'relWithDebInfo', 'minSizeRel', 'release'"
 
 public instance : DecodeToml BuildType := ⟨(BuildType.decodeToml ·)⟩
 
 public protected def Backend.decodeToml (v : Value) : EDecodeM Backend := do
-  match inline <| Backend.ofString? (← v.decodeString) with
+  match Backend.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'c', 'llvm', or 'default'"
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DocString.Builtin.Parsing
-// Imports: import Lean.Elab.DocString public import Lean.Parser.Extension
+// Imports: public import Lean.Parser.Extension public import Init.While import Init.Data.Array.Attach import Init.Data.Array.Mem
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2006,17 +2006,25 @@ x_10 = l_Lean_Doc_parseStrLit_x27___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_
 return x_10;
 }
 }
-lean_object* initialize_Lean_Elab_DocString(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Attach(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DocString_Builtin_Parsing(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_DocString(builtin);
+res = initialize_Lean_Parser_Extension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Extension(builtin);
+res = initialize_Init_While(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Attach(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Mem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_strLitRange___redArg___closed__3 = _init_l___private_Lean_Elab_DocString_Builtin_Parsing_0__Lean_Doc_strLitRange___redArg___closed__3();

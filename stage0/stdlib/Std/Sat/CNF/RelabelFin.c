@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.RelabelFin
-// Imports: public import Init.Data.Nat.Order public import Std.Sat.CNF.Relabel
+// Imports: public import Init.Data.Nat.Order public import Std.Sat.CNF.Relabel import Init.Data.List.MinMax import Init.Data.Option.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,14 +21,12 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00List_max_x3f___at___00Std_Sat_CNF
 LEAN_EXPORT lean_object* l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_maxLiteral(lean_object*);
-lean_object* lean_array_to_list(lean_object*);
-LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___00Std_Sat_CNF_maxLiteral_spec__0(lean_object*, lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Std_Sat_CNF_maxLiteral___closed__0;
+LEAN_EXPORT lean_object* l_List_filterMap___at___00Std_Sat_CNF_maxLiteral_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_maxLiteral(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_numLiterals(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0___boxed(lean_object*, lean_object*);
@@ -168,26 +166,28 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___00Std_Sat_CNF_maxLiteral_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_filterMap___at___00Std_Sat_CNF_maxLiteral_spec__0(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; 
-x_3 = lean_array_to_list(x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
 }
 else
 {
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec_ref(x_1);
 x_6 = l_Std_Sat_CNF_Clause_maxLiteral(x_4);
 if (lean_obj_tag(x_6) == 0)
 {
+lean_free_object(x_1);
 x_1 = x_5;
 goto _start;
 }
@@ -197,32 +197,50 @@ lean_object* x_8; lean_object* x_9;
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec_ref(x_6);
-x_9 = lean_array_push(x_2, x_8);
-x_1 = x_5;
-x_2 = x_9;
+x_9 = l_List_filterMap___at___00Std_Sat_CNF_maxLiteral_spec__0(x_5);
+lean_ctor_set(x_1, 1, x_9);
+lean_ctor_set(x_1, 0, x_8);
+return x_1;
+}
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_1);
+x_12 = l_Std_Sat_CNF_Clause_maxLiteral(x_10);
+if (lean_obj_tag(x_12) == 0)
+{
+x_1 = x_11;
 goto _start;
 }
-}
-}
-}
-static lean_object* _init_l_Std_Sat_CNF_maxLiteral___closed__0() {
-_start:
+else
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_14 = lean_ctor_get(x_12, 0);
+lean_inc(x_14);
+lean_dec_ref(x_12);
+x_15 = l_List_filterMap___at___00Std_Sat_CNF_maxLiteral_spec__0(x_11);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_14);
+lean_ctor_set(x_16, 1, x_15);
+return x_16;
+}
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_maxLiteral(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Std_Sat_CNF_maxLiteral___closed__0;
-x_3 = l_List_filterMapTR_go___at___00Std_Sat_CNF_maxLiteral_spec__0(x_1, x_2);
-x_4 = l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1(x_3);
-lean_dec(x_3);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_List_filterMap___at___00Std_Sat_CNF_maxLiteral_spec__0(x_1);
+x_3 = l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1(x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_numLiterals(lean_object* x_1) {
@@ -247,6 +265,37 @@ x_6 = lean_nat_add(x_4, x_5);
 lean_dec(x_4);
 return x_6;
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -306,6 +355,9 @@ return x_8;
 }
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* initialize_Std_Sat_CNF_Relabel(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sat_CNF_RelabelFin(uint8_t builtin) {
 lean_object * res;
@@ -317,8 +369,15 @@ lean_dec_ref(res);
 res = initialize_Std_Sat_CNF_Relabel(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Sat_CNF_maxLiteral___closed__0 = _init_l_Std_Sat_CNF_maxLiteral___closed__0();
-lean_mark_persistent(l_Std_Sat_CNF_maxLiteral___closed__0);
+res = initialize_Init_Data_List_MinMax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

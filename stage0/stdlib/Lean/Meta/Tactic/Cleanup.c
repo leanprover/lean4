@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cleanup
-// Imports: public import Lean.Meta.Basic import Lean.Meta.CollectFVars import Lean.Meta.Tactic.Clear
+// Imports: public import Lean.Meta.Basic import Lean.Meta.CollectFVars import Lean.Meta.Tactic.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6456,7 +6456,7 @@ return x_10;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Clear(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin) {
 lean_object * res;
@@ -6468,7 +6468,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_CollectFVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Clear(builtin);
+res = initialize_Lean_Meta_Tactic_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVars___closed__2 = _init_l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_addUsedFVars___closed__2();

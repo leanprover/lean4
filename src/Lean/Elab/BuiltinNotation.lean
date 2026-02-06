@@ -11,6 +11,7 @@ public import Lean.Elab.Eval
 public import Lean.Elab.Binders
 public import Lean.IdentifierSuggestion
 meta import Lean.Parser.Do
+import Lean.Compiler.BorrowedAnnotation
 
 public section
 

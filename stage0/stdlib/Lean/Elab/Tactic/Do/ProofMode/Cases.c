@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Cases
-// Imports: public import Lean.Elab.Tactic.Do.ProofMode.MGoal public import Std.Tactic.Do.Syntax import Lean.Elab.Tactic.Do.ProofMode.Pure import Lean.Elab.Tactic.Do.ProofMode.Intro import Lean.Elab.Tactic.Do.ProofMode.Focus
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode.MGoal public import Std.Tactic.Do.Syntax import Lean.Elab.Tactic.Do.ProofMode.Pure import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Elab.Tactic.Do.ProofMode.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1076,7 +1076,7 @@ block_15:
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec_ref(x_9);
+lean_dec_ref(x_10);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -1086,7 +1086,7 @@ else
 {
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_9);
+lean_ctor_set(x_14, 0, x_10);
 return x_14;
 }
 }
@@ -1099,15 +1099,15 @@ if (x_18 == 0)
 uint8_t x_19; 
 lean_inc_ref(x_16);
 x_19 = l_Lean_Exception_isRuntime(x_16);
-x_9 = x_16;
-x_10 = lean_box(0);
+x_9 = lean_box(0);
+x_10 = x_16;
 x_11 = x_19;
 goto block_15;
 }
 else
 {
-x_9 = x_16;
-x_10 = lean_box(0);
+x_9 = lean_box(0);
+x_10 = x_16;
 x_11 = x_18;
 goto block_15;
 }
@@ -12105,8 +12105,8 @@ return x_2;
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(uint8_t builtin);
 lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Pure(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Intro(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Cases(uint8_t builtin) {
 lean_object * res;
@@ -12121,10 +12121,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_Pure(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_ProofMode_Intro(builtin);
+res = initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(builtin);
+res = initialize_Lean_Elab_Tactic_Do_ProofMode_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l_Lean_Elab_Tactic_Do_ProofMode_initFn_00___x40_Lean_Elab_Tactic_Do_ProofMode_Cases_723085142____hygCtx___hyg_2_();

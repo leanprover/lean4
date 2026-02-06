@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Reprove
-// Imports: public meta import Lean.Elab.Command import Lean.Elab.Tactic.Basic
+// Imports: public meta import Lean.Elab.Command public import Init.Notation import Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1307,7 +1307,8 @@ return x_5;
 }
 }
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+lean_object* initialize_Init_Notation(uint8_t builtin);
+lean_object* initialize_Lean_Exception(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Reprove(uint8_t builtin) {
 lean_object * res;
@@ -1316,7 +1317,10 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin);
+res = initialize_Init_Notation(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Exception(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg___closed__0 = _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg___closed__0();

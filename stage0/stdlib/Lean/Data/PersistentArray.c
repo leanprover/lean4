@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentArray
-// Imports: public import Init.Data.Nat.Fold public import Init.Data.UInt.Basic import Init.Data.String.Basic
+// Imports: public import Init.Data.Nat.Fold public import Init.Data.UInt.Basic import Init.Data.String.Defs import Init.Data.ToString.Macro import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8019,7 +8019,9 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin) {
 lean_object * res;
@@ -8031,7 +8033,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedPersistentArrayNode_default___closed__0 = _init_l_Lean_instInhabitedPersistentArrayNode_default___closed__0();

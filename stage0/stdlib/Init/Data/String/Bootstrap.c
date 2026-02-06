@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Bootstrap
-// Imports: public import Init.Data.Char.Basic public import Init.Data.ByteArray.Bootstrap
+// Imports: public import Init.Data.ByteArray.Bootstrap import Init.Data.Char.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -470,17 +470,17 @@ x_3 = l_Char_toString(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Char_Basic(builtin);
+res = initialize_Init_Data_ByteArray_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray_Bootstrap(builtin);
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_instOfNatRaw = _init_l_String_instOfNatRaw();

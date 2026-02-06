@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.MutualDef
 public import Lean.Elab.MutualInductive
+import Lean.Compiler.ExternAttr
 
 public section
 namespace Lean.Elab.Command

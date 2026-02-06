@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lake.Load.Config
-import Lean.Compiler.IR
+import Lean.Compiler.IR.CompilerM
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
 import Lake.Util.JsonObject

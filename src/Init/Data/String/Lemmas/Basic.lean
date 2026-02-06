@@ -88,4 +88,8 @@ theorem toByteArray_copy_slice {s : String} {p₁ p₂ : s.Pos} {h} :
     (s.slice p₁ p₂ h).copy.toByteArray = s.toByteArray.extract p₁.offset.byteIdx p₂.offset.byteIdx := by
   simp [← slice_toSlice, Slice.toByteArray_copy_slice]
 
+theorem Slice.utf8ByteSize_eq_size_toByteArray_copy {s : Slice} :
+    s.utf8ByteSize = s.copy.toByteArray.size := by
+  simp [utf8ByteSize_eq]
+
 end String

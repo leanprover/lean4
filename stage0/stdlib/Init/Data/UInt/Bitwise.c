@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: import all Init.Data.BitVec.Basic import all Init.Data.UInt.Basic public import Init.Data.UInt.Lemmas
+// Imports: import all Init.Data.BitVec.Basic import all Init.Data.UInt.Basic public import Init.Data.Nat.Bitwise public import Init.Data.Nat.Lemmas public import Init.Data.UInt.Basic public import Init.Ext import Init.Data.BitVec.Bootstrap import Init.Data.BitVec.Lemmas import Init.Data.Fin.Bitwise import Init.Data.UInt.Lemmas import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1620,7 +1620,15 @@ return x_4;
 }
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Bitwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin) {
 lean_object * res;
@@ -1632,7 +1640,31 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Bitwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Bitwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__11 = _init_l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems______1___closed__11();

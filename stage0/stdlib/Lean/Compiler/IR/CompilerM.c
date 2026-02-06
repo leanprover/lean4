@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.CompilerM
-// Imports: public import Lean.Compiler.IR.Format public import Lean.Compiler.ExportAttr public import Lean.Compiler.LCNF.PhaseExt import Lean.Compiler.InitAttr
+// Imports: public import Lean.Compiler.IR.Format public import Lean.Compiler.ExportAttr public import Lean.Compiler.LCNF.PublicDeclsExt import Lean.Compiler.InitAttr import Init.Data.Format.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5127,8 +5127,9 @@ return x_6;
 }
 lean_object* initialize_Lean_Compiler_IR_Format(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_ExportAttr(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_PublicDeclsExt(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin) {
 lean_object * res;
@@ -5140,10 +5141,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_ExportAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
+res = initialize_Lean_Compiler_LCNF_PublicDeclsExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_InitAttr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_LogEntry_fmt___closed__2 = _init_l_Lean_IR_LogEntry_fmt___closed__2();

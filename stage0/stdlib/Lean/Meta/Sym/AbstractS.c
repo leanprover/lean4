@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.AbstractS
-// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.ReplaceS
+// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.ReplaceS import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4111,6 +4111,7 @@ return x_13;
 }
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_ReplaceS(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_AbstractS(uint8_t builtin) {
 lean_object * res;
@@ -4120,6 +4121,9 @@ res = initialize_Lean_Meta_Sym_SymM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_ReplaceS(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Sym_AbstractS_0__Lean_Meta_Sym_abstractFVarsCore___lam__0___closed__3 = _init_l___private_Lean_Meta_Sym_AbstractS_0__Lean_Meta_Sym_abstractFVarsCore___lam__0___closed__3();

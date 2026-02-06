@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.Basic
-// Imports: public import Init.NotationExtra public import Init.Data.ToString.Macro import Init.Data.String.Basic
+// Imports: public import Init.NotationExtra public import Init.Data.ToString.Macro import Init.Data.Array.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3081,7 +3081,7 @@ return x_9;
 }
 lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Parsec_Basic(uint8_t builtin) {
 lean_object * res;
@@ -3093,7 +3093,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_Parsec_instReprError_repr___closed__2 = _init_l_Std_Internal_Parsec_instReprError_repr___closed__2();

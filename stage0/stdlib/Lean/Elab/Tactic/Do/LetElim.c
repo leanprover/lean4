@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.LetElim
-// Imports: public import Lean.Meta.Tactic.Simp
+// Imports: public import Lean.Meta.Tactic.Simp import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3978,7 +3978,7 @@ if (lean_is_scalar(x_16)) {
 } else {
  x_27 = x_16;
 }
-lean_ctor_set(x_27, 0, x_18);
+lean_ctor_set(x_27, 0, x_19);
 lean_ctor_set(x_27, 1, x_21);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
@@ -4010,8 +4010,8 @@ lean_dec_ref(x_39);
 x_41 = lean_unbox(x_36);
 lean_dec(x_36);
 x_17 = x_41;
-x_18 = x_31;
-x_19 = lean_box(0);
+x_18 = lean_box(0);
+x_19 = x_31;
 x_20 = x_40;
 goto block_30;
 }
@@ -4023,8 +4023,8 @@ lean_dec(x_15);
 x_42 = lean_unbox(x_36);
 lean_dec(x_36);
 x_17 = x_42;
-x_18 = x_31;
-x_19 = lean_box(0);
+x_18 = lean_box(0);
+x_19 = x_31;
 x_20 = x_4;
 goto block_30;
 }
@@ -11881,12 +11881,16 @@ return x_6;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_LetElim(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Simp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Do_instInhabitedUses_default = _init_l_Lean_Elab_Tactic_Do_instInhabitedUses_default();

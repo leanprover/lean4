@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Guard
-// Imports: public import Init.NotationExtra
+// Imports: public import Init.Conv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -379,13 +379,13 @@ static const lean_object* l_Lean_Parser_Command_guardCmd___closed__4 = (const le
 static const lean_ctor_object l_Lean_Parser_Command_guardCmd___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*3 + 0, .m_other = 3, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Parser_Command_guardCmd___closed__1_value),((lean_object*)(((size_t)(1022) << 1) | 1)),((lean_object*)&l_Lean_Parser_Command_guardCmd___closed__4_value)}};
 static const lean_object* l_Lean_Parser_Command_guardCmd___closed__5 = (const lean_object*)&l_Lean_Parser_Command_guardCmd___closed__5_value;
 LEAN_EXPORT const lean_object* l_Lean_Parser_Command_guardCmd = (const lean_object*)&l_Lean_Parser_Command_guardCmd___closed__5_value;
-lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_Conv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Guard(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_NotationExtra(builtin);
+res = initialize_Init_Conv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

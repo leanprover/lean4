@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.ByteArray
-// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Basic public import Std.Data.ByteSlice
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Basic public import Std.Data.ByteSlice import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3181,6 +3181,7 @@ return x_4;
 lean_object* initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_ByteSlice(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Parsec_ByteArray(uint8_t builtin) {
 lean_object * res;
@@ -3193,6 +3194,9 @@ res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_ByteSlice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0 = _init_l_Std_Internal_Parsec_ByteArray_instInputIteratorUInt8Nat___lam__2___closed__0();

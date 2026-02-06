@@ -35,7 +35,7 @@ lean_object* l_Lean_Meta_SimpTheoremsArray_addTheorem(lean_object*, lean_object*
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getPropHyps(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -268,7 +268,7 @@ lean_ctor_set_uint8(x_37, sizeof(void*)*3 + 25, x_5);
 lean_ctor_set_uint8(x_37, sizeof(void*)*3 + 26, x_6);
 lean_ctor_set_uint8(x_37, sizeof(void*)*3 + 27, x_6);
 lean_ctor_set_uint8(x_37, sizeof(void*)*3 + 28, x_6);
-x_38 = l_Lean_Meta_Simp_mkContext___redArg(x_37, x_30, x_32, x_17, x_20);
+x_38 = l_Lean_Meta_Simp_mkContext___redArg(x_37, x_30, x_32, x_17, x_19, x_20);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; 

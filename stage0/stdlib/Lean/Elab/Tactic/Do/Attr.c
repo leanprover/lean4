@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.Attr
-// Imports: public import Lean.Meta.Tactic.Simp public import Std.Tactic.Do.Syntax
+// Imports: public import Lean.Meta.Tactic.Simp public import Std.Tactic.Do.Syntax import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -330,7 +330,7 @@ lean_object* l_Lean_Meta_whnfR(lean_object*, lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Elab_Tactic_Do_SpecAttr_computeMVarBetaPotentialForSPred_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Elab_Tactic_Do_SpecAttr_computeMVarBetaPotentialForSPred_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
-lean_object* l_Lean_Meta_Simp_Context_mkDefault___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_Context_mkDefault___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_computeMVarBetaPotentialForSPred___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_computeMVarBetaPotentialForSPred___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
@@ -3843,7 +3843,7 @@ lean_dec(x_14);
 x_15 = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(x_13);
 lean_ctor_set_uint64(x_1, sizeof(void*)*1, x_15);
 lean_ctor_set(x_6, 0, x_1);
-x_16 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_6, x_9);
+x_16 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_6, x_8, x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -4041,7 +4041,7 @@ lean_ctor_set_uint8(x_59, sizeof(void*)*7, x_48);
 lean_ctor_set_uint8(x_59, sizeof(void*)*7 + 1, x_55);
 lean_ctor_set_uint8(x_59, sizeof(void*)*7 + 2, x_56);
 lean_ctor_set_uint8(x_59, sizeof(void*)*7 + 3, x_57);
-x_60 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_59, x_9);
+x_60 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_59, x_8, x_9);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; 
@@ -4252,7 +4252,7 @@ lean_ctor_set_uint8(x_101, sizeof(void*)*7, x_88);
 lean_ctor_set_uint8(x_101, sizeof(void*)*7 + 1, x_95);
 lean_ctor_set_uint8(x_101, sizeof(void*)*7 + 2, x_96);
 lean_ctor_set_uint8(x_101, sizeof(void*)*7 + 3, x_97);
-x_102 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_101, x_9);
+x_102 = l_Lean_Meta_Simp_Context_mkDefault___redArg(x_101, x_8, x_9);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; 
@@ -8565,7 +8565,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Elab_Tactic_Do_SpecAttr_addSpecTheoremEntry_spec__0___closed__2));
 x_2 = lean_unsigned_to_nat(23u);
-x_3 = lean_unsigned_to_nat(165u);
+x_3 = lean_unsigned_to_nat(166u);
 x_4 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Elab_Tactic_Do_SpecAttr_addSpecTheoremEntry_spec__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___at___00Lean_Elab_Tactic_Do_SpecAttr_addSpecTheoremEntry_spec__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10528,6 +10528,7 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp(uint8_t builtin);
 lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_Attr(uint8_t builtin) {
 lean_object * res;
@@ -10537,6 +10538,9 @@ res = initialize_Lean_Meta_Tactic_Simp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_Do_Syntax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_initFn_00___x40_Lean_Elab_Tactic_Do_Attr_1315642830____hygCtx___hyg_2_();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.NamedPatterns
-// Imports: public import Lean.Meta.Basic import Lean.Meta.AppBuilder import Lean.Meta.Transform import Lean.Meta.WHNF
+// Imports: public import Lean.Meta.Basic import Lean.Meta.AppBuilder import Lean.Meta.WHNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3755,7 +3755,6 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Transform(uint8_t builtin);
 lean_object* initialize_Lean_Meta_WHNF(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_NamedPatterns(uint8_t builtin) {
@@ -3766,9 +3765,6 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Transform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_WHNF(builtin);

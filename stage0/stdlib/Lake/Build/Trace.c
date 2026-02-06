@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Trace
-// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String import Lake.Util.IO public import Init.Data.String.Search public import Init.Data.String.Extra
+// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String public import Init.Data.String.Search public import Init.Data.String.Extra import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3321,9 +3321,9 @@ return x_7;
 lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
-lean_object* initialize_Lake_Util_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Trace(uint8_t builtin) {
 lean_object * res;
@@ -3338,13 +3338,13 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_IO(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instReprHash_repr___redArg___closed__7 = _init_l_Lake_instReprHash_repr___redArg___closed__7();

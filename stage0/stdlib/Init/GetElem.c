@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GetElem
-// Imports: public import Init.Util
+// Imports: public import Init.Util public import Init.Data.Option.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -547,7 +547,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = ((lean_object*)(l_outOfBounds___redArg___closed__0));
 x_3 = ((lean_object*)(l_outOfBounds___redArg___closed__1));
-x_4 = lean_unsigned_to_nat(17u);
+x_4 = lean_unsigned_to_nat(18u);
 x_5 = lean_unsigned_to_nat(2u);
 x_6 = ((lean_object*)(l_outOfBounds___redArg___closed__2));
 x_7 = l_mkPanicMessageWithDecl(x_2, x_3, x_4, x_5, x_6);
@@ -2441,7 +2441,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 lean_dec(x_3);
 x_11 = ((lean_object*)(l_outOfBounds___redArg___closed__0));
 x_12 = ((lean_object*)(l_List_get_x21Internal___redArg___closed__0));
-x_13 = lean_unsigned_to_nat(334u);
+x_13 = lean_unsigned_to_nat(335u);
 x_14 = lean_unsigned_to_nat(18u);
 x_15 = ((lean_object*)(l_List_get_x21Internal___redArg___closed__1));
 x_16 = l_mkPanicMessageWithDecl(x_11, x_12, x_13, x_14, x_15);
@@ -2590,12 +2590,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Util(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GetElem(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__6 = _init_l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__6();

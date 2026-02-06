@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Extension
-// Imports: public import Lean.Expr public import Lean.Data.PersistentHashMap public import Lean.Meta.Tactic.Grind.Theorems
+// Imports: public import Lean.Meta.Tactic.Grind.Theorems
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6826,7 +6826,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__2));
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(81u);
+x_3 = lean_unsigned_to_nat(82u);
 x_4 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8083,7 +8083,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0___closed__2));
 x_2 = lean_unsigned_to_nat(17u);
-x_3 = lean_unsigned_to_nat(205u);
+x_3 = lean_unsigned_to_nat(203u);
 x_4 = ((lean_object*)(l_Lean_Meta_Grind_mkExtension___lam__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Meta_Grind_mkExtension___lam__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8504,20 +8504,12 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin);
-lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Theorems(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Extension(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_PersistentHashMap(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Theorems(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

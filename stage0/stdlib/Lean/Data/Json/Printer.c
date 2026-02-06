@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Printer
-// Imports: public import Lean.Data.Format public import Lean.Data.Json.Basic import Init.Data.String.Search
+// Imports: public import Lean.Data.Format public import Lean.Data.Json.Basic import Init.Data.String.Search import Init.Data.UInt.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5962,6 +5962,8 @@ return x_3;
 lean_object* initialize_Lean_Data_Format(uint8_t builtin);
 lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Printer(uint8_t builtin) {
 lean_object * res;
@@ -5974,6 +5976,12 @@ res = initialize_Lean_Data_Json_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0();

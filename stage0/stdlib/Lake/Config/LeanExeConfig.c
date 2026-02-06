@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanExeConfig
-// Imports: public import Lake.Build.Facets public import Lake.Config.LeanConfig meta import all Lake.Config.Meta
+// Imports: public import Lake.Build.Facets public import Lake.Config.LeanConfig meta import all Lake.Config.Meta import Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2388,6 +2388,7 @@ return x_3;
 lean_object* initialize_Lake_Build_Facets(uint8_t builtin);
 lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin) {
 lean_object * res;
@@ -2397,6 +2398,9 @@ res = initialize_Lake_Build_Facets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_LeanConfig(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Meta(builtin);

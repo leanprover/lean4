@@ -1044,14 +1044,14 @@ x_22 = l_Lean_Expr_getAppFn(x_14);
 lean_dec(x_14);
 x_23 = l_Lean_Expr_constLevels_x21(x_22);
 lean_dec_ref(x_22);
-x_24 = l_Lean_Expr_appFn_x21(x_16);
-lean_dec_ref(x_16);
+x_24 = l_Lean_Expr_appFn_x21(x_15);
+lean_dec_ref(x_15);
 x_25 = l_Lean_Expr_appArg_x21(x_24);
 lean_dec_ref(x_24);
 x_26 = ((lean_object*)(l_Lean_MVarId_refl___lam__0___closed__0));
 x_27 = l_Lean_Name_mkStr2(x_26, x_3);
 x_28 = l_Lean_mkConst(x_27, x_23);
-x_29 = l_Lean_mkAppB(x_28, x_25, x_15);
+x_29 = l_Lean_mkAppB(x_28, x_25, x_16);
 x_30 = l_Lean_MVarId_assign___at___00Lean_MVarId_refl_spec__1___redArg(x_1, x_29, x_18);
 lean_dec(x_18);
 return x_30;
@@ -1070,8 +1070,8 @@ x_42 = l_Lean_instantiateMVars___at___00Lean_MVarId_refl_spec__0___redArg(x_41, 
 if (x_4 == 0)
 {
 lean_dec_ref(x_42);
-x_15 = x_40;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_40;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_34;
@@ -1127,8 +1127,8 @@ x_56 = l_Lean_Meta_throwTacticEx___redArg(x_48, x_1, x_42, x_32, x_33, x_34, x_3
 if (lean_obj_tag(x_56) == 0)
 {
 lean_dec_ref(x_56);
-x_15 = x_40;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_40;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_34;
@@ -1154,8 +1154,8 @@ else
 {
 lean_free_object(x_42);
 lean_dec(x_44);
-x_15 = x_40;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_40;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_34;
@@ -1241,8 +1241,8 @@ x_73 = l_Lean_Meta_throwTacticEx___redArg(x_64, x_1, x_72, x_32, x_33, x_34, x_3
 if (lean_obj_tag(x_73) == 0)
 {
 lean_dec_ref(x_73);
-x_15 = x_40;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_40;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_34;
@@ -1267,8 +1267,8 @@ return x_73;
 else
 {
 lean_dec(x_60);
-x_15 = x_40;
-x_16 = x_37;
+x_15 = x_37;
+x_16 = x_40;
 x_17 = x_32;
 x_18 = x_33;
 x_19 = x_34;
@@ -1412,14 +1412,14 @@ x_98 = l_Lean_Expr_getAppFn(x_90);
 lean_dec(x_90);
 x_99 = l_Lean_Expr_constLevels_x21(x_98);
 lean_dec_ref(x_98);
-x_100 = l_Lean_Expr_appFn_x21(x_92);
-lean_dec_ref(x_92);
+x_100 = l_Lean_Expr_appFn_x21(x_91);
+lean_dec_ref(x_91);
 x_101 = l_Lean_Expr_appArg_x21(x_100);
 lean_dec_ref(x_100);
 x_102 = ((lean_object*)(l_Lean_MVarId_refl___lam__0___closed__0));
 x_103 = l_Lean_Name_mkStr2(x_102, x_3);
 x_104 = l_Lean_mkConst(x_103, x_99);
-x_105 = l_Lean_mkAppB(x_104, x_101, x_91);
+x_105 = l_Lean_mkAppB(x_104, x_101, x_92);
 x_106 = l_Lean_MVarId_assign___at___00Lean_MVarId_refl_spec__1___redArg(x_1, x_105, x_94);
 lean_dec(x_94);
 return x_106;
@@ -1438,8 +1438,8 @@ x_118 = l_Lean_instantiateMVars___at___00Lean_MVarId_refl_spec__0___redArg(x_117
 if (x_4 == 0)
 {
 lean_dec_ref(x_118);
-x_91 = x_116;
-x_92 = x_113;
+x_91 = x_113;
+x_92 = x_116;
 x_93 = x_108;
 x_94 = x_109;
 x_95 = x_110;
@@ -1504,8 +1504,8 @@ x_133 = l_Lean_Meta_throwTacticEx___redArg(x_124, x_1, x_132, x_108, x_109, x_11
 if (lean_obj_tag(x_133) == 0)
 {
 lean_dec_ref(x_133);
-x_91 = x_116;
-x_92 = x_113;
+x_91 = x_113;
+x_92 = x_116;
 x_93 = x_108;
 x_94 = x_109;
 x_95 = x_110;
@@ -1531,8 +1531,8 @@ else
 {
 lean_dec(x_120);
 lean_dec(x_119);
-x_91 = x_116;
-x_92 = x_113;
+x_91 = x_113;
+x_92 = x_116;
 x_93 = x_108;
 x_94 = x_109;
 x_95 = x_110;

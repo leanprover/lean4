@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.Basic
-// Imports: public import Std.Data.HashSet public import Init.Data.Vector.Basic public import Init.Data.Hashable
+// Imports: public import Std.Data.HashSet public import Init.Data.Vector.Basic public import Init.Data.Hashable public import Init.Data.String.Defs public import Init.Data.ToString.Macro import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5899,6 +5899,9 @@ return x_6;
 lean_object* initialize_Std_Data_HashSet(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin) {
 lean_object * res;
@@ -5911,6 +5914,15 @@ res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Hashable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Sat_AIG_instReprFanin_repr___redArg___closed__7 = _init_l_Std_Sat_AIG_instReprFanin_repr___redArg___closed__7();

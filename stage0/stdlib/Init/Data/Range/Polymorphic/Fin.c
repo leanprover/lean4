@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Fin
-// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Fin.OverflowAware import Init.Grind
+// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Fin.OverflowAware import Init.Grind import Init.Data.Fin.Lemmas import Init.Data.Int.OfNat import Init.Data.Nat.Linear import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -276,6 +276,10 @@ return x_2;
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
 lean_object* initialize_Init_Grind(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Fin(uint8_t builtin) {
 lean_object * res;
@@ -288,6 +292,18 @@ res = initialize_Init_Data_Fin_OverflowAware(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_OfNat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Fin_instLeast_x3fOfNatNat = _init_l_Fin_instLeast_x3fOfNatNat();

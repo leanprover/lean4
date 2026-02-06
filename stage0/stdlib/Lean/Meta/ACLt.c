@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.ACLt
-// Imports: public import Lean.Meta.DiscrTree.Main import Lean.Meta.WHNF
+// Imports: public import Lean.Meta.DiscrTree.Main import Init.Data.Range.Polymorphic.Iterators import Lean.Meta.FunInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2287,7 +2287,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__2));
 x_2 = lean_unsigned_to_nat(27u);
-x_3 = lean_unsigned_to_nat(148u);
+x_3 = lean_unsigned_to_nat(149u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_main_lexSameCtor___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3915,7 +3915,8 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Meta_DiscrTree_Main(uint8_t builtin);
-lean_object* initialize_Lean_Meta_WHNF(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_ACLt(uint8_t builtin) {
 lean_object * res;
@@ -3924,7 +3925,10 @@ _G_initialized = true;
 res = initialize_Lean_Meta_DiscrTree_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_WHNF(builtin);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_FunInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config___closed__1 = _init_l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config___closed__1();

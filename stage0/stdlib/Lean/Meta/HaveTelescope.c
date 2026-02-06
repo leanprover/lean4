@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.HaveTelescope
-// Imports: public import Lean.Meta.Basic public import Lean.Meta.MonadSimp import Lean.Util.CollectFVars import Lean.Util.CollectLooseBVars import Lean.Meta.InferType import Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.MonadSimp import Lean.Util.CollectFVars import Lean.Util.CollectLooseBVars import Lean.Meta.AppBuilder import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8982,8 +8982,8 @@ lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_MonadSimp(uint8_t builtin);
 lean_object* initialize_Lean_Util_CollectFVars(uint8_t builtin);
 lean_object* initialize_Lean_Util_CollectLooseBVars(uint8_t builtin);
-lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_HaveTelescope(uint8_t builtin) {
 lean_object * res;
@@ -9001,10 +9001,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_CollectLooseBVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_InferType(builtin);
+res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_instInhabitedHaveInfo_default___closed__0 = _init_l_Lean_Meta_instInhabitedHaveInfo_default___closed__0();

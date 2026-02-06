@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Module
-// Imports: public import Lake.Config.LeanLib import Lake.Util.OrdHashSet import Lake.Util.NativeLib import Lake.Util.FilePath
+// Imports: public import Lake.Config.LeanLib
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3434,24 +3434,12 @@ return x_4;
 }
 }
 lean_object* initialize_Lake_Config_LeanLib(uint8_t builtin);
-lean_object* initialize_Lake_Util_OrdHashSet(uint8_t builtin);
-lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin);
-lean_object* initialize_Lake_Util_FilePath(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Module(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lake_Config_LeanLib(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_OrdHashSet(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_NativeLib(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_ModuleSet_empty___closed__0 = _init_l_Lake_ModuleSet_empty___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DocString.Types
-// Imports: public import Init.Data.Ord import Init.Data.Nat.Compare
+// Imports: public import Init.Data.Ord import Init.Data.Nat.Compare public import Init.Data.Array.GetLit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7167,6 +7167,7 @@ return x_11;
 }
 lean_object* initialize_Init_Data_Ord(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Compare(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_DocString_Types(uint8_t builtin) {
 lean_object * res;
@@ -7176,6 +7177,9 @@ res = initialize_Init_Data_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Compare(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_GetLit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Doc_instReprMathMode_repr___closed__4 = _init_l_Lean_Doc_instReprMathMode_repr___closed__4();

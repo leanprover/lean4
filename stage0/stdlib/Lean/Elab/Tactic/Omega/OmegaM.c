@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Omega.OmegaM
-// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Canonicalizer
+// Imports: public import Lean.Meta.AppBuilder public import Lean.Meta.Canonicalizer public import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -897,8 +897,8 @@ return x_8;
 block_15:
 {
 lean_object* x_14; 
-lean_dec(x_12);
-x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_10, x_11, x_13);
+lean_dec(x_11);
+x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_12, x_10, x_13);
 lean_dec(x_13);
 x_4 = x_14;
 goto block_9;
@@ -906,23 +906,23 @@ goto block_9;
 block_21:
 {
 uint8_t x_20; 
-x_20 = lean_nat_dec_le(x_19, x_18);
+x_20 = lean_nat_dec_le(x_19, x_16);
 if (x_20 == 0)
 {
-lean_dec(x_18);
+lean_dec(x_16);
 lean_inc(x_19);
-x_10 = x_16;
-x_11 = x_19;
-x_12 = x_17;
+x_10 = x_19;
+x_11 = x_17;
+x_12 = x_18;
 x_13 = x_19;
 goto block_15;
 }
 else
 {
-x_10 = x_16;
-x_11 = x_19;
-x_12 = x_17;
-x_13 = x_18;
+x_10 = x_19;
+x_11 = x_17;
+x_12 = x_18;
+x_13 = x_16;
 goto block_15;
 }
 }
@@ -941,17 +941,17 @@ x_28 = lean_nat_dec_le(x_24, x_27);
 if (x_28 == 0)
 {
 lean_inc(x_27);
-x_16 = x_22;
+x_16 = x_27;
 x_17 = x_23;
-x_18 = x_27;
+x_18 = x_22;
 x_19 = x_27;
 goto block_21;
 }
 else
 {
-x_16 = x_22;
+x_16 = x_27;
 x_17 = x_23;
-x_18 = x_27;
+x_18 = x_22;
 x_19 = x_24;
 goto block_21;
 }
@@ -5645,16 +5645,16 @@ lean_object* x_459;
 x_459 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_459, 0, x_457);
 lean_ctor_set(x_459, 1, x_430);
-x_411 = lean_box(0);
-x_412 = x_453;
+x_411 = x_453;
+x_412 = lean_box(0);
 x_413 = x_459;
 goto block_421;
 }
 else
 {
 lean_dec_ref(x_457);
-x_411 = lean_box(0);
-x_412 = x_453;
+x_411 = x_453;
+x_412 = lean_box(0);
 x_413 = x_430;
 goto block_421;
 }
@@ -5674,7 +5674,7 @@ block_421:
 lean_object* x_414; lean_object* x_415; lean_object* x_416; uint8_t x_417; 
 x_414 = ((lean_object*)(l_Lean_Elab_Tactic_Omega_analyzeAtom___redArg___closed__76));
 x_415 = l_Lean_Expr_const___override(x_414, x_408);
-x_416 = l_Lean_Expr_app___override(x_415, x_412);
+x_416 = l_Lean_Expr_app___override(x_415, x_411);
 x_417 = l_List_elem___at___00Lean_Elab_Tactic_Omega_analyzeAtom_spec__0(x_416, x_413);
 if (x_417 == 0)
 {
@@ -7561,6 +7561,7 @@ return x_4;
 }
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Omega_OmegaM(uint8_t builtin) {
 lean_object * res;
@@ -7570,6 +7571,9 @@ res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Canonicalizer(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Omega_OmegaM_run___redArg___closed__0 = _init_l_Lean_Elab_Tactic_Omega_OmegaM_run___redArg___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.RecursorInfo
-// Imports: public import Lean.Meta.Basic
+// Imports: public import Lean.Meta.Basic import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1747,8 +1747,8 @@ x_29 = lean_string_dec_eq(x_20, x_28);
 lean_dec_ref(x_20);
 if (x_29 == 0)
 {
-x_8 = lean_box(0);
-x_9 = x_27;
+x_8 = x_27;
+x_9 = lean_box(0);
 x_10 = x_26;
 goto block_14;
 }
@@ -1757,8 +1757,8 @@ else
 lean_object* x_30; 
 lean_dec(x_26);
 x_30 = lean_unsigned_to_nat(1u);
-x_8 = lean_box(0);
-x_9 = x_27;
+x_8 = x_27;
+x_9 = lean_box(0);
 x_10 = x_30;
 goto block_14;
 }
@@ -1814,9 +1814,9 @@ return x_43;
 block_14:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_nat_add(x_9, x_10);
+x_11 = lean_nat_add(x_8, x_10);
 lean_dec(x_10);
-lean_dec(x_9);
+lean_dec(x_8);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -7024,12 +7024,16 @@ return x_8;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_RecursorInfo(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_panic___at___00Lean_getConstInfoRec___at___00__private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__1___closed__0 = _init_l_panic___at___00Lean_getConstInfoRec___at___00__private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosIfAuxRecursor_x3f_spec__0_spec__1___closed__0();

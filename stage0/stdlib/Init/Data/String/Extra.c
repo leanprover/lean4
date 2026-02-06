@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: import all Init.Data.ByteArray.Basic public import Init.Data.String.Basic import all Init.Data.String.Basic public import Init.Data.String.Substring public import Init.Data.String.Modify import Init.Data.String.Search
+// Imports: import all Init.Data.ByteArray.Basic public import Init.Data.String.Basic import all Init.Data.String.Basic import Init.Data.String.Search import Init.Data.String.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1041,9 +1041,8 @@ return x_2;
 lean_object* initialize_Init_Data_ByteArray_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Substring(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(uint8_t builtin) {
 lean_object * res;
@@ -1058,13 +1057,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Substring(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Modify(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

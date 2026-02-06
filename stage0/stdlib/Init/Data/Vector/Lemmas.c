@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Lemmas
-// Imports: import all Init.Data.Array.Basic public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.Array.Find
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Vector.Basic import all Init.Data.Vector.Basic public import Init.Data.List.MapIdx import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Array.Count import Init.Data.Array.Find import Init.Data.Array.OfFn import Init.Data.Bool import Init.Data.Fin.Lemmas import Init.Data.List.TakeDrop import Init.Data.Nat.Simproc import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -352,7 +352,17 @@ return x_7;
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Count(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -367,7 +377,37 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_List_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Count(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Array_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Simproc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

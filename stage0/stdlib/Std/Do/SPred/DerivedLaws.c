@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.DerivedLaws
-// Imports: public import Init.ByCases public import Std.Do.SPred.Laws
+// Imports: public import Init.ByCases public import Std.Do.SPred.Laws import Init.Classical import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Std_Do_SPred_Laws(uint8_t builtin);
+lean_object* initialize_Init_Classical(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_SPred_DerivedLaws(uint8_t builtin) {
 lean_object * res;
@@ -24,6 +26,12 @@ res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do_SPred_Laws(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Classical(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Canonicalizer
-// Imports: public import Lean.Util.ShareCommon public import Lean.Meta.FunInfo public import Std.Data.HashMap.Raw
+// Imports: public import Lean.Util.ShareCommon public import Lean.Meta.FunInfo public import Std.Data.HashMap.Raw import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3991,6 +3991,7 @@ return x_4;
 lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin);
 lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_Raw(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin) {
 lean_object * res;
@@ -4003,6 +4004,9 @@ res = initialize_Lean_Meta_FunInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Raw(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Canonicalizer_instInhabitedExprVisited_default___closed__2 = _init_l_Lean_Meta_Canonicalizer_instInhabitedExprVisited_default___closed__2();

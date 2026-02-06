@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving.BEq
-// Imports: public import Lean.Data.Options import Lean.Elab.Deriving.Basic import Lean.Elab.Deriving.Util import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CasesOnSameCtor import Lean.Meta.SameCtorUtils
+// Imports: public import Lean.Data.Options import Lean.Elab.Deriving.Basic import Lean.Elab.Deriving.Util import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CasesOnSameCtor import Lean.Meta.SameCtorUtils import Init.Data.Array.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7770,12 +7770,12 @@ return x_174;
 block_188:
 {
 uint8_t x_179; 
-x_179 = lean_nat_dec_lt(x_176, x_178);
+x_179 = lean_nat_dec_lt(x_177, x_178);
 if (x_179 == 0)
 {
 lean_dec(x_178);
-lean_dec_ref(x_177);
-lean_dec(x_176);
+lean_dec(x_177);
+lean_dec_ref(x_176);
 lean_dec(x_40);
 x_60 = x_59;
 x_61 = lean_box(0);
@@ -7784,16 +7784,16 @@ goto block_175;
 else
 {
 size_t x_180; size_t x_181; lean_object* x_182; 
-x_180 = lean_usize_of_nat(x_176);
-lean_dec(x_176);
+x_180 = lean_usize_of_nat(x_177);
+lean_dec(x_177);
 x_181 = lean_usize_of_nat(x_178);
 lean_dec(x_178);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
-x_182 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew_spec__1___redArg(x_40, x_177, x_180, x_181, x_12, x_13, x_14, x_15);
-lean_dec_ref(x_177);
+x_182 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew_spec__1___redArg(x_40, x_176, x_180, x_181, x_12, x_13, x_14, x_15);
+lean_dec_ref(x_176);
 lean_dec(x_40);
 if (lean_obj_tag(x_182) == 0)
 {
@@ -7875,15 +7875,15 @@ x_197 = lean_nat_dec_le(x_194, x_196);
 if (x_197 == 0)
 {
 lean_dec(x_194);
-x_176 = x_193;
-x_177 = x_192;
+x_176 = x_192;
+x_177 = x_193;
 x_178 = x_196;
 goto block_188;
 }
 else
 {
-x_176 = x_193;
-x_177 = x_192;
+x_176 = x_192;
+x_177 = x_193;
 x_178 = x_194;
 goto block_188;
 }
@@ -8843,7 +8843,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(112u);
+x_3 = lean_unsigned_to_nat(113u);
 x_4 = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -15277,6 +15277,7 @@ lean_object* initialize_Lean_Elab_Deriving_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CasesOnSameCtor(uint8_t builtin);
 lean_object* initialize_Lean_Meta_SameCtorUtils(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Deriving_BEq(uint8_t builtin) {
 lean_object * res;
@@ -15298,6 +15299,9 @@ res = initialize_Lean_Meta_Constructions_CasesOnSameCtor(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_SameCtorUtils(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l_Lean_Elab_Deriving_BEq_initFn_00___x40_Lean_Elab_Deriving_BEq_3666926342____hygCtx___hyg_4_();

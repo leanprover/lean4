@@ -21,6 +21,12 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
+register_builtin_option backward.isDefEq.respectTransparency : Bool := {
+  defValue := false
+  descr    := "if true (the default), do not bump transparency to `.default` \
+  when checking whether implicit arguments are definitionally equal"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -285,6 +291,19 @@ private def isDefEqArgsFirstPass
       postponedImplicit := postponedImplicit.push i
   return .ok postponedImplicit postponedHO
 
+/--
+Ensure `MetaM` configuration is strong enough for checking definitional equality of
+instances. For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta`
+are essential.
+-/
+@[inline] def withInstanceConfig (x : MetaM α) : MetaM α :=
+  withAtLeastTransparency .instances do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+
 private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool := do
   unless args₁.size == args₂.size do return false
   let finfo ← getFunInfoNArgs f args₁.size
@@ -293,6 +312,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
+  let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        In the second pass, we make sure we are unfolding at
@@ -309,18 +329,26 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.binderInfo.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
-      return false
+    if respectTransparency && info.isInstImplicit then -- **TODO**: replace with `isInstance`
+      -- It is an instance, then we must allow at least instances to be unfolded.
+      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+    else if respectTransparency then
+      unless (← Meta.isExprDefEqAux a₁ a₂) do return false
+    else
+      -- Old behavior
+      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
     if info.isInstance then
-      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
-       return false
+      if respectTransparency then
+        unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      else
+        -- Old behavior
+        unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
-      unless (← Meta.isExprDefEqAux a₁ a₂) do
-        return false
+      unless (← Meta.isExprDefEqAux a₁ a₂) do return false
   return true
 
 /--
@@ -385,6 +413,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
+      -- **TODO**: avoid transparency bump. Let's fix other issues first
       withInferTypeConfig do
         let vType ← inferType v
         if (← Meta.isExprDefEqAux mvarType vType) then
@@ -791,7 +820,7 @@ mutual
        `elimMVarDeps` will take care of them.
 
        First, we collect `toErase` the variables that need to be erased.
-       Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
+       Note that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
        we must also erase it.
     -/
     let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
@@ -1598,11 +1627,14 @@ private def etaEq (t s : Expr) : Bool :=
   ```
   So, unless we can unfold `List.length`, it fails.
 
-  Remark: if this becomes a performance bottleneck, we should add a flag to control when it is used.
-  Then, we can enable the flag only when applying `simp` and `rw` theorems.
+  We used to bump the transparency level always to address the issue above, but this is a
+  performance foot-gun. Users can use the backward compatibility flag to restore the old behavior.
 -/
-private def withProofIrrelTransparency (k : MetaM α) : MetaM α :=
-  withInferTypeConfig k
+private def withProofIrrelTransparency (k : MetaM α) : MetaM α := do
+  if backward.isDefEq.respectTransparency.get (← getOptions) then
+    k
+  else
+    withInferTypeConfig k
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
   if (← getConfig).proofIrrelevance then
@@ -1783,7 +1815,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            contain different `syntheticOpaque` in the subterm corresponding to the `by exact ...` tactic proof. Without the following
            proof irrelevance test, the check will fail, and `isDefEq` timeouts unfolding `g` and its dependencies.
 
-           Note that this test does not prevent a similar performance problem in a usecase where the tactic is used to synthesize a
+           Note that this test does not prevent a similar performance problem in a use-case where the tactic is used to synthesize a
            term that is not a proof. TODO: add better support for checking the delayed assignments. This is not high priority because
            tactics are usually only used for synthesizing proofs.
         -/

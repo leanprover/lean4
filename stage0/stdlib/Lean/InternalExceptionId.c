@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.InternalExceptionId
-// Imports: public import Init.System.IO import Init.Data.ToString.Name
+// Imports: public import Init.System.IO import Init.Data.ToString.Name import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -313,6 +313,7 @@ return x_3;
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_InternalExceptionId(uint8_t builtin) {
 lean_object * res;
@@ -322,6 +323,9 @@ res = initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Name(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedInternalExceptionId_default = _init_l_Lean_instInhabitedInternalExceptionId_default();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanConfig
-// Imports: public import Lake.Build.Target.Basic public import Lake.Config.Dynlib public import Lake.Config.MetaClasses meta import all Lake.Config.Meta import Lake.Util.Name import Init.Data.String.Modify import Lake.Config.Meta
+// Imports: public import Lake.Build.Target.Basic public import Lake.Config.Dynlib public import Lake.Config.MetaClasses public import Init.Data.String.Modify meta import all Lake.Config.Meta import Lake.Util.Name import Init.Data.String.Modify import Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6488,6 +6488,7 @@ return x_1;
 lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin);
 lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin);
 lean_object* initialize_Lake_Config_MetaClasses(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
@@ -6504,6 +6505,9 @@ res = initialize_Lake_Config_Dynlib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_MetaClasses(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Meta(builtin);

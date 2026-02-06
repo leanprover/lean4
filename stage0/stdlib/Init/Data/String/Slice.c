@@ -6821,8 +6821,8 @@ x_36 = 65;
 x_37 = lean_uint8_dec_le(x_36, x_35);
 if (x_37 == 0)
 {
-x_13 = x_35;
-x_14 = x_33;
+x_13 = x_33;
+x_14 = x_35;
 x_15 = x_37;
 goto block_18;
 }
@@ -6831,8 +6831,8 @@ else
 uint8_t x_38; uint8_t x_39; 
 x_38 = 90;
 x_39 = lean_uint8_dec_le(x_35, x_38);
-x_13 = x_35;
-x_14 = x_33;
+x_13 = x_33;
+x_14 = x_35;
 x_15 = x_39;
 goto block_18;
 }
@@ -6865,16 +6865,16 @@ block_18:
 {
 if (x_15 == 0)
 {
-x_5 = x_14;
-x_6 = x_13;
+x_5 = x_13;
+x_6 = x_14;
 goto block_12;
 }
 else
 {
 uint8_t x_16; uint8_t x_17; 
 x_16 = 32;
-x_17 = lean_uint8_add(x_13, x_16);
-x_5 = x_14;
+x_17 = lean_uint8_add(x_14, x_16);
+x_5 = x_13;
 x_6 = x_17;
 goto block_12;
 }

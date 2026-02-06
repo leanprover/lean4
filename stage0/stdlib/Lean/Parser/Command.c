@@ -366,7 +366,7 @@ static const lean_object* l_Lean_Parser_Command_moduleDoc___closed__3 = (const l
 static lean_object* l_Lean_Parser_Command_moduleDoc___closed__4;
 extern lean_object* l_Lean_Parser_Command_commentBody;
 extern lean_object* l_Lean_Parser_Command_versoCommentBody;
-lean_object* l_Lean_Doc_Parser_ifVerso(lean_object*, lean_object*);
+lean_object* l_Lean_Doc_Parser_ifVersoModuleDocs(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_moduleDoc___closed__5;
 extern lean_object* l_Lean_Parser_skip;
 static lean_object* l_Lean_Parser_Command_moduleDoc___closed__6;
@@ -402,7 +402,7 @@ static const lean_closure_object l_Lean_Parser_Command_moduleDoc_formatter___clo
 static const lean_object* l_Lean_Parser_Command_moduleDoc_formatter___closed__1 = (const lean_object*)&l_Lean_Parser_Command_moduleDoc_formatter___closed__1_value;
 lean_object* l_Lean_Parser_Command_commentBody_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Command_versoCommentBody_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Doc_Parser_ifVerso_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Doc_Parser_ifVersoModuleDocs_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_moduleDoc_formatter___closed__2;
 lean_object* l_Lean_ppLine_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_moduleDoc_formatter___closed__3;
@@ -428,7 +428,7 @@ static const lean_object* l_Lean_Parser_Command_moduleDoc_parenthesizer___closed
 static lean_object* l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__1;
 static const lean_closure_object l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Parser_symbol_parenthesizer___boxed, .m_arity = 6, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Lean_Parser_Command_moduleDoc___closed__3_value)} };
 static const lean_object* l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__2 = (const lean_object*)&l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__2_value;
-lean_object* l_Lean_Doc_Parser_ifVerso_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Doc_Parser_ifVersoModuleDocs_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__3;
 lean_object* l_Lean_Parser_ppLine_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Parser_ppLine_parenthesizer___boxed, .m_arity = 5, .m_num_fixed = 0, .m_objs = {} };
@@ -8514,7 +8514,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_commentBody;
 x_2 = l_Lean_Parser_Command_versoCommentBody;
-x_3 = l_Lean_Doc_Parser_ifVerso(x_2, x_1);
+x_3 = l_Lean_Doc_Parser_ifVersoModuleDocs(x_2, x_1);
 return x_3;
 }
 }
@@ -8657,7 +8657,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Parser_Command_commentBody_formatter___boxed), 5, 0);
 x_2 = lean_alloc_closure((void*)(l_Lean_Parser_Command_versoCommentBody_formatter___boxed), 5, 0);
-x_3 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ifVerso_formatter___boxed), 7, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ifVersoModuleDocs_formatter___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
@@ -8792,7 +8792,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = ((lean_object*)(l_Lean_Parser_Command_moduleDoc_parenthesizer___closed__0));
-x_2 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ifVerso_parenthesizer___boxed), 7, 2);
+x_2 = lean_alloc_closure((void*)(l_Lean_Doc_Parser_ifVersoModuleDocs_parenthesizer___boxed), 7, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
 return x_2;

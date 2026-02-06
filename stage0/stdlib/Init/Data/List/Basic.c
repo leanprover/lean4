@@ -200,8 +200,6 @@ LEAN_EXPORT lean_object* l_List_tailD(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tailD___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterMap___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterMap(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,11 +232,6 @@ LEAN_EXPORT lean_object* l_List_rightpad___redArg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_List_rightpad___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rightpad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rightpad___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_id___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_List_reduceOption___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_id___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
-static const lean_object* l_List_reduceOption___redArg___closed__0 = (const lean_object*)&l_List_reduceOption___redArg___closed__0_value;
-LEAN_EXPORT lean_object* l_List_reduceOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_reduceOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instEmptyCollection(lean_object*);
 LEAN_EXPORT uint8_t l_List_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_isEmpty___redArg___boxed(lean_object*);
@@ -2350,84 +2343,6 @@ x_4 = l_List_filter___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_filterMap___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; 
-lean_dec_ref(x_1);
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_2);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_1);
-x_7 = lean_apply_1(x_1, x_5);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_free_object(x_2);
-x_2 = x_6;
-goto _start;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = l_List_filterMap___redArg(x_1, x_6);
-lean_ctor_set(x_2, 1, x_10);
-lean_ctor_set(x_2, 0, x_9);
-return x_2;
-}
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_2, 0);
-x_12 = lean_ctor_get(x_2, 1);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_dec(x_2);
-lean_inc_ref(x_1);
-x_13 = lean_apply_1(x_1, x_11);
-if (lean_obj_tag(x_13) == 0)
-{
-x_2 = x_12;
-goto _start;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
-lean_dec_ref(x_13);
-x_16 = l_List_filterMap___redArg(x_1, x_12);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_filterMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_List_filterMap___redArg(x_3, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_List_foldr___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2786,24 +2701,6 @@ lean_object* x_5;
 x_5 = l_List_rightpad(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_List_reduceOption___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = ((lean_object*)(l_List_reduceOption___redArg___closed__0));
-x_3 = l_List_filterMap___redArg(x_2, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_reduceOption(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = ((lean_object*)(l_List_reduceOption___redArg___closed__0));
-x_4 = l_List_filterMap___redArg(x_3, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_List_instEmptyCollection(lean_object* x_1) {

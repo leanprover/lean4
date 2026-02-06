@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Internal.Order.Basic
-// Imports: public import Init.System.IO import all Init.Control.Except import all Init.Control.StateRef import all Init.Control.Option import all Init.System.ST
+// Imports: public import Init.System.IO import all Init.Control.Except import all Init.Control.StateRef import all Init.Control.Option import all Init.System.ST import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -804,6 +804,7 @@ lean_object* initialize_Init_Control_Except(uint8_t builtin);
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
 lean_object* initialize_Init_Control_Option(uint8_t builtin);
 lean_object* initialize_Init_System_ST(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Internal_Order_Basic(uint8_t builtin) {
 lean_object * res;
@@ -822,6 +823,9 @@ res = initialize_Init_Control_Option(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_ST(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__5 = _init_l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__5();

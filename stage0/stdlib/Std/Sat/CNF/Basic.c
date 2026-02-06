@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.CNF.Basic
-// Imports: public import Std.Sat.CNF.Literal
+// Imports: public import Std.Sat.CNF.Literal public import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -383,12 +383,16 @@ return x_5;
 }
 }
 lean_object* initialize_Std_Sat_CNF_Literal(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sat_CNF_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Sat_CNF_Literal(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___closed__0 = _init_l_Std_Sat_CNF_Clause_instDecidableMemOfDecidableEq___redArg___closed__0();

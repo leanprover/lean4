@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Types
-// Imports: public import Lean.Compiler.BorrowedAnnotation public import Lean.Meta.InferType import Lean.AddDecl
+// Imports: public import Lean.Compiler.BorrowedAnnotation public import Lean.Meta.InferType import Init.Omega import Lean.OriginalConstKind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5277,7 +5277,7 @@ block_103:
 {
 if (x_97 == 0)
 {
-lean_dec_ref(x_96);
+lean_dec_ref(x_95);
 x_73 = lean_box(0);
 goto block_94;
 }
@@ -5298,7 +5298,7 @@ lean_object* x_101;
 x_101 = lean_ctor_get(x_99, 0);
 lean_dec(x_101);
 lean_ctor_set_tag(x_99, 1);
-lean_ctor_set(x_99, 0, x_96);
+lean_ctor_set(x_99, 0, x_95);
 return x_99;
 }
 else
@@ -5306,7 +5306,7 @@ else
 lean_object* x_102; 
 lean_dec(x_99);
 x_102 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_102, 0, x_96);
+lean_ctor_set(x_102, 0, x_95);
 return x_102;
 }
 }
@@ -5354,15 +5354,15 @@ if (x_125 == 0)
 uint8_t x_126; 
 lean_inc(x_124);
 x_126 = l_Lean_Exception_isRuntime(x_124);
-x_95 = lean_box(0);
-x_96 = x_124;
+x_95 = x_124;
+x_96 = lean_box(0);
 x_97 = x_126;
 goto block_103;
 }
 else
 {
-x_95 = lean_box(0);
-x_96 = x_124;
+x_95 = x_124;
+x_96 = lean_box(0);
 x_97 = x_125;
 goto block_103;
 }
@@ -5742,7 +5742,7 @@ block_227:
 {
 if (x_222 == 0)
 {
-lean_dec_ref(x_221);
+lean_dec_ref(x_220);
 x_198 = lean_box(0);
 goto block_219;
 }
@@ -5769,7 +5769,7 @@ if (lean_is_scalar(x_225)) {
  x_226 = x_225;
  lean_ctor_set_tag(x_226, 1);
 }
-lean_ctor_set(x_226, 0, x_221);
+lean_ctor_set(x_226, 0, x_220);
 return x_226;
 }
 }
@@ -5816,15 +5816,15 @@ if (x_249 == 0)
 uint8_t x_250; 
 lean_inc(x_248);
 x_250 = l_Lean_Exception_isRuntime(x_248);
-x_220 = lean_box(0);
-x_221 = x_248;
+x_220 = x_248;
+x_221 = lean_box(0);
 x_222 = x_250;
 goto block_227;
 }
 else
 {
-x_220 = lean_box(0);
-x_221 = x_248;
+x_220 = x_248;
+x_221 = lean_box(0);
 x_222 = x_249;
 goto block_227;
 }
@@ -6278,7 +6278,7 @@ block_363:
 {
 if (x_358 == 0)
 {
-lean_dec_ref(x_357);
+lean_dec_ref(x_356);
 x_334 = lean_box(0);
 goto block_355;
 }
@@ -6305,7 +6305,7 @@ if (lean_is_scalar(x_361)) {
  x_362 = x_361;
  lean_ctor_set_tag(x_362, 1);
 }
-lean_ctor_set(x_362, 0, x_357);
+lean_ctor_set(x_362, 0, x_356);
 return x_362;
 }
 }
@@ -6352,15 +6352,15 @@ if (x_385 == 0)
 uint8_t x_386; 
 lean_inc(x_384);
 x_386 = l_Lean_Exception_isRuntime(x_384);
-x_356 = lean_box(0);
-x_357 = x_384;
+x_356 = x_384;
+x_357 = lean_box(0);
 x_358 = x_386;
 goto block_363;
 }
 else
 {
-x_356 = lean_box(0);
-x_357 = x_384;
+x_356 = x_384;
+x_357 = lean_box(0);
 x_358 = x_385;
 goto block_363;
 }
@@ -7834,7 +7834,8 @@ return x_5;
 }
 lean_object* initialize_Lean_Compiler_BorrowedAnnotation(uint8_t builtin);
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin);
-lean_object* initialize_Lean_AddDecl(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Lean_OriginalConstKind(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin) {
 lean_object * res;
@@ -7846,7 +7847,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_InferType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_AddDecl(builtin);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_OriginalConstKind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u25fe__1___closed__1 = _init_l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u25fe__1___closed__1();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SignatureHelp
-// Imports: public import Lean.Server.InfoUtils public import Lean.Data.Lsp public import Init.Data.List.Sort.Basic import Lean.PrettyPrinter.Delaborator meta import Lean.Parser.Term
+// Imports: public import Lean.Server.InfoUtils public import Lean.Data.Lsp public import Init.Data.List.Sort.Basic import Lean.PrettyPrinter.Delaborator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1900,15 +1900,15 @@ lean_dec(x_106);
 lean_dec(x_104);
 if (x_107 == 0)
 {
-x_92 = x_102;
-x_93 = x_101;
+x_92 = x_101;
+x_93 = x_102;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_102;
-x_93 = x_101;
+x_92 = x_101;
+x_93 = x_102;
 x_94 = x_100;
 goto block_96;
 }
@@ -2293,9 +2293,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_93 == 0)
-{
 if (x_92 == 0)
+{
+if (x_93 == 0)
 {
 if (x_94 == 0)
 {
@@ -3158,7 +3158,6 @@ lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin) {
 lean_object * res;
@@ -3174,9 +3173,6 @@ res = initialize_Init_Data_List_Sort_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0 = _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0();

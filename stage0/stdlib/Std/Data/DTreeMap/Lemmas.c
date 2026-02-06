@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Lemmas
-// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.AdditionalOperations
+// Imports: import Std.Data.DTreeMap.Internal.Lemmas public import Std.Data.DTreeMap.AdditionalOperations import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,8 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_DTreeMap_instCoeTypeForall__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Std_DTreeMap_isSetoid___auto__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
 static const lean_object* l_Std_DTreeMap_isSetoid___auto__1___closed__0 = (const lean_object*)&l_Std_DTreeMap_isSetoid___auto__1___closed__0_value;
 static const lean_string_object l_Std_DTreeMap_isSetoid___auto__1___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Parser"};
@@ -93,6 +95,37 @@ lean_object* x_4;
 x_4 = l_Std_DTreeMap_Equiv_instTrans(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_Internal_Impl_any_match__3_splitter___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Std_DTreeMap_isSetoid___auto__1___closed__5() {
@@ -285,6 +318,8 @@ return x_4;
 }
 lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -294,6 +329,12 @@ res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DTreeMap_isSetoid___auto__1___closed__5 = _init_l_Std_DTreeMap_isSetoid___auto__1___closed__5();

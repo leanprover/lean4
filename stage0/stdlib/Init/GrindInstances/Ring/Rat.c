@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.Rat
-// Imports: public import Init.Grind.Ring.OfScientific public import Init.Data.Rat.Lemmas
+// Imports: public import Init.Grind.Ring.OfScientific public import Init.Data.Rat.Lemmas import Init.Data.Int.DivMod.Lemmas import Init.Data.Int.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -87,6 +87,8 @@ return x_4;
 }
 lean_object* initialize_Init_Grind_Ring_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_Rat(uint8_t builtin) {
 lean_object * res;
@@ -96,6 +98,12 @@ res = initialize_Init_Grind_Ring_OfScientific(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Rat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

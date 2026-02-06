@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Open
-// Imports: public import Lean.Elab.Util public import Lean.Parser.Command meta import Lean.Parser.Command
+// Imports: public import Lean.Elab.Util public import Lean.Parser.Command meta import Lean.Parser.Command import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3916,6 +3916,7 @@ return x_13;
 lean_object* initialize_Lean_Elab_Util(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Command(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Command(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Open(uint8_t builtin) {
 lean_object * res;
@@ -3928,6 +3929,9 @@ res = initialize_Lean_Parser_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Command(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___redArg___lam__9___closed__11 = _init_l_Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___redArg___lam__9___closed__11();

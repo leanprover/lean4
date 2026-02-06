@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Load
-// Imports: public import Lean.Parser.Types public import Lake.Toml.Data.Value import Lean.Parser import Lake.Toml.Elab import Lake.Util.Message
+// Imports: public import Lean.Parser.Types public import Lake.Toml.Data.Value import Lake.Toml.Elab import Lake.Util.Message import Std.Do
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1081,9 +1081,9 @@ return x_3;
 }
 lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data_Value(uint8_t builtin);
-lean_object* initialize_Lean_Parser(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Elab(uint8_t builtin);
 lean_object* initialize_Lake_Util_Message(uint8_t builtin);
+lean_object* initialize_Std_Do(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Load(uint8_t builtin) {
 lean_object * res;
@@ -1095,13 +1095,13 @@ lean_dec_ref(res);
 res = initialize_Lake_Toml_Data_Value(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_Elab(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Message(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Toml_loadToml___closed__0 = _init_l_Lake_Toml_loadToml___closed__0();

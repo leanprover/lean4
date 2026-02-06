@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Duration
-// Imports: public import Std.Time.Date
+// Imports: public import Std.Time.Date public import Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -874,11 +874,11 @@ return x_9;
 block_17:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Std_Time_instToStringDuration_leftPad(x_13, x_14);
+x_15 = l_Std_Time_instToStringDuration_leftPad(x_12, x_14);
 lean_dec_ref(x_14);
-x_16 = lean_string_append(x_11, x_15);
+x_16 = lean_string_append(x_13, x_15);
 lean_dec_ref(x_15);
-x_3 = x_12;
+x_3 = x_11;
 x_4 = x_16;
 goto block_10;
 }
@@ -904,9 +904,9 @@ lean_object* x_30; lean_object* x_31;
 x_30 = lean_nat_abs(x_22);
 lean_dec(x_22);
 x_31 = l_Nat_reprFast(x_30);
-x_11 = x_27;
-x_12 = x_24;
-x_13 = x_28;
+x_11 = x_24;
+x_12 = x_28;
+x_13 = x_27;
 x_14 = x_31;
 goto block_17;
 }
@@ -924,9 +924,9 @@ lean_dec(x_34);
 x_37 = l_Nat_reprFast(x_36);
 x_38 = lean_string_append(x_35, x_37);
 lean_dec_ref(x_37);
-x_11 = x_27;
-x_12 = x_24;
-x_13 = x_28;
+x_11 = x_24;
+x_12 = x_28;
+x_13 = x_27;
 x_14 = x_38;
 goto block_17;
 }
@@ -2186,12 +2186,16 @@ return x_3;
 }
 }
 lean_object* initialize_Std_Time_Date(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Duration(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Time_Date(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_instReprDuration_repr___redArg___closed__7 = _init_l_Std_Time_instReprDuration_repr___redArg___closed__7();

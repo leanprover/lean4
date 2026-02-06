@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.AddExtern
-// Imports: public import Lean.Compiler.IR.Boxing import Lean.Compiler.IR.RC import Lean.Compiler.LCNF.ToImpureType import Lean.Compiler.LCNF.ToImpure import Lean.Compiler.LCNF.ToImpureType
+// Imports: public import Lean.Compiler.IR.Boxing import Lean.Compiler.IR.RC import Lean.Compiler.LCNF.ToImpureType import Lean.Compiler.LCNF.ToImpure import Init.While import Lean.Compiler.LCNF.PhaseExt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1595,7 +1595,8 @@ lean_object* initialize_Lean_Compiler_IR_Boxing(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_RC(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_ToImpure(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_LCNF_ToImpureType(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_AddExtern(uint8_t builtin) {
 lean_object * res;
@@ -1613,7 +1614,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_ToImpure(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_ToImpureType(builtin);
+res = initialize_Init_While(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addMono___closed__0 = _init_l___private_Lean_Compiler_IR_AddExtern_0__Lean_IR_addExtern_addMono___closed__0();

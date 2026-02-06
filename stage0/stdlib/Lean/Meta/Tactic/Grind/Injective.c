@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Injective
-// Imports: public import Lean.Meta.Tactic.Grind.EMatchTheorem import Lean.Meta.FunInfo
+// Imports: public import Lean.Meta.Tactic.Grind.EMatchTheorem import Init.Data.Function import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1253,8 +1253,8 @@ block_49:
 {
 if (x_41 == 0)
 {
-x_16 = x_38;
-x_17 = x_40;
+x_16 = x_39;
+x_17 = x_38;
 x_18 = x_36;
 x_19 = x_37;
 x_20 = lean_box(0);
@@ -1268,11 +1268,11 @@ x_43 = l_Lean_indentExpr(x_3);
 x_44 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_44, x_38, x_40, x_36, x_37);
+x_45 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_44, x_39, x_38, x_36, x_37);
 lean_dec(x_37);
 lean_dec_ref(x_36);
-lean_dec(x_40);
-lean_dec_ref(x_38);
+lean_dec(x_38);
+lean_dec_ref(x_39);
 x_46 = !lean_is_exclusive(x_45);
 if (x_46 == 0)
 {
@@ -1298,9 +1298,9 @@ if (x_51 == 0)
 {
 x_36 = x_6;
 x_37 = x_7;
-x_38 = x_4;
-x_39 = lean_box(0);
-x_40 = x_5;
+x_38 = x_5;
+x_39 = x_4;
+x_40 = lean_box(0);
 x_41 = x_51;
 goto block_49;
 }
@@ -1308,9 +1308,9 @@ else
 {
 x_36 = x_6;
 x_37 = x_7;
-x_38 = x_4;
-x_39 = lean_box(0);
-x_40 = x_5;
+x_38 = x_5;
+x_39 = x_4;
+x_40 = lean_box(0);
 x_41 = x_1;
 goto block_49;
 }
@@ -3158,7 +3158,8 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(uint8_t builtin);
-lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin);
+lean_object* initialize_Init_Data_Function(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Injective(uint8_t builtin) {
 lean_object * res;
@@ -3167,7 +3168,10 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_FunInfo(builtin);
+res = initialize_Init_Data_Function(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_initFn___closed__28_00___x40_Lean_Meta_Tactic_Grind_Injective_3173337487____hygCtx___hyg_2_ = _init_l___private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_initFn___closed__28_00___x40_Lean_Meta_Tactic_Grind_Injective_3173337487____hygCtx___hyg_2_();

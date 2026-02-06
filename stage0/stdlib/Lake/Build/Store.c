@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Store
-// Imports: public import Lake.Util.Store public import Lake.Build.Job.Basic import Lake.Util.StoreInsts import Lake.Build.Data
+// Imports: public import Lake.Util.Store public import Lake.Build.Job.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -598,8 +598,6 @@ return x_4;
 }
 lean_object* initialize_Lake_Util_Store(uint8_t builtin);
 lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
-lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin);
-lean_object* initialize_Lake_Build_Data(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin) {
 lean_object * res;
@@ -609,12 +607,6 @@ res = initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Build_Job_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_StoreInsts(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_BuildStore_empty = _init_l_Lake_BuildStore_empty();

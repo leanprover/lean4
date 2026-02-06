@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.InstantiateS
-// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.ReplaceS import Lean.Meta.Sym.LooseBVarsS import Init.Grind
+// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.LooseBVarsS import Init.Grind
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2353,7 +2353,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(34u);
-x_3 = lean_unsigned_to_nat(21u);
+x_3 = lean_unsigned_to_nat(20u);
 x_4 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__4));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2366,7 +2366,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(32u);
-x_3 = lean_unsigned_to_nat(20u);
+x_3 = lean_unsigned_to_nat(19u);
 x_4 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__4));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3945,7 +3945,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(34u);
-x_3 = lean_unsigned_to_nat(58u);
+x_3 = lean_unsigned_to_nat(57u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Sym_InstantiateS_0__Lean_Meta_Sym_instantiateRangeS_x27___closed__0));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3958,7 +3958,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(32u);
-x_3 = lean_unsigned_to_nat(57u);
+x_3 = lean_unsigned_to_nat(56u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Sym_InstantiateS_0__Lean_Meta_Sym_instantiateRangeS_x27___closed__0));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5284,7 +5284,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(180u);
+x_3 = lean_unsigned_to_nat(179u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Sym_InstantiateS_0__Lean_Meta_Sym_instantiateRevBetaS_x27_visitAppBeta___closed__0));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5699,7 +5699,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visit___at___00Lean_Meta_Sym_instantiateRevRangeS_spec__2___closed__2));
 x_2 = lean_unsigned_to_nat(59u);
-x_3 = lean_unsigned_to_nat(191u);
+x_3 = lean_unsigned_to_nat(190u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Sym_InstantiateS_0__Lean_Meta_Sym_instantiateRevBetaS_x27_visit___closed__0));
 x_5 = ((lean_object*)(l_Lean_Meta_Sym_instantiateRevRangeS___closed__3));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6891,7 +6891,6 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Sym_ReplaceS(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_LooseBVarsS(uint8_t builtin);
 lean_object* initialize_Init_Grind(uint8_t builtin);
 static bool _G_initialized = false;
@@ -6900,9 +6899,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Sym_SymM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_ReplaceS(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_LooseBVarsS(builtin);

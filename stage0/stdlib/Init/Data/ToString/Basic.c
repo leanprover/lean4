@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Basic
-// Imports: public import Init.Data.Repr public import Init.Data.Option.Basic
+// Imports: public import Init.Data.Repr import Init.Data.Char.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1108,7 +1108,7 @@ return x_5;
 }
 }
 lean_object* initialize_Init_Data_Repr(uint8_t builtin);
-lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin) {
 lean_object * res;
@@ -1117,7 +1117,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Basic(builtin);
+res = initialize_Init_Data_Char_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instToStringInt___lam__0___closed__0 = _init_l_instToStringInt___lam__0___closed__0();

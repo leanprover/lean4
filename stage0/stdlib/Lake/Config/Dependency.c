@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Dependency
-// Imports: public import Init.Dynamic public import Init.System.FilePath public import Lean.Data.NameMap.Basic import Init.Data.ToString.Name
+// Imports: public import Init.Dynamic public import Init.System.FilePath public import Lean.Data.NameMap.Basic import Init.Data.ToString.Name import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -513,6 +513,7 @@ lean_object* initialize_Init_Dynamic(uint8_t builtin);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin);
 lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Dependency(uint8_t builtin) {
 lean_object * res;
@@ -528,6 +529,9 @@ res = initialize_Lean_Data_NameMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Name(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedDependencySrc_default___closed__0 = _init_l_Lake_instInhabitedDependencySrc_default___closed__0();

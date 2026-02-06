@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.Select
-// Imports: public import Init.Data.Random public import Std.Internal.Async.Basic import Init.Data.ByteArray.Extra
+// Imports: public import Init.Data.Random public import Std.Internal.Async.Basic import Init.Data.ByteArray.Extra import Init.Data.Array.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5162,6 +5162,8 @@ return x_13;
 lean_object* initialize_Init_Data_Random(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin) {
 lean_object * res;
@@ -5174,6 +5176,12 @@ res = initialize_Std_Internal_Async_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1 = _init_l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed__const__1();

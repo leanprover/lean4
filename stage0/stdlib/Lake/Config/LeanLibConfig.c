@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanLibConfig
-// Imports: public import Lean.Compiler.NameMangling public import Lake.Util.Casing public import Lake.Build.Facets public import Lake.Config.LeanConfig public import Lake.Config.Glob meta import all Lake.Config.Meta
+// Imports: public import Lean.Compiler.NameMangling public import Lake.Util.Casing public import Lake.Build.Facets public import Lake.Config.LeanConfig public import Lake.Config.Glob meta import all Lake.Config.Meta import Lake.Config.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3719,6 +3719,7 @@ lean_object* initialize_Lake_Build_Facets(uint8_t builtin);
 lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin);
 lean_object* initialize_Lake_Config_Glob(uint8_t builtin);
 lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
+lean_object* initialize_Lake_Config_Meta(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin) {
 lean_object * res;
@@ -3737,6 +3738,9 @@ res = initialize_Lake_Config_LeanConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Glob(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Meta(builtin);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Simp.FunDeclInfo
-// Imports: public import Lean.Compiler.LCNF.Simp.Basic
+// Imports: public import Lean.Compiler.LCNF.Simp.Basic import Init.Data.Format.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2826,12 +2826,16 @@ return x_10;
 }
 }
 lean_object* initialize_Lean_Compiler_LCNF_Simp_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Simp_FunDeclInfo(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_Simp_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_Simp_instReprFunDeclInfo_repr___closed__6 = _init_l_Lean_Compiler_LCNF_Simp_instReprFunDeclInfo_repr___closed__6();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.LitValues
-// Imports: public import Lean.Meta.Basic public import Init.Data.Rat.Basic
+// Imports: public import Lean.Meta.Basic import Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13871,7 +13871,7 @@ return x_7;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin) {
 lean_object * res;
@@ -13880,7 +13880,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Rat_Basic(builtin);
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_normLitValue___closed__0 = _init_l_Lean_Meta_normLitValue___closed__0();

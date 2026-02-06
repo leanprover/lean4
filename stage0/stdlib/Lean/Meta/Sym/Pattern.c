@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.Pattern
-// Imports: public import Lean.Meta.Sym.SymM public import Lean.Data.AssocList import Lean.Util.FoldConsts import Lean.Meta.SynthInstance import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.AbstractS import Lean.Meta.Sym.InstantiateMVarsS import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.MaxFVar import Lean.Meta.Sym.ProofInstInfo import Lean.Meta.Sym.AlphaShareBuilder import Lean.Meta.Sym.LitValues import Lean.Meta.Sym.Offset import Lean.Meta.Sym.Eta
+// Imports: public import Lean.Meta.Sym.SymM public import Lean.Data.AssocList import Lean.Meta.SynthInstance import Lean.Meta.Sym.InstantiateS import Lean.Meta.Sym.AbstractS import Lean.Meta.Sym.InstantiateMVarsS import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.MaxFVar import Lean.Meta.Sym.ProofInstInfo import Lean.Meta.Sym.AlphaShareBuilder import Lean.Meta.Sym.Offset import Lean.Meta.Sym.Eta import Init.Data.List.MapIdx import Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10471,7 +10471,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_isLevelMVarAssignable___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_tryAssignLevelMVar_spec__0___closed__2));
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(443u);
+x_3 = lean_unsigned_to_nat(445u);
 x_4 = ((lean_object*)(l_Lean_isLevelMVarAssignable___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_tryAssignLevelMVar_spec__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_isLevelMVarAssignable___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_tryAssignLevelMVar_spec__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -13142,21 +13142,21 @@ return x_91;
 block_32:
 {
 lean_object* x_29; lean_object* x_30; 
-x_29 = lean_array_push(x_3, x_17);
-x_30 = lean_array_push(x_6, x_27);
-x_1 = x_22;
+x_29 = lean_array_push(x_3, x_24);
+x_30 = lean_array_push(x_6, x_23);
+x_1 = x_25;
 x_2 = x_28;
 x_3 = x_29;
-x_4 = x_20;
-x_5 = x_18;
+x_4 = x_18;
+x_5 = x_20;
 x_6 = x_30;
-x_7 = x_16;
-x_8 = x_19;
+x_7 = x_26;
+x_8 = x_27;
 x_9 = x_15;
-x_10 = x_26;
-x_11 = x_25;
-x_12 = x_23;
-x_13 = x_24;
+x_10 = x_21;
+x_11 = x_22;
+x_12 = x_16;
+x_13 = x_17;
 goto _start;
 }
 block_77:
@@ -13226,18 +13226,18 @@ lean_ctor_set(x_63, 0, x_62);
 lean_ctor_set(x_63, 1, x_55);
 x_64 = lean_array_push(x_2, x_63);
 x_15 = x_40;
-x_16 = x_38;
-x_17 = x_55;
-x_18 = x_37;
-x_19 = x_39;
-x_20 = x_35;
-x_21 = lean_box(0);
-x_22 = x_60;
-x_23 = x_43;
-x_24 = x_44;
-x_25 = x_42;
-x_26 = x_41;
-x_27 = x_51;
+x_16 = x_43;
+x_17 = x_44;
+x_18 = x_35;
+x_19 = lean_box(0);
+x_20 = x_37;
+x_21 = x_41;
+x_22 = x_42;
+x_23 = x_51;
+x_24 = x_55;
+x_25 = x_60;
+x_26 = x_38;
+x_27 = x_39;
 x_28 = x_64;
 goto block_32;
 }
@@ -13245,18 +13245,18 @@ else
 {
 lean_dec(x_61);
 x_15 = x_40;
-x_16 = x_38;
-x_17 = x_55;
-x_18 = x_37;
-x_19 = x_39;
-x_20 = x_35;
-x_21 = lean_box(0);
-x_22 = x_60;
-x_23 = x_43;
-x_24 = x_44;
-x_25 = x_42;
-x_26 = x_41;
-x_27 = x_51;
+x_16 = x_43;
+x_17 = x_44;
+x_18 = x_35;
+x_19 = lean_box(0);
+x_20 = x_37;
+x_21 = x_41;
+x_22 = x_42;
+x_23 = x_51;
+x_24 = x_55;
+x_25 = x_60;
+x_26 = x_38;
+x_27 = x_39;
 x_28 = x_2;
 goto block_32;
 }
@@ -25528,7 +25528,6 @@ return x_12;
 }
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Data_AssocList(uint8_t builtin);
-lean_object* initialize_Lean_Util_FoldConsts(uint8_t builtin);
 lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_InstantiateS(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_AbstractS(uint8_t builtin);
@@ -25537,9 +25536,10 @@ lean_object* initialize_Lean_Meta_Sym_IsClass(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_MaxFVar(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_ProofInstInfo(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Sym_LitValues(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Offset(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Pattern(uint8_t builtin) {
 lean_object * res;
@@ -25549,9 +25549,6 @@ res = initialize_Lean_Meta_Sym_SymM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_AssocList(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_FoldConsts(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_SynthInstance(builtin);
@@ -25578,13 +25575,16 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_LitValues(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Offset(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Eta(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isDefEqTypes___closed__0 = _init_l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isDefEqTypes___closed__0();

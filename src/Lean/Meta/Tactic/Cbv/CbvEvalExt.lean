@@ -57,7 +57,7 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     initial  := {}
     addEntry := CbvEvalState.addEntry
     exportEntry? := fun level entry => do
-      guard (level == .private || entry.thm.isPrivate)
+      guard (level == .private || !entry.thm.isPrivate)
       return entry
   }
 
@@ -75,9 +75,8 @@ builtin_initialize
               Usage: @[cbv_eval] theorem ..."
     applicationTime := AttributeApplicationTime.afterCompilation
     add := fun lemmaName _ kind => do
-      withoutExporting do
-        let (entry, _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
-        cbvEvalExt.add entry kind
+      let (entry, _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
+      cbvEvalExt.add entry kind
   }
 
 end Lean.Meta.Tactic.Cbv

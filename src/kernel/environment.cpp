@@ -24,13 +24,13 @@ extern "C" object* lean_environment_find(object*, object*);
 extern "C" object* lean_environment_get_opts(object*);
 extern "C" object* lean_environment_mark_quot_init(object*);
 extern "C" uint8 lean_environment_quot_init(object*);
-extern "C" object* lean_kernel_record_unfold (object*, object*);
+extern "C" object* lean_kernel_record_unfold (object*, object*, object*);
 extern "C" object* lean_kernel_get_diag(object*);
 extern "C" object* lean_kernel_set_diag(object*, object*);
 extern "C" uint8* lean_kernel_diag_is_enabled(object*);
 
-void diagnostics::record_unfold(name const & decl_name) {
-    m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
+void diagnostics::record_unfold(name const & decl_name, name const & context) {
+    m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg(), context.to_obj_arg());
 }
 
 scoped_diagnostics::scoped_diagnostics(environment const & env, bool collect) {

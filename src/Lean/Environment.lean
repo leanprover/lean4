@@ -209,6 +209,9 @@ namespace Kernel
 structure Diagnostics where
   /-- Number of times each declaration has been unfolded by the kernel. -/
   unfoldCounter : PHashMap Name Nat := {}
+  /-- Number of times an declaration has been unfolded by the kernel when cecking applications
+  headed by this constant -/
+  unfoldCtxCounter : PHashMap Name Nat := {}
   /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
   enabled : Bool := false
   deriving Inhabited
@@ -352,10 +355,14 @@ def resetDiag (env : Environment) : Environment :=
   { env with diagnostics.unfoldCounter := {} }
 
 @[export lean_kernel_record_unfold]
-def Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
+def Diagnostics.recordUnfold (d : Diagnostics) (declName context: Name) : Diagnostics :=
   if d.enabled then
     let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
-    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+    let cCtxNew := if let some c := d.unfoldCtxCounter.find? context then c + 1 else 1
+    { d with
+      unfoldCounter := d.unfoldCounter.insert context cNew
+      unfoldCtxCounter := d.unfoldCtxCounter.insert context cCtxNew
+    }
   else
     d
 

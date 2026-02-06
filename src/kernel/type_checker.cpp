@@ -181,21 +181,23 @@ expr type_checker::infer_app_core(expr const & e) {
 
 expr type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
-        std::string label = "kernel.infer_app";
-        auto f = e;
-        while (true) {
-            f = get_app_fn(f);
-            if (is_lambda(f))
-                f = binding_body(f);
-            else
-                break;
+        if (m_diag) {
+            lean::name app_fn_name;
+            auto f = e;
+            while (true) {
+                f = get_app_fn(f);
+                if (is_lambda(f))
+                    f = binding_body(f);
+                else
+                    break;
+            }
+            if (is_const(f)) app_fn_name = const_name(f);
+            if (is_proj(f)) app_fn_name = lean::name(proj_sname(f), proj_idx(f).get_small_value());
+            flet<name> scope(m_diag_context, app_fn_name);
+            return infer_app_core(e);
+        } else {
+            return infer_app_core(e);
         }
-        if (is_const(f)) label += "." + const_name(f).to_string();
-        if (is_proj(f)) label += "._prof." + proj_sname(f).to_string() + "." + std::to_string(proj_idx(f).get_small_value());
-        if (is_fvar(f)) label += "._fvar";
-        if (is_lambda(f)) label += "._lam";
-        time_task task(label, env().get_opts());
-        return infer_app_core(e);
     } else {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
@@ -481,7 +483,7 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
                 if (m_diag) {
                     auto f = get_app_fn(e);
                     if (is_constant(f))
-                        m_diag->record_unfold(const_name(f));
+                        m_diag->record_unfold(const_name(f), m_diag_context);
                 }
                 /* iota-reduction and quotient reduction rules */
                 return whnf_core(*r, cheap_rec, cheap_proj);
@@ -523,7 +525,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
             unsigned len = length(us);
             if (len == d->get_num_lparams()) {
                 if (m_diag) {
-                    m_diag->record_unfold(d->get_name());
+                    m_diag->record_unfold(d->get_name(), m_diag_context);
                 }
                 if (len > 0) {
                     auto it = m_st->m_unfold.find(e);

@@ -45,6 +45,7 @@ private:
     bool                      m_st_owner;
     state *                   m_st;
     diagnostics *             m_diag;
+    name                      m_diag_context;
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
     /*

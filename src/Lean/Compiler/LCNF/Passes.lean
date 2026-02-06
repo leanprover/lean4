@@ -94,6 +94,7 @@ def builtinPassManager : PassManager := {
     Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
+    elimDeadVars (phase := .base) (occurrence := 0),
     simp,
     floatLetIn,
     findJoinPoints,
@@ -142,11 +143,11 @@ def builtinPassManager : PassManager := {
     toImpure,
   ]
   impurePasses := #[
-    saveImpure, -- End of impure phase
     pushProj (occurrence := 0),
     insertResetReuse,
-    elimDeadVars (phase := .impure) (occurrence := 0),
+    elimDeadVars (phase := .impure) (occurrence := 1),
     inferVisibility (phase := .impure),
+    saveImpure, -- End of impure phase
   ]
 }
 

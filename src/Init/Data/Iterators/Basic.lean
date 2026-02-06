@@ -126,9 +126,11 @@ def x := ([1, 2, 3].iterM IO : IterM IO Nat)
 -/
 @[ext]
 structure IterM {α : Type w} (m : Type w → Type w') (β : Type w) where
-  mk' ::
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `IterM` object. -/
+add_decl_doc IterM.mk
 
 /--
 An iterator that sequentially emits values of type `β`. It may be finite
@@ -173,6 +175,9 @@ def x := ([1, 2, 3].iter : Iter Nat)
 structure Iter {α : Type w} (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `Iter` object. -/
+add_decl_doc IterM.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
@@ -376,29 +381,43 @@ class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) w
 
 section Monadic
 
-/--
-Wraps the state of an iterator into an `IterM` object.
--/
-@[always_inline, inline, expose]
-def IterM.mk {α : Type w} (it : α) (m : Type w → Type w') (β : Type w) :
-    IterM (α := α) m β :=
+/-- The constructor has been renamed. -/
+@[deprecated IterM.mk (since := "2025-01-19"), inline, expose]
+abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
-@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk]
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk']
 def Iterators.toIterM := @IterM.mk
 
-@[simp]
 theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
-    .mk it.internalState m β = it :=
-  rfl
+    ⟨it.internalState⟩ = it := by
+  simp
 
 set_option linter.missingDocs false in
 @[deprecated IterM.mk_internalState (since := "2025-12-01")]
 def Iterators.toIterM_internalState := @IterM.mk_internalState
 
 @[simp]
-theorem internalState_toIterM {α m β} (it : α) :
-    (IterM.mk it m β).internalState = it :=
+theorem IterM.internalState_mk {α m β} (it : α) :
+    (⟨it⟩ : IterM m β).internalState = it :=
+  rfl
+
+set_option linter.missingDocs false in
+@[expose, deprecated IterM.internalState_mk (since := "2025-01-29")]
+def internalState_toIterM := @IterM.internalState_mk
+
+@[simp]
+theorem Iter.internalState_toIterM {α β} (it : Std.Iter (α := α) β) :
+    it.toIterM.internalState = it.internalState := rfl
+
+@[simp]
+theorem Iter.toIterM_mk {α β} {it : α} :
+    (⟨it⟩ : Iter β).toIterM = ⟨it⟩ :=
+  rfl
+
+@[simp]
+theorem IterM.toIter_mk {α β} {it : α} :
+    (⟨it⟩ : IterM Id β).toIter = ⟨it⟩ :=
   rfl
 
 /--
@@ -428,6 +447,15 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m (Shrink it.Step) :=
   Iterator.step it
+
+theorem IterM.step_eq {α m β IsPlausibleStep step} {it : IterM (α := α) m β} :
+    letI : Iterator α m β := ⟨IsPlausibleStep, step⟩
+    it.step = step it :=
+  (rfl)
+
+theorem IterM.step_mk {α m β} [Iterator α m β] (it : α) :
+    (⟨it⟩ : IterM m β).step = Iterator.step (⟨it⟩ : IterM m β) := by
+  simp [IterM.step_eq]
 
 /--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next

@@ -59,7 +59,7 @@ theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m
       pure (.yield (array.iterFromIdxM m (pos + 1)) array[pos])
     else
       pure .done) := by
-  simp only [Array.iterFromIdxM, IterM.mk, pure, HetT.ext_iff, Equivalence.property_step,
+  simp only [Array.iterFromIdxM, pure, HetT.ext_iff, Equivalence.property_step,
     IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
   refine ⟨?_, ?_⟩
   · ext step
@@ -97,7 +97,7 @@ theorem Array.iterFromIdxM_equiv_iterM_drop_toList {α : Type w} {array : Array 
   match it with
   | Array.iterFromIdxM array _ pos =>
     rw [ArrayIterator.stepAsHetT_iterFromIdxM, Types.ListIterator.stepAsHetT_iterM]
-    simp [Array.iterFromIdxM, IterM.mk]
+    simp [Array.iterFromIdxM]
     rw [show array = array.toList.toArray from Array.toArray_toList]
     generalize array.toList = l
     simp [Functor.map]

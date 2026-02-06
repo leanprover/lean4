@@ -25,7 +25,7 @@ open Std.Iterators
 
 @[simp]
 theorem IterM.run_toList_mk' {α : Type u} {β : Type u} [Std.Iterator α Id β] (a : α) :
-    (Std.IterM.mk' (m := Id) a).toList.run = (Std.Iter.mk a).toList := rfl
+    (Std.IterM.mk (m := Id) a).toList.run = (Std.Iter.mk a).toList := rfl
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :

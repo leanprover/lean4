@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.OfScientific
-// Imports: public import Init.Data.Float32 public import Init.Data.Nat.Log2
+// Imports: public import Init.Data.Float32 import Init.Data.Nat.Log2 import Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -472,6 +472,7 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Float32(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
+lean_object* initialize_Init_Meta(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_OfScientific(uint8_t builtin) {
 lean_object * res;
@@ -481,6 +482,9 @@ res = initialize_Init_Data_Float32(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Log2(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Float_ofScientific___closed__0 = _init_l_Float_ofScientific___closed__0();

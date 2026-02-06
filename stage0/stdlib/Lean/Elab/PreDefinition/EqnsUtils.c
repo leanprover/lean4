@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.EqnsUtils
-// Imports: public import Lean.Meta.Basic import Lean.Meta.Tactic.Split import Lean.Meta.Match.Match import Lean.Meta.Tactic.Refl import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.SplitIf
+// Imports: public import Lean.Meta.Basic import Lean.Meta.Tactic.Split import Lean.Meta.Tactic.Refl import Lean.Meta.Tactic.Delta import Lean.Meta.Tactic.SplitIf import Lean.Meta.Tactic.Contradiction
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -629,7 +629,7 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_7);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -637,7 +637,7 @@ return x_11;
 }
 else
 {
-return x_8;
+return x_7;
 }
 }
 block_68:
@@ -704,16 +704,16 @@ if (x_62 == 0)
 {
 uint8_t x_63; 
 x_63 = l_Lean_Exception_isRuntime(x_61);
-x_7 = lean_box(0);
-x_8 = x_54;
+x_7 = x_54;
+x_8 = lean_box(0);
 x_9 = x_63;
 goto block_12;
 }
 else
 {
 lean_dec(x_61);
-x_7 = lean_box(0);
-x_8 = x_54;
+x_7 = x_54;
+x_8 = lean_box(0);
 x_9 = x_62;
 goto block_12;
 }
@@ -732,16 +732,16 @@ if (x_66 == 0)
 {
 uint8_t x_67; 
 x_67 = l_Lean_Exception_isRuntime(x_64);
-x_7 = lean_box(0);
-x_8 = x_65;
+x_7 = x_65;
+x_8 = lean_box(0);
 x_9 = x_67;
 goto block_12;
 }
 else
 {
 lean_dec(x_64);
-x_7 = lean_box(0);
-x_8 = x_65;
+x_7 = x_65;
+x_8 = lean_box(0);
 x_9 = x_66;
 goto block_12;
 }
@@ -1219,7 +1219,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Elab_PreDefinition_EqnsUtils_0__Lean_Elab_Eqns_whnfAux___closed__3));
 x_2 = lean_unsigned_to_nat(18u);
-x_3 = lean_unsigned_to_nat(1865u);
+x_3 = lean_unsigned_to_nat(1866u);
 x_4 = ((lean_object*)(l___private_Lean_Elab_PreDefinition_EqnsUtils_0__Lean_Elab_Eqns_whnfAux___closed__2));
 x_5 = ((lean_object*)(l___private_Lean_Elab_PreDefinition_EqnsUtils_0__Lean_Elab_Eqns_whnfAux___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1899,10 +1899,10 @@ return x_7;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Match_Match(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Delta(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_SplitIf(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Contradiction(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_EqnsUtils(uint8_t builtin) {
 lean_object * res;
@@ -1914,9 +1914,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_Match(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -1924,6 +1921,9 @@ res = initialize_Lean_Meta_Tactic_Delta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_SplitIf(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Contradiction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Eqns_tryURefl___closed__0 = _init_l_Lean_Elab_Eqns_tryURefl___closed__0();

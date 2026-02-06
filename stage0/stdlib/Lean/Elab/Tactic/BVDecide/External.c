@@ -4377,8 +4377,8 @@ block_21:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_13 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__0));
-x_14 = lean_string_append(x_13, x_10);
-lean_dec_ref(x_10);
+x_14 = lean_string_append(x_13, x_12);
+lean_dec_ref(x_12);
 x_15 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__1));
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_string_append(x_16, x_11);
@@ -4397,33 +4397,33 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
 x_27 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parseHeader___closed__0));
-x_28 = lean_string_utf8_byte_size(x_23);
+x_28 = lean_string_utf8_byte_size(x_25);
 x_29 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2;
 x_30 = lean_nat_dec_le(x_29, x_28);
 if (x_30 == 0)
 {
-x_10 = x_23;
-x_11 = x_24;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_23;
+x_12 = x_25;
 goto block_21;
 }
 else
 {
 uint8_t x_31; 
-x_31 = lean_string_memcmp(x_23, x_27, x_22, x_22, x_29);
+x_31 = lean_string_memcmp(x_25, x_27, x_24, x_24, x_29);
 if (x_31 == 0)
 {
-x_10 = x_23;
-x_11 = x_24;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_23;
+x_12 = x_25;
 goto block_21;
 }
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-lean_dec_ref(x_24);
+lean_dec_ref(x_23);
 x_32 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parse), 1, 0);
-x_33 = lean_string_to_utf8(x_23);
+x_33 = lean_string_to_utf8(x_25);
 x_34 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg(x_32, x_33);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -4438,8 +4438,8 @@ x_38 = lean_string_append(x_37, x_36);
 lean_dec(x_36);
 x_39 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4));
 x_40 = lean_string_append(x_38, x_39);
-x_41 = lean_string_append(x_40, x_23);
-lean_dec_ref(x_23);
+x_41 = lean_string_append(x_40, x_25);
+lean_dec_ref(x_25);
 lean_ctor_set_tag(x_34, 3);
 lean_ctor_set(x_34, 0, x_41);
 x_42 = l_Lean_MessageData_ofFormat(x_34);
@@ -4459,8 +4459,8 @@ x_46 = lean_string_append(x_45, x_44);
 lean_dec(x_44);
 x_47 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4));
 x_48 = lean_string_append(x_46, x_47);
-x_49 = lean_string_append(x_48, x_23);
-lean_dec_ref(x_23);
+x_49 = lean_string_append(x_48, x_25);
+lean_dec_ref(x_25);
 x_50 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_MessageData_ofFormat(x_50);
@@ -4473,7 +4473,7 @@ return x_52;
 else
 {
 uint8_t x_53; 
-lean_dec_ref(x_23);
+lean_dec_ref(x_25);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 x_53 = !lean_is_exclusive(x_34);
@@ -4504,7 +4504,7 @@ return x_57;
 else
 {
 lean_object* x_58; lean_object* x_59; 
-lean_dec_ref(x_24);
+lean_dec_ref(x_25);
 lean_dec_ref(x_23);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -4580,10 +4580,10 @@ x_94 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__13;
 x_95 = lean_nat_dec_le(x_94, x_93);
 if (x_95 == 0)
 {
-x_22 = x_78;
-x_23 = x_88;
-x_24 = x_89;
-x_25 = lean_box(0);
+x_22 = lean_box(0);
+x_23 = x_89;
+x_24 = x_78;
+x_25 = x_88;
 x_26 = x_91;
 goto block_60;
 }
@@ -4591,10 +4591,10 @@ else
 {
 uint8_t x_96; 
 x_96 = lean_string_memcmp(x_88, x_92, x_78, x_78, x_94);
-x_22 = x_78;
-x_23 = x_88;
-x_24 = x_89;
-x_25 = lean_box(0);
+x_22 = lean_box(0);
+x_23 = x_89;
+x_24 = x_78;
+x_25 = x_88;
 x_26 = x_96;
 goto block_60;
 }
@@ -4638,10 +4638,10 @@ x_109 = l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__13;
 x_110 = lean_nat_dec_le(x_109, x_108);
 if (x_110 == 0)
 {
-x_22 = x_78;
-x_23 = x_103;
-x_24 = x_104;
-x_25 = lean_box(0);
+x_22 = lean_box(0);
+x_23 = x_104;
+x_24 = x_78;
+x_25 = x_103;
 x_26 = x_106;
 goto block_60;
 }
@@ -4649,10 +4649,10 @@ else
 {
 uint8_t x_111; 
 x_111 = lean_string_memcmp(x_103, x_107, x_78, x_78, x_109);
-x_22 = x_78;
-x_23 = x_103;
-x_24 = x_104;
-x_25 = lean_box(0);
+x_22 = lean_box(0);
+x_23 = x_104;
+x_24 = x_78;
+x_25 = x_103;
 x_26 = x_111;
 goto block_60;
 }

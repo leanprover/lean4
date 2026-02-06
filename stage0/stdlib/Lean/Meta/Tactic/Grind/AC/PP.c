@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.AC.PP
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.AC.DenoteExpr
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.AC.DenoteExpr import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3762,13 +3762,13 @@ goto block_42;
 block_65:
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-x_62 = lean_ctor_get(x_61, 4);
+x_62 = lean_ctor_get(x_60, 4);
 lean_inc(x_62);
 x_63 = l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_ppStruct_x3f___closed__9;
-x_64 = lean_array_push(x_60, x_63);
+x_64 = lean_array_push(x_58, x_63);
 x_43 = x_64;
-x_44 = x_59;
-x_45 = x_61;
+x_44 = x_61;
+x_45 = x_60;
 x_46 = x_62;
 x_47 = lean_box(0);
 goto block_57;
@@ -3789,10 +3789,10 @@ goto block_57;
 else
 {
 lean_dec(x_69);
-x_58 = lean_box(0);
-x_59 = x_67;
-x_60 = x_66;
-x_61 = x_68;
+x_58 = x_66;
+x_59 = lean_box(0);
+x_60 = x_68;
+x_61 = x_67;
 goto block_65;
 }
 }
@@ -3800,10 +3800,10 @@ else
 {
 lean_dec_ref(x_70);
 lean_dec(x_69);
-x_58 = lean_box(0);
-x_59 = x_67;
-x_60 = x_66;
-x_61 = x_68;
+x_58 = x_66;
+x_59 = lean_box(0);
+x_60 = x_68;
+x_61 = x_67;
 goto block_65;
 }
 }
@@ -4190,6 +4190,7 @@ return x_7;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_AC_PP(uint8_t builtin) {
 lean_object * res;
@@ -4199,6 +4200,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AC_DenoteExpr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_instMonadGetStructM___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_instMonadGetStructM___closed__0();

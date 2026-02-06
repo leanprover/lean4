@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Decode
-// Imports: public import Init.System.FilePath public import Lake.Toml.Data
+// Imports: public import Init.System.FilePath public import Lake.Toml.Data import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3719,6 +3719,7 @@ return x_20;
 }
 lean_object* initialize_Init_System_FilePath(uint8_t builtin);
 lean_object* initialize_Lake_Toml_Data(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Decode(uint8_t builtin) {
 lean_object * res;
@@ -3728,6 +3729,9 @@ res = initialize_Init_System_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Toml_Data(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Toml_Value_decodeNat___closed__1 = _init_l_Lake_Toml_Value_decodeNat___closed__1();

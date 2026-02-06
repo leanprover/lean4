@@ -1307,6 +1307,35 @@ Parenthesizer for `ifVerso`—parenthesizes according to the underlying parenthe
 public def ifVerso.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := p1 <|> p2
 
 /--
+Parses as `ifVerso` if module docs should use Verso syntax, or as `ifNotVerso` otherwise.
+Checks `doc.verso.module` if explicitly set, otherwise falls back to `doc.verso`.
+-/
+public def ifVersoModuleDocsFn (ifVerso ifNotVerso : ParserFn) : ParserFn := fun c s =>
+  let useVerso :=
+    if c.options.contains `doc.verso.module then
+      c.options.getBool `doc.verso.module
+    else
+      c.options.getBool `doc.verso
+  if useVerso then ifVerso c s
+  else ifNotVerso c s
+
+@[inherit_doc ifVersoModuleDocsFn]
+public def ifVersoModuleDocs (ifVerso ifNotVerso : Parser) : Parser where
+  fn := ifVersoModuleDocsFn ifVerso.fn ifNotVerso.fn
+
+/--
+Formatter for `ifVersoModuleDocs`—formats according to the underlying formatters.
+-/
+@[combinator_formatter ifVersoModuleDocs, expose]
+public def ifVersoModuleDocs.formatter (f1 f2 : Formatter) : Formatter := f1 <|> f2
+
+/--
+Parenthesizer for `ifVersoModuleDocs`—parenthesizes according to the underlying parenthesizers.
+-/
+@[combinator_parenthesizer ifVersoModuleDocs, expose]
+public def ifVersoModuleDocs.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := p1 <|> p2
+
+/--
 Disables the option `doc.verso` while running a parser.
 -/
 public def withoutVersoSyntax (p : Parser) : Parser where

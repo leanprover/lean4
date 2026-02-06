@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Reduce
-// Imports: public import Lean.Meta.FunInfo
+// Imports: public import Lean.Meta.FunInfo import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1357,8 +1357,8 @@ return x_116;
 block_16:
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = l_Lean_mkAppN(x_13, x_11);
-lean_dec_ref(x_11);
+x_14 = l_Lean_mkAppN(x_13, x_12);
+lean_dec_ref(x_12);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -1378,8 +1378,8 @@ block_36:
 {
 if (x_27 == 0)
 {
-x_11 = x_24;
-x_12 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_25;
 x_13 = x_26;
 goto block_16;
 }
@@ -1388,12 +1388,12 @@ else
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_28 = l_Lean_instInhabitedExpr;
 x_29 = lean_unsigned_to_nat(0u);
-x_30 = lean_array_get_borrowed(x_28, x_24, x_29);
+x_30 = lean_array_get_borrowed(x_28, x_25, x_29);
 x_31 = l_Lean_Expr_isRawNatLit(x_30);
 if (x_31 == 0)
 {
-x_11 = x_24;
-x_12 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_25;
 x_13 = x_26;
 goto block_16;
 }
@@ -1402,7 +1402,7 @@ else
 lean_object* x_32; 
 lean_inc(x_30);
 lean_dec_ref(x_26);
-lean_dec_ref(x_24);
+lean_dec_ref(x_25);
 x_32 = l_Lean_Expr_rawNatLit_x3f(x_30);
 if (lean_obj_tag(x_32) == 0)
 {
@@ -1492,8 +1492,8 @@ x_57 = ((lean_object*)(l___private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit___
 x_58 = l_Lean_Expr_isConstOf(x_44, x_57);
 if (x_58 == 0)
 {
-x_24 = x_56;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_56;
 x_26 = x_44;
 x_27 = x_58;
 goto block_36;
@@ -1503,8 +1503,8 @@ else
 lean_object* x_59; uint8_t x_60; 
 x_59 = lean_array_get_size(x_56);
 x_60 = lean_nat_dec_eq(x_59, x_50);
-x_24 = x_56;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_56;
 x_26 = x_44;
 x_27 = x_60;
 goto block_36;
@@ -2200,12 +2200,16 @@ return x_7;
 }
 }
 lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Reduce(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_FunInfo(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_throwMaxRecDepthAt___at___00Lean_Core_withIncRecDepth___at___00__private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__5_spec__6___redArg___closed__3 = _init_l_Lean_throwMaxRecDepthAt___at___00Lean_Core_withIncRecDepth___at___00__private_Lean_Meta_Reduce_0__Lean_Meta_reduce_visit_spec__5_spec__6___redArg___closed__3();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.FindPos
-// Imports: public import Init.Data.String.FindPos import all Init.Data.String.FindPos import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Order
+// Imports: public import Init.Data.String.FindPos import all Init.Data.String.FindPos import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.Order import Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,8 +16,8 @@ extern "C" {
 lean_object* initialize_Init_Data_String_FindPos(uint8_t builtin);
 lean_object* initialize_Init_Data_String_FindPos(uint8_t builtin);
 lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin) {
 lean_object * res;
@@ -32,10 +32,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_OrderInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Basic(builtin);
+res = initialize_Init_Data_String_Lemmas_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_Order(builtin);
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

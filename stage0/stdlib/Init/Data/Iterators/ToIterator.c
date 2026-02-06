@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.ToIterator
-// Imports: public import Init.Data.Iterators.Consumers.Loop
+// Imports: public import Init.Data.Iterators.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -107,13 +107,13 @@ lean_closure_set(x_5, 0, x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
+res = initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.ContextAsync
-// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic public import Std.Internal.Async.Timer public import Std.Sync.CancellationContext
+// Imports: public import Std.Internal.UV public import Std.Internal.Async.Timer public import Std.Sync.CancellationContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6356,9 +6356,7 @@ x_3 = l_Std_Internal_IO_Async_Selector_cancelled(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV(uint8_t builtin);
-lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Timer(uint8_t builtin);
 lean_object* initialize_Std_Sync_CancellationContext(uint8_t builtin);
 static bool _G_initialized = false;
@@ -6366,13 +6364,7 @@ LEAN_EXPORT lean_object* initialize_Std_Internal_Async_ContextAsync(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Internal_UV(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal_Async_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Timer(builtin);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Finish
-// Imports: public import Lean.Meta.Tactic.Grind.Action import Lean.Meta.Tactic.Grind.EMatchAction import Lean.Meta.Tactic.Grind.Split import Lean.Meta.Tactic.Grind.Intro
+// Imports: public import Lean.Meta.Tactic.Grind.Action import Lean.Meta.Tactic.Grind.EMatchAction import Lean.Meta.Tactic.Grind.Split
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -279,7 +279,6 @@ return x_3;
 lean_object* initialize_Lean_Meta_Tactic_Grind_Action(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchAction(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Split(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Intro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin) {
 lean_object * res;
@@ -292,9 +291,6 @@ res = initialize_Lean_Meta_Tactic_Grind_EMatchAction(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Split(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Intro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Action_maxIterationsDefault = _init_l_Lean_Meta_Grind_Action_maxIterationsDefault();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Bitwise.Lemmas
-// Imports: public import Init.Data.Int.Pow import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.Simproc public import Init.TacticsExtra import Init.BinderPredicates
+// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.BinderPredicates public import Init.Data.Bool public import Init.Data.Nat.Log2 import Init.ByCases import Init.Data.Int.Pow import Init.Data.Nat.Lemmas import Init.Omega import Init.RCases import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -220,29 +220,49 @@ x_1 = l_Nat_bitwise__div__two__pow___auto__9___closed__21;
 return x_1;
 }
 }
-lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin);
-lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Bitwise_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Pow(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Bitwise_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Simproc(builtin);
+res = initialize_Init_BinderPredicates(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Log2(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_bitwise__div__two__pow___auto__9___closed__5 = _init_l_Nat_bitwise__div__two__pow___auto__9___closed__5();

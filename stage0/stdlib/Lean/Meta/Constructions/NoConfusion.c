@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Constructions.NoConfusion
-// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Meta.CompletionName import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CtorElim import Lean.Meta.Tactic.Subst
+// Imports: public import Lean.Meta.Basic import Lean.AddDecl import Lean.Meta.CompletionName import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Constructions.CtorElim import Lean.Meta.Tactic.Subst
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6318,7 +6318,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__4));
 x_2 = lean_unsigned_to_nat(58u);
-x_3 = lean_unsigned_to_nat(82u);
+x_3 = lean_unsigned_to_nat(81u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__3));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6331,7 +6331,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtorArg_spec__0___closed__6));
 x_2 = lean_unsigned_to_nat(60u);
-x_3 = lean_unsigned_to_nat(75u);
+x_3 = lean_unsigned_to_nat(74u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__3));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10298,7 +10298,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkEqNDRecTelescope___closed__1));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(193u);
+x_3 = lean_unsigned_to_nat(192u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkEqNDRecTelescope___closed__0));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11514,7 +11514,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__4));
 x_2 = lean_unsigned_to_nat(58u);
-x_3 = lean_unsigned_to_nat(217u);
+x_3 = lean_unsigned_to_nat(216u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCoreImp___closed__4));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11527,7 +11527,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtorArg_spec__0___closed__6));
 x_2 = lean_unsigned_to_nat(60u);
-x_3 = lean_unsigned_to_nat(214u);
+x_3 = lean_unsigned_to_nat(213u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCoreImp___closed__4));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16823,7 +16823,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtorArg_spec__0___closed__6));
 x_2 = lean_unsigned_to_nat(63u);
-x_3 = lean_unsigned_to_nat(377u);
+x_3 = lean_unsigned_to_nat(376u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionEnum_mkNoConfusionType___closed__2));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -17849,7 +17849,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtorArg_spec__0___closed__6));
 x_2 = lean_unsigned_to_nat(63u);
-x_3 = lean_unsigned_to_nat(404u);
+x_3 = lean_unsigned_to_nat(403u);
 x_4 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionEnum_mkNoConfusion___closed__0));
 x_5 = ((lean_object*)(l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionType___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -19656,7 +19656,7 @@ block_45:
 {
 lean_object* x_33; double x_34; double x_35; double x_36; double x_37; double x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; 
 x_33 = lean_io_mono_nanos_now();
-x_34 = lean_float_of_nat(x_30);
+x_34 = lean_float_of_nat(x_29);
 x_35 = l_Lean_mkNoConfusion___closed__0;
 x_36 = lean_float_div(x_34, x_35);
 x_37 = lean_float_of_nat(x_33);
@@ -19671,7 +19671,7 @@ lean_ctor_set(x_42, 0, x_31);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_unbox(x_25);
 lean_dec(x_25);
-x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_29, x_27, x_42, x_2, x_3, x_4, x_5);
+x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_30, x_27, x_42, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_21);
 return x_44;
 }
@@ -19684,8 +19684,8 @@ if (lean_is_scalar(x_26)) {
  x_50 = x_26;
 }
 lean_ctor_set(x_50, 0, x_48);
-x_29 = x_47;
-x_30 = x_46;
+x_29 = x_46;
+x_30 = x_47;
 x_31 = x_50;
 x_32 = lean_box(0);
 goto block_45;
@@ -19700,8 +19700,8 @@ x_55 = !lean_is_exclusive(x_54);
 if (x_55 == 0)
 {
 lean_ctor_set_tag(x_54, 1);
-x_29 = x_53;
-x_30 = x_52;
+x_29 = x_52;
+x_30 = x_53;
 x_31 = x_54;
 x_32 = lean_box(0);
 goto block_45;
@@ -19714,8 +19714,8 @@ lean_inc(x_56);
 lean_dec(x_54);
 x_57 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
-x_29 = x_53;
-x_30 = x_52;
+x_29 = x_52;
+x_30 = x_53;
 x_31 = x_57;
 x_32 = lean_box(0);
 goto block_45;
@@ -20054,7 +20054,6 @@ return x_2;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_AddDecl(uint8_t builtin);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CompletionName(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorElim(uint8_t builtin);
@@ -20068,9 +20067,6 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_AddDecl(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_CompletionName(builtin);

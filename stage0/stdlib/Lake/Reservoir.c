@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Reservoir
-// Imports: public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Proc import Lake.Util.Url
+// Imports: public import Lake.Util.JsonObject public import Lake.Util.Version public import Lake.Config.Env public import Lake.Util.Reservoir import Lake.Util.Url
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -791,8 +791,8 @@ lean_object* x_28; lean_object* x_29;
 x_28 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_28, 0, x_9);
 lean_ctor_set(x_28, 1, x_24);
-lean_ctor_set(x_28, 2, x_25);
-lean_ctor_set(x_28, 3, x_26);
+lean_ctor_set(x_28, 2, x_26);
+lean_ctor_set(x_28, 3, x_25);
 lean_ctor_set(x_28, 4, x_27);
 if (lean_is_scalar(x_23)) {
  x_29 = lean_alloc_ctor(1, 1, 0);
@@ -811,8 +811,8 @@ if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; 
 x_35 = lean_box(0);
-x_25 = x_31;
-x_26 = x_32;
+x_25 = x_32;
+x_26 = x_31;
 x_27 = x_35;
 goto block_30;
 }
@@ -862,8 +862,8 @@ lean_object* x_42;
 x_42 = lean_ctor_get(x_37, 0);
 lean_inc(x_42);
 lean_dec_ref(x_37);
-x_25 = x_31;
-x_26 = x_32;
+x_25 = x_32;
+x_26 = x_31;
 x_27 = x_42;
 goto block_30;
 }
@@ -4511,7 +4511,6 @@ lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
 lean_object* initialize_Lake_Util_Reservoir(uint8_t builtin);
-lean_object* initialize_Lake_Util_Proc(uint8_t builtin);
 lean_object* initialize_Lake_Util_Url(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Reservoir(uint8_t builtin) {
@@ -4528,9 +4527,6 @@ res = initialize_Lake_Config_Env(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Reservoir(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_Proc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_Url(builtin);

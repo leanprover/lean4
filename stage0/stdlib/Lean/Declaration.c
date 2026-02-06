@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Declaration
-// Imports: public import Lean.Expr
+// Imports: public import Lean.Expr import Init.Data.Ord.UInt import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2810,7 +2810,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(198u);
+x_3 = lean_unsigned_to_nat(200u);
 x_4 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__1));
 x_5 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5160,7 +5160,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__1));
 x_2 = lean_unsigned_to_nat(62u);
-x_3 = lean_unsigned_to_nat(488u);
+x_3 = lean_unsigned_to_nat(490u);
 x_4 = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__0));
 x_5 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5210,7 +5210,7 @@ default:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_11 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 x_12 = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__0));
-x_13 = lean_unsigned_to_nat(489u);
+x_13 = lean_unsigned_to_nat(491u);
 x_14 = lean_unsigned_to_nat(31u);
 x_15 = ((lean_object*)(l_Lean_ConstantInfo_value_x21___closed__3));
 x_16 = l_Lean_ConstantInfo_name(x_1);
@@ -5389,7 +5389,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_ConstantInfo_inductiveVal_x21___closed__1));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(513u);
+x_3 = lean_unsigned_to_nat(515u);
 x_4 = ((lean_object*)(l_Lean_ConstantInfo_inductiveVal_x21___closed__0));
 x_5 = ((lean_object*)(l_Lean_Declaration_definitionVal_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5492,12 +5492,20 @@ return x_3;
 }
 }
 lean_object* initialize_Lean_Expr(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Declaration(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Expr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedReducibilityHints_default = _init_l_Lean_instInhabitedReducibilityHints_default();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ExpandResetReuse
-// Imports: public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.FreeVars
+// Imports: public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.FreeVars import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3923,6 +3923,7 @@ return x_2;
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_NormIds(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(uint8_t builtin) {
 lean_object * res;
@@ -3935,6 +3936,9 @@ res = initialize_Lean_Compiler_IR_NormIds(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_FreeVars(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_ExpandResetReuse_mkProjMap___closed__0 = _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__0();

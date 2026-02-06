@@ -48,7 +48,7 @@ public abbrev RecBuildT (m : Type → Type) :=
 
 /-- Build cycle error message. -/
 public def buildCycleError (cycle : Cycle BuildKey) : String :=
-  s!"build cycle detected:\n{inline <| formatCycle cycle}"
+  s!"build cycle detected:\n{formatCycle cycle}"
 
 public instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
   throwCycle cycle := error (buildCycleError cycle)

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanLib
-// Imports: public import Lake.Config.ConfigTarget public import Lake.Util.NativeLib
+// Imports: public import Lake.Config.ConfigTarget public import Lake.Util.NativeLib import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1313,6 +1313,7 @@ return x_9;
 }
 lean_object* initialize_Lake_Config_ConfigTarget(uint8_t builtin);
 lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_LeanLib(uint8_t builtin) {
 lean_object * res;
@@ -1322,6 +1323,9 @@ res = initialize_Lake_Config_ConfigTarget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_NativeLib(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Package_leanLibs___closed__0 = _init_l_Lake_Package_leanLibs___closed__0();

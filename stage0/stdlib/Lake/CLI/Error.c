@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Error
-// Imports: public import Init.Data.ToString public import Init.System.FilePath import Init.Data.ToString.Name
+// Imports: public import Init.Data.ToString public import Init.System.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3762,7 +3762,6 @@ return x_175;
 }
 lean_object* initialize_Init_Data_ToString(uint8_t builtin);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin);
-lean_object* initialize_Init_Data_ToString_Name(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_CLI_Error(uint8_t builtin) {
 lean_object * res;
@@ -3772,9 +3771,6 @@ res = initialize_Init_Data_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_FilePath(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Name(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedCliError_default = _init_l_Lake_instInhabitedCliError_default();

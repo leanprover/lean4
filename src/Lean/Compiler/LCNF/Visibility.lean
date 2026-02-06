@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
+import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PassManager
 
 public section
 

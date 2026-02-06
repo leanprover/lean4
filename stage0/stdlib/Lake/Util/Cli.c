@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Cli
-// Imports: import Init.Data.Array.Basic public import Init.Data.String.TakeDrop import Init.Data.String.Slice public import Init.Data.String.Search
+// Imports: public import Init.Data.String.TakeDrop public import Init.Data.String.Search
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lake_shortOptionWithEq(lean_object*, lean_object*, le
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
 static const lean_closure_object l_Lake_shortOptionWithSpace___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Char_isWhitespace___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lake_shortOptionWithSpace___redArg___closed__0 = (const lean_object*)&l_Lake_shortOptionWithSpace___redArg___closed__0_value;
-lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharBool(lean_object*);
+lean_object* l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(lean_object*);
 static lean_object* l_Lake_shortOptionWithSpace___redArg___closed__1;
 lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_shortOptionWithSpace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -662,7 +662,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = ((lean_object*)(l_Lake_shortOptionWithSpace___redArg___closed__0));
-x_2 = l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharBool(x_1);
+x_2 = l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(x_1);
 return x_2;
 }
 }
@@ -3748,22 +3748,14 @@ x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_6);
 return x_9;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Cli(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);

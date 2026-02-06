@@ -217,7 +217,7 @@ instance : Repr FVarId where
 A set of unique free variable identifiers.
 This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
-  deriving Inhabited, EmptyCollection
+  deriving Inhabited, EmptyCollection, Singleton
 
 instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.InstallPath
-// Imports: public import Lean.Compiler.FFI public import Lake.Config.Dynlib public import Lake.Config.Defaults public import Lake.Util.NativeLib import Init.Data.String.Modify
+// Imports: public import Lean.Compiler.FFI public import Lake.Config.Dynlib public import Lake.Config.Defaults public import Lake.Util.NativeLib import Init.Data.String.Modify import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4225,6 +4225,7 @@ lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin);
 lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_InstallPath(uint8_t builtin) {
 lean_object * res;
@@ -4243,6 +4244,9 @@ res = initialize_Lake_Util_NativeLib(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Modify(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedElanInstall_default___closed__0 = _init_l_Lake_instInhabitedElanInstall_default___closed__0();

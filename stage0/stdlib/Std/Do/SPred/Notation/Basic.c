@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.Notation.Basic
-// Imports: public import Std.Do.SPred.SPred import Init.NotationExtra
+// Imports: public import Std.Do.SPred.SPred
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2171,16 +2171,12 @@ return x_6;
 }
 }
 lean_object* initialize_Std_Do_SPred_SPred(uint8_t builtin);
-lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_SPred_Notation_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Do_SPred_SPred(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do___aux__Std__Do__SPred__Notation__Basic______macroRules__Std__Do__termSpred_x28___x29__2___closed__17 = _init_l_Std_Do___aux__Std__Do__SPred__Notation__Basic______macroRules__Std__Do__termSpred_x28___x29__2___closed__17();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.InferType
-// Imports: public import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.OtherDecl
+// Imports: public import Lean.Compiler.LCNF.PhaseExt public import Lean.Compiler.LCNF.OtherDecl import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3463,7 +3463,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__2));
 x_2 = lean_unsigned_to_nat(73u);
-x_3 = lean_unsigned_to_nat(134u);
+x_3 = lean_unsigned_to_nat(135u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7986,7 +7986,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__1));
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(257u);
+x_3 = lean_unsigned_to_nat(258u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8033,7 +8033,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__1));
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(262u);
+x_3 = lean_unsigned_to_nat(263u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_Arg_inferType___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8075,7 +8075,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__1));
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(267u);
+x_3 = lean_unsigned_to_nat(268u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_LetValue_inferType___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8117,7 +8117,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__1));
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(278u);
+x_3 = lean_unsigned_to_nat(279u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_Code_inferType___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -8624,7 +8624,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_inferAppType___closed__1));
 x_2 = lean_unsigned_to_nat(15u);
-x_3 = lean_unsigned_to_nat(294u);
+x_3 = lean_unsigned_to_nat(295u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_mkForallParams___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9478,7 +9478,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__2));
 x_2 = lean_unsigned_to_nat(50u);
-x_3 = lean_unsigned_to_nat(344u);
+x_3 = lean_unsigned_to_nat(345u);
 x_4 = ((lean_object*)(l___private_Lean_Compiler_LCNF_InferType_0__Lean_Compiler_LCNF_isErasedCompatible_go___closed__0));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_InferType_Pure_inferType___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10107,6 +10107,7 @@ return x_4;
 }
 lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_OtherDecl(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_InferType(uint8_t builtin) {
 lean_object * res;
@@ -10116,6 +10117,9 @@ res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_OtherDecl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_InferType_Pure_mkForallParams___redArg___closed__0 = _init_l_Lean_Compiler_LCNF_InferType_Pure_mkForallParams___redArg___closed__0();

@@ -84,6 +84,16 @@ theorem Pos.offset_le_rawEndPos {s : String} {p : s.Pos} :
   p.isValid.le_rawEndPos
 
 @[simp]
+theorem Slice.Pos.byteIdx_offset_le_utf8ByteSize {s : Slice} {p : s.Pos} :
+    p.offset.byteIdx ≤ s.utf8ByteSize := by
+  simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.byteIdx_offset_le_utf8ByteSize {s : String} {p : s.Pos} :
+    p.offset.byteIdx ≤ s.utf8ByteSize := by
+  simp [← byteIdx_rawEndPos, ← Pos.Raw.le_iff]
+
+@[simp]
 theorem Slice.Pos.offset_lt_rawEndPos_iff {s : Slice} {p : s.Pos} :
     p.offset < s.rawEndPos ↔ p ≠ s.endPos := by
   simp [Std.lt_iff_le_and_ne, p.offset_le_rawEndPos, Pos.ext_iff]

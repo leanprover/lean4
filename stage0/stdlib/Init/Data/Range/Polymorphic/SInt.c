@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.SInt
-// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.Order.Lemmas public import Init.Data.SInt import Init.Data.Range.Polymorphic.UInt import all Init.Data.SInt.Basic import all Init.Data.Range.Polymorphic.Internal.SignedBitVec
+// Imports: public import Init.Data.Range.Polymorphic.Instances public import Init.Data.SInt import all Init.Data.SInt.Basic import all Init.Data.Range.Polymorphic.Internal.SignedBitVec import Init.ByCases import Init.Data.Int.LemmasAux import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1871,11 +1871,12 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_UInt(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_SInt(uint8_t builtin) {
 lean_object * res;
@@ -1884,19 +1885,22 @@ _G_initialized = true;
 res = initialize_Init_Data_Range_Polymorphic_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_SInt(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Internal_SignedBitVec(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Range_Polymorphic_SInt_0__HasModel_instHasSizeInt8___lam__0___closed__0 = _init_l___private_Init_Data_Range_Polymorphic_SInt_0__HasModel_instHasSizeInt8___lam__0___closed__0();

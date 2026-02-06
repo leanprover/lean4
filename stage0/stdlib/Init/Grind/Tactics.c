@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Tactics
-// Imports: public import Init.Core public import Init.Grind.Interactive public import Init.Grind.Config
+// Imports: public import Init.Core public import Init.Grind.Interactive
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -480,7 +480,6 @@ return x_1;
 }
 lean_object* initialize_Init_Core(uint8_t builtin);
 lean_object* initialize_Init_Grind_Interactive(uint8_t builtin);
-lean_object* initialize_Init_Grind_Config(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Tactics(uint8_t builtin) {
 lean_object * res;
@@ -490,9 +489,6 @@ res = initialize_Init_Core(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Interactive(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Grind_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_Tactic_grind___closed__8 = _init_l_Lean_Parser_Tactic_grind___closed__8();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LoadDynlib
-// Imports: public import Init.System.IO import Init.Data.String.TakeDrop
+// Imports: public import Init.System.IO import Init.Data.String.TakeDrop import Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -717,6 +717,7 @@ return x_3;
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_LoadDynlib(uint8_t builtin) {
 lean_object * res;
@@ -726,6 +727,9 @@ res = initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_LoadDynlib_0__Lean_DynlibImpl = _init_l___private_Lean_LoadDynlib_0__Lean_DynlibImpl();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.RawLemmas
-// Imports: public import Std.Data.DHashMap.Internal.Raw public import Std.Data.DHashMap.Internal.RawLemmas import all Std.Data.DHashMap.Raw
+// Imports: public import Std.Data.DHashMap.Internal.Raw public import Std.Data.DHashMap.Internal.RawLemmas import all Std.Data.DHashMap.Raw import Init.ByCases import Init.Data.List.Find import Init.Data.List.Impl import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1737,6 +1737,11 @@ return lean_box(0);
 lean_object* initialize_Std_Data_DHashMap_Internal_Raw(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Raw(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin) {
 lean_object * res;
@@ -1749,6 +1754,21 @@ res = initialize_Std_Data_DHashMap_Internal_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Raw(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Impl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Std_Data_DHashMap_RawLemmas_0__Std_DHashMap_Internal_Raw_baseNames___closed__87 = _init_l___private_Std_Data_DHashMap_RawLemmas_0__Std_DHashMap_Internal_Raw_baseNames___closed__87();

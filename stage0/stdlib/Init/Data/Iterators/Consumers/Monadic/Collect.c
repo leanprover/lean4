@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers.Monadic.Collect
-// Imports: public import Init.Data.Iterators.Consumers.Monadic.Partial public import Init.Data.Iterators.Consumers.Monadic.Total public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction public import Init.WFExtrinsicFix
+// Imports: public import Init.Data.Iterators.Consumers.Monadic.Partial public import Init.Data.Iterators.Consumers.Monadic.Total public import Init.WFExtrinsicFix public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -684,8 +684,8 @@ return x_17;
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Partial(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Total(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(uint8_t builtin);
 lean_object* initialize_Init_WFExtrinsicFix(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin) {
 lean_object * res;
@@ -697,10 +697,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Total(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin);
+res = initialize_Init_WFExtrinsicFix(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFExtrinsicFix(builtin);
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_IterM_toArray___redArg___closed__0 = _init_l_Std_IterM_toArray___redArg___closed__0();

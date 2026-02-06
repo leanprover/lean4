@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Grammar
-// Imports: public import Lean.Parser.Types import Lake.Toml.ParserUtil import Lean.Parser
+// Imports: import Lake.Toml.ParserUtil import Lean.Parser public import Lean.PrettyPrinter.Formatter public import Lean.PrettyPrinter.Parenthesizer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7880,21 +7880,25 @@ x_1 = l_Lake_Toml_toml___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Parser_Types(uint8_t builtin);
 lean_object* initialize_Lake_Toml_ParserUtil(uint8_t builtin);
 lean_object* initialize_Lean_Parser(uint8_t builtin);
+lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin);
+lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Grammar(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser_Types(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_ParserUtil(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Formatter(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Parenthesizer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__4 = _init_l___private_Lake_Toml_Grammar_0__Lake_Toml_hourMinFn___closed__4();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.CancellationContext
-// Imports: public import Std.Data public import Init.System.Promise public import Init.Data.Queue public import Std.Sync.Mutex public import Std.Sync.CancellationToken public import Std.Internal.Async.Select
+// Imports: public import Std.Sync.CancellationToken public import Init.Data.Ord.UInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -241,9 +241,9 @@ goto block_54;
 block_47:
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_44 = lean_nat_add(x_42, x_43);
+x_44 = lean_nat_add(x_41, x_43);
 lean_dec(x_43);
-lean_dec(x_42);
+lean_dec(x_41);
 if (lean_is_scalar(x_38)) {
  x_45 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -262,7 +262,7 @@ if (lean_is_scalar(x_28)) {
 lean_ctor_set(x_46, 0, x_40);
 lean_ctor_set(x_46, 1, x_30);
 lean_ctor_set(x_46, 2, x_31);
-lean_ctor_set(x_46, 3, x_41);
+lean_ctor_set(x_46, 3, x_42);
 lean_ctor_set(x_46, 4, x_45);
 return x_46;
 }
@@ -288,8 +288,8 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_33, 0);
 lean_inc(x_52);
-x_41 = x_50;
-x_42 = x_51;
+x_41 = x_51;
+x_42 = x_50;
 x_43 = x_52;
 goto block_47;
 }
@@ -297,8 +297,8 @@ else
 {
 lean_object* x_53; 
 x_53 = lean_unsigned_to_nat(0u);
-x_41 = x_50;
-x_42 = x_51;
+x_41 = x_51;
+x_42 = x_50;
 x_43 = x_53;
 goto block_47;
 }
@@ -715,9 +715,9 @@ goto block_155;
 block_147:
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; 
-x_144 = lean_nat_add(x_141, x_143);
+x_144 = lean_nat_add(x_142, x_143);
 lean_dec(x_143);
-lean_dec(x_141);
+lean_dec(x_142);
 if (lean_is_scalar(x_138)) {
  x_145 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -736,7 +736,7 @@ if (lean_is_scalar(x_128)) {
 lean_ctor_set(x_146, 0, x_140);
 lean_ctor_set(x_146, 1, x_131);
 lean_ctor_set(x_146, 2, x_132);
-lean_ctor_set(x_146, 3, x_142);
+lean_ctor_set(x_146, 3, x_141);
 lean_ctor_set(x_146, 4, x_145);
 return x_146;
 }
@@ -762,8 +762,8 @@ if (lean_obj_tag(x_134) == 0)
 lean_object* x_153; 
 x_153 = lean_ctor_get(x_134, 0);
 lean_inc(x_153);
-x_141 = x_152;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_152;
 x_143 = x_153;
 goto block_147;
 }
@@ -771,8 +771,8 @@ else
 {
 lean_object* x_154; 
 x_154 = lean_unsigned_to_nat(0u);
-x_141 = x_152;
-x_142 = x_151;
+x_141 = x_151;
+x_142 = x_152;
 x_143 = x_154;
 goto block_147;
 }
@@ -1610,9 +1610,9 @@ goto block_53;
 block_45:
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_42 = lean_nat_add(x_39, x_41);
+x_42 = lean_nat_add(x_40, x_41);
 lean_dec(x_41);
-lean_dec(x_39);
+lean_dec(x_40);
 if (lean_is_scalar(x_36)) {
  x_43 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1631,7 +1631,7 @@ if (lean_is_scalar(x_26)) {
 lean_ctor_set(x_44, 0, x_38);
 lean_ctor_set(x_44, 1, x_29);
 lean_ctor_set(x_44, 2, x_30);
-lean_ctor_set(x_44, 3, x_40);
+lean_ctor_set(x_44, 3, x_39);
 lean_ctor_set(x_44, 4, x_43);
 return x_44;
 }
@@ -1658,8 +1658,8 @@ if (lean_obj_tag(x_32) == 0)
 lean_object* x_51; 
 x_51 = lean_ctor_get(x_32, 0);
 lean_inc(x_51);
-x_39 = x_50;
-x_40 = x_49;
+x_39 = x_49;
+x_40 = x_50;
 x_41 = x_51;
 goto block_45;
 }
@@ -1667,8 +1667,8 @@ else
 {
 lean_object* x_52; 
 x_52 = lean_unsigned_to_nat(0u);
-x_39 = x_50;
-x_40 = x_49;
+x_39 = x_49;
+x_40 = x_50;
 x_41 = x_52;
 goto block_45;
 }
@@ -4458,33 +4458,17 @@ x_3 = l_Std_CancellationContext_countAliveTokens(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Std_Data(uint8_t builtin);
-lean_object* initialize_Init_System_Promise(uint8_t builtin);
-lean_object* initialize_Init_Data_Queue(uint8_t builtin);
-lean_object* initialize_Std_Sync_Mutex(uint8_t builtin);
 lean_object* initialize_Std_Sync_CancellationToken(uint8_t builtin);
-lean_object* initialize_Std_Internal_Async_Select(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sync_CancellationContext(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_Promise(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Queue(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Sync_Mutex(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Sync_CancellationToken(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Async_Select(builtin);
+res = initialize_Init_Data_Ord_UInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_CancellationContext_new___closed__0 = _init_l_Std_CancellationContext_new___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector.Range
-// Imports: import all Init.Data.Array.Basic import all Init.Data.Vector.Basic public import Init.Data.Vector.Zip public import Init.Data.Vector.MapIdx
+// Imports: import all Init.Data.Array.Basic import all Init.Data.Vector.Basic public import Init.BinderPredicates public import Init.Data.Vector.Basic import Init.ByCases import Init.Data.Array.Find import Init.Data.Array.Range import Init.Data.Vector.MapIdx import Init.Data.Vector.Zip
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -287,8 +287,13 @@ return x_1;
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Vector_Zip(uint8_t builtin);
+lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Basic(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_Vector_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Vector_Zip(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector_Range(uint8_t builtin) {
 lean_object * res;
@@ -300,10 +305,25 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Vector_Zip(builtin);
+res = initialize_Init_BinderPredicates(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Range(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Zip(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Vector_count__range_x27___auto__1___closed__5 = _init_l_Vector_count__range_x27___auto__1___closed__5();

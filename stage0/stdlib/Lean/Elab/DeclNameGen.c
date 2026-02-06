@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclNameGen
-// Imports: public import Lean.Elab.Command
+// Imports: public import Lean.Elab.Command import Init.Data.String.Modify import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6046,11 +6046,11 @@ goto block_26;
 block_40:
 {
 uint8_t x_36; 
-x_36 = lean_nat_dec_lt(x_8, x_34);
+x_36 = lean_nat_dec_lt(x_8, x_33);
 if (x_36 == 0)
 {
-lean_dec(x_34);
-lean_dec_ref(x_33);
+lean_dec_ref(x_34);
+lean_dec(x_33);
 x_29 = lean_box(0);
 goto block_32;
 }
@@ -6058,8 +6058,8 @@ else
 {
 if (x_36 == 0)
 {
-lean_dec(x_34);
-lean_dec_ref(x_33);
+lean_dec_ref(x_34);
+lean_dec(x_33);
 x_29 = lean_box(0);
 goto block_32;
 }
@@ -6067,11 +6067,11 @@ else
 {
 size_t x_37; size_t x_38; uint8_t x_39; 
 x_37 = 0;
-x_38 = lean_usize_of_nat(x_34);
-lean_dec(x_34);
+x_38 = lean_usize_of_nat(x_33);
+lean_dec(x_33);
 lean_inc(x_28);
-x_39 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(x_28, x_33, x_37, x_38);
-lean_dec_ref(x_33);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(x_28, x_34, x_37, x_38);
+lean_dec_ref(x_34);
 if (x_39 == 0)
 {
 x_29 = lean_box(0);
@@ -6106,8 +6106,8 @@ x_45 = lean_array_get_size(x_44);
 x_46 = lean_nat_dec_lt(x_8, x_45);
 if (x_46 == 0)
 {
-x_33 = x_44;
-x_34 = x_45;
+x_33 = x_45;
+x_34 = x_44;
 x_35 = lean_box(0);
 goto block_40;
 }
@@ -6115,8 +6115,8 @@ else
 {
 if (x_46 == 0)
 {
-x_33 = x_44;
-x_34 = x_45;
+x_33 = x_45;
+x_34 = x_44;
 x_35 = lean_box(0);
 goto block_40;
 }
@@ -6128,8 +6128,8 @@ x_48 = lean_usize_of_nat(x_45);
 x_49 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__5(x_44, x_47, x_48);
 if (x_49 == 0)
 {
-x_33 = x_44;
-x_34 = x_45;
+x_33 = x_45;
+x_34 = x_44;
 x_35 = lean_box(0);
 goto block_40;
 }
@@ -9552,12 +9552,20 @@ return x_6;
 }
 }
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclNameGen(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Elab_Command(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Modify(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___closed__0 = _init_l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___closed__0();

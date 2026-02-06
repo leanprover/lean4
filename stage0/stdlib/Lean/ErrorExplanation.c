@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ErrorExplanation
-// Imports: public import Lean.Message public import Lean.EnvExtension public import Lean.DocString.Links import Init.Data.String.TakeDrop import Init.Data.String.Extra import Init.Data.String.Search
+// Imports: public import Lean.Message public import Lean.EnvExtension public import Lean.DocString.Links
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1687,9 +1687,6 @@ return x_4;
 lean_object* initialize_Lean_Message(uint8_t builtin);
 lean_object* initialize_Lean_EnvExtension(uint8_t builtin);
 lean_object* initialize_Lean_DocString_Links(uint8_t builtin);
-lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Extra(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_ErrorExplanation(uint8_t builtin) {
 lean_object * res;
@@ -1702,15 +1699,6 @@ res = initialize_Lean_EnvExtension(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString_Links(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_TakeDrop(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Extra(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_ErrorExplanation_instFromJsonMetadata_fromJson___closed__5 = _init_l_Lean_ErrorExplanation_instFromJsonMetadata_fromJson___closed__5();

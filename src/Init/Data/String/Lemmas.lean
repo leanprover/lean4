@@ -13,6 +13,8 @@ public import Init.Data.String.Lemmas.FindPos
 public import Init.Data.String.Lemmas.Basic
 public import Init.Data.String.Lemmas.Order
 public import Init.Data.String.Lemmas.IsEmpty
+public import Init.Data.String.Lemmas.Pattern
+public import Init.Data.String.Lemmas.Slice
 import Init.Data.Order.Lemmas
 public import Init.Data.String.Basic
 import Init.Data.Char.Lemmas

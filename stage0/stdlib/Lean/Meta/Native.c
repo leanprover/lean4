@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Native
-// Imports: public import Lean.Meta.Basic import Lean.Util.CollectLevelParams import Lean.AddDecl import Lean.Meta.AppBuilder import Lean.Elab.DeclarationRange
+// Imports: public import Lean.Meta.Basic import Lean.Util.CollectLevelParams import Lean.Elab.DeclarationRange
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1191,17 +1191,17 @@ if (x_30 == 0)
 uint8_t x_31; 
 lean_inc(x_29);
 x_31 = l_Lean_Exception_isRuntime(x_29);
-x_11 = x_29;
-x_12 = x_28;
-x_13 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_29;
+x_13 = x_28;
 x_14 = x_31;
 goto block_23;
 }
 else
 {
-x_11 = x_29;
-x_12 = x_28;
-x_13 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_29;
+x_13 = x_28;
 x_14 = x_30;
 goto block_23;
 }
@@ -1236,7 +1236,7 @@ block_48:
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-lean_dec_ref(x_37);
+lean_dec_ref(x_36);
 x_40 = l_Lean_Meta_nativeEqTrue___lam__0___closed__1;
 lean_inc(x_3);
 x_41 = l_Lean_MessageData_ofName(x_3);
@@ -1258,7 +1258,7 @@ goto block_35;
 else
 {
 lean_dec_ref(x_38);
-x_27 = x_37;
+x_27 = x_36;
 goto block_35;
 }
 }
@@ -1301,16 +1301,16 @@ if (x_97 == 0)
 uint8_t x_98; 
 lean_inc(x_96);
 x_98 = l_Lean_Exception_isRuntime(x_96);
-x_36 = lean_box(0);
-x_37 = x_95;
+x_36 = x_95;
+x_37 = lean_box(0);
 x_38 = x_96;
 x_39 = x_98;
 goto block_48;
 }
 else
 {
-x_36 = lean_box(0);
-x_37 = x_95;
+x_36 = x_95;
+x_37 = lean_box(0);
 x_38 = x_96;
 x_39 = x_97;
 goto block_48;
@@ -1586,17 +1586,17 @@ if (x_126 == 0)
 uint8_t x_127; 
 lean_inc(x_125);
 x_127 = l_Lean_Exception_isRuntime(x_125);
-x_11 = x_125;
-x_12 = x_124;
-x_13 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_125;
+x_13 = x_124;
 x_14 = x_127;
 goto block_23;
 }
 else
 {
-x_11 = x_125;
-x_12 = x_124;
-x_13 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_125;
+x_13 = x_124;
 x_14 = x_126;
 goto block_23;
 }
@@ -1632,7 +1632,7 @@ block_144:
 if (x_135 == 0)
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-lean_dec_ref(x_133);
+lean_dec_ref(x_132);
 x_136 = l_Lean_Meta_nativeEqTrue___lam__0___closed__1;
 lean_inc(x_3);
 x_137 = l_Lean_MessageData_ofName(x_3);
@@ -1654,7 +1654,7 @@ goto block_131;
 else
 {
 lean_dec_ref(x_134);
-x_123 = x_133;
+x_123 = x_132;
 goto block_131;
 }
 }
@@ -1697,16 +1697,16 @@ if (x_194 == 0)
 uint8_t x_195; 
 lean_inc(x_193);
 x_195 = l_Lean_Exception_isRuntime(x_193);
-x_132 = lean_box(0);
-x_133 = x_192;
+x_132 = x_192;
+x_133 = lean_box(0);
 x_134 = x_193;
 x_135 = x_195;
 goto block_144;
 }
 else
 {
-x_132 = lean_box(0);
-x_133 = x_192;
+x_132 = x_192;
+x_133 = lean_box(0);
 x_134 = x_193;
 x_135 = x_194;
 goto block_144;
@@ -1836,7 +1836,7 @@ block_23:
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_dec_ref(x_12);
+lean_dec_ref(x_13);
 x_15 = l_Lean_Meta_nativeEqTrue___lam__0___closed__1;
 x_16 = l_Lean_MessageData_ofName(x_3);
 x_17 = lean_alloc_ctor(7, 2, 0);
@@ -1846,7 +1846,7 @@ x_18 = l_Lean_Meta_nativeEqTrue___lam__0___closed__3;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_Exception_toMessageData(x_11);
+x_20 = l_Lean_Exception_toMessageData(x_12);
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
@@ -1857,11 +1857,11 @@ return x_22;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_3);
-return x_12;
+return x_13;
 }
 }
 }
@@ -3514,8 +3514,6 @@ return x_8;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin);
-lean_object* initialize_Lean_AddDecl(uint8_t builtin);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* initialize_Lean_Elab_DeclarationRange(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Native(uint8_t builtin) {
@@ -3526,12 +3524,6 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_CollectLevelParams(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_AddDecl(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_DeclarationRange(builtin);

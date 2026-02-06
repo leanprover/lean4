@@ -768,36 +768,52 @@ where
         failure
     | _ => failure
 
+/--
+Returns `true` if `declName` is the name of class field.
+-/
+private def isProjInst (declName : Name) : MetaM Bool := do
+  let some { fromClass := true, .. } ← getProjectionFnInfo? declName | return false
+  return true
+
+/--
+Auxiliary method for unfolding a class projection.
+-/
+partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
+  let f := e.getAppFn
+  let .const declName us := f | return none
+  unless (← isProjInst declName) do return none
+  let some fInfo ← withDefault <| getUnfoldableConst? declName | return none
+  deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
+  let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return none
+  recordUnfold declName
+  return some <| mkAppN r e.getAppArgs |>.headBeta
+
+/--
+Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
+Recall that class instance projections are not marked with `[reducible]` because we want them to be
+in "reducible canonical form".
+-/
+partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
+  if (← getTransparency) matches .instances then
+    unfoldProjInst? e
+  else
+    return none
+
+private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
+  if fInfo.hasValue then
+    recordUnfold fInfo.name
+    deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
+      if (← isProjInst fInfo.name) then
+        let some r ← withReducibleAndInstances <| reduceProj? e.getAppFn | return some e
+        return mkAppN r e.getAppArgs |>.headBeta
+      else
+        return some e
+  else
+    if fInfo.isAxiom then
+      recordUnfoldAxiom fInfo.name
+    return none
+
 mutual
-
-  /--
-    Auxiliary method for unfolding a class projection.
-  -/
-  partial def unfoldProjInst? (e : Expr) : MetaM (Option Expr) := do
-    match e.getAppFn with
-    | .const declName .. =>
-      match (← getProjectionFnInfo? declName) with
-      | some { fromClass := true, .. } =>
-        match (← withDefault <| unfoldDefinition? e) with
-        | none   => return none
-        | some e =>
-          match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
-          | none   => return none
-          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
-      | _ => return none
-    | _ => return none
-
-  /--
-    Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
-    Recall that class instance projections are not marked with `[reducible]` because we want them to be
-    in "reducible canonical form".
-  -/
-  partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
-    if (← getTransparency) != TransparencyMode.instances then
-      return none
-    else
-      unfoldProjInst? e
-
   /--
   Unfold definition using "smart unfolding" if possible.
   If `ignoreTransparency = true`, then the definition is unfolded even if the transparency setting does not allow it.
@@ -809,14 +825,8 @@ mutual
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
-          let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
-            if fInfo.hasValue then
-              recordUnfold fInfo.name
-              deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
-            else
-              if fInfo.isAxiom then
-                recordUnfoldAxiom fInfo.name
-              return none
+          let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
+            unfoldDefault fInfo fLvls e
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>

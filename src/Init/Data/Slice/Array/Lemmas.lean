@@ -6,10 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Array.Subarray
 import all Init.Data.Slice.Array.Basic
 import Init.Data.Slice.Lemmas
-public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Iterators
@@ -22,6 +22,7 @@ import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.TakeDrop
 public import Init.Data.Array.Subarray.Split
 import all Init.Data.Array.Subarray.Split
+import Init.Data.Slice.InternalLemmas
 
 open Std Std.Iterators Std.PRange Std.Slice
 
@@ -212,6 +213,22 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
       simp [Subarray.array, Subarray.start, Subarray.stop]
   simp +instances [this, ListSlice.toList_eq, lslice]
 
+-- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
+example : Unit := sorry
+@[simp] theorem List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.take stop).drop start := by
+  simp [List.take_drop]
+  by_cases start ≤ stop
+  · simp [*]
+  · have h₁ : stop - start = 0 := by omega
+    have h₂ : min stop l.length ≤ stop := by omega
+    simp only [Nat.add_zero, drop_take_self, nil_eq, drop_eq_nil_iff, length_take, ge_iff_le, h₁]
+    omega
+
+theorem Subarray.toList_eq_drop_take {xs : Subarray α} :
+    xs.toList = (xs.array.toList.take xs.stop).drop xs.start := by
+  rw [Subarray.toList_eq, Array.toList_extract, List.extract_eq_drop_take']
+
 @[grind =]
 public theorem Subarray.size_eq {xs : Subarray α} :
     xs.size = xs.stop - xs.start := by
@@ -228,6 +245,32 @@ public theorem Subarray.size_take {xs : Subarray α} :
     (xs.take i).size = min i xs.size := by
   simp only [size, stop, take, start]
   omega
+
+theorem Subarray.sliceSize_eq_size {xs : Subarray α} :
+    Std.Slice.size xs = xs.size := by
+  rfl
+
+theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.size} :
+    xs[i] = xs.array[xs.start + i]'(by simp only [size] at h; have := xs.stop_le_array_size; omega) := by
+  rfl
+
+theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
+    xs.toList[i]'h = xs[i]'(by simpa using h) := by
+  simp [getElem_eq_getElem_array, toList_eq_drop_take]
+
+theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
+    xs[i]'h = xs.toList[i]'(by simpa using h) := by
+  rw [getElem_toList]
+
+@[simp, grind =]
+theorem Subarray.toList_drop {xs : Subarray α} :
+    (xs.drop n).toList = xs.toList.drop n := by
+  simp [Subarray.toList_eq_drop_take, drop, start, stop, array]
+
+@[simp, grind =]
+theorem Subarray.toList_take {xs : Subarray α} :
+    (xs.take n).toList = xs.toList.take n := by
+  simp [Subarray.toList_eq_drop_take, take, start, stop, array, List.take_drop, List.take_take]
 
 @[simp, grind =]
 public theorem Subarray.toArray_toList {xs : Subarray α} :
@@ -648,7 +691,7 @@ public theorem toList_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
 @[simp, grind =]
 public theorem toArray_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     xs[lo...hi].toArray = xs.toArray.extract lo hi := by
-  simp [← Subarray.toArray_toList, List.drop_take]
+  simp [← Subarray.toArray_toList]
 
 @[simp, grind =]
 public theorem size_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :

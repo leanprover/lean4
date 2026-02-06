@@ -214,20 +214,20 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   simp +instances [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
-example : Unit := sorry
-@[simp] theorem List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
     l.extract start stop = (l.take stop).drop start := by
   simp [List.take_drop]
   by_cases start ≤ stop
   · simp [*]
   · have h₁ : stop - start = 0 := by omega
     have h₂ : min stop l.length ≤ stop := by omega
-    simp only [Nat.add_zero, drop_take_self, nil_eq, drop_eq_nil_iff, length_take, ge_iff_le, h₁]
+    simp only [Nat.add_zero, List.drop_take_self, List.nil_eq, List.drop_eq_nil_iff,
+      List.length_take, ge_iff_le, h₁]
     omega
 
 theorem Subarray.toList_eq_drop_take {xs : Subarray α} :
     xs.toList = (xs.array.toList.take xs.stop).drop xs.start := by
-  rw [Subarray.toList_eq, Array.toList_extract, List.extract_eq_drop_take']
+  rw [Subarray.toList_eq, Array.toList_extract, Std.Internal.List.extract_eq_drop_take']
 
 @[grind =]
 public theorem Subarray.size_eq {xs : Subarray α} :

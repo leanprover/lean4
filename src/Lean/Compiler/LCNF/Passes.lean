@@ -142,11 +142,11 @@ def builtinPassManager : PassManager := {
     toImpure,
   ]
   impurePasses := #[
-    saveImpure, -- End of impure phase
     pushProj (occurrence := 0),
     insertResetReuse,
     elimDeadVars (phase := .impure) (occurrence := 0),
     inferVisibility (phase := .impure),
+    saveImpure, -- End of impure phase
   ]
 }
 

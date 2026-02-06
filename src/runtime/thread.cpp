@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "runtime/stack_overflow.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
-#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 16*1024*1024 // 16MB
 #endif
 
 namespace lean {

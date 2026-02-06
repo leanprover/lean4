@@ -14,13 +14,6 @@ trace: [simp] Diagnostics
   [simp] tried theorems (max: 57, num: 1):
     [simp] ack.eq_3 ↦ 57, succeeded: 57
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
----
-trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 176, num: 3):
-    [kernel] OfNat.ofNat ↦ 176
-    [kernel] Add.add ↦ 60
-    [kernel] HAdd.hAdd ↦ 60
-  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics.threshold 50 in
@@ -40,13 +33,6 @@ trace: [simp] Diagnostics
   [simp] tried theorems (max: 57, num: 1):
     [simp] ack.eq_3 ↦ 57, succeeded: 57
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
----
-trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 174, num: 3):
-    [kernel] OfNat.ofNat ↦ 174
-    [kernel] Add.add ↦ 58
-    [kernel] HAdd.hAdd ↦ 58
-  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics.threshold 50 in
@@ -65,13 +51,6 @@ trace: [simp] Diagnostics
     [simp] ack.eq_3 ↦ 57
   [simp] tried theorems (max: 57, num: 1):
     [simp] ack.eq_3 ↦ 57, succeeded: 57
-  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
----
-trace: [diag] Diagnostics
-  [kernel] unfolded declarations (max: 174, num: 3):
-    [kernel] OfNat.ofNat ↦ 174
-    [kernel] Add.add ↦ 58
-    [kernel] HAdd.hAdd ↦ 58
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
@@ -93,10 +72,6 @@ trace: [simp] Diagnostics
 trace: [diag] Diagnostics
   [def_eq] heuristic for solving `f a =?= f b` (max: 60, num: 1):
     [def_eq] ack ↦ 60
-  [kernel] unfolded declarations (max: 174, num: 3):
-    [kernel] OfNat.ofNat ↦ 174
-    [kernel] Add.add ↦ 58
-    [kernel] HAdd.hAdd ↦ 58
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

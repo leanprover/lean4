@@ -208,8 +208,10 @@ def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
 namespace Kernel
 
 structure Diagnostics where
-  /-- Number of times each declaration has been unfolded by the kernel. -/
+  /-- Number of times each declaration has been unfolded by the kernel during defeq checking. -/
   unfoldCounter : PHashMap Name Nat := {}
+  /-- Number of times each declaration has been unfolded by the kernel during whnf reduction. -/
+  reduceCounter : PHashMap Name Nat := {}
   /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
   enabled : Bool := false
   deriving Inhabited
@@ -346,13 +348,17 @@ def isDiagnosticsEnabled (env : Environment) : Bool :=
   env.diagnostics.enabled
 
 def resetDiag (env : Environment) : Environment :=
-  { env with diagnostics.unfoldCounter := {} }
+  { env with diagnostics.unfoldCounter := {}, diagnostics.reduceCounter := {} }
 
 @[export lean_kernel_record_unfold]
-def Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
+def Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) (inDefEq : Bool) : Diagnostics :=
   if d.enabled then
-    let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
-    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+    if inDefEq then
+      let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
+      { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+    else
+      let cNew := if let some c := d.reduceCounter.find? declName then c + 1 else 1
+      { d with reduceCounter := d.reduceCounter.insert declName cNew }
   else
     d
 

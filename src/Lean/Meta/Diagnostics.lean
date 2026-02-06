@@ -94,6 +94,7 @@ def reportDiag : MetaM Unit := do
     let inst ← mkDiagSummaryForUsedInstances
     let synthPending ← mkDiagSynthPendingFailure (← get).diag.synthPendingFailures
     let unfoldKernel ← mkDiagSummary `kernel (Kernel.getDiagnostics (← getEnv)).unfoldCounter
+    let reduceKernel ← mkDiagSummary `kernel (Kernel.getDiagnostics (← getEnv)).reduceCounter
     let m := #[]
     let m := appendSection m `reduction "unfolded declarations" unfoldDefault
     let m := appendSection m `reduction "unfolded instances" unfoldInstance
@@ -105,6 +106,7 @@ def reportDiag : MetaM Unit := do
     let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
     let m := appendSection m `reduction "Axioms (possibly imported non-exposed defs) that were tried to be unfolded" unfoldAxiom
     let m := appendSection m `kernel "unfolded declarations" unfoldKernel
+    let m := appendSection m `kernel "reduced declarations" reduceKernel
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo <| .trace { cls := `diag, collapsed := false } "Diagnostics" m

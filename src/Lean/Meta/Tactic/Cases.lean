@@ -351,30 +351,37 @@ structure ByCasesSubgoal where
   mvarId : MVarId
   fvarId : FVarId
 
-private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
-    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "Tactic `byCases` failed: Unexpected new hypothesis"
-    return { mvarId := s.mvarId, fvarId }
+private def mkByCasesSubgoal (p : Expr) (hName : Name) (goalType : Expr) (tag : Name) : MetaM (Expr × ByCasesSubgoal) := do
+  withLocalDeclD hName p fun hyp => do
+    let newGoal ← mkFreshExprSyntheticOpaqueMVar goalType tag
+    return (← mkLambdaFVars #[hyp] newGoal, ⟨newGoal.mvarId!, hyp.fvarId!⟩)
 
 /--
 Split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
 -/
-def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
-  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
-  let (fvarId, mvarId) ← mvarId.intro1
-  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "Tactic `byCases` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
-  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
+def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) :
+    MetaM (ByCasesSubgoal × ByCasesSubgoal) := mvarId.withContext do
+  let goalType ← mvarId.getType
+  let goalTag ← mvarId.getTag
+  unless (← isProp goalType) do
+    throwError "Tactic `byCases` failed: Goal is not a proposition{indentExpr goalType}"
+  let (thenPart, thenSubgoal) ← mkByCasesSubgoal p hName goalType (goalTag ++ `isTrue)
+  let (elsePart, elseSubgoal) ← mkByCasesSubgoal (mkNot p) hName goalType (goalTag ++ `isFalse)
+  mvarId.assign <| mkApp4 (.const ``Classical.byCases []) p goalType thenPart elsePart
+  return (thenSubgoal, elseSubgoal)
 
 /--
 Given `dec : Decidable p`, split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
 -/
-def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
-  let mvarId ← mvarId.assert `hByCases (mkApp (mkConst ``Decidable) p) dec
-  let (fvarId, mvarId) ← mvarId.intro1
-  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "Tactic `byCasesDec` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
-  -- We flip `s₁` and `s₂` because `isFalse` is the first constructor.
-  return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))
+def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hName : Name := `h) :
+    MetaM (ByCasesSubgoal × ByCasesSubgoal) := mvarId.withContext do
+  let goalType ← mvarId.getType
+  let goalTag ← mvarId.getTag
+  let goalLevel ← getLevel goalType
+  let (thenPart, thenSubgoal) ← mkByCasesSubgoal p hName goalType (goalTag ++ `isTrue)
+  let (elsePart, elseSubgoal) ← mkByCasesSubgoal (mkNot p) hName goalType (goalTag ++ `isFalse)
+  mvarId.assign <| mkApp5 (.const ``dite [goalLevel]) goalType p dec thenPart elsePart
+  return (thenSubgoal, elseSubgoal)
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 

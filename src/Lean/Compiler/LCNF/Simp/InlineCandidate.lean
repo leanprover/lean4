@@ -67,15 +67,7 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
       -/
       if (← inBasePhase) then
         if (← isInstanceReducible decl.name) then
-          unless decl.name == ``instDecidableEqBool do
-            /-
-            TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
-            Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
-            structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
-            way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
-            that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
-            -/
-            return false
+          return false
         -- This is done to avoid inlining `_override` implementations for computed fields in the
         -- base phase, since `cases` constructs have not yet been replaced by their underlying
         -- implementation, and thus inlining `_override` implementations for computed fields will

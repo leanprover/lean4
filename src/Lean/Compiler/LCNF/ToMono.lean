@@ -174,18 +174,6 @@ partial def FunDecl.toMono (decl : FunDecl .pure) : ToMonoM (FunDecl .pure) := d
   let value ← decl.value.toMono
   decl.update type params value
 
-/-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases .pure) (_ : c.typeName == ``Decidable) : ToMonoM (Code .pure) := do
-  let resultType ← toMonoType c.resultType
-  let alts ← c.alts.mapM fun alt => do
-    match alt with
-    | .default k => return alt.updateCode (← k.toMono)
-    | .alt ctorName ps k =>
-      eraseParams ps
-      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
-      return .alt ctorName #[] (← k.toMono)
-  return .cases ⟨``Bool, resultType, c.discr, alts⟩
-
 /-- Eliminate `cases` for `Nat`. -/
 partial def casesNatToMono (c: Cases .pure) (_ : c.typeName == ``Nat) : ToMonoM (Code .pure) := do
   let resultType ← toMonoType c.resultType
@@ -351,9 +339,7 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
-    else if h : c.typeName == ``Nat then
+    if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then
       casesIntToMono c h

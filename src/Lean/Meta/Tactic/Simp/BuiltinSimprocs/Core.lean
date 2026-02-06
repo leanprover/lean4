@@ -58,10 +58,17 @@ builtin_dsimproc ↓ [simp, seval] dreduceIte (ite _ _ _) := fun e => do
   -/
   let r ← simp c
   if r.expr.isTrue || r.expr.isFalse then
-    match_expr (← whnfD i) with
-    | Decidable.isTrue _ _ => return .visit tb
-    | Decidable.isFalse _ _ => return .visit eb
-    | _ => return .continue
+    if (← getEnv).contains `Decidable.intro then
+      let dec := .proj ``Decidable 0 i -- decide is the first projection
+      match_expr (← whnfD dec) with
+      | Bool.true => return .visit tb
+      | Bool.false => return .visit eb
+      | _ => return .continue
+    else
+      match_expr (← whnfD i) with
+      | Decidable.isTrue _ _ => return .visit tb
+      | Decidable.isFalse _ _ => return .visit eb
+      | _ => return .continue
   return .continue
 
 builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
@@ -72,10 +79,17 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
   -- See comment at `dreduceIte`
   let r ← simp c
   if r.expr.isTrue || r.expr.isFalse then
-    match_expr (← whnfD i) with
-    | Decidable.isTrue _ h => return .visit (mkApp tb h).headBeta
-    | Decidable.isFalse _ h => return .visit (mkApp eb h).headBeta
-    | _ => return .continue
+    if (← getEnv).contains `Decidable.intro then
+      let dec := .proj ``Decidable 0 i -- decide is the first projection
+      match_expr (← whnfD dec) with
+      | Bool.true => return .visit (mkApp tb (mkExpectedPropHint (.proj ``Decidable 1 i) c)).headBeta
+      | Bool.false => return .visit (mkApp eb (mkExpectedPropHint (.proj ``Decidable 1 i) (mkNot c))).headBeta
+      | _ => return .continue
+    else
+      match_expr (← whnfD i) with
+      | Decidable.isTrue _ h => return .visit (mkApp tb h).headBeta
+      | Decidable.isFalse _ h => return .visit (mkApp eb h).headBeta
+      | _ => return .continue
   return .continue
 
 builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do

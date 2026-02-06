@@ -338,6 +338,68 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
   | intro (w : α) (h : p w) : Exists p
 
 /--
+Monadic iteration in `do`-blocks, using the `for x in xs` notation.
+
+The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
+the collection being iterated over, and `α` is the type of elements.
+-/
+class ForInNew (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
+  /--
+  Monadically iterates over the contents of a collection `xs` with a local state `s`.
+  It works like a right fold over the collection: `foldr kcons knil xs s`. That is,
+
+  * For each element `x` in `xs`, the function `kcons x` is called with the current state `s` and
+    the continuation `kcontinue` for continuing the iteration.
+    If iteration should `break`, then `kcontinue` should not be called.
+  * After the last element has been processed and `kcontinue` has been called, the function `knil`
+    is called with the final state `s`.
+
+  The `do` block elaborator encodes local mutable bindings into the state `σ` and inserts jumps to
+  the appropriate join points for `break` and `return` when elaborating loops.
+
+  More information about the translation of `for` loops into `ForInNew.forInNew` is available in
+  [the Lean reference manual](lean-manual://section/monad-iteration-syntax).
+  -/
+  forInNew {σ β : Type u₁} (xs : ρ) (s : σ)
+    (kcons : (a : α) → (kcontinue : σ → m β) → σ → m β)
+    (knil : σ → m β) : m β
+
+export ForInNew (forInNew)
+/--
+Monadic iteration in `do`-blocks with a membership proof, using the `for h : x in xs` notation.
+
+-- Note to myself (SG): we depend on `m` here because some collections (e.g., iterators) only have
+-- forIn' for specific monads
+The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
+the collection being iterated over, `α` is the type of elements, and `p` is the specific membership
+predicate to provide.
+-/
+class ForInNew' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (p : outParam (ρ → α → Prop)) where
+  /--
+  Monadically iterates over the contents of a collection `xs` with a local state `s`.
+  At each iteration, the body of the loop is provided with a proof that the current element
+  satisfies the given predicate `p` (which is often `Membership.mem`).
+  It works like a right fold over the collection: `foldr kcons knil xs s`. That is,
+
+  * For each element `x` in `xs`, the function `kcons x` is called with the current state `s` and
+    the continuation `kcontinue` for continuing the iteration.
+    If iteration should `break`, then `kcontinue` should not be called.
+  * After the last element has been processed and `kcontinue` has been called, the function `knil`
+    is called with the final state `s`.
+
+  The `do` block elaborator encodes local mutable bindings into the state `σ` and inserts jumps to
+  the appropriate join points for `break` and `return` when elaborating loops.
+
+  More information about the translation of `for` loops into `ForInNew'.forInNew'` is available in
+  [the Lean reference manual](lean-manual://section/monad-iteration-syntax).
+  -/
+  forInNew' {σ β : Type u₁} (xs : ρ) (s : σ)
+    (kcons : (a : α) → (h : p xs a) → (kcontinue : σ → m β) → σ → m β)
+    (knil : σ → m β) : m β
+
+export ForInNew' (forInNew')
+
+/--
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
 notation.
 

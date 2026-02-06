@@ -2742,6 +2742,14 @@ theorem forM_eq_forM_toProd {β : Type v} {m' : Type w → Type w'} [Monad m']
   | nil => simp
   | cons hd tl => simp
 
+theorem forInNew_eq_forInNew_toProd {β : Type v} {δ σ : Type w} {m' : Type w → Type w'}
+    {l : List ((_ : α) × β)} {init : σ} {kcons : α → β → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
+    ForInNew.forInNew l init (fun a => kcons a.1 a.2) knil =
+      ForInNew.forInNew (l.map (fun x => (x.1, x.2))) init (fun a => kcons a.1 a.2) knil := by
+  induction l generalizing init knil with
+  | nil => simp
+  | cons hd tl => simp [*]
+
 theorem forIn_eq_forIn_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn l init (fun a d => f a.1 a.2 d) =
@@ -2807,6 +2815,13 @@ theorem forM_eq_forM_keys {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     congr
     funext x
     apply ih
+
+theorem forInNew_eq_forInNew_keys {δ σ : Type w} {m' : Type w → Type w'}
+    {l : List ((a : α) × β a)} {init : σ} {kcons : α → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
+    ForInNew.forInNew l init (fun a => kcons a.fst) knil = ForInNew.forInNew (keys l) init kcons knil := by
+  induction l generalizing init knil with
+  | nil => simp
+  | cons hd tl ih => simp [keys, ih]
 
 theorem forIn_eq_forIn_keys {δ : Type w} {m' : Type w → Type w'} [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} {l : List ((a : α) × β a)} :

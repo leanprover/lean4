@@ -115,4 +115,9 @@ instance ArrayIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → 
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
+@[always_inline, inline]
+instance ArrayIterator.instIteratorLoopNew {α : Type w} [Monad m] {n : Type x → Type x'} :
+    IteratorLoopNew (ArrayIterator α) m n :=
+  .defaultImplementation
+
 end Std.Iterators.Types

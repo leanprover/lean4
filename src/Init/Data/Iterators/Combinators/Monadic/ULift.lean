@@ -126,6 +126,11 @@ instance ULiftIterator.instProductive [Iterator α m β] [Productive α m] [Mona
     Productive (ULiftIterator α m n β lift) n :=
   .of_productivenessRelation instProductivenessRelation
 
+instance ULiftIterator.instIteratorLoopNew {o : Type x → Type x'} [Monad n] [Monad o]
+    [Iterator α m β] :
+    IteratorLoopNew (ULiftIterator α m n β lift) n o :=
+  .defaultImplementation
+
 instance ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Monad o]
     [Iterator α m β] :
     IteratorLoop (ULiftIterator α m n β lift) n o :=

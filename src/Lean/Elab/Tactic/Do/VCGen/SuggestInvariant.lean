@@ -45,6 +45,7 @@ where
     else
       SPred.mkPure lvl (TypeList.mkNil lvl) prop
 
+/-- Use of an `Invariant`. -/
 structure InvariantUse where
   /-- Index 0 is the success condition, all the others are exception conditions. -/
   conditionIdx : Nat
@@ -57,46 +58,67 @@ structure InvariantUse where
   letMutsTuple : Expr
   stateArgs : Array Expr
 
+/--
+Use of an `InvariantNew`. Will soon supersede `InvariantUse`, but for now we must support both forms.
+-/
+structure InvariantNewUse where
+  /-- The prefix expression of the call to `Cursor.mk`. -/
+  cursorPrefix : Expr
+  /-- The suffix expression of the call to `Cursor.mk`. -/
+  cursorSuffix : Expr
+  /-- The argument expressions of the `let mut` variables. -/
+  letMuts : Array Expr
+  letMutsTuple : Expr
+  stateArgs : Array Expr
+
 inductive ClassifyInvariantUseResult where
   | success (invariantUse : InvariantUse)
+  | successNew (invariantUse : InvariantNewUse)
   | notAnInvariantUse
   | unknownInvariantUse
 
-def classifyInvariantUse (assertion : Expr) (inv : MVarId) : ClassifyInvariantUseResult := Id.run do
+def classifyInvariantUse (assertion : Expr) (inv : MVarId) (invNew : Bool) : ClassifyInvariantUseResult := Id.run do
   -- Looking through metadata here is important because of the name hints the proof mode leaves behind
   let assertion := assertion.consumeMData
-  -- `assertion` looks like `?inv.2.2....1 payload args`. The number of `2`s is the condition index.
-  -- The 0 index case is the success condition case and by far the most common.
-  -- There we have `assertion = ?inv.1 payload args`.
-  -- The chain of `.2.2...1` is normalized to nested applications of `Prod.fst` and `Prod.snd`:
-  --   `@Prod.fst _ _ (@Prod.snd _ _ (@Prod.snd _ _ ... ?inv)) payload args`
-  if !assertion.isAppOf ``Prod.fst then return .notAnInvariantUse
-  let mut head := assertion.getArg! 2 -- indices 0 and 1 are type args
-  let mut conditionIdx := 0
-  while head != mkMVar inv do
-    if !head.isAppOfArity ``Prod.snd 4 then return .notAnInvariantUse -- cannot classify as a use of the invariant!
-    conditionIdx := conditionIdx + 1
-    head := head.getRevArg! 1
-  -- `head` is ?inv => Found the end of the chain.
-  -- conditionIdx is the number of `Prod.snd`s in the chain, and ?inv really is the end of the chain.
+  assertion.withApp fun head args => do
+  if invNew then
+    return .notAnInvariantUse
+  -- | InvariantNew _ _ _ =>
+  --   -- if assertion == mkMVar inv
+  --   return .successNew { cursorPrefix := args[0]!, cursorSuffix := args[1]!, letMuts := args[2:]!, letMutsTuple := args[0]!, stateArgs := args[1:]! }
+  else
+    -- `assertion` looks like `?inv.2.2....1 payload args`. The number of `2`s is the condition index.
+    -- The 0 index case is the success condition case and by far the most common.
+    -- There we have `assertion = ?inv.1 payload args`.
+    -- The chain of `.2.2...1` is normalized to nested applications of `Prod.fst` and `Prod.snd`:
+    --   `@Prod.fst _ _ (@Prod.snd _ _ (@Prod.snd _ _ ... ?inv)) payload args`
+    if !head.isConstOf ``Prod.fst then return .notAnInvariantUse
+    let mut head := args[2]! -- indices 0 and 1 are type args
+    let mut conditionIdx := 0
+    while head != mkMVar inv do
+      if !head.isAppOfArity ``Prod.snd 4 then return .notAnInvariantUse -- cannot classify as a use of the invariant!
+      conditionIdx := conditionIdx + 1
+      head := head.getRevArg! 1
+    -- `head` is ?inv => Found the end of the chain.
+    -- conditionIdx is the number of `Prod.snd`s in the chain, and ?inv really is the end of the chain.
 
-  let args := assertion.getAppArgs
-  -- logWarning m!"Found Prod.fst. Args: {args}"
-  if args.size < 4 then return .notAnInvariantUse -- not an overapplication of `Prod.fst`. Types should prohibit this case
-  let payload := args[3]!
-  let stateArgs := args[4:]
-  -- `stateArgs` can be non-empty when `σs` is non-empty.
-  -- logWarning m!"Payload: {payload}"
+    let args := assertion.getAppArgs
+    -- logWarning m!"Found Prod.fst. Args: {args}"
+    if args.size < 4 then return .notAnInvariantUse -- not an overapplication of `Prod.fst`. Types should prohibit this case
+    let payload := args[3]!
+    let stateArgs := args[4:]
+    -- `stateArgs` can be non-empty when `σs` is non-empty.
+    -- logWarning m!"Payload: {payload}"
 
-  let_expr Prod.mk _ _ cursor letMutsTuple := payload | return .unknownInvariantUse -- NB: be conservative here
-  let_expr List.Cursor.mk _α _l pref suff _prf := cursor | return .unknownInvariantUse -- dito
-  let mut acc := letMutsTuple
-  let mut letMuts := #[]
-  while acc.isAppOfArity ``MProd.mk 4 do
-    letMuts := letMuts.push (acc.getArg! 2)
-    acc := acc.getArg! 3
-  letMuts := letMuts.push acc
-  return .success { conditionIdx, cursorPrefix := pref, cursorSuffix := suff, letMuts, letMutsTuple, stateArgs }
+    let_expr Prod.mk _ _ cursor letMutsTuple := payload | return .unknownInvariantUse -- NB: be conservative here
+    let_expr List.Cursor.mk _α _l pref suff _prf := cursor | return .unknownInvariantUse -- dito
+    let mut acc := letMutsTuple
+    let mut letMuts := #[]
+    while acc.isAppOfArity ``MProd.mk 4 do
+      letMuts := letMuts.push (acc.getArg! 2)
+      acc := acc.getArg! 3
+    letMuts := letMuts.push acc
+    return .success { conditionIdx, cursorPrefix := pref, cursorSuffix := suff, letMuts, letMutsTuple, stateArgs }
 
 /--
 Returns `some (ρ, σ)` if `letMutsTy` is of the form `MProd (Option ρ) σ` and every VC in `vcs`
@@ -105,7 +127,7 @@ uses the `Option ρ` component according to early return semantics.
 * `σ` is an `n`-ary `MProd`, carrying the current value of the `let mut` variables.
   NB: When `n=0`, we have `MProd (Option ρ) PUnit` rather than `Option ρ`.
 -/
-def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : MetaM (Option (Expr × Expr)) := do
+def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (invNew : Bool) (letMutsTy : Expr) : MetaM (Option (Expr × Expr)) := do
   if !(letMutsTy.isAppOf ``MProd) || letMutsTy.getAppNumArgs < 2 then return none
   let_expr Option ρ := letMutsTy.getArg! 0 | return none
   let σ := letMutsTy.getArg! 1
@@ -145,8 +167,9 @@ def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : Meta
     let type ← Expr.consumeMData <$> instantiateMVars (← vc.getType)
     let some (_, _, spredTarget) ← vc.withContext <| getSPredGoalHypsAndTarget type | continue
     -- logWarning m!"Found spredTarget: {spredTarget}"
-    match classifyInvariantUse spredTarget inv with
+    match classifyInvariantUse spredTarget inv invNew with
     | .notAnInvariantUse => continue
+    | .successNew invariantUse => continue
     | .unknownInvariantUse => return none -- conservative
     | .success invariantUse =>
     -- logWarning m!"Invariant use: {invariantUse.letMuts}"
@@ -239,7 +262,7 @@ In case it succeeds, there will be
 * A `FailureCondHints` with the default exception condition (i.e., `FailureConds.false`, `()` or
   something else?) and the non-defaulted exception conditions.
 -/
-def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (xs : Expr) (letMuts : Expr) : MetaM (Option (SuccessPoint × SuccessPoint × FailureCondHints)) := do
+def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (invNew : Bool) (xs : Expr) (letMuts : Expr) : MetaM (Option (SuccessPoint × SuccessPoint × FailureCondHints)) := do
   let lctx ← getLCtx -- this is the local context of `inv` extended by `xs` and `letMuts`
   let mut prefixPoint? : Option SuccessPoint := none
   let mut suffixPoint? : Option SuccessPoint := none
@@ -250,7 +273,7 @@ def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (xs : Expr) (letMu
     if let some (lvl, spredHyps, spredTarget) ← vc.withContext <| getSPredGoalHypsAndTarget target then
       let mkPure p := SPred.mkPure lvl (TypeList.mkNil lvl) p
       -- vc.withContext <| logWarning m!"collectPoint: {spredHyps} ⊢ₛ {spredTarget}"
-      if let .success invariantUse := classifyInvariantUse spredTarget inv then
+      if let .success invariantUse := classifyInvariantUse spredTarget inv invNew then
         -- This is the `xs.prefix = []` case.
         -- vc.withContext <| logWarning m!"Invariant use: {invariantUse.letMutsTuple}"
         if invariantUse.conditionIdx != 0 then continue -- concerns the success conditions
@@ -262,7 +285,7 @@ def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (xs : Expr) (letMu
           let eqLetMuts ← mkPure <$> mkEq letMuts invariantUse.letMutsTuple
           -- logWarning m!"Found prefix point: {eqLetMuts}"
           prefixPoint? := some { lvl, cursorPred := mkPure eqNil, letMutsPred := eqLetMuts }
-      if let .success invariantUse := classifyInvariantUse spredHyps inv then
+      if let .success invariantUse := classifyInvariantUse spredHyps inv invNew then
         -- This is a `xs.suffix = []` case.
         -- vc.withContext <| logWarning m!"Found spredHyp: {spredHyps}"
         if invariantUse.conditionIdx != 0 then continue -- concerns the success conditions
@@ -367,8 +390,10 @@ an initial assignment for `inv` to fill in for the user.
 public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term := do
   -- We only synthesize suggestions for invariant subgoals
   let invType ← instantiateMVars (← inv.getType)
-  let_expr c@Std.Do.Invariant α l letMutsTy _ps := invType
-    | throwError "Expected invariant type, got {invType}"
+  let (new, c, α, l, letMutsTy) ← match_expr invType with
+    | c@Std.Do.Invariant α l letMutsTy _ps    => pure (false, c, α, l, letMutsTy)
+    | c@Std.Do.InvariantNew α l letMutsTy _ps => pure (true, c, α, l, letMutsTy)
+    | _ => throwError "Expected invariant type, got {invType}"
   let us := c.constLevels!.take 1 -- This is the list of universe params for `List.Cursor`. It only
                                   -- takes the level `u₁` for `α` in the type of `Invariant`, so
                                   -- we drop the rest (i.e., `u₂` for `β`).
@@ -386,7 +411,7 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   let suggestion? ←
     withLocalDeclD `xs (mkApp2 (mkConst ``List.Cursor us) α l) fun xs =>
     withLocalDeclD `letMuts letMutsTy fun letMuts => do
-    let some (prefixPoint, suffixPoint, failureConds) ← collectInvariantHints vcs inv xs letMuts | return none
+    let some (prefixPoint, suffixPoint, failureConds) ← collectInvariantHints vcs inv new xs letMuts | return none
     let pred := SPredNil.mkOr prefixPoint.lvl prefixPoint.clause suffixPoint.clause
     let success ← mkLambdaFVars #[xs, letMuts] (tryHoistPure pred)
     let onReturn ← mkLambdaFVars #[letMuts] (tryHoistPure suffixPoint.letMutsPred)
@@ -407,7 +432,7 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   -- 4. Similarly for the `onExcept` argument of `Invariant.withEarlyReturn`.
   -- Hence the spaghetti code.
   --
-  if let some (ρ, σ) ← hasEarlyReturn vcs inv letMutsTy then
+  if let some (ρ, σ) ← hasEarlyReturn vcs inv new letMutsTy then
     -- logWarning m!"Found early return for {inv}!"
     -- Suggest an invariant using `Invariant.withEarlyReturn`.
     if let some (success, onReturn, failureConds) := suggestion? then

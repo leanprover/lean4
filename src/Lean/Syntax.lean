@@ -368,6 +368,22 @@ If `firstChoiceOnly` is `true`, only visit the first argument of each choice nod
 -/
 def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoiceOnly, stx⟩
 
+partial instance : ForInNew m TopDown Syntax where
+  forInNew := fun {σ β} ⟨firstChoiceOnly, stx⟩ init kcons knil =>
+    let rec @[specialize] loop [Inhabited (m β)] stx (kcontinue : σ → m β) (s : σ) : m β :=
+      let kchildren s :=
+        if let Syntax.node _ k args := stx then
+          if firstChoiceOnly && k == choiceKind then
+            loop args[0]! kcontinue s
+          else
+            forInNew args s loop kcontinue
+        else
+          kcontinue s
+      kcons stx kchildren s
+    haveI : Inhabited (m β) := ⟨knil init⟩
+    loop stx knil init
+
+set_option backward.do.legacy true in
 partial instance [Monad m] : ForIn m TopDown Syntax where
   forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
     let rec @[specialize] loop stx b [Inhabited (type_of% b)] := do

@@ -59,11 +59,11 @@ theorem partition_snd [TransCmp cmp] {f} :
     WF (t.partition f).snd :=
   ⟨InnerWF.partition_snd⟩
 
-theorem eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α cmp} (h : t.WF) :
+theorem eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] {l : ρ} {t : Raw α cmp} (h : t.WF) :
     WF (t.eraseMany l) :=
   ⟨InnerWF.eraseMany h⟩
 
-theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α cmp}
+theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] {l : ρ} {t : Raw α cmp}
     (h : t.WF) : WF (t.insertMany l) :=
   ⟨InnerWF.insertManyIfNewUnit h⟩
 

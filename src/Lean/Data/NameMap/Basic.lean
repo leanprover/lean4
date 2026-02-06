@@ -35,6 +35,9 @@ def contains (m : NameMap α) (n : Name) : Bool := Std.TreeMap.contains m n
 
 def find? (m : NameMap α) (n : Name) : Option α := Std.TreeMap.get? m n
 
+instance : ForInNew m (NameMap α) (Name × α) :=
+  inferInstanceAs (ForInNew _ (Std.TreeMap _ _ _) ..)
+
 instance [Monad m] : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
@@ -54,6 +57,8 @@ def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
 instance [Monad m] : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance : ForInNew m NameSet Name :=
+  inferInstanceAs (ForInNew _ (Std.TreeSet _ _) ..)
 
 /-- The union of two `NameSet`s. -/
 def append (s t : NameSet) : NameSet :=

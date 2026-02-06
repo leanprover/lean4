@@ -18,17 +18,19 @@ theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} 
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     {it₁ : IterM (α := α) m (IterM (α := α₂) m β)} {it₂ : Option (IterM (α := α₂) m β)} :
   (it₁.flattenAfter it₂).step = (do
-    match it₂ with
+    match hit : id it₂ with -- TODO: maybe revisit once `match` simplification has been implemented
     | none =>
+      have hit : it₂ = none := hit
       match (← it₁.step).inflate with
-      | .yield it₁' it₂' h => return .deflate (.skip (it₁'.flattenAfter (some it₂')) (.outerYield h))
-      | .skip it₁' h => return .deflate (.skip (it₁'.flattenAfter none) (.outerSkip h))
-      | .done h => return .deflate (.done (.outerDone h))
-    | some it₂ =>
-      match (← it₂.step).inflate with
-      | .yield it₂' out h => return .deflate (.yield (it₁.flattenAfter (some it₂')) out (.innerYield h))
-      | .skip it₂' h => return .deflate (.skip (it₁.flattenAfter (some it₂')) (.innerSkip h))
-      | .done h => return .deflate (.skip (it₁.flattenAfter none) (.innerDone h))) := by
+      | .yield it₁' it₂' h => return .deflate (.skip (it₁'.flattenAfter (some it₂')) (by cases hit; exact .outerYield h))
+      | .skip it₁' h => return .deflate (.skip (it₁'.flattenAfter none) (by cases hit; exact .outerSkip h))
+      | .done h => return .deflate (.done (by cases hit; exact .outerDone h))
+    | some it₂' =>
+      have hit : it₂ = some it₂' := hit
+      match (← it₂'.step).inflate with
+      | .yield it₂' out h => return .deflate (.yield (it₁.flattenAfter (some it₂')) out (by cases hit; exact .innerYield h))
+      | .skip it₂' h => return .deflate (.skip (it₁.flattenAfter (some it₂')) (by cases hit; exact .innerSkip h))
+      | .done h => return .deflate (.skip (it₁.flattenAfter none) (by cases hit; exact .innerDone h))) := by
   cases it₂
   all_goals
   · apply bind_congr; intro step
@@ -127,28 +129,36 @@ public theorem IterM.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Typ
     [Iterator α m β] [Iterator α₂ m γ] {f : β → m (IterM (α := α₂) m γ)} {it₁ : IterM (α := α) m β}
     {it₂ : Option (IterM (α := α₂) m γ)} :
   (it₁.flatMapAfterM f it₂).step = (do
-    match it₂ with
+    match hit : id it₂ with -- TODO: maybe revisit once `match` simplification has been implemented
     | none =>
+      have hit : it₂ = none := hit
       match (← it₁.step).inflate with
       | .yield it₁' b h =>
         let fx ← MonadAttach.attach (f b)
-        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (.outerYield_flatMapM h fx.property))
-      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (.outerSkip_flatMapM h))
-      | .done h => return .deflate (.done (.outerDone_flatMapM h))
-    | some it₂ =>
-      match (← it₂.step).inflate with
-      | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (.innerYield_flatMapM h))
-      | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (.innerSkip_flatMapM h))
-      | .done h => return .deflate (.skip (it₁.flatMapAfterM f none) (.innerDone_flatMapM h))) := by
+        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (by cases hit; exact .outerYield_flatMapM (by simp[h, hit]) fx.property))
+      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (by cases hit; exact .outerSkip_flatMapM h))
+      | .done h => return .deflate (.done (by cases hit; exact .outerDone_flatMapM h))
+    | some it₂' =>
+      have hit : it₂ = some it₂' := hit
+      match (← it₂'.step).inflate with
+      | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (by cases hit; exact .innerYield_flatMapM h))
+      | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (by cases hit; exact .innerSkip_flatMapM h))
+      | .done h => return .deflate (.skip (it₁.flatMapAfterM f none) (by cases hit; exact .innerDone_flatMapM h))) := by
   simp only [flatMapAfterM, step_flattenAfter, IterM.step_mapM]
   split
-  · simp only [bind_assoc]
+  next hit =>
+    have hit : it₂ = _ := hit
+    cases hit
+    simp only [bind_assoc]
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn
     · simp only [bind_pure_comp, bind_map_left, Shrink.inflate_deflate]
     · simp
     · simp
-  · rfl
+  next hit =>
+    have hit : it₂ = _ := hit
+    cases hit
+    rfl
 
 public theorem IterM.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [LawfulMonad m]
@@ -168,24 +178,32 @@ public theorem IterM.step_flatMapAfter {α : Type w} {β : Type w} {α₂ : Type
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] [Iterator α₂ m γ]
     {f : β → IterM (α := α₂) m γ} {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
   (it₁.flatMapAfter f it₂).step = (do
-    match it₂ with
+    match hit : id it₂ with -- TODO: maybe revisit once `match` simplification has been implemented
     | none =>
+      have hit : it₂ = none := hit
       match (← it₁.step).inflate with
       | .yield it₁' b h =>
-        return .deflate (.skip (it₁'.flatMapAfter f (some (f b))) (.outerYield_flatMap h))
-      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfter f none) (.outerSkip_flatMap h))
-      | .done h => return .deflate (.done (.outerDone_flatMap h))
-    | some it₂ =>
-      match (← it₂.step).inflate with
-      | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfter f (some it₂')) out (.innerYield_flatMap h))
-      | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfter f (some it₂')) (.innerSkip_flatMap h))
-      | .done h => return .deflate (.skip (it₁.flatMapAfter f none) (.innerDone_flatMap h))) := by
+        return .deflate (.skip (it₁'.flatMapAfter f (some (f b))) (by cases hit; exact .outerYield_flatMap h))
+      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfter f none) (by cases hit; exact .outerSkip_flatMap h))
+      | .done h => return .deflate (.done (by cases hit; exact .outerDone_flatMap h))
+    | some it₂' =>
+      have hit : it₂ = some it₂' := hit
+      match (← it₂'.step).inflate with
+      | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfter f (some it₂')) out (by cases hit; exact .innerYield_flatMap h))
+      | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfter f (some it₂')) (by cases hit; exact .innerSkip_flatMap h))
+      | .done h => return .deflate (.skip (it₁.flatMapAfter f none) (by cases hit; exact .innerDone_flatMap h))) := by
   simp only [flatMapAfter, step_flattenAfter, IterM.step_map]
   split
-  · simp only [bind_assoc]
+  next hit =>
+    have hit : it₂ = _ := hit
+    cases hit
+    simp only [bind_assoc]
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> simp
-  · rfl
+  next hit =>
+    have hit : it₂ = _ := hit
+    cases hit
+    rfl
 
 public theorem IterM.step_flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] [Iterator α₂ m γ]
@@ -210,7 +228,7 @@ theorem IterM.toList_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'
   have hn : (it₁.flattenAfter none).toList =
       List.flatten <$> (it₁.mapM fun it₂ => it₂.toList).toList := by
     rw [toList_eq_match_step, toList_eq_match_step, step_flattenAfter, step_mapM]
-    simp only [bind_assoc, map_eq_pure_bind]
+    simp only [bind_assoc, map_eq_pure_bind, id]
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn
     · simp only [bind_pure_comp, pure_bind, Shrink.inflate_deflate,
@@ -223,8 +241,9 @@ theorem IterM.toList_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'
   · exact hn
   · rename_i ih₂
     induction ih₂ using IterM.inductSteps with | step it₂ ihy₂ ihs₂ =>
-    rw [toList_eq_match_step, step_flattenAfter, bind_assoc]
-    simp only
+    simp only [id]
+    rw [toList_eq_match_step, step_flattenAfter]
+    simp only [bind_assoc, id]
     rw [toList_eq_match_step, bind_assoc]
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn

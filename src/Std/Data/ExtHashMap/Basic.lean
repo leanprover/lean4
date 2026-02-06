@@ -236,12 +236,12 @@ def alter [EquivBEq α] [LawfulHashable α] (m : ExtHashMap α β) (a : α)
 
 @[inline, inherit_doc ExtDHashMap.Const.insertMany]
 def insertMany [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : ExtHashMap α β) (l : ρ) : ExtHashMap α β :=
+    [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : ExtHashMap α β) (l : ρ) : ExtHashMap α β :=
   ⟨ExtDHashMap.Const.insertMany m.inner l⟩
 
 @[inline, inherit_doc ExtDHashMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ α] (m : ExtHashMap α Unit) (l : ρ) : ExtHashMap α Unit :=
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] (m : ExtHashMap α Unit) (l : ρ) : ExtHashMap α Unit :=
   ⟨ExtDHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc ExtDHashMap.union]

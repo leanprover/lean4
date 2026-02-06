@@ -554,6 +554,7 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 @[combinator_formatter checkColGe, expose] def checkColGe.formatter : Formatter := pure ()
 @[combinator_formatter checkColGt, expose] def checkColGt.formatter : Formatter := pure ()
 @[combinator_formatter checkLineEq, expose] def checkLineEq.formatter : Formatter := pure ()
+@[combinator_formatter pushQuotDepthNum, expose] def pushQuotDepthNum.formatter : Formatter := pure ()
 
 @[combinator_formatter eoi, expose] def eoi.formatter : Formatter := pure ()
 @[combinator_formatter checkNoImmediateColon, expose] def checkNoImmediateColon.formatter : Formatter := pure ()

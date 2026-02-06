@@ -20,7 +20,7 @@ Adds exceptions of type `ε` to a monad `m`.
 Instead of using `Except ε` to model exceptions, this implementation uses continuation passing
 style. This has different performance characteristics from `ExceptT ε`.
 -/
-@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
+@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := ⦃β : Type u⦄ → (α → m β) → (ε → m β) → m β
 
 namespace ExceptCpsT
 
@@ -29,7 +29,7 @@ Use a monadic action that may throw an exception as an action that may return an
 -/
 @[always_inline, inline, expose]
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
-  x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
+  x (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
 set_option linter.unusedVariables false in  -- `s` unused
 /--
@@ -38,7 +38,7 @@ continuations.
 -/
 @[always_inline, inline]
 def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
-  x _ ok error
+  x ok error
 
 /--
 Returns the value of a computation, forgetting whether it was an exception or a success.
@@ -47,20 +47,20 @@ This corresponds to early return.
 -/
 @[always_inline, inline, expose]
 def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
-  x α pure pure
+  x pure pure
 
 @[always_inline]
 instance : Monad (ExceptCpsT ε m) where
-  map f x  := fun _ k₁ k₂ => x _ (fun a => k₁ (f a)) k₂
+  map f x  := fun _ k₁ k₂ => x (fun a => k₁ (f a)) k₂
   pure a   := fun _ k _ => k a
-  bind x f := fun _ k₁ k₂ => x _ (fun a => f a _ k₁ k₂) k₂
+  bind x f := fun _ k₁ k₂ => x (fun a => f a k₁ k₂) k₂
 
 instance : LawfulMonad (ExceptCpsT σ m) := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
 instance : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e
-  tryCatch x handle := fun _ k₁ k₂ => x _ k₁ (fun e => handle e _ k₁ k₂)
+  tryCatch x handle := fun _ k₁ k₂ => x k₁ (fun e => handle e k₁ k₂)
 
 /--
 Run an action from the transformed monad in the exception monad.

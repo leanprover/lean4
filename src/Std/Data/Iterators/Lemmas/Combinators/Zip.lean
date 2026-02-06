@@ -71,27 +71,29 @@ theorem Iter.step_intermediateZip
         ∃ it : Iter (α := α₁) β₁, it.toIterM.IsPlausibleOutput out }}
     {it₂ : Iter (α := α₂) β₂} :
     (Intermediate.zip it₁ memo it₂).step = (
-      match memo with
+      match h : (fun x => x) memo with
       | none =>
+        have h : memo = none := h
         match it₁.step with
         | .yield it₁' out hp =>
           .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
-            (.yieldLeft rfl hp)
+            (.yieldLeft (h ▸ rfl) hp)
         | .skip it₁' hp =>
           .skip (Intermediate.zip it₁' none it₂)
-            (.skipLeft rfl hp)
+            (.skipLeft (h ▸ rfl) hp)
         | .done hp =>
-          .done (.doneLeft rfl hp)
+          .done (.doneLeft (h ▸ rfl) hp)
       | some out₁ =>
+        have h : memo = some out₁ := h
         match it₂.step with
         | .yield it₂' out₂ hp =>
           .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
-            (.yieldRight (it := Intermediate.zip it₁ (some out₁) it₂ |>.toIterM) rfl hp)
+            (by subst h; exact .yieldRight (it := Intermediate.zip it₁ (some out₁) it₂ |>.toIterM) rfl hp)
         | .skip it₂' hp =>
           .skip (Intermediate.zip it₁ (some out₁) it₂')
-            (.skipRight rfl hp)
+            (.skipRight (h ▸ rfl) hp)
         | .done hp =>
-          .done (.doneRight rfl hp)) := by
+          .done (by subst h; exact .doneRight rfl hp)) := by
   simp only [Intermediate.zip, IterM.step_intermediateZip, Iter.step, toIterM_toIter]
   cases memo
   case none =>

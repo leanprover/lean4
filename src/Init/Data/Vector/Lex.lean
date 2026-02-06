@@ -56,8 +56,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
 
 @[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
-  simp [Vector.lex, Array.lex, n₁, n₂, Std.Rco.forIn'_eq_forIn'_toList]
-  rfl
+  simp [Vector.lex, Array.lex, n₁, n₂, Std.Rco.forIn'_eq_forIn'_toList, Std.Rco.forInNew'_eq_forInNew'_toList] <;> rfl
 
 @[simp, grind =] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by

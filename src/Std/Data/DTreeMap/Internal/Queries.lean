@@ -24,7 +24,7 @@ set_option linter.all true
 
 universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {σ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal.Impl
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
@@ -57,6 +57,12 @@ theorem contains_iff_mem {_ : Ord α} {t : Impl α β} {k : α} : t.contains k �
 
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs <| Decidable (m.contains a)
+
+theorem Ordered.mem_inner_of_eq [Ord α] (sz a v) (l r : Impl α β)
+    (k : α) (h : compare k a = .eq) :
+    k ∈ inner sz a v l r := by
+  simp only [Membership.mem, contains]
+  split <;> simp_all
 
 theorem Ordered.mem_inner_iff_mem_right [Ord α] (sz a v) (l r : Impl α β)
     (k : α) (h : compare k a = .gt) :
@@ -269,6 +275,16 @@ def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : �
 @[inline]
 def forM {m} [Monad m] (f : (a : α) → β a → m PUnit) (t : Impl α β) : m PUnit :=
   t.foldlM (fun _ k v => f k v) ⟨⟩
+
+/-- Support for the `for` construct in `do` blocks. -/
+@[specialize]
+def forInNew (t : Impl α β) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  match t with
+  | .leaf => knil init
+  | .inner _ k v l r => forInNew l init kcons (kcons k v (forInNew r · kcons knil))
+
+instance : ForInNew m (Impl α β) ((a : α) × β a) where
+  forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 /-- Implementation detail. -/
 @[specialize]

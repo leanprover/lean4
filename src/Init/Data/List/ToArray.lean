@@ -109,6 +109,40 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp, grind =] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
 
+@[simp] theorem forInNew'_loop_toArray {m : Type u → Type v} (l l' : List α) (i : Nat) (h' : drop (l.length - i) l = l')
+    (kcons : (a : α) → a ∈ l.toArray → (σ → m β) → σ → m β) (knil : σ → m β)
+    (h : i ≤ l.length) (s : σ) :
+    Array.forInNew'.loop l.toArray kcons knil i h s =
+      forInNew' l' s (fun a m kcontinue s => kcons a (by simpa using mem_of_mem_drop (h' ▸ m)) kcontinue s) knil := by
+  induction i generalizing l s l' with
+  | zero =>
+    rw [Nat.sub_zero, drop_length] at h'
+    cases h'
+    rfl
+  | succ i ih =>
+    simp only  [Array.forInNew'.loop, size_toArray, getElem_toArray]
+    conv in forInNew'.loop _ _ _ _ _ => ext; rw [ih]
+    have t : l[l.length - i - 1] :: drop (l.length - i) l = l' := by
+      simp only [← h', Nat.sub_add_eq]
+      rw [List.drop_sub_one (by omega), List.getElem?_eq_getElem (by omega)]
+      simp only [Option.toList_some, singleton_append]
+    cases t
+    have t : l.length - 1 - i = l.length - i - 1 := by omega
+    simp only [t]
+    congr
+
+@[simp, grind =] theorem forInNew'_toArray {m : Type u → Type v}
+    (l : List α) (s : σ) (kcons : (a : α) → a ∈ l.toArray → (σ → m β) → σ → m β) (knil : σ → m β) :
+    ForInNew'.forInNew' l.toArray s kcons knil = ForInNew'.forInNew' l s (fun a m kcontinue s => kcons a (mem_toArray.mpr m) kcontinue s) knil := by
+  change Array.forInNew' _ _ _ _ = List.forInNew' _ _ _ _
+  rw [Array.forInNew', forInNew'_loop_toArray l l l.toArray.size (by simp)]
+  rfl
+
+@[simp, grind =] theorem forInNew_toArray {m : Type u → Type v} (l : List α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) :
+    forInNew l.toArray s kcons knil = forInNew l s kcons knil := by
+  change forInNew' _ _ _ _ = forInNew' _ _ _ _
+  apply forInNew'_toArray
+
 @[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
     (h : i ≤ l.length) (b : β) :
     Array.forIn'.loop l.toArray f i h b =
@@ -211,11 +245,11 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
     l.toArray.findSomeM? f = l.findSomeM? f := by
   rw [Array.findSomeM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp [bind_pure_comp, map_pure, forIn_toArray, pure_bind, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, LawfulMonad.bind_assoc, findSomeM?]
+    simp only [forIn_cons, forInNew_cons, LawfulMonad.bind_assoc, findSomeM?]
     congr
     ext1 (_|_) <;> simp [ih]
 
@@ -244,11 +278,11 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
     l.toArray.findM? f = l.findM? f := by
   rw [Array.findM?]
-  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  simp only [bind_pure_comp, map_pure, forIn_toArray, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, LawfulMonad.bind_assoc, findM?]
+    simp only [forIn_cons, forInNew_cons, LawfulMonad.bind_assoc, findM?]
     congr
     ext1 (_|_) <;> simp [ih]
 
@@ -259,11 +293,11 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 @[simp, grind =] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
   rw [Array.find?]
-  simp only [forIn_toArray]
+  simp only [forIn_toArray, forInNew_toArray]
   induction l with
   | nil => simp
   | cons a l ih =>
-    simp only [forIn_cons, find?]
+    simp only [forIn_cons, forInNew_cons, find?]
     by_cases f a <;> simp_all
 
 private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :

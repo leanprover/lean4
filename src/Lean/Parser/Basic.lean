@@ -1770,6 +1770,12 @@ def pushNone : Parser := {
   fn := fun _ s => s.pushSyntax mkNullNode
 }
 
+/-- Parser that does not consume any input but leaves behind a `num` literal node with the `quotDepth`. -/
+def pushQuotDepthNum : Parser := {
+  info := epsilonInfo
+  fn := fun c s => s.pushSyntax (Syntax.mkNatLit c.quotDepth)
+}
+
 -- We support three kinds of antiquotations: `$id`, `$_`, and `$(t)`, where `id` is a term identifier and `t` is a term.
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> symbolNoAntiquot "_" <|> antiquotNestedExpr

@@ -28,6 +28,22 @@ universe u v
 /-- The number of elements in the range. -/
 @[simp, expose] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
 
+@[inline] protected def forInNew' {m : Type u → Type v} {σ β} (range : Range) (init : σ)
+    (kcons : (i : Nat) → i ∈ range → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let rec @[specialize] loop (i : Nat)
+      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega) : σ → m β :=
+    if h : i < range.stop then
+      have := range.step_pos
+      kcons i ⟨hl, by omega, hs⟩ (loop (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left]))
+    else
+      knil
+  loop range.start (by simp) (by simp) init
+
+instance : ForInNew' m Range Nat Membership.mem where
+  forInNew' := Range.forInNew'
+
+-- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
+
 @[inline] protected def forIn' [Monad m] (range : Range) (init : β)
     (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (b : β) (i : Nat)

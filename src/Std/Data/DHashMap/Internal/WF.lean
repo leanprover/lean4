@@ -257,6 +257,21 @@ theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w'} [Monad 
     · funext x
       simp [ih]
 
+theorem forInNew_eq_forInNew_toListModel {δ σ : Type w} {l : Raw α β} {m : Type w → Type w'}
+    {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} {init : σ} :
+    l.forInNew init kcons knil = ForInNew.forInNew (toListModel l.buckets) init (fun a => kcons a.1 a.2) knil := by
+  rw [Raw.forInNew, ← Array.forInNew_toList, toListModel]
+  induction l.buckets.toList generalizing init knil with
+  | nil => simp [forInNew_nil]
+  | cons hd tl ih =>
+    induction hd generalizing init with
+    | nil => simpa [AssocList.forInStep, AssocList.forInStep.go] using ih
+    | cons k v tl' ih' =>
+      simp only [AssocList.forInNew, forInNew_cons, flatMap_cons, AssocList.toList_cons, cons_append]
+      congr
+      ext s
+      simpa using ih'
+
 theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
     l.forIn f init = ForIn.forIn (toListModel l.buckets) init (fun a d => f a.1 a.2 d) := by
@@ -277,15 +292,17 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w →
 
 theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
     m.all p = (toListModel m.buckets).all (fun x => p x.1 x.2) := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  simp only [Raw.all, ForIn.forIn, ForInNew.forInNew, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
+  first | rw [forIn_eq_forIn_toListModel] | rw [forInNew_eq_forInNew_toListModel]
+  rw [← toList_eq_toListModel]
+  first | rw [forIn_eq_forIn'] | rw [forInNew_eq_forInNew']
   induction m.toList with
-  | nil => simp only [all_nil, forIn'_nil, Id.run_pure]
+  | nil => simp only [all_nil, forIn'_nil, forInNew'_nil, Id.run_pure]
   | cons hd tl ih =>
-    simp only [forIn'_eq_forIn, List.all_cons]
+    simp only [forIn'_eq_forIn, forInNew'_eq_forInNew, List.all_cons]
     by_cases h : p hd.fst hd.snd = false
     · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
+    · simp only [forIn'_eq_forIn, forInNew'_eq_forInNew] at ih
       simp [h, ih]
 
 end Raw
@@ -1135,8 +1152,9 @@ theorem toListModel_insertListIfNewₘ [BEq α] [Hashable α] [EquivBEq α] [Law
 theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertMany m m₂.1 = insertListₘ m (toListModel m₂.1.buckets) := by
   simp only [insertMany, bind_pure_comp, map_pure, bind_pure]
-  simp only [ForIn.forIn]
-  simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+  first | simp only [ForIn.forIn] | simp only [ForInNew.forInNew]
+  first | simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+        | simp only [Raw.forInNew_eq_forInNew_toListModel, forInNew_pure_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
@@ -1151,21 +1169,22 @@ theorem insertMany_eq_insertListₘ_toListModel [BEq α] [Hashable α] (m m₂ :
 
 theorem insertMany_array_eq_insertMany_toList [BEq α] [Hashable α] (m : Raw₀ α β) (a : Array ((k : α) × (β k))) :
     insertMany m a = insertMany m a.toList := by
-  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, ← Array.forInNew_toList, forIn_pure_yield_eq_foldl, forInNew_pure_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem Const.insertMany_array_eq_insertMany_toList [BEq α] [Hashable α] {β : Type v} (m : Raw₀ α fun _ => β) (a : Array (α × β)) :
     Const.insertMany m a = Const.insertMany m a.toList := by
-  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertMany, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, ← Array.forInNew_toList, forIn_pure_yield_eq_foldl, forInNew_pure_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem Const.insertManyIfNewUnit_array_eq_insertManyIfNewUnit_toList [BEq α] [Hashable α] (m : Raw₀ α fun _ => Unit) (a : Array α) :
     Const.insertManyIfNewUnit m a = Const.insertManyIfNewUnit m a.toList := by
-  simp only [insertManyIfNewUnit, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, forIn_pure_yield_eq_foldl, Array.foldl_toList, Id.run_pure]
+  simp only [insertManyIfNewUnit, bind_pure_comp, map_pure, bind_pure, ← Array.forIn_toList, ← Array.forInNew_toList, forIn_pure_yield_eq_foldl, forInNew_pure_eq_foldl, Array.foldl_toList, Id.run_pure]
 
 theorem insertManyIfNew_eq_insertListIfNewₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     insertManyIfNew m m₂.1 = insertListIfNewₘ m (toListModel m₂.1.buckets) := by
   simp only [insertManyIfNew, bind_pure_comp, map_pure, bind_pure]
-  simp only [ForIn.forIn]
-  simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+  first | simp only [ForIn.forIn] | simp only [ForInNew.forInNew]
+  first | simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+        | simp only [Raw.forInNew_eq_forInNew_toListModel, forInNew_pure_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
@@ -1332,7 +1351,7 @@ theorem wf_map₀ [BEq α] [Hashable α] {m : Raw₀ α β} (h : m.1.WF) {f : (a
 /-! # `insertMany` -/
 
 theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (m.insertMany l).1.1 :=
   Raw.WF.out ((m.insertMany l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
@@ -1346,26 +1365,27 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
 
 /-! # `eraseMany` -/
 
-theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β}
     {l : ρ} (h : m.WF) : (m.eraseManyEntries l).WF := by
   simpa [Raw.eraseManyEntries, h.size_buckets_pos] using
     (Raw₀.eraseManyEntries ⟨m, h.size_buckets_pos⟩ l).2 _ Raw.WF.erase₀ h
 
 theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (Raw₀.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
 theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (eraseManyEntries ⟨m, h⟩ l).1.1.WF :=
   (eraseManyEntries ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
 
 theorem eraseMany_eq_eraseListₘ_toListModel [BEq α] [Hashable α] (m m₂ : Raw₀ α β) :
     eraseManyEntries m m₂.1 = eraseListₘ m ((toListModel m₂.1.buckets).map (·.1)) := by
   simp only [eraseManyEntries, bind_pure_comp, map_pure, bind_pure]
-  simp only [ForIn.forIn]
-  simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+  first | simp only [ForIn.forIn] | simp only [ForInNew.forInNew]
+  first | simp only [Raw.forIn_eq_forIn_toListModel, forIn_pure_yield_eq_foldl, Id.run_pure]
+        | simp only [Raw.forInNew_eq_forInNew_toListModel, forInNew_pure_eq_foldl, Id.run_pure]
   generalize toListModel m₂.val.buckets = l
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
@@ -1425,12 +1445,12 @@ theorem wf_diff₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
 /-! # `insertManyIfNew` -/
 
 theorem wfImp_insertManyIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (m.insertManyIfNew l).1.1 :=
   Raw.WF.out ((m.insertManyIfNew l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 
 theorem wf_insertManyIfNew₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (Raw₀.insertManyIfNew ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.insertManyIfNew ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 
@@ -1555,12 +1575,12 @@ theorem Const.toListModel_insertMany_list {β : Type v} [BEq α] [Hashable α] [
   apply toListModel_insertListₘ h
 
 theorem Const.wfImp_insertMany {β : Type v} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw₀ α (fun _ => β)}
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {m : Raw₀ α (fun _ => β)}
     {l : ρ} (h : Raw.WFImp m.1) : Raw.WFImp (Const.insertMany m l).1.1 :=
   Raw.WF.out ((Const.insertMany m l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
 theorem Const.wf_insertMany₀ {β : Type v} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw α (fun _ => β)} {h : 0 < m.buckets.size}
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {m : Raw α (fun _ => β)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
@@ -1588,12 +1608,12 @@ theorem Const.toListModel_insertManyIfNewUnit_list [BEq α] [Hashable α] [Equiv
   apply toListModel_insertListIfNewUnitₘ h
 
 theorem Const.wfImp_insertManyIfNewUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (Const.insertManyIfNewUnit m l).1.1 :=
   Raw.WF.out ((Const.insertManyIfNewUnit m l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 
 theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 

@@ -214,6 +214,10 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.fold f init
 
+@[inline, inherit_doc DHashMap.forIn] def forInNew {m : Type w → Type w'} {σ δ : Type w}
+    (b : HashMap α β) (init : σ) (kcons : (a : α) → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  b.inner.forInNew init kcons knil
+
 @[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w'} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
   b.inner.forM f
@@ -221,6 +225,9 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w'} [Monad m]
     {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.forIn f init
+
+instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForInNew m (HashMap α β) (α × β) where
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons (a, b)) knil
 
 instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForM m (HashMap α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))
@@ -241,11 +248,11 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForIn m (Ha
   ⟨DHashMap.Const.alter m.inner a f⟩
 
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
+    [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
-    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :

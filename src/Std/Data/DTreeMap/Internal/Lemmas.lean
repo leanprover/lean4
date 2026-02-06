@@ -109,6 +109,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`foldl, (``foldl_eq_foldl, #[])⟩,
      ⟨`foldrM, (``foldrM_eq_foldrM, #[])⟩,
      ⟨`foldr, (``foldr_eq_foldr, #[])⟩,
+     ⟨`forInNew, (``forInNew_eq_forInNew_toListModel, #[])⟩,
      ⟨`forIn, (``forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``forM_eq_forM, #[])⟩,
      ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩,
@@ -1755,7 +1756,7 @@ end Const
 
 section monadic
 
-variable {t : Impl α β} {δ : Type w} {m : Type w → Type w'}
+variable {t : Impl α β} {δ σ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} :
@@ -1778,6 +1779,11 @@ theorem foldr_eq_foldr_toList {f : (a : α) → β a → δ → δ} {init : δ} 
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     t.forM (fun k v => f ⟨k, v⟩) = ForM.forM t.toList f := by
   simp_to_model [toList, forM] using rfl
+
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init (fun k v => kcons ⟨k, v⟩) knil = ForInNew.forInNew t.toList init kcons knil := by
+  simp_to_model [toList, forInNew]
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
@@ -1803,6 +1809,11 @@ theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
 theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
     t.forM (fun a _ => f a) = t.keys.forM f := by
   simp_to_model [forM, keys] using List.forM_eq_forM_keys
+
+theorem forInNew_eq_forInNew_keys
+    {init : σ} {kcons : α → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init (fun a _ => kcons a) knil = ForInNew.forInNew t.keys init kcons knil := by
+  simp_to_model [forInNew, keys] using List.forInNew_eq_forInNew_keys
 
 theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)}
     {init : δ} :
@@ -1834,6 +1845,11 @@ theorem foldr_eq_foldr_toList {f : (a : α) → β → δ → δ} {init : δ} :
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) → β → m PUnit} :
     t.forM f = (Const.toList t).forM (fun a => f a.1 a.2) := by
   simp_to_model [forM, Const.toList] using List.forM_eq_forM_toProd
+
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew (Const.toList t) init (fun a => kcons a.1 a.2) knil := by
+  simp_to_model [forInNew, Const.toList] using List.forInNew_eq_forInNew_toProd
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
@@ -8533,7 +8549,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w'}
+variable {t₁ t₂ t₃ t₄ : Impl α β} {δ σ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -8634,6 +8650,12 @@ theorem foldr_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t�
     {f : (a : α) → β a → δ → δ} {init : δ} :
     t₁.foldr f init = t₂.foldr f init := by
   simp_to_model [foldr]
+  rw [h.toListModel_eq h₁.ordered h₂.ordered]
+
+theorem forInNew_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+    {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} {init : σ} :
+    t₁.forInNew init kcons knil = t₂.forInNew init kcons knil := by
+  simp_to_model [forInNew]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
 theorem forIn_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
@@ -8972,7 +8994,7 @@ theorem insertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t�
 theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany l h₁.balanced).1 ~m (t₂.eraseMany l h₂.balanced).1 := by
-  simp only [eraseMany, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+  simp only [eraseMany, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, bind_pure,
     Id.run_pure]
   refine (List.foldl_rel (r := fun (a : t₁.IteratedErasureFrom) (b : t₂.IteratedErasureFrom) =>
       a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2
@@ -8982,7 +9004,7 @@ theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁
 theorem eraseMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany! l).1 ~m (t₂.eraseMany! l).1 := by
-  simp only [eraseMany!, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
+  simp only [eraseMany!, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, bind_pure,
     Id.run_pure]
   refine (List.foldl_rel (r := fun (a : t₁.IteratedSlowErasureFrom) (b : t₂.IteratedSlowErasureFrom) =>
       a.1.WF ∧ b.1.WF ∧ a.1 ~m b.1) ⟨h₁, h₂, h⟩ ?_).2.2

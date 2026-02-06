@@ -228,6 +228,11 @@ instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m]
     Productive (TakeWhile α m β P) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
+instance TakeWhile.instIteratorLoopNew [Monad m] [Iterator α m β]
+    [IteratorLoopNew α m n] :
+    IteratorLoopNew (TakeWhile α m β P) m n :=
+  .defaultImplementation
+
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] :
     IteratorLoop (TakeWhile α m β P) m n :=

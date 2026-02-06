@@ -1222,7 +1222,7 @@ end Const
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w'}
+variable {δ σ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} :
@@ -1248,6 +1248,16 @@ theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUni
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     ForM.forM t f = ForM.forM t.toList f :=
   Impl.forM_eq_forM_toList
+
+@[simp, grind =]
+theorem forInNew_eq_forInNew
+    {init : σ} {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew t init kcons knil = ForInNew.forInNew t.toList init kcons knil :=
+  Impl.forInNew_eq_forInNew_toList
 
 @[simp, grind =]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
@@ -1279,6 +1289,11 @@ theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
 theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
     ForM.forM t (fun a => f a.1) = t.keys.forM f :=
   Impl.forM_eq_forM_keys
+
+theorem forInNew_eq_forInNew_keys
+    {init : σ} {kcons : α → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew t init (fun a => kcons a.1) knil = ForInNew.forInNew t.keys init kcons knil :=
+  Impl.forInNew_eq_forInNew_keys
 
 theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m]
     {f : α → δ → m (ForInStep δ)} {init : δ} :
@@ -1313,6 +1328,15 @@ theorem forM_eq_forMUncurried [Monad m] [LawfulMonad m] {f : α → β → m PUn
 theorem forMUncurried_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
     forMUncurried f t = (Const.toList t).forM f :=
   Impl.Const.forM_eq_forM_toList
+
+theorem forInNew_eq_forInNewUncurried
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = forInNewUncurried t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNewUncurried_eq_forInNew_toList
+    {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    forInNewUncurried t init kcons knil = ForInNew.forInNew (Const.toList t) init kcons knil :=
+  Impl.Const.forInNew_eq_forInNew_toList
 
 theorem forIn_eq_forInUncurried [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
@@ -5296,7 +5320,7 @@ end Max
 
 namespace Equiv
 
-variable {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w'}
+variable {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ σ : Type w} {m : Type w → Type w'}
 
 @[refl, simp] theorem rfl : Equiv t t := ⟨.rfl⟩
 
@@ -5391,6 +5415,11 @@ theorem foldr_eq [TransCmp cmp] {f : (a : α) → β a → δ → δ} {init : δ
     t₁.foldr f init = t₂.foldr f init :=
   h.1.foldr_eq t₁.2 t₂.2
 
+theorem forInNew_eq [TransCmp cmp]
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} (h : t₁ ~m t₂) :
+    ForInNew.forInNew t₁ init kcons knil = ForInNew.forInNew t₂ init kcons knil :=
+  h.1.forInNew_eq t₁.2 t₂.2
+
 theorem forIn_eq [TransCmp cmp] [Monad m] [LawfulMonad m]
     {b : δ} {f : (a : α) × β a → δ → m (ForInStep δ)} (h : t₁ ~m t₂) :
     ForIn.forIn t₁ b f = ForIn.forIn t₂ b f :=
@@ -5402,10 +5431,10 @@ theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a �
   h.1.forM_eq t₁.2 t₂.2
 
 theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.any p = t₂.any p := by
-  simp only [any, Impl.any, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
+  simp only [any, Impl.any, ForIn.forIn, ForInNew.forInNew, h.1.forIn_eq t₁.2 t₂.2, h.1.forInNew_eq t₁.2 t₂.2]
 
 theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.all p = t₂.all p := by
-  simp only [all, Impl.all, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
+  simp only [all, Impl.all, ForIn.forIn, ForInNew.forInNew, h.1.forIn_eq t₁.2 t₂.2, h.1.forInNew_eq t₁.2 t₂.2]
 
 theorem minKey?_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.minKey? = t₂.minKey? :=
   h.1.minKey?_eq t₁.2 t₂.2

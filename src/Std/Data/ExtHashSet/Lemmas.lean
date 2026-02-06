@@ -404,7 +404,7 @@ theorem containsThenInsert_snd [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.containsThenInsert k).2 = m.insert k :=
   ext ExtHashMap.containsThenInsertIfNew_snd
 
-variable {ρ : Type v} [ForIn Id ρ α]
+variable {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] :

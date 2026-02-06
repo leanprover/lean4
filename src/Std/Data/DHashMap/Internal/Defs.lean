@@ -442,7 +442,7 @@ def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   ⟨⟨computeSize newBuckets, newBuckets⟩, by simpa [newBuckets] using hb⟩
 
 /-- Internal implementation detail of the hash map -/
-def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+def insertMany {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := Id.run do
   let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
@@ -452,7 +452,7 @@ def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable
   return r
 
 /-- Internal implementation detail of the hash map -/
-def eraseManyEntries {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+def eraseManyEntries {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a}, P m'' → P (m''.erase a)) → P m → P m' } := Id.run do
   let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
@@ -462,7 +462,7 @@ def eraseManyEntries {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Ha
   return r
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def insertManyIfNew {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
+@[inline] def insertManyIfNew {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := Id.run do
   let mut r : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
@@ -547,7 +547,7 @@ def Const.get! [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β
   | some v => (some v, ⟨⟨size, buckets⟩, hm⟩)
 
 /-- Internal implementation detail of the hash map -/
-def Const.insertMany {ρ : Type w} [ForIn Id ρ (α × β)] [BEq α] [Hashable α]
+def Const.insertMany {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ (α × β)] [ForInNew.{w, max u v, max u v, max u v} Id ρ (α × β)] [BEq α] [Hashable α]
     (m : Raw₀ α (fun _ => β)) (l : ρ) :
     { m' : Raw₀ α (fun _ => β) // ∀ (P : Raw₀ α (fun _ => β) → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := Id.run do
@@ -558,7 +558,7 @@ def Const.insertMany {ρ : Type w} [ForIn Id ρ (α × β)] [BEq α] [Hashable �
   return r
 
 /-- Internal implementation detail of the hash map -/
-def Const.insertManyIfNewUnit {ρ : Type w} [ForIn Id ρ α] [BEq α] [Hashable α]
+def Const.insertManyIfNewUnit {ρ : Type w} [ForIn.{w, u, u, u} Id ρ α] [ForInNew.{w, u, u, u} Id ρ α] [BEq α] [Hashable α]
     (m : Raw₀ α (fun _ => Unit)) (l : ρ) :
     { m' : Raw₀ α (fun _ => Unit) // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m' } := Id.run do

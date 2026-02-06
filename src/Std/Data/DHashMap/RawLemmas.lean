@@ -1790,7 +1790,7 @@ end Const
 
 section insertMany
 
-variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -3349,7 +3349,7 @@ end Const
 namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil (h : m.WF) :
@@ -3576,7 +3576,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
 
 variable {m : Raw α (fun _ => Unit)}
 
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil (h : m.WF) :

@@ -970,7 +970,7 @@ end Const
 
 section insertMany
 
-variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] : m.insertMany [] = m := (rfl)
@@ -985,7 +985,7 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α]
     m.insertMany (p :: l) = (m.insert p.1 p.2).insertMany l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (m.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1233,7 +1233,7 @@ theorem eq_empty_of_insertMany_eq_empty [EquivBEq α] [LawfulHashable α] {l : �
 namespace Const
 
 variable {β : Type v} {m : ExtDHashMap α (fun _ => β)}
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] : insertMany m [] = m :=
@@ -1248,7 +1248,7 @@ theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} 
     insertMany m (p :: l) = insertMany (m.insert p.1 p.2) l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (m.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1497,7 +1497,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   exact DHashMap.Const.getD_insertMany_list_of_mem k_beq distinct mem
 
 variable {m : ExtDHashMap α (fun _ => Unit)}
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] :
@@ -1511,7 +1511,7 @@ theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k 
 theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
   unfold insertManyIfNewUnit
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insertIfNew a ()) (m.insertIfNew k ()) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1532,6 +1532,7 @@ theorem insertManyIfNewUnit_ind [EquivBEq α] [LawfulHashable α] {motive : ExtD
     (m : ExtDHashMap α fun _ => Unit) (l : ρ)
     (init : motive m) (insert : ∀ m a, motive m → motive (m.insertIfNew a ())) :
     motive (insertManyIfNewUnit m l) := by
+  unfold insertManyIfNewUnit
   change motive (Subtype.val ?my_mvar)
   exact Subtype.property ?my_mvar motive init (insert _ _)
 

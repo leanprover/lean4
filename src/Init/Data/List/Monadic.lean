@@ -240,6 +240,14 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
     simp only [filter_cons, foldrM_cons]
     split <;> simp [ih]
 
+theorem foldlM_attach [Monad m] [LawfulMonad m] {l : List α} {f : β → α → m β} {b : β} :
+    l.attach.foldlM (fun acc t => f acc t.1) b = l.foldlM f b := by
+  induction l generalizing b with simp [foldlM_map, *]
+
+theorem foldrM_attach [Monad m] [LawfulMonad m] {l : List α} {f : α → β → m β} {b : β} :
+    l.attach.foldrM (fun t acc => f t.1 acc) b = l.foldrM f b := by
+  induction l generalizing b with simp [foldrM_map, *]
+
 @[simp] theorem foldlM_attachWith [Monad m]
     {l : List α} {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → m β} {b} :
     (l.attachWith q H).foldlM f b = l.attach.foldlM (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
@@ -267,6 +275,102 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
   induction l <;> simp [*]
 
 /-! ### forIn' -/
+
+@[congr] theorem forInNew'_congr {m : Type u → Type v} {as₁ as₂ : List α} (has : as₁ = as₂)
+    {s₁ s₂ : σ} (hs : s₁ = s₂)
+    {kcons₁ : (a' : α) → a' ∈ as₁ → (σ → m β) → σ → m β}
+    {kcons₂ : (a' : α) → a' ∈ as₂ → (σ → m β) → σ → m β}
+    (hkcons : ∀ a h k s, kcons₁ a (by simpa [has] using h) k s = kcons₂ a h k s)
+    {knil₁ knil₂ : σ → m β}
+    (hknil : ∀ s, knil₁ s = knil₂ s) :
+    forInNew' as₁ s₁ kcons₁ knil₁ = forInNew' as₂ s₂ kcons₂ knil₂ := by
+  induction as₁ generalizing as₂ s₁ s₂ with
+  | nil =>
+    subst has hs
+    simp [hknil]
+  | cons b bs ih =>
+    cases as₂ with
+    | nil => simp at has
+    | cons a as =>
+      simp only [cons.injEq] at has
+      obtain ⟨rfl, rfl⟩ := has
+      subst hs
+      simp only [forInNew'_cons]
+      conv =>
+        pattern forInNew' _ _ _ _
+        arg 3
+        ext _ _ _ _
+        apply hkcons
+      conv =>
+        pattern forInNew' _ _ _ _
+        arg 4
+        ext _
+        apply hknil
+      apply hkcons _ _ _ _
+
+/-- We can express a for loop over a list which always yields as a fold. -/
+@[simp] theorem forInNew'_bind_pure_eq_foldlM [Monad m] [LawfulMonad m]
+    {l : List α} (f : (a : α) → a ∈ l → σ → m σ) (init : σ) :
+    forInNew' l init (fun a m k s => f a m s >>= k) pure =
+      l.attach.foldlM (fun s ⟨a, m⟩ => f a m s) init := by
+  induction l generalizing init with
+    simp [forInNew'_cons, attach_cons, foldlM_cons, *, map_attach_eq_pmap]
+
+@[simp] theorem forInNew'_pure_eq_foldl {m : Type u → Type v}
+    {l : List α} (f : (a : α) → a ∈ l → σ → σ) (init : σ) (k : σ → m β) :
+    forInNew' l init (fun a m k s => k (f a m s)) k =
+      k (l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
+  induction l generalizing init with
+    simp [forInNew'_cons, attach_cons, foldl_cons, *, map_attach_eq_pmap]
+
+@[simp] theorem idRun_forInNew'_eq_foldl
+    (l : List α) (f : (a : α) → a ∈ l → σ → Id σ) (init : σ) :
+    (forInNew' l init (fun a m k b => f a m b >>= k) pure).run =
+      l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
+  forInNew'_pure_eq_foldl _ _ _
+
+@[simp, grind =] theorem forInNew'_map [Monad m] [LawfulMonad m]
+    {l : List α} (f : α → β) (kcons : (a : β) → a ∈ l.map f → (σ → m γ) → σ → m γ) (knil : σ → m γ) :
+    forInNew' (l.map f) init kcons knil = forInNew' l init (fun a h => kcons (f a) (mem_map_of_mem h)) knil := by
+  induction l generalizing init <;> simp_all
+
+@[simp, grind =] theorem forInNew'_append [Monad m] [LawfulMonad m]
+    {l₁ l₂ : List α} (kcons : (a : α) → a ∈ l₁ ++ l₂ → (σ → m β) → σ → m β) (knil : σ → m β) (init : σ) :
+    forInNew' (l₁ ++ l₂) init kcons knil =
+      forInNew' l₁ init (fun a h => kcons a (by simp [h])) (forInNew' l₂ · (fun a h => kcons a (by simp [h])) knil) := by
+  induction l₁ generalizing init knil with
+  | nil => simp only [nil_append, forInNew'_nil]; rfl
+  | cons a l₁ ih => simp [forInNew'_cons, ih]
+
+/-- We can express a for loop over a list which always yields as a fold. -/
+@[simp] theorem forInNew_bind_pure_eq_foldlM [Monad m] [LawfulMonad m]
+    {l : List α} (f : (a : α) → σ → m σ) (init : σ) :
+    forInNew l init (fun a k s => f a s >>= k) pure =
+      l.foldlM (fun s a => f a s) init := by
+  induction l generalizing init with simp [forInNew_cons, foldlM_cons, *]
+
+@[simp] theorem forInNew_pure_eq_foldl {m : Type u → Type v}
+    {l : List α} (f : (a : α) → σ → σ) (init : σ) (k : σ → m β) :
+    forInNew l init (fun a k s => k (f a s)) k =
+      k (l.foldl (fun s a => f a s) init) := by
+  induction l generalizing init with simp [forInNew_cons, foldl_cons, *]
+
+@[simp] theorem idRun_forInNew_eq_foldl
+    (l : List α) (f : (a : α) → σ → Id σ) (init : σ) :
+    (forInNew l init (fun a k s => f a s >>= k) pure).run =
+      l.foldl (fun s a => f a s |>.run) init :=
+  forInNew_pure_eq_foldl _ _ _
+
+@[simp, grind =] theorem forInNew_map [Monad m] [LawfulMonad m]
+    {l : List α} (f : α → β) (kcons : β → (σ → m γ) → σ → m γ) (knil : σ → m γ) :
+    forInNew (l.map f) init kcons knil = forInNew l init (fun a => kcons (f a)) knil := by
+  induction l generalizing init <;> simp_all
+
+@[simp, grind =] theorem forInNew_append {m : Type _ → Type _}
+    {l₁ l₂ : List α} (kcons : (a : α) → (σ → m β) → σ → m β) (knil : σ → m β) (init : σ) :
+    forInNew (l₁ ++ l₂) init kcons knil =
+      forInNew l₁ init kcons (forInNew l₂ · kcons knil) := by
+  induction l₁ generalizing init knil with simp [*]
 
 theorem forIn'_loop_congr [Monad m] {as bs : List α}
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}

@@ -203,12 +203,20 @@ order.
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forInNew {m : Type v → Type w} {σ β : Type v}
+    (b : Raw α) (init : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β): m β :=
+  b.inner.forInNew init (fun a _ => kcons a) knil
+
+/-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v} (f : α → β → m (ForInStep β))
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
 instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
+
+instance {m : Type v → Type w} : ForInNew m (Raw α) α where
+  forInNew m init kcons knil := m.forInNew init kcons knil
 
 instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
@@ -285,7 +293,7 @@ Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `ins
 `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
 appearance.
 -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α] (m : Raw α) (l : ρ) :
     Raw α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 
@@ -339,7 +347,7 @@ theorem WF.erase [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.er
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.WF) : (m.filter f).WF :=
   ⟨HashMap.Raw.WF.filter h.out⟩
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m : Raw α} {l : ρ}
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw α} {l : ρ}
     (h : m.WF) : (m.insertMany l).WF :=
   ⟨HashMap.Raw.WF.insertManyIfNewUnit h.out⟩
 

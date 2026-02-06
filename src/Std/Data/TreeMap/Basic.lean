@@ -385,7 +385,7 @@ def getKeyLED (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
 def getKeyLTD (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
   DTreeMap.getKeyLTD t.inner k fallback
 
-variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
+variable {δ σ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc DTreeMap.filter]
 def filter (f : α → β → Bool) (m : TreeMap α β cmp) : TreeMap α β cmp :=
@@ -416,11 +416,18 @@ def forM (f : α → β → m PUnit) (t : TreeMap α β cmp) : m PUnit :=
   t.inner.forM f
 
 @[inline, inherit_doc DTreeMap.forIn]
+def forInNew (t : TreeMap α β cmp) (init : σ) (kcons : α → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init kcons knil
+
+@[inline, inherit_doc DTreeMap.forIn]
 def forIn (f : α → β → δ → m (ForInStep δ)) (init : δ) (t : TreeMap α β cmp) : m δ :=
   t.inner.forIn (fun a b c => f a b c) init
 
 instance [Monad m] : ForM m (TreeMap α β cmp) (α × β) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
+
+instance : ForInNew m (TreeMap α β cmp) (α × β) where
+  forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [Monad m] : ForIn m (TreeMap α β cmp) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
@@ -486,7 +493,7 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp
   ⟨DTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc DTreeMap.Const.insertMany]
-def insertMany {ρ} [ForIn Id ρ (α × β)] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
+def insertMany {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.insertMany t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.union]
@@ -513,11 +520,11 @@ def diff (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
 instance : SDiff (TreeMap α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
-def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : TreeMap α Unit cmp) (l : ρ) : TreeMap α Unit cmp :=
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : TreeMap α Unit cmp) (l : ρ) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
-def eraseMany {ρ} [ForIn Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (TreeMap α β cmp) where

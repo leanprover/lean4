@@ -179,6 +179,13 @@ def updateName (m : KVMap) (k : Name) (f : Name → Name) : KVMap :=
 def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
   m.insert k <| DataValue.ofSyntax <| f <| m.getSyntax k
 
+@[inline] protected def forInNew.{w, w'} {δ σ : Type w} {m : Type w → Type w'}
+  (kv : KVMap) (init : σ) (kcons : Name × DataValue → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  forInNew kv.entries init kcons knil
+
+instance : ForInNew m KVMap (Name × DataValue) where
+  forInNew := KVMap.forInNew
+
 @[inline] protected def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
   forIn kv.entries init f

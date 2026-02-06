@@ -539,7 +539,7 @@ def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : α × β) : α × β :=
 
 end Const
 
-variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
+variable {δ : Type w} {σ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc DTreeMap.filter]
 def filter (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp :=
@@ -577,11 +577,18 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn f init
 
+@[inline, inherit_doc DTreeMap.forInNew]
+def forInNew (t : Raw α β cmp) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init kcons knil
+
 instance [Monad m] : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance [Monad m] : ForIn m (Raw α β cmp) ((a : α) × β a) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+instance : ForInNew m (Raw α β cmp) ((a : α) × β a) where
+  forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 namespace Const
 
@@ -596,6 +603,10 @@ define the `ForM` and `ForIn` instances for `DTreeMap.Raw`.
 @[inline, inherit_doc Raw.forM]
 def forMUncurried (f : α × β → m PUnit) (t : Raw α β cmp) : m PUnit :=
   t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc Raw.forInNew]
+def forInNewUncurried {m : Type w → Type w₂} (t : Raw α β cmp) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 @[inline, inherit_doc Raw.forIn]
 def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
@@ -705,7 +716,7 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : 
 end Const
 
 @[inline, inherit_doc DTreeMap.insertMany]
-def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany! l⟩
 
 /--
@@ -747,7 +758,7 @@ def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 instance : SDiff (Raw α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
-def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
 
 namespace Const
@@ -755,11 +766,11 @@ namespace Const
 variable {β : Type v}
 
 @[inline, inherit_doc DTreeMap.Const.insertMany]
-def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+def insertMany {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertMany! t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
-def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertManyIfNewUnit! t.inner l⟩
 end Const
 

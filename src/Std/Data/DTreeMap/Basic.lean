@@ -796,7 +796,7 @@ def getEntryLTD (t : DTreeMap α β cmp) (k : α) (fallback : α × β) : (α ×
 
 end Const
 
-variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
+variable {δ : Type w} {σ : Type w} {m : Type w → Type w₂} [Monad m]
 
 /-- Removes all mappings of the map for which the given function returns `false`. -/
 @[inline]
@@ -839,11 +839,19 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 
 /-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
 @[inline]
+def forInNew (t : DTreeMap α β cmp) (init : σ) (kcons : (a : α) → β a → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init kcons knil
+
+/-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
+@[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.forIn f init
 
 instance [Monad m] : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
+
+instance : ForInNew m (DTreeMap α β cmp) ((a : α) × β a) where
+  forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [Monad m] : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
@@ -861,6 +869,10 @@ define the `ForM` and `ForIn` instances for `DTreeMap`.
 @[inline, inherit_doc DTreeMap.forM]
 def forMUncurried (f : α × β → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
   t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc DTreeMap.forInNew]
+def forInNewUncurried {m : Type w → Type w₂} (t : DTreeMap α β cmp) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 @[inline, inherit_doc DTreeMap.forIn]
 def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
@@ -1016,7 +1028,7 @@ The `insertMany` function on `TreeSet` and `TreeSet.Raw` behaves differently: it
 appearance.
 -/
 @[inline]
-def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
 
 /--
@@ -1024,7 +1036,7 @@ Inserts multiple mappings into the tree map by iterating over the given collecti
 `insertIfNew`. If the same key appears multiple times, the first occurrence takes precedence.
 -/
 @[inline]
-def insertManyIfNew {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+def insertManyIfNew {ρ} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertManyIfNew l t.wf.balanced, t.wf.insertManyIfNew⟩
 
 /--
@@ -1075,14 +1087,14 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 `erase`.
 -/
 @[inline]
-def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+def eraseMany {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
 namespace Const
 
 variable {β : Type v}
 
 @[inline, inherit_doc DTreeMap.insertMany]
-def insertMany {ρ} [ForIn Id ρ (α × β)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+def insertMany {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertMany t.inner l t.wf.balanced, t.wf.constInsertMany⟩
 
 /--
@@ -1090,7 +1102,7 @@ Inserts multiple elements into the tree map by iterating over the given collecti
 `insertIfNew`. If the same key appears multiple times, the first occurrence takes precedence.
 -/
 @[inline]
-def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ) : DTreeMap α Unit cmp :=
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.insertManyIfNewUnit t.inner l t.wf.balanced, t.wf.constInsertManyIfNewUnit⟩
 

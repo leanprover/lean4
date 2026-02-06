@@ -31,7 +31,7 @@ set_option autoImplicit false
 
 universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ σ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std
 
@@ -436,6 +436,10 @@ define the `ForM` and `ForIn` instances for `HashMap.Raw`.
     (b : Raw α (fun _ => β)) : m PUnit :=
   b.forM fun a b => f ⟨a, b⟩
 
+@[inline, inherit_doc forInNew]
+def forInNewUncurried {m : Type w → Type w'} (b : Raw α (fun _ => β)) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  b.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+
 @[inline, inherit_doc forIn] def forInUncurried
     (f : α × β → δ → m (ForInStep δ)) (init : δ) (b : Raw α (fun _ => β)) : m δ :=
   b.forIn (init := init) fun a b d => f ⟨a, b⟩ d
@@ -566,7 +570,7 @@ Note: this precedence behavior is true for `HashMap`, `DHashMap`, `HashMap.Raw` 
 The `insertMany` function on `HashSet` and `HashSet.Raw` behaves differently: it will prefer the first
 appearance.
 -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertMany ⟨m, h⟩ l).1
@@ -578,14 +582,14 @@ Erases multiple keys from the hash map by iterating over the given collection an
 If the same key appears multiple times in the collection, subsequent erasures have no effect after
 the first one removes the key.
 -/
-@[inline] def eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+@[inline] def eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.eraseManyEntries ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
@@ -599,7 +603,7 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
 `HashSet` or `HashSet.Raw` might be a better fit for you.
 -/
 @[inline] def Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w}
-    [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
+    [ForIn Id ρ α] [ForInNew Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
   if h : 0 < m.buckets.size then
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
@@ -777,17 +781,17 @@ theorem WF.Const.getThenInsertIfNew? {β : Type v} [BEq α] [Hashable α] {m : R
     {a : α} {b : β} (h : m.WF) : (Const.getThenInsertIfNew? m a b).2.WF := by
   simpa [Raw.Const.getThenInsertIfNew?, h.size_buckets_pos] using .constGetThenInsertIfNew?₀ h
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β}
     {l : ρ} (h : m.WF) : (m.insertMany l).WF := by
   simpa [Raw.insertMany, h.size_buckets_pos] using
     (Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)]
+theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
     {m : Raw α (fun _ => β)} {l : ρ} (h : m.WF) : (Const.insertMany m l).WF := by
   simpa [Raw.Const.insertMany, h.size_buckets_pos] using
     (Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α]
+theorem WF.Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
     {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF) : (Const.insertManyIfNewUnit m l).WF := by
   simpa [Raw.Const.insertManyIfNewUnit, h.size_buckets_pos] using
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insertIfNew₀ h

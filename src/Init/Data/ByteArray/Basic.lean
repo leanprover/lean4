@@ -210,6 +210,46 @@ The variant {name}`findFinIdx?` additionally returns a proof that the found inde
   loop start
 
 /--
+An efficient implementation of {name}`ForInNew.forInNew` for {name}`ByteArray` that uses {name}`USize`
+rather than {name}`Nat` for indices.
+
+We claim this unsafe implementation is correct because an array cannot have more than
+{name}`USize.size` elements in our runtime. This is similar to the {name}`Array` version.
+-/
+-- TODO: avoid code duplication in the future after we improve the compiler.
+@[inline] unsafe def forInNewUnsafe {σ β : Type v} {m : Type v → Type w}
+    (as : ByteArray) (s : σ) (kcons : UInt8 → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let sz := as.usize
+  let rec @[specialize] loop (i : USize) (s : σ) : m β :=
+    if i < sz then
+      let a := as.uget i lcProof
+      kcons a (loop (i+1)) s
+    else
+      knil s
+  loop 0 s
+
+/--
+The reference implementation of {name}`ForInNew.forInNew` for {name}`ByteArray`.
+
+In compiled code, this is replaced by the more efficient {name}`ByteArray.forInNewUnsafe`.
+-/
+@[implemented_by ByteArray.forInNewUnsafe]
+protected def forInNew {σ β : Type v} {m : Type v → Type w}
+    (as : ByteArray) (s : σ) (kcons : UInt8 → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let rec loop (i : Nat) (h : i ≤ as.size) (s : σ) : m β :=
+    match i, h with
+    | 0,   _ => knil s
+    | i+1, h =>
+      have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
+      have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
+      kcons as[as.size - 1 - i] (fun s => loop i (Nat.le_of_lt h') s) s
+  loop as.size (Nat.le_refl _) s
+
+instance : ForInNew m ByteArray UInt8 where
+  forInNew := ByteArray.forInNew
+
+/--
 An efficient implementation of {name}`ForIn.forIn` for {name}`ByteArray` that uses {name}`USize`
 rather than {name}`Nat` for indices.
 

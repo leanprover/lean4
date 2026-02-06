@@ -444,6 +444,51 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     intro b
     cases b <;> simp
 
+/-
+default instance should be good enough
+
+@[specialize, expose]
+protected def forInNew {α} {m : Type u → Type v} {σ β}
+    (l : List α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  match l with
+  | []     => knil s
+  | a :: l => kcons a (l.forInNew · kcons knil) s
+
+instance : ForInNew m (List α) α where
+  forInNew := List.forInNew
+-/
+
+@[specialize, expose]
+protected def forInNew' {α} {m : Type u → Type v} {σ β}
+    (l : List α) (s : σ) (kcons : (a : α) → a ∈ l → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  match l with
+  | []     => knil s
+  | a :: l => kcons a (.head l) (List.forInNew' l · (fun a' h => kcons a' (.tail a h)) knil) s
+
+instance : ForInNew' m (List α) α Membership.mem where
+  forInNew' := List.forInNew'
+
+-- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
+
+-- We simplify `List.forInNew'` to `forInNew'`.
+@[simp, grind =] theorem forInNew'_eq_forInNew' : @List.forInNew' α m σ β = forInNew' := rfl
+
+@[simp, grind =] theorem forInNew'_nil :
+    forInNew' [] s kcons knil = knil s :=
+  rfl
+
+@[simp, grind =] theorem forInNew'_cons :
+    forInNew' (a::as) s kcons knil = kcons a (.head as) (forInNew' as · (fun a' h => kcons a' (.tail a h)) knil) s :=
+  rfl
+
+@[simp, grind =] theorem forInNew_nil :
+    forInNew [] s kcons knil = knil s :=
+  rfl
+
+@[simp, grind =] theorem forInNew_cons :
+    forInNew (a::as) s kcons knil = kcons a (forInNew as · kcons knil) s :=
+  rfl
+
 @[inline, expose] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
     | [], b, _    => pure b

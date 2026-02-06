@@ -220,11 +220,25 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
     Productive (Map α m n lift f) n :=
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
+instance FilterMap.instIteratorLoopNew {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {o : Type x → Type x'}
+    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n (Option γ)} :
+    IteratorLoopNew (FilterMap α m n lift f) n o :=
+  .defaultImplementation
+
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoop (FilterMap α m n lift f) n o :=
+  .defaultImplementation
+
+instance Map.instIteratorLoopNew {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {o : Type x → Type x'}
+    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n γ} [Finite α m] :
+    IteratorLoopNew (Map α m n lift f) n o :=
   .defaultImplementation
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}

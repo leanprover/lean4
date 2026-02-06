@@ -543,6 +543,43 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
+@[inline] unsafe def forInNew'Unsafe {α : Type u} {σ β : Type v} {m : Type v → Type w}
+    (as : Array α) (s : σ) (kcons : (a : α) → (h : a ∈ as) → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let sz := as.usize
+  let rec @[specialize] loop (i : USize) (s : σ) : m β :=
+    if i < sz then
+      let a := as.uget i lcProof
+      kcons a lcProof (loop (i+1)) s
+    else
+      knil s
+  loop 0 s
+
+/-- Reference implementation for `forInNew'` -/
+@[implemented_by Array.forInNew'Unsafe, expose]
+protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
+    (as : Array α) (s : σ) (kcons : (a : α) → (h : a ∈ as) → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let rec loop (i : Nat) (h : i ≤ as.size) (s : σ) : m β :=
+    match i, h with
+    | 0,   _ => knil s
+    | i+1, h =>
+      have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
+      have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
+      kcons as[as.size - 1 - i] (getElem_mem this) (fun s => loop i (Nat.le_of_lt h') s) s
+  loop as.size (Nat.le_refl _) s
+
+instance : ForInNew' m (Array α) α Membership.mem where
+  forInNew' := Array.forInNew'
+
+-- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
+
+-- We simplify `Array.forIn'` to `forIn'`.
+@[simp] theorem forInNew'_eq_forInNew' : @Array.forInNew' α σ β m = ForInNew'.forInNew' := rfl
+
+/--
+  We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
+
+  This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
 @[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
@@ -558,10 +595,10 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
 /-- Reference implementation for `forIn'` -/
 @[implemented_by Array.forIn'Unsafe, expose]
 protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
-  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
-    match i, h with
+  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β :=
+    match i, h with -- TODO: remove this once we better simplify matchers
     | 0,   _ => pure b
-    | i+1, h =>
+    | i+1, h => do
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this

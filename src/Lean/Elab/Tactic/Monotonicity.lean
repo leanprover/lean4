@@ -203,6 +203,27 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         -- For now using `splitMatch` works fine.
         return ← Split.splitMatch goal e
 
+    -- Local proofs for local, higher-order functions such as in `forInNew'`/`monotone_forInNew'`
+    if let f@(.fvar _) := e.getAppFn' then
+      let new_goals? ← try
+          let some prf ← (← getLCtx).findDeclRevM? fun decl => OptionT.run do
+              let mono := (← instantiateMVars decl.type).getForallBody
+              guard (mono.isAppOfArity ``monotone 5)
+              let e := mono.getArg! 4
+              let e := if e.isLambda then e.bindingBody! else e
+              guard (e.getAppFn' == f)
+              pure decl.toExpr
+            | pure none
+          trace[Elab.Tactic.monotonicity] "Found local mono theorem: {prf}"
+          let new_goals ← goal.apply prf
+          trace[Elab.Tactic.monotonicity] "Succeeded with {prf}"
+          pure (some new_goals)
+        catch e =>
+          trace[Elab.Tactic.monotonicity] "{e.toMessageData}"
+          pure none
+      if let some new_goals := new_goals? then
+        return new_goals
+
     failK f monoThms
   | _ =>
     throwError "Unexpected goal:{goal}"

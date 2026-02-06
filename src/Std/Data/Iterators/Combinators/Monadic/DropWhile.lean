@@ -269,6 +269,10 @@ instance DropWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
     Finite (DropWhile α m β P) m :=
   by exact Finite.of_finitenessRelation instFinitenessRelation
 
+instance DropWhile.instIteratorLoopNew [Monad m] [Iterator α m β] :
+    IteratorLoopNew (DropWhile α m β P) m n :=
+  .defaultImplementation
+
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation

@@ -25,6 +25,29 @@ theorem Internal.iter_eq_toIteratorIter {γ : Type u}
     Internal.iter s = ToIterator.iter s :=
   (rfl)
 
+theorem forInNew_internalIter {γ : Type u} {σ δ : Type w}
+    {m : Type w → Type x}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoopNew α Id m]
+    [LawfulIteratorLoopNew α Id m]
+    [Finite α Id] {s : Slice γ}
+    {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew (Internal.iter s) init kcons knil = ForInNew.forInNew s init kcons knil :=
+  (rfl)
+
+@[simp]
+public theorem forInNew_toList {γ : Type u} {σ δ : Type w}
+    {m : Type w → Type x}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoopNew α Id m]
+    [LawfulIteratorLoopNew α Id m]
+    [Finite α Id] {s : Slice γ}
+    {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew s.toList init kcons knil = ForInNew.forInNew s init kcons knil := by
+  rw [← forInNew_internalIter, ← Iter.forInNew_toList, Slice.toList]
+
 theorem forIn_internalIter {γ : Type u} {β : Type v}
     {m : Type w → Type x} [Monad m] {δ : Type w}
     [ToIterator (Slice γ) Id α β]

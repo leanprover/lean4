@@ -432,6 +432,23 @@ theorem Iterator.isPlausibleIndirectOutput_iff
 section IteratorLoop
 
 /--
+An efficient {name}`IteratorLoopNew` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
+loop implementation.
+-/
+@[always_inline, inline]
+instance Iterator.instIteratorLoopNew [UpwardEnumerable α] [LE α] [DecidableLE α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
+    IteratorLoopNew (Rxc.Iterator α) Id n where
+  forInNew := IteratorLoopNew.defaultImplementation.forInNew -- TODO
+
+instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α] [LE α] [DecidableLE α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    {n : Type u → Type w} :
+    LawfulIteratorLoopNew (Rxc.Iterator α) Id n where
+  lawful := by simp
+
+/--
 An efficient {name}`IteratorLoop` instance:
 As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
@@ -1008,6 +1025,23 @@ theorem Iterator.isPlausibleIndirectOutput_iff
 section IteratorLoop
 
 /--
+An efficient {name}`IteratorLoopNew` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
+loop implementation.
+-/
+instance Iterator.instIteratorLoopNew [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {n : Type u → Type w} :
+    IteratorLoopNew (Rxo.Iterator α) Id n where
+  forInNew := IteratorLoopNew.defaultImplementation.forInNew -- TODO
+
+instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α] [LT α] [DecidableLT α]
+    [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    {n : Type u → Type w} :
+    LawfulIteratorLoopNew (Rxo.Iterator α) Id n where
+  lawful := by simp
+
+/--
 An efficient {name}`IteratorLoop` instance:
 As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
 loop implementation.
@@ -1492,6 +1526,23 @@ theorem Iterator.isPlausibleIndirectOutput_iff
     Monadic.isPlausibleIndirectOutput_iff, Iter.toIterM]
 
 section IteratorLoop
+
+/--
+An efficient {name}`IteratorLoopNew` instance:
+As long as the compiler cannot optimize away the {name}`Option` in the internal state, we use a special
+loop implementation.
+-/
+instance Iterator.instIteratorLoopNew [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α]
+    {n : Type u → Type w} :
+    IteratorLoopNew (Rxi.Iterator α) Id n where
+  forInNew := IteratorLoopNew.defaultImplementation.forInNew -- TODO
+
+instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α]
+    [LawfulUpwardEnumerable α]
+    {n : Type u → Type w} :
+    LawfulIteratorLoopNew (Rxi.Iterator α) Id n where
+  lawful := by simp
 
 /--
 An efficient {name}`IteratorLoop` instance:

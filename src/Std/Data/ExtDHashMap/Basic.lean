@@ -324,32 +324,33 @@ can break congruence. The subtype is still used to provide the `insertMany_ind` 
 
 @[inline, inherit_doc DHashMap.insertMany]
 def insertMany [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] (m : ExtDHashMap α β) (l : ρ) : ExtDHashMap α β := Id.run do
+    [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)]
+    (m : ExtDHashMap α β) (l : ρ) : ExtDHashMap α β := Subtype.val <| Id.run do
   let mut m : { x // ∀ P : ExtDHashMap α β → Prop,
     P m → (∀ {m a b}, P m → P (m.insert a b)) → P x } := ⟨m, fun _ h _ => h⟩
   for ⟨a, b⟩ in l do
     m := ⟨m.1.insert a b, fun _ init step => step (m.2 _ init step)⟩
-  return m.1
+  return m
 
 @[inline, inherit_doc DHashMap.Const.insertMany]
 def Const.insertMany [EquivBEq α] [LawfulHashable α] {β : Type v} {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : ExtDHashMap α (fun _ => β))
-    (l : ρ) : ExtDHashMap α (fun _ => β) := Id.run do
+    [ForIn.{w, max u v, max u v, max u v} Id ρ (α × β)] [ForInNew.{w, max u v, max u v, max u v} Id ρ (α × β)]
+    (m : ExtDHashMap α (fun _ => β)) (l : ρ) : ExtDHashMap α (fun _ => β) := Subtype.val <| Id.run do
   let mut m : { x // ∀ P : ExtDHashMap α (fun _ => β) → Prop,
     P m → (∀ {m a b}, P m → P (m.insert a b)) → P x } := ⟨m, fun _ h _ => h⟩
   for (a, b) in l do
     m := ⟨m.1.insert a b, fun _ init step => step (m.2 _ init step)⟩
-  return m.1
+  return m
 
 @[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit]
 def Const.insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ α] (m : ExtDHashMap α (fun _ => Unit))
-    (l : ρ) : ExtDHashMap α (fun _ => Unit) := Id.run do
+    [ForIn.{w, u, u, u} Id ρ α] [ForInNew.{w, u, u, u} Id ρ α] (m : ExtDHashMap α (fun _ => Unit))
+    (l : ρ) : ExtDHashMap α (fun _ => Unit) := Subtype.val <| Id.run do
   let mut m : { x // ∀ P : ExtDHashMap α (fun _ => Unit) → Prop,
     P m → (∀ {m a}, P m → P (m.insertIfNew a ())) → P x } := ⟨m, fun _ h _ => h⟩
   for a in l do
     m := ⟨m.1.insertIfNew a (), fun _ init step => step (m.2 _ init step)⟩
-  return m.1
+  return m
 
 @[inline, inherit_doc DHashMap.union]
 def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.union y))

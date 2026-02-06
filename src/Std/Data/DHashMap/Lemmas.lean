@@ -1650,7 +1650,7 @@ theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} :
 
 end Const
 
-variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
 theorem insertMany_nil :
@@ -2848,7 +2848,7 @@ end Const
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil :
@@ -3060,7 +3060,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.getD_insertMany_list_of_mem ⟨m.1, _⟩ m.2 k_beq distinct mem
 
 variable {m : DHashMap α (fun _ => Unit)}
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil :

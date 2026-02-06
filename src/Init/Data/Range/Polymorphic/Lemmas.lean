@@ -95,6 +95,15 @@ theorem PRange.UpwardEnumerable.exists_of_succ_lt [UpwardEnumerable α] [LawfulU
   rw [succMany?_eq_some_iff_succMany, succMany_succ_eq_succ_succMany] at hn
   exact ⟨succMany (n + 1) a, hn.symm, ⟨n, succMany?_eq_some⟩⟩
 
+private theorem Rcc.Internal.forInNew'_eq_forInNew'_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Rcc α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
+  rfl
+
 private theorem Rcc.Internal.forIn'_eq_forIn'_iter [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] {r : Rcc α}
@@ -127,6 +136,16 @@ private theorem Rcc.Internal.toArray_eq_toArray_iter [LE α] [DecidableLE α]
     [UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {r : Rcc α} :
     r.toArray = (Internal.iter r).toArray := by
+  rfl
+
+private theorem Rco.Internal.forInNew'_eq_forInNew'_iter [LE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Rco α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
   rfl
 
 private theorem Rco.Internal.forIn'_eq_forIn'_iter [LE α] [LT α] [DecidableLT α]
@@ -165,6 +184,16 @@ private theorem Rco.Internal.toArray_eq_toArray_iter [LT α] [DecidableLT α]
     r.toArray = (Internal.iter r).toArray := by
   rfl
 
+private theorem Rci.Internal.forInNew'_eq_forInNew'_iter [LE α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Rci α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
+  rfl
+
 private theorem Rci.Internal.forIn'_eq_forIn'_iter [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
@@ -196,6 +225,16 @@ private theorem Rci.Internal.toList_eq_toList_iter
 private theorem Rci.Internal.toArray_eq_toArray_iter
     [UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {r : Rci α} :
     r.toArray = (Internal.iter r).toArray := by
+  rfl
+
+private theorem Roc.Internal.forInNew'_eq_forInNew'_iter [LE α] [DecidableLE α] [LT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Roc α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
   rfl
 
 private theorem Roc.Internal.forIn'_eq_forIn'_iter [LE α] [DecidableLE α] [LT α]
@@ -234,6 +273,16 @@ private theorem Roc.Internal.toArray_eq_toArray_iter [LE α] [DecidableLE α]
     r.toArray = (Internal.iter r).toArray := by
   rfl
 
+private theorem Roo.Internal.forInNew'_eq_forInNew'_iter [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
+    [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Roo α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
+  rfl
+
 private theorem Roo.Internal.forIn'_eq_forIn'_iter [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [Rxo.IsAlwaysFinite α]
     [LawfulUpwardEnumerable α]
@@ -268,6 +317,16 @@ private theorem Roo.Internal.toArray_eq_toArray_iter [LT α] [DecidableLT α]
     r.toArray = (Internal.iter r).toArray := by
   rfl
 
+private theorem Roi.Internal.forInNew'_eq_forInNew'_iter [LT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Roi α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
+  rfl
+
 private theorem Roi.Internal.forIn'_eq_forIn'_iter [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
@@ -299,6 +358,16 @@ private theorem Roi.Internal.toList_eq_toList_iter
 private theorem Roi.Internal.toArray_eq_toArray_iter
     [UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {r : Roi α} :
     r.toArray = (Internal.iter r).toArray := by
+  rfl
+
+private theorem Ric.Internal.forInNew'_eq_forInNew'_iter [LE α] [DecidableLE α] [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
+    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Ric α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
   rfl
 
 private theorem Ric.Internal.forIn'_eq_forIn'_iter [LE α] [DecidableLE α] [Least? α]
@@ -337,6 +406,16 @@ private theorem Ric.Internal.toArray_eq_toArray_iter [LE α] [DecidableLE α] [L
     r.toArray = (Internal.iter r).toArray := by
   rfl
 
+private theorem Rio.Internal.forInNew'_eq_forInNew'_iter [LT α] [DecidableLT α] [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Rio α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
+  rfl
+
 private theorem Rio.Internal.forIn'_eq_forIn'_iter [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
@@ -369,6 +448,16 @@ private theorem Rio.Internal.toList_eq_toList_iter [LT α] [DecidableLT α] [Lea
 private theorem Rio.Internal.toArray_eq_toArray_iter [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {r : Rio α} :
     r.toArray = (Internal.iter r).toArray := by
+  rfl
+
+private theorem Rii.Internal.forInNew'_eq_forInNew'_iter [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w} {r : Rii α}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' (Internal.iter r) init (fun a ha => kcons a (Internal.isPlausibleIndirectOutput_iter_iff.mp ha)) knil := by
   rfl
 
 private theorem Rii.Internal.forIn'_eq_forIn'_iter [Least? α]
@@ -718,6 +807,15 @@ public theorem ClosedOpen.toList_succ_succ_eq_map [LE α] [DecidableLE α] [Upwa
       (lo...=hi).toList.map succ :=
   Rcc.toList_succ_succ_eq_map
 
+public theorem forInNew'_eq_forInNew'_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
+    [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
+
 public theorem forIn'_eq_forIn'_toList [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
     {γ : Type u} {init : γ} {m : Type u → Type w} [Monad m] [LawfulMonad m]
@@ -967,6 +1065,16 @@ public theorem toArray_succ_succ_eq_map [LE α] [DecidableLE α] [LT α] [Decida
       (lo...hi).toArray.map succ := by
   simp [← toArray_toList, toList_succ_succ_eq_map]
 
+public theorem forInNew'_eq_forInNew'_toList [LE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
+
 public theorem forIn'_eq_forIn'_toList [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
@@ -1016,6 +1124,25 @@ public theorem mem_of_mem_roo [LE α] [LT α] [UpwardEnumerable α]
 
 @[deprecated mem_of_mem_roo (since := "2025-10-29")]
 def mem_of_mem_Roo := @mem_of_mem_roo
+
+public theorem forInNew'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {m : Type u → Type w}
+    {σ γ : Type u} {init : σ} {kcons : (a : α) → _ → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil = if hu : r.lower < r.upper then
+        have hle : r.lower ≤ r.lower := by
+          simpa [UpwardEnumerable.le_iff] using UpwardEnumerable.le_refl _
+        kcons r.lower ⟨hle, hu⟩ (fun s => ForInNew'.forInNew' (r.lower<...r.upper) s
+            (fun a ha acc => kcons a (mem_of_mem_roo hle ha) acc) knil) init
+      else
+        knil init := by
+  apply Eq.symm
+  rw [Internal.forInNew'_eq_forInNew'_iter, Iter.forInNew'_eq_match_step]
+  simp only [Rxo.Iterator.step_eq_step, Rxo.Iterator.step, Internal.iter]
+  split
+  · simp [Roo.Internal.forInNew'_eq_forInNew'_iter, Roo.Internal.iter]
+  · simp
 
 public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
@@ -1174,6 +1301,16 @@ public theorem toArray_succ_succ_eq_map [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] {lo : α} :
     ((succ lo)...*).toArray = (lo...*).toArray.map succ := by
   simp [← toArray_toList, toList_succ_succ_eq_map]
+
+public theorem forInNew'_eq_forInNew'_toList [LE α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
 
 public theorem forIn'_eq_forIn'_toList [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -1417,6 +1554,17 @@ public theorem toArray_succ_succ_eq_map [LE α] [DecidableLE α] [LT α] [Decida
       (lo<...=hi).toArray.map succ := by
   simp [← toArray_toList, toList_succ_succ_eq_map]
 
+public theorem forInNew'_eq_forInNew'_toList [LE α] [DecidableLE α] [LT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
+    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {σ γ : Type u} {init : σ}
+    {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init
+        (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
+
 public theorem forIn'_eq_forIn'_toList [LE α] [DecidableLE α] [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
     [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {γ : Type u} {init : γ} {m : Type u → Type w}
@@ -1641,6 +1789,17 @@ public theorem toArray_succ_succ_eq_map [LT α] [DecidableLT α]
     ((succ lo)<...(succ hi)).toArray =
       (lo<...hi).toArray.map succ := by
   simp [← toArray_toList, toList_succ_succ_eq_map]
+
+public theorem forInNew'_eq_forInNew'_toList [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init
+        (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
 
 public theorem forIn'_eq_forIn'_toList [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1870,6 +2029,17 @@ public theorem toArray_succ_succ_eq_map [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] {lo : α} :
     ((succ lo)<...*).toArray = (lo<...*).toArray.map succ := by
   simp [← toArray_toList, toList_succ_succ_eq_map]
+
+public theorem forInNew'_eq_forInNew'_toList [LT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {σ γ : Type u} {init : σ} {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init
+        (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
 
 public theorem forIn'_eq_forIn'_toList [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -2155,6 +2325,17 @@ public theorem toArray_succ_eq_map [LE α] [DecidableLE α] [Least? α]
     (*...=(succ hi)).toArray =
       #[UpwardEnumerable.least (hn := ⟨r.upper⟩)] ++ (*...=hi).toArray.map succ := by
   simp [← toArray_toList, toList_succ_eq_map]
+
+public theorem forInNew'_eq_forInNew'_toList [LE α] [DecidableLE α] [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
+    [Rxc.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {σ γ : Type u} {init : σ}
+    {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init
+        (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
 
 public theorem forIn'_eq_forIn'_toList [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
@@ -2468,6 +2649,17 @@ public theorem toArray_succ_eq_map [LT α] [DecidableLT α] [Least? α]
       #[UpwardEnumerable.least (hn := ⟨r.upper⟩)] ++ (*...hi).toArray.map succ := by
   simp [← toArray_toList, toList_succ_eq_map]
 
+public theorem forInNew'_eq_forInNew'_toList [LT α] [DecidableLT α] [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {σ γ : Type u} {init : σ}
+    {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init
+        (fun a ha acc => kcons a (mem_toList_iff_mem.mp ha) acc) knil := by
+  simp [Internal.forInNew'_eq_forInNew'_iter, Internal.toList_eq_toList_iter,
+    Iter.forInNew'_eq_forInNew'_toList]
+
 public theorem forIn'_eq_forIn'_toList [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {γ : Type u} {init : γ} {m : Type u → Type w}
@@ -2700,6 +2892,16 @@ public theorem pairwise_toList_le [LE α] [Least? α]
   pairwise_toList_upwardEnumerableLt
     |> List.Pairwise.imp UpwardEnumerable.le_of_lt
     |> List.Pairwise.imp (fun hle => (UpwardEnumerable.le_iff ..).mpr hle)
+
+public theorem forInNew'_eq_forInNew'_toList [Least? α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
+    [Rxi.IsAlwaysFinite α] [LawfulUpwardEnumerable α] {σ γ : Type u} {init : σ}
+    {m : Type u → Type w}
+    {kcons : (a : α) → a ∈ r → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil =
+      ForInNew'.forInNew' r.toList init (fun a _ acc => kcons a mem acc) knil := by
+  simp only [Internal.forInNew'_eq_forInNew'_iter, Iter.forInNew'_eq_forInNew'_toList,
+    Internal.toList_eq_toList_iter]
 
 public theorem forIn'_eq_forIn'_toList [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]

@@ -457,7 +457,7 @@ abbrev IteratedErasureFrom [Ord α] (t) :=
 
 /-- Iterate over `l` and erase all of its elements from `t`. -/
 @[inline]
-def eraseMany [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def eraseMany [Ord α] {ρ : Type w} [ForIn.{w, u, max u v, max u v} Id ρ α] [ForInNew.{w, u, max u v, max u v} Id ρ α] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
@@ -474,7 +474,7 @@ Slower version of `eraseMany` which can be used in absence of balance informatio
 assumes the preconditions of `eraseMany`, otherwise might panic.
 -/
 @[inline]
-def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ) :
+def eraseMany! [Ord α] {ρ : Type w} [ForIn.{w, u, max u v, max u v} Id ρ α] [ForInNew.{w, u, max u v, max u v} Id ρ α] (t : Impl α β) (l : ρ) :
     IteratedSlowErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
@@ -487,7 +487,7 @@ abbrev IteratedEntryErasureFrom [Ord α] (t) :=
 
 /-- Iterate over `l` and erase all of its elements from `t`. -/
 @[inline]
-def eraseManyEntries [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def eraseManyEntries [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedEntryErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, _⟩ in l do
@@ -504,7 +504,7 @@ Slower version of `eraseManyEntries` which can be used in absence of balance inf
 assumes the preconditions of `eraseManyEntries`, otherwise might panic.
 -/
 @[inline]
-def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
     IteratedSlowErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, _⟩ in l do
@@ -521,7 +521,7 @@ abbrev IteratedNewInsertionInto [Ord α] (t) :=
 
 /-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
-def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def insertMany [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -531,7 +531,7 @@ def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl
 
 /-- Iterate over `l` and insert all of its elements into `t` if they are new. -/
 @[inline]
-def insertManyIfNew [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def insertManyIfNew [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedNewInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -560,7 +560,7 @@ Slower version of `insertMany` which can be used in absence of balance informati
 assumes the preconditions of `insertMany`, otherwise might panic.
 -/
 @[inline]
-def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+def insertMany! [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
     IteratedSlowInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -572,7 +572,7 @@ Slower version of `insertManyIfNew` which can be used in absence of balance info
 assumes the preconditions of `insertManyIfNew`, otherwise might panic.
 -/
 @[inline]
-def insertManyIfNew! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+def insertManyIfNew! [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
     IteratedSlowNewInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -595,7 +595,7 @@ abbrev IteratedInsertionInto [Ord α] (t) :=
 
 /-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
-def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) (h : t.Balanced) :
+def insertMany [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ (α × β)] [ForInNew.{w, max u v, max u v, max u v} Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) (h : t.Balanced) :
     IteratedInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -612,7 +612,7 @@ Slower version of `insertMany` which can be used in absence of balance informati
 assumes the preconditions of `insertMany`, otherwise might panic.
 -/
 @[inline]
-def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) :
+def insertMany! [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ (α × β)] [ForInNew.{w, max u v, max u v, max u v} Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) :
     IteratedSlowInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
@@ -626,7 +626,7 @@ abbrev IteratedUnitInsertionInto [Ord α] (t) :=
 
 /-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
-def insertManyIfNewUnit [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) (h : t.Balanced) :
+def insertManyIfNewUnit [Ord α] {ρ : Type w} [ForIn.{w, u, u, u} Id ρ α] [ForInNew.{w, u, u, u} Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) (h : t.Balanced) :
     IteratedUnitInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
@@ -644,7 +644,7 @@ Slower version of `insertManyIfNewUnit` which can be used in absence of balance 
 assumes the preconditions of `insertManyIfNewUnit`, otherwise might panic.
 -/
 @[inline]
-def insertManyIfNewUnit! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) :
+def insertManyIfNewUnit! [Ord α] {ρ : Type w} [ForIn.{w, u, u, u} Id ρ α] [ForInNew.{w, u, u, u} Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) :
     IteratedSlowUnitInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do

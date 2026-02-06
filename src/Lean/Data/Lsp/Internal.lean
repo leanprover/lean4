@@ -170,7 +170,7 @@ instance : FromJson DeclInfo where
 
 /-- Declarations of a file with associated position information. -/
 @[expose] def Decls := Std.TreeMap String DeclInfo
-  deriving EmptyCollection, ForIn Id
+  deriving EmptyCollection, ForIn Id, ForInNew Id
 
 instance : ToJson Decls where
   toJson m := Json.mkObj <| m.toList.map fun (declName, info) => (declName, toJson info)
@@ -278,6 +278,11 @@ instance : FromJson RefInfo where
 /-- References from a single module/file -/
 @[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
+
+instance : ForInNew m ModuleRefs (RefIdent × RefInfo) where
+  forInNew map init kcons knil :=
+    let map : Std.TreeMap RefIdent RefInfo := map
+    forInNew map init kcons knil
 
 instance [Monad m] : ForIn m ModuleRefs (RefIdent × RefInfo) where
   forIn map init f :=

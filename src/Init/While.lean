@@ -22,6 +22,16 @@ inductive Loop where
   | mk
 
 @[inline]
+partial def Loop.forInNew {m : Type u → Type v} {β σ} (_ : Loop) (init : σ)
+    (kcons : Unit → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  let rec @[specialize] loop [Nonempty (m β)] (s : σ) : m β := kcons () loop s
+  haveI : Nonempty (m β) := ⟨knil init⟩
+  loop init
+
+instance : ForInNew m Loop Unit where
+  forInNew := Loop.forInNew
+
+@[inline]
 partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (b : β) : m β := do
     match ← f () b with

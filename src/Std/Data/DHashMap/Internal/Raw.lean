@@ -124,7 +124,7 @@ theorem filter_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α
     m.filter f = Raw₀.filter f ⟨m, h.size_buckets_pos⟩ := by
   simp [Raw.filter, h.size_buckets_pos]
 
-theorem insertMany_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+theorem insertMany_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {l : ρ} :
     m.insertMany l = Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l := by
   simp [Raw.insertMany, h.size_buckets_pos]
 
@@ -170,7 +170,7 @@ section
 
 variable {β : Type v}
 
-theorem Const.insertMany_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {ρ : Type w} [ForIn Id ρ (α × β)] {l : ρ} :
+theorem Const.insertMany_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {l : ρ} :
     Raw.Const.insertMany m l = Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l := by
   simp [Raw.Const.insertMany, h.size_buckets_pos]
 
@@ -184,7 +184,7 @@ theorem Const.ofArray_eq [BEq α] [Hashable α] {a : Array (α × β)} :
   simp only [Raw.Const.ofArray, Raw.Const.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
-theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [BEq α] [Hashable α]
+theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] [BEq α] [Hashable α]
     {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF):
     Raw.Const.insertManyIfNewUnit m l = Raw₀.Const.insertManyIfNewUnit ⟨m, h.size_buckets_pos⟩ l := by
   simp [Raw.Const.insertManyIfNewUnit, h.size_buckets_pos]

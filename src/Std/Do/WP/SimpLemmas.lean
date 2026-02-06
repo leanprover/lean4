@@ -375,22 +375,22 @@ theorem restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
   split <;> rfl
 
 @[simp]
-theorem restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n] (x : stM m o α) :
+theorem restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n] (x : m (stM m o α)) :
   wp⟦MonadControlT.restoreM x : o α⟧ Q = wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q := rfl
 
 @[simp]
-theorem restoreM_refl [Pure m] [WP m ps] (x : stM m m α) :
-  wp⟦MonadControlT.restoreM x : m α⟧ Q = wp⟦Pure.pure x : m α⟧ Q := rfl
+theorem restoreM_refl [WP m ps] (x : m (stM m m α)) :
+  wp⟦MonadControlT.restoreM x : m α⟧ Q = wp⟦x : m α⟧ Q := rfl
 
 @[simp]
-theorem controlAt_MonadControlT [Bind n] [WP n ps] [MonadControlT m n]
+theorem controlAt_MonadControlT [Bind n] [Pure m] [WP n ps] [MonadControlT m n]
   (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
-    wp⟦controlAt m f⟧ Q = wp⟦liftWith f >>= restoreM⟧ Q := rfl
+    wp⟦controlAt m f⟧ Q = wp⟦liftWith f >>= restoreM ∘ Pure.pure⟧ Q := rfl
 
 @[simp]
-theorem control_MonadControlT [Bind n] [WP n ps] [MonadControlT m n]
+theorem control_MonadControlT [Bind n] [Pure m] [WP n ps] [MonadControlT m n]
   (f : (∀{β}, n β → m (stM m n β)) → m (stM m n α)) :
-    wp⟦control f⟧ Q = wp⟦liftWith f >>= restoreM⟧ Q := rfl
+    wp⟦control f⟧ Q = wp⟦liftWith f >>= restoreM ∘ Pure.pure⟧ Q := rfl
 
 end MonadControl
 

@@ -30,6 +30,26 @@ namespace Std
 open Std.Iterators
 
 /--
+A `ForInNew'` instance for iterators. Its generic membership relation is not easy to use,
+so this is not marked as `instance`. This way, more convenient instances can be built on top of it
+or future library improvements will make it more comfortable.
+-/
+@[always_inline, inline]
+def Iter.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'}
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] :
+    ForInNew' n (Iter (α := α) β) β (fun it out => it.IsPlausibleIndirectOutput out) where
+  forInNew' it init f :=
+    IteratorLoopNew.finiteForInNew' (fun _ _ f c => f c.run) |>.forInNew' it.toIterM init
+        fun out h acc =>
+          f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
+
+instance (α : Type w) (β : Type w) (n : Type x → Type x')
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] :
+    ForInNew n (Iter (α := α) β) β :=
+  haveI : ForInNew' n (Iter (α := α) β) β _ := Iter.instForInNew'
+  instForInNewOfForInNew'
+
+/--
 A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
@@ -48,6 +68,26 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
     ForIn n (Iter (α := α) β) β :=
   haveI : ForIn' n (Iter (α := α) β) β _ := Iter.instForIn'
   instForInOfForIn'
+
+/--
+An implementation of `for h : ... in ... do ...` notation for partial iterators.
+-/
+@[always_inline, inline]
+def Iter.Partial.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
+    [Iterator α Id β] [IteratorLoopPartialNew α Id n] :
+    ForInNew' n (Iter.Partial (α := α) β) β (fun it out => it.it.IsPlausibleIndirectOutput out) where
+  forInNew' it init kcons knil :=
+    IteratorLoopPartialNew.forInNewPartial (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run)
+      it.it.toIterM init
+      (fun out h acc k =>
+        kcons out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) k acc)
+      knil
+
+instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
+    [Iterator α Id β] [IteratorLoopPartialNew α Id n] :
+    ForInNew n (Iter.Partial (α := α) β) β :=
+  haveI : ForInNew' n (Iter.Partial (α := α) β) β _ := Iter.Partial.instForInNew'
+  instForInNewOfForInNew'
 
 /--
 An implementation of `for h : ... in ... do ...` notation for partial iterators.

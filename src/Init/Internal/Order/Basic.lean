@@ -511,6 +511,11 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
   next h => left; apply h x
   next h => right; apply h x
 
+theorem monotone_default {α β} [PartialOrder α] [PartialOrder β] {f : α → β}
+    (hmono : [Inhabited α] → monotone f) : monotone f := by
+  intro x y hle
+  apply @hmono ⟨x⟩ x y hle
+
 noncomputable def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (hc : chain c) (x : α) :=
   CCPO.csup (chain_apply hc x)
 

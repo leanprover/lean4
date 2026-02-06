@@ -76,6 +76,13 @@ def empty : SMap α β := {}
   | ⟨true, m₁, _⟩, k   => m₁[k]?
   | ⟨false, m₁, m₂⟩, k => m₁[k]?.orElse fun _ => m₂.find? k
 
+@[inline] def forInNew {m : Type x → Type x'} (s : SMap α β) (init : σ)
+    (kcons : α → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  s.map₁.forInNew init kcons (s.map₂.forInNew · kcons knil)
+
+instance : ForInNew m (SMap α β) (α × β) where
+  forInNew s init kcons knil := forInNew s init (fun a b => kcons (a, b)) knil
+
 def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f

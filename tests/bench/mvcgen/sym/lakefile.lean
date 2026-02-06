@@ -8,8 +8,17 @@ package mvcgen_bench where
 lean_lib VCGen where
   srcDir := "lib"
 
+-- SymDirectly library (lib/SymDirectly.lean), built first and used by benchmarks
+lean_lib SymDirectly where
+  srcDir := "lib"
+
 -- Individual benchmark modules in the package root; each can `import VCGen`
 @[default_target]
 lean_lib MvcgenBench where
   roots := #[`add_sub_cancel]
+  moreLeanArgs := #["--tstack=100000000"]
+
+@[default_target]
+lean_lib SymBench where
+  roots := #[`run_shallow_add_sub_cancel]
   moreLeanArgs := #["--tstack=100000000"]

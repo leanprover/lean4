@@ -11,6 +11,7 @@ public import Std.Sat.CNF.Relabel
 import Init.Data.List.MinMax
 import Init.Data.Option.Lemmas
 import Init.Omega
+import Init.Data.List.Impl
 
 @[expose] public section
 

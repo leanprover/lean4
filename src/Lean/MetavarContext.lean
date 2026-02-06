@@ -8,6 +8,7 @@ module
 prelude
 public import Init.ShareCommon
 public import Lean.Util.MonadCache
+public import Lean.Util.ReplaceExpr
 public import Lean.LocalContext
 import Init.Data.Slice
 import Init.Data.ToString.Macro
@@ -572,7 +573,13 @@ opaque instantiateExprMVarsImp (mctx : MetavarContext) (e : Expr) : MetavarConte
 def instantiateExprMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   let (mctx, eNew) := instantiateExprMVarsImp (← getMCtx) e
   setMCtx mctx
-  return eNew
+  return eNew.replace replaceFn
+where
+  replaceFn (e : Expr) : Option Expr :=
+    if !e.hasLevelParam then e else match e with
+    | .const _ us => e.updateConst! (us.map fun u => u.normalize)
+    | .sort u => e.updateSort! (u.normalize)
+    | _ => none
 
 instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
   getMCtx    := get

@@ -17,6 +17,8 @@ import Std.Data.Iterators.Lemmas.Producers.Monadic.Vector
 
 set_option doc.verso true
 
+open Std Std.Iterators
+
 @[expose] public section
 
 /-!
@@ -25,8 +27,6 @@ set_option doc.verso true
 This module provides lemmas about the interactions of {name}`Vector.iter` with {name}`Iter.step` and
 various collectors.
 -/
-
-open Std Std.Iterators
 
 variable {β : Type w} {n : Nat}
 

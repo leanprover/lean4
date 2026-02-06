@@ -311,8 +311,8 @@ public def reduceRecMatcher : Simproc := fun e => do
   else
     return .rfl
 
-builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) :=
-  (simpInterlaced · #[false,false,false,false,true]) >> reduceRecMatcher
+builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _) :=
+  (simpInterlaced · #[false,false,false,true]) >> reduceRecMatcher
 
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn

@@ -415,10 +415,8 @@ where
       let declValue ← mkLambdaFVars #[P, x, y, h] <| ← do
         if info.numCtors = 1 then
           withLocalDeclD `p P fun p => mkLambdaFVars #[p] p
-        else if (← getEnv).contains `Decidable.intro then
-          mkAppOptM ``noConfusionEnum #[none, ctorIdx, P, x, y, h]
         else
-          mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
+          mkAppOptM ``noConfusionEnum #[none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
       addDecl <| Declaration.defnDecl {
         name        := declName

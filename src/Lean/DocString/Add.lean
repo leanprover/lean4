@@ -80,9 +80,10 @@ def parseVersoDocString
     currNamespace := (← getCurrNamespace),
     openDecls := (← getOpenDecls)
   }
+  let blockCtxt := .forDocString text startPos endPos
   let s := mkParserState text.source |>.setPos startPos
   -- TODO parse one block at a time for error recovery purposes
-  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
+  let s := (Doc.Parser.document blockCtxt).run ictx pmctx (getTokenTable env) s
 
   -- If document succeeded but didn't consume everything, try parsing a block at the stopped
   -- position to get the actual error message (document uses sepByFn which swallows errors).
@@ -145,8 +146,9 @@ def reportVersoParseFailure
     currNamespace := ← getCurrNamespace,
     openDecls := ← getOpenDecls
   }
+  let blockCtxt := Doc.Parser.BlockCtxt.forDocString text startPos endPos
   let s := mkParserState text.source |>.setPos startPos
-  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
+  let s := (Doc.Parser.document blockCtxt).run ictx pmctx (getTokenTable env) s
 
   -- If document succeeded but didn't consume everything, try parsing a block at the stopped
   -- position to get the actual error message (document uses sepByFn which swallows errors).

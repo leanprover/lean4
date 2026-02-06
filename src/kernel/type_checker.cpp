@@ -181,7 +181,7 @@ expr type_checker::infer_app_core(expr const & e) {
 expr type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         if (m_diag) {
-            lean::name app_fn_name;
+            lean::name app_fn_name; // Use .anonymous by default
             auto f = e;
             while (true) {
                 f = get_app_fn(f);
@@ -1185,18 +1185,18 @@ expr type_checker::eta_expand(expr const & e) {
 }
 
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
-    m_st_owner(true), m_st(new state(env)), m_diag(diag),
+    m_st_owner(true), m_st(new state(env)), m_diag(diag), m_diag_context(),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
+    m_st_owner(false), m_st(&st), m_diag(nullptr), m_diag_context(), m_lctx(lctx),
     m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
-    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
+    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_diag_context(std::move(src.m_diag_context)),
+    m_lctx(std::move(src.m_lctx)), m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
 }
 

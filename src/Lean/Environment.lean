@@ -349,13 +349,13 @@ def isDiagnosticsEnabled (env : Environment) : Bool :=
 def resetDiag (env : Environment) : Environment :=
   { env with diagnostics.unfoldCounter := {} }
 
-@[export lean_kernel_record_unfold]
+@[export lean_kernel_record_unfold_ctx]
 def Diagnostics.recordUnfold (d : Diagnostics) (declName context: Name) : Diagnostics :=
   if d.enabled then
     let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
     let cCtxNew := if let some c := d.unfoldCtxCounter.find? context then c + 1 else 1
     { d with
-      unfoldCounter := d.unfoldCounter.insert context cNew
+      unfoldCounter := d.unfoldCounter.insert declName cNew
       unfoldCtxCounter := d.unfoldCtxCounter.insert context cCtxNew
     }
   else

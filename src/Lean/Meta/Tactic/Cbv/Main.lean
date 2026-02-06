@@ -71,7 +71,6 @@ def betaReduce : Simproc := fun e => do
   return .step new (← Sym.mkEqRefl new)
 
 def tryCbvTheorems : Simproc := fun e => do
-  unless e.isApp do return .rfl
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
   Theorems.rewrite evalLemmas (d := dischargeNone) e
@@ -99,7 +98,15 @@ def isOpaqueApp : Simproc := fun e => do
 
 def isOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
-  return .rfl (← isCbvOpaque  constName)
+  let hasTheorems := (← getCbvEvalLemmas constName).isSome
+  if hasTheorems then
+   let res ← (tryCbvTheorems) e
+    match res with
+    | .rfl false =>
+      return .rfl (done := true)
+    | _ => return res
+  else
+    return .rfl (← isCbvOpaque constName)
 
 def foldLit : Simproc := fun e => do
  let some n := e.rawNatLit? | return .rfl

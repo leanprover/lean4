@@ -11,37 +11,43 @@ public import Lean.Elab.InfoTree
 public import Lean.Meta.Sym.Simp.Theorems
 
 public section
+namespace Lean.Meta.Sym.Simp
+
+def Theorem.declName (thm : Theorem) : Name := thm.expr.getAppFn.constName!
+
+def Theorem.isPrivate (thm : Theorem) : Bool := isPrivateName thm.declName
+
+end Lean.Meta.Sym.Simp
+
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
 structure CbvEvalEntry where
-  target : Name
+  appFn : Name
   thm  : Theorem
   deriving BEq, Inhabited
 
-def mkCbvTheoremFromConst (declName : Name) : MetaM (Name × Theorem) := do
+def mkCbvTheoremFromConst (declName : Name) : MetaM CbvEvalEntry := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let val := mkConst declName us
   let type ← inferType val
-  unless (← isProp type) do
-    throwError "Invalid `cbv` theorem"
+  unless (← isProp type) do throwError "{val} is not a theorem and thus cannot be marked with `cbv_eval` attribute"
   let fnName ← forallTelescope type fun _ body => do
-    let some (_, lhs, _) := body.eq? | throwError "Equality expected"
-    unless lhs.isApp do throwError "Application expected"
+    let some (_, lhs, _) := body.eq? | throwError "The conclusion {type} of theorem {val} is not an equality"
     let appFn := lhs.getAppFn
-    let some constName := appFn.constName? | throwError "Not a constant application"
+    let some constName := appFn.constName? | throwError "The left-hand side of a theorem {val} is not an application of a constant"
     return constName
   let thm ← mkTheoremFromDecl declName
-  return (fnName, thm)
+  return ⟨fnName, thm⟩
 
 structure CbvEvalState where
   lemmas : NameMap Theorems := {}
   deriving Inhabited
 
 def CbvEvalState.addEntry (s : CbvEvalState) (e : CbvEvalEntry) : CbvEvalState :=
-  let existing := (s.lemmas.find? e.target).getD {}
-  { s with lemmas := s.lemmas.insert e.target (existing.insert e.thm) }
+  let existing := (s.lemmas.find? e.appFn).getD {}
+  { s with lemmas := s.lemmas.insert e.appFn (existing.insert e.thm) }
 
 abbrev CbvEvalExtension := SimpleScopedEnvExtension CbvEvalEntry CbvEvalState
 
@@ -51,7 +57,7 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     initial  := {}
     addEntry := CbvEvalState.addEntry
     exportEntry? := fun level entry => do
-      guard (level == .private || !isPrivateName entry.target)
+      guard (level == .private || entry.thm.isPrivate)
       return entry
   }
 
@@ -68,9 +74,10 @@ builtin_initialize
     descr := "Register a theorem as a rewrite rule for CBV evaluation of a given definition. \
               Usage: @[cbv_eval] theorem ..."
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun lemmaName _ kind => do
-      let ((targetName, thm), _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
-      cbvEvalExt.add { target := targetName, thm := thm } kind
+    add := fun lemmaName _ kind => do
+      withoutExporting do
+        let (entry, _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}
+        cbvEvalExt.add entry kind
   }
 
 end Lean.Meta.Tactic.Cbv

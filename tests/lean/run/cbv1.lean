@@ -183,3 +183,9 @@ example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).in
   conv =>
     lhs
     cbv
+
+@[cbv_opaque] def opaque_const : Nat := Nat.zero
+
+@[cbv_eval] theorem opaque_fn_spec : opaque_const = 0 := by rfl
+
+example : opaque_const = 0 := by conv => lhs; cbv

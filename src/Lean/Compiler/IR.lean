@@ -11,7 +11,6 @@ public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
-public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
@@ -41,8 +40,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls := decls.map Decl.elimDead
-  logDecls `elim_dead decls
   decls := decls.map Decl.simpCase
   logDecls `simp_case decls
   decls := decls.map Decl.normalizeIds

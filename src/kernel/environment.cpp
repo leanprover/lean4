@@ -16,12 +16,10 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
 #include "kernel/quot.h"
-#include "library/time_task.h"
 
 namespace lean {
 extern "C" object* lean_environment_add(object*, object*);
 extern "C" object* lean_environment_find(object*, object*);
-extern "C" object* lean_environment_get_opts(object*);
 extern "C" object* lean_environment_mark_quot_init(object*);
 extern "C" uint8 lean_environment_quot_init(object*);
 extern "C" object* lean_kernel_record_unfold (object*, object*, object*);
@@ -75,10 +73,6 @@ void environment::mark_quot_initialized() {
 
 optional<constant_info> environment::find(name const & n) const {
     return to_optional<constant_info>(lean_environment_find(to_obj_arg(), n.to_obj_arg()));
-}
-
-options environment::get_opts() const {
-    return options(lean_environment_get_opts(to_obj_arg()));
 }
 
 constant_info environment::get(name const & n) const {
@@ -196,7 +190,6 @@ environment environment::add_definition(declaration const & d, bool check) const
 }
 
 environment environment::add_theorem(declaration const & d, bool check) const {
-    time_task task("add_theorem", options());
     scoped_diagnostics diag(*this, check);
     theorem_val const & v = d.to_theorem_val();
     if (check) {

@@ -33,8 +33,7 @@ void display_cumulative_profiling_times(std::ostream & out) {
     sstream ss;
     ss << "cumulative profiling times:\n";
     for (auto const & p : *g_cum_times)
-        if (p.second > std::chrono::milliseconds(1))
-            ss << "\t" << p.first << " " << display_profiling_time{p.second} << "\n";
+        ss << "\t" << p.first << " " << display_profiling_time{p.second} << "\n";
     // output atomically, like IO.print
     out << ss.str();
 }

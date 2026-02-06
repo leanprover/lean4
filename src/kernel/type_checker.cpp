@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
-#include "library/time_task.h"
 
 namespace lean {
 static name * g_kernel_fresh = nullptr;
@@ -295,7 +294,6 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
     check_system("type checker", /* do_check_interrupted */ true);
-    time_task task("kernel.infer_other", env().get_opts());
 
     auto it = m_st->m_infer_type[infer_only].find(e);
     if (it != m_st->m_infer_type[infer_only].end())

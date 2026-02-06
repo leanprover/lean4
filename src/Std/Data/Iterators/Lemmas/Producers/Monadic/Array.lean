@@ -141,7 +141,7 @@ theorem Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat
   rw [← List.toArray_drop]
 
 @[simp, grind =]
-theorem Array.toArray_toIterM [LawfulMonad m] {array : Array β} :
+theorem Array.toArray_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toArray = pure array := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toArray_iterFromIdxM]
 

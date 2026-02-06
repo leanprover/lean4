@@ -76,7 +76,7 @@ theorem Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
   simp [iterFromIdx_eq_toIter_iterFromIdxM, Iter.toArray]
 
 @[simp, grind =]
-theorem Array.toArray_toIter {array : Array β} :
+theorem Array.toArray_iter {array : Array β} :
     array.iter.toArray = array := by
   simp [Array.iter_eq_iterFromIdx]
 

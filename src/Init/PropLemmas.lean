@@ -732,3 +732,51 @@ attribute [local simp] Decidable.imp_iff_left_iff
 
 @[simp] theorem dite_else_true {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else True) ↔ ∀ h : p, x h := by
   split <;> simp_all
+
+@[simp] theorem Bool.ite_then_false {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = true ↔ ¬ p ∧ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_true_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = false ↔ ¬ p ∧ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = true ↔ p ∧ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_true_eq_false {p : Prop} [Decidable p] {x :Bool} : (if p then x else true) = false ↔ p ∧ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_true {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = true ↔ p ∨ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_then_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = false ↔ p ∨ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_true {p : Prop} [Decidable p] {x : Bool} : (if p then x else true) = true ↔ ¬ p ∨ x := by
+  split <;> simp_all
+
+@[simp] theorem Bool.ite_else_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = false ↔ ¬ p ∨ x = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = true ↔ ∃ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_true_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = false ↔ ∃ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = true ↔ ∃ h : p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_true_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = false ↔ ∃ h : p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_true {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = true ↔ ∀ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_then_false_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = false ↔ ∀ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = true ↔ ∀ h : p, x h := by
+  split <;> simp_all
+
+@[simp] theorem Bool.dite_else_false_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = false ↔ ∀ h : p, x h = false := by
+  split <;> simp_all

@@ -866,9 +866,10 @@ first evaluates any local `set_option ... in ...` clauses and then invokes `cmd`
 
 This is expected to be used in linters, after elaboration is complete. It is not appropriate for
 ordinary elaboration of `set_option`s, since it
-* does not update the infotrees with elaboration info from elaborating the `set_option` commands
+* does not update the infotrees with info for the `set_option` commands
 * silently ignores failures in setting the given options (e.g. we do not error if the option is
-  unknown or the wrong type of value is provided)
+  unknown or the wrong type of value is provided), as these should have been reported during
+  original elaboration.
 -/
 partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&

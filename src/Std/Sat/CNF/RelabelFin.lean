@@ -8,10 +8,12 @@ module
 prelude
 public import Init.Data.Nat.Order
 public import Std.Sat.CNF.Relabel
-import Init.Data.Array.MinMax
 import Init.Data.Option.Lemmas
 import Init.Omega
 import Init.Data.List.Impl
+import Init.Data.List.MinMax
+public import Init.Data.Array.MinMax
+import Init.TacticsExtra
 
 @[expose] public section
 

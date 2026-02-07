@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF.Literal
 public import Init.Data.Prod  -- shake: keep (proof instance elab'd in public scope, fix?)
+public import Init.Data.Array.Lemmas
 
 @[expose] public section
 

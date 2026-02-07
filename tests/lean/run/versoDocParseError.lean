@@ -165,3 +165,45 @@ error: expected ']'
 /-!
 [`rigid` --> `flexible`][xyz
 -/
+
+-- Unmatched closing bracket in docstring (issue #12118)
+/--
+@ +2:0...*
+error: unexpected '}' (use '\}' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/--
+}
+-/
+def z := 0
+
+-- Unmatched closing bracket in module docstring
+/--
+@ +2:0...*
+error: unexpected '}' (use '\}' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/-!
+}
+-/
+
+-- Unmatched closing square bracket in docstring
+/--
+@ +2:0...*
+error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/--
+]
+-/
+def w := 0
+
+-- Unmatched closing square bracket in module docstring
+/--
+@ +2:0...*
+error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/-!
+]
+-/

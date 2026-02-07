@@ -701,7 +701,7 @@ protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α 
     (replicate n a).minIdxOn? f = some 0 := by
   simp [List.minIdxOn?_replicate, Nat.ne_zero_of_lt h]
 
-/-! ### maxIdxOn? -/
+/-! # maxIdxOn? -/
 
 protected theorem maxIdxOn?_eq_minIdxOn? {le : LE β} {_ : DecidableLE β} {f : α → β}
     {xs : List α} :

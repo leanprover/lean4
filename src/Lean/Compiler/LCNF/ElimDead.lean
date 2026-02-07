@@ -96,9 +96,12 @@ partial def Code.elimDead (code : Code pu) : M (Code pu) := do
   | .jmp fvarId args => collectFVarM fvarId; args.forM collectArgM; return code
   | .unreach .. => return code
   | .uset var _ y k _ | .sset var _ _ y _ k _ =>
-    collectFVarM var
-    collectFVarM y
-    return code.updateCont! (← k.elimDead)
+    let k ← k.elimDead
+    if (← get).contains var then
+      collectFVarM y
+      return code.updateCont! k
+    else
+      return k
 
 end
 

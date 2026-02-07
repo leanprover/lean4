@@ -10646,8 +10646,8 @@ lean_dec_ref(x_45);
 x_47 = lean_nat_dec_le(x_43, x_32);
 if (x_47 == 0)
 {
-x_20 = lean_box(0);
-x_21 = x_46;
+x_20 = x_46;
+x_21 = lean_box(0);
 x_22 = x_43;
 x_23 = x_31;
 goto block_28;
@@ -10655,8 +10655,8 @@ goto block_28;
 else
 {
 lean_dec(x_43);
-x_20 = lean_box(0);
-x_21 = x_46;
+x_20 = x_46;
+x_21 = lean_box(0);
 x_22 = x_32;
 x_23 = x_31;
 goto block_28;
@@ -10965,7 +10965,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27;
 x_24 = l_Array_toSubarray___redArg(x_4, x_22, x_23);
 x_25 = l_Subarray_toArray___redArg(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_26, 0, x_21);
+lean_ctor_set(x_26, 0, x_20);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_27, 0, x_26);

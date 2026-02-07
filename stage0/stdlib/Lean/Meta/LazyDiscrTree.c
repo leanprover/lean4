@@ -12003,7 +12003,7 @@ lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc_ref(x_4);
-x_30 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs(x_27, x_29, x_25, x_4, x_5, x_6, x_7);
+x_30 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs(x_26, x_29, x_25, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -12016,7 +12016,7 @@ switch (lean_obj_tag(x_32)) {
 case 3:
 {
 lean_dec(x_31);
-lean_dec_ref(x_26);
+lean_dec_ref(x_27);
 x_1 = x_28;
 goto _start;
 }
@@ -12028,9 +12028,9 @@ lean_inc(x_34);
 lean_dec(x_31);
 x_35 = lean_box(4);
 x_36 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___closed__1;
-lean_inc_ref(x_26);
-x_37 = lean_apply_3(x_26, x_35, x_36, x_28);
-x_38 = lean_apply_3(x_26, x_32, x_34, x_37);
+lean_inc_ref(x_27);
+x_37 = lean_apply_3(x_27, x_35, x_36, x_28);
+x_38 = lean_apply_3(x_27, x_32, x_34, x_37);
 x_1 = x_38;
 goto _start;
 }
@@ -12040,7 +12040,7 @@ lean_object* x_40; lean_object* x_41;
 x_40 = lean_ctor_get(x_31, 1);
 lean_inc(x_40);
 lean_dec(x_31);
-x_41 = lean_apply_3(x_26, x_32, x_40, x_28);
+x_41 = lean_apply_3(x_27, x_32, x_40, x_28);
 x_1 = x_41;
 goto _start;
 }
@@ -12050,7 +12050,7 @@ else
 {
 uint8_t x_43; 
 lean_dec_ref(x_28);
-lean_dec_ref(x_26);
+lean_dec_ref(x_27);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -12102,8 +12102,8 @@ lean_ctor_set(x_53, 1, x_13);
 lean_ctor_set(x_53, 2, x_20);
 x_54 = lean_array_push(x_22, x_53);
 x_25 = x_47;
-x_26 = x_51;
-x_27 = x_49;
+x_26 = x_49;
+x_27 = x_51;
 x_28 = x_54;
 goto block_46;
 }
@@ -12114,8 +12114,8 @@ lean_dec(x_20);
 lean_dec(x_15);
 lean_dec(x_13);
 x_25 = x_47;
-x_26 = x_51;
-x_27 = x_49;
+x_26 = x_49;
+x_27 = x_51;
 x_28 = x_22;
 goto block_46;
 }

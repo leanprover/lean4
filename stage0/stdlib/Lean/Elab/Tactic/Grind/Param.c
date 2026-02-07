@@ -18643,7 +18643,7 @@ lean_inc(x_39);
 lean_inc_ref(x_38);
 lean_inc(x_37);
 lean_inc_ref(x_36);
-x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_32, x_31, x_36, x_37, x_38, x_39, x_40, x_41);
+x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_31, x_32, x_36, x_37, x_38, x_39, x_40, x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; uint8_t x_46; 
@@ -19756,8 +19756,8 @@ uint8_t x_275;
 x_275 = 1;
 if (x_3 == 0)
 {
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -19786,8 +19786,8 @@ x_281 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_
 x_282 = lean_box(0);
 lean_ctor_set(x_1, 8, x_282);
 lean_ctor_set(x_1, 1, x_281);
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -19834,8 +19834,8 @@ lean_ctor_set(x_295, 5, x_288);
 lean_ctor_set(x_295, 6, x_289);
 lean_ctor_set(x_295, 7, x_290);
 lean_ctor_set(x_295, 8, x_294);
-x_31 = x_275;
-x_32 = x_274;
+x_31 = x_274;
+x_32 = x_275;
 x_33 = x_295;
 x_34 = x_5;
 x_35 = x_6;

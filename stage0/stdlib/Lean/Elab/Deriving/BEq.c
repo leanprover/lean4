@@ -7770,12 +7770,12 @@ return x_174;
 block_188:
 {
 uint8_t x_179; 
-x_179 = lean_nat_dec_lt(x_177, x_178);
+x_179 = lean_nat_dec_lt(x_176, x_178);
 if (x_179 == 0)
 {
 lean_dec(x_178);
-lean_dec(x_177);
-lean_dec_ref(x_176);
+lean_dec_ref(x_177);
+lean_dec(x_176);
 lean_dec(x_40);
 x_60 = x_59;
 x_61 = lean_box(0);
@@ -7784,16 +7784,16 @@ goto block_175;
 else
 {
 size_t x_180; size_t x_181; lean_object* x_182; 
-x_180 = lean_usize_of_nat(x_177);
-lean_dec(x_177);
+x_180 = lean_usize_of_nat(x_176);
+lean_dec(x_176);
 x_181 = lean_usize_of_nat(x_178);
 lean_dec(x_178);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
-x_182 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew_spec__1___redArg(x_40, x_176, x_180, x_181, x_12, x_13, x_14, x_15);
-lean_dec_ref(x_176);
+x_182 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkMatchNew_spec__1___redArg(x_40, x_177, x_180, x_181, x_12, x_13, x_14, x_15);
+lean_dec_ref(x_177);
 lean_dec(x_40);
 if (lean_obj_tag(x_182) == 0)
 {
@@ -7875,15 +7875,15 @@ x_197 = lean_nat_dec_le(x_194, x_196);
 if (x_197 == 0)
 {
 lean_dec(x_194);
-x_176 = x_192;
-x_177 = x_193;
+x_176 = x_193;
+x_177 = x_192;
 x_178 = x_196;
 goto block_188;
 }
 else
 {
-x_176 = x_192;
-x_177 = x_193;
+x_176 = x_193;
+x_177 = x_192;
 x_178 = x_194;
 goto block_188;
 }

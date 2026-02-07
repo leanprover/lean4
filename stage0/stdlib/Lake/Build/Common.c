@@ -10886,12 +10886,12 @@ if (x_6 == 0)
 {
 x_13 = x_21;
 x_14 = lean_box(0);
-x_15 = x_20;
+x_15 = x_19;
 goto block_18;
 }
 else
 {
-lean_dec_ref(x_20);
+lean_dec_ref(x_19);
 lean_inc_ref(x_2);
 x_13 = x_21;
 x_14 = lean_box(0);
@@ -10918,8 +10918,8 @@ lean_dec_ref(x_26);
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_28);
 lean_dec(x_27);
-x_19 = lean_box(0);
-x_20 = x_23;
+x_19 = x_23;
+x_20 = lean_box(0);
 x_21 = x_28;
 goto block_22;
 }
@@ -10928,8 +10928,8 @@ else
 lean_object* x_29; 
 lean_dec_ref(x_26);
 x_29 = l_Lake_platformTrace___closed__4;
-x_19 = lean_box(0);
-x_20 = x_23;
+x_19 = x_23;
+x_20 = lean_box(0);
 x_21 = x_29;
 goto block_22;
 }

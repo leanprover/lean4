@@ -1747,8 +1747,8 @@ x_29 = lean_string_dec_eq(x_20, x_28);
 lean_dec_ref(x_20);
 if (x_29 == 0)
 {
-x_8 = x_27;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_27;
 x_10 = x_26;
 goto block_14;
 }
@@ -1757,8 +1757,8 @@ else
 lean_object* x_30; 
 lean_dec(x_26);
 x_30 = lean_unsigned_to_nat(1u);
-x_8 = x_27;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_27;
 x_10 = x_30;
 goto block_14;
 }
@@ -1814,9 +1814,9 @@ return x_43;
 block_14:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_nat_add(x_8, x_10);
+x_11 = lean_nat_add(x_9, x_10);
 lean_dec(x_10);
-lean_dec(x_8);
+lean_dec(x_9);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);

@@ -140,4 +140,27 @@ theorem copy_toByteArray_sliceTo {s : String} {pos : s.Pos} :
     (s.sliceTo pos).copy.toByteArray = s.toByteArray.extract 0 pos.offset.byteIdx := by
   simp [Slice.toByteArray_copy]
 
+theorem Slice.pos!_eq_pos {s : Slice} {p : Pos.Raw} (h : p.IsValidForSlice s) :
+    s.pos! p = s.pos p h := by
+  simp [Slice.pos!, h]
+
+theorem pos!_eq_pos {s : String} {p : Pos.Raw} (h : p.IsValid s) :
+    s.pos! p = s.pos p h := by
+  rw [String.pos!, Slice.pos!_eq_pos h.toSlice, String.pos]
+
+@[simp]
+theorem Slice.copy_pos {s : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p} :
+    (s.pos p h).copy = s.copy.pos p (Pos.Raw.isValid_copy_iff.2 h) := by
+  simp [String.Pos.ext_iff]
+
+@[simp]
+theorem Slice.cast_pos {s t : Slice} {p : Pos.Raw} {h : Pos.Raw.IsValidForSlice s p} {h' : s = t} :
+    (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem cast_pos {s t : String} {p : Pos.Raw} {h : Pos.Raw.IsValid s p} {h' : s = t} :
+    (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
+  simp [String.Pos.ext_iff]
+
 end String

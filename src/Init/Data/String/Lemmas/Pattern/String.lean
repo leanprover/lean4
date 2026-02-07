@@ -73,12 +73,9 @@ theorem matchesAt_iff_splits {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = fa
   exact ⟨fun ⟨e, t₁, t₂, ht₁, ht₂⟩ => ⟨t₁, t₂, ht₁⟩,
     fun ⟨t₁, t₂, ht⟩ => ⟨ht.rotateRight, t₁, t₂, ht, ht.splits_rotateRight⟩⟩
 
-theorem foo {P : Prop} [Decidable P] {f : P → Bool} : (if h : P then f h else false) = true ↔ (∃ h, f h) := by
-  split <;> simp_all
-
 theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pat.copy ++ t := by
   rw [startsWith]
-  simp [Internal.memcmpSlice_eq_true_iff, foo, utf8ByteSize_eq_size_toByteArray_copy, -size_toByteArray]
+  simp [Internal.memcmpSlice_eq_true_iff, utf8ByteSize_eq_size_toByteArray_copy, -size_toByteArray]
   generalize pat.copy = pat
   generalize s.copy = s
   refine ⟨fun ⟨h₁, h₂⟩ => ?_, ?_⟩
@@ -95,7 +92,24 @@ theorem startsWith_iff {pat s : Slice} : startsWith pat s ↔ ∃ t, s.copy = pa
   · rintro ⟨t, rfl⟩
     simp [-size_toByteArray, ByteArray.extract_append]
 
-
+theorem dropPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
+    dropPrefix? pat s = some pos ↔ (s.sliceTo pos).copy = pat.copy := by
+  fun_cases dropPrefix? with
+  | case1 h =>
+    simp only [offset_startPos, Pos.Raw.offsetBy_zero, Option.some.injEq]
+    obtain ⟨t, ht⟩ := startsWith_iff.1 h
+    have hval : pat.rawEndPos.IsValidForSlice s := by
+      rw [← Pos.Raw.isValid_copy_iff, ht, ← Slice.rawEndPos_copy]
+      exact Pos.Raw.isValid_rawEndPos.append_right _
+    have hsp : (s.pos _ hval).Splits pat.copy t := ⟨ht, by simp⟩
+    rw [pos!_eq_pos hval]
+    exact ⟨(· ▸ hsp.copy_sliceTo_eq), fun h => hsp.pos_eq (h ▸ pos.splits)⟩
+  | case2 h =>
+    simp only [startsWith_iff, not_exists] at h
+    simp only [reduceCtorEq, false_iff]
+    intro heq
+    have := h (s.sliceFrom pos).copy
+    simp [← heq, pos.splits.eq_append] at this
 
 end ForwardSliceSearcher
 

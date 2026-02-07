@@ -2,8 +2,14 @@ module
 
 public import UserAttr.BlaAttr
 meta import Lean
+import all Lean.ExtraModUses
 
 public section
+
+-- Like in extraModUses.lean, but there we do not have registered custom attributes
+meta def resetExtraModUses : Lean.CoreM Unit := do
+  Lean.modifyEnv (Lean.PersistentEnvExtension.setState Lean.extraModUses · ⟨[], ∅⟩)
+  Lean.modifyEnv (Lean.PersistentEnvExtension.setState Lean.isExtraRevModUseExt · ⟨[], ()⟩)
 
 attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff
 
@@ -28,6 +34,12 @@ meta def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
 #eval getFooAttrInfo? ``h1
 #eval getFooAttrInfo? ``h2
 
+#eval resetExtraModUses
+/--
+trace: [extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
 @[my_simp] theorem f_eq : f x = x + 2 := rfl
 @[my_simp] theorem g_eq : g x = x + 1 := rfl
 
@@ -35,6 +47,12 @@ example : f x + g x = 2*x + 3 := by
   fail_if_success simp +arith -- does not apply f_eq and g_eq
   simp +arith [f, g]
 
+#eval resetExtraModUses
+/--
+trace: [extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
 example : f x + g x = 2*x + 3 := by
   simp +arith [my_simp]
 
@@ -189,6 +207,12 @@ example : foo x (f (f x)) = x := by
 
 grind_pattern [my_grind] fooAx => foo x (f x)
 
+#eval resetExtraModUses
+/--
+[extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
 example : foo x (f (f x)) = x := by
   grind only [my_grind]
 

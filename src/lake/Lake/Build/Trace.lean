@@ -143,7 +143,7 @@ public def hex (self : Hash) : String :=
   lpad (String.ofList <| Nat.toDigits 16 self.val.toNat) '0' 16
 
 public def ofDecimal? (s : String) : Option Hash :=
-  (inline s.toNat?).map ofNat
+  s.toNat?.map ofNat
 
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s

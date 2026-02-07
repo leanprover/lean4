@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Pattern.Basic
 public import Init.Data.String.Lemmas.Splits
 public import Init.Data.Iterators.Consumers.Collect
+import all Init.Data.String.Pattern.Basic
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Lemmas.Order
@@ -16,6 +17,7 @@ import Init.Data.String.Termination
 import Init.Data.Order.Lemmas
 import Init.ByCases
 import Init.Data.Option.Lemmas
+import Init.Data.Iterators.Lemmas.Consumers.Collect
 
 set_option doc.verso true
 
@@ -252,5 +254,46 @@ class LawfulToForwardSearcherModel {ρ : Type} (pat : ρ) [ForwardPatternModel p
     [ToForwardSearcher pat σ] [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidSearchFrom_toList (s) : IsValidSearchFrom pat s.startPos (ToForwardSearcher.toSearcher pat s).toList
+
+theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPattern pat] [StrictForwardPattern pat]
+    [ForwardPatternModel pat] [LawfulForwardPatternModel pat] :
+    letI : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation
+    LawfulToForwardSearcherModel pat := by
+  let inst : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation
+  refine ⟨fun s => ?_⟩
+  suffices ∀ (pos : s.Pos),
+      IsValidSearchFrom pat pos (Std.Iter.mk (α := ToForwardSearcher.DefaultForwardSearcher pat s) ⟨pos⟩).toList from
+    this s.startPos
+  intro pos
+  induction pos using WellFounded.induction Slice.Pos.wellFounded_gt with | h pos ih
+  rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
+  simp only [Std.Iter.toIterM, ne_eq]
+  by_cases h : pos = s.endPos
+  · simpa [h] using IsValidSearchFrom.endPos
+  · simp only [h, ↓reduceDIte]
+    split <;> rename_i heq
+    · split at heq <;> rename_i pos' heq'
+      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
+          Std.PlausibleIterStep.yield, Std.IterStep.yield.injEq] at heq
+        rw [← heq.1, ← heq.2]
+        apply IsValidSearchFrom.matched
+        · rw [LawfulForwardPattern.dropPrefixOfNonempty?_eq,
+            LawfulForwardPatternModel.dropPrefix?_eq_some_iff] at heq'
+          exact heq'.isLongestMatchAt_ofSliceFrom
+        · simp only [Std.IterM.toIter]
+          apply ih
+          refine Std.lt_of_le_of_lt (Slice.Pos.le_ofSliceFrom (pos := Slice.startPos _))
+            (Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff.2 ?_)
+          simpa using StrictForwardPattern.ne_startPos _ _ heq'
+      · simp only [Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_yield,
+          Std.PlausibleIterStep.yield, Std.IterStep.yield.injEq] at heq
+        rw [← heq.1, ← heq.2]
+        apply IsValidSearchFrom.mismatched (by simp) _ (ih _ (by simp))
+        intro p' hp' hp''
+        obtain rfl : pos = p' := Std.le_antisymm hp' (by simpa using hp'')
+        rwa [LawfulForwardPattern.dropPrefixOfNonempty?_eq,
+          LawfulForwardPatternModel.dropPrefix?_eq_none_iff] at heq'
+    · split at heq <;> simp at heq
+    · split at heq <;> simp at heq
 
 end String.Slice.Pattern

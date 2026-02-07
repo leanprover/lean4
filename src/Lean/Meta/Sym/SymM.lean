@@ -164,8 +164,12 @@ def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
 def isFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getFalseExpr)
 /-- Returns the internalized `Bool.true`.  -/
 def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
+/-- Returns `true` if `e` is the internalized `Bool.true` expression.  -/
+def isBoolTrueExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolTrueExpr)
 /-- Returns the internalized `Bool.false`.  -/
 def getBoolFalseExpr : SymM Expr := return (← getSharedExprs).bfalseExpr
+/-- Returns `true` if `e` is the internalized `Bool.false` expression.  -/
+def isBoolFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolFalseExpr)
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : SymM Expr := return (← getSharedExprs).natZExpr
 /-- Returns the internalized `Ordering.eq`.  -/

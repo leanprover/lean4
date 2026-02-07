@@ -671,3 +671,15 @@
   run_config:
     <<: *time
     cmd: lean ./cbv/leroy.lean
+- attributes:
+    description: cbv tactic (Eratosthenes' sieve)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/divisors.lean
+- attributes:
+    description: cbv tactic (removing duplicates from the list)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/dedup.lean

@@ -701,6 +701,11 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
   it.toIterM.step.run.inflate.toPure
 
+theorem Iter.step_eq {IsPlausibleStep step} {it : Iter (α := α) β} :
+    letI : Iterator α Id β := ⟨IsPlausibleStep, step⟩
+    it.step = IterM.Step.toPure (it := it.toIterM) (step it.toIterM).run.inflate :=
+  (rfl)
+
 end Pure
 
 section Finite

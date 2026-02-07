@@ -66,6 +66,8 @@ instance {p : Char → Bool} : LawfulForwardPattern p where
 instance {p : Char → Bool} : ToForwardSearcher p (ToForwardSearcher.DefaultForwardSearcher p) :=
   .defaultImplementation
 
+namespace Decidable
+
 instance {p : Char → Prop} [DecidablePred p] : ForwardPattern p where
   dropPrefixOfNonempty? s h := ForwardPattern.dropPrefixOfNonempty? (decide <| p ·) s h
   dropPrefix? s := ForwardPattern.dropPrefix? (decide <| p ·) s
@@ -80,6 +82,8 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulForwardPattern p where
 
 instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p (ToForwardSearcher.DefaultForwardSearcher p) :=
   .defaultImplementation
+
+end Decidable
 
 @[default_instance]
 instance {p : Char → Bool} : BackwardPattern p where
@@ -120,6 +124,8 @@ instance {p : Char → Bool} : LawfulBackwardPattern p where
 instance {p : Char → Bool} : ToBackwardSearcher p (ToBackwardSearcher.DefaultBackwardSearcher p) :=
   .defaultImplementation
 
+namespace Decidable
+
 instance {p : Char → Prop} [DecidablePred p] : BackwardPattern p where
   dropSuffixOfNonempty? s h := BackwardPattern.dropSuffixOfNonempty? (decide <| p ·) s h
   dropSuffix? s := BackwardPattern.dropSuffix? (decide <| p ·) s
@@ -134,6 +140,8 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulBackwardPattern p where
 
 instance {p : Char → Prop} [DecidablePred p] : ToBackwardSearcher p (ToBackwardSearcher.DefaultBackwardSearcher p) :=
   .defaultImplementation
+
+end Decidable
 
 end CharPred
 

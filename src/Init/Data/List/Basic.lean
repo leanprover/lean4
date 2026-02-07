@@ -506,7 +506,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[specialize] def filterMap (f : α → Option β) : List α → List β
+noncomputable def filterMap (f : α → Option β) : List α → List β
   | []   => []
   | a::as =>
     match f a with
@@ -736,12 +736,6 @@ Examples:
 -/
 @[simp, grind =]
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
-
-/-! ### reduceOption -/
-
-/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
-@[inline] def reduceOption {α} : List (Option α) → List α :=
-  List.filterMap id
 
 /-! ## List membership
 

@@ -120,6 +120,12 @@ Example:
       split <;> simp [*]
   exact (go l #[]).symm
 
+/-! ### reduceOption -/
+
+/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption {α} : List (Option α) → List α :=
+  List.filterMap id
+
 /-! ### foldr -/
 
 /--

@@ -1,4 +1,4 @@
-Failure @19 (⟨1, 19⟩): expected '(' or '['
+Failure @19 (⟨1, 19⟩): expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
 Final stack:
   (Lean.Doc.Syntax.image
    "!["

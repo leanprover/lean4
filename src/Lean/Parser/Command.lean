@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Parser.Do
 import Lean.DocString.Parser
+meta import Lean.Parser.Do
+meta import Lean.DocString.Parser
 
 public section
 
@@ -63,6 +65,7 @@ def namedPrio := leading_parser
   atomic (" (" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
 def optNamedPrio := optional namedPrio
 
+set_option compiler.postponeCompile false  -- TODO
 def «private»        := leading_parser "private "
 def «public»         := leading_parser "public "
 def visibility       :=

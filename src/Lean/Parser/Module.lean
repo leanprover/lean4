@@ -11,6 +11,8 @@ import Init.While
 
 public section
 
+set_option compiler.postponeCompile false  -- TODO
+
 namespace Lean
 namespace Parser
 

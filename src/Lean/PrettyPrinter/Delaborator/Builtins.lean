@@ -1500,6 +1500,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
   else
     withOverApp 2 `(sorry)
 
+set_option compiler.postponeCompile false in  -- TODO
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`

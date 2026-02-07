@@ -181,6 +181,7 @@ def binderType (requireType := false) : Parser :=
 @[run_builtin_parser_attribute_hooks]
 def binderTactic  := leading_parser
   atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
+set_option compiler.postponeCompile false in  -- TODO
 def binderDefault := leading_parser
   " := " >> termParser
 

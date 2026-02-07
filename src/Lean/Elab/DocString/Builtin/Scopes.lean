@@ -18,7 +18,7 @@ inductive DocScope where
   | local
   | import (mods : Array Name)
 
-private def imports := leading_parser sepBy1 ident ", "
+private meta def imports := leading_parser sepBy1 ident ", "
 
 instance : FromDocArg DocScope where
   fromDocArg v := private

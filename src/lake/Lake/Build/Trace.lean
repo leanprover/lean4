@@ -11,6 +11,7 @@ import Init.Data.Nat.Fold
 import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
+meta import Init.Data.Nat.Fold
 import Init.Data.Option.Coe
 
 /-! # Lake Traces

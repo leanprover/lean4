@@ -60,7 +60,8 @@ public def main (args : List String) : IO UInt32 := do
   for optArg in optArgs do
     opts ← setConfigOption opts optArg
 
-  initSearchPathInternal
+  --initSearchPathInternal  -- TODO
+  initSearchPath (← getBuildDir)
   -- Provide access to private scope of target module but no others; provide all IR
   let env ← profileitIO "import" opts <| withImporting do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]

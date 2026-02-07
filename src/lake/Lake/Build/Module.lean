@@ -744,6 +744,9 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let srcTrace := leanJob.getTrace
     addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
+    addPureTrace setup.isModule "isModule"
+    addPureTrace mod.name "Module.name"
+    addPureTrace mod.pkg.id? "Package.id?"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let depTrace ← getTrace

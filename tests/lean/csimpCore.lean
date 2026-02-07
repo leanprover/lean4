@@ -56,6 +56,6 @@ info: (Acc.rec, Acc.recC)
 #guard_msgs in
 run_elab do
   let env ← getEnv
-  for (l, r) in CSimp.ext.getState env |>.map.toList.mergeSort (le := (·.1.lt ·.1)) do
+  for (l, e) in CSimp.ext.getState env |>.map.toList.mergeSort (le := (·.1.lt ·.1)) do
     if !isNoncomputable env l then
-      IO.println (l, r)
+      IO.println (l, e.toDeclName)

@@ -536,7 +536,7 @@ where
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M (Arg .pure) := do
     let env ← getEnv
-    let .const declName us := CSimp.replaceConstants env f | unreachable!
+    let .const declName us ← CSimp.replaceConstant env f | unreachable!
     let args ← args.mapM visitAppArg
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }
@@ -667,7 +667,7 @@ where
       let f := e.getAppFn
       let args := e.getAppArgs
       let env ← getEnv
-      let .const declName us := CSimp.replaceConstants env f | unreachable!
+      let .const declName us ← CSimp.replaceConstant env f | unreachable!
       let ctorInfo? ← isCtor? declName
       let args ← args.mapIdxM fun idx arg =>
         -- We can rely on `toMono` erasing ctor params eventually; we do not do so here so that type
@@ -793,7 +793,7 @@ where
       visit (f.beta e.getAppArgs)
 
   visitApp (e : Expr) : M (Arg .pure) := do
-    if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
+    if let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn then
       checkComputable declName
       if declName == ``Quot.lift then
         visitQuotLift e

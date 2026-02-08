@@ -10,6 +10,17 @@ on:
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
+  # for manual re-release of a nightly
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'release nightly'
+        type: choice
+        options:
+        - release nightly
+        - ci
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}

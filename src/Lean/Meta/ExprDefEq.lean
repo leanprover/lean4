@@ -394,8 +394,8 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
     let fvars  := fvars.push (mkFVar fvarId)
     isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
   match e₁, e₂ with
-  | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
-  | .lam     n d₁ b₁ _, .lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | .forallE _ d₁ b₁ _, .forallE n d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | .lam     _ d₁ b₁ _, .lam     n d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                  _                  =>
     withLCtx' lctx do
       isDefEqBindingDomain fvars ds₂ do

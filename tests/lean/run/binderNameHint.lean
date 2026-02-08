@@ -93,3 +93,29 @@ example (names : List String) : names.myAll (fun name => "Waldo".isPrefixOf name
   trace_state
   dsimp
   done
+
+theorem forall_and' {α : Sort u} {p q : α → Prop} :
+    (∀ a, p a ∧ q a) ↔ (∀ b, binderNameHint b p (p b)) ∧ (∀ c, binderNameHint c q (q c)) :=
+  forall_and
+
+/--
+error: Failed: `fail` tactic was invoked
+⊢ (∀ (my_favorite_name : Nat), 2 + my_favorite_name < my_favorite_name + 10) ∧
+    ∀ (my_favorite_name : Nat), my_favorite_name * 2 ≤ my_favorite_name * 3
+-/
+#guard_msgs in
+example : ∀ my_favorite_name : Nat,
+    2 + my_favorite_name < my_favorite_name + 10 ∧ my_favorite_name * 2 ≤ my_favorite_name * 3 := by
+  rw [forall_and']
+  fail
+
+/--
+error: Failed: `fail` tactic was invoked
+⊢ (∀ (my_favorite_name : Nat), 2 + my_favorite_name < my_favorite_name + 10) ∧
+    ∀ (my_favorite_name : Nat), my_favorite_name * 2 ≤ my_favorite_name * 3
+-/
+#guard_msgs in
+example : ∀ my_favorite_name : Nat,
+    2 + my_favorite_name < my_favorite_name + 10 ∧ my_favorite_name * 2 ≤ my_favorite_name * 3 := by
+  simp only [forall_and']
+  fail

@@ -41,5 +41,9 @@ structure Config where
   annotated with inlining attributes.
   -/
   inlineDefs := true
+  /--
+  If `simpCtor` is `true`, then constructor applications with a matching discriminant are replaced
+  with a reference to the discriminant.
+  -/
+  simpCtor := true
   deriving Inhabited
-

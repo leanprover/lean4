@@ -1225,9 +1225,15 @@ where
     -- Now that we have elaborated types, default data instances to `[instance_reducible]`. This
     -- should happen before attribute application as `[instance]` will check for it.
     for header in headers do
-      if header.kind == .instance && !header.modifiers.anyAttr (·.name matches `reducible | `irreducible) then
-        if !(← isProp header.type) then
-          setReducibilityStatus header.declName .instanceReducible
+      if !header.modifiers.anyAttr (·.name matches `reducible | `instance_reducible | `irreducible) then
+        match header.kind with
+        | .instance =>
+          if !(← isProp header.type) then
+            setReducibilityStatus header.declName .instanceReducible
+        | .def =>
+          if (← isClass? header.type).isSome /-TODO-/ && !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq then
+            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]` or `@[instance_reducible]`"
+        | _ => pure ()
 
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&

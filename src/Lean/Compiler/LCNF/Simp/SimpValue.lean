@@ -49,7 +49,7 @@ def simpAppApp? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
 def simpCtorDiscr? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
   let .const declName _ args := e | failure
   -- don't replace scalar constructors like `true` / `false`
-  if args.isEmpty then failure
+  if !(← read).config.simpCtor && args.isEmpty then failure
   let some (.ctorInfo _) := (← getEnv).find? declName | failure
   let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
   return .fvar fvarId #[]

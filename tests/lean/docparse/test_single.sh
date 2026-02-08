@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+source ../../common.sh
+
+# IO.Process.exit (used by the file worker) seems to be incompatible with LSAN
+# TODO: investigate or work around
+export ASAN_OPTIONS=detect_leaks=0
+
+exec_capture lean -Dlinter.all=false --run run.lean "$f"
+diff_produced

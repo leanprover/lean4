@@ -5,126 +5,111 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
-- One week before the planned release, ensure that someone has written the first draft of the release blog post
+- Run `script/release_checklist.py v4.6.0` to check the status of the release.
+  This script is idempotent, and should be safe to run at any stage of the release process.
+  Note that as of v4.19.0, this script takes some autonomous actions, which can be prevented via `--dry-run`.
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
 - `git pull`
 - In `src/CMakeLists.txt`, verify you see
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
-  - (both of these should already be in place from the release candidates)
-- It is possible that the `v4.6.0` section of `RELEASES.md` is out of sync between
-  `releases/v4.6.0` and `master`. This should be reconciled:
-  - Run `git diff master RELEASES.md`.
-  - You should expect to see additons on `master` in the `v4.7.0-rc1` section; ignore these.
-    (i.e. the new release notes for the upcoming release candidate).
-  - Reconcile discrepancies in the `v4.6.0` section,
-    usually via copy and paste and a commit to `releases/v4.6.0`.
+  - (all of these should already be in place from the release candidates)
 - `git tag v4.6.0`
 - `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`,
     looking for the `v4.6.0` tag.
-  - This step can take up to an hour.
+  - This step can take up to two hours.
   - If you are intending to cut the next release candidate on the same day,
     you may want to start on the release candidate checklist now.
+- Next we need to prepare the release notes.
+  - If the stable release is identical to the last release candidate (this should usually be the case),
+    you can reuse the release notes that are already in the Lean Language Reference.
+  - If you want to regenerate the release notes,
+    run `script/release_notes.py --since v4.5.0` on the `releases/v4.6.0` branch,
+    and see the section "Writing the release notes" below for more information.
+  - Release notes live in https://github.com/leanprover/reference-manual, in e.g. `Manual/Releases/v4.6.0.lean`.
+    It's best if you update these at the same time as a you update the `lean-toolchain` for the `reference-manual` repository, see below.
 - Go to https://github.com/leanprover/lean4/releases and verify that the `v4.6.0` release appears.
-  - Edit the release notes on Github to select the "Set as the latest release".
-  - Copy and paste the Github release notes from the previous releases candidate for this version
-    (e.g. `v4.6.0-rc1`), and quickly sanity check.
+  - Verify on Github that "Set as the latest release" is checked.
 - Next, we will move a curated list of downstream repos to the latest stable release.
-  - For each of the repositories listed below:
-    - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`
-      - Update the toolchain file
-      - In the Lakefile, if there are dependencies on specific version tags of dependencies that you've already pushed as part of this process, update them to the new tag.
-        If they depend on `main` or `master`, don't change this; you've just updated the dependency, so it will work and be saved in the manifest
+  - In order to have the access rights to push to these repositories and merge PRs,
+    you will need to be a member of the `lean-release-managers` team at both `leanprover-community` and `leanprover`.
+    Contact Kim Morrison (@kim-em) to arrange access.
+  - For each of the repositories listed in `script/release_repos.yml`,
+    - Run `script/release_steps.py v4.6.0 <repo>` (e.g. replacing `<repo>` with `batteries`), which will walk you through the following steps:
+      - Create a new branch off `master`/`main` (as specified in the `branch` field), called `bump_to_v4.6.0`.
+      - Update the contents of `lean-toolchain` to `leanprover/lean4:v4.6.0`.
+      - In the `lakefile.toml` or `lakefile.lean`, if there are dependencies on specific version tags of dependencies, update them to the new tag.
+        If they depend on `main` or `master`, don't change this; you've just updated the dependency, so `lake update` will take care of modifying the manifest.
       - Run `lake update`
-      - The PR title should be "chore: bump toolchain to v4.6.0".
+      - Commit the changes as `chore: bump toolchain to v4.6.0` and push.
+      - Create a PR with title "chore: bump toolchain to v4.6.0".
     - Merge the PR once CI completes.
-    - Create the tag `v4.6.0` from `master`/`main` and push it.
-    - Merge the tag `v4.6.0` into the `stable` branch and push it.
-  - We do this for the repositories:
-    - [lean4checker](https://github.com/leanprover/lean4checker)
-      - No dependencies
-      - Note: `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
-      - Toolchain bump PR
-      - Create and push the tag
-      - Merge the tag into `stable`
-    - [Std](https://github.com/leanprover-community/std4)
-      - No dependencies
-      - Toolchain bump PR
-      - Create and push the tag
-      - Merge the tag into `stable`
-    - [ProofWidgets4](https://github.com/leanprover-community/ProofWidgets4)
-      - Dependencies: `Std`
-      - Note on versions and branches:
-        - `ProofWidgets` uses a sequential version tagging scheme, e.g. `v0.0.29`,
-          which does not refer to the toolchain being used.
-        - Make a new release in this sequence after merging the toolchain bump PR.
-        - `ProofWidgets` does not maintain a `stable` branch.
-      - Toolchain bump PR
-      - Create and push the tag, following the version convention of the repository
-    - [Aesop](https://github.com/leanprover-community/aesop)
-      - Dependencies: `Std`
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - Merge the tag into `stable`
-    - [doc-gen4](https://github.com/leanprover/doc-gen4)
-      - Dependencies: exist, but they're not part of the release workflow
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - There is no `stable` branch; skip this step
-    - [import-graph](https://github.com/leanprover-community/import-graph)
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - There is no `stable` branch; skip this step
-    - [Mathlib](https://github.com/leanprover-community/mathlib4)
-      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Std`, `doc-gen4`, `import-graph`
-      - Toolchain bump PR notes:
-        - In addition to updating the `lean-toolchain` and `lakefile.lean`,
-          in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
-          `git checkout toolchain/v4.6.0` to the appropriate tag,
-          and then run `.github/workflows/mk_build_yml.sh`. Coordinate with
-          a Mathlib maintainer to get this merged.
-        - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
-        - Create and push the tag
-        - Create a new branch from the tag, push it, and open a pull request against `stable`.
-          Coordinate with a Mathlib maintainer to get this merged.
-    - [REPL](https://github.com/leanprover-community/repl)
-      - Dependencies: `Mathlib` (for test code)
-      - Note that there are two copies of `lean-toolchain`/`lakefile.lean`:
-        in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - Merge the tag into `stable`
-- Merge the release announcement PR for the Lean website - it will be deployed automatically
+    - Re-running `script/release_checklist.py` will then create the tag `v4.6.0` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
+    - `script/release_checklist.py` will then merge the tag `v4.6.0` into the `stable` branch and push it (unless `stable-branch: false` in the `release_repos.yml` file).
+  - Special notes on repositories with exceptional requirements:
+    - `doc-gen4` has additional dependencies which we do not update at each toolchain release, although occasionally these break and need to be updated manually.
+    - `verso`:
+      - The `subverso` dependency is unusual in that it needs to be compatible with _every_ Lean release simultaneously.
+        Usually you don't need to do anything.
+        If you think something is wrong here please contact David Thrane Christiansen (@david-christiansen)
+      - Warnings during `lake update` and `lake build` are expected.
+    - `reference-manual`: the release notes generated by `script/release_notes.py` as described above must be included in
+      `Manual/Releases/v4.6.0.lean`, and `import` and `include` statements adding in `Manual/Releases.lean`. 
+    - `ProofWidgets4` uses a non-standard sequential version tagging scheme, e.g. `v0.0.29`, which does not refer to the toolchain being used.
+      You will need to identify the next available version number from https://github.com/leanprover-community/ProofWidgets4/releases,
+      and push a new tag after merging the PR to `main`.
+    - `mathlib4`:
+      - The `lakefile.toml` should always refer to dependencies via their `main` or `master` branch,
+        not a toolchain tag
+        (with the exception of `ProofWidgets4`, which *must* use a sequential version tag).
+      - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
+    - `repl`:
+      There are two copies of `lean-toolchain`/`lakefile.lean`:
+      in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
+    - `lean-fro.org`:
+      After updating the toolchains and running `lake update`, you must run `scripts/update.sh` to regenerate
+      the site content. This script updates generated files that depend on the Lean version.
+      The `release_steps.py` script handles this automatically.
+- An awkward situation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
+  to a nightly toolchain that comes *after* the stable toolchain we are
+  targeting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on
+  an earlier toolchain, move that branch to the stable toolchain, and create the toolchain tag from that branch.
+- Run `script/release_checklist.py v4.6.0` one last time to check that everything is in order.
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.
   You will want a few bullet points for main topics from the release notes.
-  Link to the blog post from the Zulip announcement.
+  If there is a blog post, link to that from the zulip announcement.
 - Make sure that whoever is handling social media knows the release is out.
 
-## Optimistic(?) time estimates:
-- Initial checks and push the tag: 30 minutes.
-- Note that if `RELEASES.md` has discrepancies this could take longer!
-- Waiting for the release: 60 minutes.
-- Fixing release notes: 10 minutes.
-- Bumping toolchains in downstream repositories, up to creating the Mathlib PR: 30 minutes.
+## Time estimates:
+- Initial checks and push the tag: 10 minutes.
+- Waiting for the release: 120 minutes.
+- Preparing release notes: 10 minutes.
+- Bumping toolchains in downstream repositories, up to creating the Mathlib PR: 60 minutes.
 - Waiting for Mathlib CI and bors: 120 minutes.
-- Finalizing Mathlib tags and stable branch, and updating REPL: 15 minutes.
-- Posting announcement and/or blog post: 20 minutes.
+- Finalizing Mathlib tags and stable branch, and updating REPL: 20 minutes.
+- Posting announcement and/or blog post: 30 minutes.
 
 # Creating a release candidate.
 
 This checklist walks you through creating the first release candidate for a version of Lean.
 
+For subsequent release candidates, the process is essentially the same, but we start out with the `releases/v4.7.0` branch already created.
+
 We'll use `v4.7.0-rc1` as the intended release version in this example.
 
 - Decide which nightly release you want to turn into a release candidate.
   We will use `nightly-2024-02-29` in this example.
-- It is essential that Std and Mathlib already have reviewed branches compatible with this nightly.
-  - Check that both Std and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
+- It is essential to choose the nightly that will become the release candidate as early as possible, to avoid confusion.
+- Throughout this process you can use `script/release_checklist.py v4.7.0-rc1` to track progress.
+  This script will also try to do some steps autonomously. It is idempotent and safe to run at any point.
+  You can prevent it taking any actions using `--dry-run`.
+- It is essential that Batteries and Mathlib already have reviewed branches compatible with this nightly.
+  - Check that both Batteries and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
     in their `lean-toolchain`.
   - The steps required to reach that state are beyond the scope of this checklist, but see below!
 - Create the release branch from this nightly tag:
@@ -133,67 +118,67 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git fetch nightly tag nightly-2024-02-29
     git checkout nightly-2024-02-29
     git checkout -b releases/v4.7.0
+    git push --set-upstream origin releases/v4.7.0
     ```
-- In `RELEASES.md` remove `(development in progress)` from the `v4.7.0` section header.
-- Our current goal is to have written release notes only about major language features or breaking changes,
-  and to rely on automatically generated release notes for bugfixes and minor changes.
-  - Do not wait on `RELEASES.md` being perfect before creating the `release/v4.7.0` branch. It is essential to choose the nightly which will become the release candidate as early as possible, to avoid confusion.
-  - If there are major changes not reflected in `RELEASES.md` already, you may need to solicit help from the authors.
-  - Minor changes and bug fixes do not need to be documented in `RELEASES.md`: they will be added automatically on the Github release page.
-  - Commit your changes to `RELEASES.md`, and push.
-  - Remember that changes to `RELEASES.md` after you have branched `releases/v4.7.0` should also be cherry-picked back to `master`.
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.
-  - `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
+  - change the `LEAN_VERSION_IS_RELEASE` line to `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
   - Commit your changes to `src/CMakeLists.txt`, and push.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
 - Now wait, while CI runs.
+  - The CI setup parses the tag to discover the `-rc1` special description, and passes it to `cmake` using a `-D` option. The `-rc1` doesn't need to be placed in the configuration file.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
-  - This step can take up to an hour.
-- Once the release appears at https://github.com/leanprover/lean4/releases/
-  - Edit the release notes on Github to select the "Set as a pre-release box".
-  - Copy the section of `RELEASES.md` for this version into the Github release notes.
-  - Use the title "Changes since v4.6.0 (from RELEASES.md)"
-  - Then in the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
-  - This will add a list of all the commits since the last stable version.
-    - Delete anything already mentioned in the hand-written release notes above.
-    - Delete "update stage0" commits, and anything with a completely inscrutable commit message.
-    - Briefly rearrange the remaining items by category (e.g. `simp`, `lake`, `bug fixes`),
-      but for minor items don't put any work in expanding on commit messages.
-  - (How we want to release notes to look is evolving: please update this section if it looks wrong!)
+  - This step can take up to two hours.
+- Verify that the release appears at https://github.com/leanprover/lean4/releases/, marked as a prerelease (this should have been done automatically by the CI release job).
+- Next we need to prepare the release notes.
+  - Run `script/release_notes.py --since v4.6.0` on the `releases/v4.7.0` branch,
+    which will report diagnostic messages on `stderr`
+    (including reporting commits that it couldn't associate with a PR, and hence will be omitted)
+    and then a chunk of markdown on `stdout`.
+    See the section "Writing the release notes" below for more information.
+  - Release notes live in https://github.com/leanprover/reference-manual, in e.g. `Manual/Releases/v4.7.0.lean`.
+    It's best if you update these at the same time as a you update the `lean-toolchain` for the `reference-manual` repository, see below. 
 - Next, we will move a curated list of downstream repos to the release candidate.
-  - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
-    containing the required adaptations (or no adaptations are required).
-    The preparation of this branch is beyond the scope of this document.
-  - For each of the target repositories:
-    - Checkout the `bump/v4.7.0` branch.
-    - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
-    - `git merge origin/master`
-    - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
-    - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
-      back to `master` or `main`, and run `lake update` for those dependencies.
-    - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
-    - `git commit`
-    - `git push`
-    - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
-      or notify the maintainers that it is ready to go.
-    - Once this PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
-  - We do this for the same list of repositories as for stable releases, see above.
+  - This assumes that for each repository either:
+    * There is already a *reviewed* branch `bump/v4.7.0` containing the required adaptations.
+      The preparation of this branch is beyond the scope of this document.
+    * The repository does not need any changes to move to the new version.
+    * Note that sometimes there are *unreviewed* but necessary changes on the `nightly-testing` branch of the repository.
+      If so, you will need to merge these into the `bump_to_v4.7.0-rc1` branch manually.
+  - For each of the repositories listed in `script/release_repos.yml`,
+    - Run `script/release_steps.py v4.7.0-rc1 <repo>` (e.g. replacing `<repo>` with `batteries`), which will walk you through the following steps:
+      - Create a new branch off `master`/`main` (as specified in the `branch` field), called `bump_to_v4.7.0-rc1`.
+      - Merge `origin/bump/v4.7.0` if relevant (i.e. `bump-branch: true` appears in `release_repos.yml`).
+      - Otherwise, you *may* need to merge `origin/nightly-testing`.
+      - Note that for `verso` and `reference-manual` development happens on `nightly-testing`, so
+        we will merge that branch into `bump_to_v4.7.0-rc1`, but it is essential in the GitHub interface that we do a rebase merge,
+        in order to preserve the history.
+      - Update the contents of `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`.
+      - In the `lakefile.toml` or `lakefile.lean`, if there are dependencies on `nightly-testing`, `bump/v4.7.0`, or specific version tags, update them to the new tag.
+        If they depend on `main` or `master`, don't change this; you've just updated the dependency, so `lake update` will take care of modifying the manifest.
+      - Run `lake update`
+      - Run `lake build && if lake check-test; then lake test; fi` to check things are working.
+      - Commit the changes as `chore: bump toolchain to v4.7.0-rc1` and push.
+      - Create a PR with title "chore: bump toolchain to v4.7.0-rc1".
+    - Merge the PR once CI completes. (Recall: for `verso` and `reference-manual` you will need to do a rebase merge.)
+    - Re-running `script/release_checklist.py` will then create the tag `v4.7.0-rc1` from `master`/`main` and push it (unless `toolchain-tag: false` in the `release_repos.yml` file)
+  - We do this for the same list of repositories as for stable releases, see above for notes about special cases.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
-  - For Std/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
-    `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release
-    (create it if not), and then on the `nightly-testing` branch `git reset --hard master`, and force push.
+  - It is essential for Mathlib and Batteries CI that you then create the next `bump/v4.8.0` branch
+    for the next development cycle.
+    Set the `lean-toolchain` file on this branch to same `nightly` you used for this release.
+- Run `script/release_checklist.py v4.7.0-rc1` one last time to check that everything is in order.
 - Make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.7.0-rc1`.
   Please see previous announcements for suggested language.
   You will want a few bullet points for main topics from the release notes.
   Please also make sure that whoever is handling social media knows the release is out.
 - Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
+  - Uses branch name `dev_cycle_v4.8`.
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
-  - Removes `(in development)` from the section heading in `RELEASES.md` for `v4.7.0`,
-    and creates a new `v4.8.0 (in development)` section heading.
+  - Titled "chore: begin development cycle for v4.8.0"
 
 ## Time estimates:
 Slightly longer than the corresponding steps for a stable release.
@@ -204,7 +189,7 @@ In particular, updating the downstream repositories is significantly more work
 # Preparing `bump/v4.7.0` branches
 
 While not part of the release process per se,
-this is a brief summary of the work that goes into updating Std/Aesop/Mathlib to new versions.
+this is a brief summary of the work that goes into updating Batteries/Aesop/Mathlib to new versions.
 
 Please read https://leanprover-community.github.io/contribute/tags_and_branches.html
 
@@ -218,12 +203,157 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
   * This can either be done by the person managing this process directly,
     or by soliciting assistance from authors of files, or generally helpful people on Zulip!
 * Each repo has a `bump/v4.7.0` which accumulates reviewed changes adapting to new versions.
-* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we:
+* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we will create a PR to `bump/v4.7.0`.
+* For Mathlib, there is a script in `scripts/create-adaptation-pr.sh` that automates this process.
+* For Batteries and Aesop it is currently manual.
+* For all of these repositories, the process is the same:
   * Make sure `bump/v4.7.0` is up to date with `master` (by merging `master`, no PR necessary)
   * Create from `bump/v4.7.0` a `bump/nightly-2024-02-15` branch.
-  * In that branch, `git merge --squash nightly-testing` to bring across changes from `nightly-testing`.
+  * In that branch, `git merge nightly-testing` to bring across changes from `nightly-testing`.
   * Sanity check changes, commit, and make a PR to `bump/v4.7.0` from the `bump/nightly-2024-02-15` branch.
-  * Solicit review, merge the PR into `bump/v4,7,0`.
+  * Solicit review, merge the PR into `bump/v4.7.0`.
 * It is always okay to merge in the following directions:
   `master` -> `bump/v4.7.0` -> `bump/nightly-2024-02-15` -> `nightly-testing`.
   Please remember to push any merges you make to intermediate steps!
+
+# Writing the release notes
+
+Release notes content is only written for the first release candidate (`-rc1`). For subsequent RCs and stable releases,
+just update the title in the existing release notes file (see "Release notes title format" below).
+
+## Release notes title format
+
+The title in the `#doc (Manual)` line must follow these formats:
+
+- **For -rc1**: `"Lean 4.7.0-rc1 (2024-03-15)"` — Include the RC suffix and the release date
+- **For -rc2, -rc3, etc.**: `"Lean 4.7.0-rc2 (2024-03-20)"` — Update the RC number and date
+- **For stable release**: `"Lean 4.7.0 (2024-04-01)"` — Remove the RC suffix but keep the date
+
+The date should be the actual date when the tag was pushed (or when CI completed and created the release page).
+
+## Generating the release notes
+
+Release notes are automatically generated from the commit history, using `script/release_notes.py`.
+
+Run this as `script/release_notes.py --since v4.6.0`, where `v4.6.0` is the *previous* release version.
+This script should be run on the `releases/v4.7.0` branch.
+This will generate output for all commits since that tag.
+Note that there is output on both stderr, which should be manually reviewed,
+and on stdout, which should be manually copied into the `reference-manual` repository, in the file `Manual/Releases/v4.7.0.lean`.
+
+The output on stderr should mostly be about commits for which the script could not find an associated PR,
+usually because a PR was rebase-merged because it contained an update to stage0.
+Some judgement is required here: ignore commits which look minor,
+but manually add items to the release notes for significant PRs that were rebase-merged.
+
+There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.
+
+## Reviewing and fixing the generated markdown
+
+Before adding the release notes to the reference manual, carefully review the generated markdown for these common issues:
+
+1. **Unterminated code blocks**: PR descriptions sometimes have unclosed code fences. Look for code blocks
+   that don't have a closing ` ``` `. If found, fetch the original PR description with `gh pr view <number>`
+   and repair the code block with the complete content.
+
+2. **Truncated descriptions**: Some PR descriptions may end abruptly mid-sentence. Review these and complete
+   the descriptions based on the original PR.
+
+3. **Markdown syntax issues**: Check for other markdown problems that could cause parsing errors.
+
+## Creating the release notes file
+
+The release notes go in `Manual/Releases/v4_7_0.lean` in the reference-manual repository.
+
+The file structure must follow the Verso format:
+
+```lean
+/-
+Copyright (c) 2025 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: <Your Name>
+-/
+
+import VersoManual
+import Manual.Meta
+import Manual.Meta.Markdown
+
+open Manual
+open Verso.Genre
+open Verso.Genre.Manual
+open Verso.Genre.Manual.InlineLean
+
+#doc (Manual) "Lean 4.7.0-rc1 (2024-03-15)" =>
+%%%
+tag := "release-v4.7.0"
+file := "v4.7.0"
+%%%
+
+<release notes content here>
+```
+
+**Important formatting rules for Verso:**
+- Use `#` for section headers inside the document, not `##` (Verso uses header level 1 for subsections)
+- Use plain ` ``` ` for code blocks, not ` ```lean ` (the latter will cause Lean to execute the code)
+- Identifiers with underscores like `bv_decide` should be wrapped in backticks: `` `bv_decide` ``
+  (otherwise the underscore may be interpreted as markdown emphasis)
+
+## Updating Manual/Releases.lean
+
+After creating the release notes file, update `Manual/Releases.lean` to include it:
+
+1. Add the import near the top with other version imports:
+   ```lean
+   import Manual.Releases.«v4_7_0»
+   ```
+
+2. Add the include statement after the other includes:
+   ```lean
+   {include 0 Manual.Releases.«v4_7_0»}
+   ```
+
+## Building and verifying
+
+Build the release notes to check for errors:
+```bash
+lake build Manual.Releases.v4_7_0
+```
+
+Common errors and fixes:
+- "Wrong header nesting - got ## but expected at most #": Change `##` to `#`
+- "Tactic 'X' failed" or similar: Code is being executed; change ` ```lean ` to ` ``` `
+- "'_'" errors: Underscore in identifier being parsed as emphasis; wrap in backticks
+
+## Creating the PR
+
+**Important: Timing with the reference-manual tag**
+
+The reference-manual repository deploys documentation when a version tag is pushed. If you merge
+release notes AFTER the tag is created, the deployed documentation won't include them.
+
+You have two options:
+
+1. **Preferred**: Include the release notes in the same PR as the toolchain bump (or merge the
+   release notes PR before creating the tag). This ensures the tag includes the release notes.
+
+2. **If release notes are merged after the tag**: You must regenerate the tag to trigger a new deployment:
+   ```bash
+   cd /path/to/reference-manual
+   git fetch origin
+   git tag -d v4.7.0-rc1  # Delete local tag
+   git tag v4.7.0-rc1 origin/main  # Create tag at current main (which has release notes)
+   git push origin :refs/tags/v4.7.0-rc1  # Delete remote tag
+   git push origin v4.7.0-rc1  # Push new tag (triggers Deploy workflow)
+   ```
+
+If creating a separate PR for release notes:
+```bash
+git checkout -b v4.7.0-release-notes
+git add Manual/Releases/v4_7_0.lean Manual/Releases.lean
+git commit -m "doc: add v4.7.0 release notes"
+git push -u origin v4.7.0-release-notes
+gh pr create --title "doc: add v4.7.0 release notes" --body "This PR adds the release notes for Lean v4.7.0."
+```
+
+See `./releases_drafts/README.md` for more information about pre-written release note entries.
+See `./releases_drafts/README.md` for more information.

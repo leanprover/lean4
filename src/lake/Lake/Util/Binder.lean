@@ -3,73 +3,91 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Parser.Term
-import Lean.Elab.Term
-import Lean.Expr
+module
+
+prelude
+public import Lean.Parser.Term
+meta import Lean.Parser.Term
 
 namespace Lake
 open Lean Parser
 
-abbrev Ellipsis := TSyntax ``Term.ellipsis
-abbrev NamedArgument := TSyntax ``Term.namedArgument
-abbrev Argument := TSyntax ``Term.argument
+public abbrev Ellipsis := TSyntax ``Term.ellipsis
+public abbrev NamedArgument := TSyntax ``Term.namedArgument
+public abbrev Argument := TSyntax ``Term.argument
 
-instance : Coe Term Argument where
+public instance : Coe Term Argument where
   coe s := ⟨s.raw⟩
 
-instance : Coe Ellipsis Argument where
+public instance : Coe Ellipsis Argument where
   coe s := ⟨s.raw⟩
 
-instance : Coe NamedArgument Argument where
+public instance : Coe NamedArgument Argument where
   coe s := ⟨s.raw⟩
 
-abbrev Hole := TSyntax ``Term.hole
-abbrev BinderIdent := TSyntax ``Term.binderIdent
-abbrev TypeSpec := TSyntax ``Term.typeSpec
+public abbrev Hole := TSyntax ``Term.hole
+public abbrev BinderIdent := TSyntax ``Term.binderIdent
+public abbrev TypeSpec := TSyntax ``Term.typeSpec
 
-def mkHoleFrom (ref : Syntax) : Hole :=
+/-- Same as `mkHole` but returns `TSyntax`. -/
+public def mkHoleFrom (ref : Syntax) : Hole :=
   mkNode ``Term.hole #[mkAtomFrom ref "_"]
 
-instance : Coe Hole Term where
+public instance : Coe Hole Term where
   coe s := ⟨s.raw⟩
 
-instance : Coe Hole BinderIdent where
+public instance : Coe Hole BinderIdent where
   coe s := ⟨s.raw⟩
 
-instance : Coe Ident BinderIdent where
+public instance : Coe Ident BinderIdent where
   coe s := ⟨s.raw⟩
 
-abbrev BracketedBinder := TSyntax ``Term.bracketedBinder
-abbrev FunBinder := TSyntax ``Term.funBinder
+public abbrev BracketedBinder := TSyntax ``Term.bracketedBinder
+public abbrev FunBinder := TSyntax ``Term.funBinder
 
-instance : Coe BinderIdent FunBinder where
+public instance : Coe BinderIdent FunBinder where
   coe s := ⟨s.raw⟩
+
+public abbrev DeclBinder := TSyntax [identKind, ``Term.hole, ``Term.bracketedBinder]
 
 @[run_parser_attribute_hooks]
-def binder := Term.binderIdent <|> Term.bracketedBinder
+public def binder := Term.binderIdent <|> Term.bracketedBinder
+public abbrev Binder := TSyntax ``binder
 
-abbrev Binder := TSyntax ``binder
-instance : Coe Binder (TSyntax [identKind, ``Term.hole, ``Term.bracketedBinder]) where
+public instance : Coe BinderIdent Binder where
   coe stx := ⟨stx.raw⟩
 
-abbrev BinderModifier := TSyntax [``Term.binderTactic, ``Term.binderDefault]
+public instance : Coe BracketedBinder Binder where
+  coe stx := ⟨stx.raw⟩
+
+public instance : Coe Binder DeclBinder where
+  coe stx := ⟨stx.raw⟩
+
+public abbrev BinderModifier := TSyntax [``Term.binderTactic, ``Term.binderDefault]
+
+public abbrev DepArrow := TSyntax ``Term.depArrow
+
+public instance : Coe DepArrow Term where
+  coe stx := ⟨stx.raw⟩
 
 --------------------------------------------------------------------------------
 -- Adapted from the private utilities in `Lean.Elab.Binders`
 
-structure BinderSyntaxView where
+public structure BinderSyntaxView where
+  ref : Syntax
   id : Ident
   type : Term
   info : BinderInfo
   modifier? : Option BinderModifier := none
+  deriving Inhabited, Repr
 
-def expandOptType (ref : Syntax) (optType : Syntax) : Term :=
+public def expandOptType (ref : Syntax) (optType : Syntax) : Term :=
   if optType.isNone then
     mkHoleFrom ref
   else
     ⟨optType[0][1]⟩
 
-def getBinderIds (ids : Syntax) : MacroM (Array BinderIdent) :=
+public def getBinderIds (ids : Syntax) : MacroM (Array BinderIdent) :=
   ids.getArgs.mapM fun id =>
     let k := id.getKind
     if k == identKind || k == `Lean.Parser.Term.hole then
@@ -77,34 +95,39 @@ def getBinderIds (ids : Syntax) : MacroM (Array BinderIdent) :=
     else
       Macro.throwErrorAt id "identifier or `_` expected"
 
-def expandBinderIdent (stx : Syntax) : MacroM Ident :=
+public def expandBinderIdent (stx : Syntax) : MacroM Ident :=
   match stx with
-  | `(_) => (⟨·⟩) <$> Elab.Term.mkFreshIdent stx
+  | `(_) => (⟨·⟩) <$> `(x)
   | _    => pure ⟨stx⟩
 
-def expandOptIdent (stx : Syntax) : BinderIdent :=
+public def expandOptIdent (stx : Syntax) : BinderIdent :=
   if stx.isNone then mkHoleFrom stx else ⟨stx[0]⟩
 
-def expandBinderType (ref : Syntax) (stx : Syntax) : Term :=
+public def expandBinderType (ref : Syntax) (stx : Syntax) : Term :=
   if stx.getNumArgs == 0 then mkHoleFrom ref else ⟨stx[1]⟩
 
-def expandBinderModifier (optBinderModifier : Syntax) : Option BinderModifier :=
-  if optBinderModifier.isNone then
-    none
-  else
-    some ⟨optBinderModifier[0]⟩
+public def expandBinderModifier (optBinderModifier : Syntax) : Option BinderModifier :=
+  optBinderModifier.getOptional?.map (⟨·⟩)
 
-def matchBinder (stx : Syntax) : MacroM (Array BinderSyntaxView) := do
+public def expandBinderCore
+  (binders : Array BinderSyntaxView) (stx : Syntax)
+: MacroM (Array BinderSyntaxView) := do
   let k := stx.getKind
   if stx.isIdent || k == ``Term.hole then
     -- binderIdent
-    return #[{ id := (← expandBinderIdent stx), type := mkHoleFrom stx, info := .default }]
+    return binders.push {
+      ref := stx
+      id := ← expandBinderIdent stx,
+      type := mkHoleFrom stx,
+      info := .default
+    }
   else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
     let modifier? := expandBinderModifier stx[3]
-    ids.mapM fun id => return {
+    ids.foldlM (init := binders) fun binders id => return binders.push {
+      ref := stx
       id := ← expandBinderIdent id,
       type := expandBinderType id type,
       info := .default,
@@ -114,47 +137,65 @@ def matchBinder (stx : Syntax) : MacroM (Array BinderSyntaxView) := do
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
-    ids.mapM fun id => return {
-      id := ← expandBinderIdent id,
-      type := expandBinderType id type,
+    ids.foldlM (init := binders) fun binders id => return binders.push {
+      ref := stx
+      id := ← expandBinderIdent id
+      type := expandBinderType id type
       info := .implicit
     }
   else if k == ``Lean.Parser.Term.strictImplicitBinder then
     -- `⦃` binderIdent+ binderType `⦄`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
-    ids.mapM fun id => do pure {
-      id := ← expandBinderIdent id,
-      type := expandBinderType id type,
+    ids.foldlM (init := binders) fun binders id => return binders.push {
+      ref := stx
+      id := ← expandBinderIdent id
+      type := expandBinderType id type
       info := .strictImplicit
     }
   else if k == ``Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
     let id := expandOptIdent stx[1]
     let type := stx[2]
-    return #[{id := ← expandBinderIdent id, type := ⟨type⟩, info := .instImplicit}]
+    return binders.push {
+      ref := stx
+      id := ← expandBinderIdent id
+      type := ⟨type⟩
+      info := .instImplicit
+    }
   else
     Macro.throwUnsupported
 
+@[inline] public def expandBinder (stx : Syntax) : MacroM (Array BinderSyntaxView) :=
+  expandBinderCore #[] stx
+
+public def expandBinders (stxs : Array Syntax) : MacroM (Array BinderSyntaxView) :=
+  stxs.foldlM expandBinderCore #[]
+
 --------------------------------------------------------------------------------
 
-def BinderSyntaxView.mkBinder : BinderSyntaxView → MacroM Binder
-| {id, type, info, modifier?} => do
+public def BinderSyntaxView.mkBinder : BinderSyntaxView → BracketedBinder
+| {ref, id, type, info, modifier?} => Unhygienic.run <| MonadRef.withRef ref do
   match info with
-  | .default        => `(binder| ($id : $type $[$modifier?]?))
-  | .implicit       => `(binder| {$id : $type})
-  | .strictImplicit => `(binder| ⦃$id : $type⦄)
-  | .instImplicit   => `(binder| [$id : $type])
+  | .default        => `(bracketedBinder| ($id : $type $[$modifier?]?))
+  | .implicit       => `(bracketedBinder| {$id : $type})
+  | .strictImplicit => `(bracketedBinder| ⦃$id : $type⦄)
+  | .instImplicit   => `(bracketedBinder| [$id : $type])
 
-def BinderSyntaxView.mkArgument : BinderSyntaxView → MacroM NamedArgument
-| {id, ..} => `(Term.namedArgument| ($id := $id))
+public def BinderSyntaxView.mkDepArrow (res : Term) (self : BinderSyntaxView) : DepArrow :=
+  Unhygienic.run <| MonadRef.withRef self.ref do
+    `(Term.depArrow| $(self.mkBinder) → $res)
 
-def expandBinders (dbs : Array Binder) : MacroM (Array Binder × Array Term) := do
-  let mut bs := #[]
-  let mut args : Array Term := #[]
-  for db in dbs do
-    let views ← matchBinder db.raw
-    for view in views do
-      bs := bs.push (← view.mkBinder)
-      args := args.push ⟨(← view.mkArgument).raw⟩
-  return (bs, args)
+public def mkDepArrow (binders : Array BinderSyntaxView) (res : Term) : Term :=
+  binders.foldl (fun r v => v.mkDepArrow r) res
+
+public def BinderSyntaxView.mkFunBinder : BinderSyntaxView → FunBinder
+| {ref, id, type, info, ..} => Unhygienic.run <| withRef ref do
+  match info with
+  | .default        => `(Term.funBinder| ($id : $type))
+  | .implicit       => `(Term.funBinder| {$id : $type})
+  | .strictImplicit => `(Term.funBinder| ⦃$id : $type⦄)
+  | .instImplicit   => `(Term.funBinder| [$id : $type])
+
+public def BinderSyntaxView.mkArgument : BinderSyntaxView → NamedArgument
+| {ref, id, ..} => Unhygienic.run <| withRef ref `(Term.namedArgument| ($id := $id))

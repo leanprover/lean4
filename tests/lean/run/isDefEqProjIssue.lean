@@ -6,13 +6,13 @@ structure Test where
   x : Nat
 
 -- We need a data structure with functions that are not meant for reduction purposes.
-abbrev Cache := HashMap Nat Test
+abbrev Cache := Std.HashMap Nat Test
 
 def Cache.insert (cache : Cache) (key : Nat) (val : Test) : Cache :=
-  HashMap.insert cache key val
+  Std.HashMap.insert cache key val
 
 def Cache.find? (cache : Cache) (key : Nat) : Option Test :=
-  HashMap.find? cache key
+  cache[key]?
 
 -- This function just contains a call to a function that we definitely do not want to reduce.
 -- To illustrate that the problem is actually noticeable there are multiple implementations provided.
@@ -50,6 +50,24 @@ where
     have : val.x = (bar c1 key).x := rfl
     val.x
 
+/--
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (400) has been reached
+
+Note: Use `set_option maxHeartbeats <num>` to set the limit.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+set_option backward.isDefEq.lazyWhnfCore false in
+set_option maxHeartbeats 400 in
+def test' (c1 : Cache) (key : Nat) : Nat :=
+  go c1 key
+where
+  go (c1 : Cache) (key : Nat) : Nat :=
+    let val : Test := bar c1 key
+    have : val.x = (bar c1 key).x := rfl
+    val.x
+
 def ack : Nat → Nat → Nat
   | 0,   y   => y+1
   | x+1, 0   => ack x 1
@@ -66,7 +84,7 @@ instance g (x : Nat) : Foo :=
   { x, y := ack 10 11 }
 
 open Lean Meta
-set_option maxHeartbeats 400 in
+set_option maxHeartbeats 500 in
 run_meta do
   withLocalDeclD `x (mkConst ``Nat) fun x => do
     let lhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``f) x

@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Capabilities
-import Lean.Data.Lsp.Workspace
-import Lean.Data.Json
+public import Lean.Data.Lsp.Capabilities
+public import Lean.Data.Lsp.Workspace
+
+public section
 
 /-! Functionality to do with initializing and shutting down
 the server ("General Messages" section of LSP spec). -/
@@ -36,7 +39,7 @@ instance : FromJson Trace := ⟨fun j =>
   | Except.ok "off"      => return Trace.off
   | Except.ok "messages" => return Trace.messages
   | Except.ok "verbose"  => return Trace.verbose
-  | _               => throw "uknown trace"⟩
+  | _               => throw "unknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
 ⟨fun
@@ -44,22 +47,33 @@ instance Trace.hasToJson : ToJson Trace :=
   | Trace.messages => "messages"
   | Trace.verbose => "verbose"⟩
 
+local instance [BEq α] [Hashable α] [ToJson α] : ToJson (Std.HashSet α) where
+  toJson s := .arr <| s.toArray.map toJson
+
+local instance [BEq α] [Hashable α] [FromJson α] : FromJson (Std.HashSet α) where
+  fromJson?
+    | .arr a => return Std.HashSet.ofArray <| ← a.mapM fromJson?
+    | _ => throw "Expected array when converting JSON to Std.HashSet"
+
+structure LogConfig where
+  logDir? : Option System.FilePath
+  allowedMethods? : Option (Std.HashSet String)
+  disallowedMethods? : Option (Std.HashSet String)
+  deriving FromJson, ToJson
+
 /-- Lean-specific initialization options. -/
 structure InitializationOptions where
-  /-- Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower
-  values may make editors feel faster at the cost of higher CPU usage. Defaults to 200ms. -/
-  editDelay? : Option Nat
   /-- Whether the client supports interactive widgets. When true, in order to improve performance
   the server may cease including information which can be retrieved interactively in some standard
   LSP messages. Defaults to false. -/
   hasWidgets? : Option Bool
+  logCfg? : Option LogConfig
   deriving ToJson, FromJson
 
 structure InitializeParams where
   processId? : Option Int := none
   clientInfo? : Option ClientInfo := none
-  /- We don't support the deprecated rootPath
-  (rootPath? : Option String) -/
+  /-- Not used by the language server. We use the cwd of the server process instead. -/
   rootUri? : Option String := none
   initializationOptions? : Option InitializationOptions := none
   capabilities : ClientCapabilities
@@ -67,9 +81,6 @@ structure InitializeParams where
   trace : Trace := Trace.off
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson
-
-def InitializeParams.editDelay (params : InitializeParams) : Nat :=
-  params.initializationOptions? |>.bind (·.editDelay?) |>.getD 200
 
 instance : FromJson InitializeParams where
   fromJson? j := do

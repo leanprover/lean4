@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.KAbstract
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.FVarSubst
-import Lean.Meta.Tactic.Revert
+public import Lean.Meta.KAbstract
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.FVarSubst
+public import Lean.Meta.Tactic.Revert
+import Lean.Meta.AppBuilder
+
+public section
 
 namespace Lean.Meta
 
@@ -93,7 +97,7 @@ root `*` are considered. Matching is executed using the definitionally equality 
 The `generalize` tactic employs `kabstract` and defaults to standard reducibility.
 Hence, the `isDefEq` operations invoked by `kabstract` can become highly resource-intensive
 and potentially trigger "max recursion depth reached" errors, as observed in issue #3524.
-This issue was isolated by @**Scott Morrison** with the following example:
+This issue was isolated by @**Kim Morrison** with the following example:
 ```
 example (a : Nat) : ((2 ^ 7) + a) - 2 ^ 7 = 0 := by
   generalize 0 - 0 = x
@@ -122,11 +126,6 @@ if generalize weren't used for unfolding things.
 
 @[inherit_doc generalizeCore]
 def _root_.Lean.MVarId.generalize (mvarId : MVarId) (args : Array GeneralizeArg)
-    (transparency := TransparencyMode.instances) : MetaM (Array FVarId × MVarId) :=
-  generalizeCore mvarId args transparency
-
-@[inherit_doc generalizeCore, deprecated MVarId.generalize]
-def generalize (mvarId : MVarId) (args : Array GeneralizeArg)
     (transparency := TransparencyMode.instances) : MetaM (Array FVarId × MVarId) :=
   generalizeCore mvarId args transparency
 

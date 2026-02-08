@@ -1,15 +1,22 @@
 {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
  "position": {"line": 4, "character": 68}}
 {"items":
- [{"sortText": "0",
-   "label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
+ [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
    "kind": 21,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
-     "position": {"line": 4, "character": 68}},
-    "id":
-    {"const":
-     {"declName":
-      "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}}}}],
- "isIncomplete": true}
+   ["file:///completionOpenNamespaces.lean",
+    4,
+    68,
+    0,
+    "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}],
+ "isIncomplete": false}
+Resolution of verySpecificDefinitionNameOfCompletionOpenNamespaces:
+{"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["file:///completionOpenNamespaces.lean",
+  4,
+  68,
+  0,
+  "cA.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"]}

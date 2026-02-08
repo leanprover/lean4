@@ -27,7 +27,7 @@ def Char.digit? (char : Char) : Option Nat :=
     none
 
 mutual
-  def lex [Monad m] [MonadExceptOf LexErr m] (it : String.Iterator) : m (List Token) := do
+  def lex [Monad m] [MonadExceptOf LexErr m] (it : String.Legacy.Iterator) : m (List Token) := do
     if it.atEnd then
       return []
     else
@@ -40,7 +40,7 @@ mutual
         | none   => throw <| LexErr.unexpected other
         | some d => lexnumber d [other] it.next
 
-  def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Iterator) : m (List Token) :=
+  def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Legacy.Iterator) : m (List Token) :=
     if it.atEnd then
       return [{ text := text.reverse.asString, tok := Tok.num soFar }]
     else
@@ -50,16 +50,35 @@ mutual
       | some d => lexnumber (soFar * 10 + d) (c :: text) it.next
 end
 
+/-- info: Except.ok [] -/
+#guard_msgs in
 #eval lex (m := Except LexErr) "".iter
+
+/-- info: Except.ok [{ text := "123", tok := Tok.num 123 }] -/
+#guard_msgs in
 #eval lex (m := Except LexErr) "123".iter
+
+/--
+info: Except.ok [{ text := "1", tok := Tok.num 1 }, { text := "+", tok := Tok.plus }, { text := "23", tok := Tok.num 23 }]
+-/
+#guard_msgs in
 #eval lex (m := Except LexErr) "1+23".iter
+
+/--
+info: Except.ok [{ text := "1", tok := Tok.num 1 },
+ { text := "+", tok := Tok.plus },
+ { text := "23", tok := Tok.num 23 },
+ { text := "(", tok := Tok.lpar },
+ { text := ")", tok := Tok.rpar }]
+-/
+#guard_msgs in
 #eval lex (m := Except LexErr) "1+23()".iter
 
 namespace NonMutual
 
-def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Iterator) : m (List Token) := do
+def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Legacy.Iterator) : m (List Token) := do
   let currTok := fun
-    | (cs, n) => { text := {data := cs.reverse}, tok := Tok.num n }
+    | (cs, n) => { text := cs.reverse.asString , tok := Tok.num n }
   if it.atEnd then
     return current?.toList.map currTok
   else
@@ -78,7 +97,26 @@ def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)
             | none => lex (some ([other], d)) it.next
             | some (tokTxt, soFar) => lex (other :: tokTxt, soFar * 10 + d) it.next
 
+/-- info: Except.ok [] -/
+#guard_msgs in
 #eval lex (m := Except LexErr) none "".iter
+
+/-- info: Except.ok [{ text := "123", tok := Tok.num 123 }] -/
+#guard_msgs in
 #eval lex (m := Except LexErr) none "123".iter
+
+/--
+info: Except.ok [{ text := "1", tok := Tok.num 1 }, { text := "+", tok := Tok.plus }, { text := "23", tok := Tok.num 23 }]
+-/
+#guard_msgs in
 #eval lex (m := Except LexErr) none "1+23".iter
+
+/--
+info: Except.ok [{ text := "1", tok := Tok.num 1 },
+ { text := "+", tok := Tok.plus },
+ { text := "23", tok := Tok.num 23 },
+ { text := "(", tok := Tok.lpar },
+ { text := ")", tok := Tok.rpar }]
+-/
+#guard_msgs in
 #eval lex (m := Except LexErr) none "1+23()".iter

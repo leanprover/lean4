@@ -13,7 +13,7 @@ a : α
 h : α = β
 ⊢ ⋯ ▸ a = b
 ppProofs.lean:10:50-10:98: error: unsolved goals
-α β : Sort ?u
+α β : Sort u_1
 b : β
 a : α
 h : α = β

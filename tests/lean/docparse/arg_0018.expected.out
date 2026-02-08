@@ -1,0 +1,9 @@
+Failure @8 (⟨1, 8⟩): expected ')'
+Final stack:
+  (Lean.Doc.Syntax.named
+   "("
+   `x
+   ":="
+   (Lean.Doc.Syntax.arg_num (num "42"))
+   <missing>)
+Remaining: "\na"

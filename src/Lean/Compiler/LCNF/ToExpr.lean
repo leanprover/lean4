@@ -3,17 +3,22 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+import Init.Omega
+
+public section
 
 namespace Lean.Compiler.LCNF
 
 namespace ToExpr
 
-private abbrev LevelMap := FVarIdMap Nat
+abbrev LevelMap := FVarIdMap Nat
 
 private def _root_.Lean.FVarId.toExpr (offset : Nat) (m : LevelMap) (fvarId : FVarId) : Expr :=
-  match m.find? fvarId with
+  match m.get? fvarId with
   | some level => .bvar (offset - level - 1)
   | none => .fvar fvarId
 
@@ -33,7 +38,7 @@ where
 
 abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
-abbrev mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
+@[inline] def mkLambdaM (params : Array (Param pu)) (e : Expr) : ToExprM Expr :=
   return go (← read) (← get) params.size e
 where
   go (offset : Nat) (m : LevelMap) (i : Nat) (e : Expr) : Expr :=
@@ -47,7 +52,7 @@ where
 private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   return fvarId.toExpr (← read) (← get)
 
-abbrev abstractM (e : Expr) : ToExprM Expr :=
+@[inline] def abstractM (e : Expr) : ToExprM Expr :=
   return e.abstract' (← read) (← get)
 
 @[inline] def withFVar (fvarId : FVarId) (k : ToExprM α) : ToExprM α := do
@@ -55,7 +60,7 @@ abbrev abstractM (e : Expr) : ToExprM Expr :=
   modify fun s => s.insert fvarId offset
   withReader (·+1) k
 
-@[inline] partial def withParams (params : Array Param) (k : ToExprM α) : ToExprM α :=
+@[inline] partial def withParams (params : Array (Param pu)) (k : ToExprM α) : ToExprM α :=
   go 0
 where
   @[specialize] go (i : Nat) : ToExprM α := do
@@ -75,21 +80,21 @@ end ToExpr
 
 open ToExpr
 
-private def Arg.toExprM (arg : Arg) : ToExprM Expr :=
+private def Arg.toExprM (arg : Arg pu) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
 
 mutual
-partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
+partial def FunDecl.toExprM (decl : FunDecl pu) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
-partial def Code.toExprM (code : Code) : ToExprM Expr := do
+partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
   match code with
   | .let decl k =>
     let type ← abstractM decl.type
     let value ← abstractM decl.value.toExpr
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
-  | .fun decl k | .jp decl k =>
+  | .fun decl k _ | .jp decl k =>
     let type ← abstractM decl.type
     let value ← decl.toExprM
     let body ← withFVar decl.fvarId k.toExprM
@@ -99,18 +104,28 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun
-      | .alt _ params k => withParams params do mkLambdaM params (← k.toExprM)
+      | .alt ctorName params k _ => do
+        let body ← withParams params do mkLambdaM params (← k.toExprM)
+        return mkApp (mkConst ctorName) body
       | .default k => k.toExprM
+      | .ctorAlt i k _ => do
+        let body ← k.toExprM
+        return mkApp (mkConst i.name) body
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
+  | .sset fvarId i offset y ty k _ =>
+    let value := mkApp5 (mkConst `sset) (.fvar fvarId) (toExpr i) (toExpr offset) (.fvar y) ty
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .uset fvarId offset y k _ =>
+    let value := mkApp3 (mkConst `uset) (.fvar fvarId) (toExpr offset) (.fvar y)
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
 end
 
-def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+public def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-def FunDeclCore.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+public def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
-
-def Decl.toExpr (decl : Decl) : Expr :=
-  run do withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
 end Lean.Compiler.LCNF

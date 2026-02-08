@@ -1,6 +1,8 @@
 [1, 2]
 6
-parserPrio.lean:28:7-28:10: error: ambiguous, possible interpretations 
+parserPrio.lean:28:7-28:10: error: Ambiguous term
+  [1]
+Possible interpretations:
   2 * 1 : ?m
   
   [1] : List ?m

@@ -26,10 +26,8 @@ info: f.eq_2 (x_1 y : Nat) (zs : List Nat) (x_2 : zs = [] → False) : f (x_1 ::
 #check f.eq_2
 
 /--
-info: f.eq_3 :
-  ∀ (x : List Nat),
-    (∀ (x_1 y : Nat), x = [x_1, y] → False) →
-      (∀ (x_1 y : Nat) (zs : List Nat), x = x_1 :: y :: zs → False) → f x = ([], [])
+info: f.eq_3 (x✝ : List Nat) (x_2 : ∀ (x y : Nat), x✝ = [x, y] → False)
+  (x_3 : ∀ (x y : Nat) (zs : List Nat), x✝ = x :: y :: zs → False) : f x✝ = ([], [])
 -/
 #guard_msgs in
 #check f.eq_3

@@ -1,0 +1,40 @@
+[Compiler.resetReuse] size: 22
+    def _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg newName sz i bs : obj :=
+      let _x.1 := USize.decLt i sz;
+      cases _x.1 : obj
+      | Bool.false =>
+        return bs
+      | Bool.true =>
+        let v := Array.uget ◾ bs i ◾;
+        cases v : obj
+        | Prod.mk =>
+          let fst := proj[0] v;
+          let _x.2 := reset[2] v;
+          cases fst : obj
+          | Prod.mk =>
+            let fst := proj[0] fst;
+            let snd := proj[1] fst;
+            let _x.3 := reset[2] fst;
+            let _x.4 := 0;
+            let bs' := Array.uset ◾ bs i _x.4 ◾;
+            let _x.5 := reuse _x.3 in ctor_0[Prod.mk] fst snd;
+            let _x.6 := reuse _x.2 in ctor_0[Prod.mk] _x.5 newName;
+            let _x.7 := 1;
+            let _x.8 := USize.add i _x.7;
+            let _x.9 := Array.uset ◾ bs' i _x.6 ◾;
+            let _x.10 := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg newName sz _x.8 _x.9;
+            return _x.10
+[Compiler.resetReuse] size: 3
+    def applyProjectionRules._redArg projs newName : obj :=
+      let sz := Array.usize ◾ projs;
+      let _x.1 := 0;
+      let _x.2 := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg newName sz _x.1 projs;
+      return _x.2
+[Compiler.resetReuse] size: 1
+    def applyProjectionRules α β γ projs newName : obj :=
+      let _x.1 := applyProjectionRules._redArg projs newName;
+      return _x.1
+[Compiler.resetReuse] size: 1
+    def _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0 α β γ newName sz i bs : obj :=
+      let _x.1 := _private.Init.Data.Array.Basic.0.Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg newName sz i bs;
+      return _x.1

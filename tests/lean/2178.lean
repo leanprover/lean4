@@ -1,5 +1,3 @@
-class Zero (α : Type u) where
-  zero : α
 class AddZeroClass (M : Type u) extends Zero M, Add M
 class AddMonoid (M : Type u) extends AddZeroClass M where
   nsmul : Nat → M → M := fun _ _ => Zero.zero

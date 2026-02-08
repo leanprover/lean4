@@ -3,3 +3,5 @@ autoBoundPostponeLoop.lean:5:12-5:18: error: invalid `▸` notation, argument
 has type
   ?m
 equality expected
+
+Hint: The identifier `h` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be an equality, and an equality is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.

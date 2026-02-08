@@ -1,6 +1,6 @@
 # Lean Build Bootstrapping
 
-Since version 4, Lean is a partially bootstrapped program: most parts of the
+Lean is a bootstrapped program: the
 frontend and compiler are written in Lean itself and thus need to be built before
 building Lean itself - which is needed to again build those parts. This cycle is
 broken by using pre-built C files checked into the repository (which ultimately
@@ -72,8 +72,16 @@ update the archived C source code of the stage 0 compiler in `stage0/src`.
 
 The github repository will automatically update stage0 on `master` once
 `src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
+To trigger this, modify `stage0/src/stdlib_flags.h` (e.g., by adding or changing
+a comment). When `update-stage0` runs, it will overwrite `stage0/src/stdlib_flags.h`
+with the contents of `src/stdlib_flags.h`, bringing them back in sync.
 
-If you have write access to the lean4 repository, you can also also manually
+NOTE: A full rebuild of stage 1 will only be triggered when the *committed* contents of `stage0/` are changed.
+Thus if you change files in it manually instead of through `update-stage0-commit` (see below) or fetching updates from git, you either need to commit those changes first or run `make -C build/release clean-stdlib`.
+The same is true for further stages except that a rebuild of them is retriggered on any committed change, not just to a specific directory.
+Thus when debugging e.g. stage 2 failures, you can resume the build from these failures on but may want to explicitly call `clean-stdlib` to either observe changes from `.olean` files of modules that built successfully or to check that you did not break modules that built successfully at some prior point.
+
+If you have write access to the lean4 repository, you can also manually
 trigger that process, for example to be able to use new features in the compiler itself.
 You can do that on <https://github.com/leanprover/lean4/actions/workflows/update-stage0.yml>
 or using Github CLI with
@@ -82,12 +90,14 @@ gh workflow run update-stage0.yml
 ```
 
 Leaving stage0 updates to the CI automation is preferable, but should you need
-to do it locally, you can use `make update-stage0-commit` in `build/release` to
-update `stage0` from `stage1` or `make -C stageN update-stage0-commit` to
-update from another stage.
+to do it locally, you can use `make -C build/release update-stage0-commit` to
+update `stage0` from `stage1` or `make -C build/release/stageN update-stage0-commit` to
+update from another stage. This command will automatically stage the updated files
+and introduce a commit, so make sure to commit your work before that.
 
-This command will automatically stage the updated files and introduce a commit,
-so make sure to commit your work before that.
+If you rebased the branch (either onto a newer version of `master`, or fixing
+up some commits prior to the stage0 update), recreate the stage0 update commits.
+The script `script/rebase-stage0.sh` can be used for that.
 
 The CI should prevent PRs with changes to stage0 (besides `stdlib_flags.h`)
 from entering `master` through the (squashing!) merge queue, and label such PRs
@@ -95,15 +105,27 @@ with the `changes-stage0` label. Such PRs should have a cleaned up history,
 with separate stage0 update commits; then coordinate with the admins to merge
 your PR using rebase merge, bypassing the merge queue.
 
+
 ## Further Bootstrapping Complications
 
 As written above, changes in meta code in the current stage usually will only
 affect later stages. This is an issue in two specific cases.
 
+* For the special case of *quotations*, it is desirable to have changes in builtin parsers affect them immediately: when the changes in the parser become active in the next stage, builtin macros implemented via quotations should generate syntax trees compatible with the new parser, and quotation patterns in builtin macros and elaborators should be able to match syntax created by the new parser and macros.
+  Since quotations capture the syntax tree structure during execution of the current stage and turn it into code for the next stage, we need to run the current stage's builtin parsers in quotations via the interpreter for this to work.
+  Caveats:
+  * We activate this behavior by default when building stage 1 by setting `-Dinternal.parseQuotWithCurrentStage=true`.
+    We force-disable it inside `macro/macro_rules/elab/elab_rules` via `suppressInsideQuot` as they are guaranteed not to run in the next stage and may need to be run in the current one, so the stage 0 parser is the correct one to use for them.
+    It may be necessary to extend this disabling to functions that contain quotations and are (exclusively) used by one of the mentioned commands. A function using quotations should never be used by both builtin and non-builtin macros/elaborators. Example: https://github.com/leanprover/lean4/blob/f70b7e5722da6101572869d87832494e2f8534b7/src/Lean/Elab/Tactic/Config.lean#L118-L122
+  * The parser needs to be reachable via an `import` statement, otherwise the version of the previous stage will silently be used.
+  * Only the parser code (`Parser.fn`) is affected; all metadata such as leading tokens is taken from the previous stage.
+
+  For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422R13
+
 * For *non-builtin* meta code such as `notation`s or `macro`s in
   `Notation.lean`, we expect changes to affect the current file and all later
   files of the same stage immediately, just like outside the stdlib. To ensure
-  this, we need to build the stage using `-Dinterpreter.prefer_native=false` -
+  this, we build stage 1 using `-Dinterpreter.prefer_native=false` -
   otherwise, when executing a macro, the interpreter would notice that there is
   already a native symbol available for this function and run it instead of the
   new IR, but the symbol is from the previous stage!
@@ -121,26 +143,11 @@ affect later stages. This is an issue in two specific cases.
   further stages (e.g. after an `update-stage0`) will then need to be compiled
   with the flag set to `false` again since they will expect the new signature.
 
-  For an example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
+  When enabling `prefer_native`, we usually want to *disable* `parseQuotWithCurrentStage` as it would otherwise make quotations use the interpreter after all.
+  However, there is a specific case where we want to set both options to `true`: when we make changes to a non-builtin parser like `simp` that has a builtin elaborator, we cannot have the new parser be active outside of quotations in stage 1 as the builtin elaborator from stage 0 would not understand them; on the other hand, we need quotations in e.g. the builtin `simp` elaborator to produce the new syntax in the next stage.
+  As this issue usually affects only tactics, enabling `debug.byAsSorry` instead of `prefer_native` can be a simpler solution.
 
-* For the special case of *quotations*, it is desirable to have changes in
-  built-in parsers affect them immediately: when the changes in the parser
-  become active in the next stage, macros implemented via quotations should
-  generate syntax trees compatible with the new parser, and quotation patterns
-  in macro and elaborators should be able to match syntax created by the new
-  parser and macros. Since quotations capture the syntax tree structure during
-  execution of the current stage and turn it into code for the next stage, we
-  need to run the current stage's built-in parsers in quotation via the
-  interpreter for this to work. Caveats:
-  * Since interpreting full parsers is not nearly as cheap and we rarely change
-    built-in syntax, this needs to be opted in using `-Dinternal.parseQuotWithCurrentStage=true`.
-  * The parser needs to be reachable via an `import` statement, otherwise the
-    version of the previous stage will silently be used.
-  * Only the parser code (`Parser.fn`) is affected; all metadata such as leading
-    tokens is taken from the previous stage.
-
-  For an example, see https://github.com/leanprover/lean4/commit/f9dcbbddc48ccab22c7674ba20c5f409823b4cc1#diff-371387aed38bb02bf7761084fd9460e4168ae16d1ffe5de041b47d3ad2d22422
-  (from before the flag defaulted to `false`).
+  For a `prefer_native` example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
 
 To modify either of these flags both for building and editing the stdlib, adjust
 the code in `stage0/src/stdlib_flags.h`. The flags will automatically be reset

@@ -1,12 +1,12 @@
 p : Nat → Prop
 h : p 1
 ⊢ p 1
-α : Sort ?u
+α : Sort u_1
 a : α
 p : α → Prop
 h : p a
 ⊢ p a
-α : Sort ?u
+α : Sort u_1
 a : α
 f : α → α
 p : α → Prop

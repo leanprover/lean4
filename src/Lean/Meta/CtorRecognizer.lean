@@ -3,9 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Offset
+public import Lean.Meta.LitValues
+public import Lean.Meta.Offset
+
+public section
 
 namespace Lean.Meta
 
@@ -14,13 +18,11 @@ private def getConstructorVal? (env : Environment) (ctorName : Name) : Option Co
   | some (.ctorInfo v) => v
   | _                  => none
 
-
 /--
-If `e` is a constructor application or a builtin literal defeq to a constructor application,
+If `e` is a constructor application,
 then return the corresponding `ConstructorVal`.
 -/
-def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-  let e ← litToCtor e
+def isConstructorAppCore? (e : Expr) : MetaM (Option ConstructorVal) := do
   let .const n _ := e.getAppFn | return none
   let some v := getConstructorVal? (← getEnv) n | return none
   if v.numParams + v.numFields == e.getAppNumArgs then
@@ -29,12 +31,35 @@ def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
     return none
 
 /--
+If `e` is a constructor application or a builtin literal defeq to a constructor application,
+then return the corresponding `ConstructorVal`.
+-/
+def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
+  isConstructorAppCore? (← litToCtor e)
+
+/--
 Similar to `isConstructorApp?`, but uses `whnf`.
+It also uses `isOffset?` for `Nat`.
+
+See also `Lean.Meta.constructorApp'?`.
 -/
 def isConstructorApp'? (e : Expr) : MetaM (Option ConstructorVal) := do
-  if let some r ← isConstructorApp? e then
+  if let some (_, k) ← isOffset? e then
+    if k = 0 then
+      return none
+    else
+      let .ctorInfo val ← getConstInfo ``Nat.succ | return none
+      return some val
+  else if let some r ← isConstructorApp? e then
     return r
-  isConstructorApp? (← whnf e)
+  else try
+    /-
+    We added the `try` block here because `whnf` fails at terms `n ^ m`
+    when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
+    -/
+    isConstructorApp? (← whnf e)
+  catch _ =>
+    return none
 
 /--
 Returns `true`, if `e` is constructor application of builtin literal defeq to
@@ -65,7 +90,9 @@ def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) :
 
 /--
 Similar to `constructorApp?`, but on failure it puts `e` in WHNF and tries again.
-It also `isOffset?`
+It also uses `isOffset?` for `Nat`.
+
+See also `Lean.Meta.isConstructorApp'?`.
 -/
 def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) := do
   if let some (e, k) ← isOffset? e then
@@ -77,7 +104,13 @@ def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) 
       else return some (val, #[mkNatAdd e (toExpr (k-1))])
   else if let some r ← constructorApp? e then
     return some r
-  else
+  else try
+    /-
+    We added the `try` block here because `whnf` fails at terms `n ^ m`
+    when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
+    -/
     constructorApp? (← whnf e)
+  catch _ =>
+    return none
 
 end Lean.Meta

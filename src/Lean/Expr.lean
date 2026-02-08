@@ -3,11 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Lean.Data.KVMap
-import Lean.Data.SMap
-import Lean.Level
+public import Init.Data.Hashable
+public import Lean.Level
+import Init.Omega
+
+public section
 
 namespace Lean
 
@@ -63,7 +66,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
+See also [the Lean Language Reference](https://lean-lang.org/doc/reference/latest/Terms/Functions/#implicit-functions).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
@@ -72,7 +75,7 @@ inductive BinderInfo where
   | implicit
   /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
-  /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+  /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
   deriving Inhabited, BEq, Repr
 
@@ -126,7 +129,7 @@ Cached hash code, cached results, and other data for `Expr`.
 Remark: this is mostly an internal datastructure used to implement `Expr`,
 most will never have to use it.
 -/
-def Expr.Data := UInt64
+@[expose] def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -164,32 +167,13 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | .strictImplicit => 2
   | .instImplicit   => 3
 
-def Expr.mkData
-    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false)
-    : Expr.Data :=
-  let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  assert! (looseBVarRange ≤ Nat.pow 2 20 - 1)
-  let r : UInt64 :=
-      h.toUInt32.toUInt64 +
-      approxDepth.toUInt64.shiftLeft 32 +
-      hasFVar.toUInt64.shiftLeft 40 +
-      hasExprMVar.toUInt64.shiftLeft 41 +
-      hasLevelMVar.toUInt64.shiftLeft 42 +
-      hasLevelParam.toUInt64.shiftLeft 43 +
-      looseBVarRange.toUInt64.shiftLeft 44
-  r
+@[extern "lean_expr_mk_data"]
+opaque Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data
 
 /-- Optimized version of `Expr.mkData` for applications. -/
-@[inline] def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
-  let depth          := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
-  let approxDepth    := if depth > 255 then 255 else depth.toUInt8
-  let looseBVarRange := max fData.looseBVarRange aData.looseBVarRange
-  let hash           := mixHash fData aData
-  let fData : UInt64 := fData
-  let aData : UInt64 := aData
-  assert! (looseBVarRange ≤ (Nat.pow 2 20 - 1).toUInt32)
-  ((fData ||| aData) &&& ((15 : UInt64) <<< (40 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (32 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (44 : UInt64))
+@[extern "lean_expr_mk_app_data"]
+opaque Expr.mkAppData (fData : Data) (aData : Data) : Data
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
@@ -231,31 +215,40 @@ instance : Repr FVarId where
 
 /--
 A set of unique free variable identifiers.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
-  deriving Inhabited, EmptyCollection
+This is a persistent data structure implemented using `Std.TreeSet`. -/
+@[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
+  deriving Inhabited, EmptyCollection, Singleton
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
-  RBTree.insert s fvarId
+  Std.TreeSet.insert s fvarId
+
+def FVarIdSet.union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
+  vs₁.foldl (init := vs₂) (·.insert ·)
+
+def FVarIdSet.ofList (l : List FVarId) : FVarIdSet :=
+  Std.TreeSet.ofList l _
+
+def FVarIdSet.ofArray (l : Array FVarId) : FVarIdSet :=
+  Std.TreeSet.ofArray l _
 
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := HashSet FVarId
+@[expose] def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
 A mapping from free variable identifiers to values of type `α`.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+This is a persistent data structure implemented using `Std.TreeMap`. -/
+@[expose] def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
 
 def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
-  RBMap.insert s fvarId a
+  Std.TreeMap.insert s fvarId a
 
-instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
 instance : Inhabited (FVarIdMap α) where
   default := {}
@@ -263,27 +256,33 @@ instance : Inhabited (FVarIdMap α) where
 /-- Universe metavariable Id   -/
 structure MVarId where
   name : Name
-  deriving Inhabited, BEq, Hashable, Repr
+  deriving Inhabited, BEq, Hashable
 
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
+@[expose] def MVarIdSet := Std.TreeSet MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
-  RBTree.insert s mvarId
+  Std.TreeSet.insert s mvarId
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
+  Std.TreeSet.ofList l _
 
-def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
+  Std.TreeSet.ofArray l _
+
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+
+@[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
 def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
-  RBMap.insert s mvarId a
+  Std.TreeMap.insert s mvarId a
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -405,22 +404,21 @@ inductive Expr where
   /--
   Let-expressions.
 
-  **IMPORTANT**: The `nonDep` flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
-  In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
-  Other modules may not preserve its value while applying transformations.
+  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+  ```
+  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
+  ```
 
+  If the `nondep` flag is `true`, then the elaborator treats this as a *non-dependent `let`* (known as a *`have` expression*).
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
   to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
-  The let-expression `let x : Nat := 2; Nat.succ x` is represented as
-  ```
-  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
-  ```
+  The kernel does not verify `nondep` when type checking. This is an elaborator feature.
   -/
-  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
+  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nondep : Bool)
 
   /--
   Natural number and string literal values.
@@ -507,7 +505,11 @@ with
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
     | .lit l => mkData (mixHash 3 (hash l))
-deriving Inhabited, Repr
+deriving Repr
+
+instance : Inhabited Expr where
+  -- use a distinctive name to aid debugging
+  default := .const `_inhabitedExprDummy []
 
 namespace Expr
 
@@ -638,7 +640,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId
@@ -658,7 +660,7 @@ def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
 /--
 `.app f a` is now the preferred form.
 -/
-@[match_pattern] def mkApp (f a : Expr) : Expr :=
+@[match_pattern, expose] def mkApp (f a : Expr) : Expr :=
   .app f a
 
 /--
@@ -681,48 +683,58 @@ def mkSimpleThunkType (type : Expr) : Expr :=
 def mkSimpleThunk (type : Expr) : Expr :=
   mkLambda `_ BinderInfo.default (mkConst `Unit) type
 
-/--
-`.letE x t v b nonDep` is now the preferred form.
--/
-def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-  .letE x t v b nonDep
+/-- Returns `let x : t := v; b`, a `let` expression. If `nondep := true`, then returns a `have`. -/
+@[inline] def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nondep : Bool := false) : Expr :=
+  .letE x t v b nondep
 
-@[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-@[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
-@[match_pattern] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-@[match_pattern] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-@[match_pattern] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-@[match_pattern] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-@[match_pattern] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-@[match_pattern] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-@[match_pattern] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-@[match_pattern] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+/-- Returns `have x : t := v; b`, a non-dependent `let` expression. -/
+@[inline] def mkHave (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
+  .letE x t v b true
+
+@[match_pattern, expose] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+@[match_pattern, expose] def mkApp2 (f a b : Expr) := mkAppB f a b
+@[match_pattern, expose] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+@[match_pattern, expose] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+@[match_pattern, expose] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+@[match_pattern, expose] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+@[match_pattern, expose] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+@[match_pattern, expose] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+@[match_pattern, expose] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+@[match_pattern, expose] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
-Return the "raw" natural number `.lit (.natVal n)`.
+Returns the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
-Return a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
+Returns `instOfNatNat n : OfNat Nat n`
+-/
+def mkInstOfNatNat (n : Expr) : Expr :=
+  mkApp (mkConst ``instOfNatNat) n
+
+def mkNatLitCore (n : Expr) : Expr :=
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) n (mkInstOfNatNat n)
+
+/--
+Returns a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
+  mkNatLitCore (mkRawNatLit n)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
@@ -733,7 +745,7 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
 @[export lean_expr_mk_lambda] def mkLambdaEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkLambda n bi d b
 @[export lean_expr_mk_forall] def mkForallEx (n : Name) (d b : Expr) (bi : BinderInfo) : Expr := mkForall n bi d b
-@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) : Expr := mkLet n t v b
+@[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) (nondep : Bool) : Expr := mkLet n t v b nondep
 @[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
@@ -744,8 +756,8 @@ def mkStrLit (s : String) : Expr :=
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
-private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
-  if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
+private def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
+  if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -767,6 +779,11 @@ opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 /-- A total order for expressions that takes the structure into account (e.g., variable names). -/
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
+
+def quickComp (a b : Expr) : Ordering :=
+  if quickLt a b then .lt
+  else if quickLt b a then .gt
+  else .eq
 
 /--
 Return true iff `a` and `b` are alpha equivalent.
@@ -857,7 +874,7 @@ def isFVarOf : Expr → FVarId → Bool
   | _, _ => false
 
 /-- Return `true` if the given expression is a forall-expression aka (dependent) arrow. -/
-def isForall : Expr → Bool
+@[expose] def isForall : Expr → Bool
   | forallE .. => true
   | _          => false
 
@@ -872,10 +889,17 @@ def isBinding : Expr → Bool
   | forallE .. => true
   | _          => false
 
-/-- Return `true` if the given expression is a let-expression. -/
+/-- Return `true` if the given expression is a let-expression or a have-expression. -/
 def isLet : Expr → Bool
   | letE .. => true
   | _       => false
+
+/-- Return `true` if the given expression is a non-dependent let-expression (a have-expression). -/
+def isHave : Expr → Bool
+  | letE (nondep := nondep) .. => nondep
+  | _       => false
+
+@[export lean_expr_is_have] def isHaveEx : Expr → Bool := isHave
 
 /-- Return `true` if the given expression is a metadata. -/
 def isMData : Expr → Bool
@@ -937,17 +961,29 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls
@@ -960,6 +996,10 @@ def bvarIdx! : Expr → Nat
 def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
+
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
 
 def mvarId! : Expr → MVarId
   | mvar n => n
@@ -985,6 +1025,18 @@ def bindingInfo! : Expr → BinderInfo
   | lam _ _ _ bi     => bi
   | _                => panic! "binding expected"
 
+def forallName : (a : Expr) → a.isForall → Name
+  | forallE n _ _ _, _  => n
+
+def forallDomain : (a : Expr) → a.isForall → Expr
+  | forallE _ d _ _, _  => d
+
+def forallBody : (a : Expr) → a.isForall → Expr
+  | forallE _ _ b _, _  => b
+
+def forallInfo : (a : Expr) → a.isForall → BinderInfo
+  | forallE _ _ _ i, _  => i
+
 def letName! : Expr → Name
   | letE n .. => n
   | _         => panic! "let expression expected"
@@ -1000,6 +1052,10 @@ def letValue! : Expr → Expr
 def letBody! : Expr → Expr
   | letE _ _ _ b .. => b
   | _               => panic! "let expression expected"
+
+def letNondep! : Expr → Bool
+  | letE _ _ _ _ nondep => nondep
+  | _                   => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e => consumeMData e
@@ -1036,6 +1092,14 @@ returns the names `[a₁, ... aₙ]`. -/
 def getForallBinderNames : Expr → List Name
   | forallE n _ b _ => n :: getForallBinderNames b
   | _ => []
+
+/--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
+  | _ => 0
 
 /--
 If the given expression is a sequence of
@@ -1084,6 +1148,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
+
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
 If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
@@ -1103,7 +1177,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+  getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
 private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
@@ -1118,7 +1192,7 @@ where `k` is minimal such that the size of this array is at most `maxArgs`.
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := min maxArgs e.getAppNumArgs
-  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
+  getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)
@@ -1136,7 +1210,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  withAppAux k e (mkArray nargs dummy) (nargs-1)
+  withAppAux k e (.replicate nargs dummy) (nargs-1)
 
 /-- Return the function (name) and arguments of an application. -/
 def getAppFnArgs (e : Expr) : Name × Array Expr :=
@@ -1149,7 +1223,7 @@ The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
   let dummy := mkSort levelZero
-  loop n e (mkArray n dummy)
+  loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
     | 0,   _,        as => as
@@ -1209,13 +1283,16 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Return `true` if `e` contains any loose bound variables.
+
+This is a constant time operation. -/
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
@@ -1228,14 +1305,31 @@ def isArrow (e : Expr) : Bool :=
   | forallE _ _ b _ => !b.hasLooseBVars
   | _ => false
 
+/--
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
+
+This operation traverses the expression tree.
+-/
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
-/-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
-def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
-  | Expr.forallE _ d b bi, bvarIdx, tryRange =>
-    (bi.isExplicit && hasLooseBVar d bvarIdx) || hasLooseBVarInExplicitDomain b (bvarIdx+1) tryRange
-  | e, bvarIdx, tryRange => tryRange && hasLooseBVar e bvarIdx
+/--
+Returns true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter,
+or in the range if `considerRange == true`.
+Additionally, if the bound variable appears in an implicit parameter,
+it transitively looks for that implicit parameter.
+-/
+-- This should be kept in sync with `lean::has_loose_bvars_in_domain`
+def hasLooseBVarInExplicitDomain (e : Expr) (bvarIdx : Nat) (considerRange : Bool) : Bool :=
+  match e with
+  | Expr.forallE _ d b bi =>
+    (hasLooseBVar d bvarIdx
+      && (bi.isExplicit
+          -- "Transitivity": bvar occurs in current implicit argument,
+          -- so we search for the current argument in the body.
+          || hasLooseBVarInExplicitDomain b 0 considerRange))
+    || hasLooseBVarInExplicitDomain b (bvarIdx+1) considerRange
+  | e => considerRange && hasLooseBVar e bvarIdx
 
 /--
 Lower the loose bound variables `>= s` in `e` by `d`.
@@ -1256,16 +1350,42 @@ opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
 the resulting type if `considerRange == true`.
 
-Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
-When the `{}` annotation is used in these commands, we set `considerRange == false`.
+Remark: we use this function to infer the binder annotations of structure projections.
 -/
-def inferImplicit : Expr → Nat → Bool → Expr
-  | Expr.forallE n d b bi, i+1, considerRange =>
+-- This should be kept in synch with `lean::infer_implicit`
+def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
+  match e, numParams with
+  | Expr.forallE n d b bi, i + 1 =>
     let b       := inferImplicit b i considerRange
     let newInfo := if bi.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else bi
     mkForall n newInfo d b
-  | e, 0, _ => e
-  | e, _, _ => e
+  | e, _ => e
+
+/--
+Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
+-/
+def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
+  match e, binderInfos? with
+  | Expr.forallE n d b bi, newBi? :: binderInfos? =>
+    let b  := updateForallBinderInfos b binderInfos?
+    let bi := newBi?.getD bi
+    Expr.forallE n d b bi
+  | e, _ => e
+
+/--
+Uses `binderNames?` to update the binder names of the corresponding lambda and forall expressions.
+-/
+def updateBinderNames (e : Expr) (binderNames? : List (Option Name)) : Expr :=
+  match e, binderNames? with
+  | Expr.forallE n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.forallE n d b bi
+  | Expr.lam n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.lam n d b bi
+  | e, _ => e
 
 /--
 Instantiates the loose bound variables in `e` using the `subst` array,
@@ -1347,7 +1467,13 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1388,11 +1514,11 @@ def mkDecIsTrue (pred proof : Expr) :=
 def mkDecIsFalse (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isFalse) pred proof
 
-abbrev ExprMap (α : Type)  := HashMap Expr α
+abbrev ExprMap (α : Type)  := Std.HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
 abbrev SExprMap (α : Type)  := SMap Expr α
 
-abbrev ExprSet := HashSet Expr
+abbrev ExprSet := Std.HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
 
@@ -1417,16 +1543,16 @@ instance : ToString ExprStructEq := ⟨fun e => toString e.val⟩
 
 end ExprStructEq
 
-abbrev ExprStructMap (α : Type) := HashMap ExprStructEq α
+abbrev ExprStructMap (α : Type) := Std.HashMap ExprStructEq α
 abbrev PersistentExprStructMap (α : Type) := PHashMap ExprStructEq α
 
 namespace Expr
 
-private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : Expr :=
-  if i == start then b
+private def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : Expr :=
+  if i ≤ start then b
   else
     let i := i - 1
-    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
+    mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
@@ -1452,28 +1578,26 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
   else
     let sz := revArgs.size
     let rec go (e : Expr) (i : Nat) : Expr :=
+      let done (_ : Unit) : Expr :=
+        let n := sz - i
+        mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
       match e with
-      | Expr.lam _ _ b _ =>
+      | .lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
-          let n := sz - (i + 1)
-          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+          b.instantiate revArgs
+      | .letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
-          let n := sz - i
-          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata k b =>
+          done ()
+      | .mdata _ b =>
         if preserveMData then
-          let n := sz - i
-          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+          done ()
         else
           go b i
-      | b =>
-        let n := sz - i
-        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | _ => done ()
     go f 0
 
 /--
@@ -1573,6 +1697,13 @@ def isOptParam (e : Expr) : Bool :=
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
 
+/-- Returns `true` if `e` is an application of one of the type annotation gadgets. This does not check that the application has the correct arity. -/
+def isTypeAnnotation (e : Expr) : Bool :=
+  if let .const c _ := e.getAppFn then
+    c == ``outParam || c == ``semiOutParam || c == ``optParam || c == ``autoParam
+  else
+    false
+
 /--
 Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.
@@ -1615,6 +1746,23 @@ def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
 
 /--
+`getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
+and performs pending beta reductions. It does **not** use whnf.
+Examples:
+- If `a` is `Nat`, `getForallArity a` returns `0`
+- If `a` is `Nat → Bool`, `getForallArity a` returns `1`
+-/
+partial def getForallArity : Expr → Nat
+  | .mdata _ b       => getForallArity b
+  | .forallE _ _ b _ => getForallArity b + 1
+  | e                =>
+    if e.isHeadBetaTarget then
+      getForallArity e.headBeta
+    else
+      let e' := e.cleanupAnnotations
+      if e != e' then getForallArity e' else 0
+
+/--
 Checks if an expression is a "natural number numeral in normal form",
 i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
 where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
@@ -1629,7 +1777,7 @@ def nat? (e : Expr) : Option Nat := do
 /--
 Checks if an expression is an "integer numeral in normal form",
 i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
-or the negation of a positive natural number numberal in normal form,
+or the negation of a positive natural number numeral in normal form,
 and if so returns the integer.
 -/
 def int? (e : Expr) : Option Int :=
@@ -1763,20 +1911,27 @@ def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
   | lam n d b bi => updateLambda! (lam n d b bi) bi newDomain newBody
   | _            => panic! "lambda expected"
 
-@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNondep : Bool) : Expr :=
   match e with
-  | letE n t v b nonDep =>
-    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody then
+  | letE n t v b nondep =>
+    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody && nondep == newNondep then
       e
     else
-      letE n newType newVal newBody nonDep
+      letE n newType newVal newBody newNondep
   | _              => panic! "let expression expected"
 
 @[implemented_by updateLet!Impl]
-def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (newNondep : Bool) : Expr :=
   match e with
-  | letE n _ _ _ c => letE n newType newVal newBody c
+  | letE n _ _ _ _ => letE n newType newVal newBody newNondep
   | _              => panic! "let expression expected"
+
+/-- Like `Expr.updateLet!` but preserves the `nondep` flag. -/
+@[inline]
+def updateLetE! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | letE n t v b nondep => updateLet! (letE n t v b nondep) newType newVal newBody nondep
+  | _                   => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a
@@ -1785,7 +1940,7 @@ def updateFn : Expr → Expr → Expr
 /--
 Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.
 -/
-partial def eta (e : Expr) : Expr :=
+def eta (e : Expr) : Expr :=
   match e with
   | Expr.lam _ d b _ =>
     let b' := b.eta
@@ -1820,6 +1975,27 @@ def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
 
 /--
+Annotate `e` with `pp.piBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPPiBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.piBinderTypes flag
+
+/--
+Annotate `e` with `pp.funBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.funBinderTypes flag
+
+/--
+Annotate `e` with `pp.numericTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPNumericTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.numericTypes flag
+
+/--
 If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
 and annotate `e` with `pp.explicit := true`.
 -/
@@ -1843,54 +2019,13 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
-/--
-Returns true if `e` is a `let_fun` expression, which is an expression of the form `letFun v f`.
-Ideally `f` is a lambda, but we do not require that here.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
--/
-def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
-
-/--
-Recognizes a `let_fun` expression.
-For `let_fun n : t := v; b`, returns `some (n, t, v, b)`, which are the first four arguments to `Lean.Expr.letE`.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `none`.
-
-`let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
-They can be created using `Lean.Meta.mkLetFun`.
-
-If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
--/
-def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
-  match e with
-  | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
-    match f with
-    | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app f (.bvar 0))
-  | _ => none
-
-/--
-Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
-Returns those arguments in addition to the values returned by `letFun?`.
--/
-def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
-  guard <| 4 ≤ e.getAppNumArgs
-  guard <| e.isAppOf ``letFun
-  let args := e.getAppArgs
-  let t := args[0]!
-  let v := args[2]!
-  let f := args[3]!
-  let rest := args.extract 4 args.size
-  match f with
-  | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
-
 /-- Maps `f` on each immediate child of the given expression. -/
 @[specialize]
 def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
   | e@(forallE _ d b _) => pure e.updateForallE! <*> f d <*> f b
   | e@(lam _ d b _)     => pure e.updateLambdaE! <*> f d <*> f b
   | e@(mdata _ b)       => e.updateMData! <$> f b
-  | e@(letE _ t v b _)  => pure e.updateLet! <*> f t <*> f v <*> f b
+  | e@(letE _ t v b _)  => pure e.updateLetE! <*> f t <*> f v <*> f b
   | e@(app l r)         => pure e.updateApp! <*> f l <*> f r
   | e@(proj _ _ b)      => e.updateProj! <$> f b
   | e                   => pure e
@@ -1899,6 +2034,22 @@ def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
 with initial value `a`. -/
 def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e : Expr) : m α :=
   Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
+
+/--
+Returns the size of `e` as a tree, i.e. nodes reachable via multiple paths are counted multiple
+times.
+
+This is a naive implementation that visits shared subterms multiple times instead of caching their
+sizes. It is primarily meant for debugging.
+-/
+def sizeWithoutSharing : (e : Expr) → Nat
+  | .forallE _ d b _ => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .lam _ d b _     => 1 + d.sizeWithoutSharing + b.sizeWithoutSharing
+  | .mdata _ e       => 1 + e.sizeWithoutSharing
+  | .letE _ t v b _  => 1 + t.sizeWithoutSharing + v.sizeWithoutSharing + b.sizeWithoutSharing
+  | .app f a         => 1 + f.sizeWithoutSharing + a.sizeWithoutSharing
+  | .proj _ _ e      => 1 + e.sizeWithoutSharing
+  | .lit .. | .const .. | .sort .. | .mvar .. | .fvar .. | .bvar .. => 1
 
 end Expr
 
@@ -2017,9 +2168,9 @@ def mkAndN : List Expr → Expr
   | [] => mkConst ``True
   | [p] => p
   | p :: ps => mkAnd p (mkAndN ps)
-/-- Return `Classical.em p` -/
+/-- Returns `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
-/-- Return `p ↔ q` -/
+/-- Returns `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 /-! Constants for Nat typeclasses. -/
@@ -2052,16 +2203,16 @@ def mkInstLE : Expr := mkConst ``instLENat
 end Nat
 
 private def natAddFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHSub
 
 private def natMulFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMul
+
+private def natPowFn : Expr :=
+  mkApp4 (mkConst ``HPow.hPow [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHPow
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2079,18 +2230,184 @@ def mkNatSub (a b : Expr) : Expr :=
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
+/-- Given `a b : Nat`, returns `a ^ b` -/
+def mkNatPow (a b : Expr) : Expr :=
+  mkApp2 natPowFn a b
+
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
+  mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=
   mkApp2 natLEPred a b
 
 private def natEqPred : Expr :=
-  mkApp (mkConst ``Eq [1]) (mkConst ``Nat)
+  mkApp (mkConst ``Eq [1]) Nat.mkType
 
 /-- Given `a b : Nat`, return `a = b` -/
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
+
+private def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+/-- Given `a b : Prop`, returns `a = b` -/
+def mkPropEq (a b : Expr) : Expr :=
+  mkApp2 propEq a b
+
+/-! Constants for Int typeclasses. -/
+namespace Int
+
+protected def mkType : Expr := mkConst ``Int
+
+def mkInstNeg : Expr := mkConst ``Int.instNegInt
+
+def mkInstAdd : Expr := mkConst ``Int.instAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
+
+def mkInstSub : Expr := mkConst ``Int.instSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Int.mkType mkInstSub
+
+def mkInstMul : Expr := mkConst ``Int.instMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Int.mkType mkInstMul
+
+def mkInstDiv : Expr := mkConst ``Int.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Int.mkType mkInstDiv
+
+def mkInstMod : Expr := mkConst ``Int.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Int.mkType mkInstMod
+
+def mkInstPow : Expr := mkConst ``Int.instNatPow
+def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Int.mkType mkInstPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.mkType Nat.mkType mkInstPowNat
+
+def mkInstLT : Expr := mkConst ``Int.instLTInt
+def mkInstLE : Expr := mkConst ``Int.instLEInt
+
+def mkInstNatCast : Expr := mkConst ``instNatCastInt
+
+end Int
+
+private def intNegFn : Expr :=
+  mkApp2 (mkConst ``Neg.neg [0]) Int.mkType Int.mkInstNeg
+
+private def intAddFn : Expr :=
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHAdd
+
+private def intSubFn : Expr :=
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHSub
+
+private def intMulFn : Expr :=
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+
+private def intDivFn : Expr :=
+  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHDiv
+
+private def intModFn : Expr :=
+  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMod
+
+private def intPowNatFn : Expr :=
+  mkApp4 (mkConst ``HPow.hPow [0, 0, 0]) Int.mkType Nat.mkType Int.mkType Int.mkInstHPow
+
+private def intNatCastFn : Expr :=
+  mkApp2 (mkConst ``NatCast.natCast [0]) Int.mkType Int.mkInstNatCast
+
+/-- Given `a : Int`, returns `- a` -/
+def mkIntNeg (a : Expr) : Expr :=
+  mkApp intNegFn a
+
+/-- Given `a b : Int`, returns `a + b` -/
+def mkIntAdd (a b : Expr) : Expr :=
+  mkApp2 intAddFn a b
+
+/-- Given `a b : Int`, returns `a - b` -/
+def mkIntSub (a b : Expr) : Expr :=
+  mkApp2 intSubFn a b
+
+/-- Given `a b : Int`, returns `a * b` -/
+def mkIntMul (a b : Expr) : Expr :=
+  mkApp2 intMulFn a b
+
+/-- Given `a b : Int`, returns `a / b` -/
+def mkIntDiv (a b : Expr) : Expr :=
+  mkApp2 intDivFn a b
+
+/-- Given `a b : Int`, returns `a % b` -/
+def mkIntMod (a b : Expr) : Expr :=
+  mkApp2 intModFn a b
+
+/-- Given `a : Nat`, returns `NatCast.natCast (R := Int) a` -/
+def mkIntNatCast (a : Expr) : Expr :=
+  mkApp intNatCastFn a
+
+/-- Given `a b : Int`, returns `a ^ b` -/
+def mkIntPowNat (a b : Expr) : Expr :=
+  mkApp2 intPowNatFn a b
+
+private def intLEPred : Expr :=
+  mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
+
+/-- Given `a b : Int`, returns `a ≤ b` -/
+def mkIntLE (a b : Expr) : Expr :=
+  mkApp2 intLEPred a b
+
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
+
+private def intEqPred : Expr :=
+  mkApp (mkConst ``Eq [1]) Int.mkType
+
+/-- Given `a b : Int`, returns `a = b` -/
+def mkIntEq (a b : Expr) : Expr :=
+  mkApp2 intEqPred a b
+
+/-- Given `a b : Int`, returns `a ∣ b` -/
+def mkIntDvd (a b : Expr) : Expr :=
+  mkApp4 (mkConst ``Dvd.dvd [0]) Int.mkType (mkConst ``Int.instDvd) a b
+
+def mkIntLit (n : Int) : Expr :=
+  let r := mkRawNatLit n.natAbs
+  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  if n < 0 then
+    mkIntNeg r
+  else
+    r
+
+def reflBoolTrue : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
+
+/--
+Replaces the head constant in a function application chain with a different constant.
+
+Given an expression that is either a constant or a function application chain,
+replaces the head constant with `declName` while preserving all arguments and universe levels.
+
+**Examples**:
+- `f.replaceFn g` → `g` (where `f` is a constant)
+- `(f a b c).replaceFn g` → `g a b c`
+- `(@f.{u, v} a b).replaceFn g` → `@g.{u, v} a b`
+
+**Panics**: If the expression is neither a constant nor a function application.
+
+**Use case**: Useful for substituting one function for another while maintaining
+the same application structure, such as replacing a theorem with a related theorem
+that has the same type and universe parameters.
+-/
+def Expr.replaceFn (e : Expr) (declName : Name) : Expr :=
+  match e with
+  | .app f a    => mkApp (f.replaceFn declName) a
+  | .const _ us => mkConst declName us
+  | _ => panic! "function application or constant expected"
 
 end Lean

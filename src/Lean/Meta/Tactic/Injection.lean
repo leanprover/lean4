@@ -3,20 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Subst
+
+public section
 
 namespace Lean.Meta
 
 def getCtorNumPropFields (ctorInfo : ConstructorVal) : MetaM Nat := do
   forallTelescopeReducing ctorInfo.type fun xs _ => do
     let mut numProps := 0
-    for i in [:ctorInfo.numFields] do
+    for i in *...ctorInfo.numFields do
       if (← isProp (← inferType xs[ctorInfo.numParams + i]!)) then
         numProps := numProps + 1
     return numProps
@@ -38,7 +37,9 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
         match (← isConstructorApp'? a), (← isConstructorApp'? b) with
         | some aCtor, some bCtor =>
           -- We use the default transparency because `a` and `b` may be builtin literals.
+          trace[Meta.Tactic.injection] "applying noConfusion to {← inferType prf} at\n{mvarId}"
           let val ← withTransparency .default <| mkNoConfusion target prf
+          trace[Meta.Tactic.injection] "got no-confusion principle{indentExpr val}\nof type{indentExpr (← inferType val)}"
           if aCtor.name != bCtor.name then
             mvarId.assign val
             return InjectionResultCore.solved
@@ -57,8 +58,12 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
               /- Recall that `noConfusion` does not include equalities for
                  propositions since they are trivial due to proof irrelevance. -/
               let numPropFields ← getCtorNumPropFields aCtor
-              return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
-            | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
+              let numNonPropFields := aCtor.numFields - numPropFields
+              trace[Meta.Tactic.injection] "subgoal with {numNonPropFields} fields:\n{mvarId}"
+              return InjectionResultCore.subgoal mvarId numNonPropFields
+            | _ =>
+              trace[Meta.Tactic.injection] "ill-formed noConfusion auxiliary construction with type:{indentExpr valType}"
+              throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
         | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
     let prf := mkFVar fvarId
     if let some (α, a, β, b) := type.heq? then
@@ -74,7 +79,7 @@ inductive InjectionResult where
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
 
-def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
+def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult := do
   let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
     | 0, mvarId, fvarIds, remainingNames =>
       return InjectionResult.subgoal mvarId fvarIds remainingNames
@@ -86,6 +91,7 @@ def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryT
       let (fvarId, mvarId) ← mvarId.intro1
       let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
       go n mvarId (fvarIds.push fvarId) []
+  trace[Meta.Tactic.injection] "introducing {numEqs} new equalities at\n{mvarId}"
   go numEqs mvarId #[] newNames
 
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) : MetaM InjectionResult := do
@@ -94,31 +100,52 @@ def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) :
   | .subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
 
 inductive InjectionsResult where
+  /-- `injections` closed the input goal. -/
   | solved
-  | subgoal (mvarId : MVarId) (remainingNames : List Name)
+  /--
+  `injections` produces a new goal `mvarId`. `remainingNames` contains the user-facing names that have not been used.
+  `forbidden` contains all local declarations to which `injection` has been applied.
+  Recall that some of these declarations may not have been eliminated from the local context due to forward dependencies, and
+  we use `forbidden` to avoid non-termination when using `injections` in a loop.
+  -/
+  | subgoal (mvarId : MVarId) (remainingNames : List Name) (forbidden : FVarIdSet)
 
-partial def injections (mvarId : MVarId) (newNames : List Name := []) (maxDepth : Nat := 5) : MetaM InjectionsResult :=
+/--
+Applies `injection` to local declarations in `mvarId`. It uses `newNames` to name the new local declarations.
+`maxDepth` is the maximum recursion depth. Only local declarations that are not in `forbidden` are considered.
+Recall that some of local declarations may not have been eliminated from the local context due to forward dependencies, and
+we use `forbidden` to avoid non-termination when using `injections` in a loop.
+-/
+partial def injections (mvarId : MVarId) (newNames : List Name := []) (maxDepth : Nat := 5) (forbidden : FVarIdSet := {}) : MetaM InjectionsResult :=
   mvarId.withContext do
     let fvarIds := (← getLCtx).getFVarIds
-    go maxDepth fvarIds.toList mvarId newNames
+    go maxDepth fvarIds.toList mvarId newNames forbidden
 where
-  go : Nat → List FVarId → MVarId → List Name → MetaM InjectionsResult
-    | 0,   _,  _,      _        => throwTacticEx `injections mvarId "recursion depth exceeded"
-    | _,   [], mvarId, newNames => return .subgoal mvarId newNames
-    | d+1, fvarId :: fvarIds, mvarId, newNames => do
+  go (depth : Nat) (fvarIds : List FVarId) (mvarId : MVarId) (newNames : List Name) (forbidden : FVarIdSet) : MetaM InjectionsResult := do
+    match depth, fvarIds with
+    | 0,   _                 => throwTacticEx `injections mvarId "recursion depth exceeded"
+    | _,   []                => return .subgoal mvarId newNames forbidden
+    | d+1, fvarId :: fvarIds => do
       let cont := do
-        go (d+1) fvarIds mvarId newNames
-      if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
+        go (d+1) fvarIds mvarId newNames forbidden
+      if forbidden.contains fvarId then
+        cont
+      else if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
-        if lhs.isRawNatLit && rhs.isRawNatLit then cont
+        if lhs.isRawNatLit && rhs.isRawNatLit then
+          cont
         else
           try
-            match (← injection mvarId fvarId newNames) with
-            | .solved  => return .solved
-            | .subgoal mvarId newEqs remainingNames =>
-              mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames
+            commitIfNoEx do
+              match (← injection mvarId fvarId newNames) with
+              | .solved  => return .solved
+              | .subgoal mvarId newEqs remainingNames =>
+                mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames (forbidden.insert fvarId)
           catch _ => cont
       else cont
 
 end Lean.Meta
+
+builtin_initialize
+  Lean.registerTraceClass `Meta.Tactic.injection

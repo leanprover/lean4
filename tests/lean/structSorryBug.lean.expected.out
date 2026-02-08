@@ -1,3 +1,5 @@
-structSorryBug.lean:2:19-2:25: error: unknown identifier 'HasArr'
+structSorryBug.lean:2:19-2:25: error(lean.unknownIdentifier): Unknown identifier `HasArr`
+
+Note: It is not possible to treat `HasArr` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
 structSorryBug.lean:4:17-4:32: error: invalid {...} notation, structure type expected
   Nat

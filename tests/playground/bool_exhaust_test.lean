@@ -299,7 +299,7 @@ def mkCtx [BEq tp] [Hashable tp]
     let fileMap  := coreCtx.fileMap
     let env := coreState.env
     let maxRecDepth := coreCtx.maxRecDepth
-    let cmdCtx : Command.Context := { fileName, fileMap, tacticCache? := none }
+    let cmdCtx : Command.Context := { fileName, fileMap }
     let cmdState : Command.State := { env, maxRecDepth }
     let addVars (p : LocalContext × LocalInstances × Array (Array val))
                 (q : tp × CoreM Command) :
@@ -448,7 +448,7 @@ behavior.
 
 General goals for simp are that the normal forms are sensible to a wide
 range of users and that it performs well.  We also strive for Mathlib
-compatiblity.
+compatibility.
 -/
 
 inductive BoolType where

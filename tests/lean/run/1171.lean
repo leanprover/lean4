@@ -9,5 +9,12 @@ def Nat.hasDecEq: (a: Nat) → (b: Nat) → Decidable (Eq a b)
 termination_by a b => (a, b)
 
 set_option pp.proofs true
+
+/--
+info: @[irreducible] def Nat.hasDecEq : (a b : Nat) → Decidable (a = b) :=
+fun a b => Nat.hasDecEq._unary ⟨a, b⟩
+-/
+#guard_msgs in
 #print Nat.hasDecEq
+
 #print Nat.hasDecEq._unary

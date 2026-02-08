@@ -1,12 +1,17 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Meta.Iterator
-import Lean.Meta.Tactic.IndependentOf
+public import Lean.Meta.Iterator
+public import Lean.Meta.Tactic.IndependentOf
+import Init.Data.Nat.Linear
+import Init.Omega
+
+public section
 
 /-!
 # `backtrack`
@@ -98,7 +103,7 @@ private def run (goals : List MVarId) (n : Nat) (curr acc : List MVarId) : MetaM
   match n with
   | 0 => do
     -- We're out of fuel.
-    throwError "backtrack exceeded the recursion limit"
+    throwError "Backtrack exceeded the recursion limit"
   | n + 1 => do
   -- First, run `cfg.proc`, to see if it wants to modify the goals.
   let procResult? ← try
@@ -167,7 +172,7 @@ private partial def processIndependentGoals (orig : List MVarId) (goals remainin
     -- and the new subgoals generated from goals on which it is successful.
     let (failed, newSubgoals') ← tryAllM igs fun g =>
       run cfg trace next orig cfg.maxDepth [g] []
-    let newSubgoals := newSubgoals'.join
+    let newSubgoals := newSubgoals'.flatten
     withTraceNode trace
       (fun _ => return m!"failed: {← ppMVarIds failed}, new: {← ppMVarIds newSubgoals}") do
     -- Update the list of goals with respect to which we need to check independence.

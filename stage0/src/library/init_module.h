@@ -5,10 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <lean/lean.h>
 
 namespace lean {
-void initialize_library_core_module();
-void finalize_library_core_module();
-void initialize_library_module();
-void finalize_library_module();
+LEAN_EXPORT void initialize_library_core_module();
+LEAN_EXPORT void finalize_library_core_module();
+LEAN_EXPORT void initialize_library_module();
+LEAN_EXPORT void finalize_library_module();
 }

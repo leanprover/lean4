@@ -3,15 +3,32 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-prelude
-import Init.SizeOf
-import Init.MetaTypes
-import Init.WF
+module
 
-/-- Unfold definitions commonly used in well founded relation definitions.
-This is primarily intended for internal use in `decreasing_tactic`. -/
+prelude
+public import Init.WF  -- shake: keep (macro output dependency)
+public import Init.Data.Nat.Basic  -- shake: keep (macro output dependency)
+
+public section
+
+/--
+Unfold definitions commonly used in well founded relation definitions.
+
+Since Lean 4.12, Lean unfolds these definitions automatically before presenting the goal to the
+user, and this tactic should no longer be necessary. Calls to `simp_wf` can be removed or replaced
+by plain calls to `simp`.
+-/
 macro "simp_wf" : tactic =>
-  `(tactic| try simp (config := { unfoldPartialApp := true, zetaDelta := true }) [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
+  `(tactic| try simp +unfoldPartialApp +zetaDelta [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
+
+/--
+This tactic is used internally by lean before presenting the proof obligations from a well-founded
+definition to the user via `decreasing_by`. It is not necessary to use this tactic manually.
+-/
+macro "clean_wf" : tactic =>
+  `(tactic| simp +unfoldPartialApp +zetaDelta -failIfUnchanged
+     only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
+           WellFoundedRelation.rel, sizeOf_nat, reduceCtorEq])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.
@@ -22,19 +39,27 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| linarith)
 -/
 syntax "decreasing_trivial" : tactic
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp (config := { arith := true, failIfUnchanged := false })) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp +arith -failIfUnchanged) <;> done)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| omega)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
 
-/-- Constructs a proof of decreasing along a well founded relation, by applying
-lexicographic order lemmas and using `ts` to solve the base case. If it fails,
+/--
+Variant of `decreasing_trivial` that does not use `omega`, intended to be used in core modules
+before `omega` is available.
+-/
+syntax "decreasing_trivial_pre_omega" : tactic
+macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
+macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.pred_lt_of_lt; assumption) -- i-1 < i if j < i
+macro_rules | `(tactic| decreasing_trivial_pre_omega) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
+
+
+/-- Constructs a proof of decreasing along a well founded relation, by simplifying, then applying
+lexicographic order lemmas and finally using `ts` to solve the base case. If it fails,
 it prints a message to help the user diagnose an ill-founded recursive definition. -/
 macro "decreasing_with " ts:tacticSeq : tactic =>
  `(tactic|
-   (simp_wf
+   (clean_wf -- remove after next stage0 update
+    try simp
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first

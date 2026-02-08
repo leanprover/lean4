@@ -1,31 +1,38 @@
-struct1.lean:9:14-9:17: error: expected Type
+struct1.lean:9:14-9:17: error: Invalid resulting type: Expected a sort
+
+Hint: Examples of valid sorts include `Type _`, `Sort _`, and `Prop`
 struct1.lean:12:20-12:29: error: expected structure
-struct1.lean:15:28-15:34: warning: field 'x' from 'A' has already been declared
-struct1.lean:15:28-15:34: error: parent field type mismatch, field 'x' from parent 'A' has type
-  Bool : Type
+
+Hint: This error is possibly due to a change in the `structure` syntax. Now the syntax is `structure S : Type extends P` rather than `structure S extends P : Type`.
+
+The purpose of the change is to accommodate `structure S extends toP : P` syntax for naming parent projections.
+struct1.lean:15:28-15:33: warning: Field `x` from `B` has already been declared
+struct1.lean:16:1-16:2: error: Field `x` has already been declared in a parent structure
+struct1.lean:17:30-17:35: warning: Duplicate parent structure `A`; skipping
+struct1.lean:19:27-19:33: error: Field type mismatch: Field `x` from parent `B` has type
+  Bool
 but is expected to have type
-  Nat : Type
-struct1.lean:18:27-18:33: error: parent field type mismatch, field 'x' from parent 'B' has type
-  Bool : Type
-but is expected to have type
-  Nat : Type
-struct1.lean:29:1-29:2: error: field 'x' has already been declared
-struct1.lean:32:1-32:2: error: field 'x' has been declared in parent structure
-struct1.lean:35:6-35:10: error: type mismatch
+  Nat
+struct1.lean:30:1-30:2: error: Field `x` has already been declared
+struct1.lean:33:1-33:2: error: Field `x` has already been declared in a parent structure
+struct1.lean:36:6-36:10: error: Type mismatch
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
-struct1.lean:38:5-38:9: error: omit field 'x' type to set default value
-struct1.lean:41:12-41:16: error: type mismatch
+  Nat
+struct1.lean:39:5-39:9: error: Omit the type of field `x` to set its default value
+struct1.lean:42:12-42:16: error: Type mismatch
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
-struct1.lean:44:0-44:13: error: invalid 'private' constructor in a 'private' structure
-struct1.lean:47:0-47:15: error: invalid 'protected' constructor in a 'private' structure
-struct1.lean:50:0-50:19: error: invalid 'protected' field in a 'private' structure
+  Nat
+struct1.lean:45:0-45:13: error: Constructor cannot be marked `private` because it is already in a `private` structure
+
+Hint: Remove `private` modifier from constructor
+  p̵r̵i̵v̵a̵t̵e̵ ̵mk ::
+struct1.lean:48:0-48:15: error: Constructor cannot be `protected` because this structure is `private`
+struct1.lean:51:0-51:19: error: Field cannot be marked `protected` because this structure is `private`
 S : Type
 S.mk2 (x : Nat) : S

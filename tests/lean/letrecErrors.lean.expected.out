@@ -1,3 +1,3 @@
-letrecErrors.lean:2:10-2:11: error: 'f1.g' has already been declared
-letrecErrors.lean:11:12-11:13: error: 'f2.h' has already been declared
-letrecErrors.lean:18:2-19:5: error: 'f3.h' has already been declared
+letrecErrors.lean:2:10-2:11: error: `f1.g` has already been declared
+letrecErrors.lean:11:12-11:13: error: `f2.h` has already been declared
+letrecErrors.lean:18:2-19:5: error: `f3.h` has already been declared

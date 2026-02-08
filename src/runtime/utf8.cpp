@@ -220,52 +220,57 @@ void utf8_decode(std::string const & str, std::vector<unsigned> & out) {
     }
 }
 
-bool validate_utf8(uint8_t const * str, size_t size) {
-    size_t i = 0;
-    while (i < size) {
-        unsigned c = str[i];
-        if ((c & 0x80) == 0) {
-            /* zero continuation (0 to 0x7F) */
-            i++;
-        } else if ((c & 0xe0) == 0xc0) {
-            /* one continuation (0x80 to 0x7FF) */
-            if (i + 1 >= size) return false;
+bool validate_utf8_one(uint8_t const * str, size_t size, size_t & pos) {
+    unsigned c = str[pos];
+    if ((c & 0x80) == 0) {
+        /* zero continuation (0 to 0x7F) */
+        pos++;
+    } else if ((c & 0xe0) == 0xc0) {
+        /* one continuation (0x80 to 0x7FF) */
+        if (pos + 1 >= size) return false;
 
-            unsigned c1 = str[i+1];
-            if ((c1 & 0xc0) != 0x80) return false;
+        unsigned c1 = str[pos+1];
+        if ((c1 & 0xc0) != 0x80) return false;
 
-            unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
-            if (r < 0x80) return false;
+        unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
+        if (r < 0x80) return false;
 
-            i += 2;
-        } else if ((c & 0xf0) == 0xe0) {
-            /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
-            if (i + 2 >= size) return false;
+        pos += 2;
+    } else if ((c & 0xf0) == 0xe0) {
+        /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
+        if (pos + 2 >= size) return false;
 
-            unsigned c1 = str[i+1];
-            unsigned c2 = str[i+2];
-            if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80) return false;
+        unsigned c1 = str[pos+1];
+        unsigned c2 = str[pos+2];
+        if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80) return false;
 
-            unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-            if (r < 0x800 || (r >= 0xD800 && r <= 0xDFFF)) return false;
+        unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+        if (r < 0x800 || (r >= 0xD800 && r <= 0xDFFF)) return false;
 
-            i += 3;
-        } else if ((c & 0xf8) == 0xf0) {
-            /* three continuations (0x10000 to 0x10FFFF) */
-            if (i + 3 >= size) return false;
+        pos += 3;
+    } else if ((c & 0xf8) == 0xf0) {
+        /* three continuations (0x10000 to 0x10FFFF) */
+        if (pos + 3 >= size) return false;
 
-            unsigned c1 = str[i+1];
-            unsigned c2 = str[i+2];
-            unsigned c3 = str[i+3];
-            if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80 || (c3 & 0xc0) != 0x80) return false;
+        unsigned c1 = str[pos+1];
+        unsigned c2 = str[pos+2];
+        unsigned c3 = str[pos+3];
+        if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80 || (c3 & 0xc0) != 0x80) return false;
 
-            unsigned r  = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-            if (r < 0x10000 || r > 0x10FFFF) return false;
+        unsigned r = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+        if (r < 0x10000 || r > 0x10FFFF) return false;
 
-            i += 4;
-        } else {
-            return false;
-        }
+        pos += 4;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool validate_utf8(uint8_t const * str, size_t size, size_t & pos, size_t & i) {
+    while (pos < size) {
+        if (!validate_utf8_one(str, size, pos)) return false;
+        i++;
     }
     return true;
 }

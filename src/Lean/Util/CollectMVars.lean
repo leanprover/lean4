@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+
+public section
 
 namespace Lean
 
@@ -20,7 +24,7 @@ abbrev Visitor := State → State
 
 mutual
   partial def visit (e : Expr) : Visitor := fun s =>
-    if !e.hasMVar || s.visitedExpr.contains e then s
+    if !e.hasExprMVar || s.visitedExpr.contains e then s
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor

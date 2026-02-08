@@ -1,5 +1,5 @@
 /-!
-Testing delaboration of `letFun` as a `doElem`
+Testing delaboration of `have` as a `doElem`
 -/
 
 /-!

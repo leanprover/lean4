@@ -1,20 +1,20 @@
 {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
  "position": {"line": 9, "character": 11}}
 {"items":
- [{"sortText": "0",
-   "label": "bla",
+ [{"label": "foo",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
-     "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "Foo.bla"}}}},
-  {"sortText": "1",
-   "label": "foo",
+   "data": ["file:///internalNamesIssue.lean", 9, 11, 0, "cFoo.foo"]},
+  {"label": "bla",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
-     "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "Foo.foo"}}}}],
- "isIncomplete": true}
+   "data": ["file:///internalNamesIssue.lean", 9, 11, 0, "cFoo.bla"]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///internalNamesIssue.lean", 9, 11, 0, "cFoo.foo"]}
+Resolution of bla:
+{"label": "bla",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///internalNamesIssue.lean", 9, 11, 0, "cFoo.bla"]}

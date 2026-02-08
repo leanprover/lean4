@@ -18,8 +18,8 @@ theorem head_induction_on {P : ∀ a : α, ReflTransGen r a b → Prop} {a : α}
   induction h
   case refl => exact refl
   case tail b c _ hbc ih =>
-  apply ih
-  { exact head hbc _ refl }
-  { exact fun h1 h2 => head h1 (h2.tail hbc) }
+    apply ih
+    { exact head hbc _ refl }
+    { exact fun h1 h2 => head h1 (h2.tail hbc) }
 
 end ReflTransGen

@@ -1,136 +1,136 @@
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 19, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "ax1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 19, "character": 10}},
-    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
-  {"sortText": "1",
-   "label": "ex1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 19, "character": 10}},
-    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
-  {"sortText": "2",
-   "label": "ex2",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 19, "character": 10}},
-    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
-  {"sortText": "3",
-   "label": "ex3",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 19, "character": 10}},
-    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
- "isIncomplete": true}
+ [{"label": "ex2",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex2"]},
+  {"label": "ex3",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex3"]},
+  {"label": "ex1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex1"]},
+  {"label": "ax1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ax1"]}],
+ "isIncomplete": false}
+Resolution of ex2:
+{"label": "ex2",
+ "kind": 23,
+ "detail": "a ≤ b → a + 2 ≤ b + 2",
+ "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex2"]}
+Resolution of ex3:
+{"label": "ex3",
+ "kind": 23,
+ "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
+ "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex3"]}
+Resolution of ex1:
+{"label": "ex1",
+ "kind": 23,
+ "detail": "a ≤ b → a + a ≤ b + b",
+ "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ex1"]}
+Resolution of ax1:
+{"label": "ax1",
+ "kind": 23,
+ "detail": "a ≤ b → a - a ≤ b - b",
+ "data": ["file:///completion2.lean", 19, 10, 0, "cFoo.Bla.ax1"]}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 25, "character": 6}}
 {"items":
- [{"sortText": "0",
-   "label": "ax1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 25, "character": 6}},
-    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
-  {"sortText": "1",
-   "label": "ex1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 25, "character": 6}},
-    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
-  {"sortText": "2",
-   "label": "ex2",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 25, "character": 6}},
-    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
-  {"sortText": "3",
-   "label": "ex3",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 25, "character": 6}},
-    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
- "isIncomplete": true}
+ [{"label": "ex2",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex2"]},
+  {"label": "ex3",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex3"]},
+  {"label": "ex1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex1"]},
+  {"label": "ax1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ax1"]}],
+ "isIncomplete": false}
+Resolution of ex2:
+{"label": "ex2",
+ "kind": 23,
+ "detail": "a ≤ b → a + 2 ≤ b + 2",
+ "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex2"]}
+Resolution of ex3:
+{"label": "ex3",
+ "kind": 23,
+ "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
+ "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex3"]}
+Resolution of ex1:
+{"label": "ex1",
+ "kind": 23,
+ "detail": "a ≤ b → a + a ≤ b + b",
+ "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ex1"]}
+Resolution of ax1:
+{"label": "ax1",
+ "kind": 23,
+ "detail": "a ≤ b → a - a ≤ b - b",
+ "data": ["file:///completion2.lean", 25, 6, 0, "cFoo.Bla.ax1"]}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 30, "character": 21}}
 {"items":
- [{"sortText": "0",
-   "label": "ax1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 30, "character": 21}},
-    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
-  {"sortText": "1",
-   "label": "ex1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 30, "character": 21}},
-    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
-  {"sortText": "2",
-   "label": "ex2",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 30, "character": 21}},
-    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
-  {"sortText": "3",
-   "label": "ex3",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 30, "character": 21}},
-    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
- "isIncomplete": true}
+ [{"label": "ex2",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex2"]},
+  {"label": "ex3",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex3"]},
+  {"label": "ex1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex1"]},
+  {"label": "ax1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ax1"]}],
+ "isIncomplete": false}
+Resolution of ex2:
+{"label": "ex2",
+ "kind": 23,
+ "detail": "a ≤ b → a + 2 ≤ b + 2",
+ "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex2"]}
+Resolution of ex3:
+{"label": "ex3",
+ "kind": 23,
+ "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
+ "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex3"]}
+Resolution of ex1:
+{"label": "ex1",
+ "kind": 23,
+ "detail": "a ≤ b → a + a ≤ b + b",
+ "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ex1"]}
+Resolution of ax1:
+{"label": "ax1",
+ "kind": 23,
+ "detail": "a ≤ b → a - a ≤ b - b",
+ "data": ["file:///completion2.lean", 30, 21, 0, "cFoo.Bla.ax1"]}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 37, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "ex1",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 37, "character": 22}},
-    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
-  {"sortText": "1",
-   "label": "ex2",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 37, "character": 22}},
-    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
-  {"sortText": "2",
-   "label": "ex3",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion2.lean"},
-     "position": {"line": 37, "character": 22}},
-    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
- "isIncomplete": true}
+ [{"label": "ex2",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex2"]},
+  {"label": "ex3",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex3"]},
+  {"label": "ex1",
+   "kind": 23,
+   "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex1"]}],
+ "isIncomplete": false}
+Resolution of ex2:
+{"label": "ex2",
+ "kind": 23,
+ "detail": "a ≤ b → a + 2 ≤ b + 2",
+ "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex2"]}
+Resolution of ex3:
+{"label": "ex3",
+ "kind": 23,
+ "detail": "a ≤ b → c ≤ d → a + c ≤ b + d",
+ "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex3"]}
+Resolution of ex1:
+{"label": "ex1",
+ "kind": 23,
+ "detail": "a ≤ b → a + a ≤ b + b",
+ "data": ["file:///completion2.lean", 37, 22, 0, "cFoo.Bla.ex1"]}

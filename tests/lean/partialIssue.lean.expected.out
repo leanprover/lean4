@@ -1,2 +1,1 @@
-
 partialIssue.lean:12:8-12:19: error: (kernel) invalid declaration, safe declaration must not contain partial declaration 'False_intro'

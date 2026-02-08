@@ -1,0 +1,8 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.display_math
+   "$$"
+   (Lean.Doc.Syntax.code
+    "`"
+    (str "\"\\\\frac{x}{4}\"")
+    "`"))
+All input consumed.

@@ -4,55 +4,149 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Simon Hudon
 -/
 
+module
+
 prelude
-import Init.Core
-import Init.Data.UInt.Basic
-import Init.Data.ToString.Basic
-import Init.Data.String.Basic
+public import Init.Data.ToString.Basic
+import Init.Data.String.Modify
+
+public section
 
 /--
-Imitate the structure of IOErrorType in Haskell:
-https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
+Exceptions that may be thrown in the `IO` monad.
+
+Many of the constructors of `IO.Error` correspond to POSIX error numbers. In these cases, the
+documentation string lists POSIX standard error macros that correspond to the error. This list is
+not necessarily exhaustive, and these constructor includes a field for the underlying error number.
 -/
+-- Imitates the structure of IOErrorType in Haskell:
+-- https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 inductive IO.Error where
-  | alreadyExists (filename : Option String) (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
-  | otherError (osCode : UInt32) (details : String)    -- EFAULT, default
+  /--
+  The operation failed because a file already exists.
+
+  This corresponds to POSIX errors `EEXIST`, `EINPROGRESS`, and `EISCONN`.
+  -/
+  | alreadyExists (filename : Option String) (osCode : UInt32) (details : String)
+  /--
+  Some error not covered by the other constructors of `IO.Error` occurred.
+
+  This also includes POSIX error `EFAULT`.
+  -/
+  | otherError (osCode : UInt32) (details : String)
+  /--
+  A necessary resource was busy.
+
+  This corresponds to POSIX errors `EADDRINUSE`, `EBUSY`, `EDEADLK`, and `ETXTBSY`.
+  -/
   | resourceBusy (osCode : UInt32) (details : String)
-      -- EADDRINUSE, EBUSY, EDEADLK, ETXTBSY
+  /--
+  A necessary resource is no longer available.
+
+  This corresponds to POSIX errors `ECONNRESET`, `EIDRM`, `ENETDOWN`, `ENETRESET`, `ENOLINK`, and
+  `EPIPE`.
+  -/
   | resourceVanished (osCode : UInt32) (details : String)
-      -- ECONNRESET, EIDRM, ENETDOWN, ENETRESET,
-      -- ENOLINK, EPIPE
+  /--
+  An operation was not supported.
+
+  This corresponds to POSIX errors `EADDRNOTAVAIL`, `EAFNOSUPPORT`, `ENODEV`, `ENOPROTOOPT`
+  `ENOSYS`, `EOPNOTSUPP`, `ERANGE`, `ESPIPE`, and `EXDEV`.
+  -/
   | unsupportedOperation (osCode : UInt32) (details : String)
-      -- EADDRNOTAVAIL, EAFNOSUPPORT, ENODEV, ENOPROTOOPT
-      -- ENOSYS, EOPNOTSUPP, ERANGE, ESPIPE, EXDEV
-  | hardwareFault (osCode : UInt32) (details : String)          -- EIO
-  | unsatisfiedConstraints (osCode : UInt32) (details : String) -- ENOTEMPTY
-  | illegalOperation (osCode : UInt32) (details : String)       -- ENOTTY
+  /--
+  The operation failed due to a hardware problem, such as an I/O error.
+
+  This corresponds to the POSIX error `EIO`.
+  -/
+  | hardwareFault (osCode : UInt32) (details : String)
+  /--
+  A constraint required by an operation was not satisfied (e.g. a directory was not empty).
+
+  This corresponds to the POSIX error `ENOTEMPTY`.
+  -/
+  | unsatisfiedConstraints (osCode : UInt32) (details : String)
+  /--
+  An inappropriate I/O control operation was attempted.
+
+  This corresponds to the POSIX error `ENOTTY`.
+  -/
+  | illegalOperation (osCode : UInt32) (details : String)
+  /--
+  A protocol error occurred.
+
+  This corresponds to the POSIX errors `EPROTO`, `EPROTONOSUPPORT`, and `EPROTOTYPE`.
+  -/
   | protocolError (osCode : UInt32) (details : String)
-      -- EPROTO, EPROTONOSUPPORT, EPROTOTYPE
+  /--
+  An operation timed out.
+
+  This corresponds to the POSIX errors `ETIME`, and `ETIMEDOUT`.
+  -/
   | timeExpired (osCode : UInt32) (details : String)
-      -- ETIME, ETIMEDOUT
+  /--
+  The operation was interrupted.
 
-  | interrupted (filename : String) (osCode : UInt32) (details : String)       -- EINTR
-  | noFileOrDirectory (filename : String) (osCode : UInt32) (details : String) -- ENOENT
+  This corresponds to the POSIX error `EINTR`.
+  -/
+  | interrupted (filename : String) (osCode : UInt32) (details : String)
+  /--
+  No such file or directory.
+
+  This corresponds to the POSIX error `ENOENT`.
+  -/
+  | noFileOrDirectory (filename : String) (osCode : UInt32) (details : String)
+  /--
+  An argument to an I/O operation was invalid.
+
+  This corresponds to the POSIX errors `ELOOP`, `ENAMETOOLONG`, `EDESTADDRREQ`, `EILSEQ`, `EINVAL`, `EDOM`, `EBADF`
+  `ENOEXEC`, `ENOSTR`, `ENOTCONN`, and `ENOTSOCK`.
+  -/
   | invalidArgument (filename : Option String) (osCode : UInt32) (details : String)
-      -- ELOOP, ENAMETOOLONG, EDESTADDRREQ, EILSEQ, EINVAL, EDOM, EBADF
-      -- ENOEXEC, ENOSTR, ENOTCONN, ENOTSOCK
+
+  /--
+  An operation failed due to insufficient permissions.
+
+  This corresponds to the POSIX errors `EACCES`, `EROFS`, `ECONNABORTED`, `EFBIG`, and `EPERM`.
+  -/
   | permissionDenied (filename : Option String) (osCode : UInt32) (details : String)
-      -- EACCES, EROFS, ECONNABORTED, EFBIG, EPERM
+
+  /--
+  A resource was exhausted.
+
+  This corresponds to the POSIX errors  `EMFILE`, `ENFILE`, `ENOSPC`, `E2BIG`, `EAGAIN`, `EMLINK`,
+  `EMSGSIZE`, `ENOBUFS`, `ENOLCK`, `ENOMEM`, and `ENOSR`.
+  -/
   | resourceExhausted (filename : Option String) (osCode : UInt32) (details : String)
-      -- EMFILE, ENFILE, ENOSPC, E2BIG, EAGAIN, EMLINK:
-      -- EMSGSIZE, ENOBUFS, ENOLCK, ENOMEM, ENOSR:
+
+  /--
+  An argument was the wrong type (e.g. a directory when a file was required).
+
+  This corresponds to the POSIX errors `EISDIR`, `EBADMSG`, and `ENOTDIR`.
+  -/
   | inappropriateType (filename : Option String) (osCode : UInt32) (details : String)
-      -- EISDIR, EBADMSG, ENOTDIR:
+
+  /--
+  A required resource does not exist.
+
+  This corresponds to the POSIX errors `ENXIO`, `EHOSTUNREACH`, `ENETUNREACH`, `ECHILD`,
+  `ECONNREFUSED`, `ENODATA`, `ENOMSG`, and `ESRCH`.
+  -/
   | noSuchThing (filename : Option String) (osCode : UInt32) (details : String)
-      -- ENXIO, EHOSTUNREACH, ENETUNREACH, ECHILD, ECONNREFUSED,
-      -- ENODATA, ENOMSG, ESRCH
 
+  /-- An unexpected end-of-file marker was encountered. -/
   | unexpectedEof
+  /-- Some other error occurred. -/
   | userError (msg : String)
-  deriving Inhabited
 
+instance : Inhabited IO.Error where
+  default := .userError "(`Inhabited.default` for `IO.Error`)"
+
+/--
+Constructs an `IO.Error` from a string.
+
+`IO.Error` is the type of exceptions thrown by the `IO` monad.
+-/
 @[export lean_mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=
   IO.Error.userError s
@@ -157,7 +251,7 @@ def mkProtocolError : UInt32 → String → IO.Error :=
 def mkTimeExpired : UInt32 → String → IO.Error :=
   timeExpired
 
-private def downCaseFirst (s : String) : String := s.modify 0 Char.toLower
+private def downCaseFirst (s : String) : String := s.decapitalize
 
 def fopenErrorToString (gist fn : String) (code : UInt32) : Option String → String
   | some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")\n  file: " ++ fn
@@ -167,32 +261,39 @@ def otherErrorToString (gist : String) (code : UInt32) : Option String → Strin
   | some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
   | none => downCaseFirst gist ++ " (error code: " ++ toString code ++ ")"
 
+/--
+Converts an `IO.Error` to a descriptive string.
+
+`IO.Error.userError` is converted to its embedded message. The other constructors are converted in a
+way that preserves structured information, such as error codes and filenames, that can help
+diagnose the issue.
+-/
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
   | unexpectedEof                            => "end of file"
-  | inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code details
-  | inappropriateType none code details      => otherErrorToString "inappropriate type" code details
-  | interrupted fn code details              => fopenErrorToString "interrupted system call" fn code details
-  | invalidArgument (some fn) code details   => fopenErrorToString "invalid argument" fn code details
-  | invalidArgument none code details        => otherErrorToString "invalid argument" code details
+  | inappropriateType (some fn) code details => fopenErrorToString "inappropriate type" fn code (some details)
+  | inappropriateType none code details      => otherErrorToString "inappropriate type" code (some details)
+  | interrupted fn code details              => fopenErrorToString "interrupted system call" fn code (some details)
+  | invalidArgument (some fn) code details   => fopenErrorToString "invalid argument" fn code (some details)
+  | invalidArgument none code details        => otherErrorToString "invalid argument" code (some details)
   | noFileOrDirectory fn code _              => fopenErrorToString "no such file or directory" fn code none
-  | noSuchThing (some fn) code details       => fopenErrorToString "no such thing" fn code details
-  | noSuchThing none code details            => otherErrorToString "no such thing" code details
+  | noSuchThing (some fn) code details       => fopenErrorToString "no such thing" fn code (some details)
+  | noSuchThing none code details            => otherErrorToString "no such thing" code (some details)
   | permissionDenied (some fn) code details  => fopenErrorToString details fn code none
   | permissionDenied none code details       => otherErrorToString details code none
-  | resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code details
-  | resourceExhausted none code details      => otherErrorToString "resource exhausted" code details
-  | alreadyExists none code details          => otherErrorToString "already exists" code details
-  | alreadyExists (some fn) code details     => fopenErrorToString "already exists" fn code details
+  | resourceExhausted (some fn) code details => fopenErrorToString "resource exhausted" fn code (some details)
+  | resourceExhausted none code details      => otherErrorToString "resource exhausted" code (some details)
+  | alreadyExists none code details          => otherErrorToString "already exists" code (some details)
+  | alreadyExists (some fn) code details     => fopenErrorToString "already exists" fn code (some details)
   | otherError code details                  => otherErrorToString details code none
-  | resourceBusy code details                => otherErrorToString "resource busy" code details
-  | resourceVanished code details            => otherErrorToString "resource vanished" code details
+  | resourceBusy code details                => otherErrorToString "resource busy" code (some details)
+  | resourceVanished code details            => otherErrorToString "resource vanished" code (some details)
   | hardwareFault code _                     => otherErrorToString "hardware fault" code none
-  | illegalOperation code details            => otherErrorToString "illegal operation" code details
-  | protocolError code details               => otherErrorToString "protocol error" code details
-  | timeExpired code details                 => otherErrorToString "time expired" code details
+  | illegalOperation code details            => otherErrorToString "illegal operation" code (some details)
+  | protocolError code details               => otherErrorToString "protocol error" code (some details)
+  | timeExpired code details                 => otherErrorToString "time expired" code (some details)
   | unsatisfiedConstraints code _            => otherErrorToString "directory not empty" code none
-  | unsupportedOperation code details        => otherErrorToString "unsupported operation" code details
+  | unsupportedOperation code details        => otherErrorToString "unsupported operation" code (some details)
   | userError msg                            => msg
 
 instance : ToString IO.Error := ⟨ IO.Error.toString ⟩

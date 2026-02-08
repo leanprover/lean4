@@ -1,18 +1,20 @@
+module
+import all Init.Data.Array.InsertionSort
+
 attribute [simp] Array.insertionSort.swapLoop
 
 /--
-info: Array.insertionSort.swapLoop.eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : Array α) (h : 0 < a.size) :
-  Array.insertionSort.swapLoop lt a 0 h = a
+info: Array.insertionSort.swapLoop.eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (xs : Array α) (h : 0 < xs.size) :
+  Array.insertionSort.swapLoop✝ lt xs 0 h = xs
 -/
 #guard_msgs in
 #check Array.insertionSort.swapLoop.eq_1
 
 /--
-info: Array.insertionSort.swapLoop.eq_2.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : Array α) (j' : Nat)
-  (h : j'.succ < a.size) :
-  Array.insertionSort.swapLoop lt a j'.succ h =
-    let_fun h' := ⋯;
-    if lt a[j'.succ] a[j'] = true then Array.insertionSort.swapLoop lt (a.swap ⟨j'.succ, h⟩ ⟨j', h'⟩) j' ⋯ else a
+info: Array.insertionSort.swapLoop.eq_2.{u_1} {α : Type u_1} (lt : α → α → Bool) (xs : Array α) (j' : Nat)
+  (h : j'.succ < xs.size) :
+  Array.insertionSort.swapLoop✝ lt xs j'.succ h =
+    if lt xs[j'.succ] xs[j'] = true then Array.insertionSort.swapLoop✝¹ lt (xs.swap j'.succ j' h ⋯) j' ⋯ else xs
 -/
 #guard_msgs in
 #check Array.insertionSort.swapLoop.eq_2

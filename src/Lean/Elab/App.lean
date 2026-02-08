@@ -3,20 +3,26 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Parser.Term
-import Lean.Meta.KAbstract
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Elab.Term
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Arg
-import Lean.Elab.RecAppSyntax
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Elab.Binders
+public import Lean.Elab.RecAppSyntax
+public import Lean.IdentifierSuggestion
+import all Lean.Elab.ErrorUtils
+import Init.Omega
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
 
+/--
+Instructs the elaborator to elaborate applications of the given declaration without an expected
+type. This may prevent the elaborator from incorrectly inferring implicit arguments.
+-/
+@[builtin_doc]
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
   registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 
@@ -31,10 +37,25 @@ instance : ToString Arg where
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
-def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
-  withRef namedArg.ref <| match fn? with
-    | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
-    | none    => throwError "invalid argument name '{namedArg.name}' for function"
+def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α := do
+  let hint ← do
+    if validNames.size > 0 then
+      -- `namedArg.ref` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+      let span? := namedArg.ref[1]
+      if span?.getHeadInfo matches .original .. then
+        MessageData.hint (forceList := true) "Perhaps you meant one of the following parameter names:" <|
+          validNames.map fun name =>
+            { suggestion := .string name.toString
+              preInfo? := some s!"`{name.toString}`: "
+              span?
+              toCodeActionTitle? := some fun s => s!"Change argument name `{namedArg.name}` to `{s}`" }
+      else
+        let validNamesMsg := MessageData.orList <| validNames.map (m!"`{·}`") |>.toList
+        pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
+    else
+      pure .nil
+  let fnName := fn?.map (m!" `{.ofConstName ·}`") |>.getD .nil
+  throwErrorAt namedArg.ref m!"Invalid argument name `{namedArg.name}` for function{fnName}" ++ hint
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
@@ -53,13 +74,14 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
   if (← isProp eType) then
     let rType ← inferType r
     if !(← isProp rType) then
-      throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
+      throwNamedError lean.projNonPropFromProp "Invalid projection: Cannot project a value of non-propositional \
+        type{indentExpr rType}\nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
     unless (← synthesizeInstMVarCore mvarId) do
-      registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+      registerSyntheticMVarWithCurrRef mvarId (.typeClass none)
       registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 
 /-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/
@@ -141,9 +163,11 @@ structure State where
     -- fun x => f x 5
     ```
     `etaArgs` stores the fresh free variables for implementing the eta-expansion.
+    Each pair records the name to use for the binding and the fvar for the argument.
+
     When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
   -/
-  etaArgs              : Array Expr   := #[]
+  etaArgs              : Array (Name × Expr)   := #[]
   /-- Metavariables that we need to set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
   /-- Metavariables for the instance implicit arguments that have already been processed. -/
@@ -158,6 +182,8 @@ structure State where
     See comment at `Context.resultIsOutParamSupport`
    -/
   resultTypeOutParam?  : Option MVarId := none
+  /-- Valid named arguments found while traversing the function's type. -/
+  foundNamedArgs : Array Name := #[]
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
@@ -189,6 +215,14 @@ def synthesizeAppInstMVars : M Unit := do
   Term.synthesizeAppInstMVars (← get).instMVars (← get).f
   modify ({ · with instMVars := #[] })
 
+/-- Record a valid named argument for the function. -/
+private def pushFoundNamedArg (name : Name) : M Unit := do
+  modify fun s => { s with foundNamedArgs := s.foundNamedArgs.push name }
+
+/-- Get the function's named arguments (which were found during elaboration). -/
+private def getFoundNamedArgs : M (Array Name) :=
+  return (← get).foundNamedArgs
+
 /-- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
   trySynthesizeAppInstMVars
@@ -204,11 +238,17 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
-        if f.isConst then
-          throwInvalidNamedArg namedArg f.constName!
-        else
-          throwInvalidNamedArg namedArg none
-      throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
+        let validNames ← getFoundNamedArgs
+        let fnName? := if f.isConst then some f.constName! else none
+        throwInvalidNamedArg namedArg fnName? validNames
+      -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
+      let extra := if let some (arg : Arg) := s.args[0]? then
+        .note m!"Expected a function because this term is being applied to the argument\
+          {indentD <| toMessageData arg}"
+      else .nil
+      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}\
+        {extra}\
+        {← hintAutoImplicitFailure s.f}"
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
@@ -233,9 +273,7 @@ def eraseNamedArg (binderName : Name) : M Unit :=
 private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
   modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := argName }
+    registerMVarArgName arg.mvarId! argName
 
 /--
   Elaborate the given `Arg` and add it to the result. See `addNewArg`.
@@ -317,7 +355,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
 
   We have considered adding the following extra conditions
     a) The resultant type does not contain any type metavariable.
-    b) The resultant type contains a nontype metavariable.
+    b) The resultant type contains a non-type metavariable.
 
   These two conditions would restrict the method to simple functions that are "morally" in
   the Hindley&Milner fragment.
@@ -380,7 +418,8 @@ private def finalize : M Expr := do
   for mvarId in s.toSetErrorCtx do
     registerMVarErrorImplicitArgInfo mvarId ref e
   if !s.etaArgs.isEmpty then
-    e ← mkLambdaFVars s.etaArgs e
+    e ← mkLambdaFVars (s.etaArgs.map (·.2)) e
+    e := e.updateBinderNames (s.etaArgs.map (some <| ·.1)).toList
   /-
     Remark: we should not use `s.fType` as `eType` even when
     `s.etaArgs.isEmpty`. Reason: it may have been unfolded.
@@ -412,21 +451,23 @@ private def finalize : M Expr := do
   synthesizeAppInstMVars
   return e
 
-/-- Return `true` if there is a named argument that depends on the next argument. -/
-private def anyNamedArgDependsOnCurrent : M Bool := do
+/--
+Returns a named argument that depends on the next argument, otherwise `none`.
+-/
+private def findNamedArgDependsOnCurrent? : M (Option NamedArg) := do
   let s ← get
   if s.namedArgs.isEmpty then
-    return false
+    return none
   else
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
-      for i in [1:xs.size] do
-        let xDecl ← xs[i]!.fvarId!.getDecl
-        if s.namedArgs.any fun arg => arg.name == xDecl.userName then
+      for h : i in 1...xs.size do
+        let xDecl ← xs[i].fvarId!.getDecl
+        if let some arg := s.namedArgs.find? fun arg => arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
-            return true
-      return false
+            return arg
+      return none
 
 
 /-- Return `true` if there are regular or named arguments to be processed. -/
@@ -434,11 +475,13 @@ private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
 
-/-- Return `true` if the next argument at `args` is of the form `_` -/
-private def isNextArgHole : M Bool := do
+/--
+Returns the argument syntax if the next argument at `args` is of the form `_`.
+-/
+private def nextArgHole? : M (Option Syntax) := do
   match (← get).args with
-  | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
-  | _ => pure false
+  | Arg.stx stx@(Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure stx
+  | _ => pure none
 
 /--
   Return `true` if the next argument to be processed is the outparam of a local instance, and it the result type
@@ -468,7 +511,7 @@ private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
   let type := (← get).fType.bindingBody!
   unless isResultType type 0 do
     return false
-  if (← hasLocalInstaceWithOutParams type) then
+  if (← hasLocalInstanceWithOutParams type) then
     let x := mkFVar (← mkFreshFVarId)
     isOutParamOfLocalInstance x (type.instantiate1 x)
   else
@@ -481,13 +524,13 @@ where
     | _                => false
 
   /-- (quick filter) Return true if `type` contains a binder `[C ...]` where `C` is a class containing outparams. -/
-  hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
+  hasLocalInstanceWithOutParams (type : Expr) : CoreM Bool := do
     let .forallE _ d b bi := type | return false
     if bi.isInstImplicit then
       if let .const declName .. := d.getAppFn then
         if hasOutParams (← getEnv) declName then
           return true
-    hasLocalInstaceWithOutParams b
+    hasLocalInstanceWithOutParams b
 
   isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
     let .forallE _ d b bi := type | return false
@@ -503,8 +546,7 @@ where
     if h : i < args.size then
       match (← whnf cType) with
       | .forallE _ d b _ =>
-        let arg := args.get ⟨i, h⟩
-        if arg == x && d.isOutParam then
+        if args[i] == x && d.isOutParam then
           return true
         isOutParamOf x (i+1) args b
       | _ => return false
@@ -513,16 +555,21 @@ where
 
 mutual
   /--
-    Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
-    and then execute the main loop.-/
+  Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
+  and then execute the main loop.
+  -/
   private partial def addEtaArg (argName : Name) : M Expr := do
     let n    ← getBindingName
     let type ← getArgExpectedType
-    withLocalDeclD n type fun x => do
-      modify fun s => { s with etaArgs := s.etaArgs.push x }
+    -- Use a fresh name to ensure that the remaining arguments can't capture this parameter's name.
+    withLocalDeclD (← Core.mkFreshUserName n) type fun x => do
+      modify fun s => { s with etaArgs := s.etaArgs.push (n, x) }
       addNewArg argName x
       main
 
+  /--
+  Create a fresh metavariable for the implicit argument, add it to `f`, and then execute the main loop.
+  -/
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
@@ -540,35 +587,47 @@ mutual
     main
 
   /--
-    Process a `fType` of the form `(x : A) → B x`.
-    This method assume `fType` is a function type -/
-  private partial def processExplictArg (argName : Name) : M Expr := do
+  Process a `fType` of the form `(x : A) → B x`.
+  This method assume `fType` is a function type.
+  -/
+  private partial def processExplicitArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
-      if (← anyNamedArgDependsOnCurrent) then
+      -- Note: currently the following test never succeeds in explicit mode since `@x.f` notation does not exist.
+      if let some true := NamedArg.suppressDeps <$> (← findNamedArgDependsOnCurrent?) then
         /-
-        We treat the explicit argument `argName` as implicit if we have named arguments that depend on it.
-        The idea is that this explicit argument can be inferred using the type of the named argument one.
-        Note that we also use this approach in the branch where there are no explicit arguments left.
-        This is important to make sure the system behaves in a uniform way.
-        Moreover, users rely on this behavior. For example, consider the example on issue #1851
+        We treat the explicit argument `argName` as implicit
+        if we have a named arguments that depends on it whose `suppressDeps` flag set to `true`.
+        The motivation for this is class projections (issue #1851).
+        In some cases, class projections can have explicit parameters. For example, in
         ```
         class Approx {α : Type} (a : α) (X : Type) : Type where
           val : X
-
-        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)] [x : Approx x' X]
-
-        #check f.val
-        #check f.val x.val
         ```
-        The type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`
-        Note that the argument `a` is explicit since there is no way to infer it from the expected
-        type or the type of other explicit arguments.
-        Recall that `f.val` is sugar for `Approx.val (self := f)`. In both `#check` commands above
-        the user assumed that `a` does not need to be provided since it can be inferred from the type
-        of `self`.
-        We used to that only in the branch where `(← get).args` was empty, but it created an asymmetry
-        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`
+        the type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`.
+        Note that the parameter `a` is explicit since there is no way to infer it from the expected
+        type or from the types of other explicit parameters.
+        Being a parameter of the class, `a` is determined by the type of `self`.
+
+        Consider
+        ```
+        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)]
+        ```
+        Recall that `f.val` is, to first approximation, sugar for `Approx.val (self := f)`.
+        Without further refinement, this would expand to `fun f'' : α → β => Approx.val f'' f`,
+        which is a type error, since `f''` must be defeq to `f'`.
+        Furthermore, with projection notation, users expect all structure parameters
+        to be uniformly implicit; after all, they are determined by `self`.
+        To handle this, the `(self := f)` named argument is annotated with the `suppressDeps` flag.
+        This causes the `a` parameter to become implicit, and `f.val` instead expands to `Approx.val f' f`.
+
+        This feature previously was enabled for *all* explicit arguments, which confused users
+        and was frequently reported as a bug (issue #1867).
+        Now it is only enabled for the `self` argument in structure projections.
+
+        We used to do this only when `(← get).args` was empty,
+        but it created an asymmetry because `f.val` worked as expected,
+        yet one would have to write `f.val _ x` when there are further arguments.
         -/
         return (← addImplicitArg argName)
       propagateExpectedType arg
@@ -576,6 +635,22 @@ mutual
       elabAndAddNewArg argName arg
       main
     | _ =>
+      if (← read).ellipsis && (← readThe Term.Context).inPattern then
+        /-
+        In patterns, ellipsis should always be an implicit argument, even if it is an optparam or autoparam.
+        This prevents examples such as the one in #4555 from failing:
+        ```lean
+        match e with
+        | .internal .. => sorry
+        | .error .. => sorry
+        ```
+        The `internal` has an optparam (`| internal (id : InternalExceptionId) (extra : KVMap := {})`).
+
+        We may consider having ellipsis suppress optparams and autoparams in general.
+        We avoid doing so for now since it's possible to opt-out of them (for example with `.internal (extra := _) ..`)
+        but it's not possible to opt-in.
+        -/
+        return ← addImplicitArg argName
       let argType ← getArgExpectedType
       match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
@@ -585,26 +660,43 @@ mutual
         match evalSyntaxConstant env opts tacticDecl with
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
-          -- TODO(Leo): does this work correctly for tactic sequences?
           let tacticBlock ← `(by $(⟨tacticSyntax⟩))
-          let argNew := Arg.stx tacticBlock
+          /-
+          We insert position information from the current ref into `stx` everywhere, simulating this being
+          a tactic script inserted by the user, which ensures error messages and logging will always be attributed
+          to this application rather than sometimes being placed at position (1,0) in the file.
+          Placing position information on `by` syntax alone is not sufficient since incrementality
+          (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
+          Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
+          -/
+          let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
+          let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
+          let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
+          -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+          -- We should look into removing this since terminfo for synthetic syntax is suspect,
+          -- but we noted it was necessary to preserve the behavior of the unused variable linter.
+          addTermInfo' tacticBlock mvar
+          let argNew := Arg.expr mvar
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew
           main
       | false, _, some _ =>
-        throwError "invalid autoParam, argument must be a constant"
+        throwError "Internal error when elaborating function application: autoParam `{argName}` is not a constant"
       | _, _, _ =>
-        if !(← get).namedArgs.isEmpty then
-          if (← anyNamedArgDependsOnCurrent) then
-            addImplicitArg argName
-          else if (← read).ellipsis then
+        if (← read).ellipsis then
+          addImplicitArg argName
+        else if !(← get).namedArgs.isEmpty then
+          if let some _ ← findNamedArgDependsOnCurrent? then
+            /-
+            Dependencies of named arguments cannot be turned into eta arguments
+            since they are determined by the named arguments.
+            Instead we can turn them into implicit arguments.
+            -/
             addImplicitArg argName
           else
             addEtaArg argName
         else if !(← read).explicit then
-          if (← read).ellipsis then
-            addImplicitArg argName
-          else if (← fTypeHasOptAutoParams) then
+          if (← fTypeHasOptAutoParams) then
             addEtaArg argName
           else
             finalize
@@ -616,7 +708,7 @@ mutual
     This method assume `fType` is a function type -/
   private partial def processImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
-      processExplictArg argName
+      processExplicitArg argName
     else
       addImplicitArg argName
 
@@ -625,31 +717,37 @@ mutual
     This method assume `fType` is a function type -/
   private partial def processStrictImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
-      processExplictArg argName
+      processExplicitArg argName
     else if (← hasArgsToProcess) then
       addImplicitArg argName
     else
       finalize
 
   /--
-    Process a `fType` of the form `[x : A] → B x`.
-    This method assume `fType` is a function type -/
+  Process a `fType` of the form `[x : A] → B x`.
+  This method assume `fType` is a function type.
+  -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
-      if (← isNextArgHole) then
-        /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
-        let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
+      if let some stx ← nextArgHole? then
+        -- We still use typeclass resolution for `_` arguments.
+        -- This behavior can be suppressed with `(_)`.
+        let ty ← getArgExpectedType
+        let arg ← mkInstMVar ty
+        addTermInfo' stx arg ty
         modify fun s => { s with args := s.args.tail! }
-        addInstMVar arg.mvarId!
-        addNewArg argName arg
         main
       else
-        processExplictArg argName
+        processExplicitArg argName
     else
-      let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
+      discard <| mkInstMVar (← getArgExpectedType)
+      main
+  where
+    mkInstMVar (ty : Expr) : M Expr := do
+      let arg ← mkFreshExprMVar ty MetavarKind.synthetic
       addInstMVar arg.mvarId!
       addNewArg argName arg
-      main
+      return arg
 
   /-- Elaborate function application arguments. -/
   partial def main : M Expr := do
@@ -665,11 +763,13 @@ mutual
         elabAndAddNewArg binderName namedArg.val
         main
       | none          =>
+        unless binderName.hasMacroScopes do
+          pushFoundNamedArg binderName
         match binfo with
         | .implicit       => processImplicitArg binderName
         | .instImplicit   => processInstImplicitArg binderName
         | .strictImplicit => processStrictImplicitArg binderName
-        | _               => processExplictArg binderName
+        | _               => processExplicitArg binderName
     else if (← hasArgsToProcess) then
       synthesizePendingAndNormalizeFunType
       main
@@ -680,6 +780,172 @@ end
 
 end ElabAppArgs
 
+
+/-! # Eliminator-like function application elaborator -/
+
+/--
+Information about an eliminator used by the elab-as-elim elaborator.
+This is not to be confused with `Lean.Meta.ElimInfo`, which is for `induction` and `cases`.
+The elab-as-elim routine is less restrictive in what counts as an eliminator, and it doesn't need
+to have a strict notion of what is a "target" — all it cares about are
+1. that the return type of a function is of the form `m ...` where `m` is a parameter
+   (unlike `induction` and `cases` eliminators, the arguments to `m`, known as "discriminants",
+   can be any expressions, not just parameters), and
+2. which arguments should be eagerly elaborated, to make discriminants be as elaborated as
+   possible for the expected type generalization procedure,
+   and which should be postponed (since they are the "minor premises").
+
+Note that the routine isn't doing induction/cases *on* particular expressions.
+The purpose of elab-as-elim is to successfully solve the higher-order unification problem
+between the return type of the function and the expected type.
+-/
+structure ElabElimInfo where
+  /-- The eliminator. -/
+  elimExpr   : Expr
+  /-- The type of the eliminator. -/
+  elimType   : Expr
+  /-- The position of the motive parameter. -/
+  motivePos  : Nat
+  /--
+  Positions of "major" parameters (those that should be eagerly elaborated
+  because they can contribute to the motive inference procedure).
+  All parameters that are neither the motive nor a major parameter are "minor" parameters.
+  The major parameters include all of the parameters that transitively appear in the motive's arguments,
+  as well as "first-order" arguments that include such parameters,
+  since they too can help with elaborating discriminants.
+
+  For example, in the following theorem the argument `h : a = b`
+  should be elaborated eagerly because it contains `b`, which occurs in `motive b`.
+  ```
+  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
+  ```
+  For another example, the term `isEmptyElim (α := α)` is an underapplied eliminator, and it needs
+  argument `α` to be elaborated eagerly to create a type-correct motive.
+  ```
+  def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a := ...
+  example {α : Type _} [IsEmpty α] : id (α → False) := isEmptyElim (α := α)
+  ```
+  -/
+  majorsPos : Array Nat := #[]
+  deriving Repr, Inhabited
+
+def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
+  let elimType ← inferType elimExpr
+  trace[Elab.app.elab_as_elim] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
+  forallTelescopeReducing elimType fun xs type => do
+    let motive  := type.getAppFn
+    let motiveArgs := type.getAppArgs
+    unless motive.isFVar && motiveArgs.size > 0 do
+      throwError "unexpected eliminator resulting type{indentExpr type}"
+    let motiveType ← inferType motive
+    forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
+      unless motiveParams.size == motiveArgs.size do
+        throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
+      unless motiveResultType.isSort do
+        throwError "motive result type must be a sort{indentExpr motiveType}"
+    let some motivePos := xs.idxOf? motive |
+      throwError "unexpected eliminator type{indentExpr elimType}"
+    /-
+    Compute transitive closure of fvars appearing in arguments to the motive.
+    These are the primary set of major parameters.
+    -/
+    let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
+    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i _ s => do
+      let x := xs[i]
+      if s.fvarSet.contains x.fvarId! then
+        return collectFVars s (← inferType x)
+      else
+        return s
+    /- Collect the major parameter positions -/
+    let mut majorsPos := #[]
+    for h : i in *...xs.size do
+      let x := xs[i]
+      unless motivePos == i do
+        let xType ← x.fvarId!.getType
+        /-
+        We also consider "first-order" types because we can reliably "extract" information from them.
+        We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
+        -/
+        let isFirstOrder (e : Expr) : Bool := Option.isNone <| e.find? fun e => e.isApp && !e.getAppFn.isConst
+        if motiveFVars.fvarSet.contains x.fvarId!
+            || (isFirstOrder xType
+                && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!)) then
+          majorsPos := majorsPos.push i
+    trace[Elab.app.elab_as_elim] "motivePos: {motivePos}"
+    trace[Elab.app.elab_as_elim] "majorsPos: {majorsPos}"
+    return { elimExpr, elimType, motivePos, majorsPos }
+
+def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
+  getElabElimExprInfo (← mkConstWithFreshMVarLevels elimName)
+
+
+/--
+Instructs the elaborator that applications of this function should be elaborated like an eliminator.
+
+An eliminator is a function that returns an application of a "motive." A motive is a parameter `p`
+whose type is of the form `(x₁ : _) → … → (xₙ : _) → Sort _`, i.e., a function that takes in some
+number of arguments (referred to as "major premises") and returns a type. The arguments `x₁`
+through `xₙ` of the motive can be arbitrary expressions. When elaborating an eliminator application,
+Lean first solves for `p` by matching `p x₁ … xₙ` against the expected type, then replacing `xₙ`
+through `x₁` (in that order) with variables to obtain the body of `p`. The elaborator will throw an
+error if this process fails (i.e., the resulting motive is not type-correct) or if the expected type
+cannot be determined.
+
+Eliminator elaboration can be compared to the `induction` tactic: The expected type is used as the
+return value of the motive, with occurrences of the major premises replaced with the arguments.
+When more arguments are specified than necessary, the remaining arguments are reverted into the
+expected type.
+
+The automatically-generated `rec` and `casesOn` functions of inductive types are always elaborated
+as eliminators. Any other functions must be tagged with this attribute in order to be elaborated in
+this fashion.
+
+Examples:
+```lean example
+@[elab_as_elim]
+def evenOddRec {motive : Nat → Sort u}
+    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
+    (n : Nat) : motive n := sorry
+
+-- simple usage
+example (a : Nat) : (a * a) % 2 = a % 2 :=
+  evenOddRec _ _ a
+  /-
+  1. basic motive is `fun n => (a + 2) % 2 = a % 2`
+  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`
+  3. now elaborate the other parameters as usual:
+    "even" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,
+    "odd" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`
+  -/
+
+-- complex substitution
+example (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=
+  evenOddRec _ _ (f a)
+  /-
+  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.
+  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.
+
+  Note that while this might appear to work even if the `elab_as_elim` attribute is omitted from
+  `evenOddRec`, the inferred motive if one does so (`fun n => (f a + 1) % 2 ≠ n`) is, in fact,
+  insufficiently general: the first hole, for example, ends up with expected type
+  `∀ (n : Nat), (f a + 1) % 2 ≠ n * 2`, leaving the first `f a` unsubstituted.
+  -/
+
+-- more parameters
+example (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=
+  evenOddRec _ _ a h
+  /-
+  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.
+  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`
+  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.
+  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.
+  -/
+```
+
+See also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.
+-/
+@[builtin_doc]
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
@@ -693,28 +959,16 @@ builtin_initialize elabAsElim : TagAttribute ←
       let go : MetaM Unit := do
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
-          throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
-        discard <| getElimInfo declName
+          throwError "`[elab_as_elim]` attribute cannot be used in declarations containing optional and auto parameters"
+        discard <| getElabElimInfo declName
       go.run' {} {}
 
-/-! # Eliminator-like function application elaborator -/
 namespace ElabElim
 
 /-- Context of the `elab_as_elim` elaboration procedure. -/
 structure Context where
-  elimInfo : ElimInfo
+  elimInfo : ElabElimInfo
   expectedType : Expr
-  /--
-  Position of additional arguments that should be elaborated eagerly
-  because they can contribute to the motive inference procedure.
-  For example, in the following theorem the argument `h : a = b`
-  should be elaborated eagerly because it contains `b` which occurs
-  in `motive b`.
-  ```
-  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
-  ```
-  -/
-  extraArgsPos : Array Nat
 
 /-- State of the `elab_as_elim` elaboration procedure. -/
 structure State where
@@ -726,8 +980,6 @@ structure State where
   namedArgs    : List NamedArg
   /-- User-provided arguments that still have to be processed. -/
   args         : List Arg
-  /-- Discriminants processed so far. -/
-  discrs       : Array Expr := #[]
   /-- Instance implicit arguments collected so far. -/
   instMVars    : Array MVarId := #[]
   /-- Position of the next argument to be processed. We use it to decide whether the argument is the motive or a discriminant. -/
@@ -738,7 +990,7 @@ structure State where
 abbrev M := ReaderT Context $ StateRefT State TermElabM
 
 /-- Infer the `motive` using the expected type by `kabstract`ing the discriminants. -/
-def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
+def mkMotive (discrs : Array Expr) (expectedType : Expr) : MetaM Expr := do
   discrs.foldrM (init := expectedType) fun discr motive => do
     let discr ← instantiateMVars discr
     let motiveBody ← kabstract motive discr
@@ -746,9 +998,12 @@ def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
     return Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
 
-/-- If the eliminator is over-applied, we "revert" the extra arguments. -/
-def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) :=
-  args.foldrM (init := (f, expectedType)) fun arg (f, expectedType) => do
+/--
+If the eliminator is over-applied, we "revert" the extra arguments.
+Returns the function with the reverted arguments applied and the new generalized expected type.
+-/
+def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) := do
+  let (xs, expectedType) ← args.foldrM (init := ([], expectedType)) fun arg (xs, expectedType) => do
     let val ←
       match arg with
       | .expr val => pure val
@@ -757,10 +1012,11 @@ def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (E
     let expectedTypeBody ← kabstract expectedType val
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let valType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType val))
-    return (mkApp f val, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
+    return (val :: xs, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
+  return (xs.foldl .app f, expectedType)
 
 /--
-Construct the resulting application after all discriminants have bee elaborated, and we have
+Construct the resulting application after all discriminants have been elaborated, and we have
 consumed as many given arguments as possible.
 -/
 def finalize : M Expr := do
@@ -768,29 +1024,44 @@ def finalize : M Expr := do
     throwError "failed to elaborate eliminator, unused named arguments: {(← get).namedArgs.map (·.name)}"
   let some motive := (← get).motive?
     | throwError "failed to elaborate eliminator, insufficient number of arguments"
-  forallTelescope (← get).fType fun xs _ => do
+  trace[Elab.app.elab_as_elim] "motive: {motive}"
+  forallTelescope (← get).fType fun xs fType => do
+    trace[Elab.app.elab_as_elim] "xs: {xs}"
     let mut expectedType := (← read).expectedType
+    trace[Elab.app.elab_as_elim] "expectedType:{indentD expectedType}"
+    let throwInsufficient := do
+      throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr expectedType}"
     let mut f := (← get).f
     if xs.size > 0 then
+      -- under-application, specialize the expected type using `xs`
+      -- Note: if we ever wanted to support optParams and autoParams, this is where it could be.
       assert! (← get).args.isEmpty
-      try
-        expectedType ← instantiateForall expectedType xs
-      catch _ =>
-        throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr expectedType}"
+      for x in xs do
+        let .forallE _ t b _ ← whnf expectedType | throwInsufficient
+        unless ← fullApproxDefEq <| isDefEq t (← inferType x) do
+          -- We can't assume that these binding domains were supposed to line up, so report insufficient arguments
+          throwInsufficient
+        expectedType := b.instantiate1 x
+      trace[Elab.app.elab_as_elim] "xs after specialization of expected type: {xs}"
     else
-      -- over-application, simulate `revert`
+      -- over-application, simulate `revert` while generalizing the values of these arguments in the expected type
       (f, expectedType) ← revertArgs (← get).args f expectedType
+      unless ← isTypeCorrect expectedType do
+        throwError "failed to elaborate eliminator, after generalizing over-applied arguments, expected type is type incorrect:{indentExpr expectedType}"
+    trace[Elab.app.elab_as_elim] "expectedType after processing:{indentD expectedType}"
     let result := mkAppN f xs
-    let mut discrs := (← get).discrs
-    let idx := (← get).idx
-    if (← get).discrs.size < (← read).elimInfo.targetsPos.size then
-      for i in [idx:idx + xs.size], x in xs do
-        if (← read).elimInfo.targetsPos.contains i then
-          discrs := discrs.push x
+    trace[Elab.app.elab_as_elim] "result:{indentD result}"
+    unless fType.getAppFn == (← get).motive? do
+      throwError "Internal error, eliminator target type isn't an application of the motive"
+    let discrs := fType.getAppArgs
+    trace[Elab.app.elab_as_elim] "discrs: {discrs}"
     let motiveVal ← mkMotive discrs expectedType
+    unless (← isTypeCorrect motiveVal) do
+      throwError "failed to elaborate eliminator, motive is not type correct:{indentD motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result
+    trace[Elab.app.elab_as_elim] "completed motive:{indentD motive}"
     let result ← mkLambdaFVars xs (← instantiateMVars result)
     return result
 
@@ -818,10 +1089,6 @@ def getNextArg? (binderName : Name) (binderInfo : BinderInfo) : M (LOption Arg) 
 def setMotive (motive : Expr) : M Unit :=
   modify fun s => { s with motive? := motive }
 
-/-- Push the given expression into the `discrs` field in the state. -/
-def addDiscr (discr : Expr) : M Unit :=
-  modify fun s => { s with discrs := s.discrs.push discr }
-
 /-- Elaborate the given argument with the given expected type. -/
 private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
   match arg with
@@ -833,9 +1100,7 @@ private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
 /-- Save information for producing error messages. -/
 def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := binderName }
+    registerMVarArgName arg.mvarId! binderName
 
 /-- Create an implicit argument using the given `BinderInfo`. -/
 def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
@@ -844,7 +1109,7 @@ def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
     modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
   return arg
 
-/-- Main loop of the `elimAsElab` procedure. -/
+/-- Main loop of the `elabAsElim` procedure. -/
 partial def main : M Expr := do
   let .forallE binderName binderType body binderInfo ← whnfForall (← get).fType |
     finalize
@@ -854,21 +1119,25 @@ partial def main : M Expr := do
     main
   let idx := (← get).idx
   if (← read).elimInfo.motivePos == idx then
-    let motive ← mkImplicitArg binderType binderInfo
+    let motive ←
+      match (← getNextArg? binderName binderInfo) with
+      | .some arg =>
+        /- Due to `Lean.Elab.Term.elabAppArgs.elabAsElim?`, this must be a positional argument that is the syntax `_`. -/
+        elabArg arg binderType
+      | .none | .undef =>
+        /- Note: undef occurs when the motive is explicit but missing.
+           In this case, we treat it as if it were an implicit argument
+           to support writing `h.rec` when `h : False`, rather than requiring `h.rec _`. -/
+        mkImplicitArg binderType binderInfo
     setMotive motive
     addArgAndContinue motive
-  else if (← read).elimInfo.targetsPos.contains idx then
+  else if (← read).elimInfo.majorsPos.contains idx then
     match (← getNextArg? binderName binderInfo) with
-    | .some arg => let discr ← elabArg arg binderType; addDiscr discr; addArgAndContinue discr
+    | .some arg => let discr ← elabArg arg binderType; addArgAndContinue discr
     | .undef => finalize
-    | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr discr; addArgAndContinue discr
+    | .none => let discr ← mkImplicitArg binderType binderInfo; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
-    | .some (.stx stx) =>
-      if (← read).extraArgsPos.contains idx then
-        let arg ← elabArg (.stx stx) binderType
-        addArgAndContinue arg
-      else
-        addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
     | .undef => finalize
     | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
@@ -922,8 +1191,7 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"
     let expectedType ← instantiateMVars expectedType
     if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
-    let extraArgsPos ← getElabAsElimExtraArgsPos elimInfo
-    ElabElim.main.run { elimInfo, expectedType, extraArgsPos } |>.run' {
+    ElabElim.main.run { elimInfo, expectedType } |>.run' {
       f, fType
       args := args.toList
       namedArgs := namedArgs.toList
@@ -937,158 +1205,253 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     }
 where
   /-- Return `some info` if we should elaborate as an eliminator. -/
-  elabAsElim? : TermElabM (Option ElimInfo) := do
+  elabAsElim? : TermElabM (Option ElabElimInfo) := do
     unless (← read).heedElabAsElim do return none
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
-    let elimInfo ← getElimInfo declName
+    let elimInfo ← getElabElimInfo declName
     forallTelescopeReducing (← inferType f) fun xs _ => do
-      if h : elimInfo.motivePos < xs.size then
-        let x := xs[elimInfo.motivePos]
+      /- Process arguments similar to `Lean.Elab.Term.ElabElim.main` to see if the motive has been
+         provided, in which case we use the standard app elaborator.
+         If the motive is explicit (like for `False.rec`), then a positional `_` counts as "not provided". -/
+      let mut args := args.toList
+      let mut namedArgs := namedArgs.toList
+      for x in xs[*...elimInfo.motivePos] do
         let localDecl ← x.fvarId!.getDecl
-        if findBinderName? namedArgs.toList localDecl.userName matches some _ then
+        match findBinderName? namedArgs localDecl.userName with
+        | some _ => namedArgs := eraseNamedArg namedArgs localDecl.userName
+        | none   => if localDecl.binderInfo.isExplicit then args := args.tailD []
+      -- Invariant: `elimInfo.motivePos < xs.size` due to construction of `elimInfo`.
+      let some x := xs[elimInfo.motivePos]? | unreachable!
+      let localDecl ← x.fvarId!.getDecl
+      if findBinderName? namedArgs localDecl.userName matches some _ then
+        -- motive has been explicitly provided, so we should use standard app elaborator
+        return none
+      else
+        match localDecl.binderInfo.isExplicit, args with
+        | true, .expr _ :: _  =>
           -- motive has been explicitly provided, so we should use standard app elaborator
           return none
-        return some elimInfo
-      else
-        return none
+        | true, .stx arg :: _ =>
+          if arg.isOfKind ``Lean.Parser.Term.hole then
+            return some elimInfo
+          else
+            -- positional motive is not `_`, so we should use standard app elaborator
+            return none
+        | _, _ => return some elimInfo
 
-  /--
-  Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.
-  The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
-  -/
-  getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
-    forallTelescope elimInfo.elimType fun xs type => do
-      let resultArgs := type.getAppArgs
-      let mut extraArgsPos := #[]
-      for i in [:xs.size] do
-        let x := xs[i]!
-        unless elimInfo.targetsPos.contains i do
-          let xType ← inferType x
-          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
-          if isFirstOrder xType
-             && Option.isSome (xType.find? fun e => e.isFVar && resultArgs.contains e) then
-            extraArgsPos := extraArgsPos.push i
-      return extraArgsPos
-
-  /-
-  Helper function for implementing `elab_as_elim`.
-  We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
-  -/
-  isFirstOrder (e : Expr) : Bool :=
-    Option.isNone <| e.find? fun e =>
-      e.isApp && !e.getAppFn.isConst
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where
+  /-- When applied to `f`, effectively expands to `BaseStruct.fieldName (self := Struct.toBase f)`.
+  This is a special named argument where it suppresses any explicit arguments depending on it so that type parameters don't need to be supplied. -/
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
+  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for structure-like inductive types in general. -/
   | projIdx  (structName : Name) (idx : Nat)
+  /-- When applied to `f`, effectively expands to `constName ... (Struct.toBase f)`, with the argument placed in the correct
+  positional argument if possible, or otherwise as a named argument. The `Struct.toBase` is not present if `baseStructName == structName`,
+  in which case these do not need to be structures. Supports generalized field notation. -/
   | const    (baseStructName : Name) (structName : Name) (constName : Name)
-  | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
-
-private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
-  throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
-
-/--
-`findMethod? env S fName`.
-- If `env` contains `S ++ fName`, return `(S, S++fName)`
-- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
--/
-private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
-  let fullName := structName ++ fieldName
-  match env.find? fullName with
-  | some _ => some (structName, fullName)
-  | none   =>
-    let fullNamePrv := mkPrivateName env fullName
-    match env.find? fullNamePrv with
-    | some _ => some (structName, fullNamePrv)
-    | none   =>
-      if isStructure env structName then
-        (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
-      else
-        none
+  /-- Like `const`, but with `fvar` instead of `constName`.
+  The `baseName` is the base name of the type to search for in the parameter list. -/
+  | localRec (baseName : Name) (fvar : Expr)
 
 /--
-  Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and
-  `fullName` is of the form `structName' ++ fieldName`.
-
-  TODO: if there is more than one applicable alias, it returns `none`. We should consider throwing an error or
-  warning.
+`findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.
+If it resolves to `name`, returns `(S', name)`.
 -/
-private def findMethodAlias? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
-  let fullName := structName ++ fieldName
-  -- We never skip `protected` aliases when resolving dot-notation.
-  let aliasesCandidates := getAliases env fullName (skipProtected := false) |>.filterMap fun alias =>
-    match alias.eraseSuffix? fieldName with
-    | none => none
-    | some structName' => some (structName', alias)
-  match aliasesCandidates with
-  | [r] => some r
-  | _   => none
+private partial def findMethod? (structName fieldName : Name) : MetaM (Option (Name × Name)) := do
+  let env ← getEnv
+  let find? structName' : MetaM (Option (Name × Name)) := do
+    let fullName := privateToUserName structName' ++ fieldName
+    -- We do not want to make use of the current namespace for resolution.
+    let candidates :=
+      (← withTheReader Core.Context ({ · with currNamespace := .anonymous }) do
+        resolveGlobalName fullName)
+      |>.filter (fun (_, fieldList) => fieldList.isEmpty)
+      |>.map Prod.fst
+    match candidates with
+    | []          => return none
+    | [fullName'] => return some (structName', fullName')
+    | _ =>
+      let candidates := MessageData.joinSep (candidates.map (m!"`{.ofConstName ·}`")) ", "
+      throwError "Field name `{fieldName}` is ambiguous: `{fullName}` has possible interpretations {candidates}"
+  -- Optimization: the first element of the resolution order is `structName`,
+  -- so we can skip computing the resolution order in the common case
+  -- of the name resolving in the `structName` namespace.
+  find? structName <||> do
+    let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
+    for ns in resolutionOrder[1...resolutionOrder.size] do
+      if let some res ← find? ns then
+        return res
+    return none
 
-private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
-  throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
+/--
+If it seems that the user may be attempting to project out the `n`th element of a tuple, or that the
+nesting behavior of n-ary products is otherwise relevant, generates a corresponding hint; otherwise,
+produces an empty message.
+-/
+private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : TermElabM MessageData := do
+  let arity := prodArity eType
+  if arity > 1 then
+    let numComps := arity + 1
+    if idx ≤ numComps && ref.getHeadInfo matches .original .. then
+      let mut projComps := List.replicate (idx - 1) "2"
+      if idx < numComps then projComps := projComps ++ ["1"]
+      let proj := ".".intercalate projComps
+      let sug := { suggestion := proj, span? := ref,
+                   toCodeActionTitle? := some (s!"Change projection `{idx}` to `{·}`") }
+      MessageData.hint m!"n-tuples in Lean are actually nested pairs. To access the \
+        {idx.toOrdinal} component of this tuple, use the projection `.{proj}` instead:" #[sug]
+    else
+      return MessageData.hint' m!"n-tuples in Lean are actually nested pairs. For example, to access the \
+        \"third\" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`."
+  else
+    return MessageData.nil
+where
+  prodArity (type : Expr) :=
+    match type.prod? with
+    | none => 0
+    | some (_, p2) => prodArity p2 + 1
+
+/--
+For a fieldname `fieldName`, locate all the environment constants with that name
+-/
+private def reverseFieldLookup (env : Environment) (fieldName : String) :=
+  env.constants.fold (init := #[]) (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum)
+    |>.qsort (lt := Name.lt)
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
-  if eType.isForall then
-    match lval with
-    | LVal.fieldName _ fieldName _ _ =>
-      let fullName := Name.str `Function fieldName
-      if (← getEnv).contains fullName then
-        return LValResolution.const `Function `Function fullName
-    | _ => pure ()
-  match eType.getAppFn.constName?, lval with
-  | some structName, LVal.fieldIdx _ idx =>
+  match eType.getAppFn, lval with
+  | .const structName _, LVal.fieldIdx ref idx =>
     if idx == 0 then
-      throwError "invalid projection, index must be greater than 0"
+      throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
-    unless isStructureLike env structName do
-      throwLValError e eType "invalid projection, structure expected"
-    let numFields := getStructureLikeNumFields env structName
-    if idx - 1 < numFields then
-      if isStructure env structName then
-        let fieldNames := getStructureFields env structName
-        return LValResolution.projFn structName structName fieldNames[idx - 1]!
+    let failK _ := throwError  "Invalid projection: Projection operates on structure-like types \
+      with fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not \
+      have fields."
+
+    matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
+      let numFields := ctorVal.numFields
+      if idx - 1 < numFields then
+        if isStructure env structName then
+          let fieldNames := getStructureFields env structName
+          return LValResolution.projFn structName structName fieldNames[idx - 1]!
+        else
+          /- `structName` was declared using `inductive` command.
+            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
+          return LValResolution.projIdx structName (idx - 1)
       else
-        /- `structName` was declared using `inductive` command.
-           So, we don't projection functions for it. Thus, we use `Expr.proj` -/
-        return LValResolution.projIdx structName (idx - 1)
-    else
-      throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
-  | some structName, LVal.fieldName _ fieldName _ _ =>
+        if numFields == 0 then
+          throwError  m!"Invalid projection: Projection operates on structure-like types with \
+            fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
+        let tupleHint ← mkTupleHint eType idx ref
+        throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
+          {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"
+          ++ MessageData.note m!"The expression{indentExpr e}\nhas type{inlineExpr eType}which has only \
+          {numFields} field{numFields.plural}"
+          ++ tupleHint
+  | .const structName _, LVal.fieldName ref fieldName _ _ => withRef ref do
     let env ← getEnv
-    let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
-        return LValResolution.const baseStructName structName fullName
-      else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
-        return LValResolution.const structName' structName' fullName
-      else
-        throwLValError e eType
-          m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
-    -- search local context first, then environment
-    let searchCtx : Unit → TermElabM LValResolution := fun _ => do
-      let fullName := Name.mkStr structName fieldName
-      for localDecl in (← getLCtx) do
-        if localDecl.isAuxDecl then
-          if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
-            if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
-              /- LVal notation is being used to make a "local" recursive call. -/
-              return LValResolution.localRec structName fullName localDecl.toExpr
-      searchEnv ()
     if isStructure env structName then
-      match findField? env structName (Name.mkSimple fieldName) with
-      | some baseStructName => return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
-      | none                => searchCtx ()
-    else
-      searchCtx ()
-  | none, LVal.fieldName _ _ (some suffix) _ =>
-    if e.isConst then
-      throwUnknownConstant (e.constName! ++ suffix)
-    else
-      throwInvalidFieldNotation e eType
-  | _, _ => throwInvalidFieldNotation e eType
+      if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
+        return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
+    -- Search the local context first
+    let fullName := Name.mkStr (privateToUserName structName) fieldName
+    for localDecl in (← getLCtx) do
+      if localDecl.isAuxDecl then
+        if let some localDeclFullName := (← getLCtx).auxDeclToFullName.get? localDecl.fvarId then
+          if fullName == privateToUserName localDeclFullName then
+            /- LVal notation is being used to make a "local" recursive call. -/
+            return LValResolution.localRec structName localDecl.toExpr
+    -- Then search the environment
+    if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
+      return LValResolution.const baseStructName structName fullName
+    throwInvalidFieldAt ref fieldName fullName
+      -- Suggest a potential unreachable private name as hint. This does not cover structure
+      -- inheritance, nor `import all`.
+      (declHint := (mkPrivateName env structName).mkStr fieldName)
+
+  | .forallE .., LVal.fieldName ref fieldName suffix? fullRef =>
+    let fullName := Name.str `Function fieldName
+    if (← getEnv).contains fullName then
+      return LValResolution.const `Function `Function fullName
+    match e.getAppFn, suffix? with
+    | Expr.const c _, some suffix =>
+      throwUnknownNameWithSuggestions (idOrConst := "constant")  (ref? := fullRef) (c ++ suffix)
+    | _, _ =>
+      throwInvalidFieldAt ref fieldName fullName
+  | .forallE .., .fieldIdx .. =>
+    throwError "Invalid projection: Projections cannot be used on functions, and{indentExpr e}\n\
+      has function type{inlineExprTrailing eType}"
+
+  | .mvar .., .fieldName _ fieldName _ _ =>
+    let hint := match reverseFieldLookup (← getEnv) fieldName with
+      | #[] => MessageData.nil
+      | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
+      | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
+          {MessageData.joinSep (opts.toList.map (indentD m!"• `{.ofConstName ·}`")) .nil}"
+    throwNamedError lean.invalidField (m!"Invalid field notation: Type of{indentExpr e}\nis not \
+      known; cannot resolve field `{fieldName}`" ++ hint)
+  | .mvar .., .fieldIdx _ i  =>
+    throwError m!"Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve \
+      projection `{i}`"
+
+  | _, _ =>
+    match e.getAppFn, lval with
+    | Expr.const c _, .fieldName _ref _fieldName (some suffix) fullRef =>
+      throwUnknownNameWithSuggestions (idOrConst := "constant") (ref? := fullRef) (c ++ suffix)
+    | _, .fieldName .. =>
+      throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
+        types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
+        type{inlineExpr eType}which does not have the necessary form."
+    | _, .fieldIdx .. =>
+      throwError  m!"Invalid projection: Projection operates on types of the form `C ...` where C \
+        is a constant. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not have \
+        the necessary form."
+
+where
+  throwInvalidFieldAt {α : Type} (ref : Syntax) (fieldName : String) (fullName : Name)
+      (declHint := Name.anonymous) : TermElabM α := do
+    let msg ←
+      -- ordering: put decl hint, if any, last
+      mkUnknownIdentifierMessage (declHint := declHint)
+        m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`, so it is not \
+          possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
+          type{inlineExprTrailing eType}"
+
+    -- Possible alternatives provided with `@[suggest_for]` annotations
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix) |>.toArray
+    let suggestForHint ←
+      if h : suggestions.size = 0 then
+        pure .nil
+      else if suggestions.size = 1 then
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            preInfo? := .some s!".",
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
+            diffGranularity := .all,
+          })
+      else
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant one of these in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
+            messageData? := .some m!"`{.ofConstName suggestion}`",
+          })
+
+    -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
+    -- incorporated within the message, as required for the "import unknown identifier" code action.
+    -- The "outermost" lean.invalidField name is the only one that triggers an error explanation.
+    throwNamedErrorAt ref lean.invalidField (msg ++ suggestForHint)
+
 
 /-- whnfCore + implicit consumption.
    Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/
@@ -1111,7 +1474,7 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
       | _ => return (e, eType)
   | _ => return (e, eType)
 
-private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
+private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let (e, eType) ← consumeImplicits lval.getRef e eType hasArgs
   tryPostponeIfMVar eType
   /- If `eType` is still a metavariable application, we try to apply default instances to "unblock" it. -/
@@ -1125,93 +1488,163 @@ private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExce
     | ex@(Exception.error _ _) =>
       let eType? ← unfoldDefinition? eType
       match eType? with
-      | some eType => resolveLValLoop lval e eType (previousExceptions.push ex) hasArgs
-      | none       =>
-        previousExceptions.forM fun ex => logException ex
-        throw ex
+      | some eType => resolveLValLoop lval e eType hasArgs
+      | none       => throw ex
     | ex@(Exception.internal _ _) => throw ex
 
 private def resolveLVal (e : Expr) (lval : LVal) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let eType ← inferType e
-  resolveLValLoop lval e eType #[] hasArgs
+  resolveLValLoop lval e eType hasArgs
 
 private partial def mkBaseProjections (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
   let env ← getEnv
   match getPathToBaseStructure? env baseStructName structName with
-  | none => throwError "failed to access field in parent structure"
+  | none => throwError "Internal error: Failed to access field in parent structure"
   | some path =>
     let mut e := e
     for projFunName in path do
       let projFn ← mkConst projFunName
-      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
+      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e, suppressDeps := true }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
-private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
-  if baseName == `Function then
-    return (← whnfR type).isForall
-  else if type.cleanupAnnotations.isAppOf baseName then
-    return true
-  else
-    return (← whnfR type).isAppOf baseName
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool :=
+  withReducibleAndInstances do
+    if baseName == `Function then
+      return (← whnf type).isForall
+    else if type.cleanupAnnotations.isAppOf baseName then
+      return true
+    else
+      let type ← whnfCore type
+      if type.isAppOf baseName then
+        return true
+      else
+        match ← unfoldDefinition? type with
+        | some type' => typeMatchesBaseName type' baseName
+        | none => return false
 
-/-- Auxiliary method for field notation. It tries to add `e` as a new argument to `args` or `namedArgs`.
-   This method first finds the parameter with a type of the form `(baseName ...)`.
-   When the parameter is found, if it an explicit one and `args` is big enough, we add `e` to `args`.
-   Otherwise, if there isn't another parameter with the same name, we add `e` to `namedArgs`.
+/--
+Auxiliary method for field notation. Tries to add `e` as a new argument to `args` or `namedArgs`.
+This method first finds the parameter with a type of the form `(baseName ...)`.
+When the parameter is found, if it an explicit one and `args` is big enough, we add `e` to `args`.
+Otherwise, if there isn't another parameter with the same name, we add `e` to `namedArgs`.
 
-   Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (fType : Expr)
-    : TermElabM (Array Arg × Array NamedArg) :=
-  forallTelescopeReducing fType fun xs _ => do
-    let mut argIdx := 0 -- position of the next explicit argument
-    let mut remainingNamedArgs := namedArgs
-    for i in [:xs.size] do
-      let x := xs[i]!
-      let xDecl ← x.fvarId!.getDecl
-      /- If there is named argument with name `xDecl.userName`, then we skip it. -/
-      match remainingNamedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
-      | some idx =>
+Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors
+-/
+private partial def addLValArg (baseName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
+    MetaM (Array Arg × Array NamedArg) := do
+  withoutModifyingState <| go none f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
+where
+  /--
+  * `fPreCoercion?` keeps track of what `f` was originally, if there was a coercion. For error reporting.
+  * `argIdx` is the position into `args` for the next place an explicit argument can be inserted.
+  * `remainingNamedArgs` keeps track of named arguments that haven't been visited yet,
+    for handling the case where multiple parameters have the same name.
+  * `unusableNamedArgs` keeps track of names that can't be used as named arguments. This is initialized with user-provided named arguments.
+  * `allowNamed` is whether or not to allow using named arguments.
+    Disabled after using `CoeFun` since those parameter names unlikely to be meaningful,
+    and otherwise whether dot notation works or not could feel random.
+  -/
+  go (fPreCoercion? : Option Expr) (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
+    /- Use metavariables (rather than `forallTelescope`) to prevent `coerceToFunction?` from succeeding when multiple instances could apply -/
+    let (xs, bInfos, fType') ← forallMetaTelescope fType
+    let mut argIdx := argIdx
+    let mut remainingNamedArgs := remainingNamedArgs
+    let mut unusableNamedArgs := unusableNamedArgs
+    for x in xs, bInfo in bInfos do
+      let xDecl ← x.mvarId!.getDecl
+      if let some idx := remainingNamedArgs.findFinIdx? (·.name == xDecl.userName) then
+        /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
-      | none =>
-        let type := xDecl.type
-        if (← typeMatchesBaseName type baseName) then
-          /- We found a type of the form (baseName ...).
-             First, we check if the current argument is an explicit one,
-             and the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
-          if argIdx ≤ args.size && xDecl.binderInfo.isExplicit then
-            /- We insert `e` as an explicit argument -/
-            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
-          /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
-             if there isn't an argument with the same name occurring before it. -/
-          for j in [:i] do
-            let prev := xs[j]!
-            let prevDecl ← prev.fvarId!.getDecl
-            if prevDecl.userName == xDecl.userName then
-              throwError "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
-          return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
-        if xDecl.binderInfo.isExplicit then
-          -- advance explicit argument position
+      else
+        if ← typeMatchesBaseName xDecl.type baseName then
+          /- We found a type of the form (baseName ...), or we found the first explicit argument in useFirstExplicit mode.
+             First, we check if the current argument is one that can be used positionally,
+             and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
+          if h : argIdx ≤ args.size ∧ (explicit || bInfo.isExplicit) then
+            /- We can insert `e` as an explicit argument -/
+            return (args.insertIdx argIdx (Arg.expr e), namedArgs)
+          else
+            /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
+               if there isn't an argument with the same name occurring before it. -/
+            if !allowNamed || unusableNamedArgs.contains xDecl.userName then
+              throwUnusableParameter fPreCoercion? f allowNamed xDecl
+            else
+              return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
+        /- Advance `argIdx` and update seen named arguments. -/
+        if explicit || bInfo.isExplicit then
           argIdx := argIdx + 1
-    throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with a unique name"
+        unusableNamedArgs := unusableNamedArgs.push xDecl.userName
+    /- If named arguments aren't allowed, then it must still be possible to pass the value as an explicit argument.
+       Otherwise, we can abort now. -/
+    if allowNamed || argIdx ≤ args.size then
+      if let fType'@(.forallE ..) ← whnf fType' then
+        return ← go fPreCoercion? (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
+      if let some f' ← coerceToFunction? (mkAppN f xs) then
+        return ← go (fPreCoercion?.getD f) f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
+    let tyCtorMsg := MessageData.ofLazyM do
+      let some decl := (← getEnv).find? baseName | return .ofConstName baseName
+      if decl.type.isForall then
+        return m!"{.ofConstName baseName} ..."
+      else
+        return .ofConstName baseName
+    throwError m!"Invalid field notation: Function {funMsg fPreCoercion? f} does not have a usable \
+      parameter of type `{tyCtorMsg}` for which to substitute{inlineExprTrailing e}"
+      ++ .note m!"Such a parameter must be explicit, or implicit with a unique name, to be used by field notation"
+
+  funMsg (fPreCoercion? : Option Expr) (f : Expr) : MessageData :=
+    let msg (e : Expr) : MessageData :=
+      -- Eta reduce since often coercions are written with lambdas.
+      -- This might be somewhat misleading, since the lambda can rephrase parameters.
+      let e := e.getAppFn.eta
+      if let .const c .. := e then
+        -- avoid `@`
+        m!"`{.ofConstName c}`"
+      else
+        m!"`{e}`"
+    if let some fPreCoercion := fPreCoercion? then
+      m!"{msg f} (coerced from {msg fPreCoercion})"
+    else
+      msg f
+
+  throwUnusableParameter (fPreCoercion? : Option Expr) (f : Expr) (allowNamed : Bool) (xDecl : MetavarDecl) :=
+    let fmsg := funMsg fPreCoercion? f
+    let note : MessageData := if !allowNamed && !xDecl.userName.hasMacroScopes then
+      .note m!"Field notation cannot refer to parameter `{xDecl.userName}` \
+        by name because that constant was coerced to a function"
+    else if allowNamed then
+      let param := if xDecl.userName.hasMacroScopes then .nil else m!" `{xDecl.userName}`"
+      .note m!"The parameter{param} cannot be referred to by name \
+         because that function has a preceding parameter of the same name"
+    else .nil
+    -- Transforming field notation into direct application is too involved to offer a confident
+    -- concrete edit suggestion here
+    let hint := MessageData.hint' <|
+      m!"Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)" ++
+      if allowNamed then
+        m!" or changing the parameter names of the function to avoid this conflict"
+      else .nil
+    throwError m!"Invalid field notation: {fmsg} has a parameter with \
+      expected type{indentExpr xDecl.type}\nbut it cannot be used" ++ note ++ hint
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo
-    (stx            : Syntax)
-    (e              : Expr)
-    (expectedType?  : Option Expr := none)
-    (lctx?          : Option LocalContext := none)
-    (elaborator     : Name := Name.anonymous)
-    (isBinder force : Bool := false)
+    (stx               : Syntax)
+    (e                 : Expr)
+    (expectedType?     : Option Expr := none)
+    (lctx?             : Option LocalContext := none)
+    (elaborator        : Name := Name.anonymous)
+    (isBinder force    : Bool := false)
+    (isDisplayableTerm : Bool := false)
     : TermElabM Expr :=
-  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (fullRef := fullRef) .. := lval then
-      addDotCompletionInfo fullRef f expectedType?
+    if let LVal.fieldName (ref := ref) .. := lval then
+      addDotCompletionInfo ref f expectedType?
     let hasArgs := !namedArgs.isEmpty || !args.isEmpty
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
@@ -1221,45 +1654,41 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
-      if let some info := getFieldInfo? (← getEnv) baseStructName fieldName then
-        if isPrivateNameFromImportedModule (← getEnv) info.projFn then
-          throwError "field '{fieldName}' from structure '{structName}' is private"
-        let projFn ← mkConst info.projFn
-        let projFn ← addProjTermInfo lval.getRef projFn
-        if lvals.isEmpty then
-          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
-          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
-        else
-          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
-          loop f lvals
-      else
-        unreachable!
-    | LValResolution.const baseStructName structName constName =>
-      let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
-      let projFn ← mkConst constName
+      let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
+      if (← isInaccessiblePrivateName info.projFn) then
+        throwError "Field `{fieldName}` from structure `{structName}` is private"
+      let projFn ← withRef lval.getRef <| mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
-        let projFnType ← inferType projFn
-        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
+        let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
-    | LValResolution.localRec baseName fullName fvar =>
+    | LValResolution.const baseStructName structName constName =>
+      let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
+      let projFn ← withRef lval.getRef <| mkConst constName
+      let projFn ← addProjTermInfo lval.getRef projFn
+      if lvals.isEmpty then
+        let (args, namedArgs) ← addLValArg baseStructName f args namedArgs projFn explicit
+        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
+      else
+        let (args, namedArgs) ← addLValArg baseStructName f #[] #[] projFn (explicit := false)
+        let f ← elabAppArgs projFn namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
+        loop f lvals
+    | LValResolution.localRec baseName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
       if lvals.isEmpty then
-        let fvarType ← inferType fvar
-        let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
+        let (args, namedArgs) ← addLValArg baseName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseName f #[] #[] fvar (explicit := false)
+        let f ← elabAppArgs fvar namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals
 
 private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
-  if !lvals.isEmpty && explicit then
-    throwError "invalid use of field notation with `@` modifier"
   elabAppLValsAux namedArgs args expectedType? explicit ellipsis f lvals
 
 def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
@@ -1286,17 +1715,21 @@ false, no elaboration function executed by `x` will reset it to
 `true`.
 -/
 
-private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
-    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr))
-    : TermElabM (Array (TermElabResult Expr)) := do
-  let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
-  let overloaded := overloaded || funLVals.length > 1
-  -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
-  withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
-    funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
+/--
+Elaborates the resolutions of a function. The `fns` array is the output of `resolveName'`.
+-/
+private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × List Syntax)) (lvals : List LVal)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
+    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) :
+    TermElabM (Array (TermElabResult Expr)) := do
+  let overloaded := overloaded || fns.length > 1
+  -- Set `errToSorry` to `false` if `fns` > 1. See comment above about the interaction between `errToSorry` and `observing`.
+  withReader (fun ctx => { ctx with errToSorry := fns.length == 1 && ctx.errToSorry }) do
+    fns.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       let lvals' := toLVals fields (first := true)
       let s ← observing do
-        let f ← addTermInfo fIdent f expectedType?
+        checkDeprecated fIdent f
+        let f ← addTermInfo fIdent f expectedType? (force := forceTermInfo)
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else return e
       return acc.push s
@@ -1309,33 +1742,108 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fIdent :: toLVals fields false
-    | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fRef :: toLVals fields false
+    | field::fields, false => .fieldName field field.getId.getString! none fRef :: toLVals fields false
 
-/-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
-private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
+private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
+    (acc : Array (TermElabResult Expr)) :
+    TermElabM (Array (TermElabResult Expr)) := do
+  let (n, fRes) ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  if fRes.isEmpty then throwUnknownIdWithSuggestions n
+  elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+where
+  throwUnknownIdWithSuggestions (n : Name) := withRef fIdent do
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
+        throwUnknownNameWithSuggestions (declHint := npriv) n
+    if !(← read).autoBoundImplicitForbidden n then
+      if (← read).autoBoundImplicitContext.isSome then
+        let allowed := autoImplicit.get (← getOptions)
+        let relaxed := relaxedAutoImplicit.get (← getOptions)
+        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
+          | .ok true => throwAutoBoundImplicitLocal n
+          | .ok false => throwUnknownNameWithSuggestions n
+          | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
+    throwUnknownNameWithSuggestions n
+
+/--
+Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.
+
+To infer a namespace from the expected type, we do the following operations:
+- put it into WHNF using `whnfCore`, while consuming annotations
+- enter the bodies of pi types
+- if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
+  and if that doesn't work, try unfolding the expression and continuing.
+-/
+private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+  unless id.isAtomic do
+    throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
-    | throwError "invalid dotted identifier notation, expected type must be known"
-  forallTelescopeReducing expectedType fun _ resultType => do
+    | throwNoExpectedType
+  addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
+  withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
-  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
+  throwNoExpectedType := do
+    let hint ← match reverseFieldLookup (← getEnv) (id.getString!) with
+      | #[] => pure MessageData.nil
+      | suggestions =>
+        let oneOfThese := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}" else m!"one of these"
+        m!"Using {oneOfThese} would be unambiguous:".hint (suggestions.map fun suggestion => {
+          suggestion := mkIdent suggestion
+          toCodeActionTitle? := .some (s!"Change to {·}")
+          messageData? := .some m!"`{.ofConstName suggestion}`",
+        })
+    throwNamedError lean.invalidDottedIdent (m!"Invalid dotted identifier notation: The expected type of `.{id}` could not be determined" ++ hint)
+  /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
+  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+    let type ← whnfCoreUnfoldingAnnotations type
+    if type.isForall then
+      forallTelescope type fun _ body => do
+        withForallBody body k
+    else
+      k type
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM (List (Expr × Syntax × List Syntax)) := do
     let resultType ← instantiateMVars resultType
-    let resultTypeFn := resultType.cleanupAnnotations.getAppFn
+    let resultTypeFn := resultType.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      let .const declName .. := resultTypeFn.cleanupAnnotations
-        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
-      let idNew := declName ++ id.getId.eraseMacroScopes
-      unless (← getEnv).contains idNew do
-        throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-      return idNew
+      match resultTypeFn with
+      | .const declName .. =>
+        let env ← getEnv
+        if (← isInaccessiblePrivateName declName) then
+          throwError "The private declaration `{.ofConstName declName}` is not accessible in the current context"
+        -- Recall that the namespace for private declarations is non-private.
+        let fullName := privateToUserName declName ++ id
+        -- Resolve the name without making use of the current namespace, like in `findMethod?`.
+        let candidates := ResolveName.resolveGlobalName env (← getOptions) Name.anonymous (← getOpenDecls) fullName
+          |>.filter (fun (_, fieldList) => fieldList.isEmpty)
+          |>.map Prod.fst
+        if !candidates.isEmpty then
+          candidates.mapM fun resolvedName => return (← mkConst resolvedName, ← getRef, [])
+        else if let some (fvar, []) ← resolveLocalName fullName then
+          return [(fvar, ← getRef, [])]
+        else
+          throwUnknownIdentifierAt (← getRef) (declHint := fullName) <| m!"Unknown constant `{.ofConstName fullName}`"
+            ++ .note m!"Inferred this name from the expected resulting type of `.{id}`:{indentExpr expectedType}"
+      | .sort .. =>
+        throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: Not supported on type universe{indentExpr resultTypeFn}"
+      | _ =>
+        if expectedType.getAppFn.isMVar then
+          throwNoExpectedType
+        else
+          throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}`{indentExpr expectedType}\n\
+            is not of the form `C ...` or `... → C ...` where C is a constant"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
         | some resultType =>
-          go (← whnfCore resultType) expectedType (previousExceptions.push ex)
+          withForallBody resultType fun resultType => do
+            go resultType expectedType (previousExceptions.push ex)
         | none =>
           previousExceptions.forM fun ex => logException ex
           throw ex
@@ -1348,21 +1856,25 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
   else
-    let elabFieldName (e field : Syntax) := do
+    let elabFieldName (e field : Syntax) (explicit : Bool) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
         LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    let elabFieldIdx (e idxStx : Syntax) := do
-      let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
+    let elabFieldIdx (e idxStx : Syntax) (explicit : Bool) := do
+      let some idx := idxStx.isFieldIdx?
+        | throwError "Internal error: Unexpected field index syntax `{idxStx}`"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
-    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
-    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
-    | `($(e).$field:ident) => elabFieldName e field
-    | `($e |>.$field:ident) => elabFieldName e field
+    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($(e).$field:ident) => elabFieldName e field explicit
+    | `($e |>.$field:ident) => elabFieldName e field explicit
+    | `(@$(e).$idx:fieldIdx) => elabFieldIdx e idx (explicit := true)
+    | `(@$(e).$field:ident) => elabFieldName e field (explicit := true)
     | `($_:ident@$_:term) =>
-      throwError "unexpected occurrence of named pattern"
+      throwError m!"Expected a function, but found the named pattern{indentD f}"
+        ++ .note m!"Named patterns `<identifier>@<term>` can only be used when pattern-matching"
     | `($id:ident) => do
       elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($id:ident.{$us,*}) => do
@@ -1373,16 +1885,11 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_:ident.{$_us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
-    | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
+    | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
-        addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
-        let fConst ← mkConst (← resolveDotName id expectedType?)
-        let s ← observing do
-          -- Use (force := true) because we want to record the result of .ident resolution even in patterns
-          let fConst ← addTermInfo f fConst expectedType? (force := true)
-          let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
-          if overloaded then ensureHasType expectedType? e else return e
-        return acc.push s
+        let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes expectedType?
+        -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
+        elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
@@ -1428,14 +1935,41 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
           return false
       return true
     | _ => return false
-  if r₂.size == 0 then return r₁ else return r₂
-
+  if r₂.size == 0 then
+    return r₁
+  if r₂.size == 1 then
+    return r₂
+  /-
+  If there are still more than one solution, discard solutions that have pending metavariables.
+  We added this extra filter to address regressions introduced after fixing
+  `isDefEqStuckEx` behavior at `ExprDefEq.lean`.
+  -/
+  let r₂ ← candidates.filterM fun
+    | .ok _ s => do
+      try
+        s.restore
+        synthesizeSyntheticMVars (postpone := .no)
+        return true
+      catch _ =>
+        return false
+    | _ => return false
+  if r₂.size == 0 then
+    return r₁
+  return r₂
 /--
   Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
   We use a nested error message to aggregate the exceptions produced by each failure.
 -/
 private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
+  let trees := failures.map (fun | .error _ s => s.meta.core.infoState.trees | _ => unreachable!)
+    |>.filterMap (·[0]?)
+  -- Retain partial `InfoTree` subtrees in an `.ofChoiceInfo` node in case of multiple failures.
+  -- This ensures that the language server still has `Info` to work with when multiple overloaded
+  -- elaborators fail.
+  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
+    for tree in trees do
+      pushInfoTree tree
   throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -1453,7 +1987,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
         match success with
         | .ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
         | _       => unreachable!
-      throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
+      throwErrorAt f "Ambiguous term{indentD f}\nPossible interpretations:{toMessageList msgs}"
     else
       withRef f <| mergeFailures candidates
 
@@ -1487,16 +2021,21 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 @[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
 @[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 @[builtin_term_elab pipeProj] def elabPipeProj : TermElab
-  | `($e |>.$f $args*), expectedType? =>
+  | `($e |>.%$tk$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
-      elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
+      let mut stx ← `($e |>.%$tk$f)
+      if let (some startPos, some stopPos) := (e.raw.getPos?, f.raw.getTailPos?) then
+        stx := ⟨stx.raw.setInfo <| .synthetic (canonical := true) startPos stopPos⟩
+      elabAppAux stx namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident)          => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@$(_).$_:fieldIdx)  => elabAtom stx expectedType?
+  | `(@$(_).$_:ident)     => elabAtom stx expectedType?
   | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
   | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                    => throwUnsupportedSyntax
@@ -1509,5 +2048,6 @@ builtin_initialize
   registerTraceClass `Elab.app.args (inherited := true)
   registerTraceClass `Elab.app.propagateExpectedType (inherited := true)
   registerTraceClass `Elab.app.finalize (inherited := true)
+  registerTraceClass `Elab.app.elab_as_elim (inherited := true)
 
 end Lean.Elab.Term

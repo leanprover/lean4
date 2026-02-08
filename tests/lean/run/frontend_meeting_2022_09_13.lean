@@ -60,7 +60,7 @@ end
 open Lean Elab Command in
 @[command_elab commandComment] def elabCommandComment : CommandElab := fun stx => do
    let .atom _ val := stx[1] | return ()
-   let str := val.extract 0 (val.endPos - ⟨3⟩)
+   let str := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨3⟩)
    IO.println s!"str := {repr str}"
 
 //- My command comment hello world -//
@@ -85,15 +85,45 @@ elab "seq" s:tacticSeq : tactic => do
     withRef tac <| addRawTrace (goalsToMessageData gs)
     evalTactic tac
 
+/--
+trace: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+trace: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq rw [h]; rw [Nat.zero_add]
   done
 
+/--
+trace: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+trace: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq rw [h]
       rw [Nat.zero_add]
   done
 
+/--
+trace: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+trace: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq { rw [h]; rw [Nat.zero_add] }
   done

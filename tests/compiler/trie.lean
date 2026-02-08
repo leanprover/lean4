@@ -43,14 +43,14 @@ def T.insert : T → String → T := fun (t,a) s =>
 def Array.sorted : Array String → Array String := fun a =>
   a.qsort (fun s1 s2 => s1 < s2)
 
-/-- The intendend semanics of `Trie.findPrefix` -/
+/-- The intended semanics of `Trie.findPrefix` -/
 def Array.findPrefix : Array String → String → Array String := fun a s =>
   a.filter (fun s' => s.isPrefixOf s')
 
-/-- The intendend semanics of `Trie.matchPrefix`: Longest prefix found in trie -/
+/-- The intended semanics of `Trie.matchPrefix`: Longest prefix found in trie -/
 def Array.matchPrefix : Array String → String → Option String := fun a s => Id.run do
   for i in List.reverse (List.range (s.length + 1)) do
-    let pfix := s.take i
+    let pfix := s.take i |>.copy
     if let some _ := a.find? (· == pfix) then
       return some  pfix
   return none
@@ -70,7 +70,7 @@ def T.check : T → IO Unit := fun (t,a) => do
     unless t.matchPrefix s 0 = a.matchPrefix s do
       IO.println s!"matchPrefix differs: key = {s}, got: {t.matchPrefix s 0} exp: {a.matchPrefix s} "
     let s' := "somePrefix" ++ s
-    unless t.matchPrefix s' ((0 : String.Pos) + "somePrefix") = a.matchPrefix s do
+    unless t.matchPrefix s' ((0 : String.Pos.Raw) + "somePrefix") = a.matchPrefix s do
       IO.println s!"matchPrefix differs (with prefix): key = {s}"
 
 def main : IO Unit := do

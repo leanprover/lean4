@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.PersistentHashMap
+public import Lean.Data.PersistentHashMap
+
+public section
 
 namespace Lean
 universe u v
@@ -41,14 +45,26 @@ variable {_ : BEq α} {_ : Hashable α}
   | some (a, _) => some a
   | none        => none
 
+@[inline] def findD (s : PersistentHashSet α) (a : α) (a₀ : α) : α :=
+  s.set.findKeyD a a₀
+
 @[inline] def contains (s : PersistentHashSet α) (a : α) : Bool :=
   s.set.contains a
 
-@[inline] def size (s : PersistentHashSet α) : Nat :=
-  s.set.size
-
-@[inline] def foldM {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (init : β) (s : PersistentHashSet α) : m β :=
+@[inline] def foldM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (s : PersistentHashSet α) : m β :=
   s.set.foldlM (init := init) fun d a _ => f d a
 
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (s : PersistentHashSet α) : β :=
-  Id.run $ s.foldM f init
+  Id.run $ s.foldM (pure <| f · ·) init
+
+def toList (s : PersistentHashSet α) : List α :=
+  s.set.toList.map (·.1)
+
+protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
+    (s : PersistentHashSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do
+  PersistentHashMap.forIn s.set init fun p s => f p.1 s
+
+instance {_ : BEq α} {_ : Hashable α} [Monad m] : ForIn m (PersistentHashSet α) α where
+  forIn := PersistentHashSet.forIn
+
+end PersistentHashSet

@@ -1,5 +1,11 @@
+/--
+trace: x y : Nat
+h : y = 0
+⊢ id (2 * x + y) = id (2 * x)
+-/
+#guard_msgs in
 example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
-  simp_arith only
+  simp +arith only
   /-
   This is a test for a `simp` cache issue where the following incorrect goal was being
   produced.
@@ -15,5 +21,5 @@ example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
   simp [h]
 
 example (x y : Nat) (h : y = 0) : id (x + x) = id ((x + x) + y) := by
-  simp_arith only
+  simp +arith only
   simp [h]

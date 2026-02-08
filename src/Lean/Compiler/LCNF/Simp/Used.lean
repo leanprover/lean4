@@ -3,8 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+import Init.Omega
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -17,27 +22,20 @@ def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
 /--
-Mark all free variables occurring in `type` as used.
-This is information is used to eliminate dead local declarations.
--/
-def markUsedType (type : Expr) : SimpM Unit :=
-  modify fun s => { s with used := collectLocalDeclsType s.used type }
-
-/--
 Mark all free variables occurring in `arg` as used.
 -/
-def markUsedArg (arg : Arg) : SimpM Unit :=
+def markUsedArg (arg : Arg .pure) : SimpM Unit :=
   match arg with
   | .fvar fvarId => markUsedFVar fvarId
-  | .type type => markUsedType type
-  | .erased => return ()
+  -- Locally declared variables do not occur in types.
+  | .type _ | .erased => return ()
 
 /--
 Mark all free variables occurring in `e` as used.
 -/
-def markUsedLetValue (e : LetValue) : SimpM Unit := do
+def markUsedLetValue (e : LetValue .pure) : SimpM Unit := do
   match e with
-  | .value .. | .erased => return ()
+  | .lit .. | .erased => return ()
   | .proj _ _ fvarId => markUsedFVar fvarId
   | .const _ _ args => args.forM markUsedArg
   | .fvar fvarId args => markUsedFVar fvarId; args.forM markUsedArg
@@ -46,14 +44,14 @@ def markUsedLetValue (e : LetValue) : SimpM Unit := do
 Mark all free variables occurring on the right-hand side of the given let declaration as used.
 This is information is used to eliminate dead local declarations.
 -/
-def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
+def markUsedLetDecl (letDecl : LetDecl .pure) : SimpM Unit :=
   markUsedLetValue letDecl.value
 
 mutual
 /--
 Mark all free variables occurring in `code` as used.
 -/
-partial def markUsedCode (code : Code) : SimpM Unit := do
+partial def markUsedCode (code : Code .pure) : SimpM Unit := do
   match code with
   | .let decl k => markUsedLetDecl decl; markUsedCode k
   | .jp decl k | .fun decl k => markUsedFunDecl decl; markUsedCode k
@@ -65,7 +63,7 @@ partial def markUsedCode (code : Code) : SimpM Unit := do
 /--
 Mark all free variables occurring in `funDecl` as used.
 -/
-partial def markUsedFunDecl (funDecl : FunDecl) : SimpM Unit :=
+partial def markUsedFunDecl (funDecl : FunDecl .pure) : SimpM Unit :=
   markUsedCode funDecl.value
 end
 
@@ -84,10 +82,10 @@ let _x.2 := true
 <code>
 ```
 -/
-def attachCodeDecls (decls : Array CodeDecl) (code : Code) : SimpM Code := do
+def attachCodeDecls (decls : Array (CodeDecl .pure)) (code : Code .pure) : SimpM (Code .pure) := do
   go decls.size code
 where
-  go (i : Nat) (code : Code) : SimpM Code := do
+  go (i : Nat) (code : Code .pure) : SimpM (Code .pure) := do
     if i > 0 then
       let decl := decls[i-1]!
       if (← isUsed decl.fvarId) then

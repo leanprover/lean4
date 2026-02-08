@@ -4,7 +4,7 @@ def fact : Nat → Nat
 
 #check fact 6
 
-#eval fact 10
+#guard fact 10 == 3628800
 
 -- set_option pp.all true
 theorem tst1 : 100000000000 + 200000000000 = 300000000000 :=
@@ -43,4 +43,6 @@ by decide
 theorem tst12 : 'a' ≠ 'c' :=
 by decide
 
+/-- info: tst10 : "helloWorld" ≠ "helloworld" -/
+#guard_msgs in
 #check tst10

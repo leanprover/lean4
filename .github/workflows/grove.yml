@@ -1,0 +1,162 @@
+name: Grove
+
+on:
+  workflow_run: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  grove-build:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'leanprover/lean4'
+
+    steps:
+      - name: Retrieve information about the original workflow
+        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        # This action is deprecated and archived, but it seems hard to find a
+        # better solution for getting the PR number
+        # see https://github.com/orgs/community/discussions/25220 for some discussion
+        id: workflow-info
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+
+      - name: Check if should run
+        id: should-run
+        run: |
+          # Check if it's a push to master (no PR number and target branch is master)
+          if [ -z "${{ steps.workflow-info.outputs.pullRequestNumber }}" ]; then
+            if [ "${{ github.event.workflow_run.head_branch }}" = "master" ]; then
+              echo "Push to master detected. Running Grove."
+              echo "should-run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Push to non-master branch, skipping"
+              echo "should-run=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            # Check if it's a PR with grove label
+            PR_LABELS='${{ steps.workflow-info.outputs.pullRequestLabels }}'
+            if echo "$PR_LABELS" | grep -q '"grove"'; then
+              echo "PR with grove label detected. Running Grove."
+              echo "should-run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "PR without grove label, skipping"
+              echo "should-run=false" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Fetch upstream invalidated facts
+        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: fetch-upstream
+        uses: TwoFx/grove-action/fetch-upstream@v0.5
+        with:
+          artifact-name: grove-invalidated-facts
+          base-ref: master
+
+      - name: Download toolchain for this commit
+        if: ${{ steps.should-run.outputs.should-run == 'true' }}
+        id: download-toolchain
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
+          workflow: ci.yml
+          path: artifacts
+          name: "build-Linux release"
+          allow_forks: true
+          name_is_regexp: true
+
+      - name: Unpack toolchain
+        if: ${{ steps.should-run.outputs.should-run == 'true' }}
+        id: unpack-toolchain
+        run: |
+          cd artifacts
+          # Find the tar.zst file
+          TAR_FILE=$(find . -name "lean-*.tar.zst" -type f | head -1)
+          if [ -z "$TAR_FILE" ]; then
+            echo "Error: No lean-*.tar.zst file found"
+            exit 1
+          fi
+          echo "Found archive: $TAR_FILE"
+
+          # Extract the archive
+          tar --zstd -xf "$TAR_FILE"
+
+          # Find the extracted directory name
+          LEAN_DIR=$(find . -maxdepth 1 -name "lean-*" -type d | head -1)
+          if [ -z "$LEAN_DIR" ]; then
+            echo "Error: No lean-* directory found after extraction"
+            exit 1
+          fi
+          echo "Extracted directory: $LEAN_DIR"
+          echo "lean-dir=$LEAN_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        if: ${{ steps.should-run.outputs.should-run == 'true' }}
+        id: build
+        uses: TwoFx/grove-action/build@v0.5
+        with:
+          project-path: doc/std/grove
+          script-name: grove-stdlib
+          invalidated-facts-artifact-name: grove-invalidated-facts
+          comment-artifact-name: grove-comment
+          toolchain-id: lean4
+          toolchain-path: artifacts/${{ steps.unpack-toolchain.outputs.lean-dir }}
+          project-ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
+
+      # deploy-alias computes a URL component for the PR preview. This
+      # is so we can have a stable name to use for feedback on draft
+      # material.
+      - id: deploy-alias
+        if: ${{ steps.should-run.outputs.should-run == 'true' }}
+        uses: actions/github-script@v8
+        name: Compute Alias
+        with:
+          result-encoding: string
+          script: |
+            if (process.env.PR) {
+                return `pr-${process.env.PR}`
+            } else {
+                return 'deploy-preview-main';
+            }
+        env:
+          PR: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      - name: Deploy to Netlify
+        if: ${{ steps.should-run.outputs.should-run == 'true' }}
+        id: deploy-draft
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: ${{ steps.build.outputs.out-path }}
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          alias: ${{ steps.deploy-alias.outputs.result }}
+          enable-commit-comment: false
+          enable-pull-request-comment: false
+          fails-without-credentials: true
+          enable-github-deployment: false
+          enable-commit-status: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: "1cacfa39-a11c-467c-99e7-2e01d7b4089e"
+
+      # actions-netlify cannot add deploy links to a PR because it assumes a
+      # pull_request context, not a workflow_run context, see
+      # https://github.com/nwtgck/actions-netlify/issues/545
+      # We work around by using a comment to post the latest link
+      - name: "Comment on PR with preview links"
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
+        with:
+          number: ${{ env.PR_NUMBER }}
+          header: preview-comment
+          recreate: true
+          message: |
+            [Grove](${{ steps.deploy-draft.outputs.deploy-url }}) for revision ${{ steps.workflow-info.outputs.sourceHeadSha }}.
+
+            ${{ steps.build.outputs.comment-text }}
+        env:
+          PR_NUMBER: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          PR_HEADSHA: ${{ steps.workflow-info.outputs.sourceHeadSha }}

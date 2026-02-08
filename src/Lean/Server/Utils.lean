@@ -4,13 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.Uri
-import Lean.Data.Lsp.Communication
-import Lean.Data.Lsp.Diagnostics
-import Lean.Data.Lsp.Extra
-import Lean.Data.Lsp.TextSync
-import Lean.Server.InfoUtils
+public import Init.System.Uri
+public import Lean.Data.Lsp.Communication
+public import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.InfoUtils
+
+public section
 
 namespace IO
 
@@ -73,9 +76,18 @@ namespace Lean.Server
 structure DocumentMeta where
   /-- URI where the document is located. -/
   uri                 : Lsp.DocumentUri
+  /--
+  Module name corresponding to `uri`.
+  We store the module name instead of recomputing it as needed to ensure that we can still
+  determine the original module name even when the file has been deleted in the mean-time.
+  -/
+  mod                 : Name
   /-- Version number of the document. Incremented whenever the document is edited. -/
   version             : Nat
-  /-- Current text of the document. -/
+  /--
+  Current text of the document.
+  It is maintained such that it is normalized using `String.crlfToLf`, which preserves logical line/column numbers.
+  (Note: we assume that edit operations never split or merge `\r\n` line endings.) -/
   text                : FileMap
   /--
   Controls when dependencies of the document are built on `textDocument/didOpen` notifications.
@@ -84,10 +96,11 @@ structure DocumentMeta where
   deriving Inhabited
 
 /-- Extracts an `InputContext` from `doc`. -/
-def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
-  input    := doc.text.source
-  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
-  fileMap  := doc.text
+def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext :=
+  .mk
+    (input := doc.text.source)
+    (fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString)
+    (fileMap  := doc.text)
 
 /--
 Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)
@@ -96,27 +109,15 @@ with `newText`.
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
-  let pre := text.source.extract 0 start
-  let post := text.source.extract «end» text.source.endPos
-  (pre ++ newText ++ post).toFileMap
+  let pre := String.Pos.Raw.extract text.source 0 start
+  let post := String.Pos.Raw.extract text.source «end» text.source.rawEndPos
+  -- `pre` and `post` already have normalized line endings, so only `newText` needs its endings normalized.
+  -- Note: this assumes that editing never separates a `\r\n`.
+  -- If `pre` ends with `\r` and `newText` begins with `\n`, the result is potentially inaccurate.
+  -- If this is ever a problem, we could store a second unnormalized FileMap, edit it, and normalize it here.
+  (pre ++ newText.crlfToLf ++ post).toFileMap
 
 open IO
-
-/--
-Duplicates an I/O stream to a log file `fName` in LEAN_SERVER_LOG_DIR
-if that envvar is set.
--/
-def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := do
-  match (← IO.getEnv "LEAN_SERVER_LOG_DIR") with
-  | none => pure h
-  | some logDir =>
-    IO.FS.createDirAll logDir
-    let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write
-    let hTee := FS.Stream.ofHandle hTee
-    pure $ if isOut then
-      hTee.chainLeft h true
-    else
-      h.chainRight hTee true
 
 open Lsp
 
@@ -125,7 +126,7 @@ def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentC
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
     replaceLspRange oldText range newText
   | TextDocumentContentChangeEvent.fullChange (newText : String) =>
-    newText.toFileMap
+    newText.crlfToLf.toFileMap
 
 /-- Returns the document contents with all changes applied. -/
 def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
@@ -151,10 +152,10 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
   }
 
 /-- Constructs a `$/lean/fileProgress` notification from the given position onwards. -/
-def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos)
+def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos.Raw)
   (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
     JsonRpc.Notification Lsp.LeanFileProgressParams :=
-  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
+  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.rawEndPos⟩, kind := kind }]
 
 /-- Constructs a `$/lean/fileProgress` notification marking processing as done. -/
 def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
@@ -165,24 +166,44 @@ def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
     JsonRpc.Request ApplyWorkspaceEditParams :=
   ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
 
+private def externalUriToName (uri : DocumentUri) : Lean.Name :=
+  .str .anonymous s!"external:{uri}"
+
+private def externalNameToUri? (name : Lean.Name) : Option DocumentUri := do
+  let .str .anonymous name := name
+    | none
+  let uri ← name.dropPrefix? "external:"
+  return uri.toString
+
+/--
+Finds the URI corresponding to `modName` in `searchSearchPath`.
+Yields `none` if the file corresponding to `modName` has been deleted in the mean-time.
+-/
+def documentUriFromModule? (modName : Name) : IO (Option DocumentUri) := do
+  if let some uri := externalNameToUri? modName then
+    return uri
+  let some path ← (← getSrcSearchPath).findModuleWithExt "lean" modName
+    | return none
+  -- Resolve symlinks (such as `src` in the build dir) so that files are opened
+  -- in the right folder
+  let path ← IO.FS.realPath path
+  return some <| System.Uri.pathToUri path
+
+/-- Finds the module name corresponding to `uri` in `srcSearchPath`. -/
+def moduleFromDocumentUri (uri : DocumentUri) : IO Name := do
+  let some path := System.Uri.fileUriToPath? uri
+    | return externalUriToName uri
+  if path.extension != "lean" then
+    return externalUriToName uri
+  let some modNameInPath ← searchModuleNameOfFileName path (← getSrcSearchPath)
+    | return externalUriToName uri
+  return modNameInPath
+
 end Lean.Server
 
 /--
-Converts an UTF-8-based `String.range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
+Converts an UTF-8-based `Lean.Syntax.Range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
 in `text`.
 -/
-def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+def Lean.Syntax.Range.toLspRange (text : Lean.FileMap) (r : Lean.Syntax.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩
-
-open Lean in
-/--
-Attempts to find a module name in the roots denoted by `srcSearchPath` for `uri`.
-Fails if `uri` is not a `file://` uri or if the given `uri` cannot be found in `srcSearchPath`.
--/
-def System.SearchPath.searchModuleNameOfUri
-    (srcSearchPath : SearchPath)
-    (uri           : Lsp.DocumentUri)
-    : IO (Option Name) := do
-  let some path := Uri.fileUriToPath? uri
-    | return none
-  searchModuleNameOfFileName path srcSearchPath

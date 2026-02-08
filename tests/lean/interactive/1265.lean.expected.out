@@ -1,172 +1,82 @@
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
- [{"sortText": "0",
-   "label": "expandInterpolatedStr",
+ [{"label": "getScientific",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}}}},
-  {"sortText": "1",
-   "label": "getChar",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getScientific"]},
+  {"label": "getString",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getChar"}}}},
-  {"sortText": "2",
-   "label": "getDocString",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getString"]},
+  {"label": "getNat",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getDocString"}}}},
-  {"sortText": "3",
-   "label": "getHygieneInfo",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getNat"]},
+  {"label": "getName",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}}}},
-  {"sortText": "4",
-   "label": "getId",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getName"]},
+  {"label": "getHexNumVal",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getId"}}}},
-  {"sortText": "5",
-   "label": "getName",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getHexNumVal"]},
+  {"label": "getChar",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getName"}}}},
-  {"sortText": "6",
-   "label": "getNat",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getNat"}}}},
-  {"sortText": "7",
-   "label": "getScientific",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}}}},
-  {"sortText": "8",
-   "label": "getString",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getString"}}}},
-  {"sortText": "9",
-   "label": "raw",
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getChar"]},
+  {"label": "raw",
    "kind": 5,
-   "documentation":
-   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.raw"]},
+  {"label": "getHexNumSize",
+   "kind": 3,
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getHexNumSize"]},
+  {"label": "getDocString",
+   "kind": 3,
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getDocString"]},
+  {"label": "expandInterpolatedStr",
+   "kind": 3,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.raw"}}}}],
- "isIncomplete": true}
+   ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.expandInterpolatedStr"]},
+  {"label": "getHygieneInfo",
+   "kind": 3,
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getHygieneInfo"]},
+  {"label": "getId",
+   "kind": 3,
+   "data": ["file:///1265.lean", 0, 51, 1, "cLean.TSyntax.getId"]}],
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
- [{"sortText": "0",
-   "label": "expandInterpolatedStr",
+ [{"label": "getScientific",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}}}},
-  {"sortText": "1",
-   "label": "getChar",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getScientific"]},
+  {"label": "getString",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getChar"}}}},
-  {"sortText": "2",
-   "label": "getDocString",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getString"]},
+  {"label": "getNat",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getDocString"}}}},
-  {"sortText": "3",
-   "label": "getHygieneInfo",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getNat"]},
+  {"label": "getName",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}}}},
-  {"sortText": "4",
-   "label": "getId",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getName"]},
+  {"label": "getHexNumVal",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getId"}}}},
-  {"sortText": "5",
-   "label": "getName",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getHexNumVal"]},
+  {"label": "getChar",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getName"}}}},
-  {"sortText": "6",
-   "label": "getNat",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getNat"}}}},
-  {"sortText": "7",
-   "label": "getScientific",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}}}},
-  {"sortText": "8",
-   "label": "getString",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getString"}}}},
-  {"sortText": "9",
-   "label": "raw",
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getChar"]},
+  {"label": "raw",
    "kind": 5,
-   "documentation":
-   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.raw"]},
+  {"label": "getHexNumSize",
+   "kind": 3,
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getHexNumSize"]},
+  {"label": "getDocString",
+   "kind": 3,
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getDocString"]},
+  {"label": "expandInterpolatedStr",
+   "kind": 3,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.raw"}}}}],
- "isIncomplete": true}
+   ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.expandInterpolatedStr"]},
+  {"label": "getHygieneInfo",
+   "kind": 3,
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getHygieneInfo"]},
+  {"label": "getId",
+   "kind": 3,
+   "data": ["file:///1265.lean", 2, 53, 1, "cLean.TSyntax.getId"]}],
+ "isIncomplete": false}

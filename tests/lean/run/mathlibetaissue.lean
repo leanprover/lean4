@@ -42,22 +42,8 @@ class RatCast (K : Type u) where
 
 end Std.Classes.RatCast
 
-section Mathlib.Init.ZeroOne
-
-class Zero.{u} (α : Type u) where
-  zero : α
-instance Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-class One (α : Type u) where
-  one : α
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
 
-class Inv (α : Type u) where
 class Semigroup (G : Type u) extends Mul G where
 class AddSemigroup (G : Type u) extends Add G where
 class CommSemigroup (G : Type u) extends Semigroup G where
@@ -90,8 +76,8 @@ section Mathlib.Algebra.GroupWithZero.Defs
 class MulZeroClass (M₀ : Type u) extends Mul M₀, Zero M₀ where
 class IsLeftCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop where
 class IsRightCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop where
-class IsCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀]
-  extends IsLeftCancelMulZero M₀, IsRightCancelMulZero M₀ : Prop
+class IsCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop
+  extends IsLeftCancelMulZero M₀, IsRightCancelMulZero M₀
 class NoZeroDivisors (M₀ : Type _) [Mul M₀] [Zero M₀] : Prop where
 class SemigroupWithZero (S₀ : Type u) extends Semigroup S₀, MulZeroClass S₀
 class MulZeroOneClass (M₀ : Type u) extends MulOneClass M₀, MulZeroClass M₀
@@ -126,13 +112,14 @@ class CommSemiring (R : Type u) extends Semiring R, CommMonoid R
 class CommRing (α : Type u) extends Ring α, CommMonoid α
 instance CommRing.toCommSemiring [s : CommRing α] : CommSemiring α :=
   { s with }
-class IsDomain (α : Type u) [Semiring α] extends IsCancelMulZero α, Nontrivial α : Prop
+class IsDomain (α : Type u) [Semiring α] : Prop extends IsCancelMulZero α, Nontrivial α
 
 end Mathlib.Algebra.Ring.Defs
 
 section Mathlib.Data.Int.Basic
 
 instance : CommRing Int where
+  one := 1
   mul_comm := sorry
   mul_one := Int.mul_one -- Replacing this with `sorry` makes the timeout go away!
   add_zero := Int.add_zero -- Similarly here.
@@ -165,4 +152,6 @@ instance Field.isDomain [Field K] : IsDomain K :=
 end Mathlib.Algebra.Field.Basic
 
 set_option synthInstance.maxHeartbeats 200 in
-#synth Zero Int -- works fine
+/-- info: CommRing.toCommSemiring.toNonAssocSemiring.toMulZeroClass.toZero -/
+#guard_msgs in
+#synth Zero Int

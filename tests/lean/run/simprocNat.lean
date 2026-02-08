@@ -1,5 +1,13 @@
 variable (a b : Nat)
 
+/- bitwise operation tests -/
+
+#check_simp (4 : Nat) &&& (5 : Nat) ~> 4
+#check_simp (3 : Nat) ^^^ (1 : Nat) ~> 2
+#check_simp (2 : Nat) ||| (1 : Nat) ~> 3
+#check_simp (3 : Nat) <<< (2 : Nat) ~> 12
+#check_simp (3 : Nat) >>> (1 : Nat) ~> 1
+
 /- subtract diff tests -/
 
 #check_simp (1000 : Nat) - 400 ~> 600
@@ -102,12 +110,12 @@ variable (a b : Nat)
 #check_simp (a + 1000) != (b +  400) ~> a + 600 != b
 #check_simp (a +  400) != (b + 1000) ~> a != b + 600
 
-/-! Alterate instance tests
+/-! Alternate instance tests
 
 These check that the simplification rules will matching
-offets still trigger even when the expression for the
+offsets still trigger even when the expression for the
 index is definition equal but not syntactically equal
-to the defualt instance.
+to the default instance.
 
 This can be relevant in Mathlib when rewriting using
 theorems involving algebraic hierarchy classes.

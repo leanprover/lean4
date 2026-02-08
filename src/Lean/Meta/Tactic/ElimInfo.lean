@@ -3,10 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Check
-import Lean.ScopedEnvExtension
+public import Lean.Meta.Check
+import Init.Data.Range.Polymorphic.Iterators
+
+public section
 
 namespace Lean.Meta
 
@@ -35,6 +38,11 @@ structure ElimInfo where
   motivePos  : Nat
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
+  /--
+  Extra arguments to the motive, after the targets, that are instantiated with
+  non-atomic expressions in the goal
+  -/
+  numComplexMotiveArgs : Nat
   deriving Repr, Inhabited
 
 
@@ -48,28 +56,28 @@ def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
 
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
-  trace[Elab.induction] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
-  forallTelescopeReducing elimType fun xs type => do
-    let motive  := type.getAppFn
-    let targets := type.getAppArgs
-    unless motive.isFVar && targets.all (·.isFVar) && targets.size > 0 do
-      throwError "unexpected eliminator resulting type{indentExpr type}"
+  trace[Elab.induction] "eliminator{indentExpr elimExpr}\nhas type{indentExpr elimType}"
+  forallTelescopeReducing elimType fun xs type => type.withApp fun motive motiveArgs => do
+    unless motive.isFVar do
+      throwError "Expected resulting type of eliminator to be an application of one of its parameters (the motive), but found{indentExpr type}"
+    let targets  := motiveArgs.takeWhile (·.isFVar)
+    let complexMotiveArgs := motiveArgs[targets.size...*]
     let motiveType ← inferType motive
-    forallTelescopeReducing motiveType fun motiveArgs motiveResultType => do
-      unless motiveArgs.size == targets.size do
-        throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
+    forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
+      unless motiveParams.size == motiveArgs.size do
+        throwError "Expected {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
       unless motiveResultType.isSort do
-        throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
-      throwError "unexpected eliminator type{indentExpr elimType}"
+        throwError m!"Motive result type must be a sort, not{indentExpr motiveType}"
+    let some motivePos ← pure (xs.idxOf? motive) |
+      throwError "Unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
-      match xs.indexOf? target with
-      | none => throwError "unexpected eliminator type{indentExpr elimType}"
-      | some targetPos => pure targetPos.val
+      match xs.idxOf? target with
+      | none => throwError "Unexpected eliminator type{indentExpr elimType}"
+      | some targetPos => pure targetPos
     let mut altsInfo := #[]
     let env ← getEnv
-    for i in [:xs.size] do
-      let x := xs[i]!
+    for h : i in *...xs.size do
+      let x := xs[i]
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
@@ -80,7 +88,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
             let altDeclName := base ++ name
             if env.contains altDeclName then some altDeclName else none
           altsInfo := altsInfo.push { name, declName?, numFields, provesMotive }
-    pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
+    pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo, numComplexMotiveArgs := complexMotiveArgs.size }
 
 def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   getElimExprInfo (← mkConstWithFreshMVarLevels elimName) baseDeclName?
@@ -96,9 +104,9 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
     unless ← mvar.isAssigned do
       let name := (←mvar.getDecl).userName
       if name.isAnonymous || name.hasMacroScopes then
-        throwError "failed to infer implicit target"
+        throwError "Failed to infer implicit target"
       else
-        throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
+        throwError "Failed to infer implicit target `{(←mvar.getDecl).userName}`"
   targets.mapM instantiateMVars
 where
   collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array MVarId) (targets' : Array Expr) :
@@ -108,11 +116,11 @@ where
       if elimInfo.targetsPos.contains argIdx then
         if bi.isExplicit then
           unless targetIdx < targets.size do
-            throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
+            throwError "Insufficient number of targets for `{elimInfo.elimExpr}`"
           let target := targets[targetIdx]!
           let targetType ← inferType target
           unless (← isDefEq d targetType) do
-            throwError "target{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
+            throwError "Invalid target:{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
           collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) implicits (targets'.push target)
         else
           let implicitTarget ← mkFreshExprMVar (type? := d) (userName := n)
@@ -120,6 +128,8 @@ where
       else
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
+      unless targetIdx = targets.size do
+        throwError "Too many targets for `{elimInfo.elimExpr}`"
       return (implicits, targets')
 
 structure CustomEliminator where
@@ -148,13 +158,13 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
-    for i in [:elimInfo.targetsPos.size] do
-      let targetPos := elimInfo.targetsPos[i]!
+    for hi : i in *...elimInfo.targetsPos.size do
+      let targetPos := elimInfo.targetsPos[i]
       let x := xs[targetPos]!
       /- Return true if there is another target that depends on `x`. -/
       let isImplicitTarget : MetaM Bool := do
-        for j in [i+1:elimInfo.targetsPos.size] do
-          let y := xs[elimInfo.targetsPos[j]!]!
+        for hj : j in (i+1)...elimInfo.targetsPos.size do
+          let y := xs[elimInfo.targetsPos[j]]!
           let yType ← inferType y
           if (← dependsOn yType x.fvarId!) then
             return true
@@ -163,7 +173,7 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
          See test `tests/lean/run/eliminatorImplicitTargets.lean`. -/
       unless (← isImplicitTarget) do
         let xType ← inferType x
-        let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
+        let .const typeName .. := xType.getAppFn | throwError "Unexpected eliminator target type{indentExpr xType}"
         typeNames := typeNames.push typeName
     return { induction, typeNames, elimName }
 
@@ -171,6 +181,38 @@ def addCustomEliminator (declName : Name) (attrKind : AttributeKind) (induction 
   let e ← mkCustomEliminator declName induction
   customEliminatorExt.add e attrKind
 
+/--
+Registers a custom eliminator for the `induction` tactic.
+
+Whenever the types of the targets in an `induction` call matches a custom eliminator, it is used
+instead of the recursor. This can be useful for redefining the default eliminator to a more useful
+one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[induction_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  induction x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[cases_eliminator]` works similarly for the `cases` tactic.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `induction_eliminator
@@ -179,6 +221,38 @@ builtin_initialize
       discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
   }
 
+/--
+Registers a custom eliminator for the `cases` tactic.
+
+Whenever the types of the targets in an `cases` call matches a custom eliminator, it is used
+instead of the `casesOn` eliminator. This can be useful for redefining the default eliminator to a
+more useful one.
+
+Example:
+```lean example
+structure Three where
+  val : Fin 3
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- val : Fin 3 ⊢ p ⟨val⟩
+
+@[cases_eliminator, elab_as_elim]
+def Three.myRec {motive : Three → Sort u}
+    (zero : motive ⟨0⟩) (one : motive ⟨1⟩) (two : motive ⟨2⟩) :
+    ∀ x, motive x
+  | ⟨0⟩ => zero | ⟨1⟩ => one | ⟨2⟩ => two
+
+example (x : Three) (p : Three → Prop) : p x := by
+  cases x
+  -- ⊢ p ⟨0⟩
+  -- ⊢ p ⟨1⟩
+  -- ⊢ p ⟨2⟩
+```
+
+`@[induction_eliminator]` works similarly for the `induction` tactic.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `cases_eliminator

@@ -1,0 +1,12 @@
+name = "test"
+enableArtifactCache = true
+
+# Example package with dependencies not in Reservoir's cache
+[[require]]
+name = "doc-gen4"
+scope = "leanprover"
+
+# Example package with dependencies on Reservoir
+[[require]]
+name = "Cli"
+scope = "leanprover"

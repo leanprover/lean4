@@ -124,6 +124,7 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
 class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
+    diagnostics *          m_diag;
     local_ctx              m_lctx;
     names      m_lparams;
     unsigned               m_nparams;
@@ -144,7 +145,7 @@ class add_inductive_fn {
     level                  m_elim_level;
     bool                   m_K_target;
 
-    bool                   m_is_nested;
+    unsigned               m_nnested;
 
     struct rec_info {
         expr         m_C;        /* free variable for "main" motive */
@@ -158,16 +159,16 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, inductive_decl const & decl, bool is_nested):
-        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
-        m_is_nested(is_nested) {
+    add_inductive_fn(environment const & env, diagnostics * diag, inductive_decl const & decl, unsigned nnested):
+        m_env(env), m_ngen(*g_ind_fresh), m_diag(diag), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
+        m_nnested(nnested) {
         if (!decl.get_nparams().is_small())
             throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
         m_nparams = decl.get_nparams().get_small_value();
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
+    type_checker tc() { return type_checker(m_env, m_lctx, m_diag, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {
@@ -324,8 +325,9 @@ public:
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 cnstr_names.push_back(constructor_name(cnstr));
             }
+            m_env.check_name(n);
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
-                                                       all, names(cnstr_names), rec, m_is_unsafe, reflexive, m_is_nested)));
+                                                       all, names(cnstr_names), m_nnested, rec, m_is_unsafe, reflexive)));
         }
     }
 
@@ -466,6 +468,7 @@ public:
                 }
                 lean_assert(arity >= m_nparams);
                 unsigned nfields = arity - m_nparams;
+                m_env.check_name(n);
                 m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), cidx, m_nparams, nfields, m_is_unsafe)));
                 cidx++;
             }
@@ -765,6 +768,7 @@ public:
             recursor_rules rules  = mk_rec_rules(d_idx, Cs, minors, minor_idx);
             name rec_name         = mk_rec_name(m_ind_types[d_idx].get_name());
             names rec_lparams     = get_rec_lparams();
+            m_env.check_name(rec_name);
             m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all,
                                                       m_nparams, m_nindices[d_idx], nmotives, nminors,
                                                       rules, m_K_target, m_is_unsafe)));
@@ -1111,11 +1115,12 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
 
 environment environment::add_inductive(declaration const & d) const {
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
-    bool is_nested = !res.m_aux2nested.empty();
-    environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl), is_nested)();
-    if (!is_nested) {
+    unsigned nnested = res.m_aux2nested.size();
+    scoped_diagnostics diag(*this, true);
+    environment aux_env = add_inductive_fn(*this, diag.get(), inductive_decl(res.m_aux_decl), nnested)();
+    if (!nnested) {
         /* `d` did not contain nested inductive types. */
-        return aux_env;
+        return diag.update(aux_env);
     } else {
         /* Restore nested inductives. */
         inductive_decl ind_d(d);
@@ -1153,14 +1158,16 @@ environment environment::add_inductive(declaration const & d) const {
             /* We just need to "fix" the `all` fields for ind_info.
 
                Remark: if we decide to store the recursor names, we will also need to fix it. */
+            new_env.check_name(ind_info.get_name());
             new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
-                                                         all_ind_names, ind_val.get_cnstrs(),
-                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive(), ind_val.is_nested())));
+                                                         all_ind_names, ind_val.get_cnstrs(), ind_val.get_nnested(),
+                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();
                 expr new_type = res.restore_nested(cnstr_info.get_type(), aux_env);
+                new_env.check_name(cnstr_info.get_name());
                 new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_lparams(), new_type,
                                                                cnstr_val.get_induct(), cnstr_val.get_cidx(), cnstr_val.get_nparams(),
                                                                cnstr_val.get_nfields(), cnstr_val.is_unsafe())));
@@ -1170,7 +1177,7 @@ environment environment::add_inductive(declaration const & d) const {
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
         }
-        return new_env;
+        return diag.update(new_env);
     }
 }
 
@@ -1216,7 +1223,7 @@ void initialize_inductive() {
     mark_persistent(g_nat_zero->raw());
     g_nat_succ       = new expr(mk_constant(name{"Nat", "succ"}));
     mark_persistent(g_nat_succ->raw());
-    g_string_mk      = new expr(mk_constant(name{"String", "mk"}));
+    g_string_mk      = new expr(mk_constant(name{"String", "ofList"}));
     mark_persistent(g_string_mk->raw());
     expr char_type   = mk_constant(name{"Char"});
     g_list_cons_char = new expr(mk_app(mk_constant(name{"List", "cons"}, {level()}), char_type));

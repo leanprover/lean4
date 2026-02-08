@@ -20,7 +20,7 @@ theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs 
   match xs, h with
   | [],  h        => contradiction
   | [x], h        => rfl
-  | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
+  | x₁::x₂::xs, h => simp [concat, dropLast, last, concatEq (x₂::xs)]
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
   rfl
@@ -42,11 +42,11 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     intro n h
     cases n with
     | zero   =>
-      simp [lengthCons] at h
+      simp at h
     | succ n =>
-      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
+      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp
       have : xs.length = n := by rw [this] at h; injection h with h; injection h
-      simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
+      simp [dropLast, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
 
 @[inline]
 def concatElim {α}
@@ -75,4 +75,11 @@ def test (xs : List Nat) : IO Unit :=
     (fun xs x r => do IO.println s!"step xs: {xs} x: {x}"; r)
     xs
 
+/--
+info: step xs: [1, 2, 3] x: 4
+step xs: [1, 2] x: 3
+step xs: [1] x: 2
+step xs: [] x: 1
+-/
+#guard_msgs in
 #eval test [1, 2, 3, 4]

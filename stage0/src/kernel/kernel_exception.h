@@ -152,9 +152,9 @@ public:
 /*
 Helper function for interfacing C++ code with code written in Lean.
 It executes closure `f` which produces an object_ref of type `A` and may throw
-an `kernel_exception` or `exception`. Then, convert result into `Except KernelException T`
+an `kernel_exception` or `exception`. Then, convert result into `Except Kernel.Exception T`
 where `T` is the type of the lean objected represented by `A`.
-We use the constructor `KernelException.other <msg>` to handle C++ `exception` objects which
+We use the constructor `Kernel.Exception.other <msg>` to handle C++ `exception` objects which
 are not `kernel_exception`.
 */
 template<typename A>

@@ -3,12 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 /-!
 Functions for testing whether expressions are canonical `Nat` instances.
+-/
+namespace Structural
+/-!
+**Note**: Structural tests are *syntactic*. They are more efficient, but
+should be used only in modules that have perform some kind of canonicalization.
 -/
 
 def isInstOfNatNat (e : Expr) : MetaM Bool := do
@@ -59,5 +68,37 @@ def isInstLTNat (e : Expr) : MetaM Bool := do
 def isInstLENat (e : Expr) : MetaM Bool := do
   let_expr instLENat ← e | return false
   return true
+def isInstDvdNat (e : Expr) : MetaM Bool := do
+  let_expr Nat.instDvd ← e | return false
+  return true
+end Structural
+
+namespace DefEq
+
+def isInstAddNat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstAddNat e) then return true
+  isDefEqI e Nat.mkInstAdd
+
+def isInstHAddNat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstHAddNat e) then return true
+  isDefEqI e Nat.mkInstHAdd
+
+def isInstMulNat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstMulNat e) then return true
+  isDefEqI e Nat.mkInstMul
+
+def isInstHMulNat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstHMulNat e) then return true
+  isDefEqI e Nat.mkInstHMul
+
+def isInstLTNat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstLTNat e) then return true
+  isDefEqI e Nat.mkInstLT
+
+def isInstLENat (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstLENat e) then return true
+  isDefEqI e Nat.mkInstLE
+
+end DefEq
 
 end Lean.Meta

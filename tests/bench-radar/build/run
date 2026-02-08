@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+BENCH="tests/bench-radar"
+STAGE2="build/release/stage2"
+STAGE3="build/release/stage3"
+
+# Build previous stages and warm up stage3
+cmake --preset release
+timeout -s KILL 1h time make -C build/release -j"$(nproc)" stage3
+pushd "$STAGE3"
+mkdir install
+make install DESTDIR=install
+find lib -name "*.olean" -delete
+popd
+
+# Use stage2 binaries from now on
+#
+# Otherwise, tools like lakeprof use the global lean installation,
+# which may not exist or be the right version.
+export PATH="$PWD/$STAGE2/bin:$PATH"
+
+# Substitute our own wrapper script
+mv "$STAGE2/bin/lean" "$STAGE2/bin/lean.wrapped"
+cp "$BENCH/build/lean_wrapper.py" "$STAGE2/bin/lean"
+
+# Build stage3
+"$BENCH/measure.py" -t build \
+  -m cycles -m instructions -m maxrss -m task-clock -m wall-clock -- \
+  lakeprof record -- \
+  make -C build/release -j"$(nproc)" stage3
+
+# Analyze lakeprof data
+mv lakeprof.log src
+pushd src
+lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
+lakeprof report -rj | jq '{metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
+popd
+
+# Upload lakeprof report
+# Guarded to prevent accidental uploads (which wouldn't work anyways) during local runs.
+if [ -f build_upload_lakeprof_report ]; then
+  python3 "$BENCH/build/lakeprof_report_upload.py"
+fi

@@ -3,11 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.FVarSubst
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Revert
-import Lean.Util.ForEachExpr
+public import Lean.Meta.Tactic.FVarSubst
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Revert
+public import Lean.Util.ForEachExpr
+import Lean.Meta.AppBuilder
+
+public section
 
 namespace Lean.Meta
 
@@ -23,10 +28,6 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
     let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
     mvarId.assign (mkApp newMVar val)
     return newMVar.mvarId!
-
-@[deprecated MVarId.assert]
-def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
-  mvarId.assert name type val
 
 /-- Add the hypothesis `h : t`, given `v : t`, and return the new `FVarId`. -/
 def _root_.Lean.MVarId.note (g : MVarId) (h : Name) (v : Expr) (t? : Option Expr := .none) :
@@ -46,10 +47,6 @@ def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign newMVar
     return newMVar.mvarId!
 
-@[deprecated MVarId.define]
-def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
-  mvarId.define name type val
-
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
   It assumes `val` has type `type` -/
@@ -65,10 +62,6 @@ def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (
     let rflPrf ← mkEqRefl val
     mvarId.assign (mkApp2 newMVar val rflPrf)
     return newMVar.mvarId!
-
-@[deprecated MVarId.assertExt]
-def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
-  mvarId.assertExt name type val hName
 
 structure AssertAfterResult where
   fvarId : FVarId
@@ -90,14 +83,14 @@ def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName
     subst := subst.insert f (mkFVar fNew)
   return { fvarId := fvarIdNew, mvarId, subst }
 
-@[deprecated MVarId.assertAfter]
-def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  mvarId.assertAfter fvarId userName type val
-
 structure Hypothesis where
   userName : Name
   type     : Expr
   value    : Expr
+  /-- The hypothesis' `BinderInfo` -/
+  binderInfo : BinderInfo := .default
+  /-- The hypothesis' `LocalDeclKind` -/
+  kind : LocalDeclKind := .default
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx, (hs[0].userName : hs[0].type) ... |-target`.
@@ -110,16 +103,19 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     let tag    ← mvarId.getTag
     let target ← mvarId.getType
     let targetNew := hs.foldr (init := target) fun h targetNew =>
-      mkForall h.userName BinderInfo.default h.type targetNew
+      .forallE h.userName h.type targetNew h.binderInfo
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-    let val := hs.foldl (init := mvarNew) fun val h => mkApp val h.value
+    let val := hs.foldl (init := mvarNew) fun val h => .app val h.value
     mvarId.assign val
-    mvarNew.mvarId!.introNP hs.size
-
-@[deprecated MVarId.assertHypotheses]
-def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
-  mvarId.assertHypotheses hs
-
+    let (fvarIds, mvarId) ← mvarNew.mvarId!.introNP hs.size
+    mvarId.modifyLCtx fun lctx => Id.run do
+      let mut lctx := lctx
+      for h : i in *...hs.size do
+        let h := hs[i]
+        if h.kind != .default then
+          lctx := lctx.setKind fvarIds[i]! h.kind
+      pure lctx
+    return (fvarIds, mvarId)
 
 /--
 Replace hypothesis `hyp` in goal `g` with `proof : typeNew`.

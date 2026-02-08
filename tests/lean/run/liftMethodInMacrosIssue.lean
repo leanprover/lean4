@@ -12,8 +12,16 @@ else if (← foo x) then
 else
   IO.println "other"
 
+/-- info: x is 0 -/
+#guard_msgs in
 #eval tst 0
+
+/-- info: x is 1 -/
+#guard_msgs in
 #eval tst 1
+
+/-- info: other -/
+#guard_msgs in
 #eval tst 2
 
 syntax term "<|||>" term : doElem
@@ -24,4 +32,6 @@ macro_rules
 def tst2 : IO Bool := do
 pure true <|||> (← throw $ IO.userError "failed")
 
+/-- info: true -/
+#guard_msgs in
 #eval tst2

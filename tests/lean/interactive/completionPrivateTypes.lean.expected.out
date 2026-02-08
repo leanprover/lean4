@@ -1,12 +1,22 @@
 {"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
  "position": {"line": 3, "character": 26}}
 {"items":
- [{"sortText": "0",
-   "label": "x",
+ [{"label": "x",
    "kind": 5,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
-     "position": {"line": 3, "character": 26}},
-    "id": {"const": {"declName": "_private.0.Foo.x"}}}}],
- "isIncomplete": true}
+   ["file:///completionPrivateTypes.lean",
+    3,
+    26,
+    1,
+    "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}],
+ "isIncomplete": false}
+Resolution of x:
+{"label": "x",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data":
+ ["file:///completionPrivateTypes.lean",
+  3,
+  26,
+  1,
+  "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}

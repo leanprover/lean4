@@ -3,18 +3,19 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.Renaming
-import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.AlphaEqv
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Simp.JpCases
-import Lean.Compiler.LCNF.Simp.DiscrM
-import Lean.Compiler.LCNF.Simp.FunDeclInfo
-import Lean.Compiler.LCNF.Simp.Config
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.Renaming
+public import Lean.Compiler.LCNF.ElimDead
+public import Lean.Compiler.LCNF.AlphaEqv
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.Simp.JpCases
+public import Lean.Compiler.LCNF.Simp.FunDeclInfo
+public import Lean.Compiler.LCNF.Simp.Config
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -40,7 +41,7 @@ structure State where
   /--
   Free variable substitution. We use it to implement inlining and removing redundant variables `let _x.i := _x.j`
   -/
-  subst : FVarSubst := {}
+  subst : FVarSubst .pure := {}
   /--
   Track used local declarations to be able to eliminate dead variables.
   -/
@@ -79,10 +80,10 @@ abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 @[always_inline]
 instance : Monad SimpM := let i := inferInstanceAs (Monad SimpM); { pure := i.pure, bind := i.bind }
 
-instance : MonadFVarSubst SimpM false where
+instance : MonadFVarSubst SimpM .pure false where
   getSubst := return (← get).subst
 
-instance : MonadFVarSubstState SimpM where
+instance : MonadFVarSubstState SimpM .pure where
   modifySubst f := modify fun s => { s with subst := f s.subst }
 
 /-- Set the `simplified` flag to `true`. -/
@@ -114,7 +115,7 @@ def addFunHoOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addHo fvarId }
 
 @[inherit_doc FunDeclInfoMap.update]
-partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit := do
+partial def updateFunDeclInfo (code : Code .pure) (mustInline := false) : SimpM Unit := do
   let map ← modifyGet fun s => (s.funDeclInfoMap, { s with funDeclInfoMap := {} })
   let map ← map.update code mustInline
   modify fun s => { s with funDeclInfoMap := map }
@@ -123,7 +124,7 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : LetValue) (recursive : Bool) (x : SimpM α) : SimpM α := do
+@[inline] def withInlining (value : LetValue .pure) (recursive : Bool) (x : SimpM α) : SimpM α := do
   if let .const declName _ _ := value then
     let numOccs ← check declName
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
@@ -131,12 +132,12 @@ Otherwise, do not change the `inlineStack`.
     x
 where
   check (declName : Name) : SimpM Nat := do
-    trace[Compiler.simp.inline] "{declName}"
+    trace[Compiler.simp.inline] "{.ofConstName declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
-    let inlineIfReduce ← if let some decl ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false
+    let inlineIfReduce ← if let some ⟨_, decl⟩ ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false
     if recursive && inlineIfReduce && numOccs > (← getConfig).maxRecInlineIfReduce then
-      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+      throwError "function `{.ofConstName declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
     return numOccs
 
 /--
@@ -154,7 +155,7 @@ where
     match (← read).inlineStack with
     | [] => throwError maxRecDepthErrorMessage
     | declName :: stack =>
-      let mut fmt  := f!"{declName}\n"
+      let mut fmt  := m!"{.ofConstName declName}\n"
       let mut prev := declName
       let mut ellipsis := false
       for declName in stack do
@@ -163,7 +164,7 @@ where
             ellipsis := true
             fmt := fmt ++ "...\n"
         else
-          fmt := fmt ++ f!"{declName}\n"
+          fmt := fmt ++ m!"{.ofConstName declName}\n"
           prev := declName
           ellipsis := false
       throwError "maximum recursion depth reached in the code generator\nfunction inline stack:\n{fmt}"
@@ -173,7 +174,7 @@ Execute `x` with `fvarId` set as `mustInline`.
 After execution the original setting is restored.
 -/
 def withAddMustInline (fvarId : FVarId) (x : SimpM α) : SimpM α := do
-  let saved? := (← get).funDeclInfoMap.map.find? fvarId
+  let saved? := (← get).funDeclInfoMap.map[fvarId]?
   try
     addMustInline fvarId
     x
@@ -185,20 +186,20 @@ Return true if the given local function declaration or join point id is marked a
 `once` or `mustInline`. We use this information to decide whether to inline them.
 -/
 def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
-  match (← get).funDeclInfoMap.map.find? fvarId with
+  match (← get).funDeclInfoMap.map[fvarId]? with
     | some .once | some .mustInline  => return true
     | _ => return false
 
 /--
 Return `true` if the given code is considered "small".
 -/
-def isSmall (code : Code) : SimpM Bool :=
+def isSmall (code : Code .pure) : SimpM Bool :=
   return code.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.
 -/
-def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
+def shouldInlineLocal (decl : FunDecl .pure) : SimpM Bool := do
   if (← isOnceOrMustInline decl.fvarId) then
     return true
   else
@@ -209,10 +210,11 @@ LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
-def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInline := false) : SimpM Code := do
+def betaReduce (params : Array (Param .pure)) (code : Code .pure) (args : Array (Arg .pure))
+    (mustInline := false) : SimpM (Code .pure) := do
   let mut subst := {}
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg.toExpr
+    subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
   updateFunDeclInfo code mustInline
   return code
@@ -221,7 +223,7 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInli
 Erase the given let-declaration from the local context,
 and set the `simplified` flag to true.
 -/
-def eraseLetDecl (decl : LetDecl) : SimpM Unit := do
+def eraseLetDecl (decl : LetDecl .pure) : SimpM Unit := do
   LCNF.eraseLetDecl decl
   markSimplified
 
@@ -229,7 +231,7 @@ def eraseLetDecl (decl : LetDecl) : SimpM Unit := do
 Erase the given local function declaration from the local context,
 and set the `simplified` flag to true.
 -/
-def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
+def eraseFunDecl (decl : FunDecl .pure) : SimpM Unit := do
   LCNF.eraseFunDecl decl
   markSimplified
 

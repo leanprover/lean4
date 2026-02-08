@@ -1,20 +1,21 @@
 {"textDocument": {"uri": "file:///compHeader.lean"},
  "position": {"line": 2, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "veryLongNam",
+ [{"label": "veryLongNam",
    "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compHeader.lean"},
-     "position": {"line": 2, "character": 22}},
-    "id": {"fvar": {"id": "_uniq.7"}}}},
-  {"sortText": "1",
-   "label": "veryLongNameForCompletion",
+   "data": ["file:///compHeader.lean", 2, 22, 0, "f_uniq.7"]},
+  {"label": "veryLongNameForCompletion",
    "kind": 21,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///compHeader.lean"},
-     "position": {"line": 2, "character": 22}},
-    "id": {"const": {"declName": "veryLongNameForCompletion"}}}}],
- "isIncomplete": true}
+   ["file:///compHeader.lean", 2, 22, 0, "cveryLongNameForCompletion"]}],
+ "isIncomplete": false}
+Resolution of veryLongNam:
+{"label": "veryLongNam",
+ "kind": 6,
+ "detail": "Sort u_1",
+ "data": ["file:///compHeader.lean", 2, 22, 0, "f_uniq.7"]}
+Resolution of veryLongNameForCompletion:
+{"label": "veryLongNameForCompletion",
+ "kind": 21,
+ "detail": "Type",
+ "data": ["file:///compHeader.lean", 2, 22, 0, "cveryLongNameForCompletion"]}

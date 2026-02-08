@@ -1,0 +1,8 @@
+name = "dep"
+
+[[lean_lib]]
+name = "Dep.NoImportAll"
+
+[[lean_lib]]
+name = "Dep.AllowImportAll"
+allowImportAll = true

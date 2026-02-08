@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.Basic
-import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Diagnostics
+
+public section
 
 namespace Lean.Lsp
 
@@ -128,10 +130,6 @@ structure CodeAction extends WorkDoneProgressParams, PartialResultParams where
    -/
   data?        : Option Json := none
   deriving ToJson, FromJson
-
-structure ResolveSupport where
-  properties : Array String
-  deriving FromJson, ToJson
 
 structure CodeActionLiteralSupportValueSet where
   /-- The code action kind values the client supports. When this

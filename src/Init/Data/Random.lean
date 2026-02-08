@@ -3,8 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+import Init.Data.ByteArray.Extra
+
+public section
 universe u
 
 /-!
@@ -32,13 +37,24 @@ structure StdGen where
   s1 : Nat
   s2 : Nat
 
-instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
+/-- Returns a standard number generator. -/
+def mkStdGen (s : Nat := 0) : StdGen :=
+  let q  := s / 2147483562
+  let s1 := s % 2147483562
+  let s2 := q % 2147483398
+  ⟨s1 + 1, s2 + 1⟩
 
+instance : Inhabited StdGen := ⟨mkStdGen⟩
+
+/-- The range of values returned by `StdGen` -/
 def stdRange := (1, 2147483562)
 
 instance : Repr StdGen where
   reprPrec | ⟨s1, s2⟩, _ => Std.Format.bracket "⟨" (repr s1 ++ ", " ++ repr s2) "⟩"
 
+/--
+The next value from a `StdGen`, paired with an updated generator state.
+-/
 def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>
     let k    : Int := Int.ofNat (s1 / 53668)
@@ -51,6 +67,9 @@ def stdNext : StdGen → Nat × StdGen
     let z'   : Nat := if z < 1 then (z + 2147483562).toNat else z.toNat % 2147483562
     (z', ⟨s1'', s2''⟩)
 
+/--
+Splits a `StdGen` into two separate states.
+-/
 def stdSplit : StdGen → StdGen × StdGen
   | g@⟨s1, s2⟩ =>
     let newS1  := if s1 = 2147483562 then 1 else s1 + 1
@@ -66,13 +85,6 @@ instance : RandomGen StdGen := {
   split  := stdSplit
 }
 
-/-- Return a standard number generator. -/
-def mkStdGen (s : Nat := 0) : StdGen :=
-  let q  := s / 2147483562
-  let s1 := s % 2147483562
-  let s2 := q % 2147483398
-  ⟨s1 + 1, s2 + 1⟩
-
 /--
 Auxiliary function for randomNatVal.
 Generate random values until we exceed the target magnitude.
@@ -86,7 +98,7 @@ private partial def randNatAux {gen : Type u} [RandomGen gen] (genLo genMag : Na
     let v'      := v*genMag + (x - genLo)
     randNatAux genLo genMag (r' / genMag - 1) (v', g')
 
-/-- Generate a random natural number in the interval [lo, hi]. -/
+/-- Generates a random natural number in the interval [lo, hi]. -/
 def randNat {gen : Type u} [RandomGen gen] (g : gen) (lo hi : Nat) : Nat × gen :=
   let lo'            := if lo > hi then hi else lo
   let hi'            := if lo > hi then lo else hi
@@ -104,7 +116,7 @@ def randNat {gen : Type u} [RandomGen gen] (g : gen) (lo hi : Nat) : Nat × gen 
   let v'      := lo' + (v % k)
   (v', g')
 
-/-- Generate a random Boolean. -/
+/-- Generates a random Boolean. -/
 def randBool {gen : Type u} [RandomGen gen] (g : gen) : Bool × gen :=
   let (v, g') := randNat g 0 1
   (v = 1, g')
@@ -113,10 +125,19 @@ initialize IO.stdGenRef : IO.Ref StdGen ←
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   IO.mkRef (mkStdGen seed)
 
-def IO.setRandSeed (n : Nat) : IO Unit :=
+/--
+Seeds the random number generator state used by `IO.rand`.
+-/
+def IO.setRandSeed (n : Nat) : BaseIO Unit :=
   IO.stdGenRef.set (mkStdGen n)
 
-def IO.rand (lo hi : Nat) : IO Nat := do
+/--
+Returns a pseudorandom number between `lo` and `hi`, using and updating a saved random generator
+state.
+
+This state can be seeded using `IO.setRandSeed`.
+-/
+def IO.rand (lo hi : Nat) : BaseIO Nat := do
   let gen ← IO.stdGenRef.get
   let (r, gen) := randNat gen lo hi
   IO.stdGenRef.set gen

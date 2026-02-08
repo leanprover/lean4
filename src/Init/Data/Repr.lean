@@ -3,25 +3,28 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Format.Basic
-import Init.Data.Int.Basic
-import Init.Data.Nat.Div
-import Init.Data.UInt.Basic
-import Init.Control.Id
+public import Init.Data.Format.Basic
+public import Init.Control.Id
+public import Init.Data.UInt.BasicAux
+import Init.Data.Char.Basic
+
+public section
 open Sum Subtype Nat
 
 open Std
 
 /--
-A typeclass that specifies the standard way of turning values of some type into `Format`.
+The standard way of turning values of some type into `Format`.
 
 When rendered this `Format` should be as close as possible to something that can be parsed as the
 input value.
 -/
 class Repr (α : Type u) where
   /--
-  Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
+  Turn a value of type `α` into a `Format` at a given precedence. The precedence value can be used
   to avoid parentheses if they are not necessary.
   -/
   reprPrec : α → Nat → Format
@@ -29,14 +32,27 @@ class Repr (α : Type u) where
 export Repr (reprPrec)
 
 /--
-Turn `a` into `Format` using its `Repr` instance. The precedence level is initially set to 0.
+Turns `a` into a `Format` using its `Repr` instance. The precedence level is initially set to 0.
 -/
 abbrev repr [Repr α] (a : α) : Format :=
   reprPrec a 0
 
+/--
+Turns `a` into a `String` using its `Repr` instance, rendering the `Format` at the default width of
+120 columns.
+
+The precedence level is initially set to 0.
+-/
 abbrev reprStr [Repr α] (a : α) : String :=
   reprPrec a 0 |>.pretty
 
+/--
+Turns `a` into a `Format` using its `Repr` instance, with the precedence level set to that of
+function application.
+
+Together with `Repr.addAppParen`, this can be used to correctly parenthesize function application
+syntax.
+-/
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a max_prec
 
@@ -51,21 +67,38 @@ instance [Repr α] : Repr (id α) :=
 instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
 
-instance : Repr Bool where
-  reprPrec
-    | true, _  => "true"
-    | false, _ => "false"
+/-
+This instance allows us to use `Empty` as a type parameter without causing instance synthesis to fail.
+-/
+instance : Repr Empty where
+  reprPrec := nofun
 
+protected def Bool.repr : Bool → Nat → Format
+  | true, _  => "true"
+  | false, _ => "false"
+
+instance : Repr Bool where
+  reprPrec := Bool.repr
+
+/--
+Adds parentheses to `f` if the precedence `prec` from the context is at least that of function
+application.
+
+Together with `reprArg`, this can be used to correctly parenthesize function application
+syntax.
+-/
 def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
   if prec >= max_prec then
     Format.paren f
   else
     f
 
+protected def Decidable.repr : Decidable p → Nat → Format
+  | .isTrue _, prec  => Repr.addAppParen "isTrue _" prec
+  | .isFalse _, prec => Repr.addAppParen "isFalse _" prec
+
 instance : Repr (Decidable p) where
-  reprPrec
-    | Decidable.isTrue _, prec  => Repr.addAppParen "isTrue _" prec
-    | Decidable.isFalse _, prec => Repr.addAppParen "isFalse _" prec
+  reprPrec := Decidable.repr
 
 instance : Repr PUnit.{u+1} where
   reprPrec _ _ := "PUnit.unit"
@@ -77,6 +110,12 @@ instance [Repr α] : Repr (ULift.{v} α) where
 instance : Repr Unit where
   reprPrec _ _ := "()"
 
+/--
+Returns a representation of an optional value that should be able to be parsed as an equivalent
+optional value.
+
+This function is typically accessed through the `Repr (Option α)` instance.
+-/
 protected def Option.repr [Repr α] : Option α → Nat → Format
   | none,    _   => "none"
   | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
@@ -99,8 +138,11 @@ export ReprTuple (reprTuple)
 instance [Repr α] : ReprTuple α where
   reprTuple a xs := repr a :: xs
 
+protected def Prod.reprTuple [Repr α] [ReprTuple β] : α × β → List Format → List Format
+  | (a, b), xs => reprTuple b (repr a :: xs)
+
 instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
-  reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
+  reprTuple := Prod.reprTuple
 
 protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
   | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
@@ -108,8 +150,11 @@ protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
   reprPrec := Prod.repr
 
+protected def Sigma.repr {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Sigma β → Nat → Format
+  | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
+
 instance {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Repr (Sigma β) where
-  reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
+  reprPrec := Sigma.repr
 
 instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
   reprPrec s prec := reprPrec s.val prec
@@ -121,6 +166,17 @@ We have pure functions for calculating the decimal representation of a `Nat` (`t
 a fast variant that handles small numbers (`USize`) via C code (`lean_string_of_usize`).
 -/
 
+/--
+Returns a single digit representation of `n`, which is assumed to be in a base less than or equal to
+`16`. Returns `'*'` if `n > 15`.
+
+Examples:
+ * `Nat.digitChar 5 = '5'`
+ * `Nat.digitChar 12 = 'c'`
+ * `Nat.digitChar 15 = 'f'`
+ * `Nat.digitChar 16 = '*'`
+ * `Nat.digitChar 85 = '*'`
+-/
 def digitChar (n : Nat) : Char :=
   if n = 0 then '0' else
   if n = 1 then '1' else
@@ -148,26 +204,58 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
 
+/--
+Returns the decimal representation of a natural number as a list of digit characters in the given
+base. If the base is greater than `16` then `'*'` is returned for digits greater than `0xf`.
+
+Examples:
+* `Nat.toDigits 10 0xff = ['2', '5', '5']`
+* `Nat.toDigits 8 0xc = ['1', '4']`
+* `Nat.toDigits 16 0xcafe = ['c', 'a', 'f', 'e']`
+* `Nat.toDigits 80 200 = ['2', '*']`
+-/
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
+/--
+Converts a word-sized unsigned integer into a decimal string.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `USize.repr 0 = "0"`
+ * `USize.repr 28 = "28"`
+ * `USize.repr 307 = "307"`
+-/
 @[extern "lean_string_of_usize"]
 protected def _root_.USize.repr (n : @& USize) : String :=
-  (toDigits 10 n.toNat).asString
+  String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
 private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
-private def reprFast (n : Nat) : String :=
-  if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else
-  if h : n < USize.size then (USize.ofNatCore n h).repr
-  else (toDigits 10 n).asString
+def reprFast (n : Nat) : String :=
+  if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
+  if h : n < USize.size then (USize.ofNatLT n h).repr
+  else String.ofList (toDigits 10 n)
 
+/--
+Converts a natural number to its decimal string representation.
+-/
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
-  (toDigits 10 n).asString
+  String.ofList (toDigits 10 n)
 
+/--
+Converts a natural number less than `10` to the corresponding Unicode superscript digit character.
+Returns `'*'` for other numbers.
+
+Examples:
+* `Nat.superDigitChar 3 = '³'`
+* `Nat.superDigitChar 7 = '⁷'`
+* `Nat.superDigitChar 10 = '*'`
+-/
 def superDigitChar (n : Nat) : Char :=
   if n = 0 then '⁰' else
   if n = 1 then '¹' else
@@ -188,12 +276,37 @@ partial def toSuperDigitsAux : Nat → List Char → List Char
     if n' = 0 then d::ds
     else toSuperDigitsAux n' (d::ds)
 
+/--
+Converts a natural number to the list of Unicode superscript digit characters that corresponds to
+its decimal representation.
+
+Examples:
+ * `Nat.toSuperDigits 0 = ['⁰']`
+ * `Nat.toSuperDigits 35 = ['³', '⁵']`
+-/
 def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
-def toSuperscriptString (n : Nat) : String :=
-  (toSuperDigits n).asString
+/--
+Converts a natural number to a string that contains the its decimal representation as Unicode
+superscript digit characters.
 
+Examples:
+ * `Nat.toSuperscriptString 0 = "⁰"`
+ * `Nat.toSuperscriptString 35 = "³⁵"`
+-/
+def toSuperscriptString (n : Nat) : String :=
+  String.ofList (toSuperDigits n)
+
+/--
+Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
+Returns `'*'` for other numbers.
+
+Examples:
+* `Nat.subDigitChar 3 = '₃'`
+* `Nat.subDigitChar 7 = '₇'`
+* `Nat.subDigitChar 10 = '*'`
+-/
 def subDigitChar (n : Nat) : Char :=
   if n = 0 then '₀' else
   if n = 1 then '₁' else
@@ -214,43 +327,71 @@ partial def toSubDigitsAux : Nat → List Char → List Char
     if n' = 0 then d::ds
     else toSubDigitsAux n' (d::ds)
 
+/--
+Converts a natural number to the list of Unicode subscript digit characters that corresponds to
+its decimal representation.
+
+Examples:
+ * `Nat.toSubDigits 0 = ['₀']`
+ * `Nat.toSubDigits 35 = ['₃', '₅']`
+-/
 def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
+/--
+Converts a natural number to a string that contains the its decimal representation as Unicode
+subscript digit characters.
+
+Examples:
+ * `Nat.toSubscriptString 0 = "₀"`
+ * `Nat.toSubscriptString 35 = "₃₅"`
+-/
 def toSubscriptString (n : Nat) : String :=
-  (toSubDigits n).asString
+  String.ofList (toSubDigits n)
 
 end Nat
 
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
 
+/--
+Returns the decimal string representation of an integer.
+-/
 protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
-    | negSucc m => "-" ++ Nat.repr (succ m)
+    | negSucc m => String.Internal.append "-" (Nat.repr (succ m))
 
 instance : Repr Int where
-  reprPrec i _ := i.repr
+  reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
 
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
-def Char.quoteCore (c : Char) : String :=
+def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
-  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
+  else if !inString && c = '\'' then "\\\'"
+  else if  c.toNat <= 31 ∨ c = '\x7f' then String.Internal.append "\\x" (smallCharToHex c)
   else String.singleton c
 where
   smallCharToHex (c : Char) : String :=
     let n  := Char.toNat c;
     let d2 := n / 16;
     let d1 := n % 16;
-    hexDigitRepr d2 ++ hexDigitRepr d1
+    String.Internal.append (hexDigitRepr d2) (hexDigitRepr d1)
 
+/--
+Quotes the character to its representation as a character literal, surrounded by single quotes and
+escaped as necessary.
+
+Examples:
+ * `'L'.quote = "'L'"`
+ * `'"'.quote = "'\\\"'"`
+-/
 def Char.quote (c : Char) : String :=
-  "'" ++ Char.quoteCore c ++ "'"
+  String.Internal.append (String.Internal.append "'" (Char.quoteCore c)) "'"
 
 instance : Repr Char where
   reprPrec c _ := c.quote
@@ -258,21 +399,26 @@ instance : Repr Char where
 protected def Char.repr (c : Char) : String :=
   c.quote
 
+/--
+Converts a string to its corresponding Lean string literal syntax. Double quotes are added to each
+end, and internal characters are escaped as needed.
+
+Examples:
+* `"abc".quote = "\"abc\""`
+* `"\"".quote = "\"\\\"\""`
+-/
 def String.quote (s : String) : String :=
-  if s.isEmpty then "\"\""
-  else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""
+  if String.Internal.isEmpty s then "\"\""
+  else String.Internal.append (String.Internal.foldl (fun s c => String.Internal.append s (c.quoteCore (inString := true))) "\"" s) "\""
 
 instance : Repr String where
   reprPrec s _ := s.quote
 
-instance : Repr String.Pos where
+instance : Repr String.Pos.Raw where
   reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
-instance : Repr Substring where
-  reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
+instance : Repr Substring.Raw where
+  reprPrec s _ := Format.text <| String.Internal.append (String.quote (Substring.Raw.Internal.toString s)) ".toRawSubstring"
 
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val

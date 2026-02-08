@@ -3,15 +3,17 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.Eval
+public import Lean.Elab.Binders
+public import Lean.IdentifierSuggestion
+meta import Lean.Parser.Do
 import Lean.Compiler.BorrowedAnnotation
-import Lean.Meta.KAbstract
-import Lean.Meta.Closure
-import Lean.Meta.MatchUtil
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Eval
-import Lean.Elab.Binders
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -42,38 +44,61 @@ open Meta
   match stx with
   | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
+    let throwExpTypeUnknown {α} : TermElabM α :=
+      throwError "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
+    let usageNote := .note m!"\
+      This notation can only be used when the expected type is an inductive type with a single constructor"
     match expectedType? with
     | some expectedType =>
       let expectedType ← whnf expectedType
+      if expectedType.getAppFn.isMVar then throwExpTypeUnknown
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+        (fun _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type"
+                    ++ usageNote)
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
-            if isPrivateNameFromImportedModule (← getEnv) ctor then
-              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
+            if (← isInaccessiblePrivateName ctor) then
+              throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
-              for i in [cinfo.numParams:xs.size] do
-                if (← getFVarLocalDecl xs[i]!).binderInfo.isExplicit then
+              for h : i in cinfo.numParams...xs.size do
+                if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n
-            let args := args.getElems
+            let mut args := args.getElems
             if args.size < numExplicitFields then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
+              let fieldsStr := if numExplicitFields == 1 then "fields" else "field"
+              let providedStr :=
+                if args.size == 0 then "none were"
+                else if args.size == 1 then "only 1 was"
+                else s!"only {args.size} were"
+              let errMsg := m!"Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` has {numExplicitFields} explicit {fieldsStr}, but {providedStr} provided"
+              if (← read).errToSorry then
+                logError errMsg
+              else
+                throwError errMsg
+              for _ in args.size...numExplicitFields do
+                let s ← mkLabeledSorry (← mkFreshTypeMVar) (synthetic := true) (unique := false)
+                args := args.push <| ← exprToSyntax s
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` does not have explicit fields, but {args.size} \
+                {if args.size == 1 then "was" else "were"} provided"
             else
-              let extra := args[numExplicitFields-1:args.size]
+              let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
-              let newArgs := args[0:numExplicitFields-1].toArray.push newLast
+              let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
-    | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
+          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has no constructors"
+          | _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has more than one constructor"
+                  ++ usageNote)
+    | none => throwExpTypeUnknown
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
@@ -98,7 +123,7 @@ open Meta
       show Nat from 0
     ```
     -/
-    let type ← withSynthesize (mayPostpone := true) do
+    let type ← withSynthesize (postpone := .yes) do
       let type ← elabType type
       if let some expectedType := expectedType? then
         -- Recall that a similar approach is used when elaborating applications
@@ -108,7 +133,7 @@ open Meta
     Recall that we do not use the same approach used to elaborate type ascriptions.
     For the `($val : $type)` notation, we just elaborate `val` using `type` and
     ensure it has type `type`. This approach only ensure the type resulting expression
-    is definitionally equal to `type`. For the `show` notation we use `let_fun` to ensure the type
+    is definitionally equal to `type`. For the `show` notation we use `have` to ensure the type
     of the resulting expression is *structurally equal* `type`. Structural equality is important,
     for example, if the resulting expression is a `simp`/`rw` parameter. Here is an example:
     ```
@@ -117,31 +142,26 @@ open Meta
     ```
     -/
     let thisId := mkIdentFrom stx `this
-    let valNew ← `(let_fun $thisId : $(← exprToSyntax type) := $val; $thisId)
+    let valNew ← `(have $thisId:ident : $(← exprToSyntax type) := $val; $thisId)
     elabTerm valNew expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtin_macro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  match stx with
-  | `(have $hy:hygieneInfo $bs* $[: $type]? := $val; $body) =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? := $val; $body)
-  | `(have $hy:hygieneInfo $bs* $[: $type]? $alts; $body)   =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? $alts; $body)
-  | `(have $x:ident $bs* $[: $type]? := $val; $body) => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $x:ident $bs* $[: $type]? $alts; $body)   => `(let_fun $x $bs* $[: $type]? $alts; $body)
-  | `(have _%$x     $bs* $[: $type]? := $val; $body) => `(let_fun _%$x $bs* $[: $type]? := $val; $body)
-  | `(have _%$x     $bs* $[: $type]? $alts; $body)   => `(let_fun _%$x $bs* $[: $type]? $alts; $body)
-  | `(have $pattern:term $[: $type]? := $val; $body) => `(let_fun $pattern:term $[: $type]? := $val; $body)
-  | _                                                => Macro.throwUnsupported
-
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices%$tk $x:ident      : $type from $val; $body)            => `(have%$tk $x : $type := $body; $val)
-  | `(suffices%$tk _%$x          : $type from $val; $body)            => `(have%$tk _%$x : $type := $body; $val)
-  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)            => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
-  | `(suffices%$tk $x:ident      : $type by%$b $tac:tacticSeq; $body) => `(have%$tk $x : $type := $body; by%$b $tac)
-  | `(suffices%$tk _%$x          : $type by%$b $tac:tacticSeq; $body) => `(have%$tk _%$x : $type := $body; by%$b $tac)
-  | `(suffices%$tk $hy:hygieneInfo $type by%$b $tac:tacticSeq; $body) => `(have%$tk $hy:hygieneInfo : $type := $body; by%$b $tac)
-  | _                                                                 => Macro.throwUnsupported
+  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x:ident : $type := $body; $val)
+  | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
+  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
+  | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
+    -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
+    -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $x:ident : $type := $body; $b:byTactic)
+  | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk _%$x : $type := $body; $b:byTactic)
+  | `(suffices%$tk $hy:hygieneInfo $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $hy:hygieneInfo : $type := $body; $b:byTactic)
+  | _ => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
@@ -193,20 +213,35 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
 
 @[builtin_macro Lean.Parser.Term.assert]  def expandAssert : Macro
   | `(assert! $cond; $body) =>
-    -- TODO: support for disabling runtime assertions
     match cond.raw.reprint with
     | some code => `(if $cond then $body else panic! ("assertion violation: " ++ $(quote code)))
     | none => `(if $cond then $body else panic! ("assertion violation"))
   | _ => Macro.throwUnsupported
+
+register_builtin_option debugAssertions : Bool := {
+  defValue := false
+  descr := "enable `debug_assert!` statements\
+    \n\
+    \nDefaults to `false` unless the Lake `buildType` is `debug`."
+}
+
+@[builtin_term_elab Lean.Parser.Term.debugAssert]  def elabDebugAssert : TermElab :=
+  adaptExpander fun
+    | `(Parser.Term.debugAssert| debug_assert! $cond; $body) => do
+      if debugAssertions.get (← getOptions) then
+        `(assert! $cond; $body)
+      else
+        return body
+    | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro
   | `(dbg_trace $arg:interpolatedStr; $body) => `(dbgTrace (s! $arg) fun _ => $body)
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported
 
-@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(sorryAx _ false)
-  withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun _ expectedType? => do
+  let type ← expectedType?.getDM mkFreshTypeMVar
+  mkLabeledSorry type (synthetic := false) (unique := true)
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPairs (elems : Array Term) : MacroM Term :=
@@ -218,45 +253,123 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       loop i acc
     else
       pure acc
-  loop (elems.size - 1) elems.back
+  loop (elems.size - 1) elems.back!
 
-open Parser in
-partial def hasCDot : Syntax → Bool
-  | Syntax.node _ k args =>
-    if k == ``Term.paren || k == ``Term.typeAscription || k == ``Term.tuple then false
-    else if k == ``Term.cdot then true
-    else args.any hasCDot
+/-- Return syntax `PProd.mk elems[0] (PProd.mk elems[1] ... (PProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkPPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(PProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back!
+
+/-- Return syntax `MProd.mk elems[0] (MProd.mk elems[1] ... (MProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
+partial def mkMPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
+    if i > 0 then
+      let i    := i - 1
+      let elem := elems[i]!
+      let acc ← `(MProd.mk $elem $acc)
+      loop i acc
+    else
+      pure acc
+  loop (elems.size - 1) elems.back!
+
+section
+open Parser
+
+def isCDotBinderKind (k : SyntaxNodeKind) : Bool :=
+  k == ``Term.paren || k == ``Term.typeAscription || k == ``Term.tuple
+
+/--
+Returns whether or not this cdot is for the given `HygieneInfo` name;
+if no hygiene info is given, then matches any cdot, no matter its hygieneInfo.
+-/
+def isCDotForInfo (s : Syntax) (hygieneInfo? : Option Name) : Bool :=
+  match s with
+  | `(· $h:hygieneInfo) =>
+    if let some info := hygieneInfo? then
+      h.getHygieneInfo == info
+    else
+      true
   | _ => false
 
 /--
-  Return `some` if succeeded expanding `·` notation occurring in
-  the given syntax. Otherwise, return `none`.
-  Examples:
-  - `· + 1` => `fun _a_1 => _a_1 + 1`
-  - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
-partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
-  if hasCDot stx then
-    let (newStx, binders) ← (go stx).run #[]
-    `(fun $binders* => $(⟨newStx⟩))
+Returns true if the given expression contains a cdot for the given `HygieneInfo` name.
+If no `HygieneInfo` name is given, then returns true if there is any cdot.
+The search is delimited by cdot binders (any syntax satisfying `isCDotBinderKind`).
+-/
+partial def hasCDot : Syntax → Option Name → Bool
+  | s@(Syntax.node _ k args), info? =>
+    if isCDotBinderKind k then false
+    else if isCDotForInfo s info? then true
+    else args.any (fun s => hasCDot s info?)
+  | _, _ => false
+
+end
+
+/--
+If the term contains any cdots that match the given `HygieneInfo` name (see `isCDotForInfo`),
+then returns `some` with the expanded syntax, otherwise returns `none`.
+
+Examples:
+- `· + 1` => `fun x => x + 1`
+- `f · · b` => `fun x1 x2 => f x1 x2 b`
+-/
+partial def expandCDot? (stx : Term) (hygieneInfo? : Option Name) : MacroM (Option Term) := do
+  if hasCDot stx hygieneInfo? then
+    withFreshMacroScope do
+      let mut (newStx, binders) ← (go stx).run #[]
+      if binders.size == 1 then
+        -- It is nicer using `x` over `x1` if there is only a single binder.
+        let x1 := binders[0]!
+        let x ← mkVarFrom x1 "x"
+        binders := binders.set! 0 x
+        newStx ← newStx.replaceM fun s => pure (if s == x1 then x else none)
+      `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
+  mkVarFrom (ref : Syntax) (s : String) : MacroM Ident := do
+    -- We do not incorporate the hygieneInfo macro scopes into the variable name.
+    -- We could, but since cdot function binders identifiers are not supposed to cross stages it would not enable anything.
+    let name ← MonadQuotation.addMacroScope <| Name.mkSimple s
+    return mkIdentFrom ref name (canonical := true)
   /--
-    Auxiliary function for expanding the `·` notation.
-    The extra state `Array Syntax` contains the new binder names.
-    If `stx` is a `·`, we create a fresh identifier, store in the
-    extra state, and return it. Otherwise, we just return `stx`. -/
-  go : Syntax → StateT (Array Ident) MacroM Syntax
-    | stx@`(($(_))) => pure stx
-    | stx@`(·) => withFreshMacroScope do
-      let id ← mkFreshIdent stx (canonical := true)
-      modify (·.push id)
-      pure id
-    | stx => match stx with
-      | .node _ k args => do
-        let args ← args.mapM go
+  Auxiliary function for expanding the `·` notation.
+  The extra state `Array Syntax` contains the new binder names.
+  If `stx` is a `·`, we create a fresh identifier, store it in the
+  extra state, and return it. Otherwise, we just return `stx`.
+  -/
+  go (stx : Syntax) : StateT (Array Ident) MacroM Syntax :=
+    match stx with
+    | .node _ k args => do
+      if isCDotForInfo stx hygieneInfo? then
+        let id ← mkVarFrom stx s!"x{(← get).size + 1}"
+        modify (fun s => s.push id)
+        pure id
+      else if isCDotBinderKind k then
+        pure stx
+      else
+        let args ←
+          if k == choiceKind then
+            if args.isEmpty then
+              return stx
+            let s ← get
+            let args' ← args.mapM (fun arg => go arg |>.run s)
+            let s' := args'[0]!.2
+            unless args'.all (fun (_, s'') => s''.size == s'.size) do
+              Macro.throwErrorAt stx "Ambiguous notation in cdot function has different numbers of '·' arguments in each alternative."
+            set s'
+            pure <| args'.map Prod.fst
+          else
+            args.mapM go
         return .node (.fromRef stx (canonical := true)) k args
-      | _ => pure stx
+    | _ => pure stx
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
@@ -268,7 +381,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let stx ← liftMacroM <| expandMacros stx
   match stx with
   | `(fun $binders* => $f $args*) =>
-    if binders == args then
+    if binders.raw.toList.isPerm args.raw.toList then
       try Term.resolveId? f catch _ => return none
     else
       return none
@@ -278,7 +391,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   | `(fun $binders* => rightact% $f $a $b)
   | `(fun $binders* => binrel% $f $a $b)
   | `(fun $binders* => binrel_no_prop% $f $a $b) =>
-    if binders == #[a, b] then
+    if binders == #[a, b] || binders == #[b, a] then
       try Term.resolveId? f catch _ => return none
     else
       return none
@@ -291,34 +404,34 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
 where
   expandCDotArg? (stx : Term) : MacroM (Option Term) :=
     match stx with
-    | `(($e)) => Term.expandCDot? e
-    | _ => Term.expandCDot? stx
+    | `(($h:hygieneInfo $e)) => Term.expandCDot? e h.getHygieneInfo
+    | _ => Term.expandCDot? stx none
 
 @[builtin_macro Lean.Parser.Term.paren] def expandParen : Macro
-  | `(($e)) => return (← expandCDot? e).getD e
+  | `(($h:hygieneInfo $e)) => return (← expandCDot? e h.getHygieneInfo).getD e
   | _       => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.tuple] def expandTuple : Macro
   | `(()) => ``(Unit.unit)
-  | `(($e, $es,*)) => do
+  | `(($h:hygieneInfo $e, $es,*)) => do
     let pairs ← mkPairs (#[e] ++ es)
-    return (← expandCDot? pairs).getD pairs
+    return (← expandCDot? pairs h.getHygieneInfo).getD pairs
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.typeAscription] def expandTypeAscription : Macro
-  | `(($e : $(type)?)) => do
-    match (← expandCDot? e) with
+  | `(($h:hygieneInfo $e : $(type)?)) => do
+    match (← expandCDot? e h.getHygieneInfo) with
     | some e => `(($e : $(type)?))
     | none   => Macro.throwUnsupported
   | _ => Macro.throwUnsupported
 
 @[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
   | `(($e : $type)), _ => do
-    let type ← withSynthesize (mayPostpone := true) <| elabType type
+    let type ← withSynthesize (postpone := .yes) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
   | `(($e :)), expectedType? => do
-    let e ← withSynthesize (mayPostpone := false) <| elabTerm e none
+    let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e
   | _, _ => throwUnsupportedSyntax
 
@@ -350,7 +463,10 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
-     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\n\
+        has type{indentExpr heqType}\n\
+        equality expected\
+        {← Term.hintAutoImplicitFailure heq (expected := "an equality")}"
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs
@@ -388,7 +504,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                return (← mkEqRec motive h (← mkEqSymm heq), none)
          let motive ← mkMotive lhs expectedAbst
          if badMotive?.isSome || !(← isTypeCorrect motive) then
-           -- Before failing try tos use `subst`
+           -- Before failing try to use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
              withLocalIdentFor heqStx heq fun heqStx => do
                let h ← instantiateMVars h
@@ -408,7 +524,13 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
        | none =>
          let h ← elabTerm hStx none
          let hType ← inferType h
-         let hTypeAbst ← kabstract hType lhs
+         let mut hTypeAbst ← kabstract hType lhs
+         unless hTypeAbst.hasLooseBVars do
+           hTypeAbst ← kabstract hType rhs
+           unless hTypeAbst.hasLooseBVars do
+             throwError "invalid `▸` notation, the equality{indentExpr heq}\nhas type {indentExpr heqType}\nbut neither side of the equality is mentioned in the type{indentExpr hType}"
+           heq ← mkEqSymm heq
+           (lhs, rhs) := (rhs, lhs)
          let motive ← mkMotive lhs hTypeAbst
          unless (← isTypeCorrect motive) do
            throwError "invalid `▸` notation, failed to compute motive for the substitution"
@@ -441,13 +563,12 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
     let implName ← mkAuxName `unsafe_impl
-    addDecl <| Declaration.defnDecl {
+    addDecl <| Declaration.opaqueDecl {
       name        := implName
       type        := unsafeDefn.type
       levelParams := unsafeDefn.levelParams
       value       := (← mkOfNonempty unsafeDefn.type)
-      hints       := .opaque
-      safety      := .safe
+      isUnsafe    := false
     }
     setImplementedBy implName unsafeFn
     return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs
@@ -467,30 +588,6 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
         return ← tac expectedType?
     (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
       (← `(do $cmds)))
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.haveI] def elabHaveI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(haveI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLocalDeclD x.getId ty fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(letI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLetDecl x.getId ty val fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

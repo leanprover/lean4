@@ -3,9 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.InternalExceptionId
-import Lean.Meta.Basic
+public import Lean.Exception
+
+public section
 
 namespace Lean.Elab
 
@@ -38,7 +41,7 @@ def isAutoBoundImplicitLocalException? (ex : Exception) : Option Name :=
   | _ => none
 
 def throwAlreadyDeclaredUniverseLevel [Monad m] [MonadError m] (u : Name) : m α :=
-  throwError "a universe level named '{u}' has already been declared"
+  throwError "a universe level named `{u}` has already been declared"
 
 -- Throw exception to abort elaboration of the current command without producing any error message
 def throwAbortCommand {α m} [MonadExcept Exception m] : m α :=
@@ -60,7 +63,12 @@ def isAbortTacticException (ex : Exception) : Bool :=
 def isAbortExceptionId (id : InternalExceptionId) : Bool :=
   id == abortCommandExceptionId || id == abortTermExceptionId || id == abortTacticExceptionId
 
-def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos) (endPos : String.Pos) : Message :=
+def isAbortException (ex : Exception) : Bool :=
+  match ex with
+  | Exception.internal id .. => isAbortExceptionId id
+  | _ => false
+
+def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos.Raw) (endPos : String.Pos.Raw) : Message :=
   let pos := fileMap.toPosition pos
   let endPos := fileMap.toPosition endPos
   { fileName, pos, endPos, data, severity }

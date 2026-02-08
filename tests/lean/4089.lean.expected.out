@@ -1,0 +1,39 @@
+[Compiler.resetReuse] size: 6
+    def f x.1 : obj :=
+      cases x.1 : obj
+      | Prod.mk =>
+        let fst.2 := proj[0] x.1;
+        let snd.3 := proj[1] x.1;
+        let _x.4 := reset[2] x.1;
+        let _x.5 := reuse _x.4 in ctor_0[Prod.mk] snd.3 fst.2;
+        return _x.5
+[Compiler.resetReuse] size: 6
+    def Sigma.toProd._redArg x.1 : obj :=
+      cases x.1 : obj
+      | Sigma.mk =>
+        let fst.2 := proj[0] x.1;
+        let snd.3 := proj[1] x.1;
+        let _x.4 := reset[2] x.1;
+        let _x.5 := reuse _x.4 in ctor_0[Prod.mk] fst.2 snd.3;
+        return _x.5
+[Compiler.resetReuse] size: 1
+    def Sigma.toProd α β x.1 : obj :=
+      let _x.2 := Sigma.toProd._redArg x.1;
+      return _x.2
+[Compiler.resetReuse] size: 13
+    def foo x.1 : tobj :=
+      cases x.1 : tobj
+      | List.nil =>
+        let _x.2 := ctor_0[List.nil] ;
+        return _x.2
+      | List.cons =>
+        let head.3 := proj[0] x.1;
+        cases head.3 : tobj
+        | Prod.mk =>
+          let tail.4 := proj[1] x.1;
+          let _x.5 := reset[2] x.1;
+          let fst.6 := proj[0] head.3;
+          let snd.7 := proj[1] head.3;
+          let _x.8 := foo tail.4;
+          let _x.9 := reuse _x.5 in ctor_1[List.cons] fst.6 _x.8;
+          return _x.9

@@ -1,14 +1,17 @@
-termination_by.lean:8:2-8:18: error: unused `termination_by`, function is not recursive
-termination_by.lean:11:2-11:21: error: unused `decreasing_by`, function is not recursive
-termination_by.lean:14:2-15:21: error: unused termination hints, function is not recursive
-termination_by.lean:18:2-18:18: error: unused `termination_by`, function is partial
-termination_by.lean:21:2-21:21: error: unused `decreasing_by`, function is partial
-termination_by.lean:24:2-25:21: error: unused termination hints, function is partial
-termination_by.lean:28:0-28:16: error: unused `termination_by`, function is unsafe
-termination_by.lean:31:2-31:21: error: unused `decreasing_by`, function is unsafe
-termination_by.lean:34:2-35:21: error: unused termination hints, function is unsafe
-termination_by.lean:39:4-39:20: error: unused `termination_by`, function is not recursive
-termination_by.lean:43:4-43:20: error: unused `termination_by`, function is not recursive
-termination_by.lean:53:2-53:18: error: unused `termination_by`, function is not recursive
-termination_by.lean:63:6-63:11: error: Missing `termination_by`; this function is mutually recursive with isEven, which has a `termination_by` clause.
-termination_by.lean:80:6-80:7: error: Missing `termination_by`; this function is mutually recursive with Test.f, which has a `termination_by` clause.
+termination_by.lean:9:2-9:18: warning: unused `termination_by`, function is not recursive
+termination_by.lean:12:2-12:21: warning: unused `decreasing_by`, function is not recursive
+termination_by.lean:15:2-16:21: warning: unused termination hints, function is not recursive
+termination_by.lean:19:2-19:18: warning: unused `termination_by`, function is partial
+termination_by.lean:22:2-22:21: warning: unused `decreasing_by`, function is partial
+termination_by.lean:25:2-26:21: warning: unused termination hints, function is partial
+termination_by.lean:29:0-29:16: warning: unused `termination_by`, function is unsafe
+termination_by.lean:32:2-32:21: warning: unused `decreasing_by`, function is unsafe
+termination_by.lean:35:2-36:21: warning: unused termination hints, function is unsafe
+termination_by.lean:40:4-40:20: warning: unused `termination_by`, function is not recursive
+termination_by.lean:44:4-44:20: warning: unused `termination_by`, function is not recursive
+termination_by.lean:54:2-54:18: warning: unused `termination_by`, function is not recursive
+termination_by.lean:62:2-62:23: error: incomplete set of termination hints:
+This function is mutually recursive with isOdd, which does not have a termination hint.
+The present clause is ignored.
+Try this:
+  [apply] termination_by x1 => x1

@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.ToString.Basic
+public import Init.Data.String.Basic
+
+public section
 universe u
 
 namespace Lean
@@ -20,6 +24,10 @@ instance [ToString α] : ToString (LOption α) where
     | .none   => "none"
     | .undef  => "undef"
     | .some a => "(some " ++ toString a ++ ")"
+
+def LOption.toOption : LOption α → Option α
+  | .some a => .some a
+  | _ => .none
 
 end Lean
 

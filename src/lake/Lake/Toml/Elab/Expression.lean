@@ -3,7 +3,11 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Toml.Elab.Value
+module
+
+prelude
+public import Lake.Toml.Elab.Value
+meta import all Lake.Toml.Grammar
 
 /-!
 # TOML Expression Elaboration
@@ -35,7 +39,7 @@ protected def KeyTy.toString (ty : KeyTy) :=
   | .stdTable => "table"
   | .array => "array"
   | .dottedPrefix => "dotted"
-  | .headerPrefix => "dotted"
+  | .headerPrefix => "header"
 
 instance : ToString KeyTy := ⟨KeyTy.toString⟩
 
@@ -65,7 +69,7 @@ def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
     let k := k.str <| ← elabSimpleKey kStx
     if let some ty := (← get).keyTys.find? k then
       unless ty matches .dottedPrefix do
-        throwErrorAt kStx "cannot redefine {ty} key '{k}'"
+        throwErrorAt kStx "cannot redefine {ty} key `{k}`"
     else
       modify fun s => {s with keyTys := s.keyTys.insert k .dottedPrefix}
     return k
@@ -75,11 +79,11 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
     | throwErrorAt kv "ill-formed key-value pair syntax"
   let `(key|$[$ks:simpleKey].*) := kStx
     | throwErrorAt kStx "ill-formed key syntax"
-  let tailKeyStx := ks.back
+  let tailKeyStx := ks.back!
   let k ← elabSubKeys ks.pop
   let k := k.str <| ← elabSimpleKey tailKeyStx
   if let some ty := (← get).keyTys.find? k then
-    throwErrorAt tailKeyStx "cannot redefine {ty} key '{k}'"
+    throwErrorAt tailKeyStx "cannot redefine {ty} key `{k}`"
   else
     let v ← elabVal v
     modify fun s => {
@@ -95,7 +99,7 @@ def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
       s with
       arrKeyTys
       currArrKey := .anonymous
-      keyTys := arrKeyTys.find? .anonymous |>.getD {}
+      keyTys := arrKeyTys.get? .anonymous |>.getD {}
     }
   ks.foldlM (init := Name.anonymous) fun k kStx => do
     let k ← k.str <$> elabSimpleKey kStx
@@ -103,10 +107,10 @@ def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
       match ty with
       | .array =>
         let some keyTys := (← get).arrKeyTys.find? k
-          | throwError "(internal) bad array key '{k}'"
+          | throwError "(internal) bad array key `{k}`"
         modify fun s => {s with keyTys, currArrKey := k}
       | .stdTable | .headerPrefix | .dottedPrefix  => pure ()
-      | _ => throwErrorAt kStx m!"cannot redefine {ty} key '{k}'"
+      | _ => throwErrorAt kStx m!"cannot redefine {ty} key `{k}`"
     else
       modify fun s => {s with keyTys := s.keyTys.insert k .headerPrefix}
     return k
@@ -116,12 +120,12 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
     | throwErrorAt x "ill-formed table syntax"
   let `(key|$[$ks:simpleKey].*) := kStx
     | throwErrorAt kStx "ill-formed key syntax"
-  let tailKey := ks.back
+  let tailKey := ks.back!
   let k ← elabHeaderKeys ks.pop
   let k ← k.str <$> elabSimpleKey tailKey
   if let some ty := (← get).keyTys.find? k then
     unless ty matches .headerPrefix do
-      throwErrorAt tailKey m!"cannot redefine {ty} key '{k}'"
+      throwErrorAt tailKey m!"cannot redefine {ty} key `{k}`"
   modify fun s => {
     s with
     currKey := k
@@ -134,21 +138,21 @@ def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
     | throwErrorAt x "ill-formed array table syntax"
   let `(key|$[$ks:simpleKey].*) := k
     | throwErrorAt x "ill-formed key syntax"
-  let tailKey := ks.back
+  let tailKey := ks.back!
   let k ← elabHeaderKeys ks.pop
   let k := k.str (← elabSimpleKey tailKey)
   if let some ty := (← get).keyTys.find? k then
     if ty matches .array then
       let s ← get
       let some keyTys := s.arrParents.find? k >>= s.arrKeyTys.find?
-        | throwError "(internal) bad array key '{k}'"
+        | throwError "(internal) bad array key `{k}`"
       modify fun s => {
         s with
         keyTys, currKey := k, currArrKey := k
         items := s.items.push ⟨x, k, .array x #[.table x {}]⟩
       }
     else
-      throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
+      throwErrorAt tailKey s!"cannot redefine {ty} key `{k}`"
   else
     modify fun s =>
       let keyTys := s.keyTys.insert k .array
@@ -205,7 +209,7 @@ where
       if let some v := v? then
         match v with
         | .array ref vs =>
-          .array ref <| vs.modify (vs.size-1) fun
+          .array ref <| vs.modify (vs.size - 1) fun
           | .table ref t' => .table ref <| insert t' kRef k' ks newV
           | _ => .table kRef {}
         | .table ref t' => .table ref <| insert t' kRef k' ks newV
@@ -213,11 +217,11 @@ where
       else
         .table kRef <| insert {} kRef k' ks newV
 
-nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
+@[inline] nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
   let (_,s) ← x.run {}
   return mkSimpleTable s.items
 
-def elabToml (x : TSyntax ``toml) : CoreM Table := do
+public def elabToml (x : TSyntax ``toml) : CoreM Table := do
   let `(toml|$xs*) := x
     | throwErrorAt x "ill-formed TOML syntax"
   TomlElabM.run do

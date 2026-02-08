@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 namespace Lean
 
 private builtin_initialize importingRef : IO.Ref Bool ← IO.mkRef false
@@ -39,7 +43,7 @@ def initializing : IO Bool :=
 
 /--
 Execute `x` with "importing" flag turned on.
-When the "importing" flag is set to true, we allow user-extensions defined with with
+When the "importing" flag is set to true, we allow user-extensions defined with
 the `initialize` command to update global references.
 IMPORTANT: There is no semaphore controlling the access to these global references.
 We assume these global references are updated by a single execution thread.

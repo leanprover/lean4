@@ -56,6 +56,12 @@ forallBoundedTelescope t (some 1) fun xs b => do
   checkM $ pure $ b == t0;
   pure ()
 
+/--
+trace: [Meta.debug] ----- tst2 -----
+[Meta.debug] Nat → IO Nat
+[Meta.debug] IO Nat
+-/
+#guard_msgs in
 #eval tst2
 
 
@@ -72,6 +78,12 @@ forallBoundedTelescope t (some 0) fun xs b => do
   checkM $ pure $ b == t0;
   pure ()
 
+/--
+trace: [Meta.debug] ----- tst2 -----
+[Meta.debug] IO Nat
+[Meta.debug] IO Nat
+-/
+#guard_msgs in
 #eval tst3
 
 def tst4 : MetaM Unit := do
@@ -82,12 +94,12 @@ withLocalDeclD `y nat fun y => do
 let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
 let val ← mkAppM `Add.add #[mkNatLit 10, y];
-let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! x.fvarId! `z nat val;
+let ⟨zId, nId, subst⟩ ← m.mvarId!.assertAfter x.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
-withMVarContext nId do {
+nId.withContext do {
   print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
-  assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
+  nId.assign (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };
 print m;
@@ -95,6 +107,19 @@ let expected ← mkAppM `Add.add #[x, val];
 checkM (isDefEq m expected);
 pure ()
 
+set_option pp.mvars false in
+/--
+trace: [Meta.debug] ----- tst4 -----
+[Meta.debug] x y : Nat
+    ⊢ Nat
+[Meta.debug] ?_ (Add.add 10 y) y
+[Meta.debug] x z y : Nat
+    ⊢ Nat
+[Meta.debug] x y z
+[Meta.debug] Add.add x z
+[Meta.debug] Add.add x (Add.add 10 y)
+-/
+#guard_msgs in
 #eval tst4
 
 def tst5 : MetaM Unit := do
@@ -106,13 +131,22 @@ withLocalDeclD `h₁ p fun h₁ => do
 let eq ← mkEq p q;
 withLocalDeclD `h₂ eq fun h₂ => do
 let m ← mkFreshExprMVar q;
-let r ← replaceLocalDecl m.mvarId! h₁.fvarId! q h₂;
+let r ← m.mvarId!.replaceLocalDecl h₁.fvarId! q h₂;
 print (← ppGoal r.mvarId);
-assignExprMVar r.mvarId (mkFVar r.fvarId);
+r.mvarId.assign (mkFVar r.fvarId);
 print m;
 check m;
 pure ()
 
+/--
+trace: [Meta.debug] ----- tst5 -----
+[Meta.debug] p q : Prop
+    h₁ : q
+    h₂ : p = q
+    ⊢ q
+[Meta.debug] Eq.mp h₂ h₁
+-/
+#guard_msgs in
 #eval tst5
 
 def tst6 : MetaM Unit := do
@@ -123,12 +157,12 @@ withLocalDeclD `y nat fun y => do
 let m ← mkFreshExprMVar nat;
 print (← ppGoal m.mvarId!);
 let val ← mkAppM `Add.add #[mkNatLit 10, y];
-let ⟨zId, nId, subst⟩ ← assertAfter m.mvarId! y.fvarId! `z nat val;
+let ⟨zId, nId, subst⟩ ← m.mvarId!.assertAfter y.fvarId! `z nat val;
 print m;
 print (← ppGoal nId);
-withMVarContext nId do {
+nId.withContext do {
   print m!"{subst.apply x} {subst.apply y} {mkFVar zId}";
-  assignExprMVar nId (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
+  nId.assign (← mkAppM `Add.add #[subst.apply x, mkFVar zId]);
   print (mkMVar nId)
 };
 print m;
@@ -136,6 +170,19 @@ let expected ← mkAppM `Add.add #[x, val];
 checkM (isDefEq m expected);
 pure ()
 
+set_option pp.mvars false in
+/--
+trace: [Meta.debug] ----- tst6 -----
+[Meta.debug] x y : Nat
+    ⊢ Nat
+[Meta.debug] ?_ (Add.add 10 y)
+[Meta.debug] x y z : Nat
+    ⊢ Nat
+[Meta.debug] x y z
+[Meta.debug] Add.add x z
+[Meta.debug] Add.add x (Add.add 10 y)
+-/
+#guard_msgs in
 #eval tst6
 
 def tst7 : MetaM Unit := do
@@ -152,6 +199,13 @@ print expected;
 checkM (pure $ val == expected);
 pure ()
 
+/--
+trace: [Meta.debug] ----- tst7 -----
+[Meta.debug] Add.add x y
+[Meta.debug] Add.add 0 1
+[Meta.debug] Add.add 0 1
+-/
+#guard_msgs in
 #eval tst7
 
 def aux := [1, 2, 3].isEmpty
@@ -166,6 +220,14 @@ def tst8 : MetaM Unit := do
   print t
   pure ()
 
+/--
+trace: [Meta.debug] ----- tst8 -----
+[Meta.debug] match [1, 2, 3] with
+    | [] => true
+    | head :: tail => false
+[Meta.debug] false
+-/
+#guard_msgs in
 #eval tst8
 
 def tst9 : MetaM Unit := do
@@ -174,6 +236,11 @@ def tst9 : MetaM Unit := do
   print (toString defInsts)
   pure ()
 
+/--
+trace: [Meta.debug] ----- tst9 -----
+[Meta.debug] [(instOfNatNat, 100)]
+-/
+#guard_msgs in
 #eval tst9
 
 
@@ -192,6 +259,7 @@ def tst10 : MetaM Unit := do
   assert! (← getConstInfoInduct `Foo).isNested
   assert! !(← getConstInfoInduct `Prod).isNested
 
+#guard_msgs in
 #eval tst10
 
 def tst11 : MetaM Unit := do
@@ -201,6 +269,8 @@ def tst11 : MetaM Unit := do
     checkM (isDefEq x y)
     pure ()
 
+/-- trace: [Meta.debug] ----- tst11 ----- -/
+#guard_msgs in
 #eval tst11
 
 def tst12 : MetaM Unit := do
@@ -216,6 +286,13 @@ def tst12 : MetaM Unit := do
   check val; print val
   pure ()
 
+/--
+trace: [Meta.debug] ----- tst12 -----
+[Meta.debug] Add.add 10 y
+[Meta.debug] Add.add (Int.ofNat 10) (Int.ofNat y)
+[Meta.debug] Add.add 10 y
+-/
+#guard_msgs in
 #eval tst12
 
 #check @Add.add

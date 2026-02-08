@@ -126,7 +126,7 @@ partial def extractGameState : Lean.Expr → Lean.MetaM GameState
 
 def update2dArray {α : Type} : Array (Array α) → Coords → α → Array (Array α)
 | a, ⟨x,y⟩, v =>
-   Array.set! a y $ Array.set! (Array.get! a y) x v
+   Array.set! a y $ Array.set! a[y]! x v
 
 def update2dArrayMulti {α : Type} : Array (Array α) → List Coords → α → Array (Array α)
 | a, [], _ => a
@@ -144,13 +144,13 @@ def delabGameState : Lean.Expr → Lean.PrettyPrinter.Delaborator.Delab
        try extractGameState e
        catch err => failure -- can happen if game state has variables in it
 
-     let topBar := Array.mkArray numCols $ ← `(horizontal_border| ─)
+     let topBar := Array.replicate numCols $ ← `(horizontal_border| ─)
      let emptyCell ← `(game_cell| ░)
-     let emptyRow := Array.mkArray numCols emptyCell
+     let emptyRow := Array.replicate numCols emptyCell
      let emptyRowStx ← `(game_row| │$emptyRow:game_cell*│)
-     let allRows := Array.mkArray numRows emptyRowStx
+     let allRows := Array.replicate numRows emptyRowStx
 
-     let a0 := Array.mkArray numRows $ Array.mkArray numCols emptyCell
+     let a0 := Array.replicate numRows $ Array.replicate numCols emptyCell
      let a1 := update2dArray a0 playerCoords $ ← `(game_cell| @)
      let a2 := update2dArrayMulti a1 walls $ ← `(game_cell| ▓)
      let aa ← Array.mapM delabGameRow a2
@@ -181,19 +181,19 @@ inductive Move where
 @[simp]
 def make_move : GameState → Move → GameState
 | ⟨s, ⟨x,y⟩, w⟩, Move.east =>
-             if w.notElem ⟨x+1, y⟩ ∧ x + 1 ≤ s.x
+             if !w.elem ⟨x+1, y⟩ ∧ x + 1 ≤ s.x
              then ⟨s, ⟨x+1, y⟩, w⟩
              else ⟨s, ⟨x,y⟩, w⟩
 | ⟨s, ⟨x,y⟩, w⟩, Move.west =>
-             if w.notElem ⟨x-1, y⟩
+             if !w.elem ⟨x-1, y⟩
              then ⟨s, ⟨x-1, y⟩, w⟩
              else ⟨s, ⟨x,y⟩, w⟩
 | ⟨s, ⟨x,y⟩, w⟩, Move.north =>
-             if w.notElem ⟨x, y-1⟩
+             if !w.elem ⟨x, y-1⟩
              then ⟨s, ⟨x, y-1⟩, w⟩
              else ⟨s, ⟨x,y⟩, w⟩
 | ⟨s, ⟨x,y⟩, w⟩, Move.south =>
-             if w.notElem ⟨x, y + 1⟩ ∧ y + 1 ≤ s.y
+             if !w.elem ⟨x, y + 1⟩ ∧ y + 1 ≤ s.y
              then ⟨s, ⟨x, y+1⟩, w⟩
              else ⟨s, ⟨x,y⟩, w⟩
 
@@ -211,7 +211,7 @@ theorem step_west
   {s: Coords}
   {x y : Nat}
   {w: List Coords}
-  (hclear' : w.notElem ⟨x,y⟩)
+  (hclear' : !w.elem ⟨x,y⟩)
   (W : can_escape ⟨s,⟨x,y⟩,w⟩) :
   can_escape ⟨s,⟨x+1,y⟩,w⟩ :=
    by have hmm : GameState.mk s ⟨x,y⟩ w = make_move ⟨s,⟨x+1, y⟩,w⟩ Move.west :=
@@ -224,7 +224,7 @@ theorem step_east
   {s: Coords}
   {x y : Nat}
   {w: List Coords}
-  (hclear' : w.notElem ⟨x+1,y⟩)
+  (hclear' : !w.elem ⟨x+1,y⟩)
   (hinbounds : x + 1 ≤ s.x)
   (E : can_escape ⟨s,⟨x+1,y⟩,w⟩) :
   can_escape ⟨s,⟨x, y⟩,w⟩ :=
@@ -237,7 +237,7 @@ theorem step_north
   {s: Coords}
   {x y : Nat}
   {w: List Coords}
-  (hclear' : w.notElem ⟨x,y⟩)
+  (hclear' : !w.elem ⟨x,y⟩)
   (N : can_escape ⟨s,⟨x,y⟩,w⟩) :
   can_escape ⟨s,⟨x, y+1⟩,w⟩ :=
     by have hmm : GameState.mk s ⟨x,y⟩ w = make_move ⟨s,⟨x, y+1⟩,w⟩ Move.north :=
@@ -250,7 +250,7 @@ theorem step_south
   {s: Coords}
   {x y : Nat}
   {w: List Coords}
-  (hclear' : w.notElem ⟨x,y+1⟩)
+  (hclear' : !w.elem ⟨x,y+1⟩)
   (hinbounds : y + 1 ≤ s.y)
   (S : can_escape ⟨s,⟨x,y+1⟩,w⟩) :
   can_escape ⟨s,⟨x, y⟩,w⟩ :=

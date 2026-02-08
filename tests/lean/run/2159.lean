@@ -1,9 +1,9 @@
 /--
-warning: declaration uses 'sorry'
+trace: ⊢ 1.2 < 2
 ---
-info: ⊢ 1.2 < 2
+trace: ⊢ 1.2 < 2
 ---
-info: ⊢ 1.2 < 2
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : 1.2 < 2 := by

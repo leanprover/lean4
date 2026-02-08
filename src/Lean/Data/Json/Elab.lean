@@ -3,9 +3,13 @@ Copyright (c) 2022 E.W.Ayers. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson
-import Lean.Syntax
+public import Lean.Data.Json.FromToJson
+public meta import Lean.Syntax
+
+public section
 
 /-!
 # JSON-like syntax for Lean.

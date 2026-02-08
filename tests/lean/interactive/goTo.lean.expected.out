@@ -31,7 +31,7 @@
   "targetSelectionRange":
   {"start": {"line": 2, "character": 10}, "end": {"line": 2, "character": 13}},
   "targetRange":
-  {"start": {"line": 2, "character": 0}, "end": {"line": 2, "character": 19}},
+  {"start": {"line": 2, "character": 10}, "end": {"line": 2, "character": 13}},
   "originSelectionRange":
   {"start": {"line": 16, "character": 2}, "end": {"line": 16, "character": 5}}}]
 {"textDocument": {"uri": "file:///goTo.lean"},
@@ -40,7 +40,7 @@
   "targetSelectionRange":
   {"start": {"line": 2, "character": 10}, "end": {"line": 2, "character": 13}},
   "targetRange":
-  {"start": {"line": 2, "character": 0}, "end": {"line": 2, "character": 19}},
+  {"start": {"line": 2, "character": 10}, "end": {"line": 2, "character": 13}},
   "originSelectionRange":
   {"start": {"line": 20, "character": 8},
    "end": {"line": 20, "character": 11}}}]
@@ -51,7 +51,8 @@
   {"start": {"line": 22, "character": 10},
    "end": {"line": 22, "character": 27}},
   "targetRange":
-  {"start": {"line": 22, "character": 0}, "end": {"line": 23, "character": 9}},
+  {"start": {"line": 22, "character": 10},
+   "end": {"line": 22, "character": 27}},
   "originSelectionRange":
   {"start": {"line": 28, "character": 10},
    "end": {"line": 28, "character": 27}}}]
@@ -70,7 +71,7 @@
   "targetSelectionRange":
   {"start": {"line": 9, "character": 4}, "end": {"line": 9, "character": 10}},
   "targetRange":
-  {"start": {"line": 9, "character": 0}, "end": {"line": 17, "character": 1}},
+  {"start": {"line": 9, "character": 4}, "end": {"line": 9, "character": 10}},
   "originSelectionRange":
   {"start": {"line": 34, "character": 14},
    "end": {"line": 34, "character": 20}}}]
@@ -78,10 +79,21 @@
  "position": {"line": 43, "character": 7}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
+  {"start": {"line": 38, "character": 26},
+   "end": {"line": 38, "character": 38}},
+  "targetRange":
+  {"start": {"line": 38, "character": 26},
+   "end": {"line": 38, "character": 38}},
+  "originSelectionRange":
+  {"start": {"line": 43, "character": 7},
+   "end": {"line": 43, "character": 11}}},
+ {"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
   {"start": {"line": 36, "character": 16},
    "end": {"line": 36, "character": 24}},
   "targetRange":
-  {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 39}},
+  {"start": {"line": 36, "character": 16},
+   "end": {"line": 36, "character": 24}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]
@@ -92,8 +104,8 @@
   {"start": {"line": 38, "character": 26},
    "end": {"line": 38, "character": 38}},
   "targetRange":
-  {"start": {"line": 38, "character": 22},
-   "end": {"line": 40, "character": 78}},
+  {"start": {"line": 38, "character": 26},
+   "end": {"line": 38, "character": 38}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]
@@ -103,7 +115,15 @@
   "targetSelectionRange":
   {"start": {"line": 46, "character": 4}, "end": {"line": 46, "character": 7}},
   "targetRange":
-  {"start": {"line": 46, "character": 0}, "end": {"line": 46, "character": 23}},
+  {"start": {"line": 46, "character": 4}, "end": {"line": 46, "character": 7}},
+  "originSelectionRange":
+  {"start": {"line": 48, "character": 28},
+   "end": {"line": 48, "character": 29}}},
+ {"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 4, "character": 10}, "end": {"line": 4, "character": 13}},
+  "targetRange":
+  {"start": {"line": 4, "character": 10}, "end": {"line": 4, "character": 13}},
   "originSelectionRange":
   {"start": {"line": 48, "character": 28},
    "end": {"line": 48, "character": 29}}}]
@@ -129,9 +149,9 @@
  "position": {"line": 60, "character": 7}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
+  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 56}},
   "targetRange":
-  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
+  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 56}},
   "originSelectionRange":
   {"start": {"line": 60, "character": 7},
    "end": {"line": 60, "character": 11}}}]
@@ -139,17 +159,17 @@
  "position": {"line": 87, "character": 16}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "targetRange":
-  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 87, "character": 7},
    "end": {"line": 87, "character": 18}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "targetRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "originSelectionRange":
   {"start": {"line": 87, "character": 7},
    "end": {"line": 87, "character": 18}}}]
@@ -157,27 +177,35 @@
  "position": {"line": 87, "character": 12}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "originSelectionRange":
+  {"start": {"line": 87, "character": 7},
+   "end": {"line": 87, "character": 18}}},
+ {"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
   {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "targetRange":
   {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "originSelectionRange":
   {"start": {"line": 87, "character": 7},
-   "end": {"line": 87, "character": 15}}}]
+   "end": {"line": 87, "character": 18}}}]
 {"textDocument": {"uri": "file:///goTo.lean"},
  "position": {"line": 89, "character": 13}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "targetRange":
-  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 89, "character": 8},
    "end": {"line": 89, "character": 16}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "targetRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
   "originSelectionRange":
   {"start": {"line": 89, "character": 8},
    "end": {"line": 89, "character": 16}}}]
@@ -185,17 +213,17 @@
  "position": {"line": 91, "character": 13}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "targetRange":
-  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 91, "character": 8},
    "end": {"line": 91, "character": 17}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
   "targetRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
   "originSelectionRange":
   {"start": {"line": 91, "character": 8},
    "end": {"line": 91, "character": 17}}}]
@@ -213,17 +241,17 @@
  "position": {"line": 99, "character": 13}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
+  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 8}},
   "targetRange":
-  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
+  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 99, "character": 8},
    "end": {"line": 99, "character": 16}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 8}},
+  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
   "targetRange":
-  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 24}},
+  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
   "originSelectionRange":
   {"start": {"line": 99, "character": 8},
    "end": {"line": 99, "character": 16}}}]
@@ -233,7 +261,7 @@
   "targetSelectionRange":
   {"start": {"line": 73, "character": 4}, "end": {"line": 73, "character": 12}},
   "targetRange":
-  {"start": {"line": 73, "character": 0}, "end": {"line": 74, "character": 12}},
+  {"start": {"line": 73, "character": 4}, "end": {"line": 73, "character": 12}},
   "originSelectionRange":
   {"start": {"line": 103, "character": 8},
    "end": {"line": 103, "character": 16}}}]
@@ -241,9 +269,9 @@
  "position": {"line": 108, "character": 13}}
 [{"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "targetRange":
-  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 108, "character": 8},
    "end": {"line": 108, "character": 16}}},
@@ -251,15 +279,15 @@
   "targetSelectionRange":
   {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
   "targetRange":
-  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 41}},
+  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
   "originSelectionRange":
   {"start": {"line": 108, "character": 8},
    "end": {"line": 108, "character": 16}}},
  {"targetUri": "file:///goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
   "targetRange":
-  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
   "originSelectionRange":
   {"start": {"line": 108, "character": 8},
    "end": {"line": 108, "character": 16}}}]
@@ -269,7 +297,39 @@
   "targetSelectionRange":
   {"start": {"line": 9, "character": 4}, "end": {"line": 9, "character": 10}},
   "targetRange":
-  {"start": {"line": 9, "character": 0}, "end": {"line": 17, "character": 1}},
+  {"start": {"line": 9, "character": 4}, "end": {"line": 9, "character": 10}},
   "originSelectionRange":
   {"start": {"line": 112, "character": 4},
    "end": {"line": 112, "character": 10}}}]
+{"textDocument": {"uri": "file:///goTo.lean"},
+ "position": {"line": 118, "character": 8}}
+[{"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "originSelectionRange":
+  {"start": {"line": 118, "character": 7},
+   "end": {"line": 118, "character": 14}}},
+ {"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 116, "character": 17},
+   "end": {"line": 116, "character": 22}},
+  "targetRange":
+  {"start": {"line": 116, "character": 17},
+   "end": {"line": 116, "character": 22}},
+  "originSelectionRange":
+  {"start": {"line": 118, "character": 7},
+   "end": {"line": 118, "character": 14}}}]
+{"textDocument": {"uri": "file:///goTo.lean"},
+ "position": {"line": 124, "character": 8}}
+[{"targetUri": "file:///goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 122, "character": 4},
+   "end": {"line": 122, "character": 10}},
+  "targetRange":
+  {"start": {"line": 122, "character": 4},
+   "end": {"line": 122, "character": 10}},
+  "originSelectionRange":
+  {"start": {"line": 124, "character": 7},
+   "end": {"line": 124, "character": 13}}}]

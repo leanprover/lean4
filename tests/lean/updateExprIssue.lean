@@ -11,7 +11,7 @@ unsafe def tst1 : MetaM Unit := do
 
 #eval tst1
 
-set_option trace.compiler.ir.init true
+set_option trace.Compiler.saveMono true
 def sefFn (e : Expr) (f : Expr) : Expr :=
   match e with
   | .app _ a => e.updateApp! f a

@@ -3,9 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
+public import Lean.Meta.Basic
 import Lean.Meta.CollectFVars
-import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
@@ -40,11 +43,15 @@ where
 
   /-- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
   collectPropsStep : StateRefT (Bool × FVarIdSet) MetaM Unit := do
-    let usedSet := (← get).2
     for localDecl in (← getLCtx) do
-      if (← isProp localDecl.type) then
-        if (← dependsOnPred localDecl.type usedSet.contains) then
-          addUsedFVar localDecl.fvarId
+      let usedSet := (← get).2
+      unless usedSet.contains localDecl.fvarId do
+        if (← isProp localDecl.type) then
+          if (← dependsOnPred localDecl.type usedSet.contains) then
+            addUsedFVar localDecl.fvarId
+        if let some v := localDecl.value? then
+          if (← dependsOnPred v usedSet.contains) then
+            addUsedFVar localDecl.fvarId
 
   collectProps : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     modify fun s => (false, s.2)
@@ -65,15 +72,12 @@ where
   - It occurs in the target type, or
   - There is a relevant variable `y` that depends on `x`, or
   - If `indirectProps` is true, the type of `x` is a proposition and it depends on a relevant variable `y`.
+  - If `indirectProps` is true, `x` is a local declaration and its value mentions a relevant variable `y`.
 
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.
 -/
-abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
+@[inline] public def _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
   cleanupCore mvarId toPreserve indirectProps
-
-@[deprecated MVarId.cleanup]
-abbrev cleanup (mvarId : MVarId) : MetaM MVarId := do
-  mvarId.cleanup
 
 end Lean.Meta

@@ -3,23 +3,26 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Reduce
+public import Lean.Meta.Tactic.Apply
+
+public section
 
 namespace Lean.Meta
 
-private def useKernel (lhs rhs : Expr) : MetaM Bool := do
-  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
-    return false
-  else
-    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
-
 /--
 Close given goal using `Eq.refl`.
+
+With (`check := false`), the elaborator does not check if the goal is actually a definitionaly
+equality.
+
+See `Lean.MVarId.applyRfl` for the variant that also consults `@[refl]` lemmas, and which
+backs the `rfl` tactic.
 -/
-def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
+def _root_.Lean.MVarId.refl (mvarId : MVarId) (check := true) : MetaM Unit := do
   mvarId.withContext do
     mvarId.checkNotAssigned `refl
     let targetType ← mvarId.getType'
@@ -27,23 +30,13 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
-    let success ← if (← useKernel lhs rhs) then
-      ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
-    else
-      isDefEq lhs rhs
-    unless success do
-      throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+    if check then
+      let success ← isDefEq lhs rhs
+      unless success do
+        throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!
     let α := targetType.appFn!.appFn!.appArg!
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
-
-@[deprecated MVarId.refl]
-def refl (mvarId : MVarId) : MetaM Unit := do
-  mvarId.refl
-
-@[deprecated MVarId.refl]
-def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
-  try mvarId.refl catch _ => throwError msg
 
 /--
 Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return `mvarId`.

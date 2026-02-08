@@ -3,14 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Simp.Main
+
+public section
 
 namespace Lean.Meta
 
-open Simp (UsedSimps SimprocsArray)
+open Simp (Stats SimprocsArray)
 
 namespace SimpAll
 
@@ -24,12 +26,13 @@ structure Entry where
   deriving Inhabited
 
 structure State where
-  modified  : Bool := false
-  mvarId    : MVarId
-  entries   : Array Entry := #[]
-  ctx       : Simp.Context
-  simprocs  : SimprocsArray
-  usedSimps : UsedSimps := {}
+  modified     : Bool := false
+  mvarId       : MVarId
+  entries      : Array Entry := #[]
+  ctx          : Simp.Context
+  simprocs     : SimprocsArray
+  usedTheorems : Simp.UsedSimps := {}
+  diag         : Simp.Diagnostics := {}
 
 abbrev M := StateRefT State MetaM
 
@@ -41,8 +44,9 @@ private def initEntries : M Unit := do
     unless simpThms.isErased (.fvar h) do
       let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
-      simpThms ← simpThms.addTheorem (.fvar h) proof
-      modify fun s => { s with ctx.simpTheorems := simpThms }
+      let ctx := (← get).ctx
+      simpThms ← simpThms.addTheorem (.fvar h) proof (config := ctx.indexConfig)
+      modify fun s => { s with ctx := s.ctx.setSimpTheorems simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
         let type ← instantiateMVars localDecl.type
@@ -56,14 +60,15 @@ private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
   let simprocs := (← get).simprocs
   -- simplify entries
-  for i in [:(← get).entries.size] do
-    let entry := (← get).entries[i]!
+  let entries := (← get).entries
+  for h : i in *...entries.size do
+    let entry := entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
-    let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
-    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (usedSimps := (← get).usedSimps)
-    modify fun s => { s with usedSimps }
+    let ctx := ctx.setSimpTheorems simpThmsWithoutEntry
+    let (r, stats) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (stats := { (← get) with })
+    modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
     match r with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
@@ -94,16 +99,16 @@ private partial def loop : M Bool := do
         trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
         let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
         let idNew ← mkFreshId
-        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)
+        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew) (config := ctx.indexConfig)
         modify fun s => { s with
           modified         := true
-          ctx.simpTheorems := simpThmsNew
+          ctx              := ctx.setSimpTheorems simpThmsNew
           entries[i]       := { entry with type := typeNew, proof := proofNew, id := .other idNew }
         }
   -- simplify target
   let mvarId := (← get).mvarId
-  let (r, usedSimps) ← simpTarget mvarId (← get).ctx simprocs (usedSimps := (← get).usedSimps)
-  modify fun s => { s with usedSimps }
+  let (r, stats) ← simpTarget mvarId (← get).ctx simprocs (stats := { (← get) with })
+  modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
   match r with
   | none => return true
   | some mvarIdNew =>
@@ -143,12 +148,15 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (stats : Stats := {}) : MetaM (Option MVarId × Stats) := do
   mvarId.withContext do
-    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps, simprocs }
+    let (r, s) ← SimpAll.main.run { stats with mvarId, ctx, simprocs }
     if let .some mvarIdNew := r then
       if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
         throwError "simp_all made no progress"
-    return (r, s.usedSimps)
+    return (r, { s with })
+
+builtin_initialize
+  registerTraceClass `Meta.Tactic.simp.all
 
 end Lean.Meta

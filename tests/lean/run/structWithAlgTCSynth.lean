@@ -85,22 +85,6 @@ end Quotient
 
 end Mathlib.Data.Quot
 
-section Mathlib.Init.ZeroOne
-
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
-class One (α : Type u) where
-  one : α
-
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-section Mathlib.Init.ZeroOne
-
 section Mathlib.Logic.Function.Basic
 
 namespace Function
@@ -116,22 +100,6 @@ end Function
 end Mathlib.Logic.Function.Basic
 
 section Mathlib.Algebra.Group.Defs
-
-class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hSMul : α → β → γ
-
-class SMul (M : Type _) (α : Type _) where
-  smul : M → α → α
-
-infixr:73 " • " => HSMul.hSMul
-
-instance instHSMul [SMul α β] : HSMul α β β where
-  hSMul := SMul.smul
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
 
 class Semigroup (G : Type u) extends Mul G where
   mul_assoc : ∀ a b c : G, a * b * c = a * (b * c)
@@ -153,18 +121,10 @@ class AddZeroClass (M : Type u) extends Zero M, Add M where
   zero_add : ∀ a : M, 0 + a = a
   add_zero : ∀ a : M, a + 0 = a
 
-def npowRec [One M] [Mul M] : Nat → M → M
-  | 0, _ => 1
-  | n + 1, a => a * npowRec n a
-
-def nsmulRec [Zero M] [Add M] : Nat → M → M
-  | 0, _ => 0
-  | n + 1, a => a + nsmulRec n a
-
 class AddMonoid (M : Type u) extends AddSemigroup M, AddZeroClass M where
   nsmul : Nat → M → M := nsmulRec
   nsmul_zero : ∀ x, nsmul 0 x = 0 := by intros; rfl
-  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = x + nsmul n x := by intros; rfl
+  nsmul_succ : ∀ (n : Nat) (x), nsmul (n + 1) x = nsmul n x + x := by intros; rfl
 
 attribute [instance 150] AddSemigroup.toAdd
 attribute [instance 50] AddZeroClass.toAdd
@@ -172,7 +132,7 @@ attribute [instance 50] AddZeroClass.toAdd
 class Monoid (M : Type u) extends Semigroup M, MulOneClass M where
   npow : Nat → M → M := npowRec
   npow_zero : ∀ x, npow 0 x = 1 := by intros; rfl
-  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = x * npow n x := by intros; rfl
+  npow_succ : ∀ (n : Nat) (x), npow (n + 1) x = npow n x * x := by intros; rfl
 
 @[default_instance high] instance Monoid.Pow {M : Type _} [Monoid M] : Pow M Nat :=
   ⟨fun x n ↦ Monoid.npow n x⟩
@@ -220,7 +180,7 @@ class SubNegMonoid (G : Type u) extends AddMonoid G, Neg G, Sub G where
   sub_eq_add_neg : ∀ a b : G, a - b = a + -b := by intros; rfl
   zsmul : Int → G → G := zsmulRec
   zsmul_zero' : ∀ a : G, zsmul 0 a = 0 := by intros; rfl
-  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = a + zsmul (Int.ofNat n) a := by
+  zsmul_succ' (n : Nat) (a : G) : zsmul (Int.ofNat n.succ) a = zsmul (Int.ofNat n) a + a := by
     intros; rfl
   zsmul_neg' (n : Nat) (a : G) : zsmul (Int.negSucc n) a = -zsmul n.succ a := by intros; rfl
 
@@ -572,7 +532,7 @@ infixr:25 " →+* " => RingHom
 namespace RingHom
 
 def id (α : Type _) : α →+* α := by
-  refine' { toFun := _root_.id.. }
+  refine { toFun := _root_.id.. }
 
 def comp (g : β →+* γ) (f : α →+* β) : α →+* γ :=
   { toFun := g.toFun ∘ f.toFun }
@@ -612,8 +572,8 @@ end Mathlib.Algebra.Quotient
 
 section Mathlib.Algebra.Module.Submodule.Basic
 
-structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] : Type v
+  extends AddSubmonoid M
 
 def Submodule.toAddSubgroup [Ring R] [AddCommGroup M] {module_M : Module R M} (p : Submodule R M) : AddSubgroup M :=
   { p.toAddSubmonoid with }
@@ -1323,7 +1283,7 @@ instance instAlgebra
 /-!
 Typeclass synthesis should remain fast when multiple `with` patterns are nested
 
-Prior to #2478, this requires over 30000 hearbeats.
+Prior to #2478, this requires over 30000 heartbeats.
 -/
 set_option synthInstance.maxHeartbeats 400 in
 instance instAlgebra' (R M : Type _) [CommRing R] (I : Ideal (Quot_r R M)) :

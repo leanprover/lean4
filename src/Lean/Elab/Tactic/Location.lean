@@ -3,9 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Tactic.ElabTerm
+
+public section
 
 namespace Lean.Elab.Tactic
 
@@ -20,9 +23,10 @@ inductive Location where
 /-
 Recall that
 ```
-syntax locationWildcard := "*"
-syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
-syntax location         := withPosition("at " locationWildcard <|> locationHyp)
+syntax locationWildcard := " *"
+syntax locationType     := patternIgnore(atomic("|" noWs "-") <|> "⊢")
+syntax locationHyp      := (ppSpace colGt (term:max <|> locationType))+
+syntax location         := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=
@@ -30,7 +34,10 @@ def expandLocation (stx : Syntax) : Location :=
   if arg.getKind == ``Parser.Tactic.locationWildcard then
     Location.wildcard
   else
-    Location.targets arg[0].getArgs (!arg[1].isNone)
+    let locationHyps := arg[0].getArgs
+    let hypotheses := locationHyps.filter (·.getKind != ``Parser.Tactic.locationType)
+    let numTurnstiles := locationHyps.size - hypotheses.size
+    Location.targets hypotheses (numTurnstiles > 0)
 
 def expandOptLocation (stx : Syntax) : Location :=
   if stx.isNone then

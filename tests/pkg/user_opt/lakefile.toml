@@ -1,0 +1,9 @@
+name = "user_opt"
+defaultTargets = ["UserOpt", "UserOptCmdline"]
+
+[[lean_lib]]
+name = "UserOpt"
+
+[[lean_lib]]
+name = "UserOptCmdline"
+leanOptions = { myBoolOpt = true, weak.myNatOpt = 4, weak.notMyNatOpt = 5 }

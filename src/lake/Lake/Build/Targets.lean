@@ -3,114 +3,139 @@ Copyright (c) 2023 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Monad
+module
+
+prelude
+public import Lake.Config.Monad
+public import Lake.Config.InputFile
+import Lake.Build.Infos
 
 /-! # Build Target Fetching
 Utilities for fetching package, library, module, and executable targets and facets.
 -/
 
+open Lean (Name)
+open System (FilePath)
+
 namespace Lake
+
+/-- Get the target in the workspace corresponding to this configuration. -/
+@[inline] public def KConfigDecl.get
+  [Monad m] [MonadError m] [MonadLake m] (self : KConfigDecl kind)
+: m (ConfigTarget kind) := do
+  let some pkg ← findPackageByKey? self.pkg
+    | error s!"package of target '{self.pkg}/{self.name}' not found in workspace"
+  let config := cast (by rw [self.kind_eq, pkg.keyName_eq]) self.config
+  return ConfigTarget.mk pkg self.name config
 
 /-! ## Package Facets & Targets -/
 
 /-- Fetch the build job of the specified package target. -/
-def Package.fetchTargetJob (self : Package)
-(target : Name) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := self.findTargetConfig? target
-    | error s!"package '{self.name}' has no target '{target}'"
-  return config.getJob (← fetch <| self.target target)
+public def Package.fetchTargetJob
+  (self : Package) (target : Name)
+: FetchM OpaqueJob := do
+  return (← fetch <| self.target target).toOpaque
 
 /-- Fetch the build result of a target. -/
-protected def TargetDecl.fetch (self : TargetDecl)
-[FamilyOut CustomData (self.pkg, self.name) α] : IndexBuildM α := do
-  let some pkg ← findPackage? self.pkg
+public protected def TargetDecl.fetch
+  (self : TargetDecl) [FamilyOut (CustomData self.pkg) self.name α]
+: FetchM (Job α) := do
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name
 
 /-- Fetch the build job of the target. -/
-def TargetDecl.fetchJob (self : TargetDecl) : IndexBuildM (BuildJob Unit) :=  do
-  let some pkg ← findPackage? self.pkg
+public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
-  return self.config.getJob (← fetch <| pkg.target self.name)
+  return (← (pkg.target self.name).fetch).toOpaque
 
 /-- Fetch the build result of a package facet. -/
-@[inline] protected def PackageFacetDecl.fetch (pkg : Package)
-(self : PackageFacetDecl) [FamilyOut PackageData self.name α] : IndexBuildM α := do
-  fetch <| pkg.facet self.name
-
-/-- Fetch the build job of a package facet. -/
-def PackageFacetConfig.fetchJob (pkg : Package)
-(self : PackageFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error s!"package facet '{name}' has no associated build job"
-  return getJob <| ← fetch <| pkg.facet self.name
+@[inline] public protected def PackageFacetDecl.fetch
+  (pkg : Package) (self : PackageFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| pkg.facetCore self.name
 
 /-- Fetch the build job of a library facet. -/
-def Package.fetchFacetJob (name : Name)
-(self : Package) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).packageFacetConfigs.find? name
-    | error s!"package facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+public def Package.fetchFacetJob
+  (name : Name) (self : Package)
+: FetchM OpaqueJob := do
+  return  (← fetch <| self.facet name).toOpaque
 
 /-! ## Module Facets -/
 
 /-- Fetch the build result of a module facet. -/
-@[inline] protected def ModuleFacetDecl.fetch (mod : Module)
-(self : ModuleFacetDecl) [FamilyOut ModuleData self.name α] : IndexBuildM α := do
-  fetch <| mod.facet self.name
+@[inline] public protected def ModuleFacetDecl.fetch
+  (mod : Module) (self : ModuleFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| mod.facetCore self.name
 
 /-- Fetch the build job of a module facet. -/
-def ModuleFacetConfig.fetchJob (mod : Module)
-(self : ModuleFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error "module facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| mod.facet self.name
-
-/-- Fetch the build job of a module facet. -/
-def Module.fetchFacetJob
-(name : Name) (self : Module) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).moduleFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob :=
+  return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Library Facets -/
 
-/-- Get the Lean library in the workspace with the configuration's name. -/
-@[inline] def LeanLibConfig.get
-(self : LeanLibConfig) [Monad m] [MonadError m] [MonadLake m] : m LeanLib := do
-  let some lib ← findLeanLib? self.name
-    | error "Lean library '{self.name}' does not exist in the workspace"
-  return lib
+/-- Get the Lean library in the workspace corresponding to this configuration. -/
+@[inline] public def LeanLibDecl.get
+  (self : LeanLibDecl) [Monad m] [MonadError m] [MonadLake m] : m LeanLib
+:= KConfigDecl.get self
+
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLib.fetch (self : LeanLib) : FetchM (Job Unit) :=
+  self.default.fetch
+
+/-- Fetch the build of the default facets of the library -/
+@[inline] public protected def LeanLibDecl.fetch (self : LeanLibDecl) : FetchM (Job Unit) := do
+  (← self.get).fetch
 
 /-- Fetch the build result of a library facet. -/
-@[inline] protected def LibraryFacetDecl.fetch (lib : LeanLib)
-(self : LibraryFacetDecl) [FamilyOut LibraryData self.name α] : IndexBuildM α := do
-  fetch <| lib.facet self.name
+@[inline] public protected def LibraryFacetDecl.fetch
+  (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| lib.facetCore self.name
 
 /-- Fetch the build job of a library facet. -/
-def LibraryFacetConfig.fetchJob (lib : LeanLib)
-(self : LibraryFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error "library facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| lib.facet self.name
-
-/-- Fetch the build job of a library facet. -/
-def LeanLib.fetchFacetJob (name : Name)
-(self : LeanLib) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).libraryFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+public def LeanLib.fetchFacetJob
+  (name : Name) (self : LeanLib)
+: FetchM OpaqueJob := return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Executable Target -/
 
-/-- Get the Lean executable in the workspace with the configuration's name. -/
-@[inline] def LeanExeConfig.get (self : LeanExeConfig)
-[Monad m] [MonadError m] [MonadLake m] : m LeanExe := do
-  let some exe ← findLeanExe? self.name
-    | error "Lean executable '{self.name}' does not exist in the workspace"
-  return exe
+/-- Get the Lean executable in the workspace corresponding to this configuration. -/
+@[inline] public def LeanExeDecl.get
+  (self : LeanExeDecl) [Monad m] [MonadError m] [MonadLake m] : m LeanExe
+:= KConfigDecl.get self
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] def LeanExeConfig.fetch
-(self : LeanExeConfig) : IndexBuildM (BuildJob FilePath) := do
-  (← self.get).exe.fetch
+@[inline] public protected def LeanExe.fetch (self : LeanExe) : FetchM (Job FilePath) :=
+  self.exe.fetch
+
+/-- Fetch the build of the Lean executable. -/
+@[inline] public protected def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
+  (← self.get).fetch
+
+/-! ## Input File / Directory Targets -/
+
+/-- Fetch the input file. -/
+@[inline] public protected def InputFile.fetch (self : InputFile) : FetchM (Job FilePath) :=
+  self.default.fetch
+
+/-- Get the input file in the workspace corresponding to this configuration. -/
+@[inline] public def InputFileDecl.get
+  (self : InputFileDecl) [Monad m] [MonadError m] [MonadLake m] : m InputFile
+:= KConfigDecl.get self
+
+/-- Fetch the input file. -/
+@[inline] public protected def InputFileDecl.fetch (self : InputFileDecl) : FetchM (Job FilePath) := do
+  (← self.get).default.fetch
+
+/-- Fetch the files in the input directory. -/
+@[inline] public protected def InputDir.fetch (self : InputDir) : FetchM (Job (Array FilePath)) :=
+  self.default.fetch
+
+/-- Get the input directory in the workspace corresponding to this configuration. -/
+@[inline] public def InputDirDecl.get
+  (self : InputDirDecl) [Monad m] [MonadError m] [MonadLake m] : m InputDir
+:= KConfigDecl.get self
+
+/-- Fetch the files in the input directory. -/
+@[inline] public protected def InputDirDecl.fetch (self : InputDirDecl) : FetchM (Job (Array FilePath)) := do
+  (← self.get).default.fetch

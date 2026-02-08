@@ -1,16 +1,28 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.LinearCombo
+public import Init.Omega.Coeffs
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.ToString.Macro
 import Init.Omega.Int
+import Init.PropLemmas
+import Init.RCases
+
+public section
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
+
+-- most defs used in proofs by reflection
+@[expose] section
 
 namespace Lean.Omega
 
@@ -37,8 +49,11 @@ deriving BEq, DecidableEq, Repr
 
 namespace Constraint
 
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString Constraint where
-  toString := fun
+  toString := private fun
   | ⟨none, none⟩ => "(-∞, ∞)"
   | ⟨none, some y⟩ => s!"(-∞, {y}]"
   | ⟨some x, none⟩ => s!"[{x}, ∞)"
@@ -58,11 +73,6 @@ def translate (c : Constraint) (t : Int) : Constraint := c.map (· + t)
 
 theorem translate_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.translate t) (v + t) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, translate, map]
-  · exact Int.add_le_add_right w t
-  · exact Int.add_le_add_right w t
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.add_le_add_right w₁ t
-    · exact Int.add_le_add_right w₂ t
 
 /--
 Flip a constraint.
@@ -79,11 +89,6 @@ def neg (c : Constraint) : Constraint := c.flip.map (- ·)
 
 theorem neg_sat : {c : Constraint} → {v : Int} → sat c v → sat (c.neg) (-v) := by
   rintro ⟨_ | l, _ | u⟩ v w <;> simp_all [sat, neg, flip, map]
-  · exact Int.neg_le_neg w
-  · exact Int.neg_le_neg w
-  · rcases w with ⟨w₁, w₂⟩; constructor
-    · exact Int.neg_le_neg w₂
-    · exact Int.neg_le_neg w₁
 
 /-- The trivial constraint, satisfied everywhere. -/
 def trivial : Constraint := ⟨none, none⟩
@@ -111,9 +116,7 @@ def isExact : Constraint → Bool
 
 theorem not_sat_of_isImpossible (h : isImpossible c) {t} : ¬ c.sat t := by
   rcases c with ⟨_ | l, _ | u⟩ <;> simp [isImpossible, sat] at h ⊢
-  intro w
-  rw [Int.not_le]
-  exact Int.lt_of_lt_of_le h w
+  exact Int.lt_of_lt_of_le h
 
 /--
 Scale a constraint by multiplying by an integer.
@@ -139,17 +142,14 @@ theorem scale_sat {c : Constraint} (k) (w : c.sat t) : (scale k c).sat (k * t) :
   · rcases c with ⟨_ | l, _ | u⟩ <;> split <;> rename_i h <;> simp_all [sat, flip, map]
     · replace h := Int.le_of_lt h
       exact Int.mul_le_mul_of_nonneg_left w h
-    · rw [Int.not_lt] at h
-      exact Int.mul_le_mul_of_nonpos_left h w
+    · exact Int.mul_le_mul_of_nonpos_left h w
     · replace h := Int.le_of_lt h
       exact Int.mul_le_mul_of_nonneg_left w h
-    · rw [Int.not_lt] at h
-      exact Int.mul_le_mul_of_nonpos_left h w
+    · exact Int.mul_le_mul_of_nonpos_left h w
     · constructor
       · exact Int.mul_le_mul_of_nonneg_left w.1 (Int.le_of_lt h)
       · exact Int.mul_le_mul_of_nonneg_left w.2 (Int.le_of_lt h)
-    · replace h := Int.not_lt.mp h
-      constructor
+    · constructor
       · exact Int.mul_le_mul_of_nonpos_left h w.2
       · exact Int.mul_le_mul_of_nonpos_left h w.1
 
@@ -181,13 +181,13 @@ theorem combo_sat (a) (w₁ : c₁.sat x₁) (b) (w₂ : c₂.sat x₂) :
 
 /-- The conjunction of two constraints. -/
 def combine (x y : Constraint) : Constraint where
-  lowerBound := max x.lowerBound y.lowerBound
-  upperBound := min x.upperBound y.upperBound
+  lowerBound := Option.merge max x.lowerBound y.lowerBound
+  upperBound := Option.merge min x.upperBound y.upperBound
 
 theorem combine_sat : (c : Constraint) → (c' : Constraint) → (t : Int) →
     (c.combine c').sat t = (c.sat t ∧ c'.sat t) := by
   rintro ⟨_ | l₁, _ | u₁⟩ <;> rintro ⟨_ | l₂, _ | u₂⟩ t
-    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le] at *
+    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.merge] at *
   · rw [And.comm]
   · rw [← and_assoc, And.comm (a := l₂ ≤ t), and_assoc]
   · rw [and_assoc]
@@ -210,21 +210,19 @@ theorem div_sat (c : Constraint) (t : Int) (k : Nat) (n : k ≠ 0) (h : (k : Int
   · simp_all [sat, div]
   · simp [sat, div] at w ⊢
     apply Int.le_of_sub_nonneg
-    rw [← Int.sub_ediv_of_dvd _ h, ← ge_iff_le, Int.div_nonneg_iff_of_pos n]
+    rw [← Int.sub_ediv_of_dvd _ h, Int.ediv_nonneg_iff_of_pos n]
     exact Int.sub_nonneg_of_le w
   · simp [sat, div] at w ⊢
     apply Int.le_of_sub_nonneg
-    rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, ← ge_iff_le,
-      Int.div_nonneg_iff_of_pos n]
+    rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, Int.ediv_nonneg_iff_of_pos n]
     exact Int.sub_nonneg_of_le w
   · simp [sat, div] at w ⊢
     constructor
     · apply Int.le_of_sub_nonneg
-      rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, ← ge_iff_le,
-        Int.div_nonneg_iff_of_pos n]
+      rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, Int.ediv_nonneg_iff_of_pos n]
       exact Int.sub_nonneg_of_le w.1
     · apply Int.le_of_sub_nonneg
-      rw [← Int.sub_ediv_of_dvd _ h, ← ge_iff_le, Int.div_nonneg_iff_of_pos n]
+      rw [← Int.sub_ediv_of_dvd _ h, Int.ediv_nonneg_iff_of_pos n]
       exact Int.sub_nonneg_of_le w.2
 
 /--
@@ -255,7 +253,7 @@ theorem addEquality_sat (w : c + Coeffs.dot x y = 0) :
     Constraint.sat' { lowerBound := some (-c), upperBound := some (-c) } x y := by
   simp [Constraint.sat', Constraint.sat]
   rw [Int.eq_iff_le_and_ge] at w
-  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonnneg_iff_neg_le', and_comm] at w
+  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonneg_iff_neg_le', and_comm] at w
 
 end Constraint
 
@@ -300,6 +298,8 @@ theorem normalize_sat {s x v} (w : s.sat' x v) :
   · split
     · simp
     · dsimp [Constraint.sat'] at w
+      simp only [IntList.gcd_eq_zero] at h
+      simp only [IntList.dot_eq_zero_of_left_eq_zero h] at w
       simp_all
   · split
     · exact w
@@ -311,7 +311,7 @@ def positivize? : Constraint × Coeffs → Option (Constraint × Coeffs)
     if 0 ≤ x.leading then
       none
     else
-      (s.neg, Coeffs.smul x (-1))
+      some (s.neg, Coeffs.smul x (-1))
 
 /-- Multiply by `-1` if the leading coefficient is negative, otherwise do nothing. -/
 noncomputable def positivize (p : Constraint × Coeffs) : Constraint × Coeffs :=
@@ -344,7 +344,7 @@ def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
     | none => match normalize? (s, x) with
       | none => none
       | some (s', x') => some (s', x')
-    | some (s', x') => normalize (s', x')
+    | some (s', x') => some (normalize (s', x'))
 
 /-- `positivize` and `normalize` -/
 def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=

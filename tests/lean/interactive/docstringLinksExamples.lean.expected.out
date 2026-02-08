@@ -1,0 +1,24 @@
+{"textDocument": {"uri": "file:///docstringLinksExamples.lean"},
+ "position": {"line": 27, "character": 13}}
+{"range":
+ {"start": {"line": 27, "character": 4}, "end": {"line": 27, "character": 24}},
+ "contents":
+ {"value":
+  "```lean\ncomplicatedIOProgram : IO Unit\n```\n***\nDoes something complicated with IO that involves output.\n\n```lean example\n#eval complicatedIOProgram\n```\n```output\n-- Hello!\n-- More output\n```\n",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///docstringLinksExamples.lean"},
+ "position": {"line": 50, "character": 13}}
+{"range":
+ {"start": {"line": 50, "character": 4}, "end": {"line": 50, "character": 31}},
+ "contents":
+ {"value":
+  "```lean\nanotherComplicatedIOProgram : IO Unit\n```\n***\nDoes something complicated with IO that involves output.\n\n```lean example\n#eval anotherComplicatedIOProgram\n```\n\n  ```output\n  -- Hello!\n  --     More output\n  ```\n",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///docstringLinksExamples.lean"},
+ "position": {"line": 67, "character": 13}}
+{"range":
+ {"start": {"line": 67, "character": 4}, "end": {"line": 67, "character": 34}},
+ "contents":
+ {"value":
+  "```lean\nyetAnotherComplicatedIOProgram : IO Unit\n```\n***\nDoes something complicated with IO that involves output.\n\n```lean example\n#eval yetAnotherComplicatedIOProgram\n```\n\n  ```output\n  -- Hello!\n  --     More output\n  ```\n",
+  "kind": "markdown"}}

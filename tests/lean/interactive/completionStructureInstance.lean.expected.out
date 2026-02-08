@@ -1,0 +1,666 @@
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 10, "character": 17}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 10, 17, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 10, 17, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 10, 17, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 10, 17, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 10, 17, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 10, 17, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 10, 17, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 10, 17, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 13, "character": 18}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 13, 18, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 13, 18, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 13, 18, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 13, 18, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 13, 18, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 13, 18, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 13, 18, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 13, 18, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 17, "character": 2}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 17, 2, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 17, 2, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 17, 2, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 17, 2, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 17, 2, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 17, 2, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 17, 2, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 17, 2, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 21, "character": 3}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 21, 3, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 21, 3, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 21, 3, 0]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 21, 3, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 21, 3, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 21, 3, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 25, "character": 5}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 25, 5, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 25, 5, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 25, 5, 0]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 25, 5, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 25, 5, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 25, 5, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 29, "character": 9}}
+{"items": [], "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 34, "character": 4}}
+{"items": [], "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 39, "character": 2}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 39, 2, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 39, 2, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 39, 2, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 39, 2, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 39, 2, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 39, 2, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 39, 2, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 39, 2, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 43, "character": 12}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 43, 12, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 43, 12, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 43, 12, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 43, 12, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 43, 12, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 43, 12, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 43, 12, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 43, 12, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 46, "character": 17}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 46, 17, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 46, 17, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 46, 17, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 46, 17, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 46, 17, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 46, 17, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 46, 17, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 46, 17, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 50, "character": 2}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 50, 2, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 50, 2, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 50, 2, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 50, 2, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 50, 2, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 50, 2, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 50, 2, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 50, 2, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 55, "character": 3}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 55, 3, 1]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 55, 3, 1]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 55, 3, 1]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 55, 3, 1]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 55, 3, 1]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 55, 3, 1]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 60, "character": 5}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 60, 5, 1]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 60, 5, 1]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 60, 5, 1]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 60, 5, 1]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 60, 5, 1]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 60, 5, 1]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 66, "character": 4}}
+{"items": [], "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 72, "character": 2}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 72, 2, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 72, 2, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 72, 2, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 72, 2, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 72, 2, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 72, 2, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 72, 2, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 72, 2, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 78, "character": 4}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 78, 4, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 78, 4, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 78, 4, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 78, 4, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 78, 4, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 78, 4, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 78, 4, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 78, 4, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 82, "character": 27}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 82, 27, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 82, 27, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 82, 27, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 82, 27, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 82, 27, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 82, 27, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 82, 27, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 82, 27, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 85, "character": 32}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 85, 32, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 85, 32, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 85, 32, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 85, 32, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 85, 32, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 85, 32, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 85, 32, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 85, 32, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 88, "character": 32}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 88, 32, 0]},
+  {"label": "bar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 88, 32, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 88, 32, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 88, 32, 0]}],
+ "isIncomplete": true}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 88, 32, 0]}
+Resolution of bar:
+{"label": "bar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 88, 32, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 88, 32, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 88, 32, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 91, "character": 33}}
+{"items":
+ [{"label": "foo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 91, 33, 0]},
+  {"label": "foobar",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 91, 33, 0]},
+  {"label": "barfoo",
+   "kind": 5,
+   "detail": "field",
+   "data": ["file:///completionStructureInstance.lean", 91, 33, 0]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 91, 33, 0]}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 91, 33, 0]}
+Resolution of barfoo:
+{"label": "barfoo",
+ "kind": 5,
+ "detail": "field",
+ "data": ["file:///completionStructureInstance.lean", 91, 33, 0]}
+{"textDocument": {"uri": "file:///completionStructureInstance.lean"},
+ "position": {"line": 96, "character": 52}}
+{"items":
+ [{"label": "aLongUniqueIdentifier",
+   "kind": 21,
+   "data":
+   ["file:///completionStructureInstance.lean",
+    96,
+    52,
+    0,
+    "caLongUniqueIdentifier"]}],
+ "isIncomplete": false}
+Resolution of aLongUniqueIdentifier:
+{"label": "aLongUniqueIdentifier",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["file:///completionStructureInstance.lean",
+  96,
+  52,
+  0,
+  "caLongUniqueIdentifier"]}

@@ -1,0 +1,13 @@
+name = "lake"
+srcDir = "../../src/lake"
+defaultTargets = ["Lake", "lake"]
+
+[[lean_lib]]
+name = "Lake"
+defaultFacets = ["shared"]
+
+[[lean_exe]]
+name = "lake"
+root = "LakeMain"
+needs = ["Lake"]
+supportInterpreter = true

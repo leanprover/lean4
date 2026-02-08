@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Elab.Tactic.Change
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -15,11 +19,9 @@ open Meta
   | `(conv| change $e) => withMainContext do
     let lhs ← getLhs
     let mvarCounterSaved := (← getMCtx).mvarCounter
-    let r ← elabTermEnsuringType e (← inferType lhs)
-    logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
-    unless (← isDefEqGuarded r lhs) do
-      throwError "invalid 'change' conv tactic, term{indentExpr r}\nis not definitionally equal to current left-hand-side{indentExpr lhs}"
-    changeLhs r
+    let lhs' ← elabChange lhs e
+    logUnassignedAndAbort (← filterOldMVars (← getMVars lhs') mvarCounterSaved)
+    changeLhs lhs'
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Conv

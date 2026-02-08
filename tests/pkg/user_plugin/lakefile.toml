@@ -1,0 +1,10 @@
+name = "user_plugin"
+defaultTargets = ["UserPlugin", "UserEnvPlugin"]
+
+[[lean_lib]]
+name = "UserPlugin"
+defaultFacets = ["shared"]
+
+[[lean_lib]]
+name = "UserEnvPlugin"
+defaultFacets = ["shared"]

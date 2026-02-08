@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.App
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.App
+public import Lean.Elab.BuiltinNotation
+
+public section
 
 /-! # Auxiliary elaboration functions: AKA custom elaborators -/
 
@@ -18,7 +22,7 @@ private def getMonadForIn (expectedType? : Option Expr) : TermElabM Expr := do
     | some expectedType =>
       match (← isTypeApp? expectedType) with
       | some (m, _) => return m
-      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+      | none => throwError "invalid 'for_in%' notation, expected type is not of the form `M α`{indentExpr expectedType}"
 
 private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
@@ -26,12 +30,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
@@ -42,7 +44,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance
@@ -52,12 +54,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in'% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in'% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
           try
@@ -70,7 +70,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance
@@ -96,7 +96,7 @@ Here are brief descriptions of each of the operator types:
 - `rightact% f a b` elaborates `f a b` as a right action (the `b` operand "acts upon" the `a` operand).
   Only `a` participates in the protocol since `b` can have an unrelated type.
   This is used by `HPow` since, for example, there are both `Real -> Nat -> Real` and `Real -> Real -> Real`
-  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2220)
+  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2854)
 - There are also `binrel%` and `binrel_no_prop%` (see the docstring for `elabBinRelCore`).
 
 The elaborator works as follows:
@@ -188,7 +188,7 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
   the macro declaration names in the `op` nodes.
   -/
   let result ← go s
-  synthesizeSyntheticMVars (mayPostpone := true)
+  synthesizeSyntheticMVars (postpone := .yes)
   return result
 where
   go (s : Syntax) := do
@@ -198,8 +198,8 @@ where
     | `(unop% $f $arg) => processUnOp s f arg
     | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
     | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
-    | `(($e)) =>
-      if hasCDot e then
+    | `(($h:hygieneInfo $e)) =>
+      if hasCDot e h.getHygieneInfo then
         processLeaf s
       else
         go e
@@ -213,14 +213,14 @@ where
         | none => processLeaf s
 
   processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     -- treat corresponding argument as leaf for `leftact/rightact`
     let lhs ← if kind == .leftact then processLeaf lhs else go lhs
     let rhs ← if kind == .rightact then processLeaf rhs else go rhs
     return .binop ref kind f lhs rhs
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
-    let some f ← resolveId? f | throwUnknownConstant f.getId
+    let some f ← resolveId? f | throwUnknownConstantAt f f.getId
     return .unop ref f (← go arg)
 
   processLeaf (s : Syntax) := do
@@ -241,7 +241,10 @@ private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
 
 private structure AnalyzeResult where
   max?            : Option Expr := none
-  hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
+  /-- `true` if there are two types `α` and `β` where we don't have coercions in any direction. -/
+  hasUncomparable : Bool := false
+  /-- `true` if there are any leaf terms with an unknown type (according to `isUnknown`). -/
+  hasUnknown      : Bool := false
 
 private def isUnknown : Expr → Bool
   | .mvar ..        => true
@@ -255,7 +258,7 @@ private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM Analyze
     match expectedType? with
     | none => pure none
     | some expectedType =>
-      let expectedType ← instantiateMVars expectedType
+      let expectedType := (← instantiateMVars expectedType).cleanupAnnotations
       if isUnknown expectedType then pure none else pure (some expectedType)
   (go t *> get).run' { max? }
 where
@@ -268,12 +271,40 @@ where
        | .binop _ _ _ lhs rhs => go lhs; go rhs
        | .unop _ _ arg => go arg
        | .term _ _ val =>
-         let type ← instantiateMVars (← inferType val)
-         unless isUnknown type do
+         let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
+         if isUnknown type then
+           modify fun s => { s with hasUnknown := true }
+         else
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
-             unless (← withNewMCtxDepth <| isDefEqGuarded max type) do
+             /-
+              Remark: Previously, we used `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
+
+              Reason: This is a heuristic procedure for introducing coercions in scenarios such as:
+              - Given `(n : Nat) (i : Int)`, elaborate `n = i`. The coercion must be inserted at `n`.
+                Consider the elaboration problem `(n + 0) + i`, where the type of term `0` is a metavariable.
+                We do not want it to be elaborated as `(Int.ofNat n + Int.ofNat (0 : Nat)) + i`; instead, we prefer the result to be `(Int.ofNat n + (0 : Int)) + i`.
+                Here is another example where we avoid assigning metavariables: `max := BitVec n` and `type := BitVec ?m`.
+
+              However, the combination `withNewMCtxDepth <| isDefEqGuarded max type` introduced performance issues in several
+              Mathlib files because `isDefEq` was spending a lot of time unfolding definitions in `max` and `type` before failing.
+
+              To address this issue, we allowed only reducible definitions to be unfolded during this check, using
+              `withNewMCtxDepth <| withReducible <| isDefEqGuarded max type`. This change fixed some performance issues but created new ones.
+              Lean was now spending time trying to use `hasCoe`, likely occurring in places where `withNewMCtxDepth <| isDefEqGuarded max type`
+              used to succeed but was now failing after we introduced `withReducible`.
+
+              We then considered using just `isDefEqGuarded max type` and changing the definition of `isUnknown`. In the new definition,
+              the else-case would be `| e => e.hasExprMVar` instead of `| _ => false`. However, we could not even compile this repo using
+              this configuration. The problem arises because some files require coercions even when `max` contains metavariables,
+              for example: `max := Option ?m` and `type := Name`.
+
+              As a result, rather than restricting reducibility, we decided to set `Meta.Config.isDefEqStuckEx := true`.
+              This means that if `isDefEq` encounters a subproblem `?m =?= a` where `?m` is non-assignable, it aborts the test
+              instead of unfolding definitions.
+             -/
+             unless (← withNewMCtxDepth <| withConfig (fun config => { config with isDefEqStuckEx := true }) <| isDefEqGuarded max type) do
                if (← hasCoe type max) then
                  return ()
                else if (← hasCoe max type) then
@@ -296,15 +327,18 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkUnOp f (← toExprCore arg)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkUnOp f (← toExprCore arg)
   | .macroExpansion macroName stx stx' nested =>
-    withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
-      withMacroExpansion stx stx' do
-        toExprCore nested
+    withRef stx <|
+      withTermInfoContext' macroName stx <|
+        withMacroExpansion stx stx' <|
+          toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -344,7 +378,7 @@ private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : 
   return false
 
 /--
-  Return `true` if polymorphic function `f` has a homogenous instance of `maxType`.
+  Return `true` if polymorphic function `f` has a homogeneous instance of `maxType`.
   The coercions to `maxType` only makes sense if such instance exists.
 
   For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
@@ -390,9 +424,9 @@ mutual
       | .binop ref kind f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
-          `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
+          `f` has a homogeneous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
 
-          Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
+          Remark: We assume `binrel%` elaborator is only used with homogeneous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
           return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
@@ -404,7 +438,7 @@ mutual
       | .unop ref f arg =>
         return .unop ref f (← go arg none false false)
       | .term ref trees e =>
-        let type ← instantiateMVars (← inferType e)
+        let type := (← instantiateMVars (← inferType e)).cleanupAnnotations
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
         if isUnknown type then
           if let some f := f? then
@@ -422,12 +456,17 @@ mutual
 
   private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
     let r ← analyze tree expectedType?
-    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       let result ← toExprCore tree
       ensureHasType expectedType? result
     else
       let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      unless r.hasUnknown do
+        -- Record the resulting maxType calculation.
+        -- We can do this when all the types are known, since in this case `hasUncomparable` is valid.
+        -- If they're not known, recording maxType like this can lead to heterogeneous operations failing to elaborate.
+        discard <| isDefEqGuarded (← inferType result) r.max?.get!
       trace[Elab.binop] "result: {result}"
       ensureHasType expectedType? result
 
@@ -449,7 +488,7 @@ def elabOp : TermElab := fun stx expectedType? => do
 
   - `binrel% R x y` elaborates `R x y` using the `binop%/...` expression trees in both `x` and `y`.
     It is similar to how `binop% R x y` elaborates but with a significant difference:
-    it does not use the expected type when computing the types of the operads.
+    it does not use the expected type when computing the types of the operands.
   - `binrel_no_prop% R x y` elaborates `R x y` like `binrel% R x y`, but if the resulting type for `x` and `y`
     is `Prop` they are coerced to `Bool`.
     This is used for relations such as `==` which do not support `Prop`, but we still want
@@ -460,7 +499,6 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
   | some f => withSynthesizeLight do
     /-
     We used to use `withSynthesize (mayPostpone := true)` here instead of `withSynthesizeLight` here.
-    Recall that `withSynthesizeLight` is equivalent to `withSynthesize (mayPostpone := true) (synthesizeDefault := false)`.
     It seems too much to apply default instances at binary relations. For example, we cannot elaborate
     ```
     def as : List Int := [-1, 2, 0, -3, 4]
@@ -494,7 +532,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     let rhs ← withRef rhsStx <| toTree rhsStx
     let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
-    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
       let lhs ← toExprCore lhs
@@ -513,7 +551,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
       return result
-  | none   => throwUnknownConstant stx[1].getId
+  | none   => throwUnknownConstantAt stx[1] stx[1].getId
 where
   /-- If `noProp == true` and `e` has type `Prop`, then coerce it to `Bool`. -/
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do
@@ -535,15 +573,20 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
   | some expectedType =>
     try
       mkDefault expectedType
-    catch ex => try
+    catch _ => try
       mkOfNonempty expectedType
     catch _ =>
       if stx[1].isNone then
-        throw ex
+        throwError "\
+          failed to synthesize '{.ofConstName ``Inhabited}' or '{.ofConstName ``Nonempty}' instance for\
+          {indentExpr expectedType}\n\
+          \n\
+          If this type is defined using the 'structure' or 'inductive' command, \
+          you can try adding a 'deriving Nonempty' clause to it."
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.
-        mkSorry expectedType false
+        mkLabeledSorry expectedType false (unique := true)
 
 builtin_initialize
   registerTraceClass `Elab.binop

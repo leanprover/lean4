@@ -3,59 +3,36 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.DeclarationRange
-import Lean.MonadEnv
-import Init.Data.String.Extra
+public import Lean.DocString.Extension
+public import Lean.DocString.Links
+public import Lean.Parser.Tactic.Doc
+public import Lean.Parser.Term.Doc
+
+public section
+
+set_option linter.missingDocs true
+
+-- This module contains the main query interface for docstrings, which assembles user-visible
+-- docstrings.
+-- The module `Lean.DocString.Extension` contains the underlying data.
 
 namespace Lean
+open Lean.Parser.Tactic.Doc
+open Lean.Parser.Term.Doc
 
-private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
-private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
+/--
+Finds the docstring for a name, taking tactic alternate forms and documentation extensions into
+account.
 
-def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
-  builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
-
-def addDocString [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
-  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
-
-def addDocString' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
-  match docString? with
-  | some docString => addDocString declName docString
-  | none => return ()
-
-def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) :=
-  if let some docStr := docStringExt.find? env declName then
-    return some docStr
-  else if includeBuiltin then
-    return (← builtinDocStrings.get).find? declName
-  else
-    return none
-
-structure ModuleDoc where
-  doc : String
-  declarationRange : DeclarationRange
-
-private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
-  addImportedFn := fun _ => {}
-  addEntryFn    := fun s e => s.push e
-  toArrayFn     := fun es => es.toArray
-}
-
-def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
-  moduleDocExt.addEntry env doc
-
-def getMainModuleDoc (env : Environment) : PersistentArray ModuleDoc :=
-  moduleDocExt.getState env
-
-def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=
-  env.getModuleIdx? moduleName |>.map fun modIdx => moduleDocExt.getModuleEntries env modIdx
-
-def getDocStringText [Monad m] [MonadError m] [MonadRef m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
-  match stx.raw[1] with
-  | Syntax.atom _ val => return val.extract 0 (val.endPos - ⟨2⟩)
-  | _                 => throwErrorAt stx "unexpected doc string{indentD stx.raw[1]}"
-
-end Lean
+Use `Lean.findSimpleDocString?` to look up the raw docstring without resolving alternate forms or
+including extensions.
+-/
+def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
+  let declName := alternativeOfTactic env declName |>.getD declName
+  let exts := getTacticExtensionString env declName
+  let spellings := getRecommendedSpellingString env declName
+  let str := (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)
+  str.mapM (rewriteManualLinks ·)

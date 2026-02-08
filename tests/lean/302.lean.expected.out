@@ -1,4 +1,9 @@
-302.lean:1:8-1:11: error: function expected at
+302.lean:1:8-1:11: error: Function expected at
   m
-term has type
+but this term has type
   ?m
+
+Note: Expected a function because this term is being applied to the argument
+  0
+
+Hint: The identifier `m` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.

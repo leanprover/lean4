@@ -1,0 +1,42 @@
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 0, "character": 20}}
+{"range":
+ {"start": {"line": 0, "character": 20}, "end": {"line": 0, "character": 21}},
+ "contents": {"value": "```lean\nα : Type u_1\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 3, "character": 16}}
+{"range":
+ {"start": {"line": 3, "character": 16}, "end": {"line": 3, "character": 17}},
+ "contents": {"value": "```lean\nα : Type u_1\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 6, "character": 16}}
+{"range":
+ {"start": {"line": 6, "character": 14}, "end": {"line": 6, "character": 30}},
+ "contents":
+ {"value":
+  "```lean\nType (u_1 + 1)\n```\n***\nThe dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually\nreserve the latter for propositions. Also written as `Π x : α, β` (the \"Pi-type\")\nin the literature. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 9, "character": 16}}
+{"range":
+ {"start": {"line": 9, "character": 14}, "end": {"line": 9, "character": 33}},
+ "contents":
+ {"value":
+  "```lean\nType (u_1 + 1)\n```\n***\nThe dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually\nreserve the latter for propositions. Also written as `Π x : α, β` (the \"Pi-type\")\nin the literature. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 12, "character": 16}}
+{"range":
+ {"start": {"line": 12, "character": 14}, "end": {"line": 12, "character": 35}},
+ "contents":
+ {"value":
+  "```lean\nType (u_1 + 1)\n```\n***\nThe dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually\nreserve the latter for propositions. Also written as `Π x : α, β` (the \"Pi-type\")\nin the literature. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///4078.lean"},
+ "position": {"line": 15, "character": 16}}
+{"range":
+ {"start": {"line": 15, "character": 14}, "end": {"line": 15, "character": 35}},
+ "contents":
+ {"value":
+  "```lean\nType 1\n```\n***\nThe dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually\nreserve the latter for propositions. Also written as `Π x : α, β` (the \"Pi-type\")\nin the literature. ",
+  "kind": "markdown"}}

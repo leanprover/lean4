@@ -17,6 +17,7 @@ def test1 : IO Unit := do
   unless (← h2.tryLock) do
     throw <| IO.userError "failed to unlock exclusive lock and then lock"
 
+#guard_msgs in
 #eval test1
 
 /-- Test unlock on handle free (and thus a close). -/
@@ -27,6 +28,7 @@ def test2 : IO Unit := do
   unless (← h.tryLock) do
     throw <| IO.userError "handle free failed to unlock"
 
+#guard_msgs in
 #eval test2
 
 /-- Test shared locks. -/
@@ -43,4 +45,5 @@ def test3 : IO Unit := do
   unless (← h2.tryLock) do
     throw <| IO.userError "failed to unlock shared locks and then lock"
 
+#guard_msgs in
 #eval test3

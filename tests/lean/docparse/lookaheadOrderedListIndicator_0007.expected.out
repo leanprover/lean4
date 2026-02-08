@@ -1,0 +1,4 @@
+Failure @0 (⟨1, 0⟩): unexpected ' '; expected ')' or '.'
+Final stack:
+ empty
+Remaining: "23 ) "

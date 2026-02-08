@@ -3,11 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Util.CollectMVars
-import Lean.Meta.Basic
+public import Lean.Util.Recognizers
+public import Lean.Util.CollectMVars
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
@@ -54,16 +57,16 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eqOrIff? with
-  | none => throwError "invalid 'congr' theorem, equality expected{indentExpr type}"
+  | none => throwError "Invalid `congr` theorem: Theorem is not an equality or iff{indentExpr type}"
   | some (lhs, rhs) =>
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
       unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
-        throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
+        throwError "Invalid `congr` theorem: The left- and right-hand sides of the equality are not applications of the same function{indentExpr type}"
       let mut foundMVars : MVarIdSet := {}
       for lhsArg in lhsArgs do
         for mvarId in (lhsArg.collectMVars {}).result do
           foundMVars := foundMVars.insert mvarId
-      let mut i := 0
+      let mut i : Nat := 0
       let mut hypothesesPos := #[]
       for x in xs, bi in bis do
         if bi.isExplicit && !foundMVars.contains x.mvarId! then
@@ -71,22 +74,22 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
             match xType.eqOrIff? with
             | none => pure none -- skip
             | some (xLhs, xRhs) =>
-              let mut j := 0
+              let mut j : Nat := 0
               for y in ys do
                 let yType ← inferType y
                 unless onlyMVarsAt yType foundMVars do
-                  throwError "invalid 'congr' theorem, argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
+                  throwError "Invalid `congr` theorem: Argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
                 j := j + 1
               unless onlyMVarsAt xLhs foundMVars do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its left-hand side contains unresolved parameters{indentExpr xLhs}"
               let xRhsFn := xRhs.getAppFn
               unless xRhsFn.isMVar do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side head is not a metavariable{indentExpr xRhs}"
               unless !foundMVars.contains xRhsFn.mvarId! do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
+                throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side head was already resolved{indentExpr xRhs}"
               for arg in xRhs.getAppArgs do
                 unless arg.isFVar do
-                  throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
+                  throwError "Invalid `congr` theorem: Parameter #{i+1} is not a valid hypothesis because its right-hand side argument is not a local variable{indentExpr xRhs}"
               pure (some xRhsFn)
           match rhsFn? with
           | none       => pure ()
@@ -109,6 +112,34 @@ def addSimpCongrTheorem (declName : Name) (attrKind : AttributeKind) (prio : Nat
   let lemma ← mkSimpCongrTheorem declName prio
   congrExtension.add lemma attrKind
 
+/--
+Registers `simp` congruence lemmas.
+
+A `simp` congruence lemma should prove the equality of two applications of the same function from
+the equality of the individual arguments. They are used by `simp` to visit subexpressions of an
+application where the default congruence algorithm fails. This is particularly important for
+functions where some parameters depend on previous parameters.
+
+Congruence lemmas should have an equality for every parameter, possibly bounded by foralls, with
+the right hand side being an application of a parameter on the right-hand side. When applying
+congruence theorems, `simp` will first infer parameters from the right-hand side, then try to
+simplify each left-hand side of the parameter equalities and finally infer the right-hand side
+parameters from the result.
+
+Example:
+```
+def Option.pbind (o : Option α) (f : (a : α) → o = some a → Option β) : Option β := ...
+
+@[congr]
+theorem Option.pbind_congr
+    {o o' : Option α} (ho : o = o') -- equality for first parameter
+    {f : (a : α) → o = some a → Option β} {f' : (a : α) → o' = some a → Option β}
+    (hf : ∀ (a : α) (h : _), f a (ho.trans h) = f' a h) : -- equality for second parameter
+    o.pbind f = o'.pbind f' := -- conclusion: equality of the whole application
+  ...
+```
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `congr

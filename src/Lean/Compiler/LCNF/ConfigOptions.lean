@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.Options
+public import Lean.Data.Options
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -13,7 +17,7 @@ User controlled configuration options for the code generator.
 -/
 structure ConfigOptions where
   /--
-  Any function declaration or join point with size `≤ smallThresold` is inlined
+  Any function declaration or join point with size `≤ smallThreshold` is inlined
   even if there are multiple occurrences.
   -/
   smallThreshold : Nat := 1
@@ -31,30 +35,54 @@ structure ConfigOptions where
   Perform type compatibility checking after each compiler pass.
   -/
   checkTypes : Bool := false
+  /--
+  Cache closed terms and evaluate them at initialization time.
+  -/
+  extractClosed : Bool := true
+  /--
+  Maximum number of times a definition tagged with `@[specialize]` can be recursively specialized
+  before generating an error during compilation.
+  -/
+  maxRecSpecialize : Nat := 64
+  /--
+  Insert reset-reuse instructions.
+  -/
+  resetReuse : Bool := true
   deriving Inhabited
 
 register_builtin_option compiler.small : Nat := {
   defValue := 1
-  group    := "compiler"
   descr    := "(compiler) function declarations with size `≤ small` is inlined even if there are multiple occurrences."
 }
 
 register_builtin_option compiler.maxRecInline : Nat := {
   defValue := 1
-  group    := "compiler"
   descr    := "(compiler) maximum number of times a recursive definition tagged with `[inline]` can be recursively inlined before generating an error during compilation."
 }
 
 register_builtin_option compiler.maxRecInlineIfReduce : Nat := {
   defValue := 16
-  group    := "compiler"
   descr    := "(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation."
 }
 
 register_builtin_option compiler.checkTypes : Bool := {
   defValue := false
-  group    := "compiler"
   descr    := "(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types."
+}
+
+register_builtin_option compiler.extract_closed : Bool := {
+  defValue := true
+  descr    := "(compiler) enable/disable closed term caching"
+}
+
+register_builtin_option compiler.maxRecSpecialize : Nat := {
+  defValue := 64
+  descr    := "(compiler) maximum number of times a definition tagged with `@[specialize]` can be recursively specialized before generating an error during compilation."
+}
+
+register_builtin_option compiler.reuse : Bool := {
+  defValue := true
+  descr    := "heuristically insert reset/reuse instruction pairs"
 }
 
 def toConfigOptions (opts : Options) : ConfigOptions := {
@@ -62,6 +90,9 @@ def toConfigOptions (opts : Options) : ConfigOptions := {
   maxRecInline   := compiler.maxRecInline.get opts
   maxRecInlineIfReduce := compiler.maxRecInlineIfReduce.get opts
   checkTypes := compiler.checkTypes.get opts
+  extractClosed := compiler.extract_closed.get opts
+  maxRecSpecialize := compiler.maxRecSpecialize.get opts
+  resetReuse := compiler.reuse.get opts
 }
 
 end Lean.Compiler.LCNF

@@ -3,12 +3,15 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Load.Elab
-import Lake.Config.Lang
-import Lake.Config.Package
+module
+
+prelude
+public import Lake.Config.Lang
+public import Lake.Config.Package
+import Lean.PrettyPrinter
 import Lake.CLI.Translate.Toml
 import Lake.CLI.Translate.Lean
-import Lean.PrettyPrinter
+import Lake.Load.Lean.Elab
 
 namespace Lake
 open Toml Lean System PrettyPrinter
@@ -22,13 +25,13 @@ private partial def descopeSyntax : Syntax → Syntax
 private def descopeTSyntax (stx : TSyntax k) : TSyntax k :=
   ⟨descopeSyntax stx.raw⟩
 
-def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String := do
+public def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String := do
   match lang with
   | .toml => pure <| ppTable pkg.mkTomlConfig
   | .lean => do
     let env ← importModulesUsingCache #[`Lake] {} 1024
     let pp := ppModule <| descopeTSyntax <| pkg.mkLeanConfig
     match (← pp.toIO {fileName := "", fileMap := default} {env} |>.toBaseIO) with
-    | .ok (fmt, _) => pure <| (toString fmt).trim ++ "\n"
+    | .ok (fmt, _) => pure <| (toString fmt).trimAscii.copy ++ "\n"
     | .error ex =>
       error s!"(internal) failed to pretty print Lean configuration: {ex.toString}"

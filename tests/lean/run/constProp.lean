@@ -109,6 +109,14 @@ def example1 := `[Stmt|
   }
 ]
 
+/--
+info: "x" ::= Expr.val (Val.int (Int.ofNat 8));;
+  "y" ::= Expr.val (Val.int (Int.ofNat 10));;
+    Stmt.ite ((Expr.var "x").bin BinOp.lt (Expr.var "y"))
+      ("x" ::= (Expr.var "x").bin BinOp.add (Expr.val (Val.int (Int.ofNat 1))))
+      ("y" ::= (Expr.var "y").bin BinOp.add (Expr.val (Val.int (Int.ofNat 3))))
+-/
+#guard_msgs in
 #reduce example1
 
 def example2 := `[Stmt|
@@ -121,6 +129,19 @@ def example2 := `[Stmt|
   }
   y := x;]
 
+/--
+info: Stmt.seq
+  (Stmt.assign "x" (Expr.val (Val.int 8)))
+  (Stmt.seq
+    (Stmt.ite
+      (Expr.bin (Expr.var "x") (BinOp.lt) (Expr.var "y"))
+      (Stmt.assign "x" (Expr.bin (Expr.var "x") (BinOp.add) (Expr.val (Val.int 1))))
+      (Stmt.seq
+        (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.val (Val.int 3))))
+        (Stmt.assign "x" (Expr.val (Val.int 9)))))
+    (Stmt.assign "y" (Expr.var "x")))
+-/
+#guard_msgs in
 #eval example2
 
 abbrev State := List (Var × Val)
@@ -277,7 +298,12 @@ def evalExpr (e : Expr) : EvalM Val := do
       | .bool false => return ()
       | _ => throw "Boolean expected"
 
+/-- info: (Except.ok (), [("x", Val.int 8), ("y", Val.int 5)]) -/
+#guard_msgs in
 #eval `[Stmt| x := 3; y := 5; x := x + y;].eval |>.run {}
+
+/-- info: (Except.error "out of fuel", [("x", Val.int 98)]) -/
+#guard_msgs in
 #eval `[Stmt| x := 0; while (true) { x := x + 1; }].eval |>.run {}
 
 instance : Repr State where
@@ -290,6 +316,8 @@ instance : Repr State where
         | (x, .bool v) => f!"{x} ↦ {v}"
       Std.Format.bracket "[" (Std.Format.joinSep fs ("," ++ Std.Format.line)) "]"
 
+/-- info: (Except.ok (), [x ↦ 8, y ↦ 5]) -/
+#guard_msgs in
 #eval `[Stmt| x := 3; y := 5; x := x + y; ].eval |>.run {}
 
 @[simp] def BinOp.simplify : BinOp → Expr → Expr → Expr
@@ -310,7 +338,9 @@ instance : Repr State where
   | e => e
 
 @[simp] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  induction e with simp
+  induction e with
+    -- Due to fine-grained equational theorems we have to pass `eq_def` lemmas here
+    simp only [simplify, BinOp.simplify.eq_def, eval, UnaryOp.simplify.eq_def]
   | bin lhs op rhs ih_lhs ih_rhs =>
     simp [← ih_lhs, ← ih_rhs]
     split <;> simp [*]
@@ -341,6 +371,10 @@ def example3 := `[Stmt|
   }
 ]
 
+/--
+info: Stmt.seq (Stmt.assign "x" (Expr.val (Val.int 4))) (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.var "x")))
+-/
+#guard_msgs in
 #eval example3.simplify
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
@@ -385,11 +419,11 @@ def State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.le
   | [] => simp
   | (y, v) :: σ =>
     by_cases hxy : x = y <;> simp [hxy]
-    next => exact Nat.le_trans (length_erase_le σ y) (by simp_arith)
-    next => simp_arith [length_erase_le σ x]
+    next => exact Nat.le_trans (length_erase_le σ y) (by simp +arith)
+    next => simp +arith [length_erase_le σ x]
 
 def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
-  Nat.lt_of_le_of_lt (length_erase_le ..) (by simp_arith)
+  Nat.lt_of_le_of_lt (length_erase_le ..) (by simp +arith)
 
 @[simp] def State.join (σ₁ σ₂ : State) : State :=
   match σ₁ with
@@ -612,6 +646,14 @@ def example4 := `[Stmt|
   }
 ]
 
+/--
+info: Stmt.seq
+  (Stmt.assign "x" (Expr.val (Val.int 2)))
+  (Stmt.seq
+    (Stmt.assign "x" (Expr.val (Val.int 3)))
+    (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.val (Val.int 3)))))
+-/
+#guard_msgs in
 #eval example4.constPropagation.simplify
 
 #exit

@@ -3,25 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Log
-import Lean.Parser.Command
-import Lean.DeclarationRange
-import Lean.Data.Lsp.Utf16
+public import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 
-def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange := do
+def getDeclarationRange? [Monad m] [MonadFileMap m] (stx : Syntax) : m (Option DeclarationRange) := do
+  let some range := stx.getRange?
+    | return none
   let fileMap ← getFileMap
-  let pos    := stx.getPos?.getD 0
-  let endPos := stx.getTailPos?.getD pos |> fileMap.toPosition
-  let pos    := pos |> fileMap.toPosition
-  return {
-    pos          := pos
-    charUtf16    := fileMap.leanPosToLspPos pos |>.character
-    endPos       := endPos
-    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
-  }
+  return some <| .ofStringPositions fileMap range.start range.stop
 
 /--
   For most builtin declarations, the selection range is just its name, which is stored in the second position.
@@ -47,25 +42,31 @@ def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
     else
       stx[0]
 
+/--
+Derives and adds declaration ranges from given syntax trees. If `rangeStx` does not have a range,
+nothing is added. If `selectionRangeStx` does not have a range, it is defaulted to that of
+`rangeStx`.
+-/
+def addDeclarationRangesFromSyntax [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name)
+    (rangeStx : Syntax) (selectionRangeStx : Syntax := .missing) : m Unit := do
+  -- may fail on partial syntax, ignore in that case
+  let some range ← getDeclarationRange? rangeStx | return
+  let selectionRange ← (·.getD range) <$> getDeclarationRange? selectionRangeStx
+  Lean.addDeclarationRanges declName { range, selectionRange }
 
 /--
-  Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object describing `declName`.
-  This method is for the builtin declarations only.
-  User-defined commands should use `Lean.addDeclarationRanges` to store this information for their commands. -/
-def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) : m Unit := do
-  if stx.getKind == ``Parser.Command.«example» then
-    return ()
-  else
-    Lean.addDeclarationRanges declName {
-      range          := (← getDeclarationRange stx)
-      selectionRange := (← getDeclarationRange (getDeclarationSelectionRef stx))
-    }
+Stores the `range` and `selectionRange` for `declName` where `modsStx` is the modifier part and
+`cmdStx` the remaining part of the syntax tree for `declName`.
 
-/-- Auxiliary method for recording ranges for auxiliary declarations (e.g., fields, nested declarations, etc. -/
-def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do
-  Lean.addDeclarationRanges declName {
-    range          := (← getDeclarationRange stx)
-    selectionRange := (← getDeclarationRange header)
-  }
+This method is for the builtin declarations only. User-defined commands should use
+`Lean.Elab.addDeclarationRangesFromSyntax` or `Lean.addDeclarationRanges` to store this information
+for their commands.
+-/
+def addDeclarationRangesForBuiltin [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name)
+    (modsStx : TSyntax ``Parser.Command.declModifiers) (declStx : Syntax) : m Unit := do
+  if declStx.getKind == ``Parser.Command.«example» then
+    return ()
+  let stx := mkNullNode #[modsStx, declStx]
+  addDeclarationRangesFromSyntax declName stx (getDeclarationSelectionRef declStx)
 
 end Lean.Elab

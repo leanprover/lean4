@@ -1,8 +1,2 @@
-301.lean:1:9-1:17: error: missing cases:
-(Nat.succ _)
-301.lean:1:21-1:24: error: type mismatch
-  «» «»
-has type
-  Nat → Nat : Type
-but is expected to have type
-  Nat : Type
+301.lean:1:5: error: expected token
+301.lean:1:21: error: expected token

@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Elab.Attributes
+public import Lean.DocString.Add
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 
@@ -14,8 +18,11 @@ Ensure the environment does not contain a declaration with name `declName`.
 Recall that a private declaration cannot shadow a non-private one and vice-versa, although
 they internally have different names.
 -/
-def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (declName : Name) : m Unit := do
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadFinally m] [MonadInfoTree m] (declName : Name) : m Unit := do
   let env ← getEnv
+  -- Even if `declName` is public, in this function we want to consider private declarations as well
+  let env := env.setExporting false
+  withEnv env do  -- also set as context for any exceptions
   let addInfo declName := do
     pushInfoLeaf <| .ofTermInfo {
       elaborator := .anonymous, lctx := {}, expectedType? := none
@@ -25,65 +32,102 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
   if env.contains declName then
     addInfo declName
     match privateToUserName? declName with
-    | none          => throwError "'{declName}' has already been declared"
-    | some declName => throwError "private declaration '{declName}' has already been declared"
-  if isReservedName env declName then
-    throwError "'{declName}' is a reserved name"
+    | none          => throwError "`{.ofConstName declName true}` has already been declared"
+    | some declName => throwError "private declaration `{.ofConstName declName true}` has already been declared"
+  if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
+    throwError "`{.ofConstName declName}` is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
-    throwError "a private declaration '{declName}' has already been declared"
+    throwError "a private declaration `{.ofConstName declName true}` has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
       addInfo declName
-      throwError "a non-private declaration '{declName}' has already been declared"
+      throwError "a non-private declaration `{.ofConstName declName true}` has already been declared"
 
-/-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
+/-- Declaration visibility modifier. That is, whether a declaration is public or private or inherits its visibility from the outer scope. -/
 inductive Visibility where
-  | regular | «protected» | «private»
+  | regular | «private» | «public»
   deriving Inhabited
 
 instance : ToString Visibility where
   toString
     | .regular   => "regular"
     | .private   => "private"
-    | .protected => "protected"
+    | .public    => "public"
+
+def Visibility.isPrivate : Visibility → Bool
+  | .private   => true
+  | _          => false
+
+def Visibility.isPublic : Visibility → Bool
+  | .public    => true
+  | _          => false
+
+def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
+  if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
   | «partial» | «nonrec» | default
   deriving Inhabited
 
+/-- Codegen-relevant modifiers. -/
+inductive ComputeKind where
+  | regular | «meta» | «noncomputable»
+  deriving Inhabited, BEq
+
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
-  docString?      : Option String := none
+  /-- Input syntax, used for adjusting declaration range (unless missing) -/
+  stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
+  /--
+  The docstring, if present, and whether it's Verso.
+  -/
+  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
   visibility      : Visibility := Visibility.regular
-  isNoncomputable : Bool := false
+  isProtected     : Bool := false
+  computeKind     : ComputeKind := .regular
   recKind         : RecKind := RecKind.default
   isUnsafe        : Bool := false
   attrs           : Array Attribute := #[]
   deriving Inhabited
 
-def Modifiers.isPrivate : Modifiers → Bool
-  | { visibility := .private, .. } => true
-  | _                              => false
-
-def Modifiers.isProtected : Modifiers → Bool
-  | { visibility := .protected, .. } => true
-  | _                                => false
+def Modifiers.isPrivate (m : Modifiers) : Bool := m.visibility.isPrivate
+def Modifiers.isPublic (m : Modifiers) : Bool := m.visibility.isPublic
+def Modifiers.isInferredPublic (env : Environment) (m : Modifiers) : Bool :=
+  m.visibility.isInferredPublic env
 
 def Modifiers.isPartial : Modifiers → Bool
-  | { recKind := .partial, .. } => true
-  | _                           => false
+  | { recKind := .partial, .. }  => true
+  | _                            => false
 
 def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
-/-- Store `attr` in `modifiers` -/
-def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+def Modifiers.isMeta (m : Modifiers) : Bool :=
+  m.computeKind matches .meta
+
+def Modifiers.isNoncomputable (m : Modifiers) : Bool :=
+  m.computeKind matches .noncomputable
+
+/-- Adds attribute `attr` in `modifiers` -/
+def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Adds attribute `attr` in `modifiers`, at the beginning -/
+def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+  { modifiers with attrs := #[attr] ++ modifiers.attrs }
+
+/-- Filters attributes using `p` -/
+def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
+  { modifiers with attrs := modifiers.attrs.filter p }
+
+/-- Returns `true` if `modifiers` contains an attribute satisfying `p`. -/
+def Modifiers.anyAttr (modifiers : Modifiers) (p : Attribute → Bool) : Bool :=
+  modifiers.attrs.any p
 
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=
@@ -92,9 +136,10 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | none     => [])
     ++ (match m.visibility with
      | .regular   => []
-     | .protected => [f!"protected"]
-     | .private   => [f!"private"])
-    ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
+     | .private   => [f!"private"]
+     | .public    => [f!"public"])
+    ++ (if m.isProtected then [f!"protected"] else [])
+    ++ (match m.computeKind with | .regular => [] | .meta => [f!"meta"] | .noncomputable => [f!"noncomputable"])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
     ++ m.attrs.toList.map (fun attr => format attr)
@@ -109,44 +154,49 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (val.extract 0 (val.endPos - ⟨2⟩))
+    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩))
     | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
+variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
-/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `proctected`, `unsafe`, `noncomputable`, doc string)-/
-def elabModifiers (stx : Syntax) : m Modifiers := do
-  let docCommentStx := stx[0]
-  let attrsStx      := stx[1]
-  let visibilityStx := stx[2]
-  let noncompStx    := stx[3]
-  let unsafeStx     := stx[4]
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+  let docCommentStx := stx.raw[0]
+  let attrsStx      := stx.raw[1]
+  let visibilityStx := stx.raw[2]
+  let protectedStx  := stx.raw[3]
+  let computeKind   :=
+    if stx.raw[4].isNone then
+      .regular
+    else if stx.raw[4][0].getKind == ``Parser.Command.meta then
+      .meta
+    else
+      .noncomputable
+  let unsafeStx     := stx.raw[5]
   let recKind       :=
-    if stx[5].isNone then
+    if stx.raw[6].isNone then
       RecKind.default
-    else if stx[5][0].getKind == ``Parser.Command.partial then
+    else if stx.raw[6][0].getKind == ``Parser.Command.partial then
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? ← match docCommentStx.getOptional? with
-    | none   => pure none
-    | some s => pure (some (← getDocStringText ⟨s⟩))
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
   let visibility ← match visibilityStx.getOptional? with
-    | none   => pure Visibility.regular
+    | none   => pure .regular
     | some v =>
-      let kind := v.getKind
-      if kind == ``Parser.Command.private then pure Visibility.private
-      else if kind == ``Parser.Command.protected then pure Visibility.protected
-      else throwErrorAt v "unexpected visibility modifier"
+      match v with
+      | `(Parser.Command.visibility| private) => pure .private
+      | `(Parser.Command.visibility| public) => pure .public
+      | _ => throwErrorAt v "unexpected visibility modifier"
+  let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
   return {
-    docString?, visibility, recKind, attrs,
+    stx, docString?, visibility, isProtected, computeKind, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable := !noncompStx.isNone
   }
 
 /--
@@ -154,19 +204,14 @@ Ensure the function has not already been declared, and apply the given visibilit
 If `private`, return the updated name using our internal encoding for private names.
 If `protected`, register `declName` as protected in the environment.
 -/
-def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
-  match visibility with
-  | .private =>
-    let declName := mkPrivateName (← getEnv) declName
-    checkNotAlreadyDeclared declName
-    return declName
-  | .protected =>
-    checkNotAlreadyDeclared declName
+def applyVisibility (modifiers : Modifiers) (declName : Name) : m Name := do
+  let mut declName := declName
+  if !modifiers.visibility.isInferredPublic (← getEnv) then
+    declName := mkPrivateName (← getEnv) declName
+  checkNotAlreadyDeclared declName
+  if modifiers.isProtected then
     modifyEnv fun env => addProtected env declName
-    return declName
-  | _ =>
-    checkNotAlreadyDeclared declName
-    pure declName
+  pure declName
 
 def checkIfShadowingStructureField (declName : Name) : m Unit := do
   match declName with
@@ -175,7 +220,7 @@ def checkIfShadowingStructureField (declName : Name) : m Unit := do
       let fieldNames := getStructureFieldsFlattened (← getEnv) pre
       for fieldName in fieldNames do
         if pre ++ fieldName == declName then
-          throwError "invalid declaration name '{declName}', structure '{pre}' has field '{fieldName}'"
+          throwError "invalid declaration name `{.ofConstName declName}`, structure `{pre}` has field `{fieldName}`"
   | _ => pure ()
 
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
@@ -188,20 +233,20 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
     throwError "invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace"
   let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
   if isRootName then
-    let .str p s := name | throwError "invalid declaration name '{name}'"
+    let .str p s := name | throwError "invalid declaration name `{name}`"
     shortName := Name.mkSimple s
     currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
-  let declName ← applyVisibility modifiers.visibility declName
-  match modifiers.visibility with
-  | Visibility.protected =>
+  let declName ← applyVisibility modifiers declName
+  if modifiers.isProtected then
     match currNamespace with
     | .str _ s => return (declName, Name.mkSimple s ++ shortName)
     | _ =>
       if shortName.isAtomic then
         throwError "protected declarations must be in a namespace"
       return (declName, shortName)
-  | _ => return (declName, shortName)
+  else
+    return (declName, shortName)
 
 /--
   `declId` is of the form
@@ -226,6 +271,10 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
+  /-- The docstring, and whether it's Verso -/
+  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+
+open Lean.Elab.Term (TermElabM)
 
 /--
 Given a declaration identifier (e.g., `ident (".{" ident,+ "}")?`) that may contain explicit universe parameters
@@ -237,7 +286,7 @@ The result also contains the universe parameters provided using `universe` comma
 
 This commands also stores the doc string stored in `modifiers`.
 -/
-def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId
   let levelNames ← if optUnivDeclStx.isNone then
@@ -253,8 +302,8 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
           pure (id :: levelNames))
       currLevelNames
   let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
-  addDocString' declName modifiers.docString?
-  return { shortName := shortName, declName := declName, levelNames := levelNames }
+  let docString? := modifiers.docString?
+  return { shortName, declName, levelNames, docString? }
 
 end Methods
 

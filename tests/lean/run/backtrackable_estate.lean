@@ -27,4 +27,6 @@ do bInc;
    pInc;
    get
 
-#eval tst.run' {} -- (some (1, 3))
+/-- info: some (1, 3) -/
+#guard_msgs in
+#eval tst.run' {}

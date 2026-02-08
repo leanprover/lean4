@@ -9,6 +9,7 @@ set -uxo pipefail
 # use full LLVM release for compiling C++ code, but subset for compiling C code and distribution
 
 GMP=${GMP:-$(brew --prefix)}
+LIBUV=${LIBUV:-$(brew --prefix)}
 
 [[ -d llvm ]] || (mkdir llvm; gtar xf $1 --strip-components 1 --directory llvm)
 [[ -d llvm-host ]] || if [[ "$#" -gt 1 ]]; then
@@ -46,12 +47,12 @@ echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}'"
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/
-  echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
-  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp'"
+  gcp $LIBUV/lib/libuv.a stage1/lib/
+  echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv'"
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
-  echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 fi
-echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
+echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

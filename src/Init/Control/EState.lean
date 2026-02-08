@@ -3,10 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.State
-import Init.Control.Except
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+public import Init.Control.State
+
+public section
 universe u v
 
 namespace EStateM
@@ -15,13 +18,19 @@ variable {ε σ α : Type u}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
-    | Result.ok a _    => "ok: " ++ toString a
-    | Result.error e _ => "error: " ++ toString e
+    | Result.ok a _    => String.Internal.append "ok: " (toString a)
+    | Result.error e _ => String.Internal.append "error: " (toString e)
 
 instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
   reprPrec
     | Result.error e _, prec => Repr.addAppParen ("EStateM.Result.error " ++ reprArg e) prec
     | Result.ok a _, prec    => Repr.addAppParen ("EStateM.Result.ok " ++ reprArg a) prec
+
+instance : MonadAttach (EStateM ε σ) where
+  CanReturn x a := Exists fun s => Exists fun s' => x.run s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
 
 end EStateM
 
@@ -29,8 +38,11 @@ namespace EStateM
 
 variable {ε σ α β : Type u}
 
-/-- Alternative orElse operator that allows to select which exception should be used.
-    The default is to use the first exception since the standard `orElse` uses the second. -/
+/--
+Alternative orElse operator that allows callers to select which exception should be used when both
+operations fail. The default is to use the first exception since the standard `orElse` uses the
+second.
+-/
 @[always_inline, inline]
 protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
@@ -54,6 +66,11 @@ instance : MonadFinally (EStateM ε σ) := {
       | Result.error e₂ s => Result.error e₂ s
 }
 
+/--
+Converts a state monad action into a state monad action with exceptions.
+
+The resulting action does not throw an exception.
+-/
 @[always_inline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'

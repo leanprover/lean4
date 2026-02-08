@@ -23,7 +23,7 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
 pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type = false);
 
 /** \brief Use simple formatter as the default print function */
-void init_default_print_fn();
+LEAN_EXPORT void init_default_print_fn();
 
 void initialize_print();
 void finalize_print();

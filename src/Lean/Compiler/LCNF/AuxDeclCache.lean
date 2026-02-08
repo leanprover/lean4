@@ -3,30 +3,36 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.DeclHash
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.DeclHash
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 
-abbrev AuxDeclCache := PHashMap Decl Name
+structure  AuxDeclCacheKey where
+  pu : Purity
+  decl : Decl pu
+  deriving BEq, Hashable
 
-builtin_initialize auxDeclCacheExt : EnvExtension AuxDeclCache ← registerEnvExtension (pure {})
+builtin_initialize auxDeclCacheExt : CacheExtension AuxDeclCacheKey Name ← CacheExtension.register
 
 inductive CacheAuxDeclResult where
   | new
   | alreadyCached (declName : Name)
 
-def cacheAuxDecl (decl : Decl) : CompilerM CacheAuxDeclResult := do
+def cacheAuxDecl (decl : Decl pu) : CompilerM CacheAuxDeclResult := do
   let key := { decl with name := .anonymous }
   let key ← normalizeFVarIds key
-  match auxDeclCacheExt.getState (← getEnv) |>.find? key with
+  let key := ⟨pu, key⟩
+  match (← auxDeclCacheExt.find? key) with
   | some declName =>
     return .alreadyCached declName
   | none =>
-    modifyEnv fun env => auxDeclCacheExt.modifyState env fun s => s.insert key decl.name
+    auxDeclCacheExt.insert key decl.name
     return .new
 
 end Lean.Compiler.LCNF
-

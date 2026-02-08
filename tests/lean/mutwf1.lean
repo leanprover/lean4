@@ -6,7 +6,6 @@ mutual
     | n, false => n + g n
   termination_by n b => (n, if b then 2 else 1)
   decreasing_by
-  all_goals simp_wf
   · apply Prod.Lex.right; decide
   · apply Prod.Lex.right; decide
 
@@ -17,7 +16,6 @@ mutual
       n
   termination_by (n, 0)
   decreasing_by
-  all_goals simp_wf
   apply Prod.Lex.left
   apply Nat.pred_lt
   done -- should fail

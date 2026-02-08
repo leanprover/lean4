@@ -1,0 +1,109 @@
+{"version": 1,
+ "uri": "file:///highlightMatches.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 19, "character": 0}, "end": {"line": 19, "character": 5}},
+   "message": "(trace)",
+   "fullRange":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 19, "character": 5}}}]}
+{"lineRange": {"start": 0, "end": 21}}
+{"query": "child1",
+ "msg":
+ {"tag":
+  [{"trace":
+    {"msg": {"tag": [{"expr": {"text": "root"}}, {"text": ""}]},
+     "indent": 0,
+     "collapsed": true,
+     "cls": "Meta.debug",
+     "children": {"lazy": {"p": "0"}}}},
+   {"text": ""}]}}
+{"tag":
+ [{"trace":
+   {"msg": {"tag": [{"expr": {"text": "root"}}, {"text": ""}]},
+    "indent": 0,
+    "collapsed": false,
+    "cls": "Meta.debug",
+    "children":
+    {"strict":
+     [{"tag":
+       [{"trace":
+         {"msg":
+          {"tag":
+           [{"expr": {"tag": ["highlighted", {"text": "child1"}]}},
+            {"text": ""}]},
+          "indent": 2,
+          "collapsed": false,
+          "cls": "Meta.debug",
+          "children":
+          {"strict":
+           [{"tag":
+             [{"trace":
+               {"msg":
+                {"tag":
+                 [{"expr":
+                   {"append":
+                    [{"tag": ["highlighted", {"text": "child1"}]},
+                     {"text": "1"}]}},
+                  {"text": ""}]},
+                "indent": 4,
+                "collapsed": false,
+                "cls": "Meta.debug",
+                "children": {"strict": []}}},
+              {"text": ""}]},
+            {"tag":
+             [{"trace":
+               {"msg":
+                {"tag":
+                 [{"expr":
+                   {"append":
+                    [{"tag": ["highlighted", {"text": "child1"}]},
+                     {"text": "2"}]}},
+                  {"text": ""}]},
+                "indent": 4,
+                "collapsed": false,
+                "cls": "Meta.debug",
+                "children": {"strict": []}}},
+              {"text": ""}]},
+            {"tag":
+             [{"trace":
+               {"msg":
+                {"tag":
+                 [{"expr":
+                   {"append":
+                    [{"tag": ["highlighted", {"text": "child1"}]},
+                     {"text": "3"}]}},
+                  {"text": ""}]},
+                "indent": 4,
+                "collapsed": false,
+                "cls": "Meta.debug",
+                "children": {"strict": []}}},
+              {"text": ""}]}]}}},
+        {"text": ""}]},
+      {"tag":
+       [{"trace":
+         {"msg": {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]},
+          "indent": 2,
+          "collapsed": true,
+          "cls": "Meta.debug",
+          "children": {"lazy": {"p": "1"}}}},
+        {"text": ""}]},
+      {"tag":
+       [{"trace":
+         {"msg": {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]},
+          "indent": 2,
+          "collapsed": true,
+          "cls": "Meta.debug",
+          "children": {"lazy": {"p": "2"}}}},
+        {"text": ""}]},
+      {"tag":
+       [{"trace":
+         {"msg": {"tag": [{"expr": {"text": "child4"}}, {"text": ""}]},
+          "indent": 2,
+          "collapsed": false,
+          "cls": "Meta.debug",
+          "children": {"strict": []}}},
+        {"text": ""}]}]}}},
+  {"text": ""}]}

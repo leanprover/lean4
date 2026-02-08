@@ -3,17 +3,30 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
+module
+
 prelude
+public import Init.Data.Fin.Basic
 import Init.PropLemmas
-import Init.Data.Fin.Basic
+import Init.WFTactics
+
+public section
 
 namespace Fin
 
 /--
-`hIterateFrom f i bnd a` applies `f` over indices `[i:n]` to compute `P n`
-from `P i`.
+Applies an index-dependent function `f` to all of the values in `[i:n]`, starting at `i` with an
+initial accumulator `a`.
 
-See `hIterate` below for more details.
+Concretely, `Fin.hIterateFrom P f i a` is equal to
+```lean
+  a |> f i |> f (i + 1) |> ... |> f (n - 1)
+```
+
+Theorems about `Fin.hIterateFrom` can be proven using the general theorem `Fin.hIterateFrom_elim` or
+other more specialized theorems.
+
+`Fin.hIterate` is a variant that always starts at `0`.
 -/
 def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.val+1))
       (i : Nat) (ubnd : i ≤ n) (a : P i) : P n :=
@@ -23,22 +36,21 @@ def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.
     have p : i = n := (or_iff_left g).mp (Nat.eq_or_lt_of_le ubnd)
     _root_.cast (congrArg P p) a
   termination_by n - i
+  decreasing_by decreasing_trivial_pre_omega
 
 /--
-`hIterate` is a heterogenous iterative operation that applies a
-index-dependent function `f` to a value `init : P start` a total of
-`stop - start` times to produce a value of type `P stop`.
+Applies an index-dependent function to all the values less than the given bound `n`, starting at
+`0` with an accumulator.
 
-Concretely, `hIterate start stop f init` is equal to
+Concretely, `Fin.hIterate P init f` is equal to
 ```lean
-  init |> f start _ |> f (start+1) _ ... |> f (end-1) _
+  init |> f 0 |> f 1 |> ... |> f (n-1)
 ```
 
-Because it is heterogenous and must return a value of type `P stop`,
-`hIterate` requires proof that `start ≤ stop`.
+Theorems about `Fin.hIterate` can be proven using the general theorem `Fin.hIterate_elim` or other more
+specialized theorems.
 
-One can prove properties of `hIterate` using the general theorem
-`hIterate_elim` or other more specialized theorems.
+`Fin.hIterateFrom` is a variant that takes a custom starting value instead of `0`.
  -/
 def hIterate (P : Nat → Sort _) {n : Nat} (init : P 0) (f : ∀(i : Fin n), P i.val → P (i.val+1)) :
     P n :=
@@ -69,7 +81,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
 
 /-
 `hIterate_elim` provides a mechanism for showing that the result of
-`hIterate` satisifies a property `Q stop` by showing that the states
+`hIterate` satisfies a property `Q stop` by showing that the states
 at the intermediate indices `i : start ≤ i < stop` satisfy `Q i`.
 -/
 theorem hIterate_elim {P : Nat → Sort _} (Q : ∀(i : Nat), P i → Prop)

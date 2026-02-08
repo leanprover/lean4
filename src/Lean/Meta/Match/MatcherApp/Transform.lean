@@ -4,24 +4,32 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Match
-import Lean.Meta.InferType
-import Lean.Meta.Check
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Match.AltTelescopes
+public import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.Refl
+
+public section
 
 namespace Lean.Meta.MatcherApp
 
 /-- Auxiliary function for MatcherApp.addArg -/
-private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Nat × Array Expr) := do
+private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Expr) := do
   if h : i < alts.size then
-    let alt       := alts.get ⟨i, h⟩
+    let alt       := alts[i]
     let numParams := altNumParams[i]!
     let typeNew ← whnfD typeNew
     match typeNew with
     | Expr.forallE _ d b _ =>
-      let (alt, refined) ← forallBoundedTelescope d (some numParams) fun xs d => do
-        let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
+      let (alt, refined) ← lambdaBoundedTelescope alt numParams fun xs alt => do
+        unless xs.size == numParams do
+          throwError "unexpected matcher application, alternative must have {numParams} parameters"
+        let d ← try instantiateForall d xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
         forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
           let refined ← if refined then
@@ -29,29 +37,35 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
           else
             pure <| !(← isDefEq unrefinedArgType (← inferType x[0]!))
           return (← mkLambdaFVars xs alt, refined)
-      updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) refined (i+1)
+      updateAlts unrefinedArgType (b.instantiate1 alt) altNumParams (alts.set i alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
   else
     if refined then
-      return (altNumParams, alts)
+      return alts
     else
       throwError "failed to add argument to matcher application, argument type was not refined by `casesOn`"
 
-/-- Given
-  - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - expression `e : B[discrs]`,
-  Construct the term
-  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
+/--
+Given
+- matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
+- expression `e : B[discrs]`,
+Construct the term
+`match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
 
-  We use `kabstract` to abstract the discriminants from `B[discrs]`.
+We only abstract discriminants that are fvars.  We used to use `kabstract` to abstract all
+discriminants from `B[discrs]`, but that changes the type of the arg in ways that make it no
+longer compatible with the original recursive function (issue #7322).
 
-  This method assumes
-  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
-  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+If this is still not great, then we could try to use `kabstract`, but only on the last parameter
+of the `arg` (the termination proof obligation).
 
-  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
-  the argument provided by `fix` to refine the termination argument, which may mention `major`.
-  See there for how to use this function.
+This method assumes
+- the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
+- each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+the argument provided by `fix` to refine type of the local variable used for recursive calls,
+which may mention `major`. See there for how to use this function.
 -/
 def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
@@ -59,11 +73,13 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
-    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
-      let motiveArg := motiveArgs[i]!
-      let discr     := matcherApp.discrs[i]!
-      let eTypeAbst ← kabstract eTypeAbst discr
-      return eTypeAbst.instantiate1 motiveArg
+    let eTypeAbst := matcherApp.discrs.size.foldRev (init := eType) fun i _ eTypeAbst =>
+      let discr     := matcherApp.discrs[i]
+      if discr.isFVar then
+        let motiveArg := motiveArgs[i]!
+        eTypeAbst.replaceFVar discr motiveArg
+      else
+        eTypeAbst
     let motiveBody ← mkArrow eTypeAbst motiveBody
     let matcherLevels ← match matcherApp.uElimPos? with
       | none     => pure matcherApp.matcherLevels
@@ -79,12 +95,11 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altNumParams, alts) ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
+    let alts ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
     return { matcherApp with
       matcherLevels := matcherLevels,
       motive        := motive,
       alts          := alts,
-      altNumParams  := altNumParams,
       remaining     := #[e] ++ matcherApp.remaining
     }
 
@@ -108,8 +123,8 @@ def addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
   This is similar to `MatcherApp.addArg` when you only have an expression to
   refined, and not a type with a value.
 
-  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
-  calls to refine the functions' paramter, which may mention `major`.
+  This is used in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' parameter, which may mention `major`.
   See there for how to use this function.
 -/
 def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
@@ -118,9 +133,9 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
 
-    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i eAbst => do
+    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i _ eAbst => do
       let motiveArg := motiveArgs[i]!
-      let discr     := matcherApp.discrs[i]!
+      let discr     := matcherApp.discrs[i]
       let eTypeAbst ← kabstract eAbst discr
       return eTypeAbst.instantiate1 motiveArg
     -- Let's create something that’s a `Sort` and mentions `e`
@@ -141,8 +156,8 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
-      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+      matcherApp.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
+        forallBoundedTelescope altAuxTy (some altNumParams) fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality
@@ -159,29 +174,10 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
     return none
 
 
-/--
-Given `n` and a non-dependent function type `α₁ → α₂ → ... → αₙ → Sort u`, returns the
-types `α₁, α₂, ..., αₙ`. Throws an error if there are not at least `n` argument types or if a
-later argument type depends on a prior one (i.e., it's a dependent function type).
-
-This can be used to infer the expected type of the alternatives when constructing a `MatcherApp`.
--/
--- TODO: Which is the natural module for this?
-def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
-  let mut type := type
-  let mut ts := #[]
-  for i in [:n] do
-    type ← whnfForall type
-    let Expr.forallE _ α β _ ← pure type | throwError "expected {n} arguments, got {i}"
-    if β.hasLooseBVars then throwError "unexpected dependent type"
-    ts := ts.push α
-    type := β
-  return ts
-
 private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
     lctx.setUserName fvar.fvarId! name
-  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+  withLCtx' lctx k
 
 /--
 Sets the user name of the FVars in the local context according to the given array of names.
@@ -198,11 +194,11 @@ def withUserNames {n} [MonadControlT MetaM n] [Monad n]
 -/
 private def forallAltTelescope'
     {n} [Monad n] [MonadControlT MetaM n]
-    {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
+    {α} (origAltType : Expr) (altInfo : Match.AltParamInfo)
     (k : Array Expr → Array Expr → n α) : n α := do
   map2MetaM (fun k =>
-    Match.forallAltTelescope origAltType (numParams - numDiscrEqs) 0
-      fun ys _eqs args _mask _bodyType => k ys args
+    Match.forallAltVarsTelescope origAltType altInfo
+      fun ys args _mask _bodyType => k ys args
   ) k
 
 /--
@@ -218,11 +214,10 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 If `useSplitter` is true, the matcher is replaced with the splitter.
 NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitter.
 
-The array `addEqualities`, if provided, indicates for which of the discriminants an equality
-connecting the discriminant to the parameters of the alternative (like in `match h : x with …`)
-should be added (if it is isn't already there).
+If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
+alternative (like in `match h : x with …`) are be added, if not already there.
 
-This function works even if the the type of alternatives do *not* fit the inferred type. This
+This function works even if the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
 -/
@@ -231,19 +226,12 @@ def transform
     [AddMessageContext n] [MonadOptions n]
     (matcherApp : MatcherApp)
     (useSplitter := false)
-    (addEqualities : Array Bool := mkArray matcherApp.discrs.size false)
+    (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
-    (onAlt : Expr → Expr → n Expr := fun _ e => pure e)
+    (onAlt : Nat → Expr → Array Expr → Expr → n Expr := fun _ _ _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
-
-  if addEqualities.size != matcherApp.discrs.size then
-    throwError "MatcherApp.transform: addEqualities has wrong size"
-
-  -- Do not add equalities when the matcher already does so
-  let addEqualities := Array.zipWith addEqualities matcherApp.discrInfos fun b di =>
-    if di.hName?.isSome then false else b
 
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.
@@ -260,17 +248,30 @@ def transform
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
-
-  let (motive', uElim) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  let (motive', uElim, addHEqualities, discrInfos') ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
 
-    -- Prepend (x = e) → to the motive when an equality is requested
-    for arg in motiveArgs, discr in discrs', b in addEqualities do if b then
-      motiveBody' ← liftMetaM <| mkArrow (← mkEq discr arg) motiveBody'
+    -- Prepend `(x = e) →` or `(x ≍ e) → ` to the motive when an equality is requested
+    -- and not already present, and remember whether we added an Eq or a HEq
+    let mut addHEqualities : Array (Option Bool) := #[]
+    let mut discrInfos' := #[]
+    for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
+      if addEqualities && di.hName?.isNone then
+        if ← isProof arg then
+          addHEqualities := addHEqualities.push none
+          discrInfos' := discrInfos'.push di
+        else
+          let heq ← mkEqHEq discr arg
+          motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
+          addHEqualities := addHEqualities.push heq.isHEq
+          discrInfos' := discrInfos'.push { hName? := some .anonymous }
+      else
+        addHEqualities := addHEqualities.push none
+        discrInfos' := discrInfos'.push di
 
-    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody')
+    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody', addHEqualities, discrInfos')
 
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
@@ -280,48 +281,64 @@ def transform
   -- (and count them along the way)
   let mut remaining' := #[]
   let mut extraEqualities : Nat := 0
-  for discr in discrs'.reverse, b in addEqualities.reverse do if b then
-    remaining' := remaining'.push (← mkEqRefl discr)
-    extraEqualities := extraEqualities + 1
+  for discr in discrs'.reverse, b in addHEqualities.reverse do
+    match b with
+    | none => pure ()
+    | some is_heq =>
+        remaining' := remaining'.push (← (if is_heq then mkHEqRefl else mkEqRefl) discr)
+        extraEqualities := extraEqualities + 1
 
   if useSplitter && !isCasesOn then
+    let aux1 := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
+    let aux1 := mkApp aux1 motive'
+    let aux1 := mkAppN aux1 discrs'
+    prependError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\nfailed with" do
+      check aux1
+    let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
+
     -- We replace the matcher with the splitter
     let matchEqns ← Match.getEquationsFor matcherApp.matcherName
     let splitter := matchEqns.splitterName
 
-    let aux1 := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
-    let aux1 := mkApp aux1 motive'
-    let aux1 := mkAppN aux1 discrs'
-    unless (← isTypeCorrect aux1) do
-      logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
-      check aux1
-    let origAltTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux1)
-
     let aux2 := mkAppN (mkConst splitter matcherLevels.toList) params'
     let aux2 := mkApp aux2 motive'
     let aux2 := mkAppN aux2 discrs'
-    unless (← isTypeCorrect aux2) do
-      logError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}"
+    prependError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}\nfailed with" do
       check aux2
-    let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux2)
+    let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
-    for alt in matcherApp.alts,
-        numParams in matcherApp.altNumParams,
-        splitterNumParams in matchEqns.splitterAltNumParams,
+    for altIdx in *...matcherApp.alts.size,
+        alt in matcherApp.alts,
+        altInfo in matcherApp.altInfos,
+        splitterAltInfo in matchEqns.splitterMatchInfo.altInfos,
         origAltType in origAltTypes,
         altType in altTypes do
-      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
+      assert! altInfo.numOverlaps = 0
+      let alt' ← forallAltTelescope' origAltType altInfo fun ys args => do
+        assert! ys.size == splitterAltInfo.numFields
         let altType ← instantiateForall altType ys
-        -- The splitter inserts its extra paramters after the first ys.size parameters, before
+        -- Look past the thunking unit parameter, if present
+        let altType ← if altInfo.hasUnitThunk then
+            instantiateForall altType #[mkConst ``Unit.unit]
+          else
+            pure altType
+        -- The splitter inserts its extra parameters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
-        forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
+        let alt' ← forallBoundedTelescope altType splitterAltInfo.numOverlaps fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
             forallBoundedTelescope altType extraEqualities fun ys4 altType => do
-              let alt ← try instantiateLambda alt (args ++ ys3)
+              let altParams := args ++ ys3
+              let alt ← try instantiateLambda alt altParams
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-              let alt' ← onAlt altType alt
+              let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
+        let alt' ← if splitterAltInfo.hasUnitThunk then
+          -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
+          -- the context (e.g. in functional induction), so use Function.const rather than a lambda
+          mkAppM ``Function.const #[mkConst ``Unit, alt']
+        else
+          pure alt'
       alts' := alts'.push alt'
 
     remaining' := remaining' ++ (← onRemaining matcherApp.remaining)
@@ -332,7 +349,7 @@ def transform
       params        := params'
       motive        := motive'
       discrs        := discrs'
-      altNumParams  := matchEqns.splitterAltNumParams.map (· + extraEqualities)
+      discrInfos    := discrInfos'
       alts          := alts'
       remaining     := remaining'
     }
@@ -340,13 +357,13 @@ def transform
     let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
     let aux := mkApp aux motive'
     let aux := mkAppN aux discrs'
-    unless (← isTypeCorrect aux) do
-      logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux}"
+    prependError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux}" do
       check aux
-    let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux)
+    let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
-    for alt in matcherApp.alts,
+    for altIdx in *...matcherApp.alts.size,
+        alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         altType in altTypes do
       let alt' ← forallBoundedTelescope altType numParams fun xs altType => do
@@ -355,7 +372,7 @@ def transform
           let names ← lambdaTelescope alt fun xs _ => xs.mapM (·.fvarId!.getUserName)
           withUserNames xs names do
             let alt ← instantiateLambda alt xs
-            let alt' ← onAlt altType alt
+            let alt' ← onAlt altIdx altType xs alt
             mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -366,7 +383,7 @@ def transform
       params        := params'
       motive        := motive'
       discrs        := discrs'
-      altNumParams  := matcherApp.altNumParams.map (· + extraEqualities)
+      discrInfos    := discrInfos'
       alts          := alts'
       remaining     := remaining'
     }
@@ -394,12 +411,12 @@ The given `MatcherApp` must not use a splitter in `matcherName`.
 The resulting expression *will* use the splitter corresponding to `matcherName` (this is necessary
 for the construction).
 
-Interally, this needs to reduce the matcher in a given branch; this is done using
+Internally, this needs to reduce the matcher in a given branch; this is done using
 `Split.simpMatchTarget`.
 -/
 def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
   -- In matcherApp.motive, replace the (dummy) matcher body with a type
-  -- derived from the inferred types of the alterantives
+  -- derived from the inferred types of the alternatives
   let nExtra := matcherApp.remaining.size
   matcherApp.transform (useSplitter := true)
     (onMotive := fun motiveArgs body => do
@@ -408,8 +425,8 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
-          let xs1 := xs[0 : xs.size - nExtra]
-          let xs2 := xs[xs.size - nExtra : xs.size]
+          let xs1 := xs[*...(xs.size - nExtra)]
+          let xs2 := xs[(xs.size - nExtra)...xs.size]
           -- logInfo m!"altIH: {xs} => {altIH}"
           let altType ← inferType termAltBody
           for x in xs2 do
@@ -429,7 +446,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       }
       mkArrowN extraParams typeMatcherApp.toExpr
     )
-    (onAlt := fun expAltType alt => do
+    (onAlt := fun _altIdx expAltType _altParams alt => do
       let altType ← inferType alt
       let eq ← mkEq expAltType altType
       let proof ← mkFreshExprSyntheticOpaqueMVar eq

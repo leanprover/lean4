@@ -3,8 +3,10 @@ Linear Diophantine equation solver
 
 Author: Marc Huisinga
 -/
-
-import Lean.Data.HashMap
+import Lean.Data.AssocList
+import Std.Data.HashMap
+import Std.Data.Iterators.Producers.Range
+import Std.Data.Iterators.Combinators.StepSize
 
 open Lean
 
@@ -47,61 +49,31 @@ namespace Lean.AssocList
 
 end Lean.AssocList
 
-namespace Lean.HashMap
+namespace Std.HashMap
 
   variable [BEq α] [Hashable α]
 
-  @[inline] protected def forIn {δ : Type w} {m : Type w → Type w'} [Monad m]
-    (as : HashMap α β) (init : δ) (f : (α × β) → δ → m (ForInStep δ)) : m δ := do
-    as.val.buckets.val.forIn init fun bucket acc => do
-      let (done, v) ← bucket.forIn (false, acc) fun v (_, acc) => do
-        let r ← f v acc
-        match r with
-        | ForInStep.done r' =>
-          return ForInStep.done (true, r')
-        | ForInStep.yield r' =>
-          return ForInStep.yield (false, r')
-      if done then
-        return ForInStep.done v
-      else
-        return ForInStep.yield v
-
-  instance : ForIn m (HashMap α β) (α × β) where
-    forIn := HashMap.forIn
-
   def modify! [Inhabited β] (xs : HashMap α β) (k : α) (f : β → β) : HashMap α β :=
-    let v := xs.find! k
+    let v := xs[k]!
     xs.erase k |>.insert k (f v)
 
-  def any (xs : HashMap α β) (p : α → β → Bool) : Bool := Id.run <| do
-    for (k, v) in xs do
-      if p k v then
-        return true
-    return false
-
   def mapValsM [Monad m] (f : β → m γ) (xs : HashMap α β) : m (HashMap α γ) :=
-    mkHashMap (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
 
   def mapVals (f : β → γ) (xs : HashMap α β) : HashMap α γ :=
-    mkHashMap (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
 
   def fastMapVals (f : α → β → β) (xs : HashMap α β) : HashMap α β :=
-    let size := xs.val.size
-    let buckets := xs.val.buckets.val.map (·.map f)
-    ⟨⟨size, ⟨buckets, sorry⟩⟩, sorry⟩
-
-  def filter (p : α → β → Bool) (xs : HashMap α β) : HashMap α β :=
-    let buckets := xs.val.buckets.val.map (·.filter p)
-    let size := buckets.foldl (fun acc bucket => bucket.foldl (fun acc _ _ => acc + 1) acc) 0
-    ⟨⟨size, ⟨buckets, sorry⟩⟩, sorry⟩
+    xs.map f
 
   def getAny? (x : HashMap α β) : Option (α × β) := Id.run <| do
-    for bucket in x.val.buckets.val do
-      for (k, v) in bucket do
-        return some (k, v)
+    for (k, v) in x do
+      return some (k, v)
     return none
 
-end Lean.HashMap
+end Std.HashMap
+
+open Std (HashMap)
 
 structure Equation where
   id     : Nat
@@ -114,10 +86,10 @@ def gcd (coeffs : HashMap Nat Int) : Nat :=
   let coeffsContent := coeffs.toArray
   match coeffsContent with
   | #[]           => panic! "Cannot calculate GCD of empty list of coefficients"
-  | #[(i, x)]     => x
+  | #[(_, x)]     => x
   | coeffsContent =>
     coeffsContent[0]!.2.gcd coeffsContent[1]!.2
-      |> coeffs.fold fun acc k v => acc.gcd v
+      |> coeffs.fold fun acc _ v => acc.gcd v
 
 namespace Equation
 
@@ -149,10 +121,10 @@ namespace Equation
     let V_fromEq := fromEq.coeffs
     let V_toEq := toEq.coeffs
     let k := varIdx
-    let sₖ := V_fromEq.find! k
-    let bₖ := V_toEq.find! k
+    let sₖ := V_fromEq[k]!
+    let bₖ := V_toEq[k]!
     let mut V_toEq := V_toEq.fastMapVals fun i bᵢ =>
-      match V_fromEq.find? i with
+      match V_fromEq[i]? with
       | none =>
         bᵢ
       | some aᵢ =>
@@ -170,7 +142,7 @@ namespace Equation
     let (i, c) := e.coeffs.getAny?.get!
     return { e with
       coeffs := e.coeffs.insert i 1
-      const := Int.div e.const c }
+      const := Int.ediv e.const c }
 
   def invert (e : Equation) : Equation :=
     { e with
@@ -178,7 +150,7 @@ namespace Equation
       const  := (-1)*e.const }
 
   def reorganizeFor (e : Equation) (varIdx : Nat) : Equation := Id.run <| do
-    let singletonCoeff := e.coeffs.find! varIdx
+    let singletonCoeff := e.coeffs[varIdx]!
     let mut e := { e with coeffs := e.coeffs.fastMapVals fun _ coeff => (-1)*coeff }
     if singletonCoeff = -1 then
       e := e.invert
@@ -196,7 +168,7 @@ namespace Equation
       match r? with
       | none =>
         r? := some (i, coeff)
-      | some (i', coeff') =>
+      | some (_, coeff') =>
         if coeff.natAbs < coeff'.natAbs then
           r? := some (i, coeff)
     return r?
@@ -231,11 +203,11 @@ def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : P
 
 partial def eliminateSingletons (p : Problem) : Problem := Id.run <| do
   let mut r? : Option (Equation × Nat) := none
-  for (id, eq) in p.equations do
+  for (_, eq) in p.equations do
     match eq.findSingleton? with
     | none =>
       continue
-    | some (varIdx, coeff) =>
+    | some (varIdx, _) =>
       r? := some (eq, varIdx)
   match r? with
   | none =>
@@ -297,13 +269,13 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
     return none
   if p.equations.any (fun _ eq => eq.const ≠ 0) then
     return some Solution.unsat
-  let mut assignment : Array (Option Int) := mkArray p.nVars none
-  for i in [0:p.nVars] do
+  let mut assignment : Array (Option Int) := Array.replicate p.nVars none
+  for i in *...p.nVars do
     assignment := readSolution i assignment
   return Solution.sat <| assignment.map (·.get!)
 where
   readSolution (varIdx : Nat) (assignment : Array (Option Int)) : Array (Option Int) := Id.run <| do
-    match p.solvedEquations.find? varIdx with
+    match p.solvedEquations[varIdx]? with
     | none =>
       return assignment.set! varIdx (some 0)
     | some eq =>
@@ -349,7 +321,7 @@ def error (msg : String) : IO α :=
   throw <| IO.userError s!"Error: {msg}."
 
 def Array.ithVal (xs : Array String) (i : Nat) (name : String) : IO Int := do
-  let some unparsed := xs.get? i
+  let some unparsed := xs[i]?
     | error s!"Missing {name}"
   let some parsed := String.toInt? unparsed
     | error s!"Invalid {name}: `{unparsed}`"
@@ -359,20 +331,20 @@ def main (args : List String) : IO UInt32 := do
   let some path := args.head?
     | error "Usage: liasolver <input file>"
   let lines ← IO.FS.lines path <&> Array.filter (¬·.isEmpty)
-  let some headerLine := lines.get? 0
+  let some headerLine := lines[0]?
     | error "No header line"
   let header := headerLine.splitOn.toArray
   let nEquations ← header.ithVal 0 "amount of equations"
   let nVars ← header.ithVal 1 "amount of variables"
-  let mut equations : HashMap Nat Equation := mkHashMap
-  for line in lines[1:] do
+  let mut equations : HashMap Nat Equation := ∅
+  for line in lines[1...*] do
     let elems := line.splitOn.toArray
     let nTerms ← elems.ithVal 0 "amount of equation terms"
     let 0 ← elems.ithVal (elems.size - 1) "end of line symbol"
       | error "Non-zero end of line symbol"
     let const ← elems.ithVal (elems.size - 2) "constant value"
-    let mut coeffs := mkHashMap
-    for i in [1:elems.size-2:2] do
+    let mut coeffs := ∅
+    for i in ((1 : Nat)...(elems.size-2)).iter.stepSize 2 do
       let coeff ← elems.ithVal i "coefficient"
       let varIdx ← elems.ithVal (i + 1) "variable index"
       if varIdx < 1 then
@@ -386,11 +358,11 @@ def main (args : List String) : IO UInt32 := do
   | none =>
     IO.println "UNSAT"
   | some equations' =>
-    let problem : Problem := ⟨equations', mkHashMap, equations'.size, nVars.natAbs⟩
+    let problem : Problem := ⟨equations', ∅, equations'.size, nVars.natAbs⟩
     match solveProblem problem with
     | Solution.unsat =>
       IO.println "UNSAT"
     | Solution.sat assignment =>
       IO.println "SAT"
-      IO.println <| String.intercalate " " <| assignment.data.map toString
+      IO.println <| String.intercalate " " <| assignment.toList.map toString
   return 0

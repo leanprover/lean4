@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Attributes
+public import Lean.Meta.Basic
+import Init.Omega
+
+public section
 
 namespace Lean.Compiler
 
@@ -13,6 +17,10 @@ inductive SpecializeAttributeKind where
   | specialize | nospecialize
   deriving Inhabited, BEq
 
+/--
+Marks a definition to never be specialized during code generation.
+-/
+@[builtin_doc]
 builtin_initialize nospecializeAttr : TagAttribute ←
   registerTagAttribute `nospecialize "mark definition to never be specialized"
 
@@ -24,21 +32,38 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
     let mut result := #[]
     for arg in args do
       if let some idx := arg.isNatLit? then
-        if idx == 0 then throwErrorAt arg "invalid specialization argument index, index must be greater than 0"
+        if idx == 0 then throwErrorAt arg "Invalid specialization argument index `0`: Index must be greater than 0"
         let idx := idx - 1
-        if idx >= argNames.size then
-          throwErrorAt arg "invalid argument index, `{declName}` has #{argNames.size} arguments"
-        if result.contains idx then throwErrorAt arg "invalid specialization argument index, `{argNames[idx]!}` has already been specified as a specialization candidate"
-        result := result.push idx
+        if h : idx >= argNames.size then
+          throwErrorAt arg "Invalid argument index `{idx}`: `{.ofConstName declName}` has only {argNames.size} arguments"
+        else
+          if result.contains idx then throwErrorAt arg "Invalid specialization argument index `{idx + 1}`: \
+            The argument at this index (`{argNames[idx]}`) has already been specified as a specialization candidate"
+          result := result.push idx
       else
         let argName := arg.getId
-        if let some idx := argNames.getIdx? argName then
-          if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
+        if let some idx := argNames.idxOf? argName then
+          if result.contains idx then throwErrorAt arg "Invalid specialization argument name `{argName}`: \
+            It has already been specified as a specialization candidate"
           result := result.push idx
         else
-          throwErrorAt arg "invalid specialization argument name `{argName}`, `{declName}` does have an argument with this name"
+          throwErrorAt arg "Invalid specialization argument name `{argName}`: `{.ofConstName declName}` does not have an argument with this name"
     return result.qsort (·<·)
 
+/--
+Marks a definition to always be specialized during code generation.
+
+Specialization is an optimization in the code generator for generating variants of a function that
+are specialized to specific parameter values. This is in particular useful for functions that take
+other functions as parameters: Usually when passing functions as parameters, a closure needs to be
+allocated that will then be called. Using `@[specialize]` prevents both of these operations by
+using the provided function directly in the specialization of the inner function.
+
+`@[specialize]` can take additional arguments for the parameter names or indices (starting at 1) of
+the parameters that should be specialized. By default, instance and function parameters are
+specialized.
+-/
+@[builtin_doc]
 builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
   registerParametricAttribute {
     name := `specialize
@@ -56,75 +81,5 @@ def hasSpecializeAttribute (env : Environment) (declName : Name) : Bool :=
 
 def hasNospecializeAttribute (env : Environment) (declName : Name) : Bool :=
   nospecializeAttr.hasTag env declName
-
-/- TODO: the rest of the file is for the old / current code generator. We should remove it as soon as we move to the new one. -/
-
-@[export lean_has_specialize_attribute]
-partial def hasSpecializeAttributeOld (env : Environment) (n : Name) : Bool :=
-  match specializeAttr.getParam? env n with
-  | some _ => true
-  | none   => if n.isInternal then hasSpecializeAttributeOld env n.getPrefix else false -- TODO: remove recursion after we move to new compiler
-
-@[export lean_has_nospecialize_attribute]
-partial def hasNospecializeAttributeOld (env : Environment) (n : Name) : Bool :=
-  nospecializeAttr.hasTag env n ||
-  (n.isInternal && hasNospecializeAttributeOld env n.getPrefix) -- TODO: remove recursion after we move to new compiler
-
-inductive SpecArgKind where
-  | fixed
-  | fixedNeutral -- computationally neutral
-  | fixedHO      -- higher order
-  | fixedInst    -- type class instance
-  | other
-  deriving Inhabited
-
-structure SpecInfo where
-  mutualDecls : List Name
-  argKinds : List SpecArgKind
-  deriving Inhabited
-
-structure SpecState where
-  specInfo : SMap Name SpecInfo := {}
-  cache    : SMap Expr Name := {}
-  deriving Inhabited
-
-inductive SpecEntry where
-  | info (name : Name) (info : SpecInfo)
-  | cache (key : Expr) (fn : Name)
-  deriving Inhabited
-
-namespace SpecState
-
-def addEntry (s : SpecState) (e : SpecEntry) : SpecState :=
-  match e with
-  | SpecEntry.info name info => { s with specInfo := s.specInfo.insert name info }
-  | SpecEntry.cache key fn   => { s with cache    := s.cache.insert key fn }
-
-def switch : SpecState → SpecState
-  | ⟨m₁, m₂⟩ => ⟨m₁.switch, m₂.switch⟩
-
-end SpecState
-
-builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
-  registerSimplePersistentEnvExtension {
-    addEntryFn    := SpecState.addEntry,
-    addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
-  }
-
-@[export lean_add_specialization_info]
-def addSpecializationInfo (env : Environment) (fn : Name) (info : SpecInfo) : Environment :=
-  specExtension.addEntry env (SpecEntry.info fn info)
-
-@[export lean_get_specialization_info]
-def getSpecializationInfo (env : Environment) (fn : Name) : Option SpecInfo :=
-  (specExtension.getState env).specInfo.find? fn
-
-@[export lean_cache_specialization]
-def cacheSpecialization (env : Environment) (e : Expr) (fn : Name) : Environment :=
-  specExtension.addEntry env (SpecEntry.cache e fn)
-
-@[export lean_get_cached_specialization]
-def getCachedSpecialization (env : Environment) (e : Expr) : Option Name :=
-  (specExtension.getState env).cache.find? e
 
 end Lean.Compiler

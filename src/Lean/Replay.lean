@@ -1,11 +1,14 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Util.FoldConsts
+public import Lean.AddDecl
+
+public section
 
 /-!
 # `Lean.Environment.replay`
@@ -14,7 +17,7 @@ import Lean.Util.FoldConsts
 sending each declaration to the kernel for checking.
 
 `replay` does not send constructors or recursors in `constantMap` to the kernel,
-but rather checks that they are identical to constructors or recursors generated in the enviroment
+but rather checks that they are identical to constructors or recursors generated in the environment
 after replaying any inductive definitions occurring in `constantMap`.
 
 `replay` can be used either as:
@@ -28,7 +31,7 @@ namespace Lean.Environment
 namespace Replay
 
 structure Context where
-  newConstants : HashMap Name ConstantInfo
+  newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
   env : Environment
@@ -48,15 +51,13 @@ def isTodo (name : Name) : M Bool := do
   else
     return false
 
-/-- Use the current `Environment` to throw a `KernelException`. -/
-def throwKernelException (ex : KernelException) : M Unit := do
-    let ctx := { fileName := "", options := ({} : KVMap), fileMap := default }
-    let state := { env := (← get).env }
-    Prod.fst <$> (Lean.Core.CoreM.toIO · ctx state) do Lean.throwKernelException ex
+/-- Use the current `Environment` to throw a `Kernel.Exception`. -/
+def throwKernelException (ex : Kernel.Exception) : M Unit := do
+  throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
-/-- Add a declaration, possibly throwing a `KernelException`. -/
+/-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl d with
+  match (← get).env.addDeclCore 0 d (cancelTk? := none) with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 
@@ -72,7 +73,7 @@ and add it to the environment.
 -/
 partial def replayConstant (name : Name) : M Unit := do
   if ← isTodo name then
-    let some ci := (← read).newConstants.find? name | unreachable!
+    let some ci := (← read).newConstants[name]? | unreachable!
     replayConstants ci.getUsedConstantsAsSet
     -- Check that this name is still pending: a mutual block may have taken care of it.
     if (← get).pending.contains name then
@@ -88,13 +89,13 @@ partial def replayConstant (name : Name) : M Unit := do
       | .inductInfo info =>
         let lparams := info.levelParams
         let nparams := info.numParams
-        let all ← info.all.mapM fun n => do pure <| ((← read).newConstants.find! n)
+        let all ← info.all.mapM fun n => do pure <| ((← read).newConstants[n]!)
         for o in all do
           modify fun s =>
             { s with remaining := s.remaining.erase o.name, pending := s.pending.erase o.name }
         let ctorInfo ← all.mapM fun ci => do
           pure (ci, ← ci.inductiveVal!.ctors.mapM fun n => do
-            pure ((← read).newConstants.find! n))
+            pure ((← read).newConstants[n]!))
         -- Make sure we are really finished with the constructors.
         for (_, ctors) in ctorInfo do
           for ctor in ctors do
@@ -128,7 +129,7 @@ when we replayed the inductives.
 -/
 def checkPostponedConstructors : M Unit := do
   for ctor in (← get).postponedConstructors do
-    match (← get).env.constants.find? ctor, (← read).newConstants.find? ctor with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.ctorInfo info), some (.ctorInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid constructor {ctor}"
     | _, _ => throw <| IO.userError s!"No such constructor {ctor}"
@@ -139,7 +140,7 @@ when we replayed the inductives.
 -/
 def checkPostponedRecursors : M Unit := do
   for ctor in (← get).postponedRecursors do
-    match (← get).env.constants.find? ctor, (← read).newConstants.find? ctor with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.recInfo info), some (.recInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"
@@ -154,7 +155,7 @@ open Replay
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-def replay (newConstants : HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
+def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.

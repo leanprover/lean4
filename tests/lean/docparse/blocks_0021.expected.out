@@ -1,0 +1,36 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"foo\""))
+         (Lean.Doc.Syntax.linebreak
+          "line!"
+          (str "\"\\n\""))
+         (Lean.Doc.Syntax.text
+          (str "\"  stuff\""))]
+        "}")
+       (Lean.Doc.Syntax.blockquote
+        ">"
+        [(Lean.Doc.Syntax.para
+          "para{"
+          [(Lean.Doc.Syntax.text
+            (str "\"more \""))]
+          "}")])
+       (Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"abc\""))]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"bar\""))
+         (Lean.Doc.Syntax.linebreak
+          "line!"
+          (str "\"\\n\""))]
+        "}")])]
+    "}")]
+All input consumed.

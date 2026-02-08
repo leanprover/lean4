@@ -3,8 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Classical
+public meta import Init.Grind.Tactics
+public import Init.Grind.Tactics
+import Init.SimpLemmas
+
+public section
 
 /-! # by_cases tactic and if-then-else support -/
 
@@ -37,29 +43,13 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
     f (ite P x y) = ite P (f x) (f y) :=
   apply_dite f P (fun _ => x) (fun _ => y)
 
-@[simp] theorem dite_eq_left_iff {P : Prop} [Decidable P] {B : ¬ P → α} :
-    dite P (fun _ => a) B = a ↔ ∀ h, B h = a := by
-  by_cases P <;> simp [*, forall_prop_of_true, forall_prop_of_false]
-
-@[simp] theorem dite_eq_right_iff {P : Prop} [Decidable P] {A : P → α} :
-    (dite P A fun _ => b) = b ↔ ∀ h, A h = b := by
-  by_cases P <;> simp [*, forall_prop_of_true, forall_prop_of_false]
-
-@[simp] theorem ite_eq_left_iff {P : Prop} [Decidable P] : ite P a b = a ↔ ¬P → b = a :=
-  dite_eq_left_iff
-
-@[simp] theorem ite_eq_right_iff {P : Prop} [Decidable P] : ite P a b = b ↔ P → a = b :=
-  dite_eq_right_iff
-
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
+@[simp] theorem dite_eq_ite [Decidable P] :
+  (dite P (fun _ => a) (fun _ => b)) = ite P a b := rfl
 
--- We don't mark this as `simp` as it is already handled by `ite_eq_right_iff`.
-theorem ite_some_none_eq_none [Decidable P] :
-    (if P then some x else none) = none ↔ ¬ P := by
-  simp only [ite_eq_right_iff]
-  rfl
-
-@[simp] theorem ite_some_none_eq_some [Decidable P] :
-    (if P then some x else none) = some y ↔ P ∧ x = y := by
-  split <;> simp_all
+-- Remark: dite and ite are "defally equal" when we ignore the proofs.
+@[deprecated dite_eq_ite (since := "2025-10-29")]
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
+  match h with
+  | isTrue _    => rfl
+  | isFalse _   => rfl

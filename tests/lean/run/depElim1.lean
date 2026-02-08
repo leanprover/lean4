@@ -92,7 +92,7 @@ partial def decodePats : Expr → MetaM (List Pattern)
 
 partial def decodeAltLHS (e : Expr) : MetaM AltLHS :=
 forallTelescopeReducing e fun args body => do
-  let decls ← args.toList.mapM (fun arg => getLocalDecl arg.fvarId!)
+  let decls ← args.toList.mapM (fun arg => arg.fvarId!.getDecl)
   let pats  ← decodePats body
   return { ref := Syntax.missing, fvarDecls := decls, patterns := pats }
 
@@ -154,7 +154,7 @@ def mkTester (elimName : Name) (majors : List Expr) (lhss : List AltLHS) (inProp
 generalizeTelescope majors.toArray fun majors => do
   let resultType := if inProp then mkConst `True /- some proposition -/ else mkConst `Nat
   let matchType ← mkForallFVars majors resultType
-  Match.mkMatcher { matcherName := elimName, matchType, discrInfos := mkArray majors.size {}, lhss }
+  Match.mkMatcher { matcherName := elimName, matchType, discrInfos := Array.replicate majors.size {}, lhss }
 
 def test (ex : Name) (numPats : Nat) (elimName : Name) (inProp : Bool := false) : MetaM Unit :=
 withDepElimFrom ex numPats fun majors alts => do

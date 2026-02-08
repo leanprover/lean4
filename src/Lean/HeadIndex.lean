@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+
+public section
 
 namespace Lean
 
@@ -32,8 +36,6 @@ inductive HeadIndex where
   | forallE
   deriving Inhabited, BEq, Repr
 
-namespace HeadIndex
-
 /-- Hash code for a `HeadIndex` value. -/
 protected def HeadIndex.hash : HeadIndex → UInt64
   | fvar fvarId         => mixHash 11 <| hash fvarId
@@ -46,8 +48,6 @@ protected def HeadIndex.hash : HeadIndex → UInt64
   | forallE             => 37
 
 instance : Hashable HeadIndex := ⟨HeadIndex.hash⟩
-
-end HeadIndex
 
 namespace Expr
 

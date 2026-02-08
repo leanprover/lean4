@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+
+import json
+import subprocess
+from pathlib import Path
+from typing import Iterable
+
+OUTFILE = Path() / "measurements.jsonl"
+
+SRC = Path("src")
+STAGE3 = Path("build/release/stage3")
+STAGE3_TEMP = STAGE3 / "lib" / "temp"
+STAGE3_LEAN = STAGE3 / "lib" / "lean"
+
+
+def output_result(metric: str, value: float, unit: str | None = None) -> None:
+    data = {"metric": metric, "value": value}
+    if unit is not None:
+        data["unit"] = unit
+    with open(OUTFILE, "a") as f:
+        f.write(f"{json.dumps(data)}\n")
+
+
+def measure_bytes(topic: str, paths: Iterable[Path]) -> None:
+    amount = 0
+    total = 0
+    for path in paths:
+        amount += 1
+        total += path.stat().st_size
+    output_result(f"{topic}//files", amount)
+    output_result(f"{topic}//bytes", total, "B")
+
+
+def measure_lines(topic: str, paths: Iterable[Path]) -> None:
+    amount = 0
+    total = 0
+    for path in paths:
+        amount += 1
+        with open(path) as f:
+            total += sum(1 for _ in f)
+    output_result(f"{topic}//files", amount)
+    output_result(f"{topic}//lines", total)
+
+
+def measure_bytes_for_file(topic: str, path: Path) -> int:
+    size = path.stat().st_size
+    output_result(f"{topic}//bytes", size, "B")
+    return size
+
+
+def measure_bytes_for_dir(topic: str, path: Path) -> int:
+    total = 0
+    for path in path.rglob("*"):
+        if path.is_file():
+            total += path.stat().st_size
+    output_result(f"{topic}//bytes", total, "B")
+    return total
+
+
+def measure_symbols_for_file(topic: str, path: Path) -> int:
+    result = subprocess.run(
+        ["nm", "--extern-only", "--defined-only", path],
+        capture_output=True,
+        encoding="utf-8",
+        check=True,
+    )
+    count = len(result.stdout.splitlines())
+    output_result(f"{topic}//dynamic symbols", count)
+    return count
+
+
+if __name__ == "__main__":
+    measure_bytes_for_file("size/libleanshared.so", STAGE3_LEAN / "libleanshared.so")
+    measure_symbols_for_file("size/libleanshared.so", STAGE3_LEAN / "libleanshared.so")
+    measure_symbols_for_file(
+        "size/libLake_shared.so", STAGE3_LEAN / "libLake_shared.so"
+    )
+    measure_bytes_for_dir("size/install", STAGE3 / "install")
+
+    # Stdlib
+    measure_lines("size/all/.c", STAGE3_TEMP.glob("**/*.c"))
+    measure_bytes("size/all/.ir", STAGE3_LEAN.glob("**/*.ir"))
+    measure_lines("size/all/.cpp", SRC.glob("**/*.cpp"))
+    measure_lines("size/all/.lean", SRC.glob("**/*.lean"))
+    measure_bytes("size/all/.ilean", STAGE3_LEAN.glob("**/*.ilean"))
+    measure_bytes("size/all/.olean", STAGE3_LEAN.glob("**/*.olean"))
+    measure_bytes("size/all/.olean.server", STAGE3_LEAN.glob("**/*.olean.server"))
+    measure_bytes("size/all/.olean.private", STAGE3_LEAN.glob("**/*.olean.private"))
+
+    # Init
+    measure_bytes("size/init/.olean", STAGE3_LEAN.glob("Init/**/*.olean"))
+    measure_bytes("size/init/.olean.server", STAGE3_LEAN.glob("Init/**/*.olean.server"))
+    measure_bytes(
+        "size/init/.olean.private", STAGE3_LEAN.glob("Init/**/*.olean.private")
+    )

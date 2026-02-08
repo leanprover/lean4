@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -15,11 +19,11 @@ It contains information for inlining local and global functions.
 -/
 structure InlineCandidateInfo where
   isLocal  : Bool
-  params   : Array Param
+  params   : Array (Param .pure)
   /-- Value (lambda expression) of the function to be inlined. -/
-  value    : Code
+  value    : Code .pure
   fType    : Expr
-  args     : Array Arg
+  args     : Array (Arg .pure)
   /-- `ifReduce = true` if the declaration being inlined was tagged with `inline_if_reduce`. -/
   ifReduce : Bool
   /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
@@ -32,17 +36,28 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 /--
 Return `some info` if `e` should be inlined.
 -/
-def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
+def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) := do
   let mut e := e
   let mut mustInline := false
   if let .const ``inline _ #[_, .fvar argFVarId] := e then
-    let some decl ← findLetDecl? argFVarId | return none
-    e := decl.value
     mustInline := true
+    if let some decl ← findFunDecl'? (pu := .pure) argFVarId then
+      e := .fvar decl.fvarId #[]
+    else if let some decl ← findLetDecl? argFVarId then
+      e := decl.value
+      if let .const declName _ _ := e then
+        if (← isCtor? declName).isSome then
+          throwError m!"`inline` applied to constructor '{declName}' is invalid"
+        else if (← getLocalDecl? declName).isNone then
+          throwError m!"`inline` applied to non-local declaration '{declName}' is invalid"
+    else
+      assert! (← findParam? (pu := .pure) argFVarId).isSome
+      throwError m!"`inline` applied to parameters is invalid"
   if let .const declName us args := e then
     unless (← read).config.inlineDefs do
       return none
-    let some decl ← getDecl? declName | return none
+    let some ⟨.pure, decl⟩ ← getDecl? declName | return none
+    let .code code := decl.value | return none
     let shouldInline : SimpM Bool := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
@@ -50,22 +65,28 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
-      if (← inBasePhase <&&> Meta.isInstance decl.name) then
-        unless decl.name == ``instDecidableEqBool do
-          /-
-          TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
-          Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
-          structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
-          way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
-          that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
-          -/
-          return false
+      if (← inBasePhase) then
+        if (← isInstanceReducible decl.name) then
+          unless decl.name == ``instDecidableEqBool do
+            /-
+            TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
+            Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
+            structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
+            way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
+            that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
+            -/
+            return false
+        -- This is done to avoid inlining `_override` implementations for computed fields in the
+        -- base phase, since `cases` constructs have not yet been replaced by their underlying
+        -- implementation, and thus inlining `_override` implementations for computed fields will
+        -- expose a constructor/`cases` mismatch.
+        -- TODO: Find a better solution for this problem.
+        if decl.name matches .str _ "_override" then return false
       if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
       if decl.inlineAttr || decl.inlineIfReduceAttr then return true
-      unless decl.noinlineAttr do
-        if (← isSmall decl.value) then return true
-      return false
+      if decl.noinlineAttr then return false
+      isSmall code
     unless (← shouldInline) do return none
     /- check arity -/
     let arity := decl.getArity
@@ -77,7 +98,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       let arg := args[paramIdx]!
       unless (← arg.isConstructorApp) do return none
     let params := decl.instantiateParamsLevelParams us
-    let value := decl.instantiateValueLevelParams us
+    let value := code.instantiateValueLevelParams decl.levelParams us
     let type := decl.instantiateTypeLevelParams us
     incInline
     return some {
@@ -90,7 +111,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
     }
   else if let .fvar f args := e then
     let some decl ← findFunDecl'? f | return none
-    unless args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
+    unless mustInline || args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless mustInline || (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal

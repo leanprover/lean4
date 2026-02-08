@@ -314,7 +314,7 @@ def List.permutationsAux.rec' {C : List α → List α → Sort v} (H0 : ∀ is,
   | t :: ts, is =>
       H1 t ts is (permutationsAux.rec' H0 H1 ts (t :: is)) (permutationsAux.rec' H0 H1 is [])
   termination_by ts is => (length ts + length is, length ts)
-  decreasing_by all_goals simp_wf; omega
+  decreasing_by all_goals simp; omega
 
 example {x y w z : Nat} (h : Prod.Lex (· < ·) (· < ·) (x + 1, y + 1) (w, z)) :
     Prod.Lex (· < ·) (· < ·) (x, y) (w, z) := by omega
@@ -377,8 +377,31 @@ example (i j : Nat) (p : i ≥ j) : True := by
 -- From https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/Nat.2Emul_sub_mod/near/428107094
 example (a b : Nat) (h : a % b + 1 = 0) : False := by omega
 
-/-! ### Fin -/
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression.20in.204.2E8.2E0-rc1/near/437150155
+example (x : Nat) : x < 2 →
+    (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2) ∧ (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2 → x < 3) := by
+  omega
 
+-- Reported in Lean FRO office hours 2024-05-16 by Michael George
+example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
+  omega
+
+-- From https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/nat.20fighting
+example (n : Nat) : n * n ≥ 0 := by omega
+example (n : Nat) : n * n + n ≥ 0 := by omega
+example (i j k l : Nat) : i * j + k + l - k = i * j + l := by omega
+
+example (n : Nat) : n * 2 = n + n := by omega
+example (n : Nat) : n * n * 2 = n * n + n * n := by omega
+example (n : Nat) : 2 * (n * n) = n * n + n * n := by omega
+-- But not:
+-- example (n : Nat) : 2 * n * n = n * n + n * n := by omega
+-- example (n : Nat) : n * 2 * n = n * n + n * n := by omega
+
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression/near/456539091
+example (a : Nat) : a * 1 = a := by omega
+
+/-! ### Fin -/
 
 -- Test `<`
 example (n : Nat) (i j : Fin n) (h : i < j) : (i : Nat) < n - 1 := by omega
@@ -422,6 +445,10 @@ example (x e : Nat) (hx : x < 2^(e.succ)) : x < 2^e * 2 := by omega
 -- Check that this works for integer base.
 example (x : Int) (e : Nat) (hx : x < (2 : Int)^(e+1)) : x < 2^e * 2 := by omega
 
+example (n : Nat) (i : Int) (h2n : (2 : Int) ^ n = ↑((2 : Nat) ^ (n : Nat)))
+    (hlt : i % 2 ^ n < 2 ^ n) :  2 ^ n ≠ 0 := by
+  omega
+
 /-! ### Ground terms -/
 
 example : 2^7 < 165 := by omega
@@ -430,6 +457,20 @@ example (_ : x % 2^7 < 3) : x % 128 < 5 := by omega
 example (a : Nat) :
     (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
   omega
+
+/-! ### Int.toNat -/
+
+example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
+  omega
+
+example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
+  omega
+
+/-! ### Int.negSucc
+Make sure we aren't stopped by stray `Int.negSucc` terms.
+-/
+
+example (x : Int) (h : Int.negSucc 0 < x ∧ x < 1) : x = 0 := by omega
 
 /-! ### BitVec -/
 open BitVec
@@ -453,3 +494,161 @@ example (x : BitVec 8) (hx : (x + 1) <<< 1 = 4) : x = 1 ∨ x = 129 := by
 example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
     ~~~x > (1#64 <<< 63) := by
   bv_omega
+
+-- This example, reported from LNSym,
+-- started failing when we changed the definition of `Fin.sub` in https://github.com/leanprover/lean4/pull/4421.
+-- When we use the new definition, `omega` produces a proof term that the kernel is very slow on.
+-- To work around this for now, I've removed `BitVec.toNat_sub` from the `bitvec_to_nat` simp set,
+-- and replaced it with `BitVec.toNat_sub'` which uses the old definition for subtraction.
+-- This is only a workaround, and I would like to understand why the term chokes the kernel.
+example
+    (n : Nat)
+    (addr2 addr1 : BitVec 64)
+    (h0 : n ≤ 18446744073709551616)
+    (h1 : addr2 + 18446744073709551615#64 - addr1 ≤ BitVec.ofNat 64 (n - 1))
+    (h2 : addr2 - addr1 ≤ addr2 + 18446744073709551615#64 - addr1) :
+    n = 18446744073709551616 := by
+  bv_omega
+
+-- This smaller example exhibits the same problem.
+example
+    (n : Nat)
+    (addr2 addr1 : BitVec 16)
+    (h0 : n ≤ 65536)
+    (h1 : addr2 + 65535#16 - addr1 ≤ BitVec.ofNat 16 (n - 1))
+    (h2 : addr2 - addr1 ≤ addr2 + 65535#16 - addr1) :
+    n = 65536 := by
+  bv_omega
+
+/-! ### Error messages -/
+
+/--
+error: omega could not prove the goal:
+No usable constraints found. You may need to unfold definitions so `omega` can see
+linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication,
+division, and modular remainder by constants.
+-/
+#guard_msgs in
+example : 0 < 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  a ≥ 0
+where
+ a := ↑x
+-/
+#guard_msgs in
+example (x : Nat) : x < 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  a ≥ 0
+  a - b ≥ 0
+where
+ a := ↑x
+ b := y
+-/
+#guard_msgs in
+example (x : Nat) (y : Int) : x < y := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≤ 0
+  6 ≤ a ≤ 9
+where
+ a := x
+ b := y
+-/
+#guard_msgs in
+example (x y : Int) : 5 < x ∧ x < 10 → y > 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  c ≥ 0
+  c + d ≥ -1
+  b ≥ 0
+  a ≥ 0
+  a - b ≥ 1
+  a - d ≤ -1
+where
+ a := ↑(sizeOf xs)
+ b := ↑(sizeOf y)
+ c := ↑(sizeOf x.fst)
+ d := ↑(sizeOf x.snd)
+-/
+#guard_msgs in
+-- this used to fail with y = x, but then omega got better, so now there are unrelated x and y
+-- to make omega fail
+theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeOf β]
+  {x y : α × β} {xs : List (α × β)} :
+  y ∈ xs → sizeOf x.snd < 1 + sizeOf xs
+:= by
+  intro h
+  have := List.sizeOf_lt_of_mem h
+  have : sizeOf x = 1 + sizeOf x.1 + sizeOf x.2 := rfl
+  omega
+
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  b ≥ 0
+  a ≥ 0
+  a - b - c ≥ 0
+where
+ a := ↑reallyreallyreallyreally
+ b := ↑longlonglonglong
+ c := ↑namenamename
+-/
+#guard_msgs in
+example (reallyreallyreallyreally longlonglonglong namenamename : Nat) :
+  reallyreallyreallyreally < longlonglonglong + namenamename := by omega
+
+
+def a := 1
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  e_1 ≥ 0
+  d_1 ≥ 0
+  c_1 ≥ 0
+  b_1 ≥ 0
+  a_1 ≥ 0
+  z ≥ 0
+  y ≥ 0
+  x ≥ 0
+  w ≥ 0
+  v ≥ 0
+  u ≥ 0
+  t ≥ 0
+  s ≥ 0
+  r ≥ 0
+  q ≥ 0
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
+where
+ q := ↑b
+ r := ↑c
+ s := ↑d
+ t := ↑e
+ u := ↑f
+ v := ↑g
+ w := ↑h
+ x := ↑i
+ y := ↑j
+ z := ↑k
+ a_1 := ↑l
+ b_1 := ↑m
+ c_1 := ↑n
+ d_1 := ↑o
+ e_1 := ↑p
+-/
+#guard_msgs in
+example (b c d e f g h i j k l m n o p : Nat) :
+  b + c + d + e + f + g + h + i + j + k + l + m + n + o + p < 100 := by omega

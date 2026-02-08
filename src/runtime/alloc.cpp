@@ -437,7 +437,7 @@ void dealloc(void * o, size_t sz) {
     LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
-        return free(o);
+        return free_sized(o, sz);
     }
     dealloc_small_core(o);
 }
@@ -467,14 +467,27 @@ void finalize_alloc() {
 LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
 #endif
 
-/* Helper function for increasing heartbeat even when LEAN_SMALL_ALLOCATOR is not defined */
-extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
+void set_heartbeats(uint64_t count) {
 #ifdef LEAN_SMALL_ALLOCATOR
     if (g_heap)
-        g_heap->m_heartbeat++;
+        g_heap->m_heartbeat = count;
 #else
-    g_heartbeat++;
+    g_heartbeat = count;
 #endif
+}
+
+void add_heartbeats(uint64_t count) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    if (g_heap)
+        g_heap->m_heartbeat += count;
+#else
+    g_heartbeat += count;
+#endif
+}
+
+/* Helper function for increasing heartbeat even when LEAN_SMALL_ALLOCATOR is not defined */
+extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
+    add_heartbeats(1);
 }
 
 uint64_t get_num_heartbeats() {

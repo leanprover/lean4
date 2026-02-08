@@ -1,31 +1,25 @@
-mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
-  fun a b => ?m a b
+mulcommErrorMessage.lean:8:13-13:25: error: Type mismatch
+  fun a b => ?m
 has type
-  (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
+  (a : ?m) → (b : ?m a) → ?m a b
 but is expected to have type
-  a✝ * b✝ = b✝ * a✝ : Prop
+  a✝ * b✝ = b✝ * a✝
 the following variables have been introduced by the implicit lambda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implicit lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
-mulcommErrorMessage.lean:11:22-11:25: error: type mismatch
+mulcommErrorMessage.lean:12:22-12:25: error: Type mismatch
   rfl
 has type
-  true = true : Prop
+  ?m = ?m
 but is expected to have type
-  true = false : Prop
-mulcommErrorMessage.lean:12:22-12:25: error: type mismatch
-  rfl
+  false = true
+mulcommErrorMessage.lean:16:3-17:47: error: Type mismatch
+  fun a b => ?m
 has type
-  false = false : Prop
+  (a : ?m) → (b : ?m a) → ?m a b
 but is expected to have type
-  false = true : Prop
-mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
-  fun a b => ?m a b
-has type
-  (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
-but is expected to have type
-  a✝ * b✝ = b✝ * a✝ : Prop
+  a✝ * b✝ = b✝ * a✝
 the following variables have been introduced by the implicit lambda feature
   a✝ : Bool
   b✝ : Bool

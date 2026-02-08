@@ -17,3 +17,18 @@ def anonymousMeasure : Nat → Nat
   | .succ n => anonymousMeasure n
 termination_by?
    --^ codeAction
+
+-- Check hat we print this even if there is only one plausible measure
+def onlyOneMeasureWF (n : Nat) := match n with
+  | 0 => 0
+  | .succ n => onlyOneMeasureWF n
+termination_by?
+   --^ codeAction
+decreasing_by decreasing_tactic
+
+def anonymousMeasureWF : Nat → Nat
+  | 0 => 0
+  | .succ n => anonymousMeasureWF n
+termination_by?
+   --^ codeAction
+decreasing_by decreasing_tactic

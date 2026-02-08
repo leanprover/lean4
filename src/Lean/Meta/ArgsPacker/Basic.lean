@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+
+public section
 
 /-!
 The basic data type and namespace for the `Lean.Meta.ArgsPacker` modules.
@@ -24,7 +28,7 @@ structure ArgsPacker where
   /--
   Variable names to use when unpacking a packed argument.
 
-  Crucialy, the size of this arry also indicates the number of functions to pack, and
+  Crucially, the size of this array also indicates the number of functions to pack, and
   the length of each array the arity.
   -/
   varNamess : Array (Array Name)

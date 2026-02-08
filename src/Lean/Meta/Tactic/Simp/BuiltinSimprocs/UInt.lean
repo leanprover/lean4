@@ -3,15 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Init.Data.UInt.Lemmas
+
+public section
 
 open Lean Meta Simp
 
 macro "declare_uint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
-let ofNatCore := mkIdent (typeName.getId ++ `ofNatCore)
+let ofNatLT := mkIdent (typeName.getId ++ `ofNatLT)
 let toNat := mkIdent (typeName.getId ++ `toNat)
 let fromExpr := mkIdent `fromExpr
 `(
@@ -54,8 +58,8 @@ builtin_simproc [simp, seval] reduceNe  (( _ : $typeName) ≠ _)  := reduceBinPr
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : $typeName) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : $typeName) != _)  := reduceBoolPred ``bne 4 (. != .)
 
-builtin_dsimproc [simp, seval] $(mkIdent `reduceOfNatCore):ident ($ofNatCore _ _) := fun e => do
-  unless e.isAppOfArity $(quote ofNatCore.getId) 2 do return .continue
+builtin_dsimproc [simp, seval] $(mkIdent `reduceOfNatLT):ident ($ofNatLT _ _) := fun e => do
+  unless e.isAppOfArity $(quote ofNatLT.getId) 2 do return .continue
   let some value ← Nat.fromExpr? e.appFn!.appArg! | return .continue
   let value := $(mkIdent ofNat) value
   return .done <| toExpr value
@@ -84,8 +88,22 @@ declare_uint_simprocs UInt8
 declare_uint_simprocs UInt16
 declare_uint_simprocs UInt32
 declare_uint_simprocs UInt64
+
 /-
-We disabled the simprocs for USize since the result of most operations depend on an opaque value: `System.Platform.numBits`.
-We could reduce some cases using the fact that this opaque value is `32` or `64`, but it is unclear whether it would be useful in practice.
+We do not use the normal simprocs for `USize` since the result of most operations depend on an opaque value: `System.Platform.numBits`.
+However, we do reduce natural literals using the fact this opaque value is at least `32`.
 -/
--- declare_uint_simprocs USize
+namespace USize
+
+def fromExpr (e : Expr) : SimpM (Option USize) := do
+  let some (n, _) ← getOfNatValue? e ``USize | return none
+  return USize.ofNat n
+
+builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
+  let_expr USize.toNat e ← e | return .continue
+  let some (n, _) ← getOfNatValue? e ``USize | return .continue
+  unless n < UInt32.size do return .continue
+  let e := toExpr n
+  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
+  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
+  return .done { expr := e, proof? := p }

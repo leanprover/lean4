@@ -8,9 +8,9 @@ example (f : Nat → Nat) : f x = 0 → f x + 1 = y := by
   guard_target =ₛ f x = 0 → 1 = y
   sorry
 
-example (f : Nat → Nat) : let _  : f x = 0 := sorry; f x + 1 = y := by
-  simp (config := { contextual := true, zeta := false })
-  guard_target =ₛ let _  : f x = 0 := sorry; 1 = y
+example (f : Nat → Nat) : have _  : f x = 0 := sorryAx _ false; f x + 1 = y := by
+  simp (config := { contextual := true, zeta := false, zetaUnused := false })
+  guard_target =ₛ have _  : f x = 0 := sorryAx _ false; 1 = y
   sorry
 
 def overlap : Nat → Nat
@@ -19,7 +19,20 @@ def overlap : Nat → Nat
   | n+1 => overlap n
 
 example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
-  simp only [overlap]
+  simp (config := { contextual := true }) only [overlap]
+  guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
+  sorry
+
+example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
+  -- The following tactic should because the default discharger only uses assumptions available
+  -- when `simp` was invoked unless `contextual := true`
+  fail_if_success simp only [overlap]
+  guard_target =ₛ (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n
+  sorry
+
+example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
+  -- assumption is not a well-behaved discharger, and the following should still work as expected
+  simp (discharger := assumption) only [overlap]
   guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
   sorry
 
@@ -32,7 +45,7 @@ example : (if p x then g x else g x + 1) + g x = y := by
   guard_target =ₛ (if p x then x else g x + 1) + g x = y
   sorry
 
-example : (let _  : p x := sorry; g x + 1 = y) ↔ g x = y := by
-  simp (config := { zeta := false }) (discharger := assumption)
-  guard_target =ₛ (let _  : p x := sorry; x + 1 = y) ↔ g x = y
+example : (have _  : p x := sorryAx _ false; g x + 1 = y) ↔ g x = y := by
+  simp (config := { zeta := false, zetaUnused := false }) (discharger := assumption)
+  guard_target =ₛ (have _  : p x := sorryAx _ false; x + 1 = y) ↔ g x = y
   sorry

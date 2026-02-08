@@ -18,7 +18,7 @@ def ctor (mvarId : MVarId) (idx : Nat) : MetaM (List MVarId) := do
     else if h : idx - 1 < ctors.length then
       mvarId.apply (.const ctors[idx - 1] us)
     else
-      throwTacticEx `ctor mvarId "invalid index, inductive datatype has only {ctors.length} contructors"
+      throwTacticEx `ctor mvarId "invalid index, inductive datatype has only {ctors.length} constructors"
 
 open Elab Tactic
 

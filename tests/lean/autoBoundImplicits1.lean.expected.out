@@ -1,13 +1,27 @@
 myid 10 : Nat
 myid true : Bool
-autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
-autoBoundImplicits1.lean:20:25-20:29: error: unknown identifier 'size'
-autoBoundImplicits1.lean:24:23-24:24: error: unknown identifier 'α'
-autoBoundImplicits1.lean:24:25-24:26: error: unknown identifier 'n'
-autoBoundImplicits1.lean:24:33-24:34: error: unknown identifier 'α'
-autoBoundImplicits1.lean:24:37-24:38: error: unknown identifier 'β'
-autoBoundImplicits1.lean:24:46-24:47: error: unknown identifier 'β'
-autoBoundImplicits1.lean:24:48-24:49: error: unknown identifier 'n'
+autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses `sorry`
+autoBoundImplicits1.lean:20:25-20:29: error(lean.unknownIdentifier): Unknown identifier `size`
+
+Note: It is not possible to treat `size` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:23-24:24: error(lean.unknownIdentifier): Unknown identifier `α`
+
+Note: It is not possible to treat `α` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:25-24:26: error(lean.unknownIdentifier): Unknown identifier `n`
+
+Note: It is not possible to treat `n` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:33-24:34: error(lean.unknownIdentifier): Unknown identifier `α`
+
+Note: It is not possible to treat `α` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:37-24:38: error(lean.unknownIdentifier): Unknown identifier `β`
+
+Note: It is not possible to treat `β` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:46-24:47: error(lean.unknownIdentifier): Unknown identifier `β`
+
+Note: It is not possible to treat `β` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
+autoBoundImplicits1.lean:24:48-24:49: error(lean.unknownIdentifier): Unknown identifier `n`
+
+Note: It is not possible to treat `n` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 f {α : Type} {n : Nat} (xs : Vec α n) : Vec α n
 f mkVec : Vec ?m 0
 f mkVec : Vec Nat 0

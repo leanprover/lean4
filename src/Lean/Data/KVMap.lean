@@ -3,9 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.Control
-import Init.Data.Format.Syntax
+public import Init.Data.Format.Syntax
+public import Init.Data.ToString.Name
+
+public section
 
 namespace Lean
 
@@ -59,8 +63,8 @@ instance : Coe Syntax DataValue := ⟨.ofSyntax⟩
 /--
 A key-value map. We use it to represent user-selected options and `Expr.mdata`.
 
-Remark: we do not use `RBMap` here because we need to manipulate `KVMap` objects in
-C++ and `RBMap` is implemented in Lean. So, we use just a `List` until we can
+Remark: we do not use a Lean `Std.TreeMap` here because we need to manipulate `KVMap` objects in
+C++ and `Std.TreeMap` is implemented in Lean. So, we use just a `List` until we can
 generate C++ code from Lean code.
 -/
 structure KVMap where
@@ -177,9 +181,9 @@ def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
 
 @[inline] protected def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
-  kv.entries.forIn init f
+  forIn kv.entries init f
 
-instance : ForIn m KVMap (Name × DataValue) where
+instance [Monad m] : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool

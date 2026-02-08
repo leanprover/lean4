@@ -10,13 +10,13 @@ unsafe def processInput (input : String) (initializers := false)  :
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header {} messages inputCtx
   let s ← IO.processCommands inputCtx parserState (Command.mkState env messages {}) <&> Frontend.State.commandState
-  pure (s.env, s.messages.msgs.toList)
+  pure (s.env, s.messages.toList)
 
 open System in
 def findLean (mod : Name) : IO FilePath := do
   let olean ← findOLean mod
-  -- Remove a ".lake/build/lib/" substring from the path.
-  let lean := olean.toString.replace (toString (FilePath.mk ".lake" / "build" / "lib") ++ FilePath.pathSeparator.toString) ""
+  -- Remove a ".lake/build/lib/lean" substring from the path.
+  let lean := olean.toString.replace (toString (FilePath.mk ".lake" / "build" / "lib" / "lean") ++ FilePath.pathSeparator.toString) ""
   return FilePath.mk lean |>.withExtension "lean"
 
 /-- Read the source code of the named module. -/

@@ -1,9 +1,9 @@
-issue2260.lean:8:0-8:21: error: The termination argument's type must not depend on the function's varying parameters, but foo's termination argument does:
+issue2260.lean:8:0-8:21: error: The termination measure's type must not depend on the function's varying parameters, but foo's termination measure does:
   {i : Nat} → DNat i → DNat i
 Try using `sizeOf` explicitly
-issue2260.lean:15:0-15:21: error: The termination argument's type must not depend on the function's varying parameters, but bar1's termination argument does:
+issue2260.lean:15:0-15:21: error: The termination measure's type must not depend on the function's varying parameters, but bar1's termination measure does:
   {i : Nat} → DNat i → DNat i
 Try using `sizeOf` explicitly
-issue2260.lean:31:0-31:21: error: The termination argument's type must not depend on the function's varying parameters, but baz2's termination argument does:
+issue2260.lean:31:0-31:21: error: The termination measure's type must not depend on the function's varying parameters, but baz2's termination measure does:
   {i : Nat} → DNat i → DNat i
 Try using `sizeOf` explicitly

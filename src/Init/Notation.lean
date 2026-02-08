@@ -5,18 +5,18 @@ Authors: Leonardo de Moura, Mario Carneiro
 
 Notation for operators defined at Prelude.lean
 -/
+module
 prelude
-import Init.Prelude
-import Init.Coe
+public import Init.Coe
+public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean
 
 /--
 Auxiliary type used to represent syntax categories. We mainly use auxiliary
 definitions with this type to attach doc strings to syntax categories.
 -/
-structure Parser.Category
+meta structure Parser.Category
 
 namespace Parser.Category
 
@@ -25,14 +25,14 @@ of a lean file. For example, `def foo := 1` is a `command`, as is
 `namespace Foo` and `end Foo`. Commands generally have an effect on the state of
 adding something to the environment (like a new definition), as well as
 commands like `variable` which modify future commands within a scope. -/
-def command : Category := {}
+meta def command : Category := {}
 
 /-- `term` is the builtin syntax category for terms. A term denotes an expression
 in lean's type theory, for example `2 + 2` is a term. The difference between
 `Term` and `Expr` is that the former is a kind of syntax, while the latter is
 the result of elaboration. For example `by simp` is also a `Term`, but it elaborates
 to different `Expr`s depending on the context. -/
-def term : Category := {}
+meta def term : Category := {}
 
 /-- `tactic` is the builtin syntax category for tactics. These appear after
 `by` in proofs, and they are programs that take in the proof context
@@ -42,24 +42,28 @@ a term of the expected type. For example, `simp` is a tactic, used in:
 example : 2 + 2 = 4 := by simp
 ```
 -/
-def tactic : Category := {}
+meta def tactic : Category := {}
 
 /-- `doElem` is a builtin syntax category for elements that can appear in the `do` notation.
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
-def doElem : Category := {}
+meta def doElem : Category := {}
+
+/-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
+For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
+meta def structInstFieldDecl : Category := {}
 
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/
-def level : Category := {}
+meta def level : Category := {}
 
 /-- `attr` is a builtin syntax category for attributes.
 Declarations can be annotated with attributes using the `@[...]` notation. -/
-def attr : Category := {}
+meta def attr : Category := {}
 
 /-- `stx` is a builtin syntax category for syntax. This is the abbreviated
 parser notation used inside `syntax` and `macro` declarations. -/
-def stx : Category := {}
+meta def stx : Category := {}
 
 /-- `prio` is a builtin syntax category for priorities.
 Priorities are used in many different attributes.
@@ -67,18 +71,18 @@ Higher numbers denote higher priority, and for example typeclass search will
 try high priority instances before low priority.
 In addition to literals like `37`, you can also use `low`, `mid`, `high`, as well as
 add and subtract priorities. -/
-def prio : Category := {}
+meta def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
-parsed as `1 + (2 * 3)` because `*` has a higher pr0ecedence than `+`.
+parsed as `1 + (2 * 3)` because `*` has a higher precedence than `+`.
 Higher numbers denote higher precedence.
-In addition to literals like `37`, there are some special named priorities:
+In addition to literals like `37`, there are some special named precedence levels:
 * `arg` for the precedence of function arguments
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments
 and you can also add and subtract precedences. -/
-def prec : Category := {}
+meta def prec : Category := {}
 
 end Parser.Category
 
@@ -219,7 +223,7 @@ results. It has arity 1, and auto-groups its component parser if needed.
 -/
 macro:arg x:stx:max ",*"   : stx => `(stx| sepBy($x, ",", ", "))
 /--
-`p,+` is shorthand for `sepBy(p, ",")`. It parses 1 or more occurrences of
+`p,+` is shorthand for `sepBy1(p, ",")`. It parses 1 or more occurrences of
 `p` separated by `,`, that is: `p | p,p | p,p,p | ...`.
 
 It produces a `nullNode` containing a `SepArray` with the interleaved parser
@@ -267,6 +271,11 @@ syntax (name := rawNatLit) "nat_lit " num : term
 
 @[inherit_doc] infixr:90 " ∘ "  => Function.comp
 @[inherit_doc] infixr:35 " × "  => Prod
+@[inherit_doc] infixr:35 " ×' " => PProd
+
+recommended_spelling "comp" for "∘" in [Function.comp, «term_∘_»]
+recommended_spelling "Prod" for "×" in [Prod, «term_×_»]
+recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
@@ -281,8 +290,10 @@ syntax (name := rawNatLit) "nat_lit " num : term
 @[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
 @[inherit_doc] infixr:80 " ^ "   => HPow.hPow
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
-@[inherit_doc] prefix:75 "-"    => Neg.neg
+@[inherit_doc] prefix:75 "-"     => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] postfix:max "⁻¹"  => Inv.inv
+@[inherit_doc] infixr:73 " • " => HSMul.hSMul
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -296,10 +307,64 @@ macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
--- exponentiation should be considered a right action (#2220)
+-- exponentiation should be considered a right action (#2854)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
+/-!
+We have a macro to make `x • y` notation participate in the expression tree elaborator,
+like other arithmetic expressions such as `+`, `*`, `/`, `^`, `=`, inequalities, etc.
+The macro is using the `leftact%` elaborator introduced in
+[this RFC](https://github.com/leanprover/lean4/issues/2854).
+
+As a concrete example of the effect of this macro, consider
+```lean
+variable [Ring R] [AddCommMonoid M] [Module R M] (r : R) (N : Submodule R M) (m : M) (n : N)
+#check m + r • n
+```
+Without the macro, the expression would elaborate as `m + ↑(r • n : ↑N) : M`.
+With the macro, the expression elaborates as `m + r • (↑n : M) : M`.
+To get the first interpretation, one can write `m + (r • n :)`.
+
+Here is a quick review of the expression tree elaborator:
+1. It builds up an expression tree of all the immediately accessible operations
+   that are marked with `binop%`, `unop%`, `leftact%`, `rightact%`, `binrel%`, etc.
+2. It elaborates every leaf term of this tree
+   (without an expected type, so as if it were temporarily wrapped in `(... :)`).
+3. Using the types of each elaborated leaf, it computes a supremum type they can all be
+   coerced to, if such a supremum exists.
+4. It inserts coercions around leaf terms wherever needed.
+
+The hypothesis is that individual expression trees tend to be calculations with respect
+to a single algebraic structure.
+
+Note(kmill): If we were to remove `HSMul` and switch to using `SMul` directly,
+then the expression tree elaborator would not be able to insert coercions within the right operand;
+they would likely appear as `↑(x • y)` rather than `x • ↑y`, unlike other arithmetic operations.
+-/
+
+@[inherit_doc HSMul.hSMul]
+macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
+
+recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
+recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
+recommended_spelling "and" for "&&&" in [HAnd.hAnd, «term_&&&_»]
+recommended_spelling "add" for "+" in [HAdd.hAdd, «term_+_»]
+/-- when used as a binary operator -/
+recommended_spelling "sub" for "-" in [HSub.hSub, «term_-_»]
+recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
+recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
+recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
+recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "smul" for "•" in [HSMul.hSMul, «term_•_»]
+recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
+/-- when used as a unary operator -/
+recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "inv" for "⁻¹" in [Inv.inv, «term_⁻¹»]
+recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
+recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
+recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
+recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 @[inherit_doc] infix:50 " <= " => LE.le
@@ -310,6 +375,8 @@ macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 @[inherit_doc] infix:50 " > "  => GT.gt
 @[inherit_doc] infix:50 " = "  => Eq
 @[inherit_doc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " ≍ "  => HEq
+
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
@@ -325,31 +392,70 @@ macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
+recommended_spelling "le" for "≤" in [LE.le, «term_≤_»]
+/-- prefer `≤` over `<=` -/
+recommended_spelling "le" for "<=" in [LE.le, «term_<=_»]
+recommended_spelling "lt" for "<" in [LT.lt, «term_<_»]
+recommended_spelling "gt" for ">" in [GT.gt, «term_>_»]
+recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
+/-- prefer `≥` over `>=` -/
+recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
+recommended_spelling "eq" for "=" in [Eq, «term_=_»]
+recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
+recommended_spelling "heq" for "≍" in [HEq, «term_≍_»]
+
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And
 @[inherit_doc] infixr:30 " \\/ " => Or
 @[inherit_doc] infixr:30 " ∨  "  => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
+/-- prefer `∧` over `/\` -/
+recommended_spelling "and" for "/\\" in [And, «term_/\_»]
+recommended_spelling "or" for "∨" in [Or, «term_∨_»]
+/-- prefer `∨` over `\/` -/
+recommended_spelling "or" for "\\/" in [Or, «term_\/_»]
+recommended_spelling "not" for "¬" in [Not, «term¬_»]
+
 @[inherit_doc] infixl:35 " && " => and
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+recommended_spelling "and" for "&&" in [and, «term_&&_»]
+recommended_spelling "or" for "||" in [and, «term_||_»]
+recommended_spelling "not" for "!" in [not, «term!_»]
+
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
+recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
+recommended_spelling "notMem" for "∉" in [«term_∉_»]
+
 @[inherit_doc] infixr:67 " :: " => List.cons
-@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inherit_doc] infixl:55  " >>= " => Bind.bind
-@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
 @[inherit_doc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc HOrElse.hOrElse]   syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc Seq.seq]           syntax:60 term:60 " <*> " term:61 : term
+@[inherit_doc SeqLeft.seqLeft]   syntax:60 term:60 " <* " term:61 : term
+@[inherit_doc SeqRight.seqRight] syntax:60 term:60 " *> " term:61 : term
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
+macro_rules | `($x <*> $y) => `(Seq.seq $x fun _ : Unit => $y)
+macro_rules | `($x <* $y)  => `(SeqLeft.seqLeft $x fun _ : Unit => $y)
+macro_rules | `($x *> $y)  => `(SeqRight.seqRight $x fun _ : Unit => $y)
+
+recommended_spelling "cons" for "::" in [List.cons, «term_::_»]
+recommended_spelling "map" for "<$>" in [Functor.map, «term_<$>_»]
+recommended_spelling "bind" for ">>=" in [Bind.bind, «term_>>=_»]
+recommended_spelling "orElse" for "<|>" in [HOrElse.hOrElse, «term_<|>_»]
+recommended_spelling "andThen" for ">>" in [HAndThen.hAndThen, «term_>>_»]
+recommended_spelling "seq" for "<*>" in [Seq.seq, «term_<*>_»]
+recommended_spelling "seqLeft" for "<*" in [SeqLeft.seqLeft, «term_<*_»]
+recommended_spelling "seqRight" for "*>" in [SeqRight.seqRight, «term_*>_»]
 
 namespace Lean
 
@@ -417,18 +523,31 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as the same as `f x`,
+Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f <| g <| x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/
 syntax:min term " <| " term:min : term
 
 macro_rules
-  | `($f $args* <| $a) => `($f $args* $a)
-  | `($f <| $a) => `($f $a)
+  | `($f $args* <| $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* <|` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f <| $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as the same as `f x`,
+Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
 and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term
@@ -438,7 +557,7 @@ macro_rules
   | `($a |> $f)        => `($f $a)
 
 /--
-Alternative syntax for `<|`. `f $ x` means the same as the same as `f x`,
+Alternative syntax for `<|`. `f $ x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f $ g $ x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/
@@ -446,14 +565,29 @@ is interpreted as `f (g x)` rather than `(f g) x`.
 syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
-  | `($f $args* $ $a) => `($f $args* $a)
-  | `($f $ $a) => `($f $a)
+  | `($f $args* $ $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* $` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f $ $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 @[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
 
 macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
+
+recommended_spelling "subtype" for "{ x // p x }" in [Subtype, «term{_:_//_}»]
 
 /--
 `without_expected_type t` instructs Lean to elaborate `t` without an expected type.
@@ -500,6 +634,24 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
+The attribute `@[suggest_for ..]` on a declaration suggests likely ways in which
+someone might **incorrectly** refer to a definition.
+
+* `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
+* `@[suggest_for Either Result]` on the definition of `Except` suggests that `Either Nat String` might be correctable to `Except Nat String`.
+
+The namespace of the suggestions is always relative to the root namespace. In the namespace `X.Y`,
+adding an annotation `@[suggest_for Z.bar]` to `def Z.foo` will suggest `X.Y.Z.foo` only as a
+replacement for `Z.foo`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
+`X.Y.Z.bar`, you must instead use the annotation `@[suggest_for X.Y.Z.bar]`.
+
+Suggestions can be defined for structure fields or inductive branches with the
+`attribute [suggest_for Exception] Except` syntax, and these attributes do not have to be added
+in the same module where the actual identifier was defined.
+-/
+syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.
@@ -507,7 +659,7 @@ applications of this function as `↑` when printing expressions.
 syntax (name := Attr.coe) "coe" : attr
 
 /--
-This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+This attribute marks a code action that triggers on specific commands.
 
 * `@[command_code_action kind]`: This is a code action which applies to applications of the command
   `kind` (a command syntax kind), which can replace the command or insert things before or after it.
@@ -534,39 +686,61 @@ syntax (name := includeStr) "include_str " term : term
 
 /--
 The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
-This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show CommandElabM Unit from discard do doSeq`.
 -/
 syntax (name := runCmd) "run_cmd " doSeq : command
 
 /--
 The `run_elab doSeq` command executes code in `TermElabM Unit`.
-This is almost the same as `#eval show TermElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show TermElabM Unit from discard do doSeq`.
 -/
 syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is almost the same as `#eval show MetaM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show MetaM Unit from do discard doSeq`.
 
-(This is effectively a synonym for `run_elab`.)
+(This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
+/--
+`#reduce <expression>` reduces the expression `<expression>` to its normal form. This
+involves applying reduction rules until no further reduction is possible.
+
+By default, proofs and types within the expression are not reduced. Use modifiers
+`(proofs := true)`  and `(types := true)` to reduce them.
+Recall that propositions are types in Lean.
+
+**Warning:** This can be a computationally expensive operation,
+especially for complex expressions.
+
+Consider using `#eval <expression>` for simple evaluation/execution
+of expressions.
+-/
+syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
+
 set_option linter.missingDocs false in
-syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
+syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"
+
+set_option linter.missingDocs false in
+syntax guardMsgsFilterSeverity := &"trace" <|> &"info" <|> &"warning" <|> &"error" <|> &"all"
 
 /--
 A message filter specification for `#guard_msgs`.
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
-These filters are processed in left-to-right order.
+- `info`, `warning`, `error`: capture (non-trace) messages with the given severity level.
+- `trace`: captures trace messages
+- `all`: capture all messages.
+
+The filters can be prefixed with
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 -/
-syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
+syntax guardMsgsFilter := guardMsgsFilterAction ? guardMsgsFilterSeverity
 
 set_option linter.missingDocs false in
 syntax guardMsgsWhitespaceArg := &"exact" <|> &"normalized" <|> &"lax"
@@ -593,7 +767,31 @@ Message ordering for `#guard_msgs`:
 syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
 
 set_option linter.missingDocs false in
-syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+syntax guardMsgsPositionsArg := &"true" <|> &"false"
+
+/--
+Position reporting for `#guard_msgs`:
+- `positions := true` will report the positions of messages with the line numbers computed
+  relative to the line of the `#guard_msgs` token, e.g.
+  ```
+  @ +3:7...+4:2
+  info: <message>
+  ```
+  Note that the reported column is absolute.
+- `positions := false` (the default) will not render positions.
+-/
+syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
+
+/--
+Substring matching for `#guard_msgs`:
+- `substring := true` checks that the docstring appears as a substring of the output.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+-/
+syntax guardMsgsSubstring := &"substring" " := " (&"true" <|> &"false")
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt :=
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions <|> guardMsgsSubstring
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
@@ -605,7 +803,7 @@ and checks that they match the contents of the docstring.
 Basic example:
 ```lean
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 example : α := x
@@ -637,13 +835,21 @@ In general, `#guard_msgs` accepts a comma-separated list of configuration clause
 ```
 #guard_msgs (configElt,*) in cmd
 ```
-By default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.
+By default, the configuration list is
+`(check all, whitespace := normalized, ordering := exact, positions := false)`.
 
-Message filters (processed in left-to-right order):
-- `info`, `warning`, `error`: capture messages with the given severity level.
-- `all`: capture all messages (the default).
-- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
-- `drop all`: drop every message.
+Message filters select messages by severity:
+- `info`, `warning`, `error`: (non-trace) messages with the given severity level.
+- `trace`: trace messages
+- `all`: all messages.
+
+The filters can be prefixed with the action to take:
+- `check` (the default): capture and check the message
+- `drop`: drop the message
+- `pass`: let the message pass through
+
+If no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in
+left-to-right order, with an implicit `pass all` at the end.
 
 Whitespace handling (after trimming leading and trailing whitespace):
 - `whitespace := exact` requires an exact whitespace match.
@@ -656,11 +862,56 @@ Message ordering:
 - `ordering := sorted` sorts the messages in lexicographic order.
   This helps with testing commands that are non-deterministic in their ordering.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+Position reporting:
+- `positions := true` reports the ranges of all messages relative to the line on which
+  `#guard_msgs` appears.
+- `positions := false` does not report position info.
+
+Substring matching:
+- `substring := true` checks that the docstring appears as a substring of the output
+  (after whitespace normalization). This is useful when you only care about part of the message.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+
+Stabilizing output:
+When messages contain autogenerated names (e.g., metavariables like `?m.47`), the output may
+differ between runs or Lean versions. Use `set_option pp.mvars.anonymous false` to replace
+anonymous metavariables with `?_` while preserving user-named metavariables like `?a`.
+Alternatively, `set_option pp.mvars false` replaces all metavariables with `?_`.
+
+For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
+
+The command elaborator has special support for `#guard_msgs` for linting.
+The `#guard_msgs` itself wants to capture linter warnings,
+so it elaborates the command it is attached to as if it were a top-level command.
+However, the command elaborator runs linters for *all* top-level commands,
+which would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.
+The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
-  (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+  (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+
+/--
+`#guard_panic in cmd` runs `cmd` and succeeds if the command produces a panic message.
+This is useful for testing that a command panics without matching the exact (volatile) panic text.
+-/
+syntax (name := guardPanicCmd)
+  "#guard_panic" " in" ppLine command : command
+
+/--
+Format and print the info trees for a given command.
+This is mostly useful for debugging info trees.
+-/
+syntax (name := infoTreesCmd)
+  "#info_trees" " in" ppLine command : command
+
+/--
+Specify a library suggestion engine.
+Note that Lean does not ship a default library suggestion engine,
+so this is only useful in conjunction with a downstream package which provides one.
+-/
+syntax (name := setLibrarySuggestionsCmd)
+  "set_library_suggestions" term : command
 
 namespace Parser
 
@@ -686,5 +937,61 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 `#check_simp t !~>` checks `simp` fails on reducing `t`.
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+
+/--
+Time the elaboration of a command, and print the result (in milliseconds).
+
+Example usage:
+```
+set_option maxRecDepth 100000 in
+#time example : (List.range 500).length = 500 := rfl
+```
+-/
+syntax (name := timeCmd) "#time " command : command
+
+/--
+`#discr_tree_key  t` prints the discrimination tree keys for a term `t` (or, if it is a single identifier, the type of that constant).
+It uses the default configuration for generating keys.
+
+For example,
+```
+#discr_tree_key (∀ {a n : Nat}, bar a (OfNat.ofNat n))
+-- bar _ (@OfNat.ofNat Nat _ _)
+
+#discr_tree_simp_key Nat.add_assoc
+-- @HAdd.hAdd Nat Nat Nat _ (@HAdd.hAdd Nat Nat Nat _ _ _) _
+```
+
+`#discr_tree_simp_key` is similar to `#discr_tree_key`, but treats the underlying type
+as one of a simp lemma, i.e. transforms it into an equality and produces the key of the
+left-hand side.
+-/
+syntax (name := discrTreeKeyCmd) "#discr_tree_key " term : command
+
+@[inherit_doc discrTreeKeyCmd]
+syntax (name := discrTreeSimpKeyCmd) "#discr_tree_simp_key" term : command
+
+/--
+The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
+This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
+
+In terms of functionality, `seal foo` is equivalent to `attribute [local irreducible] foo`.
+This attribute specifies that `foo` should be treated as irreducible only within the local scope,
+which helps in maintaining the desired abstraction level without affecting global settings.
+-/
+syntax "seal " (ppSpace ident)+ : command
+
+/--
+The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
+default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.
+
+Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
+Applying this attribute makes `foo` semireducible only within the local scope.
+-/
+syntax "unseal " (ppSpace ident)+ : command
+
+macro_rules
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs:ident*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
 
 end Parser

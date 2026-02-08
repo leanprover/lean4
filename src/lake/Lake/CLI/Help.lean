@@ -3,11 +3,15 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
+prelude
+public import Init.Data.ToString
 import Lake.Version
 
 namespace Lake
 
-def usage :=
+public def usage :=
 uiVersionString ++ "
 
 USAGE:
@@ -17,61 +21,91 @@ COMMANDS:
   new <name> <temp>     create a Lean package in a new directory
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
+  query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
-  test                  run the workspace's test script or executable
+  check-build           check if any default build targets are configured
+  test                  test the package using the configured test driver
+  check-test            check if there is a properly configured test driver
+  lint                  lint the package using the configured lint driver
+  check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
+  pack                  pack build artifacts into an archive for distribution
+  unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
+  cache                 manage the Lake cache
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
   translate-config      change language of the package configuration
   serve                 start the Lean language server
 
-OPTIONS:
+BASIC OPTIONS:
   --version             print version and exit
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --quiet, -q           hide progress messages
-  --verbose, -v         show verbose information (command invocations)
-  --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
-  --update, -U          update manifest before building
+  --update              update dependencies on load (e.g., before a build)
+  --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
+  --keep-toolchain      do not update toolchain on workspace update
+  --no-build            exit immediately if a build target is not up-to-date
+  --no-cache            build packages locally; do not download build caches
+  --try-cache           attempt to download build caches for supported packages
+  --json, -J            output JSON-formatted results (in `lake query`)
+  --text                output results as plain text (in `lake query`)
+
+OUTPUT OPTIONS:
+  --quiet, -q           hide informational logs and the progress indicator
+  --verbose, -v         show trace logs (command invocations) and built targets
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --log-level=lv        minimum log level to output on success
+                        (levels: trace, info, warning, error)
+  --fail-level=lv       minimum log level to fail a build (default: error)
+  --iofail              fail build if any I/O or other info is logged
+                        (same as --fail-level=info)
+  --wfail               fail build if warnings are logged
+                        (same as --fail-level=warning)
+
 
 See `lake help <command>` for more information on a specific command."
 
-def templateHelp :=
-s!"The initial configuration and starter files are based on the template:
+def newInitHelp :=
+s!"If you are using Lake through Elan (which is standard), you can create a
+package with a specific Lean version via the `+` option.
+
+The initial configuration and starter files are based on the template:
 
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency
+  math-lax              library only with a Mathlib dependency
+  math                  library with Mathlib standards for linting and workflows
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
-version of the configuration file, respectively. The default is Lean."
+version of the configuration file, respectively. The default is TOML."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>][.<language>]
+  lake [+<lean-version>] new <name> [<template>][.<language>]
 
-{templateHelp}"
+{newInitHelp}"
 
 def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>][.<language>]
+  lake [+<lean-version>] init [<name>] [<template>][.<language>]
 
-{templateHelp}
+{newInitHelp}
 
 You can create a package with current directory's name via `lake init .`
 or a bare `lake init`."
@@ -80,14 +114,21 @@ def helpBuild :=
 "Build targets
 
 USAGE:
-  lake build [<targets>...]
+  lake build [<targets>...] [-o <mappings>]
 
 A target is specified with a string of the form:
 
-  [[@]<package>/][<target>|[+]<module>][:<facet>]
+  [@[<package>]/][<target>|[+]<module>][:<facet>]
 
-The optional `@` and `+` markers can be used to disambiguate packages
-and modules from other kinds of targets (i.e., executables and libraries).
+You can also use the source path of a module as a target. For example,
+
+  lake build Foo/Bar.lean:o
+
+will build the Lean module (within the workspace) whose source file is
+`Foo/Bar.lean` and compile the generated C file into a native object file.
+
+The `@` and `+` markers can be used to disambiguate packages and modules
+from file paths or other kinds of targets (e.g., executables or libraries).
 
 LIBRARY FACETS:         build the library's ...
   leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
@@ -107,15 +148,49 @@ MODULE FACETS:          build the module's ...
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...
-  a                     default facet of target `a`
+  a                     default facet(s) of target `a`
   @a                    default target(s) of package `a`
-  +A                    Lean artifacts of module `A`
-  a/b                   default facet of target `b` of package `a`
-  a/+A:c                C file of module `A` of package `a`
+  +A                    default facet(s) of module `A`
+  @/a                   default facet(s) of target `a` of the root package
+  @a/b                  default facet(s) of target `b` of package `a`
+  @a/+A:c               C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
 
-A bare `lake build` command will build the default facet of the root package.
-Package dependencies are not updated during a build."
+A bare `lake build` command will build the default target(s) of the root
+package. Package dependencies are not updated during a build.
+
+With the Lake cache enabled, the `-o` option will cause Lake to track the
+input-to-outputs mappings of targets in the root package touched during the
+build and write them to the specified file at the end of the build. These
+mappings can then be used to upload build artifacts to a remote cache with
+`lake cache put`."
+
+def helpQuery :=
+"Build targets and output results
+
+USAGE:
+  lake query [<targets>...]
+
+Builds a set of targets, reporting progress on standard error and outputting
+the results on standard out. Target results are output in the same order they
+are listed and end with a newline. If `--json` is set, results are formatted as
+JSON. Otherwise, they are printed as raw strings. Targets which do not have
+output configured will be printed as an empty string or `null`.
+
+See `lake help build` for information on and examples of targets."
+
+def helpCheckBuild :=
+"Check if any default build targets are configured
+
+USAGE:
+  lake check-build
+
+Exits with code 0 if the workspace's root package has any
+default targets configured. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured default targets are valid.
+It merely verifies that some are specified.
+"
 
 def helpUpdate :=
 "Update dependencies and save them to the manifest
@@ -138,13 +213,84 @@ of the same package, the version materialized is undefined.
 A bare `lake update` will upgrade all dependencies."
 
 def helpTest :=
-"Run the workspace's test script or executable
+"Test the workspace's root package using its configured test driver
 
 USAGE:
   lake test [-- <args>...]
 
-Looks for a script or executable tagged `@[test_runner]` in the workspace's
-root package and executes it with `args`. "
+A test driver can be configured by either setting the 'testDriver'
+package configuration option or by tagging a script, executable, or library
+`@[test_driver]`. A definition in a dependency can be used as a test driver
+by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script test driver will be run with the  package configuration's
+`testDriverArgs` plus the CLI `args`. An executable test driver will be
+built and then run like a script. A library test driver will just be built.
+"
+
+def helpCheckTest :=
+"Check if there is a properly configured test driver
+
+USAGE:
+  lake check-test
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured test driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpLint :=
+"Lint the workspace's root package using its configured lint driver
+
+USAGE:
+  lake lint [-- <args>...]
+
+A lint driver can be configured by either setting the `lintDriver` package
+configuration option by tagging a script or executable `@[lint_driver]`.
+A definition in dependency can be used as a test driver by using the
+`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script lint driver will be run with the  package configuration's
+`lintDriverArgs` plus the CLI `args`. An executable lint driver will be
+built and then run like a script.
+"
+
+def helpCheckLint :=
+"Check if there is a properly configured lint driver
+
+USAGE:
+  lake check-lint
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured lint driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpPack :=
+"Pack build artifacts into an archive for distribution
+
+USAGE:
+  lake pack [<file.tgz>]
+
+Packs the root package's `buildDir` into a gzip tar archive using `tar`.
+If a path for the archive is not specified, creates an archive in the package's
+Lake directory (`.lake`) named according to its `buildArchive` setting.
+
+Does NOT build any artifacts. It just packs the existing ones."
+
+def helpUnpack :=
+"Unpack build artifacts from a distributed archive
+
+USAGE:
+  lake unpack [<file.tgz>]
+
+Unpack build artifacts from the gzip tar archive `file.tgz` into the root
+package's `buildDir`. If a path for the archive is not specified, uses the
+the package's `buildArchive` in its Lake directory (`.lake`)."
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -164,6 +310,143 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
+
+def helpCacheCli :=
+"Manage the Lake cache
+
+USAGE:
+  lake cache <COMMAND>
+
+COMMANDS:
+  get [<mappings>]      download artifacts into the Lake cache
+  put <mappings>        upload artifacts to a remote cache
+
+See `lake cache help <command>` for more information on a specific command."
+
+def helpCacheGet :=
+"Download artifacts from a remote service into the Lake cache
+
+USAGE:
+  lake cache get [<mappings>]
+
+OPTIONS:
+  --max-revs=<n>                  backtrack up to n revisions (default: 100)
+  --rev=<commit-hash>             uses this exact revision to lookup artifacts
+  --repo=<github-repo>            GitHub repository of the package or a fork
+  --platform=<target-triple>      with Reservoir or --repo, sets the platform
+  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
+  --scope=<remote-scope>          scope for a custom endpoint
+
+Downloads artifacts for packages in the workspace from a remote cache service.
+The cache service used can be configured via the environment variables:
+
+  LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
+  LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
+
+If neither of these are set, Lake will use Reservoir.
+
+If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
+Lake will download artifacts for the root package. Otherwise, it will use
+Reservoir to download artifacts for each dependency in workspace (in order).
+Non-Reservoir dependencies will be skipped.
+
+To determine the artifacts to download, Lake searches for input-to-output
+mappings for a given build of the package via the cache service. This mapping
+is identified by a Git revision and prefixed with a scope derived from the
+package's name, GitHub repository, Lean toolchain, and current platform.
+The exact configuration can be customized using options.
+
+For Reservoir, setting `--repo` will make Lake lookup artifacts for the root
+package by a repository name, rather than the package's. This can be used to
+download artifacts for a fork of the Reservoir package (if such artifacts are
+available). The `--platform` and `--toolchain` options can be used to download
+artifacts for a different platform/toolchain configuration than Lake detects.
+For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+
+If `--rev` is not set, Lake uses the package's current revision to lookup
+artifacts. If no mappings are found, Lake will backtrack the Git history up to
+`--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
+will search the repository's entire history (or as far as Git will allow).
+
+If a download for an artifact fails or the download process for a whole
+package fails, Lake will report this and continue on to the next. Once done,
+if any download failed, Lake will exit with a nonzero status code."
+
+def helpCachePut :=
+"Upload artifacts from the Lake cache to a remote service
+
+USAGE:
+  lake cache put <mappings> <scope-option>
+
+Uploads the input-to-outputs mappings contained in the specified file along
+with the corresponding output artifacts to a remote cache. The cache service
+used is configured via the environment variables:
+
+  LAKE_CACHE_KEY                  authentication key for requests
+  LAKE_CACHE_ARTIFACT_ENDPOINT    base URL for artifact uploads
+  LAKE_CACHE_REVISION_ENDPOINT    base URL for the mapping upload
+
+Files are uploaded using the AWS Signature Version 4 authentication protocol
+via `curl`. Thus, the service should generally be an S3-compatible bucket.
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
+clashes. This scoped is configured with the following options:
+
+  --scope=<remote-scope>          sets a fixed scope
+  --repo=<github-repo>            uses the repository + toolchain & platform
+  --toolchain=<name>              with --repo, sets the toolchain
+  --platform=<target-triple>      with --repo, sets the platform
+
+At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
+will produce a scope by augmenting the repository with toolchain and platform
+information as it deems necessary. If `--scope` is set, Lake will use the
+specified scope verbatim.
+
+Artifacts are uploaded to the artifact endpoint with a file name derived
+from their Lake content hash (and prefixed by the repository or scope).
+The mappings file is uploaded to the revision endpoint with a file name
+derived from the package's current Git revision (and prefixed by the
+full scope). As such, the command will warn if the work tree currently
+has changes."
+
 def helpScriptCli :=
 "Manage Lake scripts
 
@@ -175,7 +458,7 @@ COMMANDS:
   run <script>          run a script
   doc <script>          print the docstring of a given script
 
-See `lake help <command>` for more information on a specific command."
+See `lake script help <command>` for more information on a specific command."
 
 def helpScriptList :=
 "List available scripts
@@ -265,7 +548,7 @@ def helpLean :=
 USAGE:
   lake lean <file> [-- <args>...]
 
-Build the imports of the the given file and then runs `lean` on it using
+Build the imports of the given file and then runs `lean` on it using
 the workspace's root package's additional Lean arguments and the given args
 (in that order). The `lean` process is executed in Lake's environment like
 `lake env lean` (see `lake help env` for how the environment is set up)."
@@ -285,20 +568,34 @@ already exists, Lake will error.
 Translation is lossy. It does not preserve comments or formatting and
 non-declarative configuration will be discarded."
 
-def helpScript : (cmd : String) → String
+public def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
 | "doc"                 => helpScriptDoc
 | _                     => helpScriptCli
 
-def help : (cmd : String) → String
+public def helpCache : (cmd : String) → String
+| "get"                 => helpCacheGet
+| "put"                 => helpCachePut
+| _                     => helpCacheCli
+
+public def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild
+| "check-build"         => helpCheckBuild
+| "query"               => helpQuery
 | "update" | "upgrade"  => helpUpdate
+| "pack"                => helpPack
+| "unpack"              => helpUnpack
 | "upload"              => helpUpload
+| "cache"               => helpCacheCli
 | "test"                => helpTest
+| "check-test"          => helpCheckTest
+| "lint"                => helpLint
+| "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

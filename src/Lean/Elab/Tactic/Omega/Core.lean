@@ -1,14 +1,15 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
-prelude
-import Init.Omega.Constraint
-import Lean.Elab.Tactic.Omega.OmegaM
-import Lean.Elab.Tactic.Omega.MinNatAbs
+module
 
-open Lean (HashMap HashSet)
+prelude
+public import Lean.Elab.Tactic.Omega.OmegaM
+public import Lean.Elab.Tactic.Omega.MinNatAbs
+
+public section
 
 namespace Lean.Elab.Tactic.Omega
 
@@ -51,7 +52,7 @@ inductive Justification : Constraint → Coeffs → Type
   | combo {s t x y} (a : Int) (j : Justification s x) (b : Int) (k : Justification t y) :
     Justification (Constraint.combo a s b t) (Coeffs.combo a x b y)
   /--
-  The justification for the constraing constructed using "balanced mod" while
+  The justification for the constraint constructed using "balanced mod" while
   eliminating an equality.
   -/
   | bmod (m : Nat) (r : Int) (i : Nat) {x} (j : Justification (.exact r) x) :
@@ -141,12 +142,14 @@ instance : ToString Fact where
 /-- `tidy`, implemented on `Fact`. -/
 def tidy (f : Fact) : Fact :=
   match f.justification.tidy? with
-  | some ⟨_, _, justification⟩ => { justification }
+  | some ⟨constraint, coeffs, justification⟩ => { coeffs, constraint, justification }
   | none => f
 
 /-- `combo`, implemented on `Fact`. -/
 def combo (a : Int) (f : Fact) (b : Int) (g : Fact) : Fact :=
-  { justification := .combo a f.justification b g.justification }
+  { coeffs := .combo a f.coeffs b g.coeffs
+    constraint := .combo a f.constraint b g.constraint
+    justification := .combo a f.justification b g.justification }
 
 end Fact
 
@@ -167,11 +170,11 @@ structure Problem where
   /-- The number of variables in the problem. -/
   numVars : Nat := 0
   /-- The current constraints, indexed by their coefficients. -/
-  constraints : HashMap Coeffs Fact := ∅
+  constraints : Std.HashMap Coeffs Fact := ∅
   /--
   The coefficients for which `constraints` contains an exact constraint (i.e. an equality).
   -/
-  equalities : HashSet Coeffs := ∅
+  equalities : Std.HashSet Coeffs := ∅
   /--
   Equations that have already been used to eliminate variables,
   along with the variable which was removed, and its coefficient (either `1` or `-1`).
@@ -187,7 +190,7 @@ structure Problem where
   proveFalse?_spec : possible || proveFalse?.isSome := by rfl
   /--
   If we have found a contradiction,
-  `explanation?` will contain a human readable account of the deriviation.
+  `explanation?` will contain a human readable account of the derivation.
   -/
   explanation? : Thunk String := ""
 
@@ -251,7 +254,7 @@ combining it with any existing constraints for the same coefficients.
 def addConstraint (p : Problem) : Fact → Problem
   | f@⟨x, s, j⟩ =>
     if p.possible then
-      match p.constraints.find? x with
+      match p.constraints[x]? with
       | none =>
         match s with
         | .trivial => p
@@ -313,7 +316,7 @@ After solving, the variable will have been eliminated from all constraints.
 def solveEasyEquality (p : Problem) (c : Coeffs) : Problem :=
   let i := c.findIdx? (·.natAbs = 1) |>.getD 0 -- findIdx? is always some
   let sign := c.get i |> Int.sign
-  match p.constraints.find? c with
+  match p.constraints[c]? with
   | some f =>
     let init :=
     { assumptions := p.assumptions
@@ -335,7 +338,7 @@ After solving the easy equality,
 the minimum lexicographic value of `(c.minNatAbs, c.maxNatAbs)` will have been reduced.
 -/
 def dealWithHardEquality (p : Problem) (c : Coeffs) : OmegaM Problem :=
-  match p.constraints.find? c with
+  match p.constraints[c]? with
   | some ⟨_, ⟨some r, some r'⟩, j⟩ => do
     let m := c.minNatAbs + 1
     -- We have to store the valid value of the newly introduced variable in the atoms.
@@ -479,8 +482,8 @@ def fourierMotzkinData (p : Problem) : Array FourierMotzkinData := Id.run do
   let n := p.numVars
   let mut data : Array FourierMotzkinData :=
     (List.range p.numVars).foldl (fun a i => a.push { var := i}) #[]
-  for (_, f@⟨xs, s, _⟩) in p.constraints.toList do -- We could make a forIn instance for HashMap
-    for i in [0:n] do
+  for (_, f@⟨xs, s, _⟩) in p.constraints do
+    for i in *...n do
       let x := Coeffs.get xs i
       data := data.modify i fun d =>
         if x = 0 then
@@ -515,13 +518,13 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   if bestSize = 0 then
     trace[omega] "Selected variable {data[0]!.var}."
     return data[0]!
-  for i in [1:data.size] do
-    let exact := data[i]!.exact
-    let size := data[i]!.size
+  for h : i in 1...data.size do
+    let exact := data[i].exact
+    let size := data[i].size
     if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then
       if size = 0 then
-        trace[omega] "Selected variable {data[i]!.var}"
-        return data[i]!
+        trace[omega] "Selected variable {data[i].var}"
+        return data[i]
       bestIdx := i
       bestExact := exact
       bestSize := size

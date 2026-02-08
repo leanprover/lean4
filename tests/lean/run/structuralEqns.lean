@@ -5,6 +5,8 @@ open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
   IO.println (← getUnfoldEqnFor? declName)
 
+/-- info: (some List.map.eq_def) -/
+#guard_msgs in
 #eval tst ``List.map
 #check @List.map.eq_1
 #check @List.map.eq_2
@@ -19,12 +21,16 @@ def foo (xs ys zs : List Nat) : List Nat :=
      | [] => [1]
      | _  => [2]
 
+/-- info: (some foo.eq_def) -/
+#guard_msgs in
 #eval tst ``foo
 
 #check foo.eq_1
 #check foo.eq_2
 #check foo.eq_def
 
+/-- info: (some foo.eq_def) -/
+#guard_msgs in
 #eval tst ``foo
 
 def g : List Nat → List Nat → Nat
@@ -34,6 +40,8 @@ def g : List Nat → List Nat → Nat
   | x::xs,      y::ys => g xs ys + y
   | x::xs,      []    => g xs []
 
+/-- info: (some g.eq_def) -/
+#guard_msgs in
 #eval tst ``g
 #check g.eq_1
 #check g.eq_2
@@ -50,6 +58,8 @@ def h (xs : List Nat) (y : Nat) : Nat :=
     | 0 => h xs 10
     | y+1 => h xs y
 
+/-- info: (some h.eq_def) -/
+#guard_msgs in
 #eval tst ``h
 #check h.eq_1
 #check h.eq_2
@@ -64,6 +74,8 @@ def r (i j : Nat) : Nat :=
           | Nat.zero => 2
           | Nat.succ j => r i j
 
+/-- info: (some r.eq_def) -/
+#guard_msgs in
 #eval tst ``r
 #check r.eq_1
 #check r.eq_2
@@ -79,6 +91,8 @@ def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
           | Nat.zero => a
           | Nat.succ j => bla f g a i j
 
+/-- info: (some bla.eq_def) -/
+#guard_msgs in
 #eval tst ``bla
 #check @bla.eq_1
 #check @bla.eq_2

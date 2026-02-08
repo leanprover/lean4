@@ -1,64 +1,70 @@
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "bin",
+ [{"label": "bin",
    "kind": 21,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "id": {"const": {"declName": "bin"}}}},
-  {"sortText": "1",
-   "label": "binder_predicate",
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0, "cbin"]},
+  {"label": "binop_lazy%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}}}},
-  {"sortText": "2",
-   "label": "binop%",
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
+  {"label": "binop%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}}}},
-  {"sortText": "3",
-   "label": "binop_lazy%",
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
+  {"label": "binrel_no_prop%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}}}},
-  {"sortText": "4",
-   "label": "binrel%",
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
+  {"label": "binrel%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}}}},
-  {"sortText": "5",
-   "label": "binrel_no_prop%",
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]},
+  {"label": "binder_predicate",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}}}}],
- "isIncomplete": true}
+   "data": ["file:///keywordCompletion.lean", 4, 10, 0]}],
+ "isIncomplete": false}
+Resolution of bin:
+{"label": "bin",
+ "kind": 21,
+ "detail": "Type 1",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0, "cbin"]}
+Resolution of binop_lazy%:
+{"label": "binop_lazy%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0]}
+Resolution of binop%:
+{"label": "binop%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0]}
+Resolution of binrel_no_prop%:
+{"label": "binrel_no_prop%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0]}
+Resolution of binrel%:
+{"label": "binrel%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0]}
+Resolution of binder_predicate:
+{"label": "binder_predicate",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 10, 0]}
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 13}}
 {"items":
- [{"sortText": "0",
-   "label": "binop_lazy%",
+ [{"label": "binop_lazy%",
    "kind": 14,
    "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 13}}}}],
- "isIncomplete": true}
+   "data": ["file:///keywordCompletion.lean", 4, 13, 0]}],
+ "isIncomplete": false}
+Resolution of binop_lazy%:
+{"label": "binop_lazy%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["file:///keywordCompletion.lean", 4, 13, 0]}

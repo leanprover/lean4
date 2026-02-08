@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -29,7 +33,7 @@ instance (m n) [MonadLift m n] [MonadFunctor m n] [MonadScope m] : MonadScope n 
 def inScope [MonadScope m] [Monad m] (fvarId : FVarId) : m Bool :=
   return (← getScope).contains fvarId
 
-@[inline] def withParams [MonadScope m] [Monad m] (ps : Array Param) (x : m α) : m α :=
+@[inline] def withParams [MonadScope m] [Monad m] (ps : Array (Param pu)) (x : m α) : m α :=
   withScope (fun s => ps.foldl (init := s) fun s p => s.insert p.fvarId) x
 
 @[inline] def withFVar [MonadScope m] [Monad m] (fvarId : FVarId) (x : m α) : m α :=

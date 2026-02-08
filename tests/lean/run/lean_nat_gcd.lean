@@ -49,6 +49,7 @@ def p_31 := 216091
 def p_32 := 756839
 def p_33 := 859433
 
+set_option exponentiation.threshold 10000000
 /- GCD with large prime factors on one side, and small primes on the other. -/
 example : Nat.gcd (p_29 * p_30 * p_31 * p_32 * p_33) 2^(2^20) = 1 := rfl
 /- GCD with two prime factors on both sides, including one in common. -/

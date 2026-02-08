@@ -8,4 +8,4 @@ def f (c : C) : IO Unit :=
 where
   visit (c : C) : IO Unit :=
     let x := c.
-             --^ textDocument/completion
+             --^ completion

@@ -3,14 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.FreeVars
+import Init.Omega
+
+public section
 
 namespace Lean.IR.ExpandResetReuse
 /-- Mapping from variable to projections -/
-abbrev ProjMap  := HashMap VarId Expr
+abbrev ProjMap  := Std.HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector := fun m =>
@@ -54,15 +59,15 @@ abbrev Mask := Array (Option VarId)
 partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
   let done (_ : Unit)        := (bs ++ keep.reverse, mask)
   let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
-  if bs.size < 2 then done ()
+  if h : bs.size < 2 then done ()
   else
-    let b := bs.back
+    let b := bs.back!
     match b with
     | .vdecl _ _ (.sproj _ _ _) _ => keepInstr b
     | .vdecl _ _ (.uproj _ _) _   => keepInstr b
     | .inc z n c p _ =>
       if n == 0 then done () else
-      let b' := bs[bs.size - 2]!
+      let b' := bs[bs.size - 2]
       match b' with
       | .vdecl w _ (.proj i x) _ =>
         if w == z && y == x then
@@ -85,7 +90,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
 /-- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
-  eraseProjIncForAux y bs (mkArray n none) #[]
+  eraseProjIncForAux y bs (.replicate n none) #[]
 
 /-- Replace `reuse x ctor ...` with `ctor ...`, and remove `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
@@ -134,34 +139,34 @@ abbrev M := ReaderT Context (StateM Nat)
   modifyGet fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-  mask.size.foldM (init := b) fun i b =>
-    match mask.get! i with
+  mask.size.foldM (init := b) fun i _ b =>
+    match mask[i] with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
-      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
+      pure (FnBody.vdecl fld .tobject (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
+  zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
 
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
-  | Arg.var y =>
-    match ctx.projMap.find? y with
+  | .var y =>
+    match ctx.projMap[y]? with
     | some (Expr.proj j w) => j == i && w == x
     | _ => false
-  | _ => false
+  | .erased => false
 
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
-  match ctx.projMap.find? y with
+  match ctx.projMap[y]? with
   | some (Expr.uproj j w) => j == i && w == x
   | _                     => false
 
 /-- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
 def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Bool :=
-  match ctx.projMap.find? y with
+  match ctx.projMap[y]? with
   | some (Expr.sproj m j w) => n == m && j == i && w == x
   | _                       => false
 
@@ -257,7 +262,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
     let v ← searchAndExpand v #[]
     searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
   | FnBody.case tid x xType alts,   bs => do
-    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
+    let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => searchAndExpand b #[]
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
     if b.isTerminal then return reshape bs b
@@ -277,5 +282,7 @@ end ExpandResetReuse
 /-- (Try to) expand `reset` and `reuse` instructions. -/
 def Decl.expandResetReuse (d : Decl) : Decl :=
   (ExpandResetReuse.main d).normalizeIds
+
+builtin_initialize registerTraceClass `compiler.ir.expand_reset_reuse (inherited := true)
 
 end Lean.IR

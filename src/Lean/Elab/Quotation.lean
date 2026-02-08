@@ -5,14 +5,14 @@ Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
 hygiene workings and data types. -/
+module
+
 prelude
-import Lean.Syntax
-import Lean.ResolveName
-import Lean.Elab.Term
-import Lean.Elab.Quotation.Util
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Syntax
-import Lean.Parser.Syntax
+public import Lean.Elab.Quotation.Util
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Syntax
+
+public section
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term
@@ -45,7 +45,7 @@ private partial def floatOutAntiquotTerms (stx : Syntax) : StateT (Syntax → Te
 
 private def getSepFromSplice (splice : Syntax) : String :=
   if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
-    sep.dropRight 1 -- drop trailing *
+    sep.dropEnd 1 |>.copy -- drop trailing *
   else
     unreachable!
 
@@ -58,7 +58,7 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
   | #[e] => return e
   | es   => do
-    let stx ← mkTuple (es.eraseIdx 0)
+    let stx ← mkTuple (es.eraseIdxIfInBounds 0)
     `(Prod.mk $(es[0]!) $stx)
 
 def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
@@ -75,7 +75,7 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array Term) Term
+@[expose] def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
@@ -140,7 +140,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       preresolved
     let val := quote val
     -- `scp` is bound in stxQuot.expand
-    `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
+    `(Syntax.ident info $(quote rawVal) (addMacroScope quotCtx $val scp) $(quote preresolved))
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
     if let some (k, _) := stx.antiquotKind? then
@@ -177,7 +177,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
             | `sepBy    =>
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
-            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
+            | k         => throwErrorAt arg "invalid antiquotation suffix splice kind `{k}`"
         else if k == nullKind && isAntiquotSplice arg && !isEscapedAntiquot arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
@@ -190,7 +190,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
+              let arr ← ids[*...(ids.size - 1)].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
               `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
@@ -223,9 +223,13 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   | ``Parser.Tactic.quot => addNamedQuotInfo stx `tactic
   | ``Parser.Tactic.quotSeq => addNamedQuotInfo stx `tactic.seq
   | .str kind "quot" => addNamedQuotInfo stx kind
-  | ``dynamicQuot => match ← elabParserName stx[1] with
+  | ``dynamicQuot =>
+    let id := stx[1]
+    -- local parser use, so skip meta check
+    match (← elabParserName id (checkMeta := false)) with
     | .parser n _ => return n
     | .category c => return c
+    | .alias _    => return (← Parser.getSyntaxKindOfParserAlias? id.getId.eraseMacroScopes).get!
   | k => throwError "unexpected quotation kind {k}"
 
 def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
@@ -236,7 +240,7 @@ def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
      including it literally in a syntax quotation. -/
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
-        Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
+        Bind.bind MonadQuotation.getContext (fun quotCtx => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -271,7 +275,7 @@ elab_stx_quot Parser.Command.quot
 /-! # match -/
 
 /-- an "alternative" of patterns plus right-hand side -/
-private abbrev Alt := List Term × Term
+abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first
@@ -392,7 +396,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | `optional => `(have $id := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
           | `many     => `(have $id := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
           | `sepBy    => `(have $id := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
-          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
+          | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind `{k}`"
         | anti         => fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
@@ -408,7 +412,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         let no ← no
         match k with
         | `optional =>
-          let nones := mkArray ids.size (← `(none))
+          let nones := .replicate ids.size (← `(none))
           `(let_delayed yes _ $ids* := $yes;
             if __discr.isNone then yes () $[ $nones]*
             else match __discr with
@@ -431,7 +435,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else mkNullNode contents
           -- We use `no_error_if_unused%` in auxiliary `match`-syntax to avoid spurious error messages,
           -- the outer `match` is checking for unused alternatives
-          `(match ($(discrs).sequenceMap fun
+          `(match ($(discrs).mapM fun
                 | `($contents) => no_error_if_unused% some $tuple
                 | _            => no_error_if_unused% none) with
               | some $resId => $yes
@@ -593,7 +597,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
     `(have __discr := $discr; $stx)
   | _, _ => unreachable!
 
-abbrev IdxSet := HashSet Nat
+abbrev IdxSet := Std.HashSet Nat
 
 private partial def hasNoErrorIfUnused : Syntax → Bool
   | `(no_error_if_unused% $_) => true
@@ -602,7 +606,7 @@ private partial def hasNoErrorIfUnused : Syntax → Bool
 
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,
-We tag them with with fresh identifiers `alt_idx`. We use them to detect whether an alternative
+We tag them with fresh identifiers `alt_idx`. We use them to detect whether an alternative
 has been used or not.
 The result is a triple `(altIdxMap, ignoreIfUnused, rhssNew)` where
 - `altIdxMap` is a mapping from the `alt_idx` identifiers to right-hand-side indices.
@@ -652,9 +656,9 @@ The parameter `alts` provides position information for alternatives.
 -/
 private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : NameMap Nat) (ignoreIfUnused : IdxSet) : TermElabM Syntax := do
   let (stx, used) ← findUsedAlts stx altIdxMap
-  for i in [:alts.size] do
+  for h : i in *...alts.size do
     unless used.contains i || ignoreIfUnused.contains i do
-      logErrorAt alts[i]! s!"redundant alternative #{i+1}"
+      logErrorAt alts[i] s!"redundant alternative #{i+1}"
   return stx
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
@@ -687,5 +691,6 @@ builtin_initialize
   registerTraceClass `Elab.match_syntax
   registerTraceClass `Elab.match_syntax.alt (inherited := true)
   registerTraceClass `Elab.match_syntax.result (inherited := true)
+  registerTraceClass `Elab.match_syntax.onMatch
 
 end Lean.Elab.Term.Quotation

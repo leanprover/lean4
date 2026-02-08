@@ -17,10 +17,10 @@ example (x : Foo) : bla x > 0 := by
 
 example (x : Foo) : bla x > 0 := by
   cases x with
-  | c1 x => simp_arith [bla]
+  | c1 x => simp +arith [bla]
   | _    => decide
 
 example (x : Foo) : bla x > 0 := by
   induction x with
-  | c1 x => simp_arith [bla]
+  | c1 x => simp +arith [bla]
   | _    => decide

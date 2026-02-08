@@ -10,11 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/mpz.h"
 
 namespace lean {
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-typedef size_t   usize;
 
 typedef lean_object object;
 typedef object * obj_arg;
@@ -90,11 +85,13 @@ inline uint16 cnstr_get_uint16(b_obj_arg o, unsigned offset) { return lean_ctor_
 inline uint32 cnstr_get_uint32(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint32(o, offset); }
 inline uint64 cnstr_get_uint64(b_obj_arg o, unsigned offset) { return lean_ctor_get_uint64(o, offset); }
 inline double cnstr_get_float(b_obj_arg o, unsigned offset) { return lean_ctor_get_float(o, offset); }
+inline float cnstr_get_float32(b_obj_arg o, unsigned offset) { return lean_ctor_get_float32(o, offset); }
 inline void cnstr_set_uint8(b_obj_arg o, unsigned offset, uint8 v) { lean_ctor_set_uint8(o, offset, v); }
 inline void cnstr_set_uint16(b_obj_arg o, unsigned offset, uint16 v) { lean_ctor_set_uint16(o, offset, v); }
 inline void cnstr_set_uint32(b_obj_arg o, unsigned offset, uint32 v) { lean_ctor_set_uint32(o, offset, v); }
 inline void cnstr_set_uint64(b_obj_arg o, unsigned offset, uint64 v) { lean_ctor_set_uint64(o, offset, v); }
 inline void cnstr_set_float(b_obj_arg o, unsigned offset, double v) { lean_ctor_set_float(o, offset, v); }
+inline void cnstr_set_float32(b_obj_arg o, unsigned offset, float v) { lean_ctor_set_float32(o, offset, v); }
 
 // =======================================
 // Closures
@@ -238,6 +235,7 @@ inline size_t string_capacity(object * o) { return lean_string_capacity(o); }
 inline uint32 char_default_value() { return lean_char_default_value(); }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) { return lean_alloc_string(size, capacity, len); }
 inline obj_res mk_string(char const * s) { return lean_mk_string(s); }
+LEAN_EXPORT obj_res mk_ascii_string_unchecked(std::string const & s);
 LEAN_EXPORT obj_res mk_string(std::string const & s);
 LEAN_EXPORT std::string string_to_std(b_obj_arg o);
 inline char const * string_cstr(b_obj_arg o) { return lean_string_cstr(o); }
@@ -288,7 +286,7 @@ inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 
 inline bool io_check_canceled_core() { return lean_io_check_canceled_core(); }
 inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
-inline bool io_has_finished_core(b_obj_arg t) { return lean_io_has_finished_core(t); }
+inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
 inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
 // =======================================
@@ -303,6 +301,12 @@ inline void * external_data(object * o) { return lean_get_external_data(o); }
 
 inline obj_res mk_option_none() { return box(0); }
 inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
+
+// =======================================
+// Except
+
+inline obj_res mk_except_ok(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
+inline obj_res mk_except_err(obj_arg v) { obj_res r = alloc_cnstr(0, 1, 0); cnstr_set(r, 0, v); return r; }
 
 // =======================================
 // Natural numbers
@@ -375,7 +379,9 @@ inline unsigned unbox_uint32(b_obj_arg o) { return lean_unbox_uint32(o); }
 inline obj_res box_uint64(unsigned long long v) { return lean_box_uint64(v); }
 inline unsigned long long unbox_uint64(b_obj_arg o) { return lean_unbox_uint64(o); }
 inline obj_res box_float(double v) { return lean_box_float(v); }
+inline obj_res box_float32(float v) { return lean_box_float32(v); }
 inline double unbox_float(b_obj_arg o) { return lean_unbox_float(o); }
+inline float unbox_float32(b_obj_arg o) { return lean_unbox_float32(o); }
 inline obj_res box_size_t(size_t v) { return lean_box_usize(v); }
 inline size_t unbox_size_t(b_obj_arg o) { return lean_unbox_usize(o); }
 
@@ -388,7 +394,6 @@ inline uint8 uint8_sub(uint8 a1, uint8 a2) { return lean_uint8_sub(a1, a2); }
 inline uint8 uint8_mul(uint8 a1, uint8 a2) { return lean_uint8_mul(a1, a2); }
 inline uint8 uint8_div(uint8 a1, uint8 a2) { return lean_uint8_div(a1, a2); }
 inline uint8 uint8_mod(uint8 a1, uint8 a2) { return lean_uint8_mod(a1, a2); }
-inline uint8 uint8_modn(uint8 a1, b_obj_arg a2) { return lean_uint8_modn(a1, a2); }
 inline uint8 uint8_dec_eq(uint8 a1, uint8 a2) { return lean_uint8_dec_eq(a1, a2); }
 inline uint8 uint8_dec_lt(uint8 a1, uint8 a2) { return lean_uint8_dec_lt(a1, a2); }
 inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return lean_uint8_dec_le(a1, a2); }
@@ -402,7 +407,6 @@ inline uint16 uint16_sub(uint16 a1, uint16 a2) { return lean_uint16_sub(a1, a2);
 inline uint16 uint16_mul(uint16 a1, uint16 a2) { return lean_uint16_mul(a1, a2); }
 inline uint16 uint16_div(uint16 a1, uint16 a2) { return lean_uint16_div(a1, a2); }
 inline uint16 uint16_mod(uint16 a1, uint16 a2) { return lean_uint16_mod(a1, a2); }
-inline uint16 uint16_modn(uint16 a1, b_obj_arg a2) { return lean_uint16_modn(a1, a2); }
 inline uint16 uint16_dec_eq(uint16 a1, uint16 a2) { return lean_uint16_dec_eq(a1, a2); }
 inline uint16 uint16_dec_lt(uint16 a1, uint16 a2) { return lean_uint16_dec_lt(a1, a2); }
 inline uint16 uint16_dec_le(uint16 a1, uint16 a2) { return lean_uint16_dec_le(a1, a2); }
@@ -416,7 +420,6 @@ inline uint32 uint32_sub(uint32 a1, uint32 a2) { return lean_uint32_sub(a1, a2);
 inline uint32 uint32_mul(uint32 a1, uint32 a2) { return lean_uint32_mul(a1, a2); }
 inline uint32 uint32_div(uint32 a1, uint32 a2) { return lean_uint32_div(a1, a2); }
 inline uint32 uint32_mod(uint32 a1, uint32 a2) { return lean_uint32_mod(a1, a2); }
-inline uint32 uint32_modn(uint32 a1, b_obj_arg a2) { return lean_uint32_modn(a1, a2); }
 inline uint32 uint32_dec_eq(uint32 a1, uint32 a2) { return lean_uint32_dec_eq(a1, a2); }
 inline uint32 uint32_dec_lt(uint32 a1, uint32 a2) { return lean_uint32_dec_lt(a1, a2); }
 inline uint32 uint32_dec_le(uint32 a1, uint32 a2) { return lean_uint32_dec_le(a1, a2); }
@@ -429,7 +432,6 @@ inline uint64 uint64_sub(uint64 a1, uint64 a2) { return lean_uint64_sub(a1, a2);
 inline uint64 uint64_mul(uint64 a1, uint64 a2) { return lean_uint64_mul(a1, a2); }
 inline uint64 uint64_div(uint64 a1, uint64 a2) { return lean_uint64_div(a1, a2); }
 inline uint64 uint64_mod(uint64 a1, uint64 a2) { return lean_uint64_mod(a1, a2); }
-inline uint64 uint64_modn(uint64 a1, b_obj_arg a2) { return lean_uint64_modn(a1, a2); }
 inline uint64 uint64_dec_eq(uint64 a1, uint64 a2) { return lean_uint64_dec_eq(a1, a2); }
 inline uint64 uint64_dec_lt(uint64 a1, uint64 a2) { return lean_uint64_dec_lt(a1, a2); }
 inline uint64 uint64_dec_le(uint64 a1, uint64 a2) { return lean_uint64_dec_le(a1, a2); }
@@ -442,7 +444,6 @@ inline usize usize_sub(usize a1, usize a2) { return lean_usize_sub(a1, a2); }
 inline usize usize_mul(usize a1, usize a2) { return lean_usize_mul(a1, a2); }
 inline usize usize_div(usize a1, usize a2) { return lean_usize_div(a1, a2); }
 inline usize usize_mod(usize a1, usize a2) { return lean_usize_mod(a1, a2); }
-inline usize usize_modn(usize a1, b_obj_arg a2) { return lean_usize_modn(a1, a2); }
 inline usize usize_dec_eq(usize a1, usize a2) { return lean_usize_dec_eq(a1, a2); }
 inline usize usize_dec_lt(usize a1, usize a2) { return lean_usize_dec_lt(a1, a2); }
 inline usize usize_dec_le(usize a1, usize a2) { return lean_usize_dec_le(a1, a2); }
@@ -466,11 +467,19 @@ LEAN_EXPORT void io_eprintln(obj_arg s);
 
 // =======================================
 // ST ref primitives
-inline obj_res st_mk_ref(obj_arg v, obj_arg w) { return lean_st_mk_ref(v, w); }
-inline obj_res st_ref_get(b_obj_arg r, obj_arg w) { return lean_st_ref_get(r, w); }
-inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_set(r, v, w); }
-inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
-inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
+inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
+inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
+inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
+inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
+inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
+
+obj_res lean_promise_new();
+void lean_promise_resolve(obj_arg value, b_obj_arg promise);
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new();
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_get_or_block(obj_arg opt);
 
 // =======================================
 // Module initialization/finalization

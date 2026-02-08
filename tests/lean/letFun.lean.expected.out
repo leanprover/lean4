@@ -1,26 +1,27 @@
-let_fun f := fun x => x * 2;
-let_fun x := 1;
-let_fun y := x + 1;
+have f := fun x => x * 2;
+have x := 1;
+have y := x + 1;
 f (y + x) : Nat
 a b : Nat
 h1 : a = 0
 h2 : b = 0
 ⊢ b <
-    let_fun x := 1;
+    have x := 1;
     x + x
-(let_fun this := id;
+(have this := id;
   this)
   1 : Nat
 a b : Nat
 h : a > b
 ⊢ b < a
-let_fun n := 5;
-⟨[], ⋯⟩ : { as // as.length ≤ 5 }
-rfl : (let_fun n := 5;
+have n := 5;
+⟨[], ⋯⟩ : have n := 5;
+{ as // as.length ≤ n }
+rfl : (have n := 5;
   n) =
-  let_fun n := 5;
+  have n := 5;
   n
 rfl : 2 = 2
 5
-let_fun n := 5;
+have n := 5;
 n

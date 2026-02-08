@@ -1,5 +1,3 @@
-abbrev Zero α := OfNat α (nat_lit 0)
-
 class Monoid (α : Type u) [Zero α] extends Add α where
   zero_add (a : α) : 0 + a = a
   add_zero (a : α) : a + 0 = a

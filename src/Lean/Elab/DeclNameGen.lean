@@ -3,8 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.Command
+public import Lean.Elab.Command
+import Init.Data.String.Modify
+import Init.Omega
+
+public section
 
 /-!
 # Name generator for declarations
@@ -64,13 +70,13 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
         let mut fty ← inferType f
         let mut j := 0
         let mut e' ← visit f
-        for i in [0:args.size] do
+        for h : i in *...args.size do
           unless fty.isForall do
             fty ← withTransparency .all <| whnf <| fty.instantiateRevRange j i args
             j := i
           let .forallE _ _ fty' bi := fty | failure
           fty := fty'
-          let arg := args[i]!
+          let arg := args[i]
           if ← pure bi.isExplicit <||> (pure !arg.isSort <&&> isTypeFormer arg) then
             unless (← isProof arg) do
               e' := .app e' (← visit arg)
@@ -187,7 +193,7 @@ This can be used to decide whether to further transform the generated name;
 in particular, this enables checking whether the generated name mentions declarations
 from the current module or project.
 -/
-def mkBaseName (e : Expr) : MkNameM String := do
+private def mkBaseName (e : Expr) : MkNameM String := do
   let e ← instantiateMVars e
   visitNamespace (← getCurrNamespace)
   mkBaseNameAux (← winnowExpr e)
@@ -206,19 +212,27 @@ Uses heuristics to generate an informative but terse base name for a term of the
 Makes use of the current namespace.
 It tries to make these names relatively unique ecosystem-wide,
 and it adds suffixes using the current module if the resulting name doesn't refer to anything defined in this module.
+
+If any constant in `type` has a name with macro scopes, then the result will be a name with fresh macro scopes.
+While in this case we could skip the naming heuristics, we still want informative names for debugging purposes.
 -/
-def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM String := do
+def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   let (name, st) ← mkBaseName type |>.run {}
   let name := pre ++ name
   let project := (← getMainModule).getRoot
   -- Collect the modules for each constant that appeared.
-  let modules ← st.consts.foldM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
+  let modules ← st.consts.foldlM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
   -- We can avoid adding the suffix if the instance refers to module-local names.
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.
   let isProjectLocal := isModuleLocal || modules.any fun mod? => mod?.map (·.getRoot) == project
-  if !isProjectLocal then
-    return s!"{name}{moduleToSuffix project}"
+  let name := Name.mkSimple <|
+    if !isProjectLocal then
+      s!"{name}{moduleToSuffix project}"
+    else
+      name
+  if Option.isSome <| type.find? (fun e => if let .const n _ := e then n.hasMacroScopes else false) then
+    mkFreshUserName name
   else
     return name
 
@@ -233,8 +247,8 @@ def mkBaseNameWithSuffix' (pre : String) (binders : Array Syntax) (type : Syntax
         let ty ← mkForallFVars binds (← Term.elabType type)
         mkBaseNameWithSuffix pre ty
     catch _ =>
-      pure pre
-  liftMacroM <| mkUnusedBaseName <| Name.mkSimple name
+      mkFreshUserName <| Name.mkSimple pre
+  liftMacroM <| mkUnusedBaseName name
 
 end NameGen
 

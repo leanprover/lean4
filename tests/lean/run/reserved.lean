@@ -9,15 +9,11 @@ def g (x : Nat) := x + 1
 
 def f (x : Nat) := x + 1
 
-/--
-error: 'f.eq_def' is a reserved name
--/
+/-- error: `f.eq_def` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_def : f x = x + 1 := rfl
 
-/--
-error: 'f.eq_1' is a reserved name
--/
+/-- error: `f.eq_1` is a reserved name -/
 #guard_msgs (error) in
 theorem f.eq_1 : f x = x + 1 := rfl
 
@@ -27,7 +23,7 @@ def f.eq_2_ := 10 -- Should be ok
 #guard_msgs in
 #check f.eq_1
 
-/-- error: unknown identifier 'f.eq_2' -/
+/-- error: Unknown identifier `f.eq_2` -/
 #guard_msgs (error) in
 #check f.eq_2
 
@@ -35,17 +31,38 @@ def f.eq_2_ := 10 -- Should be ok
 #guard_msgs in
 #check f.eq_def
 
+def nonrecfun : Bool → Nat
+  | false => 0
+  | true => 0
+
+/--
+info: nonrecfun.eq_def (x✝ : Bool) :
+  nonrecfun x✝ =
+    match x✝ with
+    | false => 0
+    | true => 0
+-/
+#guard_msgs in
+#check nonrecfun.eq_def
+
+/-- info: nonrecfun.eq_1 : nonrecfun false = 0 -/
+#guard_msgs in
+#check nonrecfun.eq_1
+
+/-- info: nonrecfun.eq_2 : nonrecfun true = 0 -/
+#guard_msgs in
+#check nonrecfun.eq_2
+
 def fact : Nat → Nat
   | 0 => 1
   | n+1 => (n+1) * fact n
 
 /--
-info: fact.eq_def :
-  ∀ (x : Nat),
-    fact x =
-      match x with
-      | 0 => 1
-      | n.succ => (n + 1) * fact n
+info: fact.eq_def (x✝ : Nat) :
+  fact x✝ =
+    match x✝ with
+    | 0 => 1
+    | n.succ => (n + 1) * fact n
 -/
 #guard_msgs in
 #check fact.eq_def
@@ -58,7 +75,7 @@ info: fact.eq_def :
 #guard_msgs in
 #check fact.eq_2
 
-/-- error: unknown identifier 'fact.eq_3' -/
+/-- error: Unknown identifier `fact.eq_3` -/
 #guard_msgs (error) in
 #check fact.eq_3
 
@@ -104,3 +121,10 @@ info: find.eq_def (as : Array Int) (i : Nat) (v : Int) :
 -/
 #guard_msgs in
 #check find.eq_def
+
+/--
+info: find.eq_1 (as : Array Int) (i : Nat) (v : Int) :
+  find as i v = if x : i < as.size then if as[i] = v then i else find as (i + 1) v else i
+-/
+#guard_msgs in
+#check find.eq_1

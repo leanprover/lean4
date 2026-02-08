@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Util
+public import Init.Data.UInt.Basic
+public import Init.Control.State
+
+public section
 
 namespace ShareCommon
 /-
@@ -102,3 +107,11 @@ instance ShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (ShareCommon
 
 @[inline] def ShareCommonT.run [Monad m] (x : ShareCommonT σ m α) : m α := x.run' default
 @[inline] def ShareCommonM.run (x : ShareCommonM σ α) : α := ShareCommonT.run x
+
+/--
+A more restrictive but efficient max sharing primitive.
+
+Remark: it optimizes the number of RC operations, and the strategy for caching results.
+-/
+@[extern "lean_sharecommon_quick"]
+def ShareCommon.shareCommon' (a : @& α) : α := a

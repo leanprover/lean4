@@ -4,9 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Basic
-import Lean.Data.Json
+public import Lean.Data.Lsp.Basic
+
+public section
 
 namespace Lean
 namespace Lsp

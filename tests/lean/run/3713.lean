@@ -5,11 +5,7 @@ def somethingBad : MetaM Nat := do
   IO.println "oh no"
   return 1
 
-/--
-error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
----
-info:
--/
+/-- error: invalid use of `(<- ...)`, must be nested inside a 'do' expression -/
 #guard_msgs in
 #eval show MetaM Unit from do
   let t := if false then ← somethingBad else 9
@@ -17,11 +13,7 @@ info:
 def foo : MetaM Bool :=
   return false
 
-/--
-error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
----
-info:
--/
+/-- error: invalid use of `(<- ...)`, must be nested inside a 'do' expression -/
 #guard_msgs in
 #eval show MetaM Unit from do
   let t := if (← foo) then ← somethingBad else 9

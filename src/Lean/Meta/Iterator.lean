@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
 /--
-Provides an iterface for iterating over values that are bundled with the `Meta` state
+Provides an interface for iterating over values that are bundled with the `Meta` state
 they are valid in.
 -/
 protected structure Iterator (α : Type) where

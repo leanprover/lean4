@@ -1,52 +1,44 @@
 /-
-Copyright (c) 2021 Mac Malone. All rights reserved.
+Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.Binder
-import Lean.Parser.Command
+module
 
-/-!
-This module provides utilities for defining simple opaque types
-for forward declarations. Types are first declared with `declare_opaque_type`
-and then later filled in with `hydrate_opaque_type` once the corresponding
-non-opaque type has been defined.
+prelude
+public import Init.Prelude
+import Init.Tactics
+
+private opaque POpaque.nonemptyType.{u} : NonemptyType.{u}
+
+/-- An value of unknown type in a specific universe. -/
+public def POpaque : Type u := POpaque.nonemptyType.type
+
+/-- An value of unknown type. -/
+public abbrev Opaque : Type := POpaque
+
+namespace POpaque
+
+public instance instNonempty : Nonempty POpaque := by
+  exact POpaque.nonemptyType.property
+
+/-- Cast away a value's type and universe. -/
+public opaque mk.{v,u} {α : Type u} (a : α) : POpaque.{v} :=
+  unsafe unsafeCast a
+
+/-- Cast away a value's type and universe. -/
+public abbrev _root_.Opaque.mk {α : Type u} (a : α) : Opaque := POpaque.mk a
+
+/--
+Cast an opaque value to a specific type.
+
+This operation is unsafe because there is no guarantee that the opaque
+value is of type `α` or that its real value can soundly fit inside the
+opaque value's universe.
 -/
+public unsafe def cast {α : Type u} (self : POpaque.{v}) : α :=
+  unsafeCast self
 
-namespace Lake
-open Lean Parser Command
-
-macro (name := declareOpaqueType)
-doc?:optional(docComment)  "declare_opaque_type " id:ident bs:binder* : command => do
-  let (bs, args) ← expandBinders bs
-  let nonemptyTypeId := id.getId.modifyBase (· ++ `nonemptyType)
-  let nonemptyType := mkIdentFrom id nonemptyTypeId
-  let nonemptyTypeApp := Syntax.mkApp nonemptyType args
-  `(
-  opaque $nonemptyType $[$bs]* : NonemptyType.{0}
-  $[$doc?:docComment]? def $id $[$bs]* : Type := $nonemptyTypeApp |>.type
-  instance : Nonempty $(Syntax.mkApp id args) :=  $nonemptyTypeApp |>.property
-  )
-
-macro (name := hydrateOpaqueType)
-"hydrate_opaque_type " oty:ident ty:ident args:ident* : command =>
-  let mk := mkIdent `mk
-  let unsafeMk := mkIdent `unsafeMk
-  let get := mkIdent `get
-  let unsafeGet := mkIdent `unsafeGet
-  let get_mk := mkIdent `get_mk
-  `(
-  namespace $oty
-  unsafe def $unsafeMk : $ty $args* → $oty $args* := unsafeCast
-  @[implemented_by $unsafeMk] opaque $mk : $ty $args* → $oty $args*
-  instance : Coe ($ty $args*) ($oty $args*) := ⟨$mk⟩
-
-  unsafe def $unsafeGet : $oty $args* → $ty $args* := unsafeCast
-  @[implemented_by $unsafeGet] opaque $get $[{$args}]* : $oty $args* → $ty $args*
-  instance : Coe ($oty $args*) ($ty $args*) := ⟨$get⟩
-
-  instance [Inhabited ($ty $args*)] : Inhabited ($oty $args*) := ⟨$mk default⟩
-
-  @[simp] axiom $get_mk $[{$args}]* {x : $ty $args*} : $get ($mk x) = x
-  end $oty
-  )
+/-- Like `cast`, but with an explicit type. -/
+public unsafe abbrev castTo (α : Type u) (self : POpaque.{v}) : α :=
+  self.cast

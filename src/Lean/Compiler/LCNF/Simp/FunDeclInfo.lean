@@ -3,8 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.Basic
+public import Lean.Compiler.LCNF.Simp.Basic
+import Init.Data.Format.Macro
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -40,7 +45,7 @@ structure FunDeclInfoMap where
   /--
   Mapping from local function name to inlining information.
   -/
-  map : HashMap FVarId FunDeclInfo := {}
+  map : Std.HashMap FVarId FunDeclInfo := {}
   deriving Inhabited
 
 def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do
@@ -56,7 +61,7 @@ Add new occurrence for the local function with binder name `key`.
 def FunDeclInfoMap.add (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
   match s with
   | { map } =>
-    match map.find? fvarId with
+    match map[fvarId]? with
     | some .once => { map := map.insert fvarId .many }
     | none       => { map := map.insert fvarId .once }
     | _          => { map }
@@ -67,7 +72,7 @@ Add new occurrence for the local function occurring as an argument for another f
 def FunDeclInfoMap.addHo (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
   match s with
   | { map } =>
-    match map.find? fvarId with
+    match map[fvarId]? with
     | some .once | none => { map := map.insert fvarId .many }
     | _ => { map }
 
@@ -90,27 +95,27 @@ If `mustInline := true`, then all local function declarations occurring in
 `code` are tagged as `.mustInline`.
 Recall that we use `.mustInline` for local function declarations occurring in type class instances.
 -/
-partial def FunDeclInfoMap.update (s : FunDeclInfoMap) (code : Code) (mustInline := false) : CompilerM FunDeclInfoMap := do
+partial def FunDeclInfoMap.update (s : FunDeclInfoMap) (code : Code .pure) (mustInline := false) : CompilerM FunDeclInfoMap := do
   let (_, s) ← go code |>.run s
   return s
 where
-  addArgOcc (arg : Arg) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addArgOcc (arg : Arg .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match arg with
     | .fvar fvarId =>
-      let some funDecl ← findFunDecl'? fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.addHo funDecl.fvarId
     | .erased .. | .type .. => return ()
 
-  addLetValueOccs (e : LetValue) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addLetValueOccs (e : LetValue .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match e with
-    | .erased | .value .. | .proj .. => return ()
+    | .erased | .lit .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
     | .fvar fvarId args =>
-      let some funDecl ← findFunDecl'? fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
 
-  go (code : Code) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  go (code : Code .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match code with
     | .let decl k =>
       addLetValueOccs decl.value
@@ -122,7 +127,7 @@ where
     | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .jmp fvarId args =>
-      let funDecl ← getFunDecl fvarId
+      let funDecl ← getFunDecl (pu := .pure) fvarId
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
     | .return .. | .unreach .. => return ()

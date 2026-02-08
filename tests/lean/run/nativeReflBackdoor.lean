@@ -1,4 +1,4 @@
---
+set_option linter.unusedVariables false
 
 /-
 This example demonstratea that when we are using `native_decide`,
@@ -35,4 +35,6 @@ We managed to prove `False` using the unsound annotation `implemented_by` above.
 theorem unsound : False :=
 Bool.noConfusion trueEqFalse
 
-#print axioms unsound -- axiom 'Lean.ofReduceBool' is listed
+/-- info: 'unsound' depends on axioms: [fConst._native.native_decide.ax_1_3] -/
+#guard_msgs in
+#print axioms unsound

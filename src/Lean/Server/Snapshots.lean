@@ -4,14 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
 
-import Lean.Elab.Import
-import Lean.Elab.Command
-import Lean.Language.Lean
+public import Lean.Elab.Import
+public import Lean.Elab.Command
 
-import Lean.Widget.InteractiveDiagnostic
+public import Lean.Widget.InteractiveDiagnostic
+
+public section
 
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after
@@ -22,9 +24,6 @@ namespace Lean.Server.Snapshots
 
 open Elab
 
-/- For `Inhabited Snapshot` -/
-builtin_initialize dummyTacticCache : IO.Ref Tactic.Cache ← IO.mkRef {}
-
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   stx : Syntax
@@ -33,7 +32,7 @@ structure Snapshot where
 
 namespace Snapshot
 
-def endPos (s : Snapshot) : String.Pos :=
+def endPos (s : Snapshot) : String.Pos.Raw :=
   s.mpState.pos
 
 def env (s : Snapshot) : Environment :=
@@ -43,32 +42,34 @@ def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
 
 def infoTree (s : Snapshot) : InfoTree :=
+  -- TODO: we should not block here!
+  let infoState := s.cmdState.infoState.substituteLazy.get
   -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
-  assert! s.cmdState.infoState.trees.size == 1
-  s.cmdState.infoState.trees[0]!
+  assert! infoState.trees.size == 1
+  infoState.trees[0]!
 
 def isAtEnd (s : Snapshot) : Bool :=
   Parser.isTerminalCommand s.stx
 
 open Command in
 /-- Use the command state in the given snapshot to run a `CommandElabM`.-/
-def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α) : EIO Exception α := do
+def runCommandElabM (snap : Snapshot) (doc : DocumentMeta) (c : CommandElabM α) : EIO Exception α := do
   let ctx : Command.Context := {
     cmdPos := snap.stx.getPos? |>.getD 0,
-    fileName := meta.uri,
-    fileMap := meta.text,
-    tacticCache? := none
+    fileName := doc.uri,
+    fileMap := doc.text,
     snap? := none
+    cancelTk? := none
   }
   c.run ctx |>.run' snap.cmdState
 
 /-- Run a `CoreM` computation using the data in the given snapshot.-/
-def runCoreM (snap : Snapshot) (meta : DocumentMeta) (c : CoreM α) : EIO Exception α :=
-  snap.runCommandElabM meta <| Command.liftCoreM c
+def runCoreM (snap : Snapshot) (doc : DocumentMeta) (c : CoreM α) : EIO Exception α :=
+  snap.runCommandElabM doc <| Command.liftCoreM c
 
 /-- Run a `TermElabM` computation using the data in the given snapshot.-/
-def runTermElabM (snap : Snapshot) (meta : DocumentMeta) (c : TermElabM α) : EIO Exception α :=
-  snap.runCommandElabM meta <| Command.liftTermElabM c
+def runTermElabM (snap : Snapshot) (doc : DocumentMeta) (c : TermElabM α) : EIO Exception α :=
+  snap.runCommandElabM doc <| Command.liftTermElabM c
 
 end Snapshot
 

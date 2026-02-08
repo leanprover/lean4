@@ -4,9 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 
+module
+
 prelude
-import Init.Classical
-import Init.Data.List
+public import Init.GetElem
+import Init.ByCases
+import Init.PropLemmas
+
+@[expose] public section
 
 namespace Lean.Data.AC
 inductive Expr
@@ -39,7 +44,7 @@ class EvalInformation (α : Sort u) (β : Sort v) where
   evalVar : α → Nat → β
 
 def Context.var (ctx : Context α) (idx : Nat) : Variable ctx.op :=
-  ctx.vars.getD idx ⟨ctx.arbitrary, none⟩
+  ctx.vars[idx]?.getD ⟨ctx.arbitrary, none⟩
 
 instance : ContextInformation (Context α) where
   isNeutral ctx x := ctx.var x |>.neutral.isSome
@@ -146,8 +151,8 @@ theorem Context.evalList_mergeIdem (ctx : Context α) (h : ContextInformation.is
     | nil =>
       simp [mergeIdem, mergeIdem.loop]
       split
-      case inl h₂ => simp [evalList, h₂, h.1, EvalInformation.evalOp]
-      rfl
+      next h₂ => simp [evalList, h₂, h.1, EvalInformation.evalOp]
+      next => rfl
     | cons z zs =>
       by_cases h₂ : x = y
       case pos =>
@@ -191,11 +196,11 @@ theorem Context.evalList_insert
     . simp [evalList, h.1, EvalInformation.evalOp]
   | step y z zs ih =>
     simp [insert] at *; split
-    case inl => rfl
-    case inr =>
+    next => rfl
+    next =>
       split
-      case inl => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
-      case inr => simp_all [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      next => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      next => simp_all [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
 
 theorem Context.evalList_sort_congr
   (ctx : Context α)
@@ -207,7 +212,7 @@ theorem Context.evalList_sort_congr
   induction c generalizing a b with
   | nil => simp [sort.loop, h₂]
   | cons c _  ih =>
-    simp [sort.loop]; apply ih; simp [evalList_insert ctx h, evalList]
+    simp [sort.loop]; apply ih; simp [evalList_insert ctx h]
     cases a with
     | nil => apply absurd h₃; simp
     | cons a as =>
@@ -260,7 +265,7 @@ theorem Context.evalList_sort (ctx : Context α) (h : ContextInformation.isComm 
     simp [ContextInformation.isComm, Option.isSome] at h
     match h₂ : ctx.comm with
     | none =>
-      simp only [h₂] at h
+      simp [h₂] at h
     | some val =>
       simp [h₂] at h
       exact val.down
@@ -280,7 +285,7 @@ theorem Context.toList_nonEmpty (e : Expr) : e.toList ≠ [] := by
     simp [Expr.toList]
     cases h : l.toList with
     | nil => contradiction
-    | cons => simp [List.append]
+    | cons => simp
 
 theorem Context.unwrap_isNeutral
   {ctx : Context α}
@@ -326,13 +331,13 @@ theorem Context.eval_toList (ctx : Context α) (e : Expr) : evalList α ctx e.to
   induction e with
   | var x => rfl
   | op l r ih₁ ih₂ =>
-    simp [evalList, Expr.toList, eval, ←ih₁, ←ih₂]
+    simp [Expr.toList, eval, ←ih₁, ←ih₂]
     apply evalList_append <;> apply toList_nonEmpty
 
 theorem Context.eval_norm (ctx : Context α) (e : Expr) : evalList α ctx (norm ctx e) = eval α ctx e := by
   simp [norm]
   cases h₁ : ContextInformation.isIdem ctx <;> cases h₂ : ContextInformation.isComm ctx <;>
-  simp_all [evalList_removeNeutrals, eval_toList, toList_nonEmpty, evalList_mergeIdem, evalList_sort]
+  simp_all [evalList_removeNeutrals, eval_toList, evalList_mergeIdem, evalList_sort]
 
 theorem Context.eq_of_norm (ctx : Context α) (a b : Expr) (h : norm ctx a == norm ctx b) : eval α ctx a = eval α ctx b := by
   have h := congrArg (evalList α ctx) (eq_of_beq h)

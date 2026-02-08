@@ -3,25 +3,17 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König
 -/
+module
+
 prelude
-import Lean.Data.Options
-import Lean.Server.InfoUtils
-import Lean.Linter.Basic
+public import Lean.Server.InfoUtils
+public import Lean.Linter.Basic
+
+public section
 
 namespace Lean.Linter
 
 open Lean.Elab
-
-def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
-  let disable := m!"note: this linter can be disabled with `set_option {linterOption.name} false`"
-  logWarningAt stx (.tagged linterOption.name m!"{msg}\n{disable}")
-
-/-- If `linterOption` is true, print a linter warning message at the position determined by `stx`.
--/
-def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
-  if linterOption.get (← getOptions) then logLint linterOption stx msg
 
 /-- Go upwards through the given `tree` starting from the smallest node that
 contains the given `range` and collect all `MacroExpansionInfo`s on the way up.
@@ -30,7 +22,7 @@ The result is `some []` if no `MacroExpansionInfo` was found on the way and
 
 Return the result reversed, s.t. the macro expansion that would be applied to
 the original syntax first is the first element of the returned list. -/
-def collectMacroExpansions? {m} [Monad m] (range : String.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
+def collectMacroExpansions? {m} [Monad m] (range : Lean.Syntax.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
   if let .some <| .some result ← go then
     return some result.reverse
   else

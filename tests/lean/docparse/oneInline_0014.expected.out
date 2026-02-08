@@ -1,0 +1,10 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.image
+   "!["
+   (str "\"alt text is good\"")
+   "]"
+   (Lean.Doc.Syntax.url
+    "("
+    (str "\"logo.png\"")
+    ")"))
+All input consumed.

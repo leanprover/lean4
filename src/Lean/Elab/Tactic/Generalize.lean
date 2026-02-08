@@ -3,13 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Generalize
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Intro
-import Lean.Elab.Binders
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Tactic.Location
+public import Lean.Meta.Tactic.Generalize
+public import Lean.Elab.Binders
+public import Lean.Elab.Tactic.Location
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -30,7 +31,7 @@ open Meta
       args := args.push { hName?, expr, xName? := arg[3].getId : GeneralizeArg }
     let hyps ← match expandOptLocation stx[2] with
     | .targets hyps _ => getFVarIds hyps
-    | .wildcard => pure (← getLCtx).getFVarIds
+    | .wildcard => pure ((← getLocalHyps).map (·.fvarId!))
     let mvarId ← getMainGoal
     mvarId.withContext do
       let (_, newVars, mvarId) ← mvarId.generalizeHyp args hyps

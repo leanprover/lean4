@@ -1,2 +1,4 @@
-386.lean:9:2-9:46: error: failed to synthesize instance
+386.lean:9:2-9:46: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   Fintype ?m
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Id
-import Init.Data.List.Basic
+public import Init.Data.List.Impl
+
+public section
+
 universe u v w w'
 namespace Lean
 
@@ -16,14 +20,14 @@ inductive AssocList (α : Type u) (β : Type v) where
   deriving Inhabited
 
 namespace AssocList
-variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 abbrev empty : AssocList α β :=
   nil
 
 instance : EmptyCollection (AssocList α β) := ⟨empty⟩
 
-abbrev insert (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
+abbrev insertNew (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
   m.cons k v
 
 def isEmpty : AssocList α β → Bool
@@ -37,7 +41,7 @@ def isEmpty : AssocList α β → Bool
     foldlM f d es
 
 @[inline] def foldl (f : δ → α → β → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 def toList (as : AssocList α β) : List (α × β) :=
   as.foldl (init := []) (fun r a b => (a, b)::r) |>.reverse
@@ -76,6 +80,12 @@ def replace [BEq α] (a : α) (b : β) : AssocList α β → AssocList α β
     | true  => cons a b es
     | false => cons k v (replace a b es)
 
+def insert [BEq α] (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
+  if m.contains k then
+    m.replace k v
+  else
+    m.insertNew k v
+
 def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | nil         => nil
   | cons k v es => match k == a with
@@ -100,7 +110,7 @@ def all (p : α → β → Bool) : AssocList α β → Bool
       | ForInStep.yield d => loop d es
   loop init as
 
-instance : ForIn m (AssocList α β) (α × β) where
+instance [Monad m] : ForIn m (AssocList α β) (α × β) where
   forIn := AssocList.forIn
 
 end Lean.AssocList

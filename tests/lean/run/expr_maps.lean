@@ -37,35 +37,47 @@ do IO.println TypeArrowType;
    check (ExprStructEq.mk exprT3 != ExprStructEq.mk exprT4);
    pure ()
 
+/--
+info: Type -> Type
+fun (x : Nat) => x
+fun (y : Nat) => y
+fun (x : Nat) => f x
+fun {x : Nat} => f x
+-/
+#guard_msgs in
 #eval tst1
 
 def tst2 : IO Unit :=
 do let m1 : ExprMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT2 == some 10);
-   check (m1.find? exprT3 == none);
+   check (m1[exprT1]? == some 10);
+   check (m1[exprT2]? == some 10);
+   check (m1[exprT3]? == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT3 == some 20);
-   IO.println (m1.find? exprT1);
+   check (m1[exprT1]? == some 10);
+   check (m1[exprT3]? == some 20);
+   IO.println m1[exprT1]?;
    pure ()
 
+/-- info: (some 10) -/
+#guard_msgs in
 #eval tst2
 
 def tst3 : IO Unit :=
 do let m1 : ExprStructMap Nat := {};
    let m1 := m1.insert exprT1 10;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT2 == none);
-   check (m1.find? exprT3 == none);
+   check (m1.get? exprT1 == some 10);
+   check (m1.get? exprT2 == none);
+   check (m1.get? exprT3 == none);
    let m1 := m1.insert exprT4 20;
-   check (m1.find? exprT1 == some 10);
-   check (m1.find? exprT4 == some 20);
-   check (m1.find? exprT3 == none);
-   IO.println (m1.find? exprT1);
+   check (m1.get? exprT1 == some 10);
+   check (m1.get? exprT4 == some 20);
+   check (m1.get? exprT3 == none);
+   IO.println (m1.get? exprT1);
    pure ()
 
+/-- info: (some 10) -/
+#guard_msgs in
 #eval tst3
 
 def tst4 : IO Unit :=
@@ -80,6 +92,8 @@ do let m1 : PersistentExprMap Nat := {};
    IO.println (m1.find? exprT1);
    pure ()
 
+/-- info: (some 10) -/
+#guard_msgs in
 #eval tst4
 
 def tst5 : IO Unit :=
@@ -95,4 +109,6 @@ do let m1 : PersistentExprStructMap Nat := {};
    IO.println (m1.find? exprT1);
    pure ()
 
+/-- info: (some 10) -/
+#guard_msgs in
 #eval tst5

@@ -1,15 +1,16 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.LinearCombo
-import Init.Omega.Int
-import Init.Omega.Logic
-import Init.Data.BitVec.Basic
-import Lean.Meta.AppBuilder
-import Lean.Meta.Canonicalizer
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Canonicalizer
+public import Init.Omega
+
+public section
 
 /-!
 # The `OmegaM` state monad.
@@ -52,7 +53,7 @@ structure Context where
 /-- The internal state for the `OmegaM` monad, recording previously encountered atoms. -/
 structure State where
   /-- The atoms up-to-defeq encountered so far. -/
-  atoms : HashMap Expr Nat := {}
+  atoms : Std.HashMap Expr Nat := {}
 
 /-- An intermediate layer in the `OmegaM` monad. -/
 abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
@@ -60,7 +61,7 @@ abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
 /--
 Cache of expressions that have been visited, and their reflection as a linear combination.
 -/
-def Cache : Type := HashMap Expr (LinearCombo × OmegaM' Expr)
+@[expose] def Cache : Type := Std.HashMap Expr (LinearCombo × OmegaM' Expr)
 
 /--
 The `OmegaM` monad maintains two pieces of state:
@@ -71,7 +72,7 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' HashMap.empty |>.run' {} { cfg } |>.run
+  m.run' (∅ : Std.HashMap ..) |>.run' {} { cfg } |>.run'
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
@@ -150,23 +151,23 @@ partial def groundInt? (e : Expr) : Option Int :=
     | _, _ => none
   | _ => e.int?
 where op (f : Int → Int → Int) (x y : Expr) : Option Int :=
-  match groundNat? x, groundNat? y with
+  match groundInt? x, groundInt? y with
     | some x', some y' => some (f x' y')
     | _, _ => none
 
 /-- Construct the term with type hint `(Eq.refl a : a = b)`-/
 def mkEqReflWithExpectedType (a b : Expr) : MetaM Expr := do
-  mkExpectedTypeHint (← mkEqRefl a) (← mkEq a b)
+  return mkExpectedPropHint (← mkEqRefl a) (← mkEq a b)
 
 /--
 Analyzes a newly recorded atom,
 returning a collection of interesting facts about it that should be added to the context.
 -/
-def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
+def analyzeAtom (e : Expr) : OmegaM (List Expr) := do
   match e.getAppFnArgs with
   | (``Nat.cast, #[.const ``Int [], _, e']) =>
     -- Casts of natural numbers are non-negative.
-    let mut r := HashSet.empty.insert (Expr.app (.const ``Int.ofNat_nonneg []) e')
+    let mut r := [Expr.app (.const ``Int.natCast_nonneg []) e']
     match (← cfg).splitNatSub, e'.getAppFnArgs with
       | true, (``HSub.hSub, #[_, _, _, _, a, b]) =>
         -- `((a - b : Nat) : Int)` gives a dichotomy
@@ -188,9 +189,8 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
       let ne_zero := mkApp3 (.const ``Ne [1]) (.const ``Int []) k (toExpr (0 : Int))
       let pos := mkApp4 (.const ``LT.lt [0]) (.const ``Int []) (.const ``Int.instLTInt [])
         (toExpr (0 : Int)) k
-      pure <| HashSet.empty.insert
-        (mkApp3 (.const ``Int.mul_ediv_self_le []) x k (← mkDecideProof ne_zero)) |>.insert
-          (mkApp3 (.const ``Int.lt_mul_ediv_self_add []) x k (← mkDecideProof pos))
+      pure [mkApp3 (.const ``Int.mul_ediv_self_le []) x k (← mkDecideProof ne_zero),
+            mkApp3 (.const ``Int.lt_mul_ediv_self_add []) x k (← mkDecideProof pos)]
   | (``HMod.hMod, #[_, _, _, _, x, k]) =>
     match k.getAppFnArgs with
     | (``HPow.hPow, #[_, _, _, _, b, exp]) => match natCast? b with
@@ -199,11 +199,10 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
       | some _ =>
         let b_pos := mkApp4 (.const ``LT.lt [0]) (.const ``Int []) (.const ``Int.instLTInt [])
           (toExpr (0 : Int)) b
-        let pow_pos := mkApp3 (.const ``Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
-        pure <| HashSet.empty.insert
-          (mkApp3 (.const ``Int.emod_nonneg []) x k
-              (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) pow_pos)) |>.insert
-            (mkApp3 (.const ``Int.emod_lt_of_pos []) x k pow_pos)
+        let pow_pos := mkApp3 (.const ``Lean.Omega.Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
+        pure [mkApp3 (.const ``Int.emod_nonneg []) x k
+                (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) pow_pos),
+              mkApp3 (.const ``Int.emod_lt_of_pos []) x k pow_pos]
     | (``Nat.cast, #[.const ``Int [], _, k']) =>
       match k'.getAppFnArgs with
       | (``HPow.hPow, #[_, _, _, _, b, exp]) => match natCast? b with
@@ -212,30 +211,27 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
         | some _ =>
           let b_pos := mkApp4 (.const ``LT.lt [0]) (.const ``Nat []) (.const ``instLTNat [])
             (toExpr (0 : Nat)) b
-          let pow_pos := mkApp3 (.const ``Nat.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
+          let pow_pos := mkApp3 (.const ``Nat.pow_pos []) b exp (← mkDecideProof b_pos)
           let cast_pos := mkApp2 (.const ``Int.ofNat_pos_of_pos []) k' pow_pos
-          pure <| HashSet.empty.insert
-            (mkApp3 (.const ``Int.emod_nonneg []) x k
-                (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos)) |>.insert
-              (mkApp3 (.const ``Int.emod_lt_of_pos []) x k cast_pos)
+          pure [mkApp3 (.const ``Int.emod_nonneg []) x k
+                  (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos),
+                mkApp3 (.const ``Int.emod_lt_of_pos []) x k cast_pos]
       | _ =>  match x.getAppFnArgs with
         | (``Nat.cast, #[.const ``Int [], _, x']) =>
           -- Since we push coercions inside `%`, we need to record here that
           -- `(x : Int) % (y : Int)` is non-negative.
-          pure <| HashSet.empty.insert (mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k)
+          pure [mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k]
         | _ => pure ∅
     | _ => pure ∅
   | (``Min.min, #[_, _, x, y]) =>
-    pure <| HashSet.empty.insert (mkApp2 (.const ``Int.min_le_left []) x y) |>.insert
-      (mkApp2 (.const ``Int.min_le_right []) x y)
+    pure [mkApp2 (.const ``Int.min_le_left []) x y, mkApp2 (.const ``Int.min_le_right []) x y]
   | (``Max.max, #[_, _, x, y]) =>
-    pure <| HashSet.empty.insert (mkApp2 (.const ``Int.le_max_left []) x y) |>.insert
-      (mkApp2 (.const ``Int.le_max_right []) x y)
+    pure [mkApp2 (.const ``Int.le_max_left []) x y, mkApp2 (.const ``Int.le_max_right []) x y]
   | (``ite, #[α, i, dec, t, e]) =>
       if α == (.const ``Int []) then
-        pure <| HashSet.empty.insert <| mkApp5 (.const ``ite_disjunction [0]) α i dec t e
+        pure [mkApp5 (.const ``ite_disjunction [0]) α i dec t e]
       else
-        pure {}
+        pure []
   | _ => pure ∅
 
 /--
@@ -248,17 +244,17 @@ Return its index, and, if it is new, a collection of interesting facts about the
 * for each new atom of the form `((a - b : Nat) : Int)`, the fact:
   `b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0`
 -/
-def lookup (e : Expr) : OmegaM (Nat × Option (HashSet Expr)) := do
+def lookup (e : Expr) : OmegaM (Nat × Option (List Expr)) := do
   let c ← getThe State
   let e ← canon e
-  match c.atoms.find? e with
+  match c.atoms[e]? with
   | some i => return (i, none)
   | none =>
   trace[omega] "New atom: {e}"
   let facts ← analyzeAtom e
   if ← isTracingEnabledFor `omega then
     unless facts.isEmpty do
-      trace[omega] "New facts: {← facts.toList.mapM fun e => inferType e}"
+      trace[omega] "New facts: {← facts.mapM fun e => inferType e}"
   let i ← modifyGetThe State fun c =>
     (c.atoms.size, { c with atoms := c.atoms.insert e c.atoms.size })
   return (i, some facts)

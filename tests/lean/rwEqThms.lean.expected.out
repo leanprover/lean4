@@ -1,41 +1,41 @@
-α : Type ?u
+α : Type u_1
 a : α
 as bs : List α
 h : bs = a :: as
 ⊢ (?head :: as).length = bs.length
 
 case head
-α : Type ?u
+α : Type u_1
 a : α
 as bs : List α
 h : bs = a :: as
 ⊢ α
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
 ⊢ as.length + 1 + 1 = bs.length + 2
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
 ⊢ as.length + 1 + 1 = (b :: bs).length + 1
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
 ⊢ as.length + 1 + 1 = bs.length + 1 + 1
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
 ⊢ id (a :: b :: as).length = (b :: bs).length + 1
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
 ⊢ (a :: b :: as).length = (b :: bs).length + 1
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs

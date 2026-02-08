@@ -20,7 +20,7 @@ open Lean.Compiler
 set_option trace.Compiler.result true
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
-#eval Lean.Compiler.compile #[``SF.step]
+run_meta Lean.Compiler.compile #[``SF.step]
 
 def SF'.step [Monad m] (sa: as): SF' m as bs → SF'.{u} m as bs × bs
 | seq sf₁ sf₂ =>
@@ -33,4 +33,4 @@ def SF'.step [Monad m] (sa: as): SF' m as bs → SF'.{u} m as bs × bs
   let (_, (sb, _)) := x
   (rswitcher f, sb)
 
-#eval Lean.Compiler.compile #[``SF'.step]
+run_meta Lean.Compiler.compile #[``SF'.step]

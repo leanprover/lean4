@@ -3,44 +3,136 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
 prelude
-import Lean.Elab.Command
-import Lean.Elab.DeclNameGen
-import Lean.Elab.DeclUtil
-
+public import Lean.Elab.DeclNameGen
+public import Lean.Elab.DeclUtil
+public section
 namespace Lean.Elab
 
 inductive DefKind where
-  | def | theorem | example | opaque | abbrev
+  | def | instance | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
   | .theorem => true
   | _        => false
 
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | .def    => true
-  | .opaque => true
-  | .abbrev => true
-  | _       => false
-
 def DefKind.isExample : DefKind → Bool
   | .example => true
   | _        => false
 
+/-- Header elaboration data of a `DefView`. -/
+structure DefViewElabHeaderData where
+  /--
+    Short name. Recall that all declarations in Lean 4 are potentially recursive. We use `shortDeclName` to refer
+    to them at `valueStx`, and other declarations in the same mutual block. -/
+  shortDeclName : Name
+  /-- Full name for this declaration. This is the name that will be added to the `Environment`. -/
+  declName      : Name
+  /-- Universe level parameter names explicitly provided by the user. -/
+  levelNames    : List Name
+  /-- Syntax objects for the binders occurring before `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
+  binderIds     : Array Syntax
+  /-- Number of parameters before `:`, it also includes auto-implicit parameters automatically added by Lean. -/
+  numParams     : Nat
+  /-- Type including parameters. -/
+  type          : Expr
+deriving Inhabited
+
+section Snapshots
+open Language
+
+/-- Snapshot after processing of a definition body.  -/
+structure BodyProcessedSnapshot extends Language.Snapshot where
+  /-- State after elaboration. -/
+  state : Term.SavedState
+  /-- Elaboration result. -/
+  value : Expr
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
+deriving Nonempty
+instance : Language.ToSnapshotTree BodyProcessedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+
+/-- Snapshot after elaboration of a definition header. -/
+structure HeaderProcessedSnapshot extends Language.Snapshot where
+  /-- Elaboration results. -/
+  view : DefViewElabHeaderData
+  /-- Resulting elaboration state, including any environment additions. -/
+  state : Term.SavedState
+  /-- Syntax of top-level tactic block if any, for checking reuse of `tacSnap?`. -/
+  tacStx? : Option Syntax
+  /-- Incremental execution of main tactic block, if any. -/
+  tacSnap? : Option (SnapshotTask Tactic.TacticParsedSnapshot)
+  /-- Syntax of definition body, for checking reuse of `bodySnap`. -/
+  bodyStx : Syntax
+  /-- Result of body elaboration. -/
+  bodySnap : SnapshotTask (Option BodyProcessedSnapshot)
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
+deriving Nonempty
+instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot,
+    (match s.tacSnap? with
+      | some tac => #[tac.map (sync := true) toSnapshotTree]
+      | none     => #[]) ++
+    #[s.bodySnap.map (sync := true) toSnapshotTree] ++ s.moreSnaps⟩
+
+/-- State before elaboration of a mutual definition. -/
+structure DefParsed where
+  /--
+  Unstructured syntax object comprising the full "header" of the definition from the modifiers
+  (incl. docstring) up to the value, used for determining header elaboration reuse.
+  -/
+  fullHeaderRef : Syntax
+  /-- Elaboration result, unless fatal exception occurred. -/
+  headerProcessedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
+deriving Nonempty
+
+/-- Snapshot after syntax tree has been split into separate mutual def headers. -/
+structure DefsParsedSnapshot extends Language.Snapshot where
+  /-- Definitions of this mutual block. -/
+  defs : Array DefParsed
+deriving Nonempty, TypeName
+instance : Language.ToSnapshotTree DefsParsedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot,
+    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
+
+end Snapshots
+
 structure DefView where
   kind          : DefKind
   ref           : Syntax
+  /--
+  An unstructured syntax object that comprises the "header" of the definition, i.e. everything up
+  to the value. Used as a more specific ref for header elaboration.
+  -/
+  headerRef     : Syntax
   modifiers     : Modifiers
   declId        : Syntax
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  /-- The docstring, if present, and whether it's Verso -/
+  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /--
+  Snapshot for incremental processing of this definition.
+
+  Invariant: If the bundle's `old?` is set, then elaboration of the header is guaranteed to result
+  in the same elaboration result and state, i.e. reuse is possible.
+  -/
+  headerSnap?   : Option (Language.SnapshotBundle (Option HeaderProcessedSnapshot)) := none
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 
 def DefView.isInstance (view : DefView) : Bool :=
   view.modifiers.attrs.any fun attr => attr.name == `instance
+
+/-- Prepends the `defeq` attribute, removing existing ones if there are any -/
+def DefView.markDefEq (view : DefView) : DefView :=
+  { view with modifiers :=
+      view.modifiers.filterAttrs (·.name != `defeq) |>.addFirstAttr { name := `defeq } }
 
 namespace Command
 open Meta
@@ -48,31 +140,34 @@ open Meta
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal
   let (binders, type) := expandOptDeclSig stx[2]
-  let modifiers       := modifiers.addAttribute { name := `inline }
-  let modifiers       := modifiers.addAttribute { name := `reducible }
-  { ref := stx, kind := DefKind.abbrev, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3] }
+  let modifiers       := modifiers.addAttr { name := `inline }
+  let modifiers       := modifiers.addAttr { name := `reducible }
+  { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.abbrev, modifiers,
+    declId := stx[1], binders, type? := type, value := stx[3], docString? := modifiers.docString? }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
   let (binders, type) := expandOptDeclSig stx[2]
   let deriving? := if stx[4].isNone then none else some stx[4][1].getSepArgs
-  { ref := stx, kind := DefKind.def, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3], deriving? }
+  { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.def, modifiers,
+    declId := stx[1], binders, type? := type, value := stx[3], deriving?,
+    docString? := modifiers.docString? }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "theorem " >> declId >> declSig >> declVal
   let (binders, type) := expandDeclSig stx[2]
-  { ref := stx, kind := DefKind.theorem, modifiers,
-    declId := stx[1], binders, type? := some type, value := stx[3] }
+  { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.theorem, modifiers,
+    declId := stx[1], binders, type? := some type, value := stx[3],
+    docString? := modifiers.docString? }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
+  -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
+  let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
   let (binders, type) := expandDeclSig stx[4]
-  let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with
     | some declId =>
       if ← isTracingEnabledFor `Elab.instance.mkInstanceName then
@@ -82,10 +177,11 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | none        =>
       let id ← mkInstanceName binders.getArgs type
       trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
-      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx[1] id (canonical := true), mkNullNode]
   return {
-    ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[5]
+    ref := stx, headerRef := mkNullNode stx.getArgs[*...5], kind := DefKind.instance, modifiers := modifiers,
+    declId := declId, binders := binders, type? := type, value := stx[5],
+    docString? := modifiers.docString?
   }
 
 def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -97,17 +193,19 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
       let val ← if modifiers.isUnsafe then `(default_or_ofNonempty% unsafe) else `(default_or_ofNonempty%)
       `(Parser.Command.declValSimple| := $val)
   return {
-    ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := some type, value := val
+    ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.opaque, modifiers := modifiers,
+    declId := stx[1], binders := binders, type? := some type, value := val,
+    docString? := modifiers.docString?
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "example " >> declSig >> declVal
   let (binders, type) := expandOptDeclSig stx[1]
-  let id              := mkIdentFrom stx `_example
+  let id              := mkIdentFrom stx[0] `_example (canonical := true)
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
-  { ref := stx, kind := DefKind.example, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[2] }
+  { ref := stx, headerRef := mkNullNode stx.getArgs[*...2], kind := DefKind.example, modifiers := modifiers,
+    declId := declId, binders := binders, type? := type, value := stx[2],
+     docString? := modifiers.docString? }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind
@@ -118,8 +216,12 @@ def isDefLike (stx : Syntax) : Bool :=
   declKind == ``Parser.Command.instance ||
   declKind == ``Parser.Command.example
 
-def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
+def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   let declKind := stx.getKind
+  let modifiers := if modifiers.computeKind == .regular && (← getScope).isMeta &&
+      declKind != ``Parser.Command.theorem && declKind != ``Parser.Command.example then
+    { modifiers with computeKind := .meta }
+  else modifiers
   if declKind == ``Parser.Command.«abbrev» then
     return mkDefViewOfAbbrev modifiers stx
   else if declKind == ``Parser.Command.definition then

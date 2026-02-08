@@ -3,9 +3,11 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Attributes
-
+public import Lean.Attributes
+import Lean.Util.CollectLevelParams
+public section
 namespace Lean
 
 /-- An entry for the persistent environment extension for declared type classes -/
@@ -13,14 +15,21 @@ structure ClassEntry where
   /-- Class name. -/
   name      : Name
   /--
-    Position of the class `outParams`.
-    For example, for class
-    ```
-    class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
-    ```
-    `outParams := #[2, 3]`
+  Position of the class `outParams`.
+  For example, for class
+  ```
+  class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+  ```
+  `outParams := #[2, 3]`
   -/
   outParams : Array Nat
+  /--
+  Positions of universe level parameters that only appear in output parameter types.
+  For example, for `HAdd (α : Type u) (β : Type v) (γ : outParam (Type w))`,
+  `outLevelParams := #[2]` since universe `w` only appears in the output parameter `γ`.
+  This is used to normalize TC resolution cache keys.
+  -/
+  outLevelParams : Array Nat
 
 namespace ClassEntry
 
@@ -32,12 +41,15 @@ end ClassEntry
 /-- State of the type class environment extension. -/
 structure ClassState where
   outParamMap : SMap Name (Array Nat) := SMap.empty
+  outLevelParamMap : SMap Name (Array Nat) := SMap.empty
   deriving Inhabited
 
 namespace ClassState
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
-  { s with outParamMap := s.outParamMap.insert entry.name entry.outParams }
+  { s with
+    outParamMap := s.outParamMap.insert entry.name entry.outParams
+    outLevelParamMap := s.outLevelParamMap.insert entry.name entry.outLevelParams }
 
 /--
 Switch the state into persistent mode. We switch to this mode after
@@ -45,7 +57,9 @@ we read all imported .olean files.
 Recall that we use a `SMap` for implementing the state of the type class environment extension.
 -/
 def switch (s : ClassState) : ClassState :=
-  { s with outParamMap := s.outParamMap.switch }
+  { s with
+    outParamMap := s.outParamMap.switch
+    outLevelParamMap := s.outLevelParamMap.switch }
 
 end ClassState
 
@@ -75,6 +89,10 @@ def hasOutParams (env : Environment) (declName : Name) : Bool :=
   | some outParams => !outParams.isEmpty
   | none => false
 
+/-- If `declName` is a class, return the positions of universe level parameters that only appear in output parameter types. -/
+def getOutLevelParamPositions? (env : Environment) (declName : Name) : Option (Array Nat) :=
+  (classExtension.getState env).outLevelParamMap.find? declName
+
 /--
   Auxiliary function for collection the position class `outParams`, and
   checking whether they are being correctly used.
@@ -87,7 +105,7 @@ def hasOutParams (env : Environment) (declName : Name) : Bool :=
   incorrect. This transformation would be counterintuitive to users since
   we would implicitly treat these regular parameters as `outParam`s.
 -/
-private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except String (Array Nat) :=
+private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except MessageData (Array Nat) :=
   match type with
   | .forallE _ d b bi =>
     let addOutParam (_ : Unit) :=
@@ -102,7 +120,7 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
         /- See issue #1852 for a motivation for `bi.isInstImplicit` -/
         addOutParam ()
       else
-        Except.error s!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
+        Except.error m!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams
@@ -143,30 +161,69 @@ where
     | _ => type
 
 /--
+Compute positions of universe level parameters that only appear in output parameter types.
+
+During type class resolution, the cache key for a query like
+`HAppend.{0, 0, ?u} (BitVec 8) (BitVec 8) ?m` should be independent of the specific
+metavariable IDs in output parameter positions. To achieve this, output parameter arguments
+are erased from the cache key. However, universe levels that only appear in output parameter
+types (e.g., `?u` corresponding to the result type's universe) must also be erased to avoid
+cache misses when the same query is issued with different universe metavariable IDs.
+
+This function identifies which universe level parameter positions are "output-only" by
+collecting all level param names that appear in non-output parameter domains, then returning
+the positions of any level params not in that set.
+-/
+private partial def computeOutLevelParams (type : Expr) (outParams : Array Nat) (levelParams : List Name) : Array Nat := Id.run do
+  let nonOutLevels := go type 0 {} |>.params
+  let mut result := #[]
+  let mut i := 0
+  for name in levelParams do
+    unless nonOutLevels.contains name do
+      result := result.push i
+    i := i + 1
+  result
+where
+  go (type : Expr) (i : Nat) (s : CollectLevelParams.State) : CollectLevelParams.State :=
+    match type with
+    | .forallE _ d b _ =>
+      if outParams.contains i then
+        go b (i + 1) s
+      else
+        go b (i + 1) (collectLevelParams s d)
+    | _ => s
+
+/--
 Add a new type class with the given name to the environment.
 `declName` must not be the name of an existing type class,
 and it must be the name of constant in `env`.
 `declName` must be a inductive datatype or axiom.
 Recall that all structures are inductive datatypes.
 -/
-def addClass (env : Environment) (clsName : Name) : Except String Environment := do
+def addClass (env : Environment) (clsName : Name) : Except MessageData Environment := do
   if isClass env clsName then
-    throw s!"class has already been declared '{clsName}'"
+    throw m!"class has already been declared '{.ofConstName clsName true}'"
   let some decl := env.find? clsName
-    | throw s!"unknown declaration '{clsName}'"
+    | throw m!"unknown declaration '{clsName}'"
   unless decl matches .inductInfo .. | .axiomInfo .. do
-    throw s!"invalid 'class', declaration '{clsName}' must be inductive datatype, structure, or constant"
+    throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
-  return classExtension.addEntry env { name := clsName, outParams }
+  let outLevelParams := computeOutLevelParams decl.type outParams decl.levelParams
+  return classExtension.addEntry env { name := clsName, outParams, outLevelParams }
 
-builtin_initialize
+/--
+Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
+generally preferred over using `@[class] structure` or `@[class] inductive` directly.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name  := `class
     descr := "type class"
     add   := fun decl stx kind => do
       let env ← getEnv
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
       let env ← ofExcept (addClass env decl)
       setEnv env
   }

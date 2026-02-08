@@ -1,2 +1,2 @@
 theorem foo.bla : 0 < 5 :=
-of_decide_eq_true (Eq.refl true)
+of_decide_eq_true (id (Eq.refl true))

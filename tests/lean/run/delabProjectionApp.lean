@@ -97,9 +97,9 @@ set_option pp.explicit true
 #guard_msgs in #check x.val
 /-- info: y.val : Nat -/
 #guard_msgs in #check y.val
-/-- info: (@Fin''.toFin0 5 z).val : Nat -/
+/-- info: (@Fin''.toFin0 (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) z).val : Nat -/
 #guard_msgs in #check z.val
-/-- info: (@D.toA 5 d).x : Nat -/
+/-- info: (@D.toA (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) d).x : Nat -/
 #guard_msgs in #check d.x
 
 end
@@ -114,6 +114,17 @@ Check overapplication.
 -/
 
 /-- info: f.toFun 0 : Int -/
+#guard_msgs in #check f.toFun 0
+
+/-!
+Check that field notation doesn't disrupt unexpansion.
+-/
+notation:max "☺ " f:max => Fn.toFun f
+
+/-- info: ☺ f : Nat → Int -/
+#guard_msgs in #check f.toFun
+
+/-- info: ☺ f 0 : Int -/
 #guard_msgs in #check f.toFun 0
 
 /-!
@@ -148,3 +159,61 @@ Special case: do not use generalized field notation for numeric literals.
 #guard_msgs in #check Nat.succ 2
 /-- info: Float.abs 2.2 : Float -/
 #guard_msgs in #check Float.abs 2.2
+
+/-!
+Verifying that unexpanders defined by `infix` interact properly with generalized field notation
+-/
+structure MySet (α : Type) where
+  p : α → Prop
+
+namespace MySet
+
+def MySubset {α : Type} (s t : MySet α) : Prop := ∀ x, s.p x → t.p x
+
+infix:50 " ⊆⊆ " => MySubset
+
+end MySet
+
+/-- info: ∀ {α : Type} (s t : MySet α), s ⊆⊆ t : Prop -/
+#guard_msgs in #check ∀ {α : Type} (s t : MySet α), s ⊆⊆ t
+
+set_option pp.notation false in
+/-- info: ∀ {α : Type} (s t : MySet α), s.MySubset t : Prop -/
+#guard_msgs in #check ∀ {α : Type} (s t : MySet α), s ⊆⊆ t
+
+set_option pp.notation false in set_option pp.fieldNotation.generalized false in
+/-- info: ∀ {α : Type} (s t : MySet α), MySet.MySubset s t : Prop -/
+#guard_msgs in #check ∀ {α : Type} (s t : MySet α), s ⊆⊆ t
+
+/-!
+Private definition on public type.
+-/
+private def Char.MyIsA (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA
+
+/-!
+Public definition on public type.
+-/
+def Char.MyIsA' (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA'
+
+/-!
+Private definition on private type.
+-/
+private structure Char'
+private def Char'.MyIsA (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA
+
+/-!
+Public definition on private type.
+-/
+def Char'.MyIsA' (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA'

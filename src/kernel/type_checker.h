@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "runtime/flet.h"
 #include "util/lbool.h"
 #include "util/name_set.h"
 #include "util/name_generator.h"
@@ -24,7 +25,7 @@ class type_checker {
 public:
     class state {
         typedef expr_map<expr> infer_cache;
-        typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+        typedef lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;
         infer_cache               m_infer_type[2];
@@ -32,6 +33,7 @@ public:
         expr_map<expr>            m_whnf;
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
+        expr_map<expr>            m_unfold;
         friend type_checker;
     public:
         state(environment const & env);
@@ -42,8 +44,14 @@ public:
 private:
     bool                      m_st_owner;
     state *                   m_st;
+    diagnostics *             m_diag;
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
+    /*
+    `m_eager_reduce` is set to true whenever we are type checking an application argument that has been
+    wrapped with `eagerReduce`.
+    */
+    bool                      m_eager_reduce = false;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;
@@ -100,12 +108,14 @@ private:
 
     template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);
+    optional<expr> reduce_pow(expr const & e);
     optional<expr> reduce_nat(expr const & e);
 public:
+    // The following two constructor are used only by the old compiler and should be deleted with it
     type_checker(state & st, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
     type_checker(state & st, definition_safety ds = definition_safety::safe):type_checker(st, local_ctx(), ds) {}
-    type_checker(environment const & env, local_ctx const & lctx, definition_safety ds = definition_safety::safe);
-    type_checker(environment const & env, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), ds) {}
+    type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe);
+    type_checker(environment const & env, diagnostics * diag = nullptr, definition_safety ds = definition_safety::safe):type_checker(env, local_ctx(), diag, ds) {}
     type_checker(type_checker &&);
     type_checker(type_checker const &) = delete;
     ~type_checker();

@@ -3,9 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.String.Basic
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+
+public section
 
 universe u v
 
@@ -30,27 +33,82 @@ def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
-@[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+@[noinline] def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append "PANIC at " modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
-@[never_extract, inline] def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline, expose] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
-@[noinline] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+@[noinline, expose] def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append
+                (String.Internal.append
+                  (String.Internal.append "PANIC at " declName)
+                  " ")
+                modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
-@[never_extract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline, expose] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
+/--
+Returns the address at which an object is allocated.
+
+This function is unsafe because it can distinguish between definitionally equal values.
+-/
 @[extern "lean_ptr_addr"]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
+
+/--
+Returns `true` if `a` is an exclusive object.
+
+An object is exclusive if it is single-threaded and its reference counter is 1. This function is
+unsafe because it can distinguish between definitionally equal values.
+-/
+@[extern "lean_is_exclusive_obj"]
+unsafe opaque isExclusiveUnsafe {α : Type u} (a : @& α) : Bool
 
 set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
   k (ptrAddrUnsafe a)
 
+/--
+Compares two objects for pointer equality.
+
+Two objects are pointer-equal if, at runtime, they are allocated at exactly the same address. This
+function is unsafe because it can distinguish between definitionally equal values.
+-/
 @[inline] unsafe def ptrEq (a b : α) : Bool := ptrAddrUnsafe a == ptrAddrUnsafe b
 
+/--
+Compares two lists of objects for element-wise pointer equality. Returns `true` if both lists are
+the same length and the objects at the corresponding indices of each list are pointer-equal.
+
+Two objects are pointer-equal if, at runtime, they are allocated at exactly the same address. This
+function is unsafe because it can distinguish between definitionally equal values.
+-/
 unsafe def ptrEqList : (as bs : List α) → Bool
   | [], [] => true
   | a::as, b::bs => if ptrEq a b then ptrEqList as bs else false
@@ -67,26 +125,8 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
   let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsing_eq_true (k ()));
   match h:b with
-  | true  => isTrue (ofBoolUsing_eq_true h)
-  | false => isFalse (ofBoolUsing_eq_false h)
+  | true  => isTrue (of_toBoolUsing_eq_true h)
+  | false => isFalse (of_toBoolUsing_eq_false h)
 
 @[implemented_by withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0
-
-/--
-  Marks given value and its object graph closure as multi-threaded if currently
-  marked single-threaded. This will make reference counter updates atomic and
-  thus more costly. It can still be useful to do eagerly when the value will be
-  shared between threads later anyway and there is available time budget to mark
-  it now. -/
-@[extern "lean_runtime_mark_multi_threaded"]
-def Runtime.markMultiThreaded (a : α) : α := a
-
-/--
-  Marks given value and its object graph closure as persistent. This will remove
-  reference counter updates but prevent the closure from being deallocated until
-  the end of the process! It can still be useful to do eagerly when the value
-  will be marked persistent later anyway and there is available time budget to
-  mark it now or it would be unnecessarily marked multi-threaded in between. -/
-@[extern "lean_runtime_mark_persistent"]
-def Runtime.markPersistent (a : α) : α := a

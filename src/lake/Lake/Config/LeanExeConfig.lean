@@ -3,17 +3,19 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Facets
-import Lake.Config.LeanConfig
+module
+
+prelude
+public import Lake.Build.Facets
+public import Lake.Config.LeanConfig
+meta import all Lake.Config.Meta
+import Lake.Config.Meta
 
 namespace Lake
 open Lean System
 
 /-- A Lean executable's declarative configuration. -/
-structure LeanExeConfig extends LeanConfig where
-  /-- The name of the target. -/
-  name : Name
-
+public configuration LeanExeConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the executable's
   Lean source file. Defaults simply to said `srcDir`.
@@ -40,7 +42,13 @@ structure LeanExeConfig extends LeanConfig where
   -/
   exeName : String := name.toStringWithSep "-" (escape := false)
 
-  /-- An `Array` of target names to build before the executable's modules. -/
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
+  /--
+  **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the executable's modules.
+  -/
   extraDepTargets : Array Name := #[]
 
   /--
@@ -70,7 +78,12 @@ structure LeanExeConfig extends LeanConfig where
   `Module.oFacet`. That is, the  object file compiled from the Lean source,
   potentially with exported Lean symbols.
   -/
-  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited
+
+namespace LeanExeConfig
+
+/-- The executable's name. -/
+public abbrev name (_ : LeanExeConfig n) := n

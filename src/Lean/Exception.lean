@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Message
-import Lean.InternalExceptionId
-import Lean.Data.Options
-import Lean.Util.MonadCache
+public import Lean.InternalExceptionId
+-- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
+-- all declared explanations:
+public import Lean.ErrorExplanation
+
+public section
 
 namespace Lean
 
@@ -69,31 +73,130 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
-/-- Throw an unknown constant error message. -/
-def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  Lean.throwError m!"unknown constant '{mkConst constName}'"
+/--
+Tag used for `unknown identifier` messages.
+This tag is used by the 'import unknown identifier' code action to detect messages that should
+prompt the code action.
+-/
+def unknownIdentifierMessageTag : Name := kindOfErrorName `lean.unknownIdentifier
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
   withRef ref <| Lean.throwError msg
 
 /--
+Throw an error exception with the specified name, with position information from `getRef`.
+
+Note: Use the macro `throwNamedError`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «throwNamedError» [Monad m] [MonadError m] (name : Name) (msg : MessageData) : m α := do
+  let ref ← getRef
+  let msg := msg.tagWithErrorName name
+  let (ref, msg) ← AddErrorMessageContext.add ref msg
+  throw <| Exception.error ref msg
+
+/--
+Throw an error exception with the specified name at the position `ref`.
+
+Note: Use the macro `throwNamedErrorAt`, which validates error names, instead of calling this
+function directly.
+-/
+protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
+  withRef ref <| Lean.throwNamedError name msg
+
+/-- Like `mkUnknownIdentifierMessage`, but does not tag the message. -/
+def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let mut msg := msg
+  let env ← getEnv
+  if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
+    let c := .withContext {
+      env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
+    msg := match env.getModuleIdxFor? declHint with
+      | none     =>
+        msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."
+      | some idx =>
+        let mod := env.header.moduleNames[idx]!
+        if isPrivateName declHint then
+          msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
+        else
+          msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
+  return msg
+
+/--
+Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
+This tag is used by the 'import unknown identifier' code action to detect messages that should
+prompt the code action.
+The end position of the range of an unknown identifier message should always point at the end of the
+unknown identifier.
+
+If `declHint` is specified, a corresponding hint is added to the message in case the name refers to
+a private declaration that is not accessible in the current context.
+-/
+def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let msg ← mkUnknownIdentifierMessageCore msg declHint
+  return MessageData.tagged unknownIdentifierMessageTag msg
+
+/--
+Throw an unknown identifier error message that is tagged with `unknownIdentifierMessageTag`.
+The end position of the range of `ref` should always point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownIdentifierAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (msg : MessageData)
+    (declHint := Name.anonymous) : m α := do
+  Lean.throwErrorAt ref (← mkUnknownIdentifierMessage msg declHint)
+
+/--
+Throw an unknown constant error message.
+The end position of the range of `ref` should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α :=
+  throwUnknownIdentifierAt (declHint := constName) ref m!"Unknown constant `{.ofConstName constName}`"
+
+/--
+Throw an unknown constant error message.
+The end position of the range of the current reference should point at the unknown identifier.
+See also `mkUnknownIdentifierMessage`.
+-/
+def throwUnknownConstant [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m α := do
+  throwUnknownConstantAt (← getRef) constName
+
+/--
 Convert an `Except` into a `m` monadic action, where `m` is any monad that
 implements `MonadError`.
 -/
-def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
+def ofExcept [Monad m] [MonadError m] [ToMessageData ε] (x : Except ε α) : m α :=
   match x with
   | .ok a    => return a
-  | .error e => Lean.throwError <| toString e
+  | .error e => Lean.throwError <| toMessageData e
+
+builtin_initialize interruptExceptionId : InternalExceptionId ← registerInternalExceptionId `interrupt
+
+/--
+Throws an internal interrupt exception that skips standard `catch` clauses and should be caught only
+at the top level of elaboration.
+-/
+def throwInterruptException [Monad m] [MonadError m] [MonadOptions m] : m α :=
+  throw <| .internal interruptExceptionId
+
+/-- Returns `true` if the exception is an interrupt generated by `checkInterrupted`. -/
+def Exception.isInterrupt : Exception → Bool
+  | Exception.internal id _ => id == interruptExceptionId
+  | _ => false
 
 /--
 Throw an error exception for the given kernel exception.
 -/
-def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : KernelException) : m α := do
+def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : Kernel.Exception) : m α := do
+  if ex matches .interrupted then
+    throwInterruptException
   Lean.throwError <| ex.toMessageData (← getOptions)
 
 /-- Lift from `Except KernelException` to `m` when `m` can throw kernel exceptions. -/
-def ofExceptKernelException [Monad m] [MonadError m] [MonadOptions m] (x : Except KernelException α) : m α :=
+def ofExceptKernelException [Monad m] [MonadError m] [MonadOptions m] (x : Except Kernel.Exception α) : m α :=
   match x with
   | .ok a    => return a
   | .error e => throwKernelException e
@@ -105,7 +208,7 @@ class MonadRecDepth (m : Type → Type) where
   getRecDepth      : m Nat
   getMaxRecDepth   : m Nat
 
-instance [Monad m] [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
+instance [MonadRecDepth m] : MonadRecDepth (ReaderT ρ m) where
   withRecDepth d x := fun ctx => MonadRecDepth.withRecDepth d (x ctx)
   getRecDepth      := fun _ => MonadRecDepth.getRecDepth
   getMaxRecDepth   := fun _ => MonadRecDepth.getMaxRecDepth
@@ -120,7 +223,7 @@ instance [BEq α] [Hashable α] [Monad m] [STWorld ω m] [MonadRecDepth m] : Mon
 Throw a "maximum recursion depth has been reached" exception using the given reference syntax.
 -/
 def throwMaxRecDepthAt [MonadError m] (ref : Syntax) : m α :=
-  throw <| .error ref (MessageData.ofFormat (Std.Format.text maxRecDepthErrorMessage))
+  throw <| .error ref (.tagged `runtime.maxRecDepth <| MessageData.ofFormat (Std.Format.text maxRecDepthErrorMessage))
 
 /--
 Return true if `ex` was generated by `throwMaxRecDepthAt`.
@@ -129,9 +232,10 @@ but it is also produced by `MacroM` which implemented in the prelude, and intern
 been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
-  match ex with
-  | error _ (MessageData.ofFormat (Std.Format.text msg)) => msg == maxRecDepthErrorMessage
-  | _ => false
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxRecDepth
+  else
+    false
 
 /--
 Increment the current recursion depth and then execute `x`.

@@ -3,9 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Basic
-import Lean.Parser.Extra
+public import Lean.Parser.Extra
+
+public section
 
 namespace Lean.Parser
 
@@ -48,7 +51,38 @@ namespace Attr
 def externEntry := leading_parser
   optional (ident >> ppSpace) >> optional (nonReservedSymbol "inline ") >> strLit
 @[builtin_attr_parser] def extern     := leading_parser
-  nonReservedSymbol "extern" >> optional (ppSpace >> numLit) >> many (ppSpace >> externEntry)
+  nonReservedSymbol "extern" >> many (ppSpace >> externEntry)
+
+/--
+Declares this tactic to be an alias or alternative form of an existing tactic.
+
+This has the following effects:
+ * The alias relationship is saved
+ * The docstring is taken from the original tactic, if present
+-/
+@[builtin_attr_parser] def «tactic_alt» := leading_parser
+  "tactic_alt" >> ppSpace >> ident
+
+/--
+Adds one or more tags to a tactic.
+
+Tags should be applied to the canonical names for tactics.
+-/
+@[builtin_attr_parser] def «tactic_tag» := leading_parser
+  "tactic_tag" >> many1 (ppSpace >> ident)
+
+/--
+Sets the tactic's name.
+
+Ordinarily, tactic names are automatically set to the first token in the tactic's parser. If this
+process fails, or if the tactic's name should be multiple tokens (e.g. `let rec`), then this
+attribute can be used to provide a name.
+
+The tactic's name is used in documentation as well as in completion. Thus, the name should be a
+valid prefix of the tactic's syntax.
+-/
+@[builtin_attr_parser] def «tactic_name» := leading_parser
+  "tactic_name" >> ppSpace >> (ident <|> strLit)
 
 end Attr
 

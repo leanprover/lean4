@@ -1,5 +1,6 @@
 variable (t1 t2 t3 t4 : Nat)
 variable (pf12 : t1 = t2) (pf23 : t2 = t3) (pf34 : t3 = t4)
+include pf12 pf23 pf34
 
 theorem foo : t1 = t4 :=
   calc
@@ -9,6 +10,7 @@ theorem foo : t1 = t4 :=
 
 variable (t5 : Nat)
 variable (pf23' : t2 < t3) (pf45' : t4 < t5)
+include pf23' pf45'
 
 instance [LT α] : Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := sorry

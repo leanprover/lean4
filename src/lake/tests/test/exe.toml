@@ -1,5 +1,0 @@
-name = "test"
-testRunner = "test"
-
-[[lean_exe]]
-name = "test"

@@ -1,11 +1,15 @@
 /-
 Copyright (c) 2022 Siddhartha Gadgil. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Siddhartha Gadgil, Mario Carneiro, Scott Morrison
+Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 -/
+module
 prelude
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Reduce
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.DiscrTree.Main
+import Lean.Meta.AppBuilder
+public section
 
 /-!
 # `symm` tactic
@@ -18,17 +22,20 @@ open Lean Meta
 
 namespace Lean.Meta.Symm
 
-/-- Discrimation tree settings for the `symm` extension. -/
-def symmExt.config : WhnfCoreConfig := {}
-
 /-- Environment extensions for symm lemmas -/
 builtin_initialize symmExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun dt (n, ks) => dt.insertCore ks n
+    addEntry := fun dt (n, ks) => dt.insertKeyValue ks n
     initial := {}
   }
 
+/--
+Tags symmetry lemmas to be used by the `symm` tactic.
+
+A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `symm
   descr := "symmetric relation"
@@ -40,7 +47,7 @@ builtin_initialize registerBuiltinAttribute {
     let some _ := xs.back? | fail
     let targetTy ← reduce targetTy
     let .app (.app rel _) _ := targetTy | fail
-    let key ← withReducible <| DiscrTree.mkPath rel symmExt.config
+    let key ← withReducible <| DiscrTree.mkPath rel
     symmExt.add (decl, key) kind
 }
 
@@ -53,8 +60,8 @@ namespace Lean.Expr
 /-- Return the symmetry lemmas that match the target type. -/
 def getSymmLems (tgt : Expr) : MetaM (Array Name) := do
   let .app (.app rel _) _ := tgt
-    | throwError "symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
-  (symmExt.getState (← getEnv)).getMatch rel symmExt.config
+    | throwError "Symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
+  (symmExt.getState (← getEnv)).getMatch rel
 
 /-- Given a term `e : a ~ b`, construct a term in `b ~ a` using `@[symm]` lemmas. -/
 def applySymm (e : Expr) : MetaM Expr := do
@@ -65,10 +72,11 @@ def applySymm (e : Expr) : MetaM Expr := do
         restoreState s
         let lem ← mkConstWithFreshMVarLevels lem
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
-        let .true ← isDefEq args.back e | failure
+        let .true ← isDefEq args.back! e | failure
         mkExpectedTypeHint (mkAppN lem args) (← instantiateMVars body)
   lems.toList.firstM act
-    <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
+    <|> throwError m!"No applicable symmetry lemma found for{indentExpr tgt}"
+          ++ .note m!"Additional symmetry lemmas can be registered using the `[symm]` attribute"
 
 end Lean.Expr
 
@@ -87,11 +95,12 @@ def applySymm (g : MVarId) : MetaM MVarId := do
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
         let .true ← isDefEq (← g.getType) body | failure
         g.assign (mkAppN lem args)
-        let g' := args.back.mvarId!
+        let g' := args.back!.mvarId!
         g'.setTag (← g.getTag)
         pure g'
   lems.toList.firstM act
-    <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
+    <|> throwError m!"No applicable symmetry lemma found for{indentExpr tgt}"
+          ++ .note m!"Additional symmetry lemmas can be registered using the `[symm]` attribute"
 
 /-- Use a symmetry lemma (i.e. marked with `@[symm]`) to replace a hypothesis in a goal. -/
 def applySymmAt (h : FVarId) (g : MVarId) : MetaM MVarId := do

@@ -50,9 +50,9 @@ public:
     explicit literal(nat const & v);
     literal():literal(0u) {}
     literal(literal const & other):object_ref(other) {}
-    literal(literal && other):object_ref(other) {}
+    literal(literal && other) noexcept:object_ref(std::move(other)) {}
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
-    literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
+    literal & operator=(literal && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     static literal_kind kind(object * o) { return static_cast<literal_kind>(cnstr_tag(o)); }
     literal_kind kind() const { return kind(raw()); }
@@ -76,14 +76,14 @@ inductive Expr
 | app     : Expr → Expr → Expr                        -- application
 | lam     : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
 | forallE : Name → BinderInfo → Expr → Expr → Expr    -- (dependent) arrow
-| letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
+| letE    : Name → Expr → Expr → Expr → Bool → Expr   -- let expressions
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
 | proj    : Name → Nat → Expr → Expr                  -- projection
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
-    explicit expr(object_ref && o):object_ref(o) {}
+    explicit expr(object_ref && o) noexcept:object_ref(o) {}
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
@@ -100,14 +100,14 @@ class expr : public object_ref {
 public:
     expr();
     expr(expr const & other):object_ref(other) {}
-    expr(expr && other):object_ref(other) {}
+    expr(expr && other) noexcept:object_ref(std::move(other)) {}
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit expr(obj_arg o):object_ref(o) {}
     static expr_kind kind(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
     expr_kind kind() const { return kind(raw()); }
 
     expr & operator=(expr const & other) { object_ref::operator=(other); return *this; }
-    expr & operator=(expr && other) { object_ref::operator=(other); return *this; }
+    expr & operator=(expr && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
 };
@@ -123,11 +123,37 @@ inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
     return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
 }
 
-unsigned hash(expr const & e);
-bool has_expr_mvar(expr const & e);
-bool has_univ_mvar(expr const & e);
+inline uint64_t get_data(expr const & e) {
+    return lean_ctor_get_uint64(e.raw(), lean_ctor_num_objs(e.raw())*sizeof(object*));
+}
+/* This is the implementation in Lean */
+unsigned hash_core(expr const & e);
+inline unsigned hash(expr const & e) {
+    unsigned r = static_cast<unsigned>(get_data(e));
+    lean_assert(r == hash_core(e));
+    return r;
+}
+/* This is the implementation in Lean */
+bool has_expr_mvar_core(expr const & e);
+inline bool has_expr_mvar(expr const & e) {
+    bool r = ((get_data(e) >> 41) & 1) == 1;
+    lean_assert(r == has_expr_mvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+bool has_univ_mvar_core(expr const & e);
+inline bool has_univ_mvar(expr const & e) {
+    bool r = ((get_data(e) >> 42) & 1) == 1;
+    lean_assert(r == has_univ_mvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline bool has_mvar(expr const & e) { return has_expr_mvar(e) || has_univ_mvar(e); }
-bool has_fvar(expr const & e);
+/* This is the implementation in Lean */
+bool has_fvar_core(expr const & e);
+inline bool has_fvar(expr const & e) {
+    bool r = ((get_data(e) >> 40) & 1) == 1;
+    lean_assert(r == has_fvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 bool has_univ_param(expr const & e);
 unsigned get_loose_bvar_range(expr const & e);
 
@@ -195,7 +221,8 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
     return k == expr_kind::Pi ? mk_pi(n, t, e, bi) : mk_lambda(n, t, e, bi);
 }
 expr mk_arrow(expr const & t, expr const & e);
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool nondep);
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) { return mk_let(n, t, v, b, false); };
 expr mk_sort(level const & l);
 expr mk_Prop();
 expr mk_Type();
@@ -232,6 +259,13 @@ inline name const &    let_name(expr const & e)              { lean_assert(is_le
 inline expr const &    let_type(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    let_value(expr const & e)             { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline expr const &    let_body(expr const & e)              { lean_assert(is_let(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
+bool                   let_nondep_core(expr const & e);
+inline bool            let_nondep(expr const & e) {
+    lean_assert(is_let(e));
+    bool r = lean_ctor_get_uint8(e.raw(), 4*sizeof(object*) + sizeof(uint64_t));
+    lean_assert(r == let_nondep_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline bool            is_shared(expr const & e)             { return !is_exclusive(e.raw()); }
 //
 
@@ -335,4 +369,22 @@ inline expr update_constant(expr const & e, levels const & new_levels) { return 
     It also returns the meta-variable application found in \c e. */
 optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool is_constant(expr const & e, name const & n) { return is_const(e, n); }
+
+/* Like `is_exclusive`, but also consider unique MT references as unshared, which ensures we get
+ * similar performance on the cmdline and server (more precisely, for either option value of
+ * `internal.cmdlineSnapshots`). Note that as `e` is merely *borrowed* (e.g. from the mctx in
+ * the case of `instantiate_mvars` where the performance issue resolved here manifested, #5614),
+ * it is in fact possible that another thread could simultaneously add a new direct reference to
+ * `e`, so it is not definitely unshared in all cases if the below check is true.
+ *
+ * However, as we use this predicate merely as a conservative heuristic for detecting
+ * expressions that are unshared *within the expression tree* at hand, the approximation is
+ * still correct in this case. Furthermore, as we only use it for deciding when to cache
+ * results, it ultimately does not affect the correctness of the overall procedure in any case.
+ * This should however be kept in mind if we start using `is_likely_unshared` in other contexts.
+ */
+inline bool is_likely_unshared(expr const & e) {
+    return e.raw()->m_rc == 1 || e.raw()->m_rc == -1;
+}
+
 }

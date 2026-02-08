@@ -1,0 +1,57 @@
+name: Check stdlib_flags.h modifications
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  check-stdlib-flags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if stdlib_flags.h was modified
+        uses: actions/github-script@v8
+        with:
+          script: |
+            // Get the list of files changed in this PR
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+              }
+            );
+
+            // Check if stdlib_flags.h was modified
+            const stdlibFlagsModified = files.some(file =>
+              file.filename === 'src/stdlib_flags.h'
+            );
+
+            if (stdlibFlagsModified) {
+              console.log('src/stdlib_flags.h was modified in this PR');
+
+              // Check if the unlock label is present
+
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              const hasUnlockLabel = pr.labels.some(label =>
+                label.name === 'unlock-upstream-stdlib-flags'
+              );
+
+              if (!hasUnlockLabel) {
+                core.setFailed(
+                  'src/stdlib_flags.h was modified. This is likely a mistake. If you would like to change ' +
+                  'bootstrapping settings or request a stage0 update, you should modify stage0/src/stdlib_flags.h. ' +
+                  'If you really want to change src/stdlib_flags.h (which should be extremely rare), set the ' +
+                  'unlock-upstream-stdlib-flags label.'
+                );
+              } else {
+                console.log('Found unlock-upstream-stdlib-flags');
+              }
+            } else {
+              console.log('src/stdlib_flags.h was not modified');
+            }

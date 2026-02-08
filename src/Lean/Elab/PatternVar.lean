@@ -3,10 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatchPatternAttr
-import Lean.Elab.Arg
-import Lean.Elab.MatchAltView
+public import Lean.Elab.Arg
+public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Nat.Linear
+import Init.Omega
+
+public section
 
 namespace Lean.Elab.Term
 
@@ -16,7 +22,7 @@ abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
 /-!
   Patterns define new local variables.
-  This module collect them and preprocess `_` occurring in patterns.
+  This module collects them and preprocesses `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
   that are implied by typing constraints. Thus, we represent them with fresh named holes `?x`.
   After we elaborate the pattern, if the metavariable remains unassigned, we transform it into
@@ -47,11 +53,32 @@ structure State where
 
 abbrev M := StateRefT State TermElabM
 
-private def throwCtorExpected {α} : M α :=
-  throwError "invalid pattern, constructor or constant marked with '[match_pattern]' expected"
+private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
+  let message : MessageData :=
+    "Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`"
+  let some idStx := ident | throwError message
+  let name := idStx.getId
+  if let .anonymous := name then throwError message
+  let env ← getEnv
+  let mut candidates : Array Name := #[]
+  for (c, _) in env.constants do
+    if isPrivateName c then continue
+    if !(name.isSuffixOf c) then continue
+    if env.isConstructor c || hasMatchPatternAttribute env c then
+      candidates := candidates.push c
+
+  if candidates.size = 0 then
+    throwError message
+  let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
+  let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
+    suggestion := mkIdent candidate
+    toCodeActionTitle? := .some (s!"Change to {·}")
+    messageData? := .some m!"`{.ofConstName candidate}`",
+  })
+  throwError message ++ hint
 
 private def throwInvalidPattern {α} : M α :=
-  throwError "invalid pattern"
+  throwError "Invalid pattern"
 
 /-!
 An application in a pattern can be
@@ -68,22 +95,83 @@ structure Context where
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
-  paramDecls    : Array (Name × BinderInfo) -- parameters names and binder information
+  paramDecls    : Array (Name × BinderInfo) -- parameters' names and binder information
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
+  usedNames     : Std.HashSet Name := {}
   args          : List Arg
   newArgs       : Array Term := #[]
   deriving Inhabited
 
+private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) : MetaM α := do
+  let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
+  let nameStr := if names.length == 1 then "name" else "names"
+  let validNames := ctx.paramDecls.filterMap fun (name, _) =>
+    if name.hasMacroScopes then none else some name
+  have h := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr (Bool.not_eq.mp h))
+  -- We offer hints only for the first argument
+  let firstNamedArg := ctx.namedArgs[0]'h
+  let replacementSpan := firstNamedArg.ref[1]
+  let unused := validNames.filter (!ctx.usedNames.contains ·)
+  let hint ← do
+    if replacementSpan.getHeadInfo matches .original .. then
+      let suggestions := unused.map fun validName =>
+        { suggestion := validName.toString
+          span? := replacementSpan
+          preInfo? := some s!"`{validName}`: "
+          toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
+      let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
+      MessageData.hint (forceList := true) hintMsg suggestions
+    else
+      let validNamesMsg := MessageData.orList <| unused.map (m!"`{·}`") |>.toList
+      pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
+  throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
+
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
+private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
+  let i := ctx.paramDeclIdx
+  let d := ctx.paramDecls[i]!
+  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
+
+private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
+  let numExpectedArgs :=
+    (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
+  -- If we have too few arguments because we skipped invalid named args, show that error instead
+  if !tooMany && !ctx.namedArgs.isEmpty then checkNamedArgs
+  let argKind := if ctx.explicit then "" else "explicit "
+  let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
+  let discrepancyKind := if tooMany then "Too many" else "Not enough"
+  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to `{ctx.funId}`; \
+    expected {numExpectedArgs} {argKind}{argWord}"
+  if !tooMany then
+    msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
+  throwError msg
+where
+  checkNamedArgs := do
+    let mut ctx := ctx
+    let mut remainingNames : Std.HashSet Name := {}
+    -- If there were too few (unnamed) arguments, we may not have processed the parameters that
+    -- match the outstanding named arguments, so some names in `namedArgs` may be valid
+    while !isDone ctx do
+      let ((name, _), ctx') := getNextParam ctx
+      ctx := ctx'
+      if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
+        ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                          usedNames := ctx.usedNames.insert name }
+    if h : !ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
+
 private def finalize (ctx : Context) : M Syntax := do
-  if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
-    let fStx ← `(@$(ctx.funId):ident)
-    return Syntax.mkApp fStx ctx.newArgs
+  if ctx.args.isEmpty then
+    if h : !ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
+    else
+      let fStx ← `(@$(ctx.funId):ident)
+      return Syntax.mkApp fStx ctx.newArgs
   else
-    throwError "too many arguments"
+    throwWrongArgCount ctx true
 
 private def isNextArgAccessible (ctx : Context) : Bool :=
   let i := ctx.paramDeclIdx
@@ -92,30 +180,28 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
   | none =>
     if h : i < ctx.paramDecls.size then
       -- For `[match_pattern]` applications, only explicit parameters are accessible.
-      let d := ctx.paramDecls.get ⟨i, h⟩
+      let d := ctx.paramDecls[i]
       d.2.isExplicit
     else
       false
 
-private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
-  let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]!
-  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
-
 private def processVar (idStx : Syntax) : M Syntax := do
   unless idStx.isIdent do
-    throwErrorAt idStx "identifier expected"
+    throwErrorAt idStx "Invalid pattern variable: Identifier expected, but found{indentD idStx}"
   let id := idStx.getId
   unless id.eraseMacroScopes.isAtomic do
-    throwError "invalid pattern variable, must be atomic"
+    throwError "Invalid pattern variable: Variable name must be atomic, but `{id}` has multiple components"
   if (← get).found.contains id then
-    throwError "invalid pattern, variable '{id}' occurred more than once"
+    throwError "Invalid pattern variable: Variable name `{id}` was already used"
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
-  if h : s₁.vars.size = s₂.vars.size then
-    Array.isEqvAux s₁.vars s₂.vars h (.==.) startingAt
+private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
+  if h₁ : s₁.vars.size = s₂.vars.size then
+    for h₂ : i in startingAt...s₁.vars.size do
+      if s₁.vars[i] != s₂.vars[i] then
+        return false
+    true
   else
     false
 
@@ -130,6 +216,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let elems ← stx[1].getArgs.mapSepElemsM collect
     return stx.setArg 1 <| mkNullNode elems
   else if k == ``Lean.Parser.Term.dotIdent then
+    -- TODO: validate that `stx` corresponds to a valid constructor or match pattern
     return stx
   else if k == ``Lean.Parser.Term.hole then
     `(.( $stx ))
@@ -142,6 +229,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 1 t
   else if k == ``Lean.Parser.Term.explicitUniv then
     processCtor stx[0]
+  else if k == ``Lean.Parser.Term.explicit then
+    processCtor stx
   else if k == ``Lean.Parser.Term.namedPattern then
     /- Recall that
       ```
@@ -169,9 +258,9 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     -- Check whether the `binop%` operator is marked with `[match_pattern]`,
     -- We must check that otherwise Lean will accept operators that are not tagged with this annotation.
     let some (.const fName _) ← resolveId? stx[1] "pattern"
-      | throwCtorExpected
+      | throwCtorExpected none
     unless hasMatchPatternAttribute (← getEnv) fName do
-      throwCtorExpected
+      throwCtorExpected none
     let lhs ← collect stx[2]
     let rhs ← collect stx[3]
     return stx.setArg 2 lhs |>.setArg 3 rhs
@@ -205,22 +294,22 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let arg0 ← collect args[0]!
     let stateNew ← get
     let mut argsNew := #[arg0]
-    for arg in args[1:] do
+    for arg in args[1...*] do
       set stateSaved
       argsNew := argsNew.push (← collect arg)
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
-        throwError "invalid pattern, overloaded notation is only allowed when all alternative have the same set of pattern variables"
+        throwError "Invalid pattern: Overloaded notation is only allowed when all alternatives have the same set of pattern variables"
     set stateNew
     return mkNode choiceKind argsNew
   else match stx with
   | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
     if let some srcs := srcs? then
-      throwErrorAt (mkNullNode srcs) "invalid struct instance pattern, 'with' is not allowed in patterns"
+      throwErrorAt (mkNullNode srcs) "Invalid struct instance pattern: `with` is not allowed in patterns"
     let fields ← fields.getElems.mapM fun
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstField` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 
@@ -230,7 +319,8 @@ where
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        -- We must ensure that `ref[1]` remains original to allow named-argument hints
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -255,7 +345,7 @@ where
             processCtor stx
           else
             processVar stx
-        | none => throwCtorExpected
+        | none => throwCtorExpected (some stx)
       | _ => processVar stx
 
   pushNewArg (accessible : Bool) (ctx : Context) (arg : Arg) : M Context := do
@@ -271,7 +361,7 @@ where
       if ctx.ellipsis then
         pushNewArg accessible ctx (Arg.stx (← `(_)))
       else
-        throwError "explicit parameter is missing, unused named arguments {ctx.namedArgs.map fun narg => narg.name}"
+        throwWrongArgCount ctx false
     | arg::args =>
       pushNewArg accessible { ctx with args := args } arg
 
@@ -287,10 +377,11 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
+      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]!
-        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
+        let arg := ctx.namedArgs[idx]
+        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                              usedNames := ctx.usedNames.insert arg.name }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
       | none =>
@@ -306,8 +397,9 @@ where
     let (fId, explicit) ← match f with
       | `($fId:ident)  => pure (fId, false)
       | `(@$fId:ident) => pure (fId, true)
-      | _              => throwError "identifier expected"
-    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
+      | _              =>
+        throwError "Invalid pattern: Expected an identifier in function position, but found{indentD f}"
+    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected (some fId)
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x
@@ -321,7 +413,7 @@ where
         processCtorAppContext
           { funId := fId, explicit := explicit, ctorVal? := none, paramDecls := paramDecls, namedArgs := namedArgs, args := args, ellipsis := ellipsis }
       else
-        throwCtorExpected
+        throwCtorExpected (some fId)
 
 def main (alt : MatchAltView) : M MatchAltView := do
   let patterns ← alt.patterns.mapM fun p => do

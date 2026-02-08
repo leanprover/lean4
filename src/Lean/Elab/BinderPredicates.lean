@@ -3,11 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Init.BinderPredicates
-import Lean.Parser.Syntax
-import Lean.Elab.MacroArgUtil
-import Lean.Linter.MissingDocs
+public import Lean.Elab.MacroArgUtil
+public import Lean.Linter.MissingDocs
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -17,18 +19,14 @@ namespace Lean.Elab.Command
       $[(name := $name?)]? $[(priority := $prio?)]? $x $args:macroArg* => $rhs) => do
     let prio ← liftMacroM do evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
-    let name ← match name? with
-      | some name => pure name.getId
-      | none => liftMacroM do mkNameFromParserSyntax `binderTerm (mkNullNode stxParts)
-    let nameTk := name?.getD (mkIdentFrom tk name)
+    let kind ← elabSyntax (← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind syntax%$tk
+        $[(name := $name?)]? (priority := $(quote prio)) $[$stxParts]* : binderPred))
     /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
     So, we must include current namespace when we create a pattern for the following
     `macro_rules` commands. -/
-    let pat : TSyntax `binderPred := ⟨(mkNode ((← getCurrNamespace) ++ name) patArgs).1⟩
+    let pat : TSyntax `binderPred := ⟨(mkNode kind patArgs).1⟩
     elabCommand <|<-
-    `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind syntax%$tk
-        (name := $nameTk) (priority := $(quote prio)) $[$stxParts]* : binderPred
-      $[$doc?:docComment]? macro_rules%$tk
+    `($[$doc?:docComment]? macro_rules%$tk
         | `(satisfies_binder_pred% $$($x):term $pat:binderPred) => $rhs)
   | _ => throwUnsupportedSyntax
 

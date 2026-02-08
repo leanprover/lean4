@@ -35,6 +35,7 @@ mutual
 def even : Nat → Bool
   | 0 => true
   | .succ n => not (odd n)
+decreasing_by decreasing_tactic
 def odd : Nat → Bool
   | 0 => false
   | .succ n => not (even n)
@@ -44,6 +45,7 @@ mutual
 def evenWithFixed (m : String) : Nat → Bool
   | 0 => true
   | .succ n => not (oddWithFixed m n)
+decreasing_by decreasing_tactic
 def oddWithFixed (m : String) : Nat → Bool
   | 0 => false
   | .succ n => not (evenWithFixed m n)
@@ -81,13 +83,14 @@ def blowup : Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat
 def confuseLex1 : Nat → @PSigma Nat (fun _ => Nat) → Nat
   | 0, _p => 0
   | .succ n, ⟨x,y⟩ => confuseLex1 n ⟨x, .succ y⟩
+decreasing_by decreasing_tactic
 
 def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
   | ⟨_,0⟩ => 0
   | ⟨0,_⟩ => 0
   | ⟨.succ y,.succ n⟩ => confuseLex2 ⟨y,n⟩
 
--- NB: uses sizeOf to make the termination argument non-dependent
+-- NB: uses sizeOf to make the termination measure non-dependent
 def dependent : (n : Nat) → (m : Fin n) → Nat
  | 0, i => Fin.elim0 i
  | .succ 0, 0 => 0
@@ -134,7 +137,7 @@ def shadow2 (some_n : Nat) : Nat → Nat
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
--- Tests that the inferred termination argument is shown without extra underscores
+-- Tests that the inferred termination measure is shown without extra underscores
 def foo : Nat → Nat → Nat → Nat
   | _, 0, acc => acc
   | k, n+1, acc => foo (k+1) n (acc + k)
@@ -152,13 +155,13 @@ def oddNat : OddNat → Nat
   | ⟨.succ n⟩ => oddNat ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a varying paramter
+-- Shadowing `sizeOf`, as a varying parameter
 def shadowSizeOf1 (sizeOf : Nat) : OddNat → Nat
   | ⟨0⟩ => 0
   | ⟨.succ n⟩ => shadowSizeOf1 (sizeOf + 1) ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a fixed paramter
+-- Shadowing `sizeOf`, as a fixed parameter
 def shadowSizeOf2 (sizeOf : Nat) : OddNat → Nat → Nat
   | ⟨0⟩, m => m
   | ⟨.succ n⟩, m => shadowSizeOf2 sizeOf ⟨n⟩ m
@@ -178,7 +181,7 @@ end VarNames
 namespace MutualNotNat1
 
 -- A type that isn't Nat, checking that the inferred argument uses `sizeOf` so that
--- the types of the termination argument aligns.
+-- the types of the termination measure aligns.
 structure OddNat2 where nat : Nat
 instance : SizeOf OddNat2 := ⟨fun n => n.nat⟩
 @[simp] theorem  OddNat2.sizeOf_eq (n : OddNat2) : sizeOf n = n.nat := rfl
@@ -194,7 +197,7 @@ end MutualNotNat1
 
 namespace MutualNotNat2
 -- A type that is defeq to Nat, but with a different `sizeOf`, checking that the
--- inferred argument uses `sizeOf` so that the types of the termination argument aligns.
+-- inferred argument uses `sizeOf` so that the types of the termination measure aligns.
 def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
@@ -204,15 +207,15 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) else 0
   -- termination_by sizeOf o
-  decreasing_by simp_wf; simp [id] at *; omega
+  decreasing_by simp [id] at *; omega
 end
 end MutualNotNat2
 
 namespace MutualNotNat3
--- A varant of the above, but where the type of the parameter refined to `Nat`.
+-- A variant of the above, but where the type of the parameter refined to `Nat`.
 -- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
 -- *concrete* parameter or argument, which was wrong.
 -- The inference needs to be based on the parameter type in the function's signature.
@@ -225,11 +228,11 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar : OddNat3 → Nat
   | Nat.zero => 0
   | n+1 => if h : n < 41 then foo (40 - n) else 0
   -- termination_by x1 => sizeOf x1
-  decreasing_by simp_wf; omega
+  decreasing_by simp; omega
 end
 end MutualNotNat3

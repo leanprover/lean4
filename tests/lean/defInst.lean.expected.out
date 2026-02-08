@@ -1,12 +1,14 @@
 [4, 5, 6]
-defInst.lean:8:26-8:32: error: failed to synthesize instance
+defInst.lean:8:26-8:32: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   BEq Foo
-fun x y => sorryAx (?m x y) true : (x y : Foo) → ?m x y
+
+Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
+fun x y => sorry : (x y : Foo) → ?m x y
 [4, 5, 6]
 fun x y => x == y : Foo → Foo → Bool
 [("hello", "hello")]
 false
 true
 true
-def instMMonad : Monad M :=
+@[instance_reducible] def instMonadM : Monad M :=
 ReaderT.instMonad

@@ -3,20 +3,86 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Util.LeanOptions
+module
+
+prelude
+public import Lake.Build.Target.Basic
+public import Lake.Config.Dynlib
+public import Lake.Config.MetaClasses
+public import Init.Data.String.Modify
+meta import all Lake.Config.Meta
+import Lake.Util.Name
+import Init.Data.String.Modify
+import Lake.Config.Meta
+
+open System Lean
 
 namespace Lake
+
+-- 2025-06-08: `LeanOption` was moved to the `Lean` namespace
+export Lean (LeanOption)
+
+/--
+Compiler backend with which to compile Lean.
+-/
+public inductive Backend
+  /--
+  Force the C backend.
+  -/
+  | c
+  /--
+  Force the LLVM backend.
+  -/
+  | llvm
+  /--
+  Use the default backend. Can be overridden by more specific configuration.
+  -/
+  | default
+deriving Repr, DecidableEq
+
+namespace Backend
+
+public instance : Inhabited Backend := ⟨.default⟩
+
+@[inline]
+public def ofString? (s : String) : Option Backend :=
+  match s with
+  | "c" => some .c
+  | "llvm" => some .llvm
+  | "default" => some .default
+  | _ => none
+
+public protected def toString (bt : Backend) : String :=
+  match bt with
+  | .c => "c"
+  | .llvm => "llvm"
+  | .default => "default"
+
+instance : ToString Backend := ⟨Backend.toString⟩
+
+/--
+If the left backend is default, choose the right one.
+Otherwise, keep the left one.
+This is used to implement preferential choice of backends,
+where the library config can refine the package config.
+Formally, a left absorbing monoid on {`C`, `LLVM`} with `Default` as the unit.
+-/
+public def orPreferLeft : Backend → Backend → Backend
+| .default, b => b
+| b, _ => b
+
+end Backend
 
 /--
 Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).
 -/
-inductive BuildType
+public inductive BuildType
   /--
   Debug optimization, asserts enabled, custom debug code enabled, and
   debug info included in executable (so you can step through the code with a
   debugger and have address to source-file:line-number translation).
-  For example, passes `-Og -g` when compiling C code.
+  For example, passes `-O0 -g` when compiling C code.
   -/
   | debug
   /--
@@ -36,106 +102,66 @@ inductive BuildType
   | release
 deriving Inhabited, Repr, DecidableEq, Ord
 
+namespace BuildType
+
 /--
 Ordering on build types. The ordering is used to determine
 the *minimum* build version that is necessary for a build.
 -/
-instance : LT BuildType := ltOfOrd
-instance : LE BuildType := leOfOrd
-instance : Min BuildType := minOfLe
-instance : Max BuildType := maxOfLe
-
-/--
-Compiler backend with which to compile Lean.
--/
-inductive Backend
-  /--
-  Force the C backend.
-  -/
-  | c
-  /--
-  Force the LLVM backend.
-  -/
-  | llvm
-  /--
-  Use the default backend. Can be overridden by more specific configuration.
-  -/
-  | default
-deriving Repr, DecidableEq
-
-instance : Inhabited Backend := ⟨.default⟩
-
-def Backend.ofString? (s : String) : Option Backend :=
-  match s with
-  | "c" => some .c
-  | "llvm" => some .llvm
-  | "default" => some .default
-  | _ => none
-
-protected def Backend.toString (bt : Backend) : String :=
-  match bt with
-  | .c => "c"
-  | .llvm => "llvm"
-  | .default => "default"
-
-instance : ToString Backend := ⟨Backend.toString⟩
-
-/--
-If the left backend is default, choose the right one.
-Otherwise, keep the left one.
-This is used to implement preferential choice of backends,
-where the library config can refine the package config.
-Formally, a left absorbing monoid on {`C`, `LLVM`} with `Default` as the unit.
--/
-def Backend.orPreferLeft : Backend → Backend → Backend
-| .default, b => b
-| b, _ => b
+public instance : LT BuildType := ltOfOrd
+public instance : LE BuildType := leOfOrd
+public instance : Min BuildType := minOfLe
+public instance : Max BuildType := maxOfLe
 
 /-- The arguments to pass to `leanc` based on the build type. -/
-def BuildType.leancArgs : BuildType → Array String
-| debug => #["-Og", "-g"]
+public def leancArgs : BuildType → Array String
+| debug => #["-O0", "-g"]
 | relWithDebInfo => #["-O3", "-g", "-DNDEBUG"]
 | minSizeRel => #["-Os", "-DNDEBUG"]
 | release => #["-O3", "-DNDEBUG"]
 
-def BuildType.ofString? (s : String) : Option BuildType :=
-  match s with
+@[inline]
+public def ofString? (s : String) : Option BuildType :=
+  match s.decapitalize with
   | "debug" => some .debug
   | "relWithDebInfo" => some .relWithDebInfo
   | "minSizeRel" => some .minSizeRel
   | "release" => some .release
   | _ => none
 
-protected def BuildType.toString (bt : BuildType) : String :=
+public protected def toString (bt : BuildType) : String :=
   match bt with
   | .debug => "debug"
   | .relWithDebInfo => "relWithDebInfo"
   | .minSizeRel => "minSizeRel"
   | .release => "release"
 
-instance : ToString BuildType := ⟨BuildType.toString⟩
+public instance : ToString BuildType := ⟨BuildType.toString⟩
 
-/-- Option that is used by Lean as if it was passed using `-D`. -/
-structure LeanOption where
-  name  : Lean.Name
-  value : Lean.LeanOptionValue
-  deriving Inhabited, Repr
+/-- The options to pass to `lean` based on the build type. -/
+public def leanOptions : BuildType → LeanOptions
+| debug => ⟨NameMap.empty.insert `debugAssertions true⟩
+| _ => {}
 
-/-- Formats the lean option as a CLI argument using the `-D` flag. -/
-def LeanOption.asCliArg (o : LeanOption) : String :=
-  s!"-D{o.name}={o.value.asCliFlagValue}"
+set_option linter.unusedVariables.funArgs false in
+/-- The arguments to pass to `lean` based on the build type. -/
+public def leanArgs (t : BuildType) : Array String :=
+  #[]
+
+
+end BuildType
 
 /-- Configuration options common to targets that build modules. -/
-structure LeanConfig where
+public configuration LeanConfig where
   /--
   The mode in which the modules should be built (e.g., `debug`, `release`).
   Defaults to `release`.
   -/
   buildType : BuildType := .release
   /--
-  Additional options to pass to both the Lean language server
-  (i.e., `lean --server`) launched by `lake serve` and to `lean`
-  when compiling a module's Lean source files.
+  An `Array` of additional options to pass to both the Lean language server
+  (i.e., `lean --server`) launched by `lake serve` and to `lean` when compiling
+  a module's Lean source files.
   -/
   leanOptions : Array LeanOption := #[]
   /--
@@ -175,15 +201,26 @@ structure LeanConfig where
   -/
   weakLeancArgs : Array String := #[]
   /--
+  Additional target objects to use when linking (both static and shared).
+  These will come *after* the paths of native facets.
+  -/
+  moreLinkObjs : TargetArray FilePath := #[]
+  /--
+  Additional target libraries to pass to `leanc` when linking
+  (e.g., for shared libraries or binary executables).
+  These will come *after* the paths of other link objects.
+  -/
+  moreLinkLibs : TargetArray Dynlib := #[]
+  /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
   -/
   moreLinkArgs : Array String := #[]
   /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
 
   Unlike `moreLinkArgs`, these arguments do not affect the trace
   of the build result, so they can be changed without triggering a rebuild.
@@ -217,4 +254,14 @@ structure LeanConfig where
   and Lake will not catch it. Defaults to `none`.
   -/
   platformIndependent : Option Bool := none
+  /-
+  An array of dynamic library targets to load during the elaboration
+  of a module (via `lean --load-dynlib`).
+  -/
+  dynlibs : TargetArray Dynlib := #[]
+  /-
+  An array of Lean plugin targets to load during the elaboration
+  of a module (via `lean --plugin`).
+  -/
+  plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr

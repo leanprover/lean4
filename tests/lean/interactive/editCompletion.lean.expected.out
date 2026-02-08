@@ -1,18 +1,12 @@
-{"textDocument": {"version": 2, "uri": "file:///editCompletion.lean"},
- "contentChanges":
- [{"text": ".",
-   "range":
-   {"start": {"line": 3, "character": 21},
-    "end": {"line": 3, "character": 22}}}]}
 {"textDocument": {"uri": "file:///editCompletion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///editCompletion.lean"},
-     "position": {"line": 3, "character": 22}},
-    "id": {"const": {"declName": "Foo.foo"}}}}],
- "isIncomplete": true}
+   "data": ["file:///editCompletion.lean", 3, 22, 1, "cFoo.foo"]}],
+ "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["file:///editCompletion.lean", 3, 22, 1, "cFoo.foo"]}

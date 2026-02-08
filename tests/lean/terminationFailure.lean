@@ -11,8 +11,8 @@ where
 #check f
 #check f.g
 
-#eval f 0
-#eval f.g 0
+#eval! f 0
+#eval! f.g 0
 
 inductive Foo where
   | a | b | c
@@ -25,4 +25,4 @@ def h (x : Nat) : Foo :=
 
 #check h
 
-#eval h 0
+#eval! h 0

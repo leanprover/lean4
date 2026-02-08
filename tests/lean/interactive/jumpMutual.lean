@@ -1,5 +1,5 @@
 mutual
-
+--^ waitForILeans
 def h (x : Nat) : Nat :=
   match x with
   | 0 => 1

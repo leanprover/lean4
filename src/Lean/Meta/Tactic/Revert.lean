@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Clear
+
+public section
 
 namespace Lean.Meta
 
@@ -20,7 +24,8 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
     unless clearAuxDeclsInsteadOfRevert do
       for fvarId in fvarIds do
         if (← fvarId.getDecl) |>.isAuxDecl then
-          throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
+          throwError "Failed to revert `{mkFVar fvarId}`: It is an auxiliary declaration created to \
+            represent a recursive reference to an in-progress definition"
     let fvars := fvarIds.map mkFVar
     let toRevert ← collectForwardDeps fvars preserveOrder
     /- We should clear any `auxDecl` in `toRevert` -/
@@ -43,6 +48,7 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
       finally
         mvarId.setKind .syntheticOpaque
     let mvar := e.getAppFn
+    mvar.mvarId!.setKind .syntheticOpaque
     mvar.mvarId!.setTag tag
     return (toRevert.map Expr.fvarId!, mvar.mvarId!)
 
@@ -53,8 +59,11 @@ def _root_.Lean.MVarId.revertAfter (mvarId : MVarId) (fvarId : FVarId) : MetaM (
     let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
     mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
 
-@[deprecated MVarId.revert]
-def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) := do
-  mvarId.revert fvarIds preserveOrder
+/-- Reverts all local declarations starting from `fvarId`. -/
+def _root_.Lean.MVarId.revertFrom (mvarId : MVarId) (fvarId : FVarId) : MetaM (Array FVarId × MVarId) :=
+  mvarId.withContext do
+    let localDecl ← fvarId.getDecl
+    let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index) fun fvarIds decl => fvarIds.push decl.fvarId
+    mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
 
 end Lean.Meta

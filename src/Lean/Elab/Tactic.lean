@@ -3,40 +3,55 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.Term
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Tactic.Induction
-import Lean.Elab.Tactic.Generalize
-import Lean.Elab.Tactic.Injection
-import Lean.Elab.Tactic.Match
-import Lean.Elab.Tactic.Rewrite
-import Lean.Elab.Tactic.Location
-import Lean.Elab.Tactic.SimpTrace
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Simproc
-import Lean.Elab.Tactic.BuiltinTactic
-import Lean.Elab.Tactic.Split
-import Lean.Elab.Tactic.Conv
-import Lean.Elab.Tactic.Delta
-import Lean.Elab.Tactic.Meta
-import Lean.Elab.Tactic.Unfold
-import Lean.Elab.Tactic.Cache
-import Lean.Elab.Tactic.Calc
-import Lean.Elab.Tactic.Congr
-import Lean.Elab.Tactic.Guard
-import Lean.Elab.Tactic.RCases
-import Lean.Elab.Tactic.Repeat
-import Lean.Elab.Tactic.Ext
-import Lean.Elab.Tactic.Change
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Omega
-import Lean.Elab.Tactic.Simpa
-import Lean.Elab.Tactic.NormCast
-import Lean.Elab.Tactic.Symm
-import Lean.Elab.Tactic.SolveByElim
-import Lean.Elab.Tactic.LibrarySearch
-import Lean.Elab.Tactic.ShowTerm
-import Lean.Elab.Tactic.Rfl
-import Lean.Elab.Tactic.Rewrites
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Tactic.Generalize
+public import Lean.Elab.Tactic.Injection
+public import Lean.Elab.Tactic.Match
+public import Lean.Elab.Tactic.Rewrite
+public import Lean.Elab.Tactic.Location
+public import Lean.Elab.Tactic.SimpTrace
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Simproc
+public import Lean.Elab.Tactic.BuiltinTactic
+public import Lean.Elab.Tactic.Split
+public import Lean.Elab.Tactic.Conv
+public import Lean.Elab.Tactic.Delta
+public import Lean.Elab.Tactic.Meta
+public import Lean.Elab.Tactic.Unfold
+public import Lean.Elab.Tactic.Calc
+public import Lean.Elab.Tactic.Congr
+public import Lean.Elab.Tactic.Guard
+public import Lean.Elab.Tactic.RCases
+public import Lean.Elab.Tactic.Repeat
+public import Lean.Elab.Tactic.Ext
+public import Lean.Elab.Tactic.Change
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Omega
+public import Lean.Elab.Tactic.Simpa
+public import Lean.Elab.Tactic.NormCast
+public import Lean.Elab.Tactic.Symm
+public import Lean.Elab.Tactic.SolveByElim
+public import Lean.Elab.Tactic.LibrarySearch
+public import Lean.Elab.Tactic.ShowTerm
+public import Lean.Elab.Tactic.Rfl
+public import Lean.Elab.Tactic.Rewrites
+public import Lean.Elab.Tactic.DiscrTreeKey
+public import Lean.Elab.Tactic.BVDecide
+public import Lean.Elab.Tactic.BoolToPropSimps
+public import Lean.Elab.Tactic.Classical
+public import Lean.Elab.Tactic.Grind
+public import Lean.Elab.Tactic.Monotonicity
+public import Lean.Elab.Tactic.Try
+public import Lean.Elab.Tactic.AsAuxLemma
+public import Lean.Elab.Tactic.TreeTacAttr
+public import Lean.Elab.Tactic.ExposeNames
+public import Lean.Elab.Tactic.SimpArith
+public import Lean.Elab.Tactic.Show
+public import Lean.Elab.Tactic.Lets
+public import Lean.Elab.Tactic.Do
+public import Lean.Elab.Tactic.Decide

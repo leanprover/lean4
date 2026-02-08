@@ -3,10 +3,18 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Chris Lovett
 -/
+module
+
 prelude
-import Init.Data.String.Extra
-import Init.Data.Nat.Linear
-import Init.System.FilePath
+public import Init.System.FilePath
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
+import Init.Data.String.Search
+import Init.Omega
+import Init.System.Platform
+import Init.While
+
+public section
 
 namespace System
 namespace Uri
@@ -29,13 +37,13 @@ def decodeUri (uri : String) : String := Id.run do
   let len := rawBytes.size
   let mut i := 0
   let percent := '%'.toNat.toUInt8
-  while i < len do
-    let c := rawBytes[i]!
-    (decoded, i) := if c == percent && i + 1 < len then
-      let h1 := rawBytes[i + 1]!
+  while h : i < len do
+    let c := rawBytes[i]
+    (decoded, i) := if h₁ : c == percent ∧ i + 1 < len then
+      let h1 := rawBytes[i + 1]
       if let some hd1 := hexDigitToUInt8? h1 then
-        if i + 2 < len then
-          let h2 := rawBytes[i + 2]!
+        if h₂ : i + 2 < len then
+          let h2 := rawBytes[i + 2]
           if let some hd2 := hexDigitToUInt8? h2 then
             -- decode the hex digits into a byte.
             (decoded.push (hd1 * 16 + hd2), i + 3)
@@ -90,8 +98,8 @@ def pathToUri (fname : System.FilePath) : String := Id.run do
   if System.Platform.isWindows then
     -- normalize drive letter
     -- lower-case drive letters seem to be preferred in URIs
-    if uri.length >= 2 && (uri.get 0).isUpper && uri.get ⟨1⟩ == ':' then
-      uri := uri.set 0 (uri.get 0).toLower
+    if uri.length >= 2 && uri.front.isUpper && String.Pos.Raw.get uri ⟨1⟩ == ':' then
+      uri := uri.decapitalize
     uri := uri.map (fun c => if c == '\\' then '/' else c)
   uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
@@ -103,13 +111,15 @@ def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
   if !uri.startsWith "file://" then
     none
   else
-    let mut p := (unescapeUri uri).drop "file://".length
-    p := p.dropWhile (λ c => c != '/') -- drop the hostname.
-    -- On Windows, the path "/c:/temp" needs to become "C:/temp"
-    if System.Platform.isWindows && p.length >= 2 &&
-        p.get 0 == '/' && (p.get ⟨1⟩).isAlpha && p.get ⟨2⟩ == ':' then
-      -- see also `pathToUri`
-      p := p.drop 1 |>.modify 0 .toUpper
+    let mut p := (unescapeUri uri).drop "file://".length |>.copy
+    p := p.dropWhile (λ c => c != '/') |>.copy -- drop the hostname.
+    if System.Platform.isWindows then
+      -- On Windows, the path "/c:/temp" needs to become "C:/temp"
+      if p.length >= 2 &&
+          p.front == '/' && (String.Pos.Raw.get p ⟨1⟩).isAlpha && String.Pos.Raw.get p ⟨2⟩ == ':' then
+        -- see also `pathToUri`
+        p := String.Pos.Raw.modify (p.drop 1).copy 0 .toUpper
+      p := p.map (fun c => if c == '/' then '\\' else c)
     some p
 
 end Uri

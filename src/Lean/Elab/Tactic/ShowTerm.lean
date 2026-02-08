@@ -1,11 +1,15 @@
 /-
-Copyright (c) 2021 Scott Morrison. All rights reserved.
+Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison, Mario Carneiro
+Authors: Kim Morrison, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.ElabRules
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.ElabRules
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 namespace Lean.Elab.Tactic.ShowTerm
 open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
@@ -14,8 +18,10 @@ open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
   match stx with
   | `(tactic| show_term%$tk $t) => withMainContext do
     let g ← getMainGoal
+    let initialState ← saveState
     evalTactic t
-    addExactSuggestion tk (← instantiateMVars (mkMVar g)).headBeta (origSpan? := ← getRef)
+    let e := (← instantiateMVars (mkMVar g)).headBeta
+    addExactSuggestion tk e (origSpan? := ← getRef) (checkState? := initialState) (tacticErrorAsInfo := true)
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of `show_term` term elaborator. -/

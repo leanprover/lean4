@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.PrettyPrinter
-import Lean.Server.Rpc.Basic
-import Lean.Server.InfoUtils
-import Lean.Widget.TaggedText
-import Lean.Widget.Basic
+public import Lean.Widget.TaggedText
+public import Lean.Widget.Basic
+
+public section
 
 /-! RPC infrastructure for storing and formatting code fragments, in particular `Expr`s,
 with environment and subexpression information. -/
@@ -47,7 +48,7 @@ abbrev CodeWithInfos := TaggedText SubexprInfo
 def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m SubexprInfo) (pm : Lean.SubExpr.PosMap α) (tt : CodeWithInfos) : m CodeWithInfos :=
   if pm.isEmpty then return tt else
   tt.mapM (fun (info : SubexprInfo) =>
-    match pm.find? info.subexprPos with
+    match pm.get? info.subexprPos with
     | some a => merger info a
     | none => pure info
   )
@@ -60,32 +61,29 @@ def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
 
 /-- Tags pretty-printed code with infos from the delaborator. -/
 partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
-    : CodeWithInfos :=
+    : BaseIO CodeWithInfos :=
   go tt
 where
-  go (tt : TaggedText (Nat × Nat)) :=
-    tt.rewrite fun (n, _) subTt =>
-      match infos.find? n with
+  go (tt : TaggedText (Nat × Nat)) : BaseIO (TaggedText SubexprInfo) :=
+    tt.rewriteM fun (n, _) subTt => do
+      match infos.get? n with
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {
-          info := WithRpcRef.mk { ctx, info := i, children := .empty }
+          info := ← WithRpcRef.mk { ctx, info := i, children := .empty }
           subexprPos := n
         }
-        TaggedText.tag t (go subTt)
+        return TaggedText.tag t (← go subTt)
 
-def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+open PrettyPrinter Delaborator in
+/--
+Pretty prints the expression `e` using delaborator `delab`, returning an object that represents
+the pretty printed syntax paired with information needed to support hovers.
+-/
+def ppExprTagged (e : Expr) (delab : Delab := Delaborator.delab) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then
+    let e ← if getPPInstantiateMVars (← getOptions) then instantiateMVars e else pure e
     return .text (toString e)
-  let delab := open PrettyPrinter.Delaborator in
-    if explicit then
-      withOptionAtCurrPos pp.tagAppFns.name true do
-      withOptionAtCurrPos pp.explicit.name true do
-      withOptionAtCurrPos pp.mvars.name true do
-        delabApp
-    else
-      withOptionAtCurrPos pp.proofs.name true do
-        delab
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
@@ -97,6 +95,6 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     fileMap       := default
     ngen          := (← getNGen)
   }
-  return tagCodeInfos ctx infos tt
+  tagCodeInfos ctx infos tt
 
 end Lean.Widget

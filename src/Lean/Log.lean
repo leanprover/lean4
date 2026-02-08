@@ -3,9 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.Sorry
-import Lean.Message
+-- This import is necessary to ensure that any users of the `logNamedError` macros have access to
+-- all declared explanations:
+public import Lean.ErrorExplanation
+
+public section
 
 namespace Lean
 
@@ -34,9 +39,9 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
 
 /--
-Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
+Return the position (as `String.Pos.Raw`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
 -/
-def getRefPos : m String.Pos := do
+def getRefPos : m String.Pos.Raw := do
   let ref ← MonadLog.getRef
   return ref.getPos?.getD 0
 
@@ -54,44 +59,133 @@ register_builtin_option warningAsError : Bool := {
 }
 
 /--
+A widget for displaying error names and explanation links.
+-/
+-- Note that we cannot tag this as a `builtin_widget_module` in this module because doing so would
+-- create circular imports. Instead, we add this attribute post-hoc in `Lean.ErrorExplanation`.
+def errorDescriptionWidget : Widget.Module where
+  javascript := "
+import { createElement } from 'react';
+
+export default function ({ code, explanationUrl }) {
+  const sansText = { fontFamily: 'var(--vscode-font-family)' }
+
+  const codeSpan = createElement('span', {}, [
+    createElement('span', { style: sansText }, 'Error code: '), code])
+  const brSpan = createElement('span', {}, '\\n')
+  const linkSpan = createElement('span', { style: sansText },
+    createElement('a', { href: explanationUrl, target: '_blank', rel: 'noreferrer noopener' },
+      'View explanation'))
+
+  const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
+  return all
+}"
+
+/--
+If `msg` is tagged as a named error, appends the error description widget displaying the
+corresponding error name and explanation link. Otherwise, returns `msg` unaltered.
+-/
+private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
+  match msg.stripNestedTags.errorName? with
+  | some errorName =>
+    let url := manualRoot ++ s!"find/?domain={errorExplanationManualDomain}&name={errorName}"
+    let inst := {
+      id := ``errorDescriptionWidget
+      javascriptHash := errorDescriptionWidget.javascriptHash
+      props := return Json.mkObj [
+        ("code", toString errorName),
+        ("explanationUrl", url)
+      ]
+    }
+    -- Note: we do not generate corresponding message data for the widget because it pollutes
+    -- console output
+    msg.composePreservingKind <| .ofWidget inst .nil
+  | none => msg
+
+/--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.
 If `getRef` has position information but `ref` does not, we use `getRef`.
 We use the `fileMap` to find the line and column numbers for the error message.
 -/
-def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error) : m Unit :=
+def logAt (ref : Syntax) (msgData : MessageData)
+    (severity : MessageSeverity := MessageSeverity.error) (isSilent : Bool := false) : m Unit :=
   unless severity == .error && msgData.hasSyntheticSorry do
     let severity := if severity == .warning && warningAsError.get (← getOptions) then .error else severity
     let ref    := replaceRef ref (← MonadLog.getRef)
     let pos    := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
-    let msgData ← addMessageContext msgData
-    logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos, data := msgData, severity := severity }
+    let msgData ← addMessageContext msgData.appendDescriptionWidgetIfNamed
+    logMessage {
+      fileName := (← getFileName)
+      pos := fileMap.toPosition pos
+      endPos := fileMap.toPosition endPos
+      data := msgData
+      severity
+      isSilent
+    }
 
 /-- Log a new error message using the given message data. The position is provided by `ref`. -/
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.error
 
+/--
+Log a named error message using the given message data. The position is provided by `ref`.
+
+Note: Use the macro `logNamedErrorAt`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedErrorAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (msgData.tagWithErrorName name) MessageSeverity.error
+
 /-- Log a new warning message using the given message data. The position is provided by `ref`. -/
 def logWarningAt [MonadOptions m] (ref : Syntax) (msgData : MessageData) : m Unit := do
   logAt ref msgData .warning
+
+/--
+Log a named error warning using the given message data. The position is provided by `ref`.
+
+Note: Use the macro `logNamedWarningAt`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedWarningAt» (ref : Syntax) (name : Name) (msgData : MessageData) : m Unit :=
+  logAt ref (msgData.tagWithErrorName name) MessageSeverity.warning
 
 /-- Log a new information message using the given message data. The position is provided by `ref`. -/
 def logInfoAt (ref : Syntax) (msgData : MessageData) : m Unit :=
   logAt ref msgData MessageSeverity.information
 
 /-- Log a new error/warning/information message using the given message data and `severity`. The position is provided by `getRef`. -/
-def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error): m Unit := do
+def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.error)
+    (isSilent : Bool := false) : m Unit := do
   let ref ← MonadLog.getRef
-  logAt ref msgData severity
+  logAt ref msgData severity isSilent
 
 /-- Log a new error message using the given message data. The position is provided by `getRef`. -/
 def logError (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.error
 
+/--
+Log a named error message using the given message data. The position is provided by `getRef`.
+
+Note: Use the macro `logNamedError`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedError» (name : Name) (msgData : MessageData) : m Unit :=
+  log (msgData.tagWithErrorName name) MessageSeverity.error
+
 /-- Log a new warning message using the given message data. The position is provided by `getRef`. -/
 def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do
-  log msgData (if warningAsError.get (← getOptions) then .error else .warning)
+  log msgData .warning
+
+/--
+Log a named warning using the given message data. The position is provided by `getRef`.
+
+Note: Use the macro `logNamedWarning`, which validates error names, instead of calling this function
+directly.
+-/
+protected def «logNamedWarning» (name : Name) (msgData : MessageData) : m Unit :=
+  log (msgData.tagWithErrorName name) MessageSeverity.warning
 
 /-- Log a new information message using the given message data. The position is provided by `getRef`. -/
 def logInfo (msgData : MessageData) : m Unit :=

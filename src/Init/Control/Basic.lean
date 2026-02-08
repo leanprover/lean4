@@ -3,17 +3,81 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Core
+public import Init.Core
+public import Init.BinderNameHint
+
+@[expose] public section
 
 universe u v w
 
+/--
+A `ForIn'` instance, which handles `for h : x in c do`,
+can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
+
+Note that this instance will cause a potentially non-defeq duplication if both `ForIn` and `ForIn'`
+instances are provided for the same type.
+-/
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
+  forIn x b f := forIn' x b fun a _ => f a
+
+@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} (x : ρ) (b : β)
+    (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
+    (h : ∀ a m b, f a m b = g a b) :
+    forIn' x b f = forIn x b g := by
+  simp [forIn]
+  congr
+  apply funext
+  intro a
+  apply funext
+  intro m
+  apply funext
+  intro b
+  simp [h]
+  rfl
+
+@[wf_preprocess] theorem forIn_eq_forIn' [d : Membership α ρ] [ForIn' m ρ α d] {β}
+    (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
+  rfl
+
+/--
+Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
+-/
+@[expose] def ForInStep.value (x : ForInStep α) : α :=
+  match x with
+  | ForInStep.done b => b
+  | ForInStep.yield b => b
+
+@[simp] theorem ForInStep.value_done (b : β) : (ForInStep.done b).value = b := rfl
+@[simp] theorem ForInStep.value_yield (b : β) : (ForInStep.yield b).value = b := rfl
+
+/--
+Maps a function over a functor, with parameters swapped so that the function comes last.
+
+This function is `Functor.map` with the parameters reversed, typically used via the `<&>` operator.
+-/
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
+@[inherit_doc Functor.mapRev]
 infixr:100 " <&> " => Functor.mapRev
 
+recommended_spelling "mapRev" for "<&>" in [Functor.mapRev, «term_<&>_»]
+
+/--
+Discards the value in a functor, retaining the functor's structure.
+
+Discarding values is especially useful when using `Applicative` functors or `Monad`s to implement
+effects, and some operation should be carried out only for its effects. In `do`-notation, statements
+whose values are discarded must return `Unit`, and `discard` can be used to explicitly discard their
+values.
+-/
 @[always_inline, inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
@@ -28,12 +92,12 @@ Important instances include
 * `Option`, where `failure := none` and `<|>` returns the left-most `some`.
 * Parser combinators typically provide an `Applicative` instance for error-handling and
   backtracking.
-  
+
 Error recovery and state can interact subtly. For example, the implementation of `Alternative` for `OptionT (StateT σ Id)` keeps modifications made to the state while recovering from failure, while `StateT σ (OptionT Id)` discards them.
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add
 -- * `List`, where `failure` is the empty list and `<|>` concatenates.
-class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+class Alternative (f : Type u → Type v) : Type (max (u+1) v) extends Applicative f where
   /--
   Produces an empty collection or recoverable failure.  The `<|>` operator collects values or recovers
   from failures. See `Alternative` for more details.
@@ -76,6 +140,13 @@ instance : ToBool Bool where
   | true  => t
   | false => f
 
+/--
+Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns it and ignores
+`y`; otherwise, runs `y` and returns its result.
+
+This is a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
+operator.
+-/
 @[macro_inline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -84,6 +155,15 @@ instance : ToBool Bool where
 
 infixr:30 " <||> " => orM
 
+recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
+
+/--
+Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns `y`; otherwise,
+returns the original result of `x`.
+
+This is a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
+operator.
+-/
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -92,7 +172,12 @@ infixr:30 " <||> " => orM
 
 infixr:35 " <&&> " => andM
 
-@[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
+recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
+
+/--
+Runs a monadic action and returns the negation of its result.
+-/
+@[macro_inline] def notM {m : Type → Type v} [Functor m] (x : m Bool) : m Bool :=
   not <$> x
 
 /-!
@@ -207,21 +292,61 @@ Using `control` means that `runInBase` can be used multiple times.
 -/
 
 
-/-- MonadControl is a way of stating that the monad `m` can be 'run inside' the monad `n`.
+/--
+A way to lift a computation from one monad to another while providing the lifted computation with a
+means of interpreting computations from the outer monad. This provides a means of lifting
+higher-order operations automatically.
 
-This is the same as [`MonadBaseControl`](https://hackage.haskell.org/package/monad-control-1.0.3.1/docs/Control-Monad-Trans-Control.html#t:MonadBaseControl) in Haskell.
-To learn about `MonadControl`, see the comment above this docstring.
-
+Clients should typically use `control` or `controlAt`, which request an instance of `MonadControlT`:
+the reflexive, transitive closure of `MonadControl`. New instances should be defined for
+`MonadControl` itself.
 -/
+-- This is the same as
+-- [`MonadBaseControl`](https://hackage.haskell.org/package/monad-control-1.0.3.1/docs/Control-Monad-Trans-Control.html#t:MonadBaseControl)
+-- in Haskell.
 class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
+  /--
+  A type that can be used to reconstruct both a returned value and any state used by the outer
+  monad.
+  -/
   stM      : Type u → Type u
+  /--
+  Lifts an action from the inner monad `m` to the outer monad `n`. The inner monad has access to a
+  reverse lifting operator that can run an `n` action, returning a value and state together.
+  -/
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  /--
+  Lifts a monadic action that returns a state and a value in the inner monad to an action in the
+  outer monad. The extra state information is used to restore the results of effects from the
+  reverse lift passed to `liftWith`'s parameter.
+  -/
   restoreM : {α : Type u} → m (stM α) → n α
 
-/-- Transitive closure of MonadControl. -/
+/--
+A way to lift a computation from one monad to another while providing the lifted computation with a
+means of interpreting computations from the outer monad. This provides a means of lifting
+higher-order operations automatically.
+
+Clients should typically use `control` or `controlAt`, which request an instance of `MonadControlT`:
+the reflexive, transitive closure of `MonadControl`. New instances should be defined for
+`MonadControl` itself.
+-/
 class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
+  /--
+  A type that can be used to reconstruct both a returned value and any state used by the outer
+  monad.
+  -/
   stM      : Type u → Type u
+  /--
+  Lifts an action from the inner monad `m` to the outer monad `n`. The inner monad has access to a
+  reverse lifting operator that can run an `n` action, returning a value and state together.
+  -/
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  /--
+  Lifts a monadic action that returns a state and a value in the inner monad to an action in the
+  outer monad. The extra state information is used to restore the results of effects from the
+  reverse lift passed to `liftWith`'s parameter.
+  -/
   restoreM {α : Type u} : stM α → n α
 
 export MonadControlT (stM liftWith restoreM)
@@ -237,25 +362,48 @@ instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   liftWith f := f fun x => x
   restoreM x := pure x
 
+/--
+Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
+operator that allows outer monad computations to be run in the inner monad. The lifted operation is
+required to return extra information that is required in order to reconstruct the reverse lift's
+effects in the outer monad; this extra information is determined by `stM`.
+
+This function takes the inner monad as an explicit parameter. Use `control` to infer the monad.
+-/
 @[always_inline, inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
+/--
+Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
+operator that allows outer monad computations to be run in the inner monad. The lifted operation is
+required to return extra information that is required in order to reconstruct the reverse lift's
+effects in the outer monad; this extra information is determined by `stM`.
+
+This function takes the inner monad as an implicit parameter. Use `controlAt` to specify it
+explicitly.
+-/
 @[always_inline, inline]
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
 
 /--
-  Typeclass for the polymorphic `forM` operation described in the "do unchained" paper.
-  Remark:
-  - `γ` is a "container" type of elements of type `α`.
-  - `α` is treated as an output parameter by the typeclass resolution procedure.
-    That is, it tries to find an instance using only `m` and `γ`.
+Overloaded monadic iteration over some container type.
+
+An instance of `ForM m γ α` describes how to iterate a monadic operator over a container of type `γ`
+with elements of type `α` in the monad `m`. The element type should be uniquely determined by the
+monad and the container.
+
+Use `ForM.forIn` to construct a `ForIn` instance from a `ForM` instance, thus enabling the use of
+the `for` operator in `do`-notation.
 -/
 class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) where
-  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+  /--
+  Runs the monadic action `f` on each element of the collection `coll`.
+  -/
+  forM (coll : γ) (f : α → m PUnit) : m PUnit
 
 export ForM (forM)
 
@@ -279,3 +427,7 @@ def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
 @[inherit_doc] infixr:55 " >=> " => Bind.kleisliRight
 @[inherit_doc] infixr:55 " <=< " => Bind.kleisliLeft
 @[inherit_doc] infixr:55 " =<< " => Bind.bindLeft
+
+recommended_spelling "kleisliRight" for ">=>" in [Bind.kleisliRight, «term_>=>_»]
+recommended_spelling "kleisliLeft" for "<=<" in [Bind.kleisliLeft, «term_<=<_»]
+recommended_spelling "bindLeft" for "=<<" in [Bind.bindLeft, «term_=<<_»]

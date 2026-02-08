@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
+#include "runtime/sharecommon.h"
 #include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"
@@ -18,35 +19,48 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" object* lean_environment_add(object*, object*);
-extern "C" object* lean_mk_empty_environment(uint32, object*);
 extern "C" object* lean_environment_find(object*, object*);
-extern "C" uint32 lean_environment_trust_level(object*);
 extern "C" object* lean_environment_mark_quot_init(object*);
 extern "C" uint8 lean_environment_quot_init(object*);
-extern "C" object* lean_register_extension(object*);
-extern "C" object* lean_get_extension(object*, object*);
-extern "C" object* lean_set_extension(object*, object*, object*);
-extern "C" object* lean_environment_set_main_module(object*, object*);
-extern "C" object* lean_environment_main_module(object*);
+extern "C" object* lean_kernel_record_unfold (object*, object*);
+extern "C" object* lean_kernel_get_diag(object*);
+extern "C" object* lean_kernel_set_diag(object*, object*);
+extern "C" uint8* lean_kernel_diag_is_enabled(object*);
 
-environment mk_empty_environment(uint32 trust_lvl) {
-    return get_io_result<environment>(lean_mk_empty_environment(trust_lvl, io_mk_world()));
+void diagnostics::record_unfold(name const & decl_name) {
+    m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
 }
 
-environment::environment(unsigned trust_lvl):
-    object_ref(mk_empty_environment(trust_lvl)) {
+scoped_diagnostics::scoped_diagnostics(environment const & env, bool collect) {
+    if (collect) {
+        diagnostics d(env.get_diag());
+        if (lean_kernel_diag_is_enabled(d.to_obj_arg())) {
+            m_diag = new diagnostics(d);
+        } else
+            m_diag = nullptr;
+    } else {
+        m_diag = nullptr;
+    }
 }
 
-void environment::set_main_module(name const & n) {
-    m_obj = lean_environment_set_main_module(m_obj, n.to_obj_arg());
+scoped_diagnostics::~scoped_diagnostics() {
+    if (m_diag)
+        delete m_diag;
 }
 
-name environment::get_main_module() const {
-    return name(lean_environment_main_module(to_obj_arg()));
+environment scoped_diagnostics::update(environment const & env) const {
+    if (m_diag)
+        return env.set_diag(*m_diag);
+    else
+        return env;
 }
 
-unsigned environment::trust_lvl() const {
-    return lean_environment_trust_level(to_obj_arg());
+diagnostics environment::get_diag() const {
+    return diagnostics(lean_kernel_get_diag(to_obj_arg()));
+}
+
+environment environment::set_diag(diagnostics const & diag) const {
+    return environment(lean_kernel_set_diag(to_obj_arg(), diag.to_obj_arg()));
 }
 
 bool environment::is_quot_initialized() const {
@@ -118,13 +132,13 @@ static void check_constant_val(environment const & env, constant_val const & v, 
     checker.ensure_sort(sort, v.get_type());
 }
 
-static void check_constant_val(environment const & env, constant_val const & v, definition_safety ds) {
-    type_checker checker(env, ds);
+static void check_constant_val(environment const & env, constant_val const & v, diagnostics * diag, definition_safety ds) {
+    type_checker checker(env, diag, ds);
     check_constant_val(env, v, checker);
 }
 
-static void check_constant_val(environment const & env, constant_val const & v, bool safe_only) {
-  check_constant_val(env, v, safe_only ? definition_safety::safe : definition_safety::unsafe);
+static void check_constant_val(environment const & env, constant_val const & v, diagnostics * diag, bool safe_only) {
+    check_constant_val(env, v, diag, safe_only ? definition_safety::safe : definition_safety::unsafe);
 }
 
 void environment::add_core(constant_info const & info) {
@@ -136,72 +150,79 @@ environment environment::add(constant_info const & info) const {
 }
 
 environment environment::add_axiom(declaration const & d, bool check) const {
+    scoped_diagnostics diag(*this, check);
     axiom_val const & v = d.to_axiom_val();
     if (check)
-        check_constant_val(*this, v.to_constant_val(), !d.is_unsafe());
-    return add(constant_info(d));
+        check_constant_val(*this, v.to_constant_val(), diag.get(), !d.is_unsafe());
+    return diag.update(add(constant_info(d)));
 }
 
 environment environment::add_definition(declaration const & d, bool check) const {
+    scoped_diagnostics diag(*this, check);
     definition_val const & v = d.to_definition_val();
     if (v.is_unsafe()) {
         /* Meta definition can be recursive.
            So, we check the header, add, and then type check the body. */
         if (check) {
-            type_checker checker(*this, definition_safety::unsafe);
+            type_checker checker(*this, diag.get(), definition_safety::unsafe);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
         environment new_env = add(constant_info(d));
         if (check) {
-            type_checker checker(new_env, definition_safety::unsafe);
+            type_checker checker(new_env, diag.get(), definition_safety::unsafe);
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(new_env, d, val_type);
         }
-        return new_env;
+        return diag.update(new_env);
     } else {
         if (check) {
-            type_checker checker(*this);
+            type_checker checker(*this, diag.get());
             check_constant_val(*this, v.to_constant_val(), checker);
             check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(*this, d, val_type);
         }
-        return add(constant_info(d));
+        return diag.update(add(constant_info(d)));
     }
 }
 
 environment environment::add_theorem(declaration const & d, bool check) const {
+    scoped_diagnostics diag(*this, check);
     theorem_val const & v = d.to_theorem_val();
     if (check) {
-        // TODO(Leo): we must add support for handling tasks here
-        type_checker checker(*this);
-        if (!checker.is_prop(v.get_type()))
-            throw theorem_type_is_not_prop(*this, v.get_name(), v.get_type());
+        type_checker checker(*this, diag.get());
+        sharecommon_persistent_fn share;
+        expr val(share(v.get_value().raw()));
+        expr type(share(v.get_type().raw()));
+        if (!checker.is_prop(type))
+            throw theorem_type_is_not_prop(*this, v.get_name(), type);
         check_constant_val(*this, v.to_constant_val(), checker);
-        check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
-        expr val_type = checker.check(v.get_value(), v.get_lparams());
-        if (!checker.is_def_eq(val_type, v.get_type()))
+        check_no_metavar_no_fvar(*this, v.get_name(), val);
+        expr val_type = checker.check(val, v.get_lparams());
+        if (!checker.is_def_eq(val_type, type))
             throw definition_type_mismatch_exception(*this, d, val_type);
     }
-    return add(constant_info(d));
+    return diag.update(add(constant_info(d)));
 }
 
 environment environment::add_opaque(declaration const & d, bool check) const {
+    scoped_diagnostics diag(*this, check);
     opaque_val const & v = d.to_opaque_val();
     if (check) {
-        type_checker checker(*this);
+        type_checker checker(*this, diag.get());
         check_constant_val(*this, v.to_constant_val(), checker);
         expr val_type = checker.check(v.get_value(), v.get_lparams());
         if (!checker.is_def_eq(val_type, v.get_type()))
             throw definition_type_mismatch_exception(*this, d, val_type);
     }
-    return add(constant_info(d));
+    return diag.update(add(constant_info(d)));
 }
 
 environment environment::add_mutual(declaration const & d, bool check) const {
+    scoped_diagnostics diag(*this, check);
     definition_vals const & vs = d.to_definition_vals();
     if (empty(vs))
         throw kernel_exception(*this, "invalid empty mutual definition");
@@ -210,7 +231,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
     /* Check declarations header */
     if (check) {
-        type_checker checker(*this, safety);
+        type_checker checker(*this, diag.get(), safety);
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
@@ -224,7 +245,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        type_checker checker(new_env, safety);
+        type_checker checker(new_env, diag.get(), safety);
         for (definition_val const & v : vs) {
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
@@ -232,7 +253,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
                 throw definition_type_mismatch_exception(new_env, d, val_type);
         }
     }
-    return new_env;
+    return diag.update(new_env);
 }
 
 environment environment::add(declaration const & d, bool check) const {
@@ -247,10 +268,22 @@ environment environment::add(declaration const & d, bool check) const {
     }
     lean_unreachable();
 }
-
-extern "C" LEAN_EXPORT object * lean_add_decl(object * env, object * decl) {
+/*
+addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+*/
+extern "C" LEAN_EXPORT object * lean_add_decl(object * env, size_t max_heartbeat, object * decl,
+    object * opt_cancel_tk) {
+    scope_max_heartbeat s(max_heartbeat);
+    scope_cancel_tk s2(is_scalar(opt_cancel_tk) ? nullptr : cnstr_get(opt_cancel_tk, 0));
     return catch_kernel_exceptions<environment>([&]() {
             return environment(env).add(declaration(decl, true));
+        });
+}
+
+extern "C" LEAN_EXPORT object * lean_add_decl_without_checking(object * env, object * decl) {
+    return catch_kernel_exceptions<environment>([&]() {
+            return environment(env).add(declaration(decl, true), false);
         });
 }
 
@@ -259,12 +292,6 @@ void environment::for_each_constant(std::function<void(constant_info const & d)>
             constant_info cinfo(v, true);
             f(cinfo);
         });
-}
-
-extern "C" obj_res lean_display_stats(obj_arg env, obj_arg w);
-
-void environment::display_stats() const {
-    dec_ref(lean_display_stats(to_obj_arg(), io_mk_world()));
 }
 
 void initialize_environment() {

@@ -3,8 +3,12 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Util.Paths
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 namespace Lean
 
@@ -39,6 +43,9 @@ instance : Coe Bool LeanOptionValue where
 instance : Coe Nat LeanOptionValue where
   coe := LeanOptionValue.ofNat
 
+instance {n : Nat} : OfNat LeanOptionValue n where
+  ofNat := .ofNat n
+
 instance : FromJson LeanOptionValue where
   fromJson?
     | (s : String) => Except.ok s
@@ -58,36 +65,57 @@ def LeanOptionValue.asCliFlagValue : (v : LeanOptionValue) → String
   | (b : Bool)   => toString b
   | (n : Nat)    => toString n
 
-/-- Options that are used by Lean as if they were passed using `-D`. -/
-structure LeanOptions where
-  values : RBMap Name LeanOptionValue Name.cmp
+/-- An option that is used by Lean as if it was passed using `-D`. -/
+structure LeanOption where
+  /-- The option's name. -/
+  name  : Lean.Name
+  /-- The option's value. -/
+  value : Lean.LeanOptionValue
   deriving Inhabited, Repr
 
+/-- Formats the lean option as a CLI argument using the `-D` flag. -/
+def LeanOption.asCliArg (o : LeanOption) : String :=
+  s!"-D{o.name}={o.value.asCliFlagValue}"
+
+/-- Options that are used by Lean as if they were passed using `-D`. -/
+structure LeanOptions where
+  values : NameMap LeanOptionValue
+  deriving Inhabited, Repr
+
+instance : EmptyCollection LeanOptions := ⟨⟨∅⟩⟩
+
+def LeanOptions.ofArray (opts : Array LeanOption) : LeanOptions :=
+  ⟨opts.foldl (fun m {name, value} => m.insert name value) {}⟩
+
+/-- Add the options from `new`, overriding those in `self`. -/
+protected def LeanOptions.append (self new : LeanOptions) : LeanOptions :=
+  ⟨self.values.mergeWith (fun _ _ b => b) new.values⟩
+
+instance : Append LeanOptions := ⟨LeanOptions.append⟩
+
+/-- Add the options from `new`, overriding those in `self`. -/
+def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : LeanOptions :=
+  ⟨new.foldl (fun m {name, value} => m.insert name value) self.values⟩
+
+instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
+
 def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
-  let mut options := KVMap.empty
+  let mut options := Options.empty
   for ⟨name, optionValue⟩ in leanOptions.values do
-    options := options.insert name optionValue.toDataValue
+    options := options.set name optionValue.toDataValue
   return options
 
 def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do
-  let mut values := RBMap.empty
+  let mut values := Std.TreeMap.empty
   for ⟨name, dataValue⟩ in options do
     let optionValue ← LeanOptionValue.ofDataValue? dataValue
     values := values.insert name optionValue
   return ⟨values⟩
 
 instance : FromJson LeanOptions where
-  fromJson?
-    | Json.obj obj => do
-      let values ← obj.foldM (init := RBMap.empty) fun acc k v => do
-        let optionValue ← fromJson? v
-        return acc.insert k.toName optionValue
-      return ⟨values⟩
-    | _ => Except.error "invalid LeanOptions type"
+  fromJson? j := LeanOptions.mk <$> fromJson? j
 
 instance : ToJson LeanOptions where
-  toJson options :=
-    Json.obj <| options.values.fold (init := RBNode.leaf) fun acc k v =>
-      acc.insert (cmp := compare) k.toString (toJson v)
+  toJson options := toJson options.values
 
 end Lean

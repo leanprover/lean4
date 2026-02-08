@@ -2,10 +2,6 @@
 
 universe u v w r s
 
-set_option trace.compiler.stage1 true
--- set_option pp.explicit true
--- set_option pp.proofs true
-
 def foo (n : Nat) : Nat :=
 let x := Nat.zero;
 let x1 := Nat.succ x;

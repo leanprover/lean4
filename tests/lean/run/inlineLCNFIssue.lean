@@ -23,7 +23,7 @@ def explode (x : Nat) : IO Unit := do
   if x == 19 then IO.println "arg is 19"
   if x == 20 then IO.println "arg is 20"
 
-#eval Lean.Compiler.compile #[``explode]
+run_meta Lean.Compiler.compile #[``explode]
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``explode]
+run_meta Lean.Compiler.compile #[``explode]

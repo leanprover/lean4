@@ -1,2 +1,2 @@
-matchErrorMsg.lean:2:1-2:6: error: missing cases:
+matchErrorMsg.lean:2:1-2:6: error: Missing cases:
 (Prod.mk Nat.zero (Nat.succ _))

@@ -4,12 +4,6 @@ class Semigroup (α : Type u) extends Mul α where
 class CommSemigroup (α : Type u) extends Semigroup α where
   mul_comm (a b : α) : a * b = b * a
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a
@@ -19,11 +13,6 @@ class CommMonoid (α : Type u) extends Monoid α, CommSemigroup α
 set_option pp.all true
 #check CommMonoid.mk
 #print CommMonoid.toCommSemigroup
-
-class Inv (α : Type u) where
-  inv : α → α
-
-postfix:100 "⁻¹" => Inv.inv
 
 class Group (α : Type u) extends Monoid α, Inv α where
   mul_left_inv (a : α) : a⁻¹ * a = 1
@@ -38,12 +27,6 @@ class AddSemigroup (α : Type u) extends Add α where
 
 class AddCommSemigroup (α : Type u) extends AddSemigroup α where
   add_comm (a b : α) : a + b = b + a
-
-class Zero (α : Type u) where
-  zero : α
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := Zero.zero
 
 class AddMonoid (α : Type u) extends AddSemigroup α, Zero α where
   zero_add (a : α) : 0 + a = a

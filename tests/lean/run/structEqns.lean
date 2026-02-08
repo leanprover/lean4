@@ -14,6 +14,8 @@ def foo (xs ys zs : List Nat) : List Nat :=
      | [] => [1]
      | _  => [2]
 
+/-- info: (some foo.eq_def) -/
+#guard_msgs in
 #eval tst ``foo
 
 /--

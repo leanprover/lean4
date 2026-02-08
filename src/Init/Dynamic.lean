@@ -4,13 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
+public import Init.Prelude
 import Init.Core
+
+public section
 
 open Lean
 
 -- Implementation detail of TypeName, since classes cannot be opaque
-private opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
+-- TODO: should be private; #10098
+opaque TypeNameData (α : Type u) : NonemptyType.{0} :=
   ⟨Name, inferInstance⟩
 
 /--
@@ -33,7 +39,7 @@ class TypeName (α : Type) where unsafe mk ::
 class TypeName (α : Type u) where private mk' ::
   private data : (TypeNameData α).type
 
-instance : Nonempty (TypeName α) := (TypeNameData α).property.elim (⟨⟨·⟩⟩)
+instance : Nonempty (TypeName α) := by exact (TypeNameData α).property.elim (⟨⟨·⟩⟩)
 
 /--
 Creates a `TypeName` instance.
@@ -57,14 +63,15 @@ private opaque DynamicPointed : NonemptyType.{0} :=
   ⟨Name × NonScalar, inferInstance⟩
 
 /--
-Type-tagged union that can store any type with a `TypeName` instance.
+A type-tagged union that can store any type with a `TypeName` instance.
 
-This is roughly equivalent to `(α : Type) × TypeName α × α` but without the
-universe bump.
+This is roughly equivalent to `(α : Type) × TypeName α × α`, but without the universe bump. Use
+`Dynamic.mk` to inject a value into `Dynamic` from another type, and `Dynamic.get?` to extract a
+value from `Dynamic` if it has some expected type.
 -/
 def Dynamic : Type := DynamicPointed.type
 
-instance : Nonempty Dynamic := DynamicPointed.property
+instance : Nonempty Dynamic := by exact DynamicPointed.property
 
 private unsafe def Dynamic.typeNameImpl (any : Dynamic) : Name :=
   (unsafeCast any : Name × NonScalar).1
@@ -92,5 +99,10 @@ opaque Dynamic.get? (α) (any : Dynamic) [TypeName α] : Option α
 private unsafe def Dynamic.mkImpl [TypeName α] (obj : α) : Dynamic :=
   unsafeCast (TypeName.typeName α, (unsafeCast obj : NonScalar))
 
+/--
+Stores the provided value in a `Dynamic`.
+
+Use `Dynamic.get? α` to retrieve it.
+-/
 @[implemented_by Dynamic.mkImpl]
 opaque Dynamic.mk [TypeName α] (obj : α) : Dynamic

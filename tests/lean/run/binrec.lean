@@ -29,8 +29,8 @@ theorem Nat.div2_lt (h : n ≠ 0) : n / 2 < n := by
   | n+4 =>
     rw [div_eq, if_pos]
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
-    exact @div2_lt (n+2) (by simp_arith)
-    simp_arith
+    exact @div2_lt (n+2) (by simp +arith)
+    simp +arith
 
 @[specialize]
 def Nat.binrec
@@ -61,4 +61,4 @@ def Nat.toBit (n : Nat) : List Bool :=
     (fun b n ih => b :: ih ())
     n
 
-#eval Nat.toBit 18
+#guard Nat.toBit 18 == [false, true, false, false, true]

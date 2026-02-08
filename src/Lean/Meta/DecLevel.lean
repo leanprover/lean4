@@ -3,9 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.InferType
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
 
@@ -69,5 +72,11 @@ def decLevel (u : Level) : MetaM Level := do
    and then decrement 1 to obtain `u`. -/
 def getDecLevel (type : Expr) : MetaM Level := do
   decLevel (← getLevel type)
+
+def getDecLevel? (type : Expr) : MetaM (Option Level) := do
+  decLevel? (← getLevel type)
+
+builtin_initialize
+  registerTraceClass `Meta.isLevelDefEq.step
 
 end Lean.Meta

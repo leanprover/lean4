@@ -3,14 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
 /-- Helper class for lifting `CompilerM.codeBind` -/
 class MonadCodeBind (m : Type → Type) where
-  codeBind : (c : Code) → (f : FVarId → m Code) → m Code
+  codeBind : {pu : Purity} → (c : Code pu) → (f : FVarId → m (Code pu)) → m (Code pu)
 
 /--
 Return code that is equivalent to `c >>= f`. That is, executes `c`, and then `f x`, where
@@ -21,16 +25,17 @@ an invalid block would be generated. It would be invalid because `f` would not
 be applied to `jp_i`. Note that, we could have decided to create a copy of `jp_i` where we apply `f` to it,
 by we decided to not do it to avoid code duplication.
 -/
-abbrev Code.bind [MonadCodeBind m] (c : Code) (f : FVarId → m Code) : m Code :=
+abbrev Code.bind [MonadCodeBind m] (c : Code pu) (f : FVarId → m (Code pu)) : m (Code pu) :=
   MonadCodeBind.codeBind c f
 
-partial def CompilerM.codeBind (c : Code) (f : FVarId → CompilerM Code) : CompilerM Code := do
+partial def CompilerM.codeBind (c : Code pu) (f : FVarId → CompilerM (Code pu)) :
+    CompilerM (Code pu) := do
   go c |>.run {}
 where
-  go (c : Code) : ReaderT FVarIdSet CompilerM Code := do
+  go (c : Code pu) : ReaderT FVarIdSet CompilerM (Code pu) := do
     match c with
     | .let decl k => return .let decl (← go k)
-    | .fun decl k => return .fun decl (← go k)
+    | .fun decl k _ => return .fun decl (← go k)
     | .jp decl k =>
       let value ← go decl.value
       let type ← value.inferParamType decl.params
@@ -39,12 +44,13 @@ where
         return .jp decl (← go k)
     | .cases c =>
       let alts ← c.alts.mapM fun
-        | .alt ctorName params k => return .alt ctorName params (← go k)
+        | .alt ctorName params k _ => return .alt ctorName params (← go k)
         | .default k => return .default (← go k)
+        | .ctorAlt info k _ => return .ctorAlt info (← go k)
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
       let resultType ← mkCasesResultType alts
-      return .cases { c with alts, resultType }
+      return .cases ⟨c.typeName, resultType, c.discr, alts⟩
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>
       unless (← read).contains fvarId do
@@ -56,12 +62,14 @@ where
       This code is not very efficient, we could ask caller to provide the type of `c >>= f`,
       but this is more convenient, and this case is seldom reached.
       -/
-      let auxParam ← mkAuxParam type
+      let auxParam ← mkAuxParam (pu := pu) type
       let k ← f auxParam.fvarId
       let typeNew ← k.inferType
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
+    | .sset fvarId i offset y ty k _ => return .sset fvarId i offset y ty (← go k)
+    | .uset fvarId offset y k _ => return .uset fvarId offset y (← go k)
 
 instance : MonadCodeBind CompilerM where
   codeBind := CompilerM.codeBind
@@ -77,10 +85,10 @@ Create new parameters for the given arrow type.
 Example: if `type` is `Nat → Bool → Int`, the result is
 an array containing two new parameters with types `Nat` and `Bool`.
 -/
-partial def mkNewParams (type : Expr) : CompilerM (Array Param) :=
+partial def mkNewParams (type : Expr) : CompilerM (Array (Param pu)) :=
   go type #[] #[]
 where
-  go (type : Expr) (xs : Array Expr) (ps : Array Param) : CompilerM (Array Param) := do
+  go (type : Expr) (xs : Array Expr) (ps : Array (Param pu)) : CompilerM (Array (Param pu)) := do
     match type with
     | .forallE _ d b _ =>
       let d := d.instantiateRev xs
@@ -94,15 +102,16 @@ where
       else
         return ps
 
-def isEtaExpandCandidateCore (type : Expr) (params : Array Param) : Bool :=
+def isEtaExpandCandidateCore (type : Expr) (params : Array (Param .pure)) : Bool :=
   let typeArity := getArrowArity type
   let valueArity := params.size
   typeArity > valueArity
 
-abbrev FunDeclCore.isEtaExpandCandidate (decl : FunDecl) : Bool :=
+abbrev FunDecl.isEtaExpandCandidate (decl : FunDecl .pure) : Bool :=
   isEtaExpandCandidateCore decl.type decl.params
 
-def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : CompilerM (Array Param × Code) := do
+def etaExpandCore (type : Expr) (params : Array (Param .pure)) (value : Code .pure) :
+    CompilerM (Array (Param .pure) × Code .pure) := do
   let valueType ← instantiateForall type (params.map (mkFVar ·.fvarId))
   let psNew ← mkNewParams valueType
   let params := params ++ psNew
@@ -112,18 +121,21 @@ def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : Compiler
     return .let auxDecl (.return auxDecl.fvarId)
   return (params, value)
 
-def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : CompilerM (Option (Array Param × Code)) := do
+def etaExpandCore? (type : Expr) (params : Array (Param .pure)) (value : Code .pure) : CompilerM (Option (Array (Param .pure) × Code .pure)) := do
   if isEtaExpandCandidateCore type params then
     etaExpandCore type params value
   else
     return none
 
-def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
+def FunDecl.etaExpand (decl : FunDecl .pure) : CompilerM (FunDecl .pure) := do
   let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
   decl.update decl.type params value
 
-def Decl.etaExpand (decl : Decl) : CompilerM Decl := do
-  let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
-  return { decl with params, value }
+def Decl.etaExpand (decl : Decl .pure) : CompilerM (Decl .pure) := do
+  match decl.value with
+  | .code code =>
+    let some (params, newCode) ← etaExpandCore? decl.type decl.params code | return decl
+    return { decl with params, value := .code newCode}
+  | .extern .. => return decl
 
 end Lean.Compiler.LCNF

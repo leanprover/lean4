@@ -15,4 +15,4 @@ open Lean.Compiler
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
 set_option trace.Compiler.result true
-#eval compile #[``HList.set]
+run_meta compile #[``HList.set]

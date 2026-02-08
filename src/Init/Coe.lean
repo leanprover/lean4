@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Prelude
+public import Init.Prelude
+public meta import Init.Prelude
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!
@@ -111,7 +116,7 @@ On top of these instances this file defines several auxiliary type classes:
   * `CoeOTC := CoeOut* Coe*`
   * `CoeHTC := CoeHead? CoeOut* Coe*`
   * `CoeHTCT := CoeHead? CoeOut* Coe* CoeTail?`
-  * `CoeDep := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
+  * `CoeT := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
 
 -/
 
@@ -306,9 +311,6 @@ instance boolToSort : CoeSort Bool Prop where
 
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
-
-instance optionCoe {α : Type u} : Coe α (Option α) where
-  coe := some
 
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where
   coe v := v.val

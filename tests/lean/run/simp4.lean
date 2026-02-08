@@ -49,7 +49,7 @@ theorem ex8 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
   simp (config := { contextual := true })
 
 theorem ex9 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
-  fail_if_success simp
+  fail_if_success simp [-Nat.add_eq_zero_iff]
   intro h₁ h₂
   simp [h₁] at h₂
   simp [h₂]

@@ -2,7 +2,7 @@ def h.{u_1, u_2} : {α : Type u_1} → {β : Type u_2} → {f : α → β} → {
 fun {α} {β} {f} x x_1 =>
   match x, x_1 with
   | .(f a), Imf.mk a => a
-theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a :=
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
 fun x x_1 x_2 x_3 =>
   match x, x_1, x_2, x_3 with
   | α, .(α), Eq.refl α, a => HEq.refl a

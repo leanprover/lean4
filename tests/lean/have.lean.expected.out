@@ -2,9 +2,9 @@ have.lean:2:19-4:7: error: unexpected token 'example'; expected term
 have.lean:2:18-2:19: error: don't know how to synthesize placeholder
 context:
 ⊢ False
-have.lean:7:2-7:3: error: type mismatch
+have.lean:7:2-7:3: error: Type mismatch
   f
 has type
-  5 = 6 : Prop
+  5 = 6
 but is expected to have type
-  5 = 3 : Prop
+  5 = 3

@@ -1,54 +1,54 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
-    Lean.ParserDescr.trailingNode `term_+++_ 45 46
+    Lean.ParserDescr.trailingNode `«term_+++_» 45 46
       (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 46))
-[Elab.definition.body] «_aux_ppNotationCode___macroRules_term_+++__1» : Lean.Macro :=
+[Elab.definition.body] «_aux_lean_ppNotationCode___macroRules_term_+++__1» : Lean.Macro :=
     fun x =>
-      let_fun __discr := x;
-      if __discr.isOfKind `term_+++_ = true then
-        let_fun __discr_1 := __discr.getArg 0;
-        let_fun __discr_2 := __discr.getArg 1;
-        let_fun __discr := __discr.getArg 2;
-        let_fun rhs := { raw := __discr };
-        let_fun lhs := { raw := __discr_1 };
+      have __discr := x;
+      if __discr.isOfKind `«term_+++_» = true then
+        have __discr_1 := __discr.getArg 0;
+        have __discr_2 := __discr.getArg 1;
+        have __discr := __discr.getArg 2;
+        have rhs := { raw := __discr };
+        have lhs := { raw := __discr_1 };
         do
         let info ← Lean.MonadRef.mkInfoFromRefPos
         let scp ← Lean.getCurrMacroScope
-        let mainModule ← Lean.getMainModule
+        let quotCtx ← Lean.MonadQuotation.getContext
         pure
             {
                 raw :=
                   Lean.Syntax.node2 info `Lean.Parser.Term.app
-                    (Lean.Syntax.ident info "Nat.add".toSubstring' (Lean.addMacroScope mainModule `Nat.add scp)
+                    (Lean.Syntax.ident info "Nat.add".toRawSubstring' (Lean.addMacroScope quotCtx `Nat.add scp)
                       [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add])
                     (Lean.Syntax.node2 info `null lhs.raw rhs.raw) }.raw
       else
-        let_fun __discr := x;
+        have __discr := x;
         throw Lean.Macro.Exception.unsupportedSyntax
-[Elab.definition.body] _aux_ppNotationCode___unexpand_Nat_add_1 : Lean.PrettyPrinter.Unexpander :=
+[Elab.definition.body] _aux_lean_ppNotationCode___unexpand_Nat_add_1 : Lean.PrettyPrinter.Unexpander :=
     fun x =>
-      let_fun __discr := x;
+      have __discr := x;
       if __discr.isOfKind `Lean.Parser.Term.app = true then
-        let_fun __discr_1 := __discr.getArg 0;
+        have __discr_1 := __discr.getArg 0;
         bif false || __discr_1.isOfKind `ident then
-          let_fun __discr_2 := __discr.getArg 1;
+          have __discr_2 := __discr.getArg 1;
           if __discr_2.matchesNull 2 = true then
-            let_fun __discr := __discr_2.getArg 0;
-            let_fun __discr_3 := __discr_2.getArg 1;
-            let_fun rhs := { raw := __discr_3 };
-            let_fun lhs := { raw := __discr };
-            let_fun f := { raw := __discr_1 };
+            have __discr := __discr_2.getArg 0;
+            have __discr_3 := __discr_2.getArg 1;
+            have rhs := { raw := __discr_3 };
+            have lhs := { raw := __discr };
+            have f := { raw := __discr_1 };
             Lean.withRef f.raw do
               let info ← Lean.MonadRef.mkInfoFromRefPos
               let _ ← Lean.getCurrMacroScope
-              let _ ← Lean.getMainModule
-              pure { raw := Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
+              let _ ← Lean.MonadQuotation.getContext
+              pure { raw := Lean.Syntax.node3 info `«term_+++_» lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
           else
-            let_fun __discr := __discr.getArg 1;
+            have __discr := __discr.getArg 1;
             throw ()
         else
-          let_fun __discr_2 := __discr.getArg 0;
-          let_fun __discr := __discr.getArg 1;
+          have __discr_2 := __discr.getArg 0;
+          have __discr := __discr.getArg 1;
           throw ()
       else
-        let_fun __discr := x;
+        have __discr := x;
         throw ()

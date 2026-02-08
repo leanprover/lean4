@@ -3,9 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Format
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Omega
+
+public section
 
 namespace Lean.IR
 
@@ -13,25 +18,25 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else if alts.size < 2 then alts
   else
-    let last := alts.back;
-    let alts := alts.pop;
+    let last := alts.back!
+    let alts := alts.pop
     alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
-  let aBody := (alts.get! i).body
+  let aBody := alts[i]!.body
   let mut n := 1
-  for j in [i+1:alts.size] do
-    if alts[j]!.body == aBody then
+  for h : j in (i+1)...alts.size do
+    if alts[j].body == aBody then
       n := n+1
   return n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
-  for i in [1:alts.size] do
+  for h : i in 1...alts.size do
     let curr := getOccsOf alts i
     if curr > max then
-       maxAlt := alts[i]!
+       maxAlt := alts[i]
        max    := curr
   return (maxAlt, max)
 
@@ -52,8 +57,8 @@ private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array A
   let alts := addDefault alts;
   if alts.size == 0 then
     FnBody.unreachable
-  else if alts.size == 1 then
-    (alts.get! 0).body
+  else if _ : alts.size = 1 then
+    alts[0].body
   else
     FnBody.case tid x xType alts
 
@@ -74,5 +79,7 @@ def Decl.simpCase (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
+
+builtin_initialize registerTraceClass `compiler.ir.simp_case (inherited := true)
 
 end Lean.IR

@@ -1,21 +1,30 @@
 {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
  "position": {"line": 1, "character": 64}}
 {"items":
- [{"sortText": "0",
-   "label": "veryLongDefinitionName",
+ [{"label": "veryLongDefinitionName",
    "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
-     "position": {"line": 1, "character": 64}},
-    "id": {"fvar": {"id": "_uniq.29"}}}},
-  {"sortText": "1",
-   "label": "veryLongDefinitionNameVeryLongDefinitionName",
+   "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.35"]},
+  {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
-     "position": {"line": 1, "character": 64}},
-    "id":
-    {"const": {"declName": "veryLongDefinitionNameVeryLongDefinitionName"}}}}],
- "isIncomplete": true}
+   ["file:///completionPrefixIssue.lean",
+    1,
+    64,
+    0,
+    "cveryLongDefinitionNameVeryLongDefinitionName"]}],
+ "isIncomplete": false}
+Resolution of veryLongDefinitionName:
+{"label": "veryLongDefinitionName",
+ "kind": 6,
+ "detail": "Nat",
+ "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.35"]}
+Resolution of veryLongDefinitionNameVeryLongDefinitionName:
+{"label": "veryLongDefinitionNameVeryLongDefinitionName",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["file:///completionPrefixIssue.lean",
+  1,
+  64,
+  0,
+  "cveryLongDefinitionNameVeryLongDefinitionName"]}

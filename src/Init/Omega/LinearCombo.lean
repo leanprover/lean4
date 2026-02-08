@@ -1,11 +1,17 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.Coeffs
+public import Init.Omega.Coeffs
+import Init.Data.Int.Lemmas
 import Init.Data.ToString.Macro
+import Init.RCases
+
+public section
 
 /-!
 # Linear combinations
@@ -13,6 +19,9 @@ import Init.Data.ToString.Macro
 We use this data structure while processing hypotheses.
 
 -/
+
+-- most defs used in proofs by reflection
+@[expose] section
 
 namespace Lean.Omega
 
@@ -26,9 +35,15 @@ deriving DecidableEq, Repr
 
 namespace LinearCombo
 
+private def join (l : List String) : String :=
+  l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
+
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString LinearCombo where
-  toString lc :=
-    s!"{lc.const}{String.join <| lc.coeffs.toList.enum.map fun ⟨i, c⟩ => s!" + {c} * x{i+1}"}"
+  toString lc := private
+    s!"{lc.const}{join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 
@@ -37,6 +52,10 @@ theorem ext {a b : LinearCombo} (w₁ : a.const = b.const) (w₂ : a.coeffs = b.
   cases a; cases b
   subst w₁; subst w₂
   congr
+
+/-- Check if a linear combination is an atom, i.e. the constant term is zero and there is exactly one nonzero coefficient, which is one. -/
+def isAtom (a : LinearCombo) : Bool :=
+  a.const == 0 && (a.coeffs.filter (· == 1)).length == 1 && a.coeffs.all fun c => c == 0 || c == 1
 
 /--
 Evaluate a linear combination `⟨r, [c_1, …, c_k]⟩` at values `[v_1, …, v_k]` to obtain
@@ -159,13 +178,13 @@ def mul (l₁ l₂ : LinearCombo) : LinearCombo :=
 theorem mul_eval_of_const_left (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₁.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval_of_const_right (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₂.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₂.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero ∨ l₂.coeffs.isZero) :

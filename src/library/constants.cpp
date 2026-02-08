@@ -12,7 +12,7 @@ name const * g_and_rec = nullptr;
 name const * g_and_cases_on = nullptr;
 name const * g_array = nullptr;
 name const * g_array_sz = nullptr;
-name const * g_array_data = nullptr;
+name const * g_array_to_list = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -44,6 +44,7 @@ name const * g_eq_subst = nullptr;
 name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
 name const * g_float = nullptr;
+name const * g_float32 = nullptr;
 name const * g_float_array = nullptr;
 name const * g_float_array_data = nullptr;
 name const * g_false = nullptr;
@@ -127,8 +128,8 @@ void initialize_constants() {
     mark_persistent(g_array->raw());
     g_array_sz = new name{"Array", "sz"};
     mark_persistent(g_array_sz->raw());
-    g_array_data = new name{"Array", "data"};
-    mark_persistent(g_array_data->raw());
+    g_array_to_list = new name{"Array", "toList"};
+    mark_persistent(g_array_to_list->raw());
     g_auto_param = new name{"autoParam"};
     mark_persistent(g_auto_param->raw());
     g_bit0 = new name{"bit0"};
@@ -191,6 +192,8 @@ void initialize_constants() {
     mark_persistent(g_eq_trans->raw());
     g_float = new name{"Float"};
     mark_persistent(g_float->raw());
+    g_float32 = new name{"Float32"};
+    mark_persistent(g_float32->raw());
     g_float_array = new name{"FloatArray"};
     mark_persistent(g_float_array->raw());
     g_float_array_data = new name{"FloatArray", "data"};
@@ -330,7 +333,7 @@ void finalize_constants() {
     delete g_and_cases_on;
     delete g_array;
     delete g_array_sz;
-    delete g_array_data;
+    delete g_array_to_list;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -362,6 +365,7 @@ void finalize_constants() {
     delete g_eq_symm;
     delete g_eq_trans;
     delete g_float;
+    delete g_float32;
     delete g_float_array;
     delete g_float_array_data;
     delete g_false;
@@ -436,7 +440,7 @@ name const & get_and_rec_name() { return *g_and_rec; }
 name const & get_and_cases_on_name() { return *g_and_cases_on; }
 name const & get_array_name() { return *g_array; }
 name const & get_array_sz_name() { return *g_array_sz; }
-name const & get_array_data_name() { return *g_array_data; }
+name const & get_array_to_list_name() { return *g_array_to_list; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
@@ -468,6 +472,7 @@ name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_float_name() { return *g_float; }
+name const & get_float32_name() { return *g_float32; }
 name const & get_float_array_name() { return *g_float_array; }
 name const & get_float_array_data_name() { return *g_float_array_data; }
 name const & get_false_name() { return *g_false; }

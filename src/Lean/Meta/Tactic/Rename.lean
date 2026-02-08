@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Util
+
+public section
 
 namespace Lean.Meta
 
@@ -17,9 +21,5 @@ def _root_.Lean.MVarId.rename (mvarId : MVarId) (fvarId : FVarId) (userNameNew :
   let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) (← mvarId.getType) MetavarKind.syntheticOpaque (← mvarId.getTag)
   mvarId.assign mvarNew
   return mvarNew.mvarId!
-
-@[deprecated MVarId.rename]
-def rename (mvarId : MVarId) (fvarId : FVarId) (newUserName : Name) : MetaM MVarId :=
-  mvarId.rename fvarId newUserName
 
 end Lean.Meta

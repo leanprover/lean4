@@ -3,60 +3,61 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Parser.Command
-import Lake.DSL.Extensions
+module
 
-namespace Lake.DSL
+prelude
+public import Lake.DSL.Syntax
+import Lake.Config.Dependency
+
 open Lean Parser Command
 
-syntax fromPath :=
-  term
+namespace Lake.DSL
 
-syntax fromGit :=
-  &" git " term:max ("@" term:max)? ("/" term)?
+/-! # The `require` syntax
 
-syntax depSpec :=
-  ident " from " (fromGit <|> fromPath) (" with " term)?
-
-def expandDepSpec : TSyntax ``depSpec → MacroM Command
-| `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) => do
-  let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
-  let path ← match path? with | some path => `(some $path) | none => `(none)
-  let opts := opts?.getD <| ← `({})
-  `(@[package_dep] def $name : Dependency := {
-    name := $(quote name.getId),
-    src := Source.git $url $rev $path,
-    opts := $opts
-  })
-| `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
-  let opts := opts?.getD <| ← `({})
-  `(@[package_dep] def $name : Dependency := {
-    name :=  $(quote name.getId),
-    src := Source.path $path,
-    opts := $opts
-  })
-| _ => Macro.throwUnsupported
-
-/--
-Adds a new package dependency to the workspace. Has two forms:
-
-```lean
-require foo from "path"/"to"/"local"/"package" with NameMap.empty
-require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
-```
-
-Either form supports the optional `with` clause.
-The `@"rev"` and `/"path"/"dir"` parts of the git form of `require`
-are optional.
-
-The elements of both the `from` and `with` clauses are proper terms so
-normal computation is supported within them (though parentheses made be
-required to disambiguate the syntax).
+This module contains the expansion of the `require` DSL syntax used to specify package dependencies.
 -/
-scoped macro (name := requireDecl) "require " spec:depSpec : command =>
-  expandDepSpec spec
 
-@[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
+@[inline] private def quoteOptTerm [Monad m] [MonadQuotation m] (term? : Option Term) : m Term :=
+  if let some term := term? then withRef term ``(some $term) else ``(none)
 
-instance : Coe RequireDecl Command where
-  coe x := ⟨x.raw⟩
+def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
+  let `(depSpec| $fullNameStx $[@ $ver?]? $[from $src?]? $[with $opts?]?) := stx
+    | Macro.throwErrorAt stx "ill-formed require syntax"
+  let src? ← src?.mapM fun src =>
+    match src with
+    | `(fromSource|git%$tk $url $[@ $rev?]? $[/ $subDir?]?) => withRef tk do
+      let rev ← quoteOptTerm rev?
+      let subDir ← quoteOptTerm subDir?
+      ``(DependencySrc.git $url $rev $subDir)
+    | `(fromSource|$path:term) => withRef src do
+      ``(DependencySrc.path $path)
+    | _ => Macro.throwErrorAt src "ill-formed from syntax"
+  let `(depName|$[$scope? /]? $nameStx) := fullNameStx
+    | Macro.throwErrorAt fullNameStx "ill-formed name syntax"
+  let scope :=
+    match scope? with
+    | some scope => scope
+    | none => Syntax.mkStrLit "" (.fromRef fullNameStx)
+  let ver ←
+    if let some ver := ver? then withRef ver do
+      match ver with
+      | `(verSpec|git $ver) => ``(some ("git#" ++ $ver))
+      | `(verSpec|$ver:term) => ``(some $ver)
+      | _ => Macro.throwErrorAt ver "ill-formed version syntax"
+    else
+      ``(none)
+  let name := expandIdentOrStrAsIdent nameStx
+  `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
+    name :=  $(quote name.getId),
+    scope := $scope,
+    version? := $ver,
+    src? := $(← quoteOptTerm src?),
+    opts := $(opts?.getD <| ← `({})),
+  })
+
+@[builtin_macro requireDecl]
+def expandRequireDecl : Macro := fun stx => do
+  let `(requireDecl|$(doc?)? require%$kw $spec) := stx
+    | Macro.throwErrorAt stx "ill-formed require declaration"
+  withRef kw do expandDepSpec spec doc?

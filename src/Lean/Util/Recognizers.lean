@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
+public import Lean.Environment
+
+public section
 
 namespace Lean
 namespace Expr
@@ -64,6 +68,7 @@ namespace Expr
 @[inline] def and? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``And
 
+/-- Recognizes `x1 ≍ x2`, returns `some (α1, x1, α2, x2)`.  -/
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 
@@ -105,5 +110,30 @@ def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 /-- Recognize `α × β` -/
 def prod? (e : Expr) : Option (Expr × Expr) :=
   e.app2? ``Prod
+
+/--
+Checks if an expression is a `Name` literal, and if so returns the name.
+-/
+def name? : Expr → Option Name
+  | .const ``Lean.Name.anonymous _ => Name.anonymous
+  | mkApp2 (.const ``Lean.Name.str _) n (.lit (.strVal s)) => (name? n).map (·.str s)
+  | mkApp2 (.const ``Lean.Name.num _) n i =>
+    (i.rawNatLit? <|> i.nat?).bind fun i => (name? n).map (Name.num · i)
+  | mkApp (.const ``Lean.Name.mkStr1 _) (.lit (.strVal a)) => Lean.Name.mkStr1 a
+  | mkApp2 (.const ``Lean.Name.mkStr2 _) (.lit (.strVal a1)) (.lit (.strVal a2)) =>
+    Lean.Name.mkStr2 a1 a2
+  | mkApp3 (.const ``Lean.Name.mkStr3 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) =>
+    Lean.Name.mkStr3 a1 a2 a3
+  | mkApp4 (.const ``Lean.Name.mkStr4 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) =>
+    Lean.Name.mkStr4 a1 a2 a3 a4
+  | mkApp5 (.const ``Lean.Name.mkStr5 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) =>
+    Lean.Name.mkStr5 a1 a2 a3 a4 a5
+  | mkApp6 (.const ``Lean.Name.mkStr6 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) =>
+    Lean.Name.mkStr6 a1 a2 a3 a4 a5 a6
+  | mkApp7 (.const ``Lean.Name.mkStr7 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) =>
+    Lean.Name.mkStr7 a1 a2 a3 a4 a5 a6 a7
+  | mkApp8 (.const ``Lean.Name.mkStr8 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) (.lit (.strVal a8)) =>
+    Lean.Name.mkStr8 a1 a2 a3 a4 a5 a6 a7 a8
+  | _ => none
 
 end Lean.Expr

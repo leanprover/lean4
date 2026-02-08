@@ -3,23 +3,27 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.FindExpr
-import Lean.Declaration
+public import Lean.Util.FindExpr
+public import Lean.Declaration
+
+public section
 
 namespace Lean
 
-def Expr.isSorry : Expr → Bool
-  | app (app (.const ``sorryAx ..) ..) .. => true
-  | _ => false
+/-- Returns `true` if the expression is an application of `sorryAx`. -/
+def Expr.isSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx
 
-def Expr.isSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.true ..) => true
-  | _ => false
+/-- Returns `true` if the expression is of the form `sorryAx _ true ..`. -/
+def Expr.isSyntheticSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 2 && (e.getArg! 1).isConstOf ``Bool.true
 
-def Expr.isNonSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.false ..) => true
-  | _ => false
+/-- Returns `true` if the expression is of the form `sorryAx _ false ..`. -/
+def Expr.isNonSyntheticSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 2 && (e.getArg! 1).isConstOf ``Bool.false
 
 def Expr.hasSorry (e : Expr) : Bool :=
   Option.isSome <| e.find? (·.isConstOf ``sorryAx)
@@ -32,6 +36,9 @@ def Expr.hasNonSyntheticSorry (e : Expr) : Bool :=
 
 def Declaration.hasSorry (d : Declaration) : Bool := Id.run do
   d.foldExprM (fun r e => r || e.hasSorry) false
+
+def Declaration.hasSyntheticSorry (d : Declaration) : Bool := Id.run do
+  d.foldExprM (fun r e => r || e.hasSyntheticSorry) false
 
 def Declaration.hasNonSyntheticSorry (d : Declaration) : Bool := Id.run do
   d.foldExprM (fun r e => r || e.hasNonSyntheticSorry) false

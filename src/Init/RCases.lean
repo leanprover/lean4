@@ -3,9 +3,12 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
-import Init.Tactics
-import Init.Meta
+public import Init.Meta
+
+public section
 
 
 /-!
@@ -101,7 +104,7 @@ but rather than accepting a pattern, it does a maximal cases and prints the
 pattern that would produce this case splitting. The default maximum depth is 5,
 but this can be modified with `rcases? e : n`.
 -/
-syntax (name := rcases?) "rcases?" casesTarget,* (" : " num)? : tactic
+syntax (name := rcases?) "rcases?" elimTarget,* (" : " num)? : tactic
 -/
 
 /--
@@ -147,7 +150,7 @@ matching on the constructor `quot.mk`.
 `rcases h : e with PAT` will do the same as `rcases e with PAT` with the exception that an
 assumption `h : e = PAT` will be added to the context.
 -/
-syntax (name := rcases) "rcases" casesTarget,* (" with " rcasesPatLo)? : tactic
+syntax (name := rcases) "rcases " elimTarget,* (" with " rcasesPatLo)? : tactic
 
 /--
 The `obtain` tactic is a combination of `have` and `rcases`. See `rcases` for

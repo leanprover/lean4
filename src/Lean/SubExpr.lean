@@ -3,10 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Data.Json
-import Lean.Data.RBMap
+public import Lean.Meta.Basic
+public import Init.Data.Format.Macro
+
+public section
 
 namespace Lean
 
@@ -19,7 +22,7 @@ by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary
 without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
 
 See also `SubExpr`. -/
-def SubExpr.Pos := Nat
+@[expose] def SubExpr.Pos := Nat
 
 namespace SubExpr.Pos
 
@@ -54,28 +57,28 @@ def push (p : Pos) (c : Nat) : Pos :=
 variable {α : Type} [Inhabited α]
 
 /-- Fold over the position starting at the root and heading to the leaf-/
-partial def foldl  (f : α → Nat → α) (a : α) (p : Pos) : α :=
-  if p.isRoot then a else f (foldl f a p.tail) p.head
+partial def foldl  (f : α → Nat → α) (init : α) (p : Pos) : α :=
+  if p.isRoot then init else f (foldl f init p.tail) p.head
 
 /-- Fold over the position starting at the leaf and heading to the root-/
-partial def foldr  (f : Nat → α → α) (p : Pos) (a : α) : α :=
-  if p.isRoot then a else foldr f p.tail (f p.head a)
+partial def foldr  (f : Nat → α → α) (p : Pos) (init : α) : α :=
+  if p.isRoot then init else foldr f p.tail (f p.head init)
 
 /-- monad-fold over the position starting at the root and heading to the leaf -/
-partial def foldlM  [Monad M] (f : α → Nat → M α) (a : α) (p : Pos) : M α :=
+partial def foldlM  [Monad M] (f : α → Nat → M α) (init : α) (p : Pos) : M α :=
   have : Inhabited (M α) := inferInstance
-  if p.isRoot then pure a else do foldlM f a p.tail >>= (f · p.head)
+  if p.isRoot then pure init else do foldlM f init p.tail >>= (f · p.head)
 
 /-- monad-fold over the position starting at the leaf and finishing at the root. -/
-partial def foldrM [Monad M] (f : Nat → α → M α) (p : Pos) (a : α) : M α :=
-  if p.isRoot then pure a else f p.head a >>= foldrM f p.tail
+partial def foldrM [Monad M] (f : Nat → α → M α) (p : Pos) (init : α) : M α :=
+  if p.isRoot then pure init else f p.head init >>= foldrM f p.tail
 
 def depth (p : Pos) :=
-  p.foldr (fun _ => Nat.succ) 0
+  p.foldr (init := 0) fun _ => Nat.succ
 
 /-- Returns true if `pred` is true for each coordinate in `p`.-/
 def all (pred : Nat → Bool) (p : Pos) : Bool :=
-  OptionT.run (m := Id) (foldrM (fun n a => if pred n then pure a else failure) p ()) |>.isSome
+  (Id.run <| OptionT.run (foldrM (fun n a => if pred n then pure a else failure) p ())) |>.isSome
 
 def append : Pos → Pos → Pos := foldl push
 
@@ -98,6 +101,7 @@ def pushLetBody       (p : Pos) := p.push 2
 def pushAppFn         (p : Pos) := p.push 0
 def pushAppArg        (p : Pos) := p.push 1
 def pushProj          (p : Pos) := p.push 0
+def pushType          (p : Pos) := p.push Pos.typeCoord
 
 def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
   p.asNat * (maxChildren ^ numArgs)
@@ -128,14 +132,14 @@ open Except in
 protected def fromString? : String → Except String Pos
   | "/" => Except.ok Pos.root
   | s =>
-    match String.splitOn s "/" with
+    match String.split s '/' |>.toStringList with
     | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
     | ss => error s!"malformed {ss}"
 
 protected def fromString! (s : String) : Pos :=
   match Pos.fromString? s with
-  | Except.ok a => a
-  | Except.error e => panic! e
+  | .ok a => a
+  | .error e => panic! e
 
 instance : Ord Pos := show Ord Nat by infer_instance
 instance : DecidableEq Pos := show DecidableEq Nat by infer_instance
@@ -169,7 +173,7 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/
-abbrev PosMap (α : Type u) := RBMap Pos α compare
+abbrev PosMap (α : Type u) := Std.TreeMap Pos α
 
 def bindingBody! : SubExpr → SubExpr
   | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩
@@ -213,7 +217,7 @@ open SubExpr in
 `SubExpr.Pos` argument for tracking subexpression position. -/
 def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr :=
   match e with
-  | Expr.app f a =>
+  | .app f a =>
     e.updateApp!
       <$> traverseAppWithPos visit p.pushAppFn f
       <*> visit p.pushAppArg a

@@ -3,15 +3,20 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Environment
-import Lake.Config.Dependency
+module
+
+prelude
+public import Lean.Environment
 
 open Lean
 
 namespace Lake
 
-initialize dirExt : EnvExtension (Option System.FilePath) ←
+public builtin_initialize nameExt : EnvExtension (Nat × Name) ←
+  registerEnvExtension (pure ⟨0, .anonymous⟩)
+
+public builtin_initialize dirExt : EnvExtension (Option System.FilePath) ←
   registerEnvExtension (pure none)
 
-initialize optsExt : EnvExtension (Option (NameMap String)) ←
+public builtin_initialize optsExt : EnvExtension (Option (NameMap String)) ←
   registerEnvExtension (pure none)

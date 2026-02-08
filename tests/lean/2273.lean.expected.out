@@ -1,2 +1,4 @@
-2273.lean:9:8-9:14: error: failed to synthesize instance
+2273.lean:9:8-9:14: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   P 37
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

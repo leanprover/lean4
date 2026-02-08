@@ -6,6 +6,8 @@ import Init.Data.ToString
 
 open IO.FS
 
+#eval createDirAll "io_test"
+
 def check_eq {α} [BEq α] [Repr α] (tag : String) (expected actual : α) : IO Unit :=
 unless (expected == actual) do
   throw $ IO.userError $
@@ -13,17 +15,17 @@ unless (expected == actual) do
 
 def test : IO Unit := do
 let xs : ByteArray := ⟨#[1,2,3,4]⟩;
-let fn := "foo.txt";
+let fn := "io_test/foo.txt";
 withFile fn Mode.write fun h => do
   h.write xs;
   h.write xs;
   pure ();
-let ys ← withFile "foo.txt" Mode.read $ fun h => h.read 10;
+let ys ← withFile "io_test/foo.txt" Mode.read $ fun h => h.read 10;
 check_eq "1" (xs.toList ++ xs.toList) ys.toList;
 withFile fn Mode.append fun h => do
   h.write ⟨#[5,6,7,8]⟩;
   pure ();
-withFile "foo.txt" Mode.read fun h => do
+withFile "io_test/foo.txt" Mode.read fun h => do
     let ys ← h.read 10
     check_eq "2" [1,2,3,4,1,2,3,4,5,6] ys.toList
     let ys ← h.read 2
@@ -32,11 +34,12 @@ withFile "foo.txt" Mode.read fun h => do
     check_eq "5" [] ys.toList
 pure ()
 
+#guard_msgs in
 #eval test
 
 def test2 : IO Unit := do
 let fn1 := "bar2.txt";
-let fn2 := "foo2.txt";
+let fn2 := "io_test/foo2.txt";
 let xs₀ : String := "⟨[₂,α]⟩";
 let xs₁ := "⟨[6,8,@]⟩";
 let xs₂ := "/* Handle.getLine : Handle → IO Unit                     */" ++
@@ -61,7 +64,7 @@ withFile fn2 Mode.append $ fun h => do
 { h.putStrLn xs₁;
   pure () };
 let ys ← withFile fn2 Mode.read $ fun h => do
-  { let ys ← (List.iota 4).mapM $ fun i => do
+  { let ys ← (List.range 4).mapM $ fun i => do
     { let ln ← h.getLine;
       IO.println i;
       IO.println ∘ repr $ ln;
@@ -74,10 +77,30 @@ let ys ← readFile fn2;
 check_eq "3" (String.join rs) ys;
 pure ()
 
+/--
+info: ⟨[₂,α]⟩⟨[₂,α]⟩
+
+⟨[₂,α]⟩⟨[₂,α]⟩
+
+0
+"⟨[₂,α]⟩⟨[₂,α]⟩\n"
+1
+"/* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\\0' character and the    *//*   rest of the line is discarded.                      */\n"
+2
+"⟨[6,8,@]⟩\n"
+3
+"⟨[6,8,@]⟩\n"
+[⟨[₂,α]⟩⟨[₂,α]⟩
+, /* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\0' character and the    *//*   rest of the line is discarded.                      */
+, ⟨[6,8,@]⟩
+, ⟨[6,8,@]⟩
+]
+-/
+#guard_msgs in
 #eval test2
 
 def test3 : IO Unit := do
-let fn3 := "foo3.txt"
+let fn3 := "io_test/foo3.txt"
 let xs₀ := "abc"
 let xs₁ := ""
 let xs₂ := "hello"
@@ -98,14 +121,53 @@ IO.println $ repr ys
 check_eq "2" ys #[xs₀, xs₁, xs₂, xs₃]
 pure ()
 
+/--
+info: #[]
+#["abc", "", "hello", "world"]
+-/
+#guard_msgs in
 #eval test3
 
 def test4 : IO Unit := do
-let fn4 := "foo4.txt"
+let fn4 := "io_test/foo4.txt"
 withFile fn4 Mode.write fun _h => do pure ();
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
 check_eq "1" [] ys.toList
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
 check_eq "2" [] ys.toList
 
+#guard_msgs in
 #eval test4
+
+/-! `removeDirAll` should remove all contents but not follow symlinks. -/
+
+def testRemoveDirAll : IO Unit := do
+  createDirAll "io_test/dir/sub"
+  createDirAll "io_test/symlink_target"
+  writeFile "io_test/dir/file" ""
+  writeFile "io_test/dir/sub/file" ""
+  unless System.Platform.isWindows do
+    let _ ← IO.Process.run { cmd := "ln", args := #["-s", "../symlink_target", "io_test/dir/symlink"] }
+  removeDirAll "io_test/dir"
+  assert! !(← System.FilePath.pathExists "io_test/dir")
+  unless System.Platform.isWindows do
+    assert! (← System.FilePath.pathExists "io_test/symlink_target")
+
+#eval testRemoveDirAll
+
+def testHardLink : IO Unit := do
+  let fn := "io_test/hardLinkTarget.txt"
+  let contents := "foo"
+  writeFile fn contents
+  let linkFn := "io_test/hardLink.txt"
+  if (← System.FilePath.pathExists linkFn) then
+    removeFile linkFn
+  hardLink fn linkFn
+  removeFile fn
+  assert! !(← System.FilePath.pathExists fn)
+  assert! (← System.FilePath.pathExists linkFn)
+  let linkContents ← readFile linkFn
+  check_eq "1" contents linkContents
+
+#guard_msgs in
+#eval testHardLink

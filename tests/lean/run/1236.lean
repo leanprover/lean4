@@ -1,1 +1,1 @@
-example: x ≤ x * 2 := by simp_arith
+example: x ≤ x * 2 := by simp +arith

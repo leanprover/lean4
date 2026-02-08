@@ -1,5 +1,5 @@
-macroStack.lean:4:5-4:6: error: unknown identifier 'x'
-macroStack.lean:8:6-8:7: error: unknown identifier 'x'
+macroStack.lean:4:5-4:6: error(lean.unknownIdentifier): Unknown identifier `x`
+macroStack.lean:8:6-8:7: error: Unknown identifier `x`
 with resulting expansion
   binrel% GT.gt✝ x 0
 while expanding
@@ -9,8 +9,10 @@ while expanding
 while expanding
   if h : (x > 0) then 1 else 0
 macroStack.lean:11:9-11:15: error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
-macroStack.lean:17:0-17:6: error: failed to synthesize instance
+macroStack.lean:17:0-17:6: error: failed to synthesize instance of type class
   HAdd Nat String ?m
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 with resulting expansion
   binop% HAdd.hAdd✝ (x + x✝) x✝¹
 while expanding

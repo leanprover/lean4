@@ -2,7 +2,7 @@ import Lean.CoreM
 
 open Lean
 
-structure MyState :=
+structure MyState where
 (trace_state : TraceState := {})
 (s          : Nat := 0)
 
@@ -44,14 +44,50 @@ do withTraceNode `module.slow (fun _ => return m!"slow: {slow b}") do {
 def run (x : M Unit) : M Unit :=
 withReader
   (fun ctx =>
-    -- Try commeting/uncommeting the following `setBool`s
+    -- Try commenting/uncommeting the following `setBool`s
     let opts := ctx.options;
-    let opts := opts.setBool `trace.module true;
-    -- let opts := opts.setBool `trace.module.aux false;
-    let opts := opts.setBool `trace.bughunt true;
-    -- let opts := opts.setBool `trace.slow true;
+    let opts := opts.set `trace.module true;
+    -- let opts := opts.set `trace.module.aux false;
+    let opts := opts.set `trace.bughunt true;
+    -- let opts := opts.set `trace.slow true;
     { ctx with options := opts })
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
+/--
+info: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+ERROR
+---
+trace: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+-/
+#guard_msgs in
 #eval run (tst3 true)
+
+/--
+info: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+  [module] hello
+               world
+[module] hello
+             world
+[bughunt] at end of tst3
+---
+trace: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+  [module] hello
+               world
+[module] hello
+             world
+[bughunt] at end of tst3
+-/
+#guard_msgs in
 #eval run (tst3 false)

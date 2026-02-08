@@ -5,10 +5,16 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 The integers, with addition, multiplication, and subtraction.
 -/
+module
+
 prelude
-import Init.Data.Cast
-import Init.Data.Nat.Div
-import Init.Data.List.Basic
+public import Init.Data.Cast
+public import Init.Data.Nat.Basic
+
+public section
+
+@[expose] section
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
@@ -17,31 +23,38 @@ open Nat
 This file defines the `Int` type as well as
 
 * coercions, conversions, and compatibility with numeric literals,
-* basic arithmetic operations add/sub/mul/div/mod/pow,
+* basic arithmetic operations add/sub/mul/pow,
 * a few `Nat`-related operations such as `negOfNat` and `subNatNat`,
 * relations `<`/`≤`/`≥`/`>`, the `NonNeg` property and `min`/`max`,
 * decidability of equality, relations and `NonNeg`.
+
+Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
+set_option genCtorIdx false in
 /--
-The type of integers. It is defined as an inductive type based on the
-natural number type `Nat` featuring two constructors: "a natural
-number is an integer", and "the negation of a successor of a natural
-number is an integer". The former represents integers between `0`
-(inclusive) and `∞`, and the latter integers between `-∞` and `-1`
-(inclusive).
+The integers.
 
-This type is special-cased by the compiler. The runtime has a special
-representation for `Int` which stores "small" signed numbers directly,
-and larger numbers use an arbitrary precision "bignum" library
-(usually [GMP](https://gmplib.org/)). A "small number" is an integer
-that can be encoded with 63 bits (31 bits on 32-bits architectures).
+This type is special-cased by the compiler and overridden with an efficient implementation. The
+runtime has a special representation for `Int` that stores “small” signed numbers directly, while
+larger numbers use a fast arbitrary-precision arithmetic library (usually
+[GMP](https://gmplib.org/)). A “small number” is an integer that can be encoded with one fewer bits
+than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
+architectures).
 -/
+@[suggest_for ℤ]
 inductive Int : Type where
-  /-- A natural number is an integer (`0` to `∞`). -/
+  /--
+  A natural number is an integer.
+
+  This constructor covers the non-negative integers (from `0` to `∞`).
+  -/
   | ofNat   : Nat → Int
-  /-- The negation of the successor of a natural number is an integer
-    (`-1` to `-∞`). -/
+  /--
+  The negation of the successor of a natural number is an integer.
+
+  This constructor covers the negative integers (from `-1` to `-∞`).
+  -/
   | negSucc : Nat → Int
 
 attribute [extern "lean_nat_to_int"] Int.ofNat
@@ -68,7 +81,10 @@ protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 /-! ## Coercions -/
 
-@[simp] theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
+@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+
+@[deprecated ofNat_eq_natCast (since := "2025-10-29")]
+theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
 
 @[simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
 
@@ -76,15 +92,29 @@ protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 theorem ofNat_two : ((2 : Nat) : Int) = 2 := rfl
 
-/-- Negation of a natural number. -/
+/--
+Negation of natural numbers.
+
+Examples:
+ * `Int.negOfNat 6 = -6`
+ * `Int.negOfNat 0 = 0`
+-/
 def negOfNat : Nat → Int
   | 0      => 0
   | succ m => negSucc m
 
 set_option bootstrap.genMatcherCode false in
-/-- Negation of an integer.
+/--
+Negation of integers, usually accessed via the `-` prefix operator.
 
-  Implemented by efficient native code. -/
+This function is overridden by the compiler with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `-(6 : Int) = -6`
+ * `-(-6 : Int) = 6`
+ * `(12 : Int).neg = -12`
+-/
 @[extern "lean_int_neg"]
 protected def neg (n : @& Int) : Int :=
   match n with
@@ -103,21 +133,30 @@ protected def neg (n : @& Int) : Int :=
 instance instNegInt : Neg Int where
   neg := Int.neg
 
-/-- Subtraction of two natural numbers. -/
+/--
+Non-truncating subtraction of two natural numbers.
+
+Examples:
+ * `Int.subNatNat 5 2 = 3`
+ * `Int.subNatNat 2 5 = -3`
+ * `Int.subNatNat 0 13 = -13`
+-/
 def subNatNat (m n : Nat) : Int :=
   match (n - m : Nat) with
   | 0        => ofNat (m - n)  -- m ≥ n
   | (succ k) => negSucc k
 
 set_option bootstrap.genMatcherCode false in
-/-- Addition of two integers.
+/--
+Addition of integers, usually accessed via the `+` operator.
 
-  ```
-  #eval (7 : Int) + (6 : Int) -- 13
-  #eval (6 : Int) + (-6 : Int) -- 0
-  ```
+This function is overridden by the compiler with an efficient implementation. This definition is
+the logical model.
 
-  Implemented by efficient native code. -/
+Examples:
+ * `(7 : Int) + (6 : Int) = 13`
+ * `(6 : Int) + (-6 : Int) = 0`
+-/
 @[extern "lean_int_add"]
 protected def add (m n : @& Int) : Int :=
   match m, n with
@@ -130,15 +169,17 @@ instance : Add Int where
   add := Int.add
 
 set_option bootstrap.genMatcherCode false in
-/-- Multiplication of two integers.
+/--
+Multiplication of integers, usually accessed via the `*` operator.
 
-  ```
-  #eval (63 : Int) * (6 : Int) -- 378
-  #eval (6 : Int) * (-6 : Int) -- -36
-  #eval (7 : Int) * (0 : Int) -- 0
-  ```
+This function is overridden by the compiler with an efficient implementation. This definition is
+the logical model.
 
-  Implemented by efficient native code. -/
+Examples:
+ * `(63 : Int) * (6 : Int) = 378`
+ * `(6 : Int) * (-6 : Int) = -36`
+ * `(7 : Int) * (0 : Int) = 0`
+-/
 @[extern "lean_int_mul"]
 protected def mul (m n : @& Int) : Int :=
   match m, n with
@@ -150,48 +191,65 @@ protected def mul (m n : @& Int) : Int :=
 instance : Mul Int where
   mul := Int.mul
 
-/-- Subtraction of two integers.
 
-  ```
-  #eval (63 : Int) - (6 : Int) -- 57
-  #eval (7 : Int) - (0 : Int) -- 7
-  #eval (0 : Int) - (7 : Int) -- -7
-  ```
+/--
+Subtraction of integers, usually accessed via the `-` operator.
 
-  Implemented by efficient native code. -/
+This function is overridden by the compiler with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+* `(63 : Int) - (6 : Int) = 57`
+* `(7 : Int) - (0 : Int) = 7`
+* `(0 : Int) - (7 : Int) = -7`
+-/
 @[extern "lean_int_sub"]
 protected def sub (m n : @& Int) : Int := m + (- n)
 
 instance : Sub Int where
   sub := Int.sub
 
-/-- A proof that an `Int` is non-negative. -/
+/--
+An integer is non-negative if it is equal to a natural number.
+-/
 inductive NonNeg : Int → Prop where
-  /-- Sole constructor, proving that `ofNat n` is positive. -/
+  /--
+  For all natural numbers `n`, `Int.ofNat n` is non-negative.
+  -/
   | mk (n : Nat) : NonNeg (ofNat n)
 
-/-- Definition of `a ≤ b`, encoded as `b - a ≥ 0`. -/
+/--
+Non-strict inequality of integers, usually accessed via the `≤` operator.
+
+`a ≤ b` is defined as `b - a ≥ 0`, using `Int.NonNeg`.
+-/
 protected def le (a b : Int) : Prop := NonNeg (b - a)
 
 instance instLEInt : LE Int where
   le := Int.le
 
-/-- Definition of `a < b`, encoded as `a + 1 ≤ b`. -/
+/--
+Strict inequality of integers, usually accessed via the `<` operator.
+
+`a < b` when `a + 1 ≤ b`.
+-/
 protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
 instance instLTInt : LT Int where
   lt := Int.lt
 
 set_option bootstrap.genMatcherCode false in
-/-- Decides equality between two `Int`s.
+/--
+Decides whether two integers are equal. Usually accessed via the `DecidableEq Int` instance.
 
-  ```
-  #eval (7 : Int) = (3 : Int) + (4 : Int) -- true
-  #eval (6 : Int) = (3 : Int) * (2 : Int) -- true
-  #eval ¬ (6 : Int) = (3 : Int) -- true
-  ```
+This function is overridden by the compiler with an efficient implementation. This definition is the
+logical model.
 
-  Implemented by efficient native code. -/
+Examples:
+* `show (7 : Int) = (3 : Int) + (4 : Int) by decide`
+* `if (6 : Int) = (3 : Int) * (2 : Int) then "yes" else "no" = "yes"`
+* `(¬ (6 : Int) = (3 : Int)) = true`
+-/
 @[extern "lean_int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
@@ -204,6 +262,7 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
     | isTrue h  => isTrue  <| h ▸ rfl
     | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
 
+@[inherit_doc Int.decEq]
 instance : DecidableEq Int := Int.decEq
 
 set_option bootstrap.genMatcherCode false in
@@ -217,10 +276,14 @@ set_option bootstrap.genMatcherCode false in
 
   Implemented by efficient native code. -/
 @[extern "lean_int_dec_nonneg"]
-private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
+def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
-  | -[_ +1] => isFalse <| fun h => nomatch h
+  | -[i +1] => isFalse <| fun h =>
+    have : ∀ j, (j = -[i +1]) → NonNeg j → False := fun _ hj hnn =>
+      Int.NonNeg.casesOn (motive := fun j _ => j = -[i +1] → False) hnn
+        (fun _ h => Int.noConfusion h) hj
+    this -[i +1] rfl h
 
 /-- Decides whether `a ≤ b`.
 
@@ -249,26 +312,39 @@ instance decLt (a b : @& Int) : Decidable (a < b) :=
   decNonneg _
 
 set_option bootstrap.genMatcherCode false in
-/-- Absolute value (`Nat`) of an integer.
+/--
+The absolute value of an integer is its distance from `0`.
 
-  ```
-  #eval (7 : Int).natAbs -- 7
-  #eval (0 : Int).natAbs -- 0
-  #eval (-11 : Int).natAbs -- 11
-  ```
+This function is overridden by the compiler with an efficient implementation. This definition is
+the logical model.
 
-  Implemented by efficient native code. -/
-@[extern "lean_nat_abs"]
+Examples:
+ * `(7 : Int).natAbs = 7`
+ * `(0 : Int).natAbs = 0`
+ * `(-11 : Int).natAbs = 11`
+-/
+@[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m
   | -[m +1] => m.succ
 
+attribute [gen_constructor_elims] Int
+
 /-! ## sign -/
 
 /--
-Returns the "sign" of the integer as another integer: `1` for positive numbers,
-`-1` for negative numbers, and `0` for `0`.
+Returns the “sign” of the integer as another integer:
+ * `1` for positive numbers,
+ * `-1` for negative numbers, and
+ * `0` for `0`.
+
+Examples:
+ * `Int.sign 34 = 1`
+ * `Int.sign 2 = 1`
+ * `Int.sign 0 = 0`
+ * `Int.sign -1 = -1`
+ * `Int.sign -362 = -1`
 -/
 def sign : Int → Int
   | Int.ofNat (succ _) => 1
@@ -277,24 +353,27 @@ def sign : Int → Int
 
 /-! ## Conversion -/
 
-/-- Turns an integer into a natural number, negative numbers become
-  `0`.
+/--
+Converts an integer into a natural number. Negative numbers are converted to `0`.
 
-  ```
-  #eval (7 : Int).toNat -- 7
-  #eval (0 : Int).toNat -- 0
-  #eval (-7 : Int).toNat -- 0
-  ```
+Examples:
+* `(7 : Int).toNat = 7`
+* `(0 : Int).toNat = 0`
+* `(-7 : Int).toNat = 0`
 -/
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0
 
 /--
-* If `n : Nat`, then `int.toNat' n = some n`
-* If `n : Int` is negative, then `int.toNat' n = none`.
+Converts an integer into a natural number. Returns `none` for negative numbers.
+
+Examples:
+* `(7 : Int).toNat? = some 7`
+* `(0 : Int).toNat? = some 0`
+* `(-7 : Int).toNat? = none`
 -/
-def toNat' : Int → Option Nat
+def toNat? : Int → Option Nat
   | (n : Nat) => some n
   | -[_+1] => none
 
@@ -309,21 +388,21 @@ instance : Dvd Int where
 
 /-! ## Powers -/
 
-/-- Power of an integer to some natural number.
+/--
+Power of an integer to a natural number, usually accessed via the `^` operator.
 
-  ```
-  #eval (2 : Int) ^ 4 -- 16
-  #eval (10 : Int) ^ 0 -- 1
-  #eval (0 : Int) ^ 10 -- 0
-  #eval (-7 : Int) ^ 3 -- -343
-  ```
+Examples:
+* `(2 : Int) ^ 4 = 16`
+* `(10 : Int) ^ 0 = 1`
+* `(0 : Int) ^ 10 = 0`
+* `(-7 : Int) ^ 3 = -343`
 -/
-protected def pow (m : Int) : Nat → Int
-  | 0      => 1
-  | succ n => Int.pow m n * m
+protected def pow : Int → Nat → Int
+  | (m : Nat), n => Int.ofNat (m ^ n)
+  | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)
 
-instance : HPow Int Nat Int where
-  hPow := Int.pow
+instance : NatPow Int where
+  pow := Int.pow
 
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption
@@ -333,11 +412,37 @@ instance : Min Int := minOfLe
 
 instance : Max Int := maxOfLe
 
+/-- Equality predicate for kernel reduction. -/
+@[expose] protected noncomputable def beq' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.beq a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => false) (fun b => Nat.beq a b) b) a
+
+/-- `x ≤ y` for kernel reduction. -/
+@[expose] protected noncomputable def ble' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.ble a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => true) (fun b => Nat.ble b a) b)
+    a
+
+/-- `x < y` for kernel reduction. -/
+@[expose] protected noncomputable def blt' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.blt a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => true) (fun b => Nat.blt b a) b)
+    a
+
 end Int
 
 /--
-The canonical homomorphism `Int → R`.
-In most use cases `R` will have a ring structure and this will be a ring homomorphism.
+The canonical homomorphism `Int → R`. In most use cases, the target type will have a ring structure,
+and this homomorphism should be a ring homomorphism.
+
+`IntCast` and `NatCast` exist to allow different libraries with their own types that can be notated
+as natural numbers to have consistent `simp` normal forms without needing to create coercion
+simplification sets that are aware of all combinations. Libraries should make it easy to work with
+`IntCast` where possible. For instance, in Mathlib there will be such a homomorphism (and thus an
+`IntCast R` instance) whenever `R` is an additive group with a `1`.
 -/
 class IntCast (R : Type u) where
   /-- The canonical map `Int → R`. -/
@@ -345,13 +450,11 @@ class IntCast (R : Type u) where
 
 instance : IntCast Int where intCast n := n
 
-/--
-Apply the canonical homomorphism from `Int` to a type `R` from an `IntCast R` instance.
-
-In Mathlib there will be such a homomorphism whenever `R` is an additive group with a `1`.
--/
-@[coe, reducible, match_pattern] protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
+@[coe, reducible, match_pattern, inherit_doc IntCast]
+protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
+
+@[simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
 
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [IntCast R] : CoeTail Int R where coe := Int.cast

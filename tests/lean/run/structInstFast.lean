@@ -48,7 +48,7 @@ def baseTypeIdent := mkIdent (Name.mkSimple "Base")
 
 def init (type val : TSyntax `ident) (width : Nat) : MacroM (TSyntax `command) := do
   let fieldsStx ← mkFieldsStx type "base_" width
-  let vals := Array.mkArray width val
+  let vals := Array.replicate width val
   `(structure $baseTypeIdent where
     $fieldsStx:structFields
     def $baseIdent : $baseTypeIdent := ⟨$vals,*⟩)
@@ -63,12 +63,12 @@ where go (val : TSyntax `ident) (width depth : Nat) (cmds : Array <| TSyntax `co
     let cmd : TSyntax `command := ⟨mkNullNode cmds⟩
     `($cmd:command)
   | m+1 =>
-    let len := cmds.data.length
+    let len := cmds.toList.length
     let newTerm (s : String) := if len = 1 then baseTypeIdent else mkIdent' s (m+1)
     let newTerm' (s : String) := if len = 1 then baseIdent else mkIdent' s (m+1)
     let fieldsStx ← mkFieldsStx type (s!"x{m}_") width
     let nextStruct ←
-      `(structure $(mkIdent' "A" m) extends $(newTerm "A") where
+      `(structure $(mkIdent' "A" m) extends $(newTerm "A"):term where
         $fieldsStx:structFields)
     let structVals ← (List.range width).mapM fun j =>
       `(Term.structInstField| $(mkIdent' s!"x{m}_" j):ident := $val)
@@ -92,7 +92,12 @@ def foo : String := "foo"
 
 deep_wide_struct_inst_with String foo 50 20
 
-/- Structure instances using the `with` pattern should be fast. Without #2478, this takes over 700
-  heartbeats. -/
-set_option maxHeartbeats 200 in
+/-
+Structure instances using the `with` pattern should be fast.
+Without #2478, this takes over 700 heartbeats in the elaborator.
+
+Remark: we are now propagating heartbeats to the kernel, and
+had to increase it value to 1000
+ -/
+set_option maxHeartbeats 1000 in
 example : a0 = a'0 := rfl

@@ -20,7 +20,7 @@ public:
     explicit object_ref(obj_arg o):m_obj(o) {}
     object_ref(b_obj_arg o, bool):m_obj(o) { inc(o); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
-    object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
+    object_ref(object_ref && s) noexcept:m_obj(s.m_obj) { s.m_obj = box(0); }
     ~object_ref() { dec(m_obj); }
     object_ref & operator=(object_ref const & s) {
         inc(s.m_obj);
@@ -34,6 +34,10 @@ public:
         m_obj   = s.m_obj;
         s.m_obj = box(0);
         return *this;
+    }
+    void set_box(object * o) {
+        lean_assert(is_scalar(m_obj));
+        m_obj = o;
     }
     object * raw() const { return m_obj; }
     object * steal() { object * r = m_obj; m_obj = box(0); return r; }

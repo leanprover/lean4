@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2021 Scott Morrison. All rights reserved.
+Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 
 import Lean.Meta.Tactic.Constructor
@@ -122,7 +122,7 @@ example : 6 = 6 ∧ [7] = [7] := by
 
 -- Test that `Config.intros` causes `solve_by_elim` to call `intro` on intermediate goals.
 example (P : Prop) : P → P := by
-  fail_if_success solve_by_elim (config := {intros := false})
+  fail_if_success solve_by_elim (config := {intro := false})
   solve_by_elim
 
 -- This worked in mathlib3 without the `@`, but now goes into a loop.

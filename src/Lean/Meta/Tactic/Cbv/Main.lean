@@ -145,7 +145,7 @@ def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
   >>  isOpaqueApp
   >>  simpControlCbv
-    <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
+    <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj) <|> zetaReduce
 
 def cbvPost : Simproc :=
       evalGround

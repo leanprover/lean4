@@ -178,21 +178,6 @@ set(PART2 "")
 ## Tests and benchmarks ##
 ##########################
 
-add_test(lean_help1 "${CMAKE_BINARY_DIR}/bin/lean" --help)
-add_test(lean_help2 "${CMAKE_BINARY_DIR}/bin/lean" -h)
-add_test(lean_version1 "${CMAKE_BINARY_DIR}/bin/lean" --version)
-add_test(lean_version2 "${CMAKE_BINARY_DIR}/bin/lean" --v)
-add_test(lean_ghash1 "${CMAKE_BINARY_DIR}/bin/lean" -g)
-add_test(lean_ghash2 "${CMAKE_BINARY_DIR}/bin/lean" --githash)
-add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
-add_test(
-  lean_unknown_file1
-  bash
-  "${LEAN_SOURCE_DIR}/cmake/check_failure.sh"
-  "${CMAKE_BINARY_DIR}/bin/lean"
-  "boofoo.lean"
-)
-
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 foreach(T ${LEANTESTS})

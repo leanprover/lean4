@@ -1,0 +1,2 @@
+lean --help
+lean -h

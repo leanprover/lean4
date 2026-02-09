@@ -1,0 +1,15 @@
+simpDischargeLoop.lean:38:12-38:14: warning: This simp argument is unused:
+  ih
+
+Hint: Omit it from the simp argument list.
+  simp [i̵h̵,̵ ̵double]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+simpDischargeLoop.lean:38:16-38:22: warning: This simp argument is unused:
+  double
+
+Hint: Omit it from the simp argument list.
+  simp [ih,̵ ̵d̵o̵u̵b̵l̵e̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+simpDischargeLoop.lean:42:8-42:21: warning: declaration uses `sorry`

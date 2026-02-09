@@ -1,0 +1,6 @@
+B.f._default.{u} {α : Type u} (β : Type u) (a : α) (b : β) : α
+@B.mk.{0} Nat (@A.mk.{0} Nat fun (β : Type) (a : Nat) (b : β) => a)
+  (@OfNat.ofNat.{0} Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) : B.{0} Nat
+New.B.f._default.{u} {α : Type u} (β : Type u) (a : α) (b : β) : α
+@New.B.mk.{0} Nat (@New.A.mk.{0} Nat fun (β : Type) (a : Nat) (b : β) => a)
+  (@OfNat.ofNat.{0} Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) : New.B.{0} Nat

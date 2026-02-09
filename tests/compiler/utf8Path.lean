@@ -1,4 +1,4 @@
 /-! Lean executables should be able to handle UTF 8 paths. -/
 
 def main : IO Unit := do
-  assert! (← System.FilePath.pathExists "../lean/run/utf8英語.lean")
+  assert! (← System.FilePath.pathExists "utf8Path.lean.英語")

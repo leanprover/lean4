@@ -1,0 +1,2 @@
+linearCategory_perf_issue.lean:278:11-278:19: warning: instance `CategoryTheory.Preadditive.homGroup` must be marked with `@[reducible]` or `@[implicit_reducible]`
+linearCategory_perf_issue.lean:385:11-385:19: warning: instance `CategoryTheory.Linear.homModule` must be marked with `@[reducible]` or `@[implicit_reducible]`

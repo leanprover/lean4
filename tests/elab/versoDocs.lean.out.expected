@@ -1,0 +1,17 @@
+"x\nyz\n\n[W][wikipedia]\n\n[wikipedia]: https://en.wikipedia.org\n\n{name}`Nat`\n\n{given}`n : Nat`\n\n{given}`k`\n\n{lean}`k = n`\n\n{name}`n`\n\n{open Nat}\n\n{name}`succ`\n\n{name}`x`\n\n{name}`y`\n\n# foo\n\nblah\n\n# bar\n\n## baz\n\n:::d\n\n```c\nblah\n```\n\n:::\n\n```lean\n#check x\n```\n"
+#[3, 1, 2]
+#[1, 2, 3]
+Nat.gcd.induction' {P : Nat → Nat → Prop} (m n : Nat) (H0 : ∀ (n : Nat), P 0 n)
+  (H1 : ∀ (m n : Nat), 0 < m → P (n % m) m → P m n) : P m n
+something : Unit
+yetMore' : Unit
+versoDocs.lean:631:43-631:53: warning: Code element could be more specific.
+
+Hint: Insert a role to document it:
+  • {̲l̲e̲a̲n̲}̲`-checked`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`-checked`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲g̲r̲i̲n̲d̲_̲r̲e̲f̲}̲`-checked`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲t̲e̲r̲m̲}̲`-checked`
+  • Use the `lit` role:
+    {̲l̲i̲t̲}̲`-checked`
+    to mark the code as literal text and disable suggestions

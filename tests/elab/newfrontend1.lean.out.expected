@@ -1,0 +1,144 @@
+x : Nat
+tst [1, 2, 3] : Nat
+fun x y => x + y : Nat → Nat → Nat
+tst (xs : List Nat) : Nat
+fun stx =>
+  if True then
+    let e := stx;
+    pure e
+  else pure stx : Nat → Id Nat
+let x := 1;
+x : Nat
+foo (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+  (@OfNat.ofNat.{0} Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) Bool.true : Nat
+foo (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
+  (@OfNat.ofNat.{0} Nat (nat_lit 10) (instOfNatNat (nat_lit 10))) Bool.false : Nat
+Nat.boo (a : Nat) : Nat
+Bool.true : Bool
+apply : String
+0 + 1 : Nat
+0 + 1 : Nat
+0 + 1 + 0 : Nat
+0 + 1 + 0 : Nat
+x y z : Nat
+h1 : y = z
+a✝ : x = x
+h3 : x = y
+⊢ x = z
+x y z : Nat
+h1 : y = z
+a✝ : x = x
+h3 : x = y
+⊢ x = z
+(2, 3) : Nat × Nat
+case h₁
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = ?b
+
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ ?b = z
+
+case b
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ Nat
+case h₁
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = ?b
+
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ ?b = z
+
+case b
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ Nat
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ y = z
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = z
+case h₁
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = y
+
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ y = z
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = z
+case h₁
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = y
+
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ y = z
+x y z : Nat
+h1 : y = z
+h3 : x = y
+⊢ x = z
+blabla : Nat
+fun {α : Sort u_1} (a : α) => a : {α : Sort u_1} → (a : α) → α
+fun (α : Sort u_1) (a : α) => a : (α : Sort u_1) → (a : α) → α
+let myid : {α : Type} → (a : α) → α := fun {α : Type} (a : α) => a;
+@myid (List.{0} Nat)
+  (@List.cons.{0} Nat (@myid Nat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+    (@List.nil.{0} Nat)) : List.{0} Nat
+fun (α : Type u_1) (s : Add.{u_1} α) (a : α) =>
+  @HAdd.hAdd.{u_1, u_1, u_1} α α α (@instHAdd.{u_1} α s) a a : (α : Type u_1) → (s : Add.{u_1} α) → (a : α) → α
+failed to synthesize instance of type class
+  HAdd.{0, 0, ?u} Nat Bool ?m
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+@HAdd.hAdd.{0, 0, u_1} Nat Bool ?m ?m (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) Bool.true : ?m
+fun x => x + 1 : Nat → Nat
+fun α a => a : (α : Sort u_1) → α → α
+@tst1 : {α : Type} → α → α
+fun x => x + 1 : Nat → Nat
+@tst2a : {α : Type} → α → α
+@tst2b : {α : Type} → α → α
+x y z : Nat
+h1 : y = z
+h3 : x = y
+⊢ x = z
+20

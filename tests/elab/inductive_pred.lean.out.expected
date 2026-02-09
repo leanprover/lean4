@@ -1,0 +1,317 @@
+[Elab.definition.structural] getRecArgInfos report: Not considering parameter n of Ex.Power2.mul':
+      it is unchanged in the recursive calls
+    
+[Elab.definition.structural] recArgInfos:
+      { fnName := `Ex.Power2.mul',
+        fixedParamPerm := #[some 0, none, none, none],
+        recArgPos := 2,
+        indicesPos := #[0],
+        indGroupInst := { toIndGroupInfo := { all := #[`Ex.Power2], numNested := 0 }, levels := [], params := #[] },
+        indIdx := 0 }
+      { fnName := `Ex.Power2.mul',
+        fixedParamPerm := #[some 0, none, none, none],
+        recArgPos := 3,
+        indicesPos := #[1],
+        indGroupInst := { toIndGroupInfo := { all := #[`Ex.Power2], numNested := 0 }, levels := [], params := #[] },
+        indIdx := 0 }
+      { fnName := `Ex.Power2.mul',
+        fixedParamPerm := #[some 0, none, none, none],
+        recArgPos := 1,
+        indicesPos := #[],
+        indGroupInst := { toIndGroupInfo := { all := #[`Nat], numNested := 0 }, levels := [], params := #[] },
+        indIdx := 0 }
+[Elab.definition.structural] inductive groups: [Power2, Nat]
+[Elab.definition.structural] Trying argument set [2]
+[Elab.definition.structural] Reduced fixed params from [n] to [], erasing [n]
+[Elab.definition.structural] New recArgInfos #[{ fnName := `Ex.Power2.mul',
+        fixedParamPerm := #[none, none, none, none],
+        recArgPos := 2,
+        indicesPos := #[0],
+        indGroupInst := { toIndGroupInfo := { all := #[`Ex.Power2], numNested := 0 }, levels := [], params := #[] },
+        indIdx := 0 }]
+[Elab.definition.structural] assignments of type formers of Ex.Power2 to functions: [[0]]
+[Elab.definition.structural] funTypes: [funType_1], motives: [fun {n} x =>
+       ∀ {m : Nat} (x_1 : Power2 m), @funType_1 n m x x_1]
+[Elab.definition.structural] FTypes: [∀ (a : Nat) (t : Power2 a),
+       @below (fun {n} x => ∀ {m : Nat} (x_1 : Power2 m), @funType_1 n m x x_1) a t →
+         ∀ {m : Nat} (x : Power2 m), @funType_1 a m t x]
+[Elab.definition.structural] matcherApp before adding below transformation:
+    @mul'.match_1_1 n (fun m x x_1 => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x✝² x✝¹
+      (fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1)))
+      fun h1 n_1 h2 =>
+      @Eq.rec Nat
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+        (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (@mul' n n_1 h1 h2))
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            n_1))
+        (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)
+[Meta.IndPredBelow.match] ❌️ @mul'.match_1_1 n
+      (fun m x x_1 => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x✝² x✝¹
+      (fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1)))
+      fun h1 n_1 h2 =>
+      @Eq.rec Nat
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+        (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (@mul' n n_1 h1 h2))
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            n_1))
+        (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n
+          n_1) and [fun {n} x => ∀ {m : Nat} (x_1 : Power2 m), @funType_1 n m x x_1]
+  [Meta.IndPredBelow.match] new decls:
+      [Below: h✝, Ex.Power2.below, [h1]]
+  [Meta.IndPredBelow.match] oldCount = 1; fvars = [h1, h✝]
+  [Meta.IndPredBelow.match] alt 0:
+      fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n)
+              h1)) ↦ fun h1 h =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1))
+  [Meta.IndPredBelow.match] new decls:
+      [Below: h✝, Ex.Power2.below, [h1]]
+  [Meta.IndPredBelow.match] oldCount = 3; fvars = [h1, n✝, h2, h✝]
+[Elab.definition.structural] Trying argument set [3]
+[Elab.definition.structural] assignments of type formers of Ex.Power2 to functions: [[0]]
+[Elab.definition.structural] funTypes: [funType_1], motives: [fun {m} x => ∀ (x_1 : Power2 n), @funType_1 m x_1 x]
+[Elab.definition.structural] FTypes: [∀ (a : Nat) (t : Power2 a),
+       @below (fun {m} x => ∀ (x_1 : Power2 n), @funType_1 m x_1 x) a t → ∀ (x : Power2 n), @funType_1 a x t]
+[Elab.definition.structural] matcherApp before adding below transformation:
+    @mul'.match_1_1 n (fun m x x_1 => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x✝² x✝¹
+      (fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1)))
+      fun h1 n_1 h2 =>
+      @Eq.rec Nat
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+        (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (@mul' n n_1 h1 h2))
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            n_1))
+        (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)
+[Meta.IndPredBelow.match] ✅️ @mul'.match_1_1 n
+      (fun m x x_1 => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x✝² x✝¹
+      (fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1)))
+      fun h1 n_1 h2 =>
+      @Eq.rec Nat
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+        (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (@mul' n n_1 h1 h2))
+        (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            n_1))
+        (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n
+          n_1) and [fun {m} x => ∀ (x_1 : Power2 n), @funType_1 m x_1 x]
+  [Meta.IndPredBelow.match] ✅️ pattern base to Ex.Power2.below
+    [Meta.IndPredBelow.match] instantiate ∀ {motive : (a : Nat) → Power2 a → Prop},
+          @below motive (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+            base with [fun {m} x => ∀ (x_1 : Power2 n), @funType_1 m x_1 x] []}
+    [Meta.IndPredBelow.match] rec indices below.base []
+  [Meta.IndPredBelow.match] ✅️ pattern @ind n✝ h2 to Ex.Power2.below
+    [Meta.IndPredBelow.match] instantiate ∀ {motive : (a : Nat) → Power2 a → Prop} {n : Nat} (a : Power2 n),
+          @below motive n a →
+            motive n a →
+              @below motive
+                (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat)
+                  (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n)
+                ⋯ with [fun {m} x => ∀ (x_1 : Power2 n), @funType_1 m x_1 x] [n✝, h2]}
+    [Meta.IndPredBelow.match] rec indices below.ind [(0, 1)]
+    [Meta.IndPredBelow.match] transform ih✝ to 1, h2
+  [Meta.IndPredBelow.match] new decls:
+      []
+  [Meta.IndPredBelow.match] oldCount = 1; fvars = [h1]
+  [Meta.IndPredBelow.match] alt 0:
+      fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n)
+              h1)) ↦ fun h1 =>
+        @of_eq_true
+          (Power2
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+              (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+          (@Eq.trans Prop
+            (Power2
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+            (Power2 n) True
+            (@congrArg Nat Prop
+              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+              n Power2 (Nat.mul_one n))
+            (@eq_true (Power2 n) h1))
+  [Meta.IndPredBelow.match] new decls:
+      [Below: ih✝, Ex.Power2.below, [h2], Motive: a_ih✝, 0, [h2]]
+  [Meta.IndPredBelow.match] oldCount = 3; fvars = [h1, n✝, h2, ih✝, a_ih✝]
+  [Meta.IndPredBelow.match] alt 1:
+      fun h1 n_1 h2 =>
+        @Eq.rec Nat
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+          (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (@mul' n n_1 h1 h2))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+              n_1))
+          (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n
+            n_1) ↦ fun h1 n_1 h2 ih a_ih =>
+        @Eq.rec Nat
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+          (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (a_ih h1))
+          (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+            (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+              n_1))
+          (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)
+[Elab.definition.structural] FArgs: [fun {m} x x_1 x_2 =>
+       @mul'.match_1_6 n funType_1 (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m))
+         m x_2 x x_1
+         (fun h1 =>
+           @of_eq_true
+             (Power2
+               (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                 (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+             (@Eq.trans Prop
+               (Power2
+                 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                   (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+               (Power2 n) True
+               (@congrArg Nat Prop
+                 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                   (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+                 n Power2 (Nat.mul_one n))
+               (@eq_true (Power2 n) h1)))
+         fun h1 n_1 h2 ih a_ih =>
+         @Eq.rec Nat
+           (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+             (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+           (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (a_ih h1))
+           (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+             (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat)
+               (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n_1))
+           (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)]
+[Elab.definition.structural] packedFArgs: [fun {m} x x_1 x_2 =>
+       @mul'.match_1_6 n funType_1 (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m))
+         m x_2 x x_1
+         (fun h1 =>
+           @of_eq_true
+             (Power2
+               (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                 (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+             (@Eq.trans Prop
+               (Power2
+                 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                   (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+               (Power2 n) True
+               (@congrArg Nat Prop
+                 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+                   (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+                 n Power2 (Nat.mul_one n))
+               (@eq_true (Power2 n) h1)))
+         fun h1 n_1 h2 ih a_ih =>
+         @Eq.rec Nat
+           (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+             (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1))
+           (fun x h => Power2 x) (@ind (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n n_1) (a_ih h1))
+           (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n
+             (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat)
+               (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n_1))
+           (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)]
+[Elab.definition.structural] tryAllArgs report:
+    Not considering parameter n of Ex.Power2.mul':
+      it is unchanged in the recursive calls
+    Cannot use parameter #3:
+      failed to eliminate recursive application
+        @mul' n n✝ h1 h2
+    

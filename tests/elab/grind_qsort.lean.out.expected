@@ -1,0 +1,92 @@
+Try this:
+  [apply] [grind =] for pattern: [@Perm #3 (@Vector.toArray _ #2 #1) #0]
+Try this:
+  [apply] [grind =] for pattern: [@Perm #3 #1 (@Vector.toArray _ #2 #0)]
+Try these:
+  [apply] [grind .] for pattern: [@Vector.Perm #6 #5 (@Vector.swap _ #5 #4 #3 #2 #1 #0) #4]
+  [apply] [grind
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] (#3 + 1) #5, @LE.le `[Nat] `[instLENat] (#2 + 1) #5, @Vector.Perm #6 #5 (@Vector.swap _ #5 #4 #3 #2 #1 #0) #4]
+  [apply] [grind! .] for pattern: [@Vector.swap #6 #5 #4 #3 #2 #1 #0]
+  [apply] [grind!
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] (#3 + 1) #5, @LE.le `[Nat] `[instLENat] (#2 + 1) #5, @Vector.swap #6 #5 #4 #3 #2 #1 #0]
+Try this:
+  [apply] [grind .] for pattern: [@List.Perm #1 #0 #0]
+Try this:
+  [apply] [grind .] for pattern: [@Perm #1 #0 #0]
+Try this:
+  [apply] [grind .] for pattern: [@Vector.Perm #2 #1 #0 #0]
+grind_qsort.lean:55:8-55:40: warning: declaration uses `sorry`
+grind_qsort.lean:62:8-62:40: warning: declaration uses `sorry`
+grind_qsort.lean:68:8-68:34: warning: declaration uses `sorry`
+grind_qsort.lean:74:39-74:60: warning: This simp argument is unused:
+  List.getElem?_toArray
+
+Hint: Omit it from the simp argument list.
+  simp_all only [perm_iff_toList_perm, L̵i̵s̵t̵.̵g̵e̵t̵E̵l̵e̵m̵?̵_̵t̵o̵A̵r̵r̵a̵y̵,̵ ̵List.extract_toArray, List.extract_eq_take_drop]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+Try these:
+  [apply] [grind .] for pattern: [@Perm #7 (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]
+  [apply] [grind =>] for pattern: [@Perm #7 #6 #5, @Perm _ (@extract _ #6 #3 #2) (@extract _ #5 #3 #2)]
+  [apply] [grind! =>] for pattern: [@Perm #7 #6 #5, @extract _ #6 #3 #2]
+Try these:
+  [apply] [grind
+    .] for pattern: [@Vector.Perm #8 (@HSub.hSub `[Nat] `[Nat] `[Nat] `[instHSub] (@min `[Nat] `[instMinNat] #2 #7) #3) (@Vector.extract _ #7 #6 #3 #2) (@Vector.extract _ #7 #5 #3 #2)]
+  [apply] [grind
+    =>] for pattern: [@Vector.Perm #8 #7 #6 #5, @Vector.Perm _ (@HSub.hSub `[Nat] `[Nat] `[Nat] `[instHSub] (@min `[Nat] `[instMinNat] #2 #7) #3) (@Vector.extract _ #7 #6 #3 #2) (@Vector.extract _ #7 #5 #3 #2)]
+  [apply] [grind!
+    =>] for pattern: [@Vector.Perm #8 #7 #6 #5, @min `[Nat] `[instMinNat] #2 #7, @Vector.extract _ #7 #6 #3 #2]
+Try these:
+  [apply] [grind
+    .] for pattern: [@Vector.Perm #8 #4 (@Prod.snd (@Subtype `[Nat] _) (Vector _ _) (@qpartition _ #4 #3 #7 #6 #5 #2 #1 #0)) #3]
+  [apply] [grind
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] #6 #5, @LE.le `[Nat] `[instLENat] (#6 + 1) #4, @Vector.Perm #8 #4 (@Prod.snd (@Subtype `[Nat] _) (Vector _ _) (@qpartition _ #4 #3 #7 #6 #5 #2 #1 #0)) #3]
+  [apply] [grind! .] for pattern: [@qpartition #8 #4 #3 #7 #6 #5 #2 #1 #0]
+  [apply] [grind!
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] #6 #5, @LE.le `[Nat] `[instLENat] (#6 + 1) #4, @qpartition #8 #4 #3 #7 #6 #5 #2 #1 #0]
+Try these:
+  [apply] [grind
+    =] for pattern: [@getElem (Vector #12 #8) `[Nat] _ _ _ (@Array.qsort.sort✝ _ #11 #8 #7 #10 #9 #3 #5 #4) #2 #0]
+  [apply] [grind
+    =>] for pattern: [@LE.le `[Nat] `[instLENat] #10 #9, @LE.le `[Nat] `[instLENat] (#10 + 1) #8, @LE.le `[Nat] `[instLENat] (#9 + 1) #2, @getElem (Vector #12 _) `[Nat] _ _ _ (@Array.qsort.sort✝ _ #11 #8 #7 #10 #9 #3 #5 #4) #2 #0]
+grind_qsort.lean:158:9-158:24: warning: this parameter is redundant, environment already contains `_private.elab.grind_qsort.0.Array.qsort_sort_perm` annotated with `@[grind]`
+[grind.ematch.pattern] qpartition.eq_1: [@qpartition #8 #7 #6 #5 #4 #3 #2 #1 #0]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@getElem (Vector #23 #19) `[Nat] _ _ _ #6 #2 _,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #7 #4,
+     @LE.le `[Nat] `[instLENat] (#20 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #18,
+     @LE.le `[Nat] `[instLENat] #18 #17,
+     @getElem (Vector _ _) `[Nat] _ _ _ #10 #20 #15,
+     @Array.qpartition.loop✝ _ #19 #22 #21 #20 _ #16 #10 #18 #17 #14 #13 #11]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@getElem (Vector #23 #19) `[Nat] _ _ _ #6 #2 _,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #7 #4,
+     @LE.le `[Nat] `[instLENat] (#20 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #18,
+     @LE.le `[Nat] `[instLENat] #18 #17,
+     @getElem (Vector _ _) `[Nat] _ _ _ #10 #20 #15,
+     @Subtype.val `[Nat] _ (@Prod.fst (@Subtype `[Nat] _) (Vector _ _) (@Array.qpartition.loop✝ _ #19 #22 #21 #20 _ #16 #10 #18 #17 #14 #13 #11))]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@getElem (Vector #23 #19) `[Nat] _ _ _ #6 #2 _,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #7 #4,
+     @LE.le `[Nat] `[instLENat] #21 #2,
+     @Array.qpartition.loop✝ _ #19 #22 #21 #20 #15 #16 #10 #18 #17 #14 #13 #11]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@getElem (Vector #23 #19) `[Nat] _ _ _ #6 #2 _,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #7 #4,
+     @LE.le `[Nat] `[instLENat] #21 #2,
+     @Prod.snd (@Subtype `[Nat] _) (Vector _ _) (@Array.qpartition.loop✝ _ #19 #22 #21 #20 #15 #16 #10 #18 #17 #14 #13 #11)]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@LE.le `[Nat] `[instLENat] (#20 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #18,
+     @LE.le `[Nat] `[instLENat] #18 #17,
+     @getElem (Vector #23 _) `[Nat] _ _ _ #10 #20 #15,
+     @Array.qpartition.loop✝ _ #19 #22 #21 #20 _ #16 #10 #18 #17 #14 #13 #11,
+     @LE.le `[Nat] `[instLENat] (#7 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #2,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #2 _]
+[grind.ematch.pattern] qpartition_loop_spec₁: [@LE.le `[Nat] `[instLENat] (#20 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #18,
+     @LE.le `[Nat] `[instLENat] #18 #17,
+     @getElem (Vector #23 _) `[Nat] _ _ _ #10 #20 #15,
+     @Subtype.val `[Nat] _ (@Prod.fst (@Subtype `[Nat] _) (Vector _ _) (@Array.qpartition.loop✝ _ #19 #22 #21 #20 _ #16 #10 #18 #17 #14 #13 #11)),
+     @LE.le `[Nat] `[instLENat] (#7 + 1) #19,
+     @LE.le `[Nat] `[instLENat] #21 #2,
+     @getElem (Vector _ _) `[Nat] _ _ _ #6 #2 _]
+[grind.ematch.pattern] qpartition_loop_spec₁: [true]

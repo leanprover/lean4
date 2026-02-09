@@ -1,0 +1,17 @@
+grind_field_panic.lean:104:38-104:50: warning: fastInstance does not have a doc string
+grind_field_panic.lean:126:42-126:58: warning: letImplDetailStx does not have a doc string
+grind_field_panic.lean:180:0-180:8: warning: declaration uses `sorry`
+grind_field_panic.lean:180:0-180:8: warning: declaration uses `sorry`
+grind_field_panic.lean:180:0-180:8: warning: declaration uses `sorry`
+grind_field_panic.lean:180:0-180:8: warning: declaration uses `sorry`
+grind_field_panic.lean:180:0-180:8: warning: declaration uses `sorry`
+grind_field_panic.lean:187:0-187:8: warning: declaration uses `sorry`
+grind_field_panic.lean:188:0-188:8: warning: declaration uses `sorry`
+grind_field_panic.lean:189:18-189:35: warning: declaration uses `sorry`
+grind_field_panic.lean:198:9-198:17: warning: declaration uses `sorry`
+grind_field_panic.lean:200:31-200:44: warning: declaration uses `sorry`
+grind_field_panic.lean:200:31-200:44: warning: declaration uses `sorry`
+grind_field_panic.lean:200:31-200:44: warning: declaration uses `sorry`
+grind_field_panic.lean:200:31-200:44: warning: declaration uses `sorry`
+grind_field_panic.lean:205:31-205:43: warning: declaration uses `sorry`
+grind_field_panic.lean:223:14-223:19: warning: declaration uses `sorry`

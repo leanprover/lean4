@@ -1,0 +1,2 @@
+tc_eta_struct_issue.lean:8:0-8:8: warning: declaration uses `sorry`
+tc_eta_struct_issue.lean:20:0-20:8: warning: declaration uses `sorry`

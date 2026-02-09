@@ -1,0 +1,5 @@
+grind_eq_bwd.lean:13:4-13:5: warning: declaration uses `sorry`
+grind_eq_bwd.lean:14:4-14:7: warning: declaration uses `sorry`
+grind_eq_bwd.lean:15:4-15:7: warning: declaration uses `sorry`
+grind_eq_bwd.lean:16:4-16:7: warning: declaration uses `sorry`
+grind_eq_bwd.lean:18:8-18:14: warning: declaration uses `sorry`

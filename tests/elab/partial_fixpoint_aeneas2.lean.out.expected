@@ -1,0 +1,12 @@
+partial_fixpoint_aeneas2.lean:103:6-103:15: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:104:6-104:15: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:105:6-105:15: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:106:6-106:15: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:107:6-107:15: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:124:6-124:19: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:125:6-125:23: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:126:6-126:23: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:127:6-127:24: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:128:6-128:31: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:129:6-129:35: warning: declaration uses `sorry`
+partial_fixpoint_aeneas2.lean:132:6-132:31: warning: declaration uses `sorry`

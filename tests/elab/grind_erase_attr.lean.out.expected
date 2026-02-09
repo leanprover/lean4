@@ -1,0 +1,14 @@
+Try these:
+  [apply] [grind =] for pattern: [f (f #0)]
+  [apply] [grind =_] for pattern: [f #0]
+grind_erase_attr.lean:5:17-5:21: warning: declaration uses `sorry`
+grind_erase_attr.lean:7:8-7:13: warning: declaration uses `sorry`
+Try these:
+  [apply] [grind =] for pattern: [f (f #0)]
+  [apply] [grind =_] for pattern: [f #0]
+[grind.assert] ¬f (f (f a)) = f a
+[grind.assert] f (f a) = f a
+[grind.assert] g a = b
+[grind.assert] a = 0
+[grind.assert] ¬b = 1
+[grind.assert] g 0 = 1

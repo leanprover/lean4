@@ -1,0 +1,8 @@
+def reverse.{u_1} : {α : Type u_1} → List α → List α :=
+fun {α} as => reverse.loop as []
+opaque reverse.loop.{u_1} : {α : Type u_1} → List α → List α → List α
+partial def reverse.loop._unsafe_rec.{u_1} : {α : Type u_1} → List α → List α → List α :=
+fun {α} x x_1 =>
+  match x, x_1 with
+  | [], r => r
+  | a :: as, r => reverse.loop._unsafe_rec as (a :: r)

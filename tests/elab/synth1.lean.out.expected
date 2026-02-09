@@ -1,0 +1,309 @@
+[Meta.synthInstance] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] new goal MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.Command.CommandElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift, Elab.Command.instMonadEvalTermElabMCommandElabM]
+  [Meta.synthInstance] ✅️ apply Elab.Command.instMonadEvalTermElabMCommandElabM to MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM
+    [Meta.synthInstance.answer] ✅️ MonadEval Elab.TermElabM Elab.Command.CommandElabM
+  [Meta.synthInstance.resume] propagating MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM to subgoal MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance] new goal MonadEvalT MetaM Elab.TermElabM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m Elab.TermElabM
+    [Meta.synthInstance] new goal MonadLift _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@ReaderT.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @ReaderT.instMonadLift to MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM
+    [Meta.synthInstance.answer] ✅️ MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        (ReaderT Elab.Term.Context
+          (StateRefT' IO.RealWorld Elab.Term.State
+            MetaM)) to subgoal MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM to subgoal MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadEval _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadLift _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@StateRefT'.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @StateRefT'.instMonadLift to MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.answer] ✅️ MonadLift MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM MetaM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ✅️ apply instMonadEvalT to MonadEvalT MetaM MetaM
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM MetaM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        MetaM to subgoal MonadEvalT MetaM MetaM of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 3
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM) of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 6
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        Elab.TermElabM to subgoal MonadEvalT MetaM Elab.TermElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 8
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] result instMonadEvalTOfMonadEval MetaM Elab.TermElabM Elab.Command.CommandElabM
+[Meta.synthInstance] ✅️ HasCoerce Nat Prop
+  [Meta.synthInstance] new goal HasCoerce Nat Prop
+    [Meta.synthInstance.instances] #[@coerceTrans]
+  [Meta.synthInstance] ✅️ apply @coerceTrans to HasCoerce Nat Prop
+    [Meta.synthInstance] new goal HasCoerce _tc.0 Prop
+      [Meta.synthInstance.instances] #[@coerceTrans, coerceBoolToProp]
+  [Meta.synthInstance] ✅️ apply coerceBoolToProp to HasCoerce Bool Prop
+    [Meta.synthInstance.answer] ✅️ HasCoerce Bool Prop
+  [Meta.synthInstance.resume] propagating HasCoerce Bool Prop to subgoal HasCoerce Bool Prop of HasCoerce Nat Prop
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance] new goal HasCoerce Nat Bool
+      [Meta.synthInstance.instances] #[@coerceTrans, coerceNatToBool]
+  [Meta.synthInstance] ✅️ apply coerceNatToBool to HasCoerce Nat Bool
+    [Meta.synthInstance.answer] ✅️ HasCoerce Nat Bool
+  [Meta.synthInstance.resume] propagating HasCoerce Nat Bool to subgoal HasCoerce Nat Bool of HasCoerce Nat Prop
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance.answer] ✅️ HasCoerce Nat Prop
+  [Meta.synthInstance] result coerceTrans
+[Meta.synthInstance] coerceTrans Nat Bool Prop coerceBoolToProp coerceNatToBool
+[Meta.synthInstance] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] new goal MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.Command.CommandElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift, Elab.Command.instMonadEvalTermElabMCommandElabM]
+  [Meta.synthInstance] ✅️ apply Elab.Command.instMonadEvalTermElabMCommandElabM to MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM
+    [Meta.synthInstance.answer] ✅️ MonadEval Elab.TermElabM Elab.Command.CommandElabM
+  [Meta.synthInstance.resume] propagating MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM to subgoal MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance] new goal MonadEvalT MetaM Elab.TermElabM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m Elab.TermElabM
+    [Meta.synthInstance] new goal MonadLift _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@ReaderT.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @ReaderT.instMonadLift to MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM
+    [Meta.synthInstance.answer] ✅️ MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        (ReaderT Elab.Term.Context
+          (StateRefT' IO.RealWorld Elab.Term.State
+            MetaM)) to subgoal MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM to subgoal MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadEval _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadLift _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@StateRefT'.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @StateRefT'.instMonadLift to MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.answer] ✅️ MonadLift MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM MetaM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ✅️ apply instMonadEvalT to MonadEvalT MetaM MetaM
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM MetaM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        MetaM to subgoal MonadEvalT MetaM MetaM of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 3
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM) of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 6
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        Elab.TermElabM to subgoal MonadEvalT MetaM Elab.TermElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 8
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] result instMonadEvalTOfMonadEval MetaM Elab.TermElabM Elab.Command.CommandElabM
+[Meta.synthInstance] ✅️ Bind IO
+  [Meta.synthInstance] new goal Bind IO
+    [Meta.synthInstance.instances] #[@Monad.toBind]
+  [Meta.synthInstance] ✅️ apply @Monad.toBind to Bind IO
+    [Meta.synthInstance] new goal Monad IO
+      [Meta.synthInstance.instances] #[@instMonadEIO]
+  [Meta.synthInstance] ✅️ apply @instMonadEIO to Monad IO
+    [Meta.synthInstance.answer] ✅️ Monad IO
+  [Meta.synthInstance.resume] propagating Monad (EIO IO.Error) to subgoal Monad IO of Bind IO
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ Bind IO
+  [Meta.synthInstance] result instMonadEIO.toBind
+[Meta.synthInstance] Monad.toBind.{0, 0} IO (instMonadEIO IO.Error)
+[Meta.synthInstance] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] new goal MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.Command.CommandElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift, Elab.Command.instMonadEvalTermElabMCommandElabM]
+  [Meta.synthInstance] ✅️ apply Elab.Command.instMonadEvalTermElabMCommandElabM to MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM
+    [Meta.synthInstance.answer] ✅️ MonadEval Elab.TermElabM Elab.Command.CommandElabM
+  [Meta.synthInstance.resume] propagating MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM to subgoal MonadEval Elab.TermElabM
+        Elab.Command.CommandElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance] new goal MonadEvalT MetaM Elab.TermElabM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance] new goal MonadEval _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m Elab.TermElabM
+    [Meta.synthInstance] new goal MonadLift _tc.1 Elab.TermElabM
+      [Meta.synthInstance.instances] #[@ReaderT.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @ReaderT.instMonadLift to MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM
+    [Meta.synthInstance.answer] ✅️ MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        (ReaderT Elab.Term.Context
+          (StateRefT' IO.RealWorld Elab.Term.State
+            MetaM)) to subgoal MonadLift (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM) Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM to subgoal MonadEval (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+        Elab.TermElabM of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ❌️ apply instMonadEvalT to MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance] ✅️ apply instMonadEvalTOfMonadEval to MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadEval _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@instMonadEvalOfMonadLift]
+  [Meta.synthInstance] ✅️ apply @instMonadEvalOfMonadLift to MonadEval ?m
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance] new goal MonadLift _tc.1 (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+      [Meta.synthInstance.instances] #[@StateRefT'.instMonadLift]
+  [Meta.synthInstance] ✅️ apply @StateRefT'.instMonadLift to MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.answer] ✅️ MonadLift MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadLift MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ MonadEval MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEval MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 2
+    [Meta.synthInstance] new goal MonadEvalT MetaM MetaM
+      [Meta.synthInstance.instances] #[instMonadEvalTOfMonadEval, instMonadEvalT]
+  [Meta.synthInstance] ✅️ apply instMonadEvalT to MonadEvalT MetaM MetaM
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM MetaM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        MetaM to subgoal MonadEvalT MetaM MetaM of MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+    [Meta.synthInstance.resume] size: 3
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM (StateRefT' IO.RealWorld Elab.Term.State MetaM)
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State
+          MetaM) to subgoal MonadEvalT MetaM
+        (StateRefT' IO.RealWorld Elab.Term.State MetaM) of MonadEvalT MetaM Elab.TermElabM
+    [Meta.synthInstance.resume] size: 6
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.TermElabM
+  [Meta.synthInstance.resume] propagating MonadEvalT MetaM
+        Elab.TermElabM to subgoal MonadEvalT MetaM Elab.TermElabM of MonadEvalT MetaM Elab.Command.CommandElabM
+    [Meta.synthInstance.resume] size: 8
+    [Meta.synthInstance.answer] ✅️ MonadEvalT MetaM Elab.Command.CommandElabM
+  [Meta.synthInstance] result instMonadEvalTOfMonadEval MetaM Elab.TermElabM Elab.Command.CommandElabM
+[Meta.synthInstance] ✅️ BEq Nat
+  [Meta.synthInstance] new goal BEq Nat
+    [Meta.synthInstance.instances] #[@instBEqOfDecidableEq, @Std.PreorderPackage.toBEq]
+  [Meta.synthInstance] ✅️ apply @Std.PreorderPackage.toBEq to BEq Nat
+    [Meta.synthInstance] new goal Std.PreorderPackage Nat
+      [Meta.synthInstance.instances] #[@Std.PartialOrderPackage.toPreorderPackage, @Std.LinearPreorderPackage.toPreorderPackage]
+  [Meta.synthInstance] ✅️ apply @Std.LinearPreorderPackage.toPreorderPackage to Std.PreorderPackage Nat
+    [Meta.synthInstance] new goal Std.LinearPreorderPackage Nat
+      [Meta.synthInstance.instances] #[@Std.LinearOrderPackage.toLinearPreorderPackage]
+  [Meta.synthInstance] ✅️ apply @Std.LinearOrderPackage.toLinearPreorderPackage to Std.LinearPreorderPackage Nat
+    [Meta.synthInstance] no instances for Std.LinearOrderPackage Nat
+      [Meta.synthInstance.instances] #[]
+  [Meta.synthInstance] ✅️ apply @Std.PartialOrderPackage.toPreorderPackage to Std.PreorderPackage Nat
+    [Meta.synthInstance] new goal Std.PartialOrderPackage Nat
+      [Meta.synthInstance.instances] #[@Std.LinearOrderPackage.toPartialOrderPackage]
+  [Meta.synthInstance] ✅️ apply @Std.LinearOrderPackage.toPartialOrderPackage to Std.PartialOrderPackage Nat
+    [Meta.synthInstance] no instances for Std.LinearOrderPackage Nat
+      [Meta.synthInstance.instances] #[]
+  [Meta.synthInstance] ✅️ apply @instBEqOfDecidableEq to BEq Nat
+    [Meta.synthInstance] new goal DecidableEq Nat
+      [Meta.synthInstance.instances] #[instDecidableEqNat]
+  [Meta.synthInstance] ✅️ apply instDecidableEqNat to DecidableEq Nat
+    [Meta.synthInstance.answer] ✅️ DecidableEq Nat
+  [Meta.synthInstance.resume] propagating DecidableEq Nat to subgoal DecidableEq Nat of BEq Nat
+    [Meta.synthInstance.resume] size: 1
+    [Meta.synthInstance.answer] ✅️ BEq Nat
+  [Meta.synthInstance] result instBEqOfDecidableEq
+[Meta.synthInstance] instBEqOfDecidableEq.{0} Nat instDecidableEqNat

@@ -1,0 +1,16 @@
+def Foo.bar.match_1.{u_1} : {l₂ : Nat} →
+  (motive : Foo l₂ → Sort u_1) →
+    (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive s₁.cons) → ((x : Foo l₂) → motive x) → motive t₂ :=
+fun {l₂} motive t₂ h_1 h_2 =>
+  (fun t₂_1 =>
+      Foo.bar._sparseCasesOn_1 (motive := fun a x => l₂ = a → t₂ ≍ x → motive t₂) t₂_1
+        (fun {l} t h =>
+          Eq.ndrec (motive := fun {l} => (t : Foo l) → t₂ ≍ t.cons → motive t₂)
+            (fun t h => Eq.symm (eq_of_heq h) ▸ h_1 t) h t)
+        fun h h_3 =>
+        Eq.ndrec (motive := fun a => (t₂_2 : Foo a) → Nat.hasNotBit 2 t₂_2.ctorIdx → t₂ ≍ t₂_2 → motive t₂)
+          (fun t₂_2 h h_4 =>
+            Eq.ndrec (motive := fun t₂_3 => Nat.hasNotBit 2 t₂_3.ctorIdx → motive t₂) (fun h => h_2 t₂) (eq_of_heq h_4)
+              h)
+          h_3 t₂_1 h)
+    t₂ (Eq.refl l₂) (HEq.refl t₂)

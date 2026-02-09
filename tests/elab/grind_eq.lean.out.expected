@@ -1,0 +1,20 @@
+grind_eq.lean:50:19-50:21: warning: declaration uses `sorry`
+grind_eq.lean:66:8-66:18: warning: declaration uses `sorry`
+grind_eq.lean:88:8-88:19: warning: declaration uses `sorry`
+[grind.assert] ¬Lean.Grind.nestedDecidable h₁ = Lean.Grind.nestedDecidable h₂
+[grind.assert] p = q
+[grind.assert] ¬Lean.Grind.nestedDecidable h₁ ≍ Lean.Grind.nestedDecidable h₂
+[grind.assert] p
+[grind.assert] ¬p
+[grind.assert] a₁ ≍ b₁
+[grind.assert] a₂ ≍ b₂
+[grind.assert] (a₁ = a₂) = ¬b₁ = b₂
+[grind.assert] a₁ ≍ b₁
+[grind.assert] a₂ ≍ b₂
+[grind.assert] (a₁ = a₂) = ¬b₂ = b₁
+[grind.assert] a₁ ≍ b₁
+[grind.assert] a₂ ≍ b₂
+[grind.assert] (a₁ = a₂) = ¬b₁ = b₂
+[grind.assert] a₁ ≍ b₁
+[grind.assert] a₂ ≍ b₂
+[grind.assert] (a₁ = a₂) = ¬b₂ = b₁

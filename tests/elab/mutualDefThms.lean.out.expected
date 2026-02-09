@@ -1,0 +1,7 @@
+mutualDefThms.lean:47:74-47:76: warning: This simp argument is unused:
+  ih
+
+Hint: Omit it from the simp argument list.
+  simp +arith [foldl_init x.length, foldl_init (_ + _),̵ ̵i̵h̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

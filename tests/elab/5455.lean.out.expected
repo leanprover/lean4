@@ -1,0 +1,2 @@
+5455.lean:3:8-3:13: warning: declaration uses `sorry`
+5455.lean:17:8-17:13: warning: declaration uses `sorry`

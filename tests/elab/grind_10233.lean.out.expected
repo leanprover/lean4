@@ -1,0 +1,4 @@
+Try these:
+  [apply] [grind =] for pattern: [@foo `[Nat] `[List (Sort v)] #0 `[[]]]
+  [apply] [grind =_] for pattern: [@foo `[Nat] `[List (Sort w)] #0 `[[]]]
+grind_10233.lean:14:17-14:22: warning: declaration uses `sorry`

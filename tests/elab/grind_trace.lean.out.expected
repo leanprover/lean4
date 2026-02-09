@@ -1,0 +1,4 @@
+grind_trace.lean:106:8-106:12: warning: declaration uses `sorry`
+Try these:
+  [apply] grind only [= List.getElem?_replicate]
+  [apply] grind => instantiate only [= List.getElem?_replicate]

@@ -1,0 +1,13 @@
+protected def Path.unmap.{u_1, u_2} : {α : Type u_1} →
+  {β : Type u_2} → (f : α → β) → {t : Tree α} → Path (Tree.map f t) → Path t :=
+fun {α} {β} f x x_1 =>
+  Tree.brecOn (motive := fun x => Path (Tree.map f x) → Path x) x
+    (fun x f_1 x_2 =>
+      (match (motive :=
+          (x : Tree α) → Path (Tree.map f x) → Tree.below (motive := fun x => Path (Tree.map f x) → Path x) x → Path x)
+          x, x_2 with
+        | Tree.leaf x, Path.term .(f x) => fun x_3 => Path.term x
+        | tl.branch tr, Path.left .(Tree.map f tl) .(Tree.map f tr) p => fun x => Path.left tl tr (x.1.1 p)
+        | tl.branch tr, Path.right .(Tree.map f tl) .(Tree.map f tr) p => fun x => Path.right tl tr (x.2.1 p))
+        f_1)
+    x_1

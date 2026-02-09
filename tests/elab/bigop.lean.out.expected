@@ -1,0 +1,15 @@
+12
+bigop 0 [0, 2, 4] Add.add fun i => (i != 2, i) : Nat
+bigop 0 (index_iota 10 20) Add.add fun i => (i != 5, i + 1) : Nat
+bigop 0 (index_iota 10 20) Add.add fun i => (true, i + 1) : Nat
+bigop 1 [0, 2, 4] Mul.mul fun i => (i != 2, i) : Nat
+bigop 1 (index_iota 10 20) Mul.mul fun i => (i != 5, i + 1) : Nat
+bigop 1 (index_iota 10 20) Mul.mul fun i => (true, i + 1) : Nat
+bigop 0 Enumerable.elems Add.add fun i => (true, i + 1) : Fin 10
+bigop 0 Enumerable.elems Add.add fun i => (i != 2, i + 1) : Fin 10
+bigop 0 Enumerable.elems Add.add fun i => (myPred i, i + i) : Fin 10
+bigop 1 Enumerable.elems Mul.mul fun i => (true, i + 1) : Fin 10
+bigop 1 Enumerable.elems Mul.mul fun i => (i != 2, i + 1) : Fin 10
+bigop 1 Enumerable.elems Mul.mul fun i => (myPred i, i + i) : Fin 10
+bigop 0 (index_iota 10 20) Add.add fun i => (true, i + 1) : Nat
+bigop 0 [0, 1, 2] Nat.add fun i => (true, i + 1) : Nat

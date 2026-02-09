@@ -1,0 +1,90 @@
+[Meta.debug] ----- tst2 -----
+[Meta.debug] #[a, b, motive, t, inl, inr]
+[Meta.debug] #[a, b, motive, intro, t]
+[Meta.debug] #[x, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0, a._@._internal._hyg.0]
+[Meta.debug] @False.elim.{0}
+      (@GT.gt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+        (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+      (@noConfusion_of_Nat.{2} (List.{1} Type) (@List.ctorIdx.{1} Type) (@List.cons.{1} Type Unit (@List.nil.{1} Type))
+        (@List.nil.{1} Type) t1)
+[Meta.debug] @GT.gt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
+      (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))
+[Meta.debug] @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 10000000) (instOfNatNat (nat_lit 10000000)))
+      (@OfNat.ofNat.{0} Nat (nat_lit 20000000000) (instOfNatNat (nat_lit 20000000000)))
+[Meta.debug] case case_1
+    y : Nat
+    v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+    ⊢ Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+[Meta.debug] case case_2
+    y : Nat
+    v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
+    ⊢ Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
+[Meta.debug] case case_3
+    y : Nat
+    v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))
+    ⊢ Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))
+[Meta.debug] case case_4
+    x y : Nat
+    v : Vec.{0} Nat x
+    h_1 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+    h_2 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
+    h_3 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+    ⊢ Vec.{0} Nat x
+[Meta.debug] @dite.{1} (Vec.{0} Nat x) (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+      (instDecidableEqNat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+      (fun (h_1 : @Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) =>
+        @Eq.ndrec.{1, 1} Nat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
+          (fun (x : Nat) => (v : Vec.{0} Nat x) → Vec.{0} Nat x)
+          (fun (v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) => v) x
+          (@Eq.symm.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) h_1) v)
+      fun (h_1 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))) =>
+      @dite.{1} (Vec.{0} Nat x) (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
+        (instDecidableEqNat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
+        (fun (h_2 : @Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) =>
+          @Eq.ndrec.{1, 1} Nat (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
+            (fun (x : Nat) => (v : Vec.{0} Nat x) → Vec.{0} Nat x)
+            (fun (v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) => v) x
+            (@Eq.symm.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) h_2) v)
+        fun (h_2 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))) =>
+        @dite.{1} (Vec.{0} Nat x) (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+          (instDecidableEqNat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+          (fun (h_3 : @Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) =>
+            @Eq.ndrec.{1, 1} Nat (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))
+              (fun (x : Nat) => (v : Vec.{0} Nat x) → Vec.{0} Nat x)
+              (fun (v : Vec.{0} Nat (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) => v) x
+              (@Eq.symm.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) h_3) v)
+          fun (h_3 : Not (@Eq.{1} Nat x (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))) => v
+[Meta.debug] case case_1
+    b : Array.{0} Nat
+    motive : (_ : Array.{0} Nat) → Prop
+    x_1✝ : Nat
+    ⊢ motive (@List.toArray.{0} Nat (@List.cons.{0} Nat x_1✝ (@List.nil.{0} Nat)))
+[Meta.debug] case case_2
+    b : Array.{0} Nat
+    motive : (_ : Array.{0} Nat) → Prop
+    ⊢ motive (@List.toArray.{0} Nat (@List.nil.{0} Nat))
+[Meta.debug] case case_3
+    b : Array.{0} Nat
+    motive : (_ : Array.{0} Nat) → Prop
+    x_1✝ x_2✝ x_3✝ x_4✝ : Nat
+    ⊢ motive
+        (@List.toArray.{0} Nat
+          (@List.cons.{0} Nat x_1✝
+            (@List.cons.{0} Nat x_2✝ (@List.cons.{0} Nat x_3✝ (@List.cons.{0} Nat x_4✝ (@List.nil.{0} Nat))))))
+[Meta.debug] case case_4
+    b : Array.{0} Nat
+    motive : (_ : Array.{0} Nat) → Prop
+    x_1✝ x_2✝ x_3✝ x_4✝ x_5✝ : Nat
+    ⊢ motive
+        (@List.toArray.{0} Nat
+          (@List.cons.{0} Nat x_1✝
+            (@List.cons.{0} Nat x_2✝
+              (@List.cons.{0} Nat x_3✝ (@List.cons.{0} Nat x_4✝ (@List.cons.{0} Nat x_5✝ (@List.nil.{0} Nat)))))))
+[Meta.debug] case case_5
+    a b : Array.{0} Nat
+    motive : (_ : Array.{0} Nat) → Prop
+    h_1 : Not (@Eq.{1} Nat (@Array.size.{0} Nat a) (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
+    h_2 : Not (@Eq.{1} Nat (@Array.size.{0} Nat a) (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))
+    h_3 : Not (@Eq.{1} Nat (@Array.size.{0} Nat a) (@OfNat.ofNat.{0} Nat (nat_lit 4) (instOfNatNat (nat_lit 4))))
+    h_4 : Not (@Eq.{1} Nat (@Array.size.{0} Nat a) (@OfNat.ofNat.{0} Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+    ⊢ motive a

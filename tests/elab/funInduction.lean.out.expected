@@ -1,0 +1,21 @@
+funInduction.lean:378:47-378:55: warning: This simp argument is unused:
+  Finn.min
+
+Hint: Omit it from the simp argument list.
+  simp_all [Finn.m̵i̵n̵,̵ ̵F̵i̵n̵n̵.̵le]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+funInduction.lean:381:48-381:57: warning: This simp argument is unused:
+  Finn.min'
+
+Hint: Omit it from the simp argument list.
+  simp_all [Finn.m̵i̵n̵'̵,̵ ̵F̵i̵n̵n̵.̵le]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+funInduction.lean:384:49-384:59: warning: This simp argument is unused:
+  Finn.min''
+
+Hint: Omit it from the simp argument list.
+  simp_all [Finn.m̵i̵n̵'̵'̵,̵ ̵F̵i̵n̵n̵.̵le]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

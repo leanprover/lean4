@@ -1,0 +1,15 @@
+inductive Pos.below : {motive : (a : Expr) → Pos a → Prop} → {a : Expr} → Pos a → Prop
+number of parameters: 1
+constructors:
+Pos.below.base : ∀ {motive : (a : Expr) → Pos a → Prop} (n : Nat), Pos.below ⋯
+Pos.below.add : ∀ {motive : (a : Expr) → Pos a → Prop} {e₁ e₂ : Expr} (a : Pos e₁) (a_1 : Pos e₂),
+  Pos.below a → motive e₁ a → Pos.below a_1 → motive e₂ a_1 → Pos.below ⋯
+Pos.below.fn : ∀ {motive : (a : Expr) → Pos a → Prop} {f : Nat → Expr} (a : ∀ (n : Nat), Pos (f n)),
+  (∀ (n : Nat), Pos.below ⋯) → (∀ (n : Nat), motive (f n) ⋯) → Pos.below ⋯
+theorem Pos.brecOn : ∀ {motive : (a : Expr) → Pos a → Prop} {a : Expr} (t : Pos a),
+  (∀ (a : Expr) (t : Pos a), Pos.below t → motive a t) → motive a t :=
+fun {motive} {a} t F_1 =>
+  F_1 a t
+    (Pos.rec (fun n => Pos.below.base n)
+      (fun {e₁ e₂} a a_1 ih ih_1 => Pos.below.add a a_1 ih (F_1 e₁ a ih) ih_1 (F_1 e₂ a_1 ih_1))
+      (fun {f} a ih => Pos.below.fn a ih fun n => F_1 (f n) (a n) (ih n)) t)

@@ -1,0 +1,12 @@
+Try these:
+  [apply] grind only [= elim_inl, = Prod.map_fst, = Prod.map_snd, = map_inl, = id.eq_1]
+  [apply] grind =>
+    instantiate only [= elim_inl]
+    instantiate only [= Prod.map_fst, = Prod.map_snd]
+    instantiate only [= map_inl, = id.eq_1]
+Try these:
+  [apply] grind only [= elim_inr, = Prod.map_fst, = Prod.map_snd, = id.eq_1, = map_inr]
+  [apply] grind =>
+    instantiate only [= elim_inr]
+    instantiate only [= Prod.map_fst, = Prod.map_snd]
+    instantiate only [= id.eq_1, = map_inr]

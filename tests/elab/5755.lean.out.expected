@@ -1,0 +1,10 @@
+5755.lean:15:8-15:25: warning: declaration uses `sorry`
+5755.lean:25:0-25:7: warning: declaration uses `sorry`
+5755.lean:46:0-46:7: warning: declaration uses `sorry`
+5755.lean:47:8-47:9: warning: This simp argument is unused:
+  f
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵f̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

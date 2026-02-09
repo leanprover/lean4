@@ -1,0 +1,5 @@
+@Array.mk : {α : Type u_1} → List α → Array α
+@Array.casesOn : {α : Type u_2} →
+  {motive : Array α → Sort u_1} → (t : Array α) → ((toList : List α) → motive { toList := toList }) → motive t
+array1.lean:22:0-22:24: warning: declaration uses `sorry`
+array1.lean:24:0-24:24: warning: declaration uses `sorry`

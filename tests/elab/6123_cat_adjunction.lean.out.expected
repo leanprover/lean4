@@ -1,0 +1,45 @@
+6123_cat_adjunction.lean:139:14-139:16: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:145:4-145:9: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:200:4-200:9: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:239:17-239:24: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:410:4-410:7: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:412:4-412:10: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:414:4-414:17: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:437:4-437:34: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:441:4-441:41: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:446:4-446:35: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:470:4-470:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:470:4-470:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:470:4-470:23: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:479:67-479:71: warning: This simp argument is unused:
+  of_α
+
+Hint: Omit it from the simp argument list.
+  simp_all only [typeToCat_obj, Functor.id_obj, typeToCat_map, o̵f̵_̵α̵,̵ ̵id_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+6123_cat_adjunction.lean:479:73-479:78: warning: This simp argument is unused:
+  id_eq
+
+Hint: Omit it from the simp argument list.
+  simp_all only [typeToCat_obj, Functor.id_obj, typeToCat_map, of_α,̵ ̵i̵d̵_̵e̵q̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+6123_cat_adjunction.lean:486:4-486:35: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:486:4-486:35: warning: declaration uses `sorry`
+6123_cat_adjunction.lean:494:45-494:49: warning: This simp argument is unused:
+  of_α
+
+Hint: Omit it from the simp argument list.
+  simp_all only [Functor.id_obj, Functor.comp_obj, typeToCat_obj, Functor.id_map,
+              Functor.comp_map, typeToCat_map, o̵f̵_̵α̵,̵ ̵id_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+6123_cat_adjunction.lean:494:51-494:56: warning: This simp argument is unused:
+  id_eq
+
+Hint: Omit it from the simp argument list.
+  simp_all only [Functor.id_obj, Functor.comp_obj, typeToCat_obj, Functor.id_map,
+              Functor.comp_map, typeToCat_map, of_α,̵ ̵i̵d̵_̵e̵q̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

@@ -1,0 +1,24 @@
+Val.bool true : Val
+0 : Val
+constProp.lean:389:22-389:25: warning: This simp argument is unused:
+  hnp
+
+Hint: Omit it from the simp argument list.
+  simp [̵h̵n̵p̵]̵ ̵at ih₂
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+constProp.lean:542:8-542:11: warning: This simp argument is unused:
+  hxy
+
+Hint: Omit it from the simp argument list.
+  simp [h̵x̵y̵,̵ ̵Ne.symm hxy] at hf
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+constProp.lean:595:10-595:13: warning: This simp argument is unused:
+  heq
+
+Hint: Omit it from the simp argument list.
+  simp [̵h̵e̵q̵]̵ ̵at ih₄
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+constProp.lean:659:0-659:5: warning: using 'exit' to interrupt Lean

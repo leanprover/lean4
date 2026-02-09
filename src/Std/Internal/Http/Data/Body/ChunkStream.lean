@@ -125,7 +125,7 @@ def empty : Async ChunkStream :=
 
 private def decreaseKnownSize (knownSize : Option Body.Length) (chunk : Chunk) : Option Body.Length :=
   match knownSize with
-  | some (.fixed res) => some (Body.Length.fixed (res - chunk.size))
+  | some (.fixed res) => some (Body.Length.fixed (res - chunk.wireFormatSize))
   | _ => knownSize
 
 private def tryWakeProducer [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :

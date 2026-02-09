@@ -75,6 +75,16 @@ instance : Encode .v11 Chunk where
     let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
     buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
 
+/--
+Returns the total wire format size of the chunk in bytes. This includes the hex-encoded data length
+prefix, formatted extensions (`;name=value`), CRLF after the size line, the data itself, and the
+trailing CRLF.
+-/
+def wireFormatSize (chunk : Chunk) : Nat :=
+  let hexSize := (Nat.toDigits 16 chunk.data.size).length
+  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.map (fun v => v.length + 1) |>.getD 0) + 1) 0
+  hexSize + extensionsSize + 2 + chunk.data.size + 2
+
 end Chunk
 
 /--

@@ -70,7 +70,8 @@ def write (buffer : ChunkedBuffer) (data : ByteArray) : ChunkedBuffer :=
   buffer.push data
 
 /--
-Writes a `Char` to the `ChunkedBuffer`.
+Writes a `Char` to the `ChunkedBuffer`. Only the low byte is written (`Char.toUInt8`),
+so this is only correct for ASCII characters.
 -/
 @[inline]
 def writeChar (buffer : ChunkedBuffer) (data : Char) : ChunkedBuffer :=

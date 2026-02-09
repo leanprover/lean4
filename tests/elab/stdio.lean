@@ -13,8 +13,8 @@ let err ← IO.getStderr;
 open IO
 
 def test : IO Unit := do
-FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
-{ let h₂ ← FS.Handle.mk "stdout2.txt" IO.FS.Mode.write;
+FS.withFile "stdio.lean.stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
+{ let h₂ ← FS.Handle.mk "stdio.lean.stdout2.txt" IO.FS.Mode.write;
   withStdout (Stream.ofHandle h₁) $ do
     println "line 1";
     tryCatch
@@ -24,9 +24,9 @@ FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do
       ( fun e => println e );
     println "line 3" };
 println "line 4";
-println "\n> stdout1.txt";
-readFile "stdout1.txt" >>= print;
-println "\n> stdout2.txt";
-readFile "stdout2.txt" >>= print
+println "\n> stdio.lean.stdout1.txt";
+readFile "stdio.lean.stdout1.txt" >>= print;
+println "\n> stdio.lean.stdout2.txt";
+readFile "stdio.lean.stdout2.txt" >>= print
 
 #eval test

@@ -31,4 +31,4 @@ unsafe def main (args : List String) : IO Unit := do
         throw $ IO.userError s!"reparsing failed:\n{stx.getArg i}\n{stx'.getArg i}"
 
 -- abbreviated Prelude.lean, which can be parsed without elaboration
-#eval main ["Reformat/Input.lean"]
+#eval main ["Reformat.lean.input"]

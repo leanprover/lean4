@@ -71,8 +71,8 @@ instance instHigherNat : MyHigher Nat where
 -- Derive MyHigher for MyAlias
 deriving instance MyHigher for MyAlias
 
--- KEY TEST: The derived instance should use instBaseMyAlias, not instBaseNat
--- Check the instance type - must use instBaseMyAlias (the target type's instance)
+-- Check the instance type - must use instBaseMyAlias (the target type's instance), not instBaseNat.
+-- This would have failed prior to https://github.com/leanprover/lean4/pull/12339
 /--
 info: instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias
 -/
@@ -80,7 +80,6 @@ info: instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias
 set_option pp.all true in
 #check @instMyHigherMyAlias
 
--- Print the full definition
 /--
 info: @[instance_reducible] def instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
 instHigherNat
@@ -89,7 +88,9 @@ instHigherNat
 set_option pp.all true in
 #print instMyHigherMyAlias
 
--- CRITICAL: Instance search must succeed
+-- Instance search must succeed!
+-- This worked on `master`, but would be broken by https://github.com/leanprover/lean4/pull/12179,
+-- but is working again under 12179+12339.
 -- This would fail before the fix because instance search uses instBaseMyAlias
 -- but the derived instance had instBaseNat in its type
 /--

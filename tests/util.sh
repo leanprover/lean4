@@ -47,9 +47,12 @@ function check_exit {
 }
 
 function check_out {
-  # TODO A missing .out.expected file should be equivalent to an empty one.
-  if [[ -f "$1.out.expected" ]]; then
+  if [[ -f "$1.out.ignored" ]]; then
+    echo "Output ignored, skipping check"
+  elif [[ -f "$1.out.expected" ]]; then
     $DIFF -- "$1.out.expected" "$1.out.produced" || fail "$1: Unexpected output"
+  else
+    echo -n | $DIFF -- - "$1.out.produced" || fail "$1: Unexpected output"
   fi
 }
 

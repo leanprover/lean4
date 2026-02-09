@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async
+public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Status
 public import Std.Internal.Http.Data.Version
 public import Std.Internal.Http.Data.Headers
@@ -61,6 +62,11 @@ structure Response (t : Type) where
   The content of the response.
   -/
   body : t
+
+  /--
+  Optional dynamic metadata attached to the response.
+  -/
+  extensions : Extensions := .empty
 deriving Inhabited
 
 /--
@@ -71,6 +77,11 @@ structure Response.Builder where
   The information of the status-line of the response
   -/
   head : Head := {}
+
+  /--
+  Optional dynamic metadata attached to the response.
+  -/
+  extensions : Extensions := .empty
 
 namespace Response
 
@@ -109,7 +120,7 @@ def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
-Adds a single header to the request being built
+Adds a single header to the response being built
 -/
 def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
@@ -123,16 +134,22 @@ def header! (builder : Builder) (key : String) (value : String) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
+Inserts a typed extension value into the response being built.
+-/
+def extension (builder : Builder) [TypeName α] (data : α) : Builder :=
+  { builder with extensions := builder.extensions.insert data }
+
+/--
 Builds and returns the final HTTP Response with the specified body
 -/
 def body (builder : Builder) (body : t) : Response t :=
-  { head := builder.head, body := body }
+  { head := builder.head, body := body, extensions := builder.extensions }
 
 /--
 Builds and returns the final HTTP Response.
 -/
 def build [EmptyCollection t] (builder : Builder) : Response t :=
-  { head := builder.head, body := {} }
+  { head := builder.head, body := {}, extensions := builder.extensions }
 
 end Builder
 

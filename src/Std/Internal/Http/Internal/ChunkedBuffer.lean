@@ -71,7 +71,8 @@ def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
   { data := buffer.data.enqueueAll data.data.toArray.toList.reverse, size := buffer.size + data.size }
 
 /--
-Writes a `Char` to the `ChunkedBuffer`.
+Writes a `Char` to the `ChunkedBuffer`. Only the low byte is written (`Char.toUInt8`),
+so this is only correct for ASCII characters.
 -/
 @[inline]
 def writeChar (buffer : ChunkedBuffer) (data : Char) : ChunkedBuffer :=

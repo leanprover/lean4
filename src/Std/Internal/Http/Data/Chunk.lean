@@ -68,14 +68,6 @@ Interprets the chunk data as a UTF-8 encoded string.
 def toString? (chunk : Chunk) : Option String :=
   String.fromUTF8? chunk.data
 
-/--
-Returns the total size of the chunk including data and formatted extensions. Extensions are formatted
-as: ;name=value;name=value. Plus 2 bytes for \r\n at the end.
--/
-def size (chunk : Chunk) : Nat :=
-  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.elim 0 (fun v => v.length + 1)) + 1) 0
-  chunk.data.size + extensionsSize + (if extensionsSize > 0 then 2 else 0)
-
 instance : Encode .v11 Chunk where
   encode buffer chunk :=
     let chunkLen := chunk.data.size

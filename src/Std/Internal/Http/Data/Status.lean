@@ -500,7 +500,7 @@ and the process is continuing.
 -/
 @[inline]
 def isInformational (c : Status) : Bool :=
-  c.toCode < 200
+  100 ≤ c.toCode ∧ c.toCode < 200
 
 /--
 Checks if the type of the status code is success, meaning that the request was successfully received,

@@ -3,14 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
-import Std.Tactic.BVDecide.Bitblast
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+import Lean.Meta.Native
+
+public section
 
 /-!
 This module provides the implementation of the `bv_decide` frontend itself.
@@ -37,7 +38,7 @@ expression - pair values.
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
     (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
-  let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
+  let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
   let filter bvBit _ :=
     let (_, _, synthetic) := atomsAssignment[bvBit.var]!
     !synthetic
@@ -283,40 +284,29 @@ def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
 
   let reflectedExpr := mkConst cfg.exprDef
   let certExpr := mkConst cfg.certDef
+  let reflectionTerm := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
 
-  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
-    let auxValue := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
-    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
-
-  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
-  let auxProof :=
-    mkApp3
-      (mkConst ``Lean.ofReduceBool)
-      (mkConst cfg.reflectionDef)
-      (toExpr true)
-      (← mkEqRefl (toExpr true))
-  try
-    let auxLemma ←
-      -- disable async TC so we can catch its exceptions
-      withOptions (Elab.async.set · false) do
-        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
-          mkAuxLemma [] auxType auxProof
-    return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
-  catch e =>
-    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
+    match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
+    | .notTrue =>
+      throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+        evaluating the following term returned `false`:{indentExpr reflectionTerm}"
+    | .success auxProof =>
+      return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
 where
   /--
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
   mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    addAndCompile <| .defnDecl {
-      name := name,
-      levelParams := [],
-      type := type,
-      value := value,
-      hints := .abbrev,
-      safety := .safe
-    }
+    withOptions (fun opt => opt.set `compiler.extract_closed false) do
+      addAndCompile <| .defnDecl {
+        name := name,
+        levelParams := [],
+        type := type,
+        value := value,
+        hints := .abbrev,
+        safety := .safe
+      }
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
@@ -343,7 +333,14 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
 
   let res ←
     withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
-      runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
+      runExternal
+        cnf
+        ctx.solver
+        ctx.lratPath
+        ctx.config.trimProofs
+        ctx.config.timeout
+        ctx.config.binaryProofs
+        ctx.config.solverMode
 
   match res with
   | .ok cert =>
@@ -373,7 +370,7 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     error := error ++ "3. The original goal was reduced to False and is thus invalid."
     throwError error
   else
-    let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
+    let sat := sats[1...*].foldl (init := sats[0]) SatAtBVLogical.and
     return {
       bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,

@@ -1,16 +1,16 @@
-typeOf.lean:11:22-11:25: error: failed to synthesize
+typeOf.lean:11:22-11:25: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Nat Nat Bool
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
-typeOf.lean:12:0-12:5: error: failed to synthesize
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+typeOf.lean:12:0-12:5: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Bool Nat Nat
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 typeOf.lean:20:56-20:62: error: invalid reassignment, term has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
 typeOf.lean:29:55-29:59: error: natural number expected, value has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat

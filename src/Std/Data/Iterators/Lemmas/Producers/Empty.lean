@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Lemmas.Producers.Monadic.Empty
-import Init.Data.Iterators.Lemmas.Consumers
-import Std.Data.Iterators.Producers.Empty
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Lemmas.Producers.Monadic.Empty
+public import Init.Data.Iterators.Lemmas.Consumers
+public import Std.Data.Iterators.Producers.Empty
+
+@[expose] public section
+
+namespace Std
 
 @[simp]
 theorem Iter.toIterM_empty {β} :
@@ -39,12 +43,7 @@ theorem Iter.toArray_empty {β} :
 theorem Iter.forIn_empty {m β γ} [Monad m] [LawfulMonad m]
     {init : γ} {f} :
     ForIn.forIn (m := m) (Iter.empty β) init f = pure init := by
-  simp [Iter.forIn_eq_forIn_toIterM]
-  letI : MonadLift Id m := ⟨Internal.idToMonad (α := _)⟩
-  letI := Internal.LawfulMonadLiftFunction.idToMonad (m := m)
-  haveI : LawfulMonadLiftT Id m := inferInstance
-  rw [IterM.forIn_empty]
-
+  simp [Iter.forIn_eq_match_step]
 
 @[simp]
 theorem Iter.foldM_empty {m β γ} [Monad m] [LawfulMonad m]
@@ -57,4 +56,4 @@ theorem Iter.fold_empty {β γ} {init : γ} {f} :
     (Iter.empty β).fold (init := init) f = init := by
   simp [Iter.fold_eq_foldM]
 
-end Std.Iterators
+end Std

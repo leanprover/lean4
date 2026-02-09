@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Repr
-import Init.Data.Option.Basic
+public import Init.Data.Repr
+import Init.Data.Char.Basic
+
+public section
 
 open Sum Subtype Nat
 
@@ -35,11 +37,11 @@ instance {α} [ToString α] : ToString (Id α) :=
 instance : ToString String :=
   ⟨fun s => s⟩
 
-instance : ToString Substring :=
-  ⟨fun s => s.toString⟩
+instance : ToString Substring.Raw :=
+  ⟨fun s => Substring.Raw.Internal.toString s⟩
 
-instance : ToString String.Iterator :=
-  ⟨fun it => it.remainingToString⟩
+instance : ToString Char :=
+  ⟨fun c => Char.toString c⟩
 
 instance : ToString Bool :=
   ⟨fun b => cond b "true" "false"⟩
@@ -65,8 +67,9 @@ Examples:
 -/
 protected def List.toString [ToString α] : List α → String
   | [] => "[]"
-  | [x] => "[" ++ toString x ++ "]"
-  | x::xs => xs.foldl (· ++ ", " ++ toString ·) ("[" ++ toString x) |>.push ']'
+  | [x] => String.Internal.append (String.Internal.append "[" (toString x)) "]"
+  | x::xs => String.push (xs.foldl (fun l r => String.Internal.append (String.Internal.append l ", ") (toString r))
+      (String.Internal.append "[" (toString x))) ']'
 
 instance {α : Type u} [ToString α] : ToString (List α) :=
   ⟨List.toString⟩
@@ -83,16 +86,13 @@ instance : ToString Unit :=
 instance : ToString Nat :=
   ⟨fun n => Nat.repr n⟩
 
-instance : ToString String.Pos :=
+instance : ToString String.Pos.Raw :=
   ⟨fun p => Nat.repr p.byteIdx⟩
 
 instance : ToString Int where
   toString
     | Int.ofNat m   => toString m
-    | Int.negSucc m => "-" ++ toString (succ m)
-
-instance : ToString Char :=
-  ⟨fun c => c.toString⟩
+    | Int.negSucc m => String.Internal.append "-" (toString (succ m))
 
 instance (n : Nat) : ToString (Fin n) :=
   ⟨fun f => toString (Fin.val f)⟩
@@ -116,108 +116,43 @@ instance : ToString Format where
   toString f := f.pretty
 
 def addParenHeuristic (s : String) : String :=
-  if "(".isPrefixOf s || "[".isPrefixOf s || "{".isPrefixOf s || "#[".isPrefixOf s then s
-  else if !s.any Char.isWhitespace then s
-  else "(" ++ s ++ ")"
+  if String.Internal.isPrefixOf "(" s || String.Internal.isPrefixOf "[" s || String.Internal.isPrefixOf "{" s || String.Internal.isPrefixOf "#[" s then s
+  else if !(String.Internal.any s Char.isWhitespace) then s
+  else String.Internal.append (String.Internal.append "(" s) ")"
 
 instance {α : Type u} [ToString α] : ToString (Option α) := ⟨fun
   | none => "none"
-  | (some a) => "(some " ++ addParenHeuristic (toString a) ++ ")"⟩
+  | (some a) => String.Internal.append (String.Internal.append "(some " (addParenHeuristic (toString a))) ")"⟩
 
 instance {α : Type u} {β : Type v} [ToString α] [ToString β] : ToString (Sum α β) := ⟨fun
-  | (inl a) => "(inl " ++ addParenHeuristic (toString a) ++ ")"
-  | (inr b) => "(inr " ++ addParenHeuristic (toString b) ++ ")"⟩
+  | (inl a) => String.Internal.append (String.Internal.append "(inl " (addParenHeuristic (toString a))) ")"
+  | (inr b) => String.Internal.append (String.Internal.append "(inr " (addParenHeuristic (toString b))) ")"⟩
 
 instance {α : Type u} {β : Type v} [ToString α] [ToString β] : ToString (α × β) := ⟨fun (a, b) =>
-  "(" ++ toString a ++ ", " ++ toString b ++ ")"⟩
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append "(" (toString a))
+        ", ")
+      (toString b))
+    ")"⟩
 
 instance {α : Type u} {β : α → Type v} [ToString α] [∀ x, ToString (β x)] : ToString (Sigma β) := ⟨fun ⟨a, b⟩ =>
-  "⟨"  ++ toString a ++ ", " ++ toString b ++ "⟩"⟩
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append "⟨" (toString a))
+        ", ")
+      (toString b))
+    "⟩"⟩
 
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
 
-/--
-Interprets a string as the decimal representation of an integer, returning it. Returns `none` if
-the string does not contain a decimal integer.
-
-A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally `-` in front. Leading `+` characters are not allowed.
-
-Use `String.isInt` to check whether `String.toInt?` would return `some`. `String.toInt!` is an
-alternative that panics instead of returning `none` when the string is not an integer.
-
-Examples:
- * `"".toInt? = none`
- * `"-".toInt? = none`
- * `"0".toInt? = some 0`
- * `"5".toInt? = some 5`
- * `"-5".toInt? = some (-5)`
- * `"587".toInt? = some 587`
- * `"-587".toInt? = some (-587)`
- * `" 5".toInt? = none`
- * `"2-3".toInt? = none`
- * `"0xff".toInt? = none`
--/
-def String.toInt? (s : String) : Option Int := do
-  if s.get 0 = '-' then do
-    let v ← (s.toSubstring.drop 1).toNat?;
-    pure <| - Int.ofNat v
-  else
-   Int.ofNat <$> s.toNat?
-
-/--
-Checks whether the string can be interpreted as the decimal representation of an integer.
-
-A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally `-` in front. Leading `+` characters are not allowed.
-
-Use `String.toInt?` or `String.toInt!` to convert such a string to an integer.
-
-Examples:
- * `"".isInt = false`
- * `"-".isInt = false`
- * `"0".isInt = true`
- * `"-0".isInt = true`
- * `"5".isInt = true`
- * `"587".isInt = true`
- * `"-587".isInt = true`
- * `"+587".isInt = false`
- * `" 5".isInt = false`
- * `"2-3".isInt = false`
- * `"0xff".isInt = false`
--/
-def String.isInt (s : String) : Bool :=
-  if s.get 0 = '-' then
-    (s.toSubstring.drop 1).isNat
-  else
-    s.isNat
-
-/--
-Interprets a string as the decimal representation of an integer, returning it. Panics if the string
-does not contain a decimal integer.
-
-A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
-and optionally `-` in front. Leading `+` characters are not allowed.
-
-Use `String.isInt` to check whether `String.toInt!` would return a value. `String.toInt?` is a safer
-alternative that returns `none` instead of panicking when the string is not an integer.
-
-Examples:
- * `"0".toInt! = 0`
- * `"5".toInt! = 5`
- * `"587".toInt! = 587`
- * `"-587".toInt! = -587`
--/
-def String.toInt! (s : String) : Int :=
-  match s.toInt? with
-  | some v => v
-  | none   => panic "Int expected"
-
 instance [ToString ε] [ToString α] : ToString (Except ε α) where
   toString
-    | Except.error e => "error: " ++ toString e
-    | Except.ok a    => "ok: " ++ toString a
+    | Except.error e => String.Internal.append "error: " (toString e)
+    | Except.ok a    => String.Internal.append "ok: " (toString a)
 
 instance [Repr ε] [Repr α] : Repr (Except ε α) where
   reprPrec

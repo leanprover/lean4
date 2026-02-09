@@ -3,14 +3,17 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.LazyDiscrTree
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.SolveByElim
-import Lean.Meta.Tactic.TryThis
-import Lean.Util.Heartbeats
+public import Lean.Meta.LazyDiscrTree
+public import Lean.Meta.Tactic.Rewrite
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Util.Heartbeats
+
+public section
 
 namespace Lean.Meta.Rewrites
 
@@ -43,6 +46,8 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × RwDirection))) := do
   if constInfo.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
   match name with
   | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]

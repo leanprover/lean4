@@ -18,7 +18,8 @@ inductive A where
 
 /--
 warning: Local variable 'x' resembles constructor 'A.x' - write '.x' (with a dot) or 'A.x' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs(drop error, warning) in
 def f : A → Unit
@@ -27,7 +28,8 @@ def f : A → Unit
 -- Show that the linter also works when there are no errors
 /--
 warning: Local variable 'x' resembles constructor 'A.x' - write '.x' (with a dot) or 'A.x' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs(warning) in
 def g : A → Unit
@@ -47,10 +49,12 @@ def h : A → Unit
 -- Check that it works for let-bindings
 /--
 warning: Local variable 'x' resembles constructor 'A.x' - write '.x' (with a dot) or 'A.x' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 ---
 warning: Local variable 'y' resembles constructor 'A.y' - write '.y' (with a dot) or 'A.y' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs in
 def i (a : A × A) : Unit :=
@@ -59,7 +63,8 @@ def i (a : A × A) : Unit :=
 
 /--
 warning: Local variable 'x' resembles constructor 'A.x' - write '.x' (with a dot) or 'A.x' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs in
 def i' : Unit :=
@@ -69,7 +74,8 @@ def i' : Unit :=
 -- Check that it works in tactic proofs
 /--
 warning: Local variable 'x' resembles constructor 'A.x' - write '.x' (with a dot) or 'A.x' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs in
 theorem j (a : A ⊕ A) : True := by
@@ -89,7 +95,8 @@ inductive MyProd where
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: 'MyProd.construct' is similar
+Hint: Using `MyProd.construct` would be valid:
+  [apply] `MyProd.construct`
 -/
 #guard_msgs in
 def ctorSuggestion1 (pair : MyProd) : Nat :=
@@ -100,19 +107,21 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: These are similar:
-  'List.Lex.below.cons',
-  'List.Lex.cons',
-  'List.Pairwise.below.cons',
-  'List.Pairwise.cons',
-  'List.Perm.below.cons',
-  'List.Perm.cons',
-  'List.Sublist.below.cons',
-  'List.Sublist.cons',
-  'List.cons'
+Hint: Using one of these would be valid:
+  [apply] `List.Sublist.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `List.Lex.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Lex.below.cons`
+  [apply] `List.Pairwise.below.cons`
+  [apply] `List.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `List.Perm.cons`
+  [apply] `List.Pairwise.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs in
 def ctorSuggestion2 (list : List α) : Nat :=
@@ -128,20 +137,22 @@ inductive StringList : Type where
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: These are similar:
-  'List.Lex.below.cons',
-  'List.Lex.cons',
-  'List.Pairwise.below.cons',
-  'List.Pairwise.cons',
-  'List.Perm.below.cons',
-  'List.Perm.cons',
-  'List.Sublist.below.cons',
-  'List.Sublist.cons',
-  'List.cons',
-  'StringList.cons'
+Hint: Using one of these would be valid:
+  [apply] `List.Sublist.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `List.Lex.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Lex.below.cons`
+  [apply] `List.Pairwise.below.cons`
+  [apply] `List.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `List.Perm.cons`
+  [apply] `List.Pairwise.cons`
+  [apply] `StringList.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
-note: this linter can be disabled with `set_option linter.constructorNameAsVariable false`
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
 -/
 #guard_msgs in
 def ctorSuggestion3 (list : List α) : Nat :=

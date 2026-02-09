@@ -3,12 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Tactic.BVDecide.LRAT.Internal.Convert
-import Std.Tactic.BVDecide.LRAT.Internal.LRATChecker
-import Std.Tactic.BVDecide.LRAT.Internal.LRATCheckerSound
-import Std.Sat.CNF
+public import Std.Tactic.BVDecide.LRAT.Internal.Convert
+public import Std.Tactic.BVDecide.LRAT.Internal.LRATCheckerSound
+
+@[expose] public section
 
 /-!
 This module contains the implementation of the LRAT checker as well as a proof that the given

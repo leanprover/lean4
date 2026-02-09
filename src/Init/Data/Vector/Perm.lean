@@ -7,9 +7,13 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Perm
+public import Init.Data.Array.Perm
 import all Init.Data.Vector.Basic
+public import Init.Data.Vector.Basic
+import Init.Data.List.Nat.Perm
 import Init.Data.Vector.Lemmas
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -44,7 +48,7 @@ theorem Perm.toList {as bs : Vector α n} : as ~ bs → as.toList ~ bs.toList :=
 
 @[simp] theorem perm_mk (as bs : Array α) (ha : as.size = n) (hb : bs.size = n) :
     mk as ha ~ mk bs hb ↔ as ~ bs := by
-  simp [perm_iff_toArray_perm, ha, hb]
+  simp [perm_iff_toArray_perm]
 
 theorem toArray_perm_iff (xs : Vector α n) (ys : Array α) : xs.toArray ~ ys ↔ ∃ h, xs ~ Vector.mk ys h := by
   constructor
@@ -112,7 +116,7 @@ theorem Perm.push_comm (x y : α) {xs ys : Vector α n} (p : xs ~ ys) :
 theorem swap_perm {xs : Vector α n} {i j : Nat} (h₁ : i < n) (h₂ : j < n) :
     xs.swap i j ~ xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp only [swap, perm_iff_toList_perm, toList_set]
+  simp only [swap, perm_iff_toList_perm]
   apply set_set_perm
 
 namespace Perm

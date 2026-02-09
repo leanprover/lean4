@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Ordered
-// Imports: Init.Grind.Ordered.Order Init.Grind.Ordered.Module Init.Grind.Ordered.Ring Init.Grind.Ordered.Field Init.Grind.Ordered.Int Init.Grind.Ordered.Linarith
+// Imports: public import Init.Grind.Ordered.Order public import Init.Grind.Ordered.Module public import Init.Grind.Ordered.Ring public import Init.Grind.Ordered.Field public import Init.Grind.Ordered.Int public import Init.Grind.Ordered.Rat public import Init.Grind.Ordered.Linarith
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,33 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Int(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Field(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Int(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Rat(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ordered_Linarith(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Grind_Ordered(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ordered_Order(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Module(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Module(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Ring(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Field(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Field(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Int(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Linarith(builtin, lean_io_mk_world());
+res = initialize_Init_Grind_Ordered_Rat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ordered_Linarith(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

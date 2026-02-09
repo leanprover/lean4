@@ -6,8 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
 import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.ToArray
+import Init.Data.Nat.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # insertIdx
@@ -51,11 +56,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
-
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
-theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
-    (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
-  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : i ≤ j) :
@@ -109,19 +109,19 @@ theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.siz
         else
           xs[k-1]'(by simp [size_insertIdx] at h; omega) := by
   cases xs
-  simp [List.getElem_insertIdx, w]
+  simp [List.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k] := by
-  simp [getElem_insertIdx, w, h]
+  simp [getElem_insertIdx, h]
 
 theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]'(by simp; omega) = x := by
-  simp [getElem_insertIdx, w]
+  simp [getElem_insertIdx]
 
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
-  simp [getElem_insertIdx, w, h]
+  simp [getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
 @[grind =]
@@ -135,7 +135,7 @@ theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.si
         else
           xs[k-1]? := by
   cases xs
-  simp [List.getElem?_insertIdx, h]
+  simp [List.getElem?_insertIdx]
 
 theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by

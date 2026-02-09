@@ -3,17 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Cases
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Grind.Action
+import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.SearchM
-
+import Lean.Meta.Tactic.Grind.RevertAll
+import Init.Grind.Util
+public section
 namespace Lean.Meta.Grind
 
 private inductive IntroResult where
@@ -37,7 +38,7 @@ Similar to `Grind.preprocess`, but does not simplify `e` if
 We added this feature because it may be coming from external sources
 (e.g., manually applying an function induction principle before invoking `grind`).
 -/
-private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
+def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
     preprocess (markAsPreMatchCond e)
   else if let some c := isAlreadyNorm? e then
@@ -52,47 +53,54 @@ It ensures base name is a simple `Name` and does not have a `_<idx>` suffix
 -/
 private def mkBaseName (name : Name) (type : Expr) : MetaM Name := do
   if let .str _ s := name then
-    let pos := s.find (· == '_')
-    unless pos < s.endPos do
+    let pos := s.find '_'
+    if h : pos.IsAtEnd then
       return Name.mkSimple s
-    let suffix := s.extract (pos+'_') s.endPos
-    unless suffix.isNat do
-      return Name.mkSimple s
-    let s := s.extract ⟨0⟩ pos
-    unless s == "" do
-      return Name.mkSimple s
+    else
+      let suffix := s.sliceFrom (pos.next h)
+      unless suffix.isNat do
+        return Name.mkSimple s
+      let s := s.sliceTo pos
+      unless s.isEmpty do
+        return Name.mkSimple s.copy
   if (← isProp type) then return `h else return `x
 
 private def mkCleanName (name : Name) (type : Expr) : GoalM Name := do
-  unless (← getConfig).clean do
+  if (← getConfig).clean then
+    let mut name := name
+    if name.hasMacroScopes then
+      name := name.eraseMacroScopes
+      if name == `x || name == `a then
+        if (← isProp type) then
+          name := `h
+    if (← get).clean.used.contains name then
+      let base ← mkBaseName name type
+      let mut i := if let some i := (← get).clean.next.find? base then i else 1
+      repeat
+        name := base.appendIndexAfter i
+        i := i + 1
+        unless (← get).clean.used.contains name do
+          break
+      modify fun s => { s with clean.next := s.clean.next.insert base i }
+    modify fun s => { s with clean.used := s.clean.used.insert name }
     return name
-  let mut name := name
-  if name.hasMacroScopes then
-    name := name.eraseMacroScopes
-    if name == `x || name == `a then
+  else if let some originalName := getOriginalName? name then
+    return originalName
+  else if name.hasMacroScopes then
+    let name' := name.eraseMacroScopes
+    if name' == `x || name' == `a then
       if (← isProp type) then
-        name := `h
-  if (← get).clean.used.contains name then
-    let base ← mkBaseName name type
-    let mut i := if let some i := (← get).clean.next.find? base then i else 1
-    repeat
-      name := base.appendIndexAfter i
-      i := i + 1
-      unless (← get).clean.used.contains name do
-        break
-    modify fun s => { s with clean.next := s.clean.next.insert base i }
-  modify fun s => { s with clean.used := s.clean.used.insert name }
-  return name
+        return (← mkFreshUserName `h)
+    return name
+  else
+    mkFreshUserName name
 
 private def intro1 : GoalM FVarId := do
   let target ← (← get).mvarId.getType
   let (name, type) ← match target with
     | .forallE n d .. => pure (n, d)
     | .letE n d .. => pure (n, d)
-    | _ =>
-      let some (n, d, _) := target.letFun? |
-        throwError "`grind` internal error, binder expected"
-      pure (n, d)
+    | _ => throwError "`grind` internal error, binder expected"
   let name ← mkCleanName name type
   let (fvarId, mvarId) ← (← get).mvarId.intro name
   modify fun s => { s with mvarId }
@@ -149,7 +157,7 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
             let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
             mvarId.assign h
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-    else if target.isLet || target.isLetFun then
+    else if target.isLet then
       if (← getConfig).zetaDelta then
         let targetNew := expandLet target #[]
         let mvarId := (← get).mvarId
@@ -174,9 +182,9 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
     else
       return .done goal
 
-private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
+private def isEagerCasesCandidate (type : Expr) : GrindM Bool := do
   let .const declName _ := type.getAppFn | return false
-  return goal.split.casesTypes.isEagerSplit declName
+  isEagerSplit declName
 
 /-- Returns `true` if `type` is an inductive type with at most one constructor. -/
 private def isCheapInductive (type : Expr) : CoreM Bool := do
@@ -196,106 +204,100 @@ private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withConte
   else
     return { goal with mvarId := (← goal.mvarId.exfalso) }
 
-private def applyCases? (fvarId : FVarId) (generation : Nat) : SearchM Bool := withCurrGoalContext do
+def Goal.lastDecl? (goal : Goal) : MetaM (Option LocalDecl) := do
+  return (← goal.mvarId.getDecl).lctx.lastDecl
+
+namespace Action
+
+private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : GrindM (Option ActionResult) := goal.withContext do
   /-
   Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
   -/
   let type ← whnf (← fvarId.getType)
-  if isEagerCasesCandidate (← getGoal) type then
-    if (← cheapCasesOnly) then
-      unless (← isCheapInductive type) do
-        return false
-    if let .const declName _ := type.getAppFn then
-      saveCases declName true
-    let mvarId ← mkAuxMVarForCurrGoal
-    let mvarIds ← cases mvarId (mkFVar fvarId)
-    let goal ← getGoal
-    let goals := mvarIds.map fun mvarId => { goal with mvarId }
-    mkChoice (mkMVar mvarId) goals generation
-    return true
-  return false
+  unless (← isEagerCasesCandidate type) do return none
+  if (← cheapCasesOnly) then
+    unless (← isCheapInductive type) do return none
+  if let .const declName _ := type.getAppFn then
+    saveCases declName
+  let mvarIds ← cases goal.mvarId (mkFVar fvarId)
+  let subgoals := mvarIds.map fun mvarId => { goal with mvarId }
+  let mut seqNew : Array (TSyntax `grind) := #[]
+  let mut stuckNew : Array Goal := #[]
+  for subgoal in subgoals do
+    match (← kp subgoal) with
+    | .stuck gs => stuckNew := stuckNew ++ gs
+    | .closed seq => seqNew := seqNew ++ seq
+  if stuckNew.isEmpty then
+    return some (.closed seqNew.toList)
+  else
+    return some (.stuck stuckNew.toList)
 
-/--
-Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False`
-or is inconsistent.
--/
-def intros (generation : Nat) : SearchM Unit := withCurrGoalContext do
-  repeat
-    if (← isInconsistent) then
-      return ()
-    match (← introNext (← getGoal) generation) with
+def intro (generation : Nat) : Action := fun goal kna kp => do
+  if goal.inconsistent then return .closed []
+  let target ← goal.mvarId.getType
+  if target.isFalse then
+    kna goal
+  else match (← introNext goal generation) with
     | .done goal =>
       let goal ← exfalsoIfNotProp goal
       if let some mvarId ← goal.mvarId.byContra? then
-        setGoal { goal with mvarId }
+        kp { goal with mvarId }
       else
-        setGoal goal
-        return ()
+        kp goal
     | .newDepHyp goal =>
-      setGoal goal
+      kp goal
     | .newLocal fvarId goal =>
-      setGoal goal
-      discard <| applyCases? fvarId generation
+      if let some result ← applyCases? goal fvarId kp then
+        return result
+      else
+        kp goal
     | .newHyp fvarId goal =>
       if let some goal ← applyInjection? goal fvarId then
-        setGoal goal
+        kp goal
+      else if let some result ← applyCases? goal fvarId kp then
+        return result
       else
-        setGoal goal
-        if (← applyCases? fvarId generation) then
-          pure ()
-        else
-          addHypothesis fvarId generation
+        let goal ← GoalM.run' goal <| addHypothesis fvarId generation
+        kp goal
 
-/--
-Similar to `intros`, but returns `true` if new hypotheses have been added,
-and `false` otherwise.
--/
-def intros' (generation : Nat) : SearchM Bool := do
-  let target ← (← getGoal).mvarId.getType
-  if target.isFalse then return false
-  intros generation
-  return true
+private def hugeNumber := 1000000
+
+def intros (generation : Nat) : Action :=
+  ungroup >> (intro generation).loop hugeNumber >> group
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : SearchM Unit := do
-  if isEagerCasesCandidate (← getGoal) prop then
-    let goal ← getGoal
+private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action := fun goal kna kp => do
+  if (← isEagerCasesCandidate prop) then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
-    setGoal { goal with mvarId }
-    intros generation
-  else withCurrGoalContext do
-    let r ← preprocess prop
-    let prop' := r.expr
-    let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
-    add prop' proof' generation
+    intros generation { goal with mvarId } kna kp
+  else goal.withContext do
+    let goal ← GoalM.run' goal do
+      let r ← preprocess prop
+      let prop' := r.expr
+      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      add prop' proof' generation
+    kp goal
 
 /--
 Asserts next fact in the `goal` fact queue.
 Returns `true` if the queue was not empty and `false` otherwise.
 -/
-def assertNext : SearchM Bool := do
-  if (← isInconsistent) then return false
-  let goal ← getGoal
+def assertNext : Action := fun goal kna kp => do
+  if goal.inconsistent then return .closed []
   let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
-    | return false
-  setGoal { goal with newRawFacts }
+    | kna goal
+  let goal := { goal with newRawFacts }
   withSplitSource fact.splitSource do
-    -- Remark: we should probably add `withGeneration`
-    assertAt fact.proof fact.prop fact.generation
-    return true
+    assertAt fact.proof fact.prop fact.generation goal kna kp
 
 /--
 Asserts all facts in the `goal` fact queue.
 Returns `true` if the queue was not empty and `false` otherwise.
 -/
-def assertAll : SearchM Bool := do
-  let mut progress := false
-  repeat
-    if (← assertNext) then
-      progress := true
-    else
-      return progress
-  unreachable!
+def assertAll : Action :=
+  assertNext.loop hugeNumber
+
+end Action
 
 end Lean.Meta.Grind

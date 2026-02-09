@@ -15,7 +15,7 @@ example : U := by
 
 /--
 trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
-      autoParam T _auto✝
+      autoParam T bar._auto_1
   [Meta.Tactic.simp.rewrite] T.mk:1000:
         T
       ==>
@@ -27,5 +27,6 @@ trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
 -/
 #guard_msgs in
 example : U := by
-  set_option trace.Meta.Tactic.simp true in
+  set_option trace.Meta.Tactic.simp.discharge true in
+  set_option trace.Meta.Tactic.simp.rewrite true in
   simp [bar, T.mk]

@@ -3,10 +3,13 @@ set_option pp.mvars false
 class Foo (α : Type)
 
 /--
-error: function expected at
+error: Function expected at
   Missing
-term has type
+but this term has type
   ?_
+
+Note: Expected a function because this term is being applied to the argument
+  α
 -/
 #guard_msgs in
 variable {α : Type} (s : Missing α)

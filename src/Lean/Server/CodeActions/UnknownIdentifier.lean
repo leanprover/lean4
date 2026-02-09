@@ -3,52 +3,88 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.FileWorker.Utils
-import Lean.Data.Lsp.Internal
-import Lean.Server.Requests
-import Lean.Server.Completion.CompletionInfoSelection
-import Lean.Server.CodeActions.Basic
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Server.Completion.CompletionInfoSelection
+public import Lean.Server.CodeActions.Basic
+
+public section
 
 namespace Lean.Server.FileWorker
 
 open Lean.Lsp
 open Lean.Server.Completion
 
-structure UnknownIdentifierInfo where
-  paramsRange : String.Range
-  diagRange   : String.Range
+private def compareRanges (r1 r2 : Lean.Syntax.Range) : Ordering :=
+  if r1.start < r2.start then
+    .lt
+  else if r1.start > r2.start then
+    .gt
+  else if r1.stop < r2.stop then
+    .lt
+  else if r1.stop > r2.stop then
+    .gt
+  else
+    .eq
 
-def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : String.Range)
-    : BaseIO (Array String.Range) := do
+def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Lean.Syntax.Range)
+    : BaseIO (Array Lean.Syntax.Range × Bool) := do
   let text := doc.meta.text
   let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
-    | return #[]
-  let msgLog := Language.toSnapshotTree parsedSnap.elabSnap |>.collectMessagesInRange requestedRange |>.get
+    | return (#[], false)
+  let tree := Language.toSnapshotTree parsedSnap.elabSnap
+  let msgLog := tree.collectMessagesInRange requestedRange |>.get
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
-    let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
+    let msgRange : Lean.Syntax.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     if ! msgRange.overlaps requestedRange
         (includeFirstStop := true) (includeSecondStop := true) then
       continue
     ranges := ranges.push msgRange
-  return ranges
+  let isAnyUnknownIdentifierMessage := ! ranges.isEmpty
+  let autoImplicitUsages : ServerTask (Std.TreeSet Lean.Syntax.Range compareRanges) :=
+    tree.foldInfosInRange requestedRange ∅ fun ctx i acc => Id.run do
+      let .ofTermInfo ti := i
+        | return acc
+      let some r := ti.stx.getRange? (canonicalOnly := true)
+        | return acc
+      if ! ti.expr.isFVar then
+        return acc
+      if ! ctx.autoImplicits.contains ti.expr then
+        return acc
+      return acc.insert r
+  let autoImplicitUsages := autoImplicitUsages.get.toArray
+  ranges := ranges ++ autoImplicitUsages
+  return (ranges, isAnyUnknownIdentifierMessage)
 
-def waitAllUnknownIdentifierRanges (doc : EditableDocument)
-    : BaseIO (Array String.Range) := do
+def waitAllUnknownIdentifierMessageRanges (doc : EditableDocument)
+    : BaseIO (Array Lean.Syntax.Range) := do
   let text := doc.meta.text
-  let msgLog : MessageLog := Language.toSnapshotTree doc.initSnap
-    |>.getAll.map (·.diagnostics.msgLog)
-    |>.foldl (· ++ ·) {}
+  let snaps := Language.toSnapshotTree doc.initSnap |>.getAll
+  let msgLog : MessageLog := snaps.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) {}
   let mut ranges := #[]
   for msg in msgLog.unreported do
     if ! msg.data.hasTag (· == unknownIdentifierMessageTag) then
       continue
-    let msgRange : String.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
+    let msgRange : Lean.Syntax.Range := ⟨text.ofPosition msg.pos, text.ofPosition <| msg.endPos.getD msg.pos⟩
     ranges := ranges.push msgRange
+  let (cmdSnaps, _) := doc.cmdSnaps.waitAll.get
+  for snap in cmdSnaps do
+    let autoImplicitUsages : Std.TreeSet Lean.Syntax.Range compareRanges :=
+      snap.infoTree.foldInfo (init := ∅) fun ctx i acc => Id.run do
+        let .ofTermInfo ti := i
+          | return acc
+        let some r := ti.stx.getRange? (canonicalOnly := true)
+          | return acc
+        if ! ti.expr.isFVar then
+          return acc
+        if ! ctx.autoImplicits.contains ti.expr then
+          return acc
+        return acc.insert r
+    ranges := ranges ++ autoImplicitUsages.toArray
   return ranges
 
 structure Insertion where
@@ -56,7 +92,7 @@ structure Insertion where
   edit     : TextEdit
 
 structure Query extends LeanModuleQuery where
-  env                : Environment
+  ctx                : Elab.ContextInfo
   determineInsertion : Name → Insertion
 
 partial def collectOpenNamespaces (currentNamespace : Name) (openDecls : List OpenDecl)
@@ -85,7 +121,7 @@ def computeIdQuery?
   return {
     identifier := id.toString
     openNamespaces := collectOpenNamespaces ctx.currNamespace ctx.openDecls
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       let minimizedId := minimizeGlobalIdentifierInContext ctx.currNamespace ctx.openDecls decl
       {
@@ -117,9 +153,9 @@ def computeDotQuery?
   if typeNames.isEmpty then
     return none
   return some {
-    identifier := text.source.extract pos tailPos
+    identifier := String.Pos.Raw.extract text.source pos tailPos
     openNamespaces := typeNames.map (.allExcept · #[])
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       {
         fullName := decl
@@ -144,20 +180,13 @@ def computeDotIdQuery?
     | return none
   let some expectedType := expectedType?
     | return none
-  let typeNames? : Option (Array Name) ← ctx.runMetaM lctx do
-    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn.cleanupAnnotations
-    let .const .. := resultTypeFn
-      | return none
-    try
-      return some <| ← getDotCompletionTypeNames resultTypeFn
-    catch _ =>
-      return none
-  let some typeNames := typeNames?
-    | return none
+  let typeNames : Array Name ← ctx.runMetaM lctx <| getDotIdCompletionTypeNames expectedType
+  if typeNames.isEmpty then
+    return none
   return some {
     identifier := id.toString
     openNamespaces := typeNames.map (.allExcept · #[])
-    env := ctx.env
+    ctx
     determineInsertion decl :=
       {
         fullName := decl
@@ -170,7 +199,7 @@ def computeDotIdQuery?
 
 def computeQueries
     (doc          : EditableDocument)
-    (requestedPos : String.Pos)
+    (requestedPos : String.Pos.Raw)
     : RequestM (Array Query) := do
   let text := doc.meta.text
   let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get
@@ -195,23 +224,45 @@ def computeQueries
       break
   return queries
 
-def importAllUnknownIdentifiersProvider : Name := `unknownIdentifiers
+def importAllUnknownIdentifiersProvider : Name := `allUnknownIdentifiers
+def importUnknownIdentifiersProvider : Name := `unknownIdentifiers
+
+def mkUnknownIdentifierCodeActionData (params : CodeActionParams)
+    (name := importUnknownIdentifiersProvider) : CodeActionResolveData := {
+  params,
+  providerName := name
+  providerResultIndex := 0
+  : CodeActionResolveData
+}
 
 def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : String) : CodeAction := {
   title := "Import all unambiguous unknown identifiers"
   kind? := kind
-  data? := some <| toJson {
-    params,
-    providerName := importAllUnknownIdentifiersProvider
-    providerResultIndex := 0
-    : CodeActionResolveData
-  }
+  data? := some <| toJson <|
+    mkUnknownIdentifierCodeActionData params importAllUnknownIdentifiersProvider
 }
+
+private def mkImportText (ctx : Elab.ContextInfo) (mod : Name) :
+    String := Id.run do
+  let mut text := s!"import {mod}\n"
+  if let some parentDecl := ctx.parentDecl? then
+    if isMarkedMeta ctx.env parentDecl then
+      text := s!"meta {text}"
+      if !isPrivateName parentDecl then
+        -- As `meta` declarations go through a second, stricter visibility check in the compiler,
+        -- we should add `public` anywhere in a public definition (technically even private defs
+        -- could require public imports but that is not something we can check for here).
+        text := s!"public {text}"
+    else if ctx.env.isExporting then
+      -- Outside `meta`, add `public` only from public scope
+      text := s!"public {text}"
+  text
 
 def handleUnknownIdentifierCodeAction
     (id             : JsonRpc.RequestID)
     (params         : CodeActionParams)
-    (requestedRange : String.Range)
+    (requestedRange : Lean.Syntax.Range)
+    (kind           : String)
     : RequestM (Array CodeAction) := do
   let rc ← read
   let doc := rc.doc
@@ -241,43 +292,45 @@ def handleUnknownIdentifierCodeAction
     | none => { line := 0, character := 0 }
   let importInsertionRange : Lsp.Range := ⟨importInsertionPos, importInsertionPos⟩
   let mut unknownIdentifierCodeActions := #[]
-  let mut hasUnambigiousImportCodeAction := false
+  let mut hasUnambiguousImportCodeAction := false
   let some result := response.queryResults[0]?
     | return #[]
   for query in queries, result in response.queryResults do
     for ⟨mod, decl, isExactMatch⟩ in result do
-      let isDeclInEnv := query.env.contains decl
-      if ! isDeclInEnv && mod == query.env.mainModule then
+      let isDeclInEnv := query.ctx.env.contains decl
+      if ! isDeclInEnv && mod == query.ctx.env.mainModule then
         -- Don't offer any code actions for identifiers defined further down in the same file
         continue
       let insertion := query.determineInsertion decl
       if ! isDeclInEnv then
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Import {insertion.fullName} from {mod}"
-          kind? := "quickfix"
+          kind? := kind
           edit? := WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[
               {
                 range := importInsertionRange
-                newText := s!"import {mod}\n"
+                newText := mkImportText query.ctx mod
               },
               insertion.edit
             ]
           }
+          data? := some <| toJson <| mkUnknownIdentifierCodeActionData params
         }
         if isExactMatch then
-          hasUnambigiousImportCodeAction := true
+          hasUnambiguousImportCodeAction := true
       else
         unknownIdentifierCodeActions := unknownIdentifierCodeActions.push {
           title := s!"Change to {insertion.fullName}"
-          kind? := "quickfix"
+          kind? := kind
           edit? := WorkspaceEdit.ofTextDocumentEdit {
             textDocument := doc.versionedIdentifier
             edits := #[insertion.edit]
           }
+          data? := some <| toJson <| mkUnknownIdentifierCodeActionData params
         }
-  if hasUnambigiousImportCodeAction then
+  if hasUnambiguousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|
       importAllUnknownIdentifiersCodeAction params "quickfix"
   return unknownIdentifierCodeActions
@@ -285,7 +338,7 @@ def handleUnknownIdentifierCodeAction
 def handleResolveImportAllUnknownIdentifiersCodeAction?
     (id                      : JsonRpc.RequestID)
     (action                  : CodeAction)
-    (unknownIdentifierRanges : Array String.Range)
+    (unknownIdentifierRanges : Array Lean.Syntax.Range)
     : RequestM (Option CodeAction) := do
   let rc ← read
   let doc := rc.doc
@@ -314,15 +367,15 @@ def handleResolveImportAllUnknownIdentifiersCodeAction?
   let mut imports : Std.HashSet Name := ∅
   for q in queries, result in response.queryResults do
     let some ⟨mod, decl, _⟩ := result.find? fun id =>
-        id.isExactMatch && ! q.env.contains id.decl
+        id.isExactMatch && ! q.ctx.env.contains id.decl
       | continue
-    if mod == q.env.mainModule then
+    if mod == q.ctx.env.mainModule then
       continue
     let insertion := q.determineInsertion decl
     if ! imports.contains mod then
       edits := edits.push {
         range := importInsertionRange
-        newText := s!"import {mod}\n"
+        newText := mkImportText q.ctx mod
       }
     edits := edits.push insertion.edit
     imports := imports.insert mod

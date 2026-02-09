@@ -3,17 +3,22 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Basic
+import Init.Data.Format.Macro
+
+public section
 
 namespace Lean
 namespace IR
 
 private def formatArg : Arg → Format
-  | Arg.var id     => format id
-  | Arg.irrelevant => "◾"
+  | .var id => format id
+  | .erased => "◾"
 
-instance : ToFormat Arg := ⟨formatArg⟩
+instance : ToFormat Arg := ⟨private_decl% formatArg⟩
 
 def formatArray {α : Type} [ToFormat α] (args : Array α) : Format :=
   args.foldl (fun r a => r ++ " " ++ format a) Format.nil
@@ -22,7 +27,7 @@ private def formatLitVal : LitVal → Format
   | LitVal.num v => format v
   | LitVal.str v => format (repr v)
 
-instance : ToFormat LitVal := ⟨formatLitVal⟩
+instance : ToFormat LitVal := ⟨private_decl% formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
   | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => Id.run do
@@ -33,7 +38,7 @@ private def formatCtorInfo : CtorInfo → Format
       r := f!"{r}[{name}]"
     r
 
-instance : ToFormat CtorInfo := ⟨formatCtorInfo⟩
+instance : ToFormat CtorInfo := ⟨private_decl% formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
   | Expr.ctor i ys      => format i ++ formatArray ys
@@ -50,7 +55,7 @@ private def formatExpr : Expr → Format
   | Expr.lit v          => format v
   | Expr.isShared x     => "isShared " ++ format x
 
-instance : ToFormat Expr := ⟨formatExpr⟩
+instance : ToFormat Expr := ⟨private_decl% formatExpr⟩
 instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
 private partial def formatIRType : IRType → Format
@@ -61,8 +66,10 @@ private partial def formatIRType : IRType → Format
   | IRType.uint32       => "u32"
   | IRType.uint64       => "u64"
   | IRType.usize        => "usize"
-  | IRType.irrelevant   => "◾"
+  | IRType.erased       => "◾"
+  | IRType.void         => "void"
   | IRType.object       => "obj"
+  | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"
   | IRType.struct _ tys =>
     let _ : ToFormat IRType := ⟨formatIRType⟩
@@ -71,13 +78,13 @@ private partial def formatIRType : IRType → Format
     let _ : ToFormat IRType := ⟨formatIRType⟩
     "union " ++ Format.bracket "{" (Format.joinSep  tys.toList ", ") "}"
 
-instance : ToFormat IRType := ⟨formatIRType⟩
+instance : ToFormat IRType := ⟨private_decl% formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩
 
 private def formatParam : Param → Format
   | { x := name, borrow := b, ty := ty } => "(" ++ format name ++ " : " ++ (if b then "@& " else "") ++ format ty ++ ")"
 
-instance : ToFormat Param := ⟨formatParam⟩
+instance : ToFormat Param := ⟨private_decl% formatParam⟩
 
 def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
   | Alt.ctor i b  => format i.name ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
@@ -96,7 +103,6 @@ def formatFnBodyHead : FnBody → Format
   | FnBody.inc x n _ _ _       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
   | FnBody.dec x n _ _ _       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
   | FnBody.del x _             => "del " ++ format x
-  | FnBody.mdata d _           => "mdata " ++ format d
   | FnBody.case _   x _     _  => "case " ++ format x ++ " of ..."
   | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
   | FnBody.ret x               => "ret " ++ format x
@@ -117,7 +123,6 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
     | FnBody.inc x n _ _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
     | FnBody.dec x n _ _ b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
     | FnBody.del x b             => "del " ++ format x ++ ";" ++ Format.line ++ loop b
-    | FnBody.mdata d b           => "mdata " ++ format d ++ ";" ++ Format.line ++ loop b
     | FnBody.case _ x xType cs   => "case " ++ format x ++ " : " ++ format xType ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt loop indent c) Format.nil
     | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
     | FnBody.ret x               => "ret " ++ format x
@@ -134,7 +139,6 @@ def formatDecl (decl : Decl) (indent : Nat := 2) : Format :=
 
 instance : ToFormat Decl := ⟨formatDecl⟩
 
-@[export lean_ir_decl_to_string]
 def declToString (d : Decl) : String :=
   (format d).pretty
 

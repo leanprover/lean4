@@ -5,12 +5,12 @@ def f (x : Nat) := x + 1
 example : f x = x + 1 := rfl
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 seal f in
@@ -21,12 +21,12 @@ example : f x = x + 1 := rfl
 seal f
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 example : f x = x + 1 := rfl

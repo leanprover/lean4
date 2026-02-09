@@ -3,8 +3,6 @@ universe u v
 
 -- set_option pp.binderTypes false
 set_option pp.explicit true
-set_option trace.compiler.llnf true
--- set_option trace.compiler.boxed true
 
 namespace x1
 

@@ -3,12 +3,14 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Util.Log
-import Lake.Util.Task
-import Lake.Util.Opaque
-import Lake.Build.Trace
-import Lake.Build.Data
+public import Lake.Util.Log
+public import Lake.Util.Task
+public import Lake.Util.Opaque
+public import Lake.Build.Trace
+public import Lake.Build.Data
 
 /-! # Job Primitives
 
@@ -24,7 +26,7 @@ namespace Lake
 /-! ## JobAction -/
 
 /-- Information on what this job did. -/
-inductive JobAction
+public inductive JobAction
 /-- No information about this job's action is available. -/
 | unknown
 /-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
@@ -35,61 +37,71 @@ inductive JobAction
 | build
 deriving Inhabited, Repr, DecidableEq, Ord
 
-instance : LT JobAction := ltOfOrd
-instance : LE JobAction := leOfOrd
-instance : Min JobAction := minOfLe
-instance : Max JobAction := maxOfLe
+namespace JobAction
 
-def JobAction.merge (a b : JobAction) : JobAction :=
+public instance : LT JobAction := ltOfOrd
+public instance : LE JobAction := leOfOrd
+public instance : Min JobAction := minOfLe
+public instance : Max JobAction := maxOfLe
+
+public def merge (a b : JobAction) : JobAction :=
   max a b
 
-def JobAction.verb (failed : Bool) : JobAction → String
+public def verb (failed : Bool) : JobAction → String
 | .unknown => if failed then "Running" else "Ran"
 | .replay => if failed then "Replaying" else "Replayed"
 | .fetch => if failed then "Fetching" else "Fetched"
 | .build => if failed then "Building" else "Built"
 
+end JobAction
+
 /-! ## JobState -/
 
 /-- Mutable state of a Lake job. -/
-structure JobState where
+public structure JobState where
   /-- The job's log. -/
   log : Log := {}
   /-- Tracks whether this job performed any significant build action. -/
   action : JobAction := .unknown
+  /-- Whether this job failed due to a request to rebuild for `--no-build`. -/
+  wantsRebuild : Bool := false
   /-- Current trace of a build job. -/
   trace : BuildTrace := .nil
+  /-- How long the job spent building (in milliseconds). -/
+  buildTime : Nat := 0
   deriving Inhabited
 
-def JobState.merge (a b : JobState) : JobState where
+public def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
+  wantsRebuild := a.wantsRebuild || b.wantsRebuild
   trace := mixTrace a.trace b.trace
+  buildTime := a.buildTime + b.buildTime
 
-@[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) : JobState :=
+@[inline] public def JobState.modifyLog (f : Log → Log) (s : JobState) : JobState :=
   {s with log := f s.log}
 
-@[inline] def JobState.logEntry (e : LogEntry) (s : JobState) :=
+@[inline] public def JobState.logEntry (e : LogEntry) (s : JobState) :=
   s.modifyLog (·.push e)
 
 /-! ## JobTask -/
 
 /-- The result of a Lake job. -/
-abbrev JobResult α := EResult Log.Pos JobState α
+public abbrev JobResult α := EResult Log.Pos JobState α
 
 /-- Add log entries to the beginning of the job's log. -/
-def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
+public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
   match self with
   | .ok a s => .ok a <| s.modifyLog (log ++ ·)
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
 /-- The `Task` of a Lake job. -/
-abbrev JobTask α := BaseIOTask (JobResult α)
+public abbrev JobTask α := BaseIOTask (JobResult α)
 
 /-! ## Job -/
 
 /-- A Lake job. -/
-structure Job (α : Type u) where
+public structure Job (α : Type u) where
   /-- The Lean `Task` object for the job. -/
   task : JobTask α
    /-- The kind of data this job produces. -/
@@ -102,61 +114,61 @@ structure Job (α : Type u) where
   /-- Whether this job failing should cause the build to fail. -/
   optional : Bool := false
 
-instance : Inhabited (Job α) := ⟨{task := default, caption := default, kind := .anonymous}⟩
+public instance : Inhabited (Job α) := ⟨{task := default, caption := default, kind := .anonymous}⟩
 
 namespace Job
 
-protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
+public protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
   let h := by
     match kind_eq:self.kind with
     | ⟨_, wf⟩ =>
       simp only
-      simp only [OptDataKind.isAnonymous, kind_eq] at h
+      simp only [OptDataKind.isAnonymous_iff_name_isAnonymous, kind_eq] at h
       rw [wf h]
   cast h self
 
-@[inline] def ofTask [OptDataKind α] (task : JobTask α) (caption := "") : Job α :=
+@[inline] public def ofTask [OptDataKind α] (task : JobTask α) (caption := "") : Job α :=
   {task, caption}
 
-@[inline] protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
+@[inline] public protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.error 0 {log})) caption
 
-@[inline] protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
+@[inline] public protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption
 
-instance : Pure Job := ⟨Job.pure⟩
+public instance : Pure Job := ⟨Job.pure⟩
 
 /-- **For internal use.** -/
-@[inline] def traceRoot (a : α) (caption := "<root>")  : Job α :=
+@[inline] public def traceRoot (a : α) (caption := "<root>")  : Job α :=
   .ofTask <| .pure <| .ok a {trace := .nil caption}
 
-@[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
+@[inline] public def nop (log : Log := {}) (caption := "") : Job Unit :=
   .pure () log caption
 
-@[inline] def nil (traceCaption := "<nil>") : Job Unit :=
+@[inline] public def nil (traceCaption := "<nil>") : Job Unit :=
   .traceRoot () traceCaption
 
 /--
 Waits for the job and returns it trace.
 Useful if the job is already known to be completed.
 -/
-@[inline] def getTrace (job : Job α) : BuildTrace :=
+@[inline] public def getTrace (job : Job α) : BuildTrace :=
   job.task.get.state.trace
 
 /-- Sets the job's caption. -/
-@[inline] def setCaption (caption : String) (job : Job α) : Job α :=
+@[inline] public def setCaption (caption : String) (job : Job α) : Job α :=
   {job with caption}
 
 /-- Sets the job's caption if the job's current caption is empty. -/
-@[inline] def setCaption? (caption : String) (job : Job α) : Job α :=
+@[inline] public def setCaption? (caption : String) (job : Job α) : Job α :=
   if job.caption.isEmpty then {job with caption} else job
 
-@[inline] def mapResult
+@[inline] public def mapResult
   [OptDataKind β] (f : JobResult α → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := {self with task := self.task.map f prio sync, kind := inferInstance}
 
-@[inline] def mapOk
+@[inline] public def mapOk
   [OptDataKind β] (f : α → JobState → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β :=
@@ -164,35 +176,35 @@ Useful if the job is already known to be completed.
     | .ok a s => f a s
     | .error e s => .error e s
 
-@[inline] protected def map
+@[inline] public protected def map
   [OptDataKind β] (f : α → β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := self.mapResult (·.map f) prio sync
 
-instance : Functor Job where map := Job.map
+public instance : Functor Job where map := Job.map
 
 end Job
 
 /-! ## OpaqueJob -/
 
 /-- A Lake job task with an opaque value in `Type`. -/
-abbrev OpaqueJobTask := JobTask Opaque
+public abbrev OpaqueJobTask := JobTask Opaque
 
 @[inline] private unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
   unsafeCast self
 
 /-- Forget the value of a job task. Implemented as a no-op cast. -/
 @[implemented_by toOpaqueImpl]
-def JobTask.toOpaque (self : JobTask α) : OpaqueJobTask :=
+public def JobTask.toOpaque (self : JobTask α) : OpaqueJobTask :=
   self.map (·.map Opaque.mk)
 
-instance : CoeOut (JobTask α) OpaqueJobTask := ⟨.toOpaque⟩
+public instance : CoeOut (JobTask α) OpaqueJobTask := ⟨.toOpaque⟩
 
 /-- A Lake job with an opaque value in `Type`. -/
-abbrev OpaqueJob := Job Opaque
+public abbrev OpaqueJob := Job Opaque
 
 /-- Forget the value of a job. Implemented as a no-op cast on the task. -/
-def Job.toOpaque (job : Job α) : OpaqueJob :=
+public def Job.toOpaque (job : Job α) : OpaqueJob :=
   {job with task := job.task.toOpaque, kind := .anonymous}
 
-instance : CoeOut (Job α) OpaqueJob := ⟨.toOpaque⟩
+public instance : CoeOut (Job α) OpaqueJob := ⟨.toOpaque⟩

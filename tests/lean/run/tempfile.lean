@@ -53,11 +53,11 @@ def testDir : IO Unit := do
     assert! (fileList.isEmpty)
 
     let toWrite := "Hello World"
-    for i in [0:3] do
+    for i in *...(3 : Nat) do
       IO.FS.withFile (path / s!"{i}.txt") .write fun h => do
         h.putStr toWrite
         h.putStr (toString i)
-    for i in [0:3] do
+    for i in *...(3 : Nat) do
       IO.FS.withFile (path / s!"{i}.txt") .read fun h => do
         let content ← h.getLine
         assert! (content == toWrite ++ toString i)
@@ -82,11 +82,11 @@ def testWithDir : IO Unit := do
     assert! (fileList.isEmpty)
 
     let toWrite := "Hello World"
-    for i in [0:3] do
+    for i in *...(3 : Nat) do
       IO.FS.withFile (path / s!"{i}.txt") .write fun h => do
         h.putStr toWrite
         h.putStr (toString i)
-    for i in [0:3] do
+    for i in *...(3 : Nat)  do
       IO.FS.withFile (path / s!"{i}.txt") .read fun h => do
         let content ← h.getLine
         assert! (content == toWrite ++ toString i)

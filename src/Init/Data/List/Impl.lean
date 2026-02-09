@@ -6,7 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Ext
 import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Option.Lemmas
+
+public section
 
 /-!
 ## Tail recursive implementations for `List` definitions.
@@ -36,7 +42,7 @@ The following operations are still missing `@[csimp]` replacements:
 The following operations are not recursive to begin with
 (or are defined in terms of recursive primitives):
 `isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
-`min?`, `max?`, and `removeAll`.
+`min?`, `max?`, `min`, `max` and `removeAll`.
 
 The following operations were already given `@[csimp]` replacements in `Init/Data/List/Basic.lean`:
 `length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.
@@ -96,7 +102,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[inline] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
+@[inline, expose] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
   /-- Auxiliary for `filterMap`: `filterMap.go f l = acc.toList ++ filterMap f l` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
@@ -113,6 +119,12 @@ Example:
         filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
+
+/-! ### reduceOption -/
+
+/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
+@[inline, expose] def reduceOption {α} : List (Option α) → List α :=
+  List.filterMap id
 
 /-! ### foldr -/
 
@@ -234,7 +246,7 @@ Examples:
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp only [takeWhileTR.go, Array.toListImpl_eq, takeWhile]
+    simp only [takeWhileTR.go, takeWhile]
     split
     · intro h; rw [IH] <;> simp_all
     · simp [*]
@@ -365,7 +377,7 @@ def modifyTR (l : List α) (i : Nat) (f : α → α) : List α := go l i #[] whe
   | a :: l, 0, acc => acc.toListAppend (f a :: l)
   | a :: l, i+1, acc => go l i (acc.push a)
 
-theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
+private theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
   | [], i => by cases i <;> simp [modifyTR.go, modify]
   | a :: l, 0 => by simp [modifyTR.go, modify]
   | a :: l, i+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
@@ -397,7 +409,7 @@ Examples:
   | _, [], acc => acc.toList
   | n+1, a :: l, acc => go n l (acc.push a)
 
-theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
+private theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
   | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
   | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
 
@@ -562,24 +574,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
 
 /-! ### enumFrom -/
 
-/-- Tail recursive version of `List.enumFrom`. -/
-@[deprecated zipIdxTR (since := "2025-01-21")]
-def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
-  let as := l.toArray
-  (as.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + as.size, [])).2
 
-set_option linter.deprecated false in
-@[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
-theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp only [enumFromTR]
-  let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
-  let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
-    | [], n => rfl
-    | a::as, n => by
-      rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
-      simp [enumFrom, f]
-  rw [← Array.foldr_toList]
-  simp +zetaDelta [go]
 
 /-! ## Other list operations -/
 

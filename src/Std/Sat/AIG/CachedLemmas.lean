@@ -3,8 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Cached
+public import Std.Sat.AIG.Cached
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+
+@[expose] public section
 
 /-!
 This module contains the theory of the cached AIG node creation functions.
@@ -87,7 +93,7 @@ theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
     ⟦aig.mkAtomCached var, assign⟧ = ⟦aig.mkAtom var, assign⟧ := by
   simp only [mkAtomCached]
   split
-  · next heq1 =>
+  next heq1 =>
     rw [denote_mkAtom_cached heq1]
   · simp [mkAtom, denote]
 
@@ -97,12 +103,12 @@ The central equality theorem between `mkConstCached` and `mkConst`.
 @[simp]
 theorem denote_mkConstCached {aig : AIG α} :
     ⟦aig, aig.mkConstCached val, assign⟧ = val := by
-  simp only [mkConstCached, denote_mkConst]
+  simp only [mkConstCached]
   unfold denote denote.go
   split
   · simp
-  · next heq => simp [aig.hconst] at heq
-  · next heq => simp [aig.hconst] at heq
+  next heq => simp [aig.hconst] at heq
+  next heq => simp [aig.hconst] at heq
 
 /--
 If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
@@ -200,7 +206,7 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
     ⟦go aig input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
   simp only [go]
   split
-  · next heq1 =>
+  next heq1 =>
     rw [denote_mkGate_cached heq1]
   · split
     · simp_all [denote_getConstant]
@@ -211,7 +217,7 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
       split
       · split
         · simp_all
-        · next hif =>
+        next hif =>
           simp_all
           have := Bool.eq_not_of_ne hif
           simp_all

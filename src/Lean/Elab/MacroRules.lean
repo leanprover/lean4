@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Syntax
-import Lean.Elab.AuxDef
+public import Lean.Elab.Syntax
+public import Lean.Elab.AuxDef
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -31,19 +35,20 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
         pure alt
       else if k' == choiceKind then
          match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind '{k}'"
+         | none        => throwErrorAt alt "invalid macro_rules alternative, expected syntax node kind `{k}`"
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := pats.elemsAndSeps.set! 0 pat
            `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
       else
-        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
+        throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind `{k'}`"
     | _ => throwUnsupportedSyntax
   let attr ← `(attrInstance| $attrKind macro $(Lean.mkIdent k))
   let attrs := match attrs? with
     | some attrs => attrs.getElems.push attr
     | none => #[attr]
-  `($[$doc?:docComment]? @[$attrs,*]
+  let vis := Parser.Command.visibility.ofAttrKind attrKind
+  `($[$doc?:docComment]? @[$attrs,*] $vis:visibility
     aux_def macroRules $(mkIdentFrom tk k (canonical := true)) : Macro :=
      fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
 
@@ -60,9 +65,11 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
       let attrs := match attrs? with
         | some attrs => attrs.getElems.push attr
         | none => #[attr]
-      `($[$doc?:docComment]? @[$attrs,*]
+      let vis := Parser.Command.visibility.ofAttrKind attrKind
+      `($[$doc?:docComment]? @[$attrs,*] $vis:visibility
         aux_def $(mkIdentFrom tk kind.getId (canonical := true)) $kind : Macro := fun $x:ident => $rhs)
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind macro_rules%$tk (kind := $kind) $alts:matchAlt*) =>
+    withExporting (isExporting := !attrKind matches `(attrKind| local)) do
     withRef (mkNullNode #[tk, mkNullNode alts]) do
       elabMacroRulesAux doc? attrs? attrKind tk (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax

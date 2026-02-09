@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 /-!
 # Notation for `while` and `repeat` loops.
@@ -27,7 +29,7 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
       | ForInStep.yield b => loop b
   loop init
 
-instance : ForIn m Loop Unit where
+instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
 
 syntax "repeat " doSeq : doElem

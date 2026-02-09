@@ -3,10 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.Main
-
+public section
 namespace Lean.Meta
 
 inductive SplitKind where
@@ -45,7 +47,7 @@ private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option
   if ctx.kind.considerMatch then
     if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
-      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+      for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
         if args[i]!.hasLooseBVars then
           return none
       return ret (e.getBoundedAppFn (args.size - info.arity))
@@ -81,7 +83,7 @@ where
       pure {}
     else
       getFunInfo f
-    for u : i in [0:args.size] do
+    for u : i in *...args.size do
       let arg := args[i]
       if h : i < info.paramInfo.size then
         let info := info.paramInfo[i]
@@ -126,11 +128,17 @@ private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) :=
   else
     return none
 
-namespace SplitIf
+register_builtin_option backward.split : Bool := {
+  defValue := true
+  descr    := "use the old semantics for the `split` tactic where nested `if-then-else` terms could be simplified too"
+}
 
+namespace SplitIf
 /--
-  Default `Simp.Context` for `simpIf` methods. It contains all congruence theorems, but
-  just the rewriting rules for reducing `if` expressions. -/
+The `Simp.Context` that used to be used with `simpIf` methods. It contains all congruence theorems, but
+just the rewriting rules for reducing `if` expressions.
+This function is only used when the old `split` tactic behavior is enabled.
+-/
 def getSimpContext : MetaM Simp.Context := do
   let mut s : SimpTheorems := {}
   s ← s.addConst ``if_pos
@@ -138,9 +146,18 @@ def getSimpContext : MetaM Simp.Context := do
   s ← s.addConst ``dif_pos
   s ← s.addConst ``dif_neg
   Simp.mkContext
-    (simpTheorems  := #[s])
+   (simpTheorems  := #[s])
     (congrTheorems := (← getSimpCongrTheorems))
-    (config        := { Simp.neutralConfig with dsimp := false })
+    (config        := { Simp.neutralConfig with dsimp := false, letToHave := true })
+
+/--
+Default `Simp.Context` for `simpIf` methods. It contains all congruence theorems, but
+without rewriting rules. We use simprocs to reduce the if-then-else terms -/
+private def getSimpContext' : MetaM Simp.Context := do
+  Simp.mkContext
+    (simpTheorems  := {})
+    (congrTheorems := (← getSimpCongrTheorems))
+    (config        := { Simp.neutralConfig with dsimp := false, letToHave := true })
 
 /--
   Default `discharge?` function for `simpIf` methods.
@@ -177,6 +194,67 @@ private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge :=
          else
            return none
 
+private def reduceIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc := fun e => do
+  let_expr f@ite α c i tb eb ← e | return .continue
+  let us := f.constLevels!
+  if let some h ← discharge? numIndices useDecideBool c then
+    let h := mkApp6 (mkConst ``if_pos us) c i h α tb eb
+    return .done { expr := tb, proof? := some h }
+  else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
+    let h := mkApp6 (mkConst ``if_neg us) c i h α tb eb
+    return .done { expr := eb, proof? := some h }
+  else
+    -- `split` may have selected an `if-then-else` nested in `c`.
+    let r ← Simp.simp c
+    if r.expr == c then
+      return .done { expr := e }
+    else
+      let c' := r.expr
+      let dec := mkApp (mkConst ``Decidable) c'
+      let .some i' ← trySynthInstance dec | return .done { expr := e }
+      let h := mkApp8 (mkConst ``ite_cond_congr us) α c c' i i' tb eb (← r.getProof)
+      let e' := mkApp5 f α c' i' tb eb
+      return .done { expr := e', proof? := some h }
+
+private def getBinderName (e : Expr) : MetaM Name := do
+  let .lam n _ _ _ := e | mkFreshUserName `h
+  return n
+
+private def reduceDIte' (numIndices : Nat) (useDecideBool : Bool) : Simp.Simproc := fun e => do
+  let_expr f@dite α c i tb eb ← e | return .continue
+  let us := f.constLevels!
+  if let some h ← discharge? numIndices useDecideBool c then
+    let e' := mkApp tb h |>.headBeta
+    let h := mkApp6 (mkConst ``dif_pos us) c i h α tb eb
+    return .done { expr := e', proof? := some h }
+  else if let some h ← discharge? numIndices useDecideBool (mkNot c) then
+    let e' := mkApp eb h |>.headBeta
+    let h := mkApp6 (mkConst ``dif_neg us) c i h α tb eb
+    return .done { expr := e', proof? := some h }
+  else
+    -- `split` may have selected an `if-then-else` nested in `c`.
+    let r ← Simp.simp c
+    if r.expr == c then
+      return .done { expr := e }
+    else
+      let c' := r.expr
+      let h ← r.getProof
+      let dec := mkApp (mkConst ``Decidable) c'
+      let .some i' ← trySynthInstance dec | return .done { expr := e }
+      let tb' := mkApp tb (mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)) |>.headBeta
+      let tb' := mkLambda (← getBinderName tb) .default c' tb'
+      let eb' := mkApp eb (mkApp4 (mkConst ``Eq.mpr_not) c c' h (mkBVar 0)) |>.headBeta
+      let eb' := mkLambda (← getBinderName eb) .default (mkNot c') eb'
+      let e' := mkApp5 f α c' i' tb' eb'
+      let h := mkApp8 (mkConst ``dite_cond_congr us) α c c' i i' tb eb h
+      return .done { expr := e', proof? := some h }
+
+private def getSimprocs (numIndices : Nat) (useDecide : Bool) : MetaM (Array Simprocs) := do
+  let s : Simprocs := {}
+  let s := s.addCore #[.const ``ite 5, .star, .star, .star, .star, .star] ``reduceIte' (post := false) (.inl <| reduceIte' numIndices useDecide)
+  let s := s.addCore #[.const ``dite 5, .star, .star, .star, .star, .star] ``reduceDIte' (post := false) (.inl <| reduceDIte' numIndices useDecide)
+  return #[s]
+
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
@@ -196,44 +274,68 @@ end SplitIf
 
 open SplitIf
 
-def simpIfTarget (mvarId : MVarId) (useDecide := false) : MetaM MVarId := do
-  let mut ctx ← getSimpContext
-  if let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) then
+private def getNumIndices (mvarId : MVarId) : MetaM Nat :=
+  mvarId.withContext do return (← getLCtx).numIndices
+
+/--
+Simplify the `if-then-else` targeted by the `split` tactic. If `useNewSemantics` is `true`, the flag
+`backward.split` is ignored.
+-/
+def simpIfTarget (mvarId : MVarId) (useDecide := false) (useNewSemantics := false) : MetaM MVarId := do
+  if useNewSemantics || !backward.split.get (← getOptions) then
+    let ctx ← getSimpContext'
+    let numIndices ← getNumIndices mvarId
+    let s ← getSimprocs numIndices useDecide
+    let (some mvarId', _) ← simpTarget mvarId ctx s (mayCloseGoal := false) | unreachable!
     return mvarId'
   else
-    unreachable!
+    let mut ctx ← getSimpContext
+    let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) | unreachable!
+    return mvarId'
 
-def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
-  let mut ctx ← getSimpContext
-  if let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) then
+/--
+Simplify the `if-then-else` targeted by the `split` tactic. If `useNewSemantics` is `true`, the flag
+`backward.split` is ignored.
+-/
+def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) (useNewSemantics := false) : MetaM MVarId := do
+  if useNewSemantics || !backward.split.get (← getOptions) then
+    let ctx ← getSimpContext'
+    let numIndices ← getNumIndices mvarId
+    let s ← getSimprocs numIndices (useDecide := false)
+    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx s (mayCloseGoal := false) | unreachable!
     return mvarId'
   else
-    unreachable!
+    let mut ctx ← getSimpContext
+    let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) | unreachable!
+    return mvarId'
 
-def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := commitWhenSome? do
-  if let some (s₁, s₂) ← splitIfAt? mvarId (← mvarId.getType) hName? then
-    let mvarId₁ ← simpIfTarget s₁.mvarId
-    let mvarId₂ ← simpIfTarget s₂.mvarId
+/--
+Split an `if-then-else` in the goal target.
+If `useNewSemantics` is `true`, the flag `backward.split` is ignored.
+-/
+def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) (useNewSemantics := false) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := commitWhenSome? do
+  let some (s₁, s₂) ← splitIfAt? mvarId (← mvarId.getType) hName? | return none
+  let mvarId₁ ← simpIfTarget s₁.mvarId (useNewSemantics := useNewSemantics)
+  let mvarId₂ ← simpIfTarget s₂.mvarId (useNewSemantics := useNewSemantics)
+  if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+    trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
+    return none
+  else
+    return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })
+
+/--
+Split an `if-then-else` in the hypothesis `fvarId`.
+-/
+def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name := none) : MetaM (Option (MVarId × MVarId)) := commitWhenSome? do
+  mvarId.withContext do
+    let some (s₁, s₂) ← splitIfAt? mvarId (← inferType (mkFVar fvarId)) hName? | return none
+    let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
+    let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId
     if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
       trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
       return none
     else
-      return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })
-  else
-    return none
-
-def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name := none) : MetaM (Option (MVarId × MVarId)) := commitWhenSome? do
-  mvarId.withContext do
-    if let some (s₁, s₂) ← splitIfAt? mvarId (← inferType (mkFVar fvarId)) hName? then
-      let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
-      let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId
-      if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
-        trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
-        return none
-      else
-        return some (mvarId₁, mvarId₂)
-    else
-      return none
+      return some (mvarId₁, mvarId₂)
 
 builtin_initialize registerTraceClass `Meta.Tactic.splitIf
 

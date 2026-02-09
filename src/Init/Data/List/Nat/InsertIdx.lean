@@ -6,7 +6,15 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
+public import Init.GetElem
+import Init.Data.List.Erase
+import Init.Data.List.Lemmas
 import Init.Data.List.Nat.Modify
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # insertIdx
@@ -119,9 +127,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {l : List α} (a : α) : (l.insertIdx 
   rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
   exact modifyTailIdx_id _ _
 
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-18")]
-abbrev eraseIdx_insertIdx := @eraseIdx_insertIdx_self
-
 @[simp]
 theorem insertIdx_length_self {l : List α} {x : α} : l.insertIdx l.length x = l ++ [x] := by
   induction l with
@@ -194,9 +199,6 @@ theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
         | zero => omega
         | succ j => simp
 
-@[deprecated getElem_insertIdx_of_gt (since := "2025-02-04")]
-abbrev getElem_insertIdx_of_ge := @getElem_insertIdx_of_gt
-
 @[grind =]
 theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertIdx i x).length) :
     (l.insertIdx i x)[j] =
@@ -258,9 +260,6 @@ theorem getElem?_insertIdx_self {l : List α} {x : α} {i : Nat} :
 theorem getElem?_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (h : i < j) :
     (l.insertIdx i x)[j]? = l[j - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
-
-@[deprecated getElem?_insertIdx_of_gt (since := "2025-02-04")]
-abbrev getElem?_insertIdx_of_ge := @getElem?_insertIdx_of_gt
 
 end InsertIdx
 

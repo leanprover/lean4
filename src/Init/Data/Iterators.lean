@@ -6,11 +6,16 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.PostconditionMonad
-import Init.Data.Iterators.Consumers
-import Init.Data.Iterators.Lemmas
-import Init.Data.Iterators.Internal
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Producers
+public import Init.Data.Iterators.Combinators
+public import Init.Data.Iterators.Lemmas
+public import Init.Data.Iterators.ToIterator
+public import Init.Data.Iterators.Internal
+
+public section
 
 /-!
 # Iterators

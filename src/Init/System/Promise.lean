@@ -6,17 +6,15 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 set_option linter.missingDocs true
 
 namespace IO
 
 private opaque PromisePointed : NonemptyType.{0}
-
-private structure PromiseImpl (α : Type) : Type where
-  prom : PromisePointed.type
-  h    : Nonempty α
 
 /--
 `Promise α` allows you to create a `Task α` whose value is provided later by calling `resolve`.
@@ -31,7 +29,9 @@ Typical usage is as follows:
 If the promise is dropped without ever being resolved, `promise.result?.get` will return `none`.
 See `Promise.result!/resultD` for other ways to handle this case.
 -/
-def Promise (α : Type) : Type := PromiseImpl α
+structure Promise (α : Type) : Type where
+  private prom : PromisePointed.type
+  private h    : Nonempty α
 
 instance [s : Nonempty α] : Nonempty (Promise α) :=
   by exact Nonempty.intro { prom := Classical.choice PromisePointed.property, h := s }
@@ -62,20 +62,19 @@ private opaque Option.getOrBlock! [Nonempty α] : Option α → α
 The result task of a `Promise`.
 
 The task blocks until `Promise.resolve` is called. If the promise is dropped without ever being
-resolved, evaluating the task will panic and, when not using fatal panics, block forever. Use
-`Promise.result?` to handle this case explicitly.
+resolved, evaluating the task will panic and, when not using fatal panics, block forever. As
+`Promise.result!` is a pure value and thus the point of evaluation may not be known precisely, this
+means that any promise on which `Promise.result!` *may* be evaluated *must* be resolved eventually.
+When in doubt, always prefer `Promise.result?` to handle dropped promises explicitly.
 -/
 def Promise.result! (promise : @& Promise α) : Task α :=
   let _ : Nonempty α := promise.h
   promise.result?.map (sync := true) Option.getOrBlock!
 
-@[inherit_doc Promise.result!, deprecated Promise.result! (since := "2025-02-05")]
-def Promise.result := @Promise.result!
-
 /--
 Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
 -/
-@[macro_inline] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
+@[macro_inline, expose] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
   promise.result?.map (sync := true) (·.getD dflt)
 
 /--

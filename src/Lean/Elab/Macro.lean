@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.MacroArgUtil
+public import Lean.Elab.MacroArgUtil
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -18,29 +22,28 @@ open Lean.Parser.Command
     withRef (mkNullNode #[tk, rhs]) do
       let prio  ← liftMacroM <| evalOptPrio prio?
       let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
-      -- name
-      let name ← match name? with
-        | some name => pure name.getId
-        | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)) attrKind
-      /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
-        So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-      let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
-      let stxCmd ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
+      let kind ← elabSyntax (← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
         syntax$[:$prec?]?
-          (name := $(name?.getD (mkIdentFrom tk name (canonical := true))))
+          $[(name := $name?)]?
           (priority := $(quote prio):num)
-          $[$stxParts]* : $cat)
+          $[$stxParts]* : $cat))
+      let pat := ⟨mkNode kind patArgs⟩
       let rhs := rhs.raw
+      -- Elide `scoped` for `macro_rules`; this allows for using scoped macros in unscoped macros
+      -- for back-compat and unlike with `local`, there would be no benefit to enforcing `scoped`.
+      let mut rulesKind := attrKind
+      if rulesKind matches `(attrKind| scoped) then
+        rulesKind ← `(attrKind| )
       let macroRulesCmd ← if rhs.getArgs.size == 1 then
         -- `rhs` is a `term`
         let rhs := ⟨rhs[0]⟩
-        `($[$doc?:docComment]? macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
+        `($[$doc?:docComment]? $rulesKind:attrKind macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
       else
         -- TODO(gabriel): remove after bootstrap
         -- `rhs` is of the form `` `( $body ) ``
         let rhsBody := ⟨rhs[1]⟩
-        `($[$doc?:docComment]? macro_rules | `($pat) => `($rhsBody))
-      elabCommand <| mkNullNode #[stxCmd, macroRulesCmd]
+        `($[$doc?:docComment]? $rulesKind:attrKind macro_rules | `($pat) => `($rhsBody))
+      elabCommand macroRulesCmd
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

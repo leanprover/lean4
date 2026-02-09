@@ -3,11 +3,12 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.ToExpr
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
-
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Lean.Util.SafeExponentiation
+import Init.Data.Int.DivMod
+public section
 namespace Int
 open Lean Meta Simp
 
@@ -78,7 +79,8 @@ builtin_dsimproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
   let_expr HPow.hPow _ _ _ _ a b ← e | return .continue
   let some v₁ ← fromExpr? a | return .continue
   let some v₂ ← Nat.fromExpr? b | return .continue
-  unless (← checkExponent v₂) do return .continue
+  let warning := (← Simp.getConfig).warnExponents
+  unless (← checkExponent v₂ (warning := warning)) do return .continue
   return .done <| toExpr (v₁ ^ v₂)
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)
@@ -114,9 +116,9 @@ builtin_simproc [simp, seval] reduceDvd ((_ : Int) ∣ _) := fun e => do
   let some va ← fromExpr? a | return .continue
   let some vb ← fromExpr? b | return .continue
   if vb % va == 0 then
-    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b eagerReflBoolTrue}
   else
-    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b eagerReflBoolTrue}
 
 private def reduceNatCastCore (inst : Expr) (a : Expr) : SimpM DStep := do
   let some a ← getNatValue? a | return .continue

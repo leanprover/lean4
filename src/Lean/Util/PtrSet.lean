@@ -3,10 +3,13 @@ Copyright (c) 2023 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Std.Data.HashSet.Basic
-import Std.Data.HashMap.Basic
+public import Init.Data.Hashable
+public import Std.Data.HashSet.Basic
+
+public section
 
 namespace Lean
 
@@ -22,7 +25,7 @@ unsafe instance : BEq (Ptr α) where
 /--
 Set of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
 -/
-unsafe def PtrSet (α : Type) :=
+@[expose] unsafe def PtrSet (α : Type) :=
   Std.HashSet (Ptr α)
 
 unsafe def mkPtrSet {α : Type} (capacity : Nat := 64) : PtrSet α :=
@@ -37,7 +40,7 @@ unsafe abbrev PtrSet.contains (s : PtrSet α) (a : α) : Bool :=
 /--
 Map of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
 -/
-unsafe def PtrMap (α : Type) (β : Type) :=
+@[expose] unsafe def PtrMap (α : Type) (β : Type) :=
   Std.HashMap (Ptr α) β
 
 unsafe def mkPtrMap {α β : Type} (capacity : Nat := 64) : PtrMap α β :=

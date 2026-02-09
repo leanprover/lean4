@@ -3,12 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.OpenDecl
-import Lean.Hygiene
-import Lean.Modifiers
-import Lean.Exception
-import Lean.Namespace
+public import Lean.Modifiers
+public import Lean.Exception
+public import Lean.Namespace
+public import Lean.Log
+
+public section
 
 namespace Lean
 /-!
@@ -21,7 +24,7 @@ For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
 def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
-  throwError "failed to declare `{declName}` because `{.ofConstName reservedName true}` has already been declared"
+  throwError "failed to declare `{.ofConstName declName}` because `{.ofConstName reservedName true}` has already been declared"
 
 def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (suffix : String) : m Unit := do
   let reservedName := .str declName suffix
@@ -99,29 +102,56 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
   -- avoid blocking from `Environment.contains` if possible
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
+register_builtin_option backward.privateInPublic : Bool := {
+  defValue := false
+  descr    := "(module system) Export `private` declarations, allowing for arbitrary access to \
+    them while code is being ported to the module system. Such accesses will generate warnings
+    unless `backward.privateInPublic.warn` is disabled."
+}
+
+register_builtin_option backward.privateInPublic.warn : Bool := {
+  defValue := true
+  descr    := "(module system) Warn on accesses to `private` declarations that are allowed only by \
+    `backward.privateInPublic` being enabled."
+}
+
+private partial def resolvePrivateName (env : Environment) (opts : Options) (declName : Name) : Option Name := do
+  -- No point in checking private names when exporting. This is an optimization but also necessary
+  -- for correct visibility checking while we still carry some private names (e.g. kernel-generated
+  -- from `inductive`) in the public env.
+  guard (!env.isExporting || backward.privateInPublic.get opts)
+  if containsDeclOrReserved env (mkPrivateName env declName) then
+    return mkPrivateName env declName
+  -- Under the module system, we assume there are at most a few `import all`s and we can just test
+  -- them one by one.
+  guard <| env.header.isModule
+  env.header.importAllModules.findSome? fun i => do
+    let n := mkPrivateNameCore i.module declName
+    guard <| containsDeclOrReserved env n
+    return n
+
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
-private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
+private def resolveQualifiedName (env : Environment) (opts : Options) (ns : Name) (id : Name) : List Name := Id.run do
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
   let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
-  if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
-    resolvedId :: resolvedIds
-  else
-    -- Check whether environment contains the private version. That is, `_private.<module_name>.ns.id`.
-    let resolvedIdPrv := mkPrivateName env resolvedId
-    if containsDeclOrReserved env resolvedIdPrv then resolvedIdPrv :: resolvedIds
-    else resolvedIds
+  if !id.isAtomic || !isProtected env resolvedId then
+    if containsDeclOrReserved env resolvedId then
+      return resolvedId :: resolvedIds
+    else if let some resolvedIdPrv := resolvePrivateName env opts resolvedId then
+      return resolvedIdPrv :: resolvedIds
+  return resolvedIds
 
 /-- Check surrounding namespaces -/
-private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
+private def resolveUsingNamespace (env : Environment) (opts : Options) (id : Name) : Name → List Name
   | ns@(.str p _) =>
-    match resolveQualifiedName env ns id with
-    | []          => resolveUsingNamespace env id p
+    match resolveQualifiedName env opts ns id with
+    | []          => resolveUsingNamespace env opts id p
     | resolvedIds => resolvedIds
   | _ => []
 
 /-- Check exact name -/
-private def resolveExact (env : Environment) (id : Name) : Option Name :=
+private def resolveExact (env : Environment) (opts : Options) (id : Name) : Option Name :=
   if id.isAtomic then none
   else
     let resolvedId := id.replacePrefix rootNamespace Name.anonymous
@@ -129,19 +159,17 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
     else
       -- We also allow `_root_` when accessing private declarations.
       -- If we change our minds, we should just replace `resolvedId` with `id`
-      let resolvedIdPrv := mkPrivateName env resolvedId
-      if containsDeclOrReserved env resolvedIdPrv then some resolvedIdPrv
-      else none
+      resolvePrivateName env opts resolvedId
 
 /-- Check `OpenDecl`s -/
-private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
+private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name) : List OpenDecl → List Name → List Name
   | [], resolvedIds => resolvedIds
   | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
     if exs.contains id then
-      resolveOpenDecls env id openDecls resolvedIds
+      resolveOpenDecls env opts id openDecls resolvedIds
     else
-      let newResolvedIds := resolveQualifiedName env ns id
-      resolveOpenDecls env id openDecls (newResolvedIds ++ resolvedIds)
+      let newResolvedIds := resolveQualifiedName env opts ns id
+      resolveOpenDecls env opts id openDecls (newResolvedIds ++ resolvedIds)
   | OpenDecl.explicit openedId resolvedId :: openDecls, resolvedIds =>
     let resolvedIds :=
       if openedId == id then
@@ -154,7 +182,7 @@ private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl →
           resolvedIds
       else
         resolvedIds
-    resolveOpenDecls env id openDecls resolvedIds
+    resolveOpenDecls env opts id openDecls resolvedIds
 
 /--
 Primitive global name resolution procedure. It does not trigger actions associated with reserved names.
@@ -163,7 +191,7 @@ containing stating that `foo` is equal to its definition. The action associated 
 automatically proves the theorem. At the macro level, the name is resolved, but the action is not
 executed.
 -/
-def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=
+def resolveGlobalName (env : Environment) (opts : Options) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List (Name × List String) :=
   -- decode macro scopes from name before recursion
   let extractionResult := extractMacroScopes id
   let rec loop (id : Name) (projs : List String) : List (Name × List String) :=
@@ -171,16 +199,15 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
     | .str p s =>
       -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
       let id := { extractionResult with name := id }.review
-      match resolveUsingNamespace env id ns with
+      match resolveUsingNamespace env opts id ns with
       | resolvedIds@(_ :: _) => resolvedIds.eraseDups.map fun id => (id, projs)
       | [] =>
-        match resolveExact env id with
+        match resolveExact env opts id with
         | some newId => [(newId, projs)]
         | none =>
           let resolvedIds := if containsDeclOrReserved env id then [id] else []
-          let idPrv       := mkPrivateName env id
-          let resolvedIds := if containsDeclOrReserved env idPrv then [idPrv] ++ resolvedIds else resolvedIds
-          let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
+          let resolvedIds := if let some idPrv := resolvePrivateName env opts id then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := resolveOpenDecls env opts id openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with
           | _ :: _ => resolvedIds.eraseDups.map fun id => (id, projs)
@@ -239,6 +266,32 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
   getCurrNamespace := liftM (m:=m) getCurrNamespace
   getOpenDecls     := liftM (m:=m) getOpenDecls
 
+variable [Monad m] [MonadResolveName m] [MonadEnv m] [MonadOptions m] [MonadLog m] [AddMessageContext m]
+  [MonadError m]
+
+def checkPrivateInPublic (id : Name) : m Unit := do
+  if (← getEnv).isExporting && isPrivateName id && (← ResolveName.backward.privateInPublic.warn.getM) then
+    logWarning m!"Private declaration `{.ofConstName id}` accessed publicly; \
+      this is allowed only because the `backward.privateInPublic` option is enabled. \n\n\
+      Disable `backward.privateInPublic.warn` to silence this warning."
+
+def isInaccessiblePrivateName [Monad m] [MonadEnv m] [MonadOptions m] (n : Name) : m Bool := do
+  if !isPrivateName n then
+    return false
+  let env ← getEnv
+  -- All private names are inaccessible from the public scope
+  if env.isExporting && !(← ResolveName.backward.privateInPublic.getM) then
+    return true
+  checkPrivateInPublic n
+  -- In the private scope, ...
+  match env.getModuleIdxFor? n with
+  | some modIdx =>
+    -- ... allow access through `import all`
+    return !env.header.isModule || !env.header.modules[modIdx]?.any (·.importAll)
+  | none =>
+    -- ... allow all accesses in the current module
+    return false
+
 /--
 Given a name `n`, return a list of possible interpretations.
 Each interpretation is a pair `(declName, fieldList)`, where `declName`
@@ -261,22 +314,31 @@ After `open Foo open Boo`, we have
 - `resolveGlobalName x`     => `[(Foo.x, []), (Boo.x, [])]`
 - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
 - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w]), (Boo.x, [z, w])]`
+
+If `enableLog` is false, this function does not ever log warnings etc, which is useful if it may be
+called incidentally or multiple times.
 -/
-def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
-  return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
+def resolveGlobalName (id : Name) (enableLog := true) : m (List (Name × List String)) := do
+  let res := ResolveName.resolveGlobalName (← getEnv) (← getOptions) (← getCurrNamespace) (← getOpenDecls) id
+  -- `isExporting` is already checked in `checkPrivateInPublic` but should be cheaper than `isPrivateName`
+  if enableLog && (← getEnv).isExporting then
+    if let some prv := res.find? (isPrivateName ·.1) then
+      checkPrivateInPublic prv.1
+
+  return res
 
 /--
 Given a namespace name, return a list of possible interpretations.
 Names extracted from syntax should be passed to `resolveNamespace` instead.
 -/
-def resolveNamespaceCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) (allowEmpty := false) : m (List Name) := do
+def resolveNamespaceCore (id : Name) (allowEmpty := false) : m (List Name) := do
   let nss := ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
   if !allowEmpty && nss.isEmpty then
-    throwError s!"unknown namespace '{id}'"
+    throwError s!"unknown namespace `{id}`"
   return nss
 
 /-- Given a namespace identifier, return a list of possible interpretations. -/
-def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Ident → m (List Name)
+def resolveNamespace : Ident → m (List Name)
   | stx@⟨Syntax.ident _ _ n pre⟩ => do
     let pre := pre.filterMap fun
       | .namespace ns => some ns
@@ -288,13 +350,13 @@ def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] 
   | stx => throwErrorAt stx s!"expected identifier"
 
 /-- Given a namespace identifier, return the unique interpretation or else fail. -/
-def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Ident) : m Name := do
+def resolveUniqueNamespace (id : Ident) : m Name := do
   match (← resolveNamespace id) with
   | [ns] => return ns
-  | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
+  | nss => throwError s!"ambiguous namespace `{id.getId}`, possible interpretations: `{nss}`"
 
 /-- Helper function for `resolveGlobalConstCore`. -/
-def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
+def filterFieldList (n : Name) (cs : List (Name × List String)) : m (List Name) := do
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
   if cs.isEmpty then throwUnknownConstantAt (← getRef) n
   return cs.map (·.1)
@@ -303,21 +365,21 @@ def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List
 
 Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty.
 For identifiers taken from syntax, use `resolveGlobalConst` instead, which respects preresolved names. -/
-private def resolveGlobalConstCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m (List Name) := do
+private def resolveGlobalConstCore (n : Name) : m (List Name) := do
   let cs ← resolveGlobalName n
   filterFieldList n cs
 
 /-- Helper function for `resolveGlobalConstNoOverloadCore` -/
-def ensureNoOverload [Monad m] [MonadError m] (n : Name) (cs : List Name) : m Name := do
+def ensureNoOverload (n : Name) (cs : List Name) : m Name := do
   match cs with
   | [c] => pure c
-  | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
+  | _   => throwError m!"Ambiguous identifier `{n}`; possible interpretations: {cs.map mkConst}"
 
 /-- For identifiers taken from syntax, use `resolveGlobalConstNoOverload` instead, which respects preresolved names. -/
-def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
+def resolveGlobalConstNoOverloadCore (n : Name) : m Name := do
   ensureNoOverload n (← resolveGlobalConstCore n)
 
-def preprocessSyntaxAndResolve [Monad m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
+def preprocessSyntaxAndResolve (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
   match stx with
   | .ident _ _ n pre => do
     let pre := pre.filterMap fun
@@ -354,7 +416,7 @@ After `open Foo open Boo`, we have
 - `resolveGlobalConst x.y`   => `[Foo.x.y]`
 - `resolveGlobalConst x.z.w` => error: unknown constant
 -/
-def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (stx : Syntax) : m (List Name) :=
+def resolveGlobalConst (stx : Syntax) : m (List Name) :=
   preprocessSyntaxAndResolve stx resolveGlobalConstCore
 
 /--
@@ -362,11 +424,11 @@ Given a list of names produced by `resolveGlobalConst`, throws an error if the l
 exactly one element.
 Recall that `resolveGlobalConst` does not return empty lists.
 -/
-def ensureNonAmbiguous [Monad m] [MonadError m] (id : Syntax) (cs : List Name) : m Name := do
+def ensureNonAmbiguous (id : Syntax) (cs : List Name) : m Name := do
   match cs with
   | []  => unreachable!
   | [c] => pure c
-  | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
+  | _   => throwErrorAt id s!"ambiguous identifier `{id}`, possible interpretations: {cs.map mkConst}"
 
 /-- Interprets the syntax `n` as an identifier for a global constant, and return a resolved
 constant name. If there are multiple possible interpretations it will throw.
@@ -391,11 +453,11 @@ After `open Foo open Boo`, we have
 - `resolveGlobalConstNoOverload x.y`   => `Foo.x.y`
 - `resolveGlobalConstNoOverload x.z.w` => error: unknown constant
 -/
-def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m Name := do
+def resolveGlobalConstNoOverload (id : Syntax) : m Name := do
   ensureNonAmbiguous id (← resolveGlobalConst id)
 
 /-- Resolves the name `n` in the local context. -/
-def resolveLocalName [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (n : Name) : m (Option (Expr × List String)) := do
+def resolveLocalName [MonadLCtx m] (n : Name) : m (Option (Expr × List String)) := do
   let lctx ← getLCtx
   let auxDeclToFullName := (← getLCtx).auxDeclToFullName
   let currNamespace ← getCurrNamespace
@@ -494,7 +556,7 @@ def resolveLocalName [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (
       let localDecl ← localDecl?
       if localDecl.isAuxDecl then
         guard (!skipAuxDecl)
-        if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
+        if let some fullDeclName := auxDeclToFullName.get? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
           matchLocalDecl? localDecl givenName
@@ -551,7 +613,7 @@ def resolveLocalName [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (
       | .str pre s =>
         let mut globalDeclFoundNext := globalDeclFound
         unless globalDeclFound do
-          let r ← resolveGlobalName givenNameView.review
+          let r ← resolveGlobalName (enableLog := false) givenNameView.review
           let r := r.filter fun (_, fieldList) => fieldList.isEmpty
           unless r.isEmpty do
             globalDeclFoundNext := true
@@ -577,8 +639,7 @@ If `n₀` is an accessible name, then the result will be an accessible name.
 
 The name `n₀` may be private.
 -/
-def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m]
-    (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
+def unresolveNameGlobal (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
     (filter : Name → m Bool := fun _ => pure true) : m Name := do
   if n₀.hasMacroScopes then return n₀
   -- `n₁` is the name without any private prefix, and `qn₁?` is a valid fully-qualified name.
@@ -591,7 +652,7 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m]
   else
     (n₀, some (rootNamespace ++ n₀))
   if fullNames then
-    if let [(potentialMatch, _)] ← resolveGlobalName n₁ then
+    if let [(potentialMatch, _)] ← resolveGlobalName n₁ (enableLog := false) then
       if (← pure (potentialMatch == n₀) <&&> filter n₁) then
         return n₁
     if let some qn₁ := qn₁? then
@@ -624,7 +685,7 @@ where
     let mut candidate := Name.anonymous
     for cmpt in revComponents do
       candidate := Name.appendCore cmpt candidate
-      if let [(potentialMatch, _)] ← resolveGlobalName candidate then
+      if let [(potentialMatch, _)] ← resolveGlobalName (enableLog := false) candidate then
         if potentialMatch == n₀ then
           if (← filter candidate) then
             return some candidate
@@ -632,7 +693,7 @@ where
 
 /-- Like `Lean.unresolveNameGlobal`, but also ensures that the unresolved name does not conflict
 with the names of any local declarations. -/
-def unresolveNameGlobalAvoidingLocals [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (n₀ : Name) (fullNames := false) : m Name :=
+def unresolveNameGlobalAvoidingLocals [MonadLCtx m] (n₀ : Name) (fullNames := false) : m Name :=
   unresolveNameGlobal n₀ (fullNames := fullNames) (filter := fun n => Option.isNone <$> resolveLocalName n)
 
 end Lean

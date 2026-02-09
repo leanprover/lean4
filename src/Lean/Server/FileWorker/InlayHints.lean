@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.GoTo
-import Lean.Server.Requests
+public import Lean.Server.GoTo
+public import Lean.Server.Requests
+
+public section
 
 namespace Lean.Elab
 
@@ -57,7 +61,7 @@ end Lean.Elab
 namespace Lean.Server.FileWorker
 open Lsp
 
-def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String.Range) (newText : String) : Option Elab.InlayHintInfo := do
+def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : Lean.Syntax.Range) (newText : String) : Option Elab.InlayHintInfo := do
   let isLabelLocAffectedByEdit :=
     match ihi.label with
     | .name _ => false
@@ -73,15 +77,15 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String
       isLabelLocAffectedByEdit
   if isInlayHintInvalidatedByEdit then
     none
-  let byteOffset : Int := (newText.toSubstring.bsize : Int) - (range.bsize : Int)
-  let shift (p : String.Pos) : String.Pos :=
+  let byteOffset : Int := (newText.toRawSubstring.bsize : Int) - (range.bsize : Int)
+  let shift (p : String.Pos.Raw) : String.Pos.Raw :=
     if range.stop < p then
       ⟨p.byteIdx + byteOffset |>.toNat⟩
     else if p < range.start then
       p
     else -- `range.start <= p && p <= range.stop`
       panic! s!"Got position {p} that should have been invalidated by edit at range {range.start}-{range.stop}"
-  let shiftRange (r : String.Range) : String.Range := ⟨shift r.start, shift r.stop⟩
+  let shiftRange (r : Lean.Syntax.Range) : Lean.Syntax.Range := ⟨shift r.start, shift r.stop⟩
   return { ihi with
     position := shift ihi.position
     textEdits := ihi.textEdits.map fun edit => { edit with range := shiftRange edit.range }
@@ -160,7 +164,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
   -- so in addition to re-using old inlay hints from parts of the file that haven't been processed
   -- yet, we also re-use old inlay hints from parts of the file that have been processed already
   -- with the current state of the document.
-  let invalidOldInlayHintsRange : String.Range := {
+  let invalidOldInlayHintsRange : Lean.Syntax.Range := {
     start := snaps[oldFinishedSnaps - 1]?.map (·.endPos) |>.getD ⟨0⟩
     stop := snaps[finishedSnaps - 1]?.map (·.endPos) |>.getD ⟨0⟩
   }
@@ -168,7 +172,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
       ! invalidOldInlayHintsRange.contains ihi.position
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
-    for s in snaps[oldFinishedSnaps:] do
+    for s in snaps[oldFinishedSnaps...*] do
       s.infoTree.visitM' (postNode := fun ci i _ => do
         let .ofCustomInfo i := i
           | return

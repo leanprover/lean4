@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-import Init.Data.Nat.Linear
+public import Init.Data.Nat.Linear
+import Init.ByCases
 import Init.Data.List.BasicAux
-
+import Init.Data.Prod
+import Init.Meta
+public section
 namespace Nat.SOM
 
 open Linear (Var hugeFuel Context Var.denote)
@@ -20,7 +22,9 @@ inductive Expr where
   | mul (a b : Expr)
   deriving Inhabited
 
-def Expr.denote (ctx : Context) : Expr → Nat
+set_option allowUnsafeReducibility true
+
+noncomputable abbrev Expr.denote (ctx : Context) : Expr → Nat
   | num n   => n
   | var v   => v.denote ctx
   | add a b => Nat.add (a.denote ctx) (b.denote ctx)
@@ -28,9 +32,11 @@ def Expr.denote (ctx : Context) : Expr → Nat
 
 abbrev Mon := List Var
 
-def Mon.denote (ctx : Context) : Mon → Nat
+noncomputable abbrev Mon.denote (ctx : Context) : Mon → Nat
   | [] => 1
   | v::vs => Nat.mul (v.denote ctx) (denote ctx vs)
+
+attribute [semireducible] Expr.denote Mon.denote
 
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
   go hugeFuel m₁ m₂
@@ -52,9 +58,11 @@ where
 
 abbrev Poly := List (Nat × Mon)
 
-def Poly.denote (ctx : Context) : Poly → Nat
+noncomputable abbrev Poly.denote (ctx : Context) : Poly → Nat
   | [] => 0
   | (k, m) :: p => Nat.add (Nat.mul k (m.denote ctx)) (denote ctx p)
+
+attribute [semireducible] Poly.denote
 
 def Poly.add (p₁ p₂ : Poly) : Poly :=
   go hugeFuel p₁ p₂
@@ -142,7 +150,7 @@ where
         subst m₂
         by_cases heq : k₁ + k₂ == 0 <;> simp! [heq, ih]
         · simp [← Nat.add_assoc, ← Nat.right_distrib, eq_of_beq heq]
-        · simp [Nat.right_distrib, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+        · simp [Nat.right_distrib, Nat.add_assoc]
 
 theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (m : Mon) (p : Poly) : (p.insertSorted k m).denote ctx = p.denote ctx + k * m.denote ctx := by
   match p with

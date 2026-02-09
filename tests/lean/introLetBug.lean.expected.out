@@ -6,4 +6,4 @@ k : Nat
 this : f 10 = 11
 ⊢ let x := 10;
   11 = k
-introLetBug.lean:2:0-2:7: warning: declaration uses 'sorry'
+introLetBug.lean:2:0-2:7: warning: declaration uses `sorry`

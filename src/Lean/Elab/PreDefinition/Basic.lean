@@ -3,23 +3,25 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.NoncomputableAttr
-import Lean.Util.CollectLevelParams
-import Lean.Util.NumObjs
-import Lean.Util.NumApps
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Eqns
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Compiler.NoncomputableAttr
+public import Lean.Util.NumApps
+public import Lean.Meta.Eqns
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.DefView
+
+public section
 
 namespace Lean.Elab
 open Meta
 open Term
+
+register_builtin_option cleanup.letToHave : Bool := {
+  defValue := true
+  descr    := "Enables transforming `let`s to `have`s after elaborating declarations."
+}
 
 /--
   A (potentially recursive) definition.
@@ -31,6 +33,8 @@ structure PreDefinition where
   levelParams : List Name
   modifiers   : Modifiers
   declName    : Name
+  binders     : Syntax
+  numSectionVars : Nat := 0
   type        : Expr
   value       : Expr
   termination : TerminationHints
@@ -88,6 +92,31 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
+/--
+Applies `Meta.letToHave` to the values of defs, instances, and abbrevs.
+Does not apply the transformation to values that are proofs, or to unsafe definitions.
+-/
+def letToHaveValue (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions)
+      || preDef.modifiers.isUnsafe
+      || preDef.kind matches .theorem | .example | .opaque then
+    return preDef
+  else if ← Meta.isProp preDef.type then
+    return preDef
+  else
+    let value ← Meta.letToHave preDef.value
+    return { preDef with value }
+
+/--
+Applies `Meta.letToHave` to the type of the predef.
+-/
+def letToHaveType (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+  if !cleanup.letToHave.get (← getOptions) || preDef.kind matches .example then
+    return preDef
+  else
+    let type ← Meta.letToHave preDef.type
+    return { preDef with type }
+
 def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
@@ -106,11 +135,13 @@ private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
 private def compileDecl (decl : Declaration) : TermElabM Unit := do
-  Lean.compileDecl (logErrors := !(← read).isNoncomputableSection) decl
+  Lean.compileDecl
+    -- `meta` should disregard `noncomputable section`
+    (logErrors := !(← read).isNoncomputableSection || decl.getTopLevelNames.any (isMarkedMeta (← getEnv)))
+    decl
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
   defValue := 16384
-  group    := "diagnostics"
   descr    := "only display proof statistics when proof has at least this number of terms"
 }
 
@@ -124,23 +155,34 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
--- TODO: should become part of the compiler to deal with erasure
-private def checkMeta (preDef : PreDefinition) : TermElabM Unit := do
-  preDef.value.forEach' fun e => do
-    if e.isAutoParam then
-      return false
-    if let .const c .. := e then
-      match getIRPhases (← getEnv) c, preDef.modifiers.isMeta with
-      | .runtime, true =>
-        throwError "Invalid meta definition, '{.ofConstName c}' must be `meta` to access"
-      | .comptime, false =>
-        throwError "Invalid definition, may not access `meta` declaration '{.ofConstName c}'"
-      | _, _ => pure ()
-    return true
+/--
+Adds the docstring, if relevant.
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
+This should be done just after compilation so the predefinition can be executed in examples in its
+docstring. If code generation will not occur, then it should be done after adding the declaration
+to the environment.
+-/
+def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
+  if let some (doc, isVerso) := preDef.modifiers.docString? then
+    withLCtx docCtx.1 docCtx.2 do
+      addDocStringOf isVerso preDef.declName preDef.binders doc
+
+/--
+Adds constant info to the definition name. This should occur after executing post-compilation
+attributes, in case they have an effect on hovers.
+-/
+def addPreDefInfo (preDef : PreDefinition) : TermElabM Unit := do
+  withSaveInfoContext do  -- save new env that includes docstring and constant
+    addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+
+
+private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (compile : Bool)
+    (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false)
+    (isRecursive := false) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+    let preDef ← letToHaveType preDef
+    let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -170,26 +212,35 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
       | DefKind.def | DefKind.example => mkDefDecl
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
-    withSaveInfoContext do  -- save new env
-      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+    if isRecursive then markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
-    | .meta          => modifyEnv (addMeta · preDef.declName)
-    | .noncomputable => modifyEnv (addNoncomputable · preDef.declName)
-    | _              => pure ()
-    checkMeta preDef
+    -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
+    | .meta          => if !isMarkedMeta (← getEnv) preDef.declName then modifyEnv (markMeta · preDef.declName)
+    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
+    | _              =>
+      if !preDef.kind.isTheorem then
+        modifyEnv (markNotMeta · preDef.declName)
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
       enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
+    addPreDefDocs docCtx preDef
+    if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    addPreDefInfo preDef
 
-def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
-  addNonRecAux preDef (compile := true) (all := all)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs)
+def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition)
+    (all : List Name := [preDef.declName]) (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
+
+def addNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition)
+    (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true)
+    (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
+    (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
@@ -203,7 +254,10 @@ def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr := do
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
+def addAndCompileUnsafe
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
+    (safety := DefinitionSafety.unsafe) :
+    TermElabM Unit := do
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   withRef preDefs[0]!.ref do
     let all  := preDefs.toList.map (·.declName)
@@ -216,18 +270,21 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
         safety, all
       }
     addDecl decl
-    withSaveInfoContext do  -- save new env
-      for preDef in preDefs do
-        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
     compileDecl decl
+    for preDef in preDefs do
+      addPreDefDocs docCtx preDef
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
+    for preDef in preDefs do
+      addPreDefInfo preDef
     return ()
 
-def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addAndCompilePartialRec
+    (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition) :
+    TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then
     withEnableInfoTree false do
-      addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
+      addAndCompileUnsafe docCtx (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
         { preDef with
           declName  := Compiler.mkUnsafeRecName preDef.declName
           value     := preDef.value.replace fun e => match e with
@@ -257,7 +314,7 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for h : i in [1:preDefs.size] do
+    for h : i in 1...preDefs.size do
       forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
@@ -274,7 +331,7 @@ def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinit
         es := es.push preDef.type |>.push preDef.value
       es := ShareCommon.shareCommon' es
       let mut result := #[]
-      for h : i in [:preDefs.size] do
+      for h : i in *...preDefs.size do
         let preDef := preDefs[i]
         result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
       return result

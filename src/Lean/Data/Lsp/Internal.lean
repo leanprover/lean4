@@ -4,11 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Data.Lsp.Basic
-import Lean.Data.JsonRpc
-import Std.Data.TreeMap
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.JsonRpc
+public import Lean.Data.DeclarationRange
+public import Init.Data.Array.GetLit
+import Init.Omega
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -95,26 +100,128 @@ instance : ToJson RefIdent where
 
 end RefIdent
 
-/-- Information about the declaration surrounding a reference. -/
-structure RefInfo.ParentDecl where
-  /-- Name of the declaration surrounding a reference. -/
-  name           : String
-  /-- Range of the declaration surrounding a reference. -/
-  range          : Lsp.Range
-  /-- Selection range of the declaration surrounding a reference. -/
-  selectionRange : Lsp.Range
-  deriving ToJson
+/-- Position information for a declaration. Inlined to reduce memory consumption. -/
+structure DeclInfo where
+  /-- Start line of range. -/
+  rangeStartPosLine : Nat
+  /-- Start character of range. -/
+  rangeStartPosCharacter : Nat
+  /-- End line of range. -/
+  rangeEndPosLine : Nat
+  /-- End character of range. -/
+  rangeEndPosCharacter : Nat
+  /-- Start line of selection range. -/
+  selectionRangeStartPosLine : Nat
+  /-- Start character of selection range. -/
+  selectionRangeStartPosCharacter : Nat
+  /-- End line of selection range. -/
+  selectionRangeEndPosLine : Nat
+  /-- End character of selection range. -/
+  selectionRangeEndPosCharacter : Nat
+
+/-- Converts a set of `DeclarationRanges` to a `DeclInfo`. -/
+def DeclInfo.ofDeclarationRanges (r : DeclarationRanges) : DeclInfo where
+  rangeStartPosLine := r.range.pos.line - 1
+  rangeStartPosCharacter := r.range.charUtf16
+  rangeEndPosLine := r.range.endPos.line - 1
+  rangeEndPosCharacter := r.range.endCharUtf16
+  selectionRangeStartPosLine := r.selectionRange.pos.line - 1
+  selectionRangeStartPosCharacter := r.selectionRange.charUtf16
+  selectionRangeEndPosLine := r.selectionRange.endPos.line - 1
+  selectionRangeEndPosCharacter := r.selectionRange.endCharUtf16
+
+/-- Range of this parent decl. -/
+def DeclInfo.range (i : DeclInfo) : Lsp.Range :=
+  ⟨⟨i.rangeStartPosLine, i.rangeStartPosCharacter⟩, ⟨i.rangeEndPosLine, i.rangeEndPosCharacter⟩⟩
+
+/-- Selection range of this parent decl. -/
+def DeclInfo.selectionRange (i : DeclInfo) : Lsp.Range :=
+  ⟨⟨i.selectionRangeStartPosLine, i.selectionRangeStartPosCharacter⟩,
+    ⟨i.selectionRangeEndPosLine, i.selectionRangeEndPosCharacter⟩⟩
+
+instance : ToJson DeclInfo where
+  toJson i :=
+    Json.arr #[
+      i.rangeStartPosLine,
+      i.rangeStartPosCharacter,
+      i.rangeEndPosLine,
+      i.rangeEndPosCharacter,
+      i.selectionRangeStartPosLine,
+      i.selectionRangeStartPosCharacter,
+      i.selectionRangeEndPosLine,
+      i.selectionRangeEndPosCharacter
+    ]
+
+instance : FromJson DeclInfo where
+  fromJson?
+    | .arr xs => do
+      if xs.size != 8 then
+        throw s!"Expected list of length 8, not length {xs.size}"
+      return {
+        rangeStartPosLine := ← fromJson? xs[0]!
+        rangeStartPosCharacter := ← fromJson? xs[1]!
+        rangeEndPosLine := ← fromJson? xs[2]!
+        rangeEndPosCharacter := ← fromJson? xs[3]!
+        selectionRangeStartPosLine := ← fromJson? xs[4]!
+        selectionRangeStartPosCharacter := ← fromJson? xs[5]!
+        selectionRangeEndPosLine := ← fromJson? xs[6]!
+        selectionRangeEndPosCharacter := ← fromJson? xs[7]!
+      }
+    | _ => throw "Expected list"
+
+/-- Declarations of a file with associated position information. -/
+@[expose] def Decls := Std.TreeMap String DeclInfo
+  deriving EmptyCollection, ForIn Id
+
+instance : ToJson Decls where
+  toJson m := Json.mkObj <| m.toList.map fun (declName, info) => (declName, toJson info)
+
+instance : FromJson Decls where
+  fromJson? j := do
+    let node ← j.getObj?
+    node.foldlM (init := ∅) fun m k v =>
+      return m.insert k (← fromJson? v)
 
 /--
 Denotes the range of a reference, as well as the parent declaration of the reference.
 If the reference is itself a declaration, then it contains no parent declaration.
+The position information is inlined to reduce memory consumption.
 -/
 structure RefInfo.Location where
-  /-- Range of the reference. -/
-  range       : Lsp.Range
-  /-- Parent declaration of the reference. `none` if the reference is itself a declaration. -/
-  parentDecl? : Option RefInfo.ParentDecl
+  mk' ::
+  /-- Start line of the range of this location. -/
+  startPosLine : Nat
+  /-- Start character of the range of this location. -/
+  startPosCharacter : Nat
+  /-- End line of the range of this location. -/
+  endPosLine : Nat
+  /-- End character of the range of this location. -/
+  endPosCharacter : Nat
+  /--
+  Parent declaration of the reference. Empty string if the reference is itself a declaration.
+  We do not use `Option` for memory consumption reasons.
+  -/
+  parentDecl : String
 deriving Inhabited
+
+/-- Creates a `RefInfo.Location`. -/
+def RefInfo.Location.mk (range : Lsp.Range) (parentDecl? : Option String) : RefInfo.Location where
+  startPosLine := range.start.line
+  startPosCharacter := range.start.character
+  endPosLine := range.end.line
+  endPosCharacter := range.end.character
+  parentDecl := parentDecl?.getD ""
+
+/-- Range of this location. -/
+def RefInfo.Location.range (l : RefInfo.Location) : Lsp.Range :=
+  ⟨⟨l.startPosLine, l.startPosCharacter⟩, ⟨l.endPosLine, l.endPosCharacter⟩⟩
+
+/-- Name of the parent declaration of this location. -/
+def RefInfo.Location.parentDecl? (l : RefInfo.Location) : Option String :=
+  if l.parentDecl.isEmpty then
+    none
+  else
+    some l.parentDecl
 
 /-- Definition site and usage sites of a reference. Obtained from `Lean.Server.RefInfo`. -/
 structure RefInfo where
@@ -125,16 +232,9 @@ structure RefInfo where
 
 instance : ToJson RefInfo where
   toJson i :=
-    let rangeToList (r : Lsp.Range) : List Nat :=
-      [r.start.line, r.start.character, r.end.line, r.end.character]
-    let parentDeclToList (d : RefInfo.ParentDecl) : List Json :=
-      let name := d.name |> toJson
-      let range := rangeToList d.range |>.map toJson
-      let selectionRange := rangeToList d.selectionRange |>.map toJson
-      [name] ++ range ++ selectionRange
     let locationToList (l : RefInfo.Location) : List Json :=
-      let range := rangeToList l.range |>.map toJson
-      let parentDecl := l.parentDecl?.map parentDeclToList |>.getD []
+      let range := [l.startPosLine, l.startPosCharacter, l.endPosLine, l.endPosCharacter].map toJson
+      let parentDecl := l.parentDecl?.map ([toJson ·]) |>.getD []
       range ++ parentDecl
     Json.mkObj [
       ("definition", toJson $ i.definition?.map locationToList),
@@ -144,35 +244,30 @@ instance : ToJson RefInfo where
 instance : FromJson RefInfo where
   -- This implementation is optimized to prevent redundant intermediate allocations.
   fromJson? j := do
-    let toRange (a : Array Json) (i : Nat) : Except String Lsp.Range :=
-      if h : a.size < i + 4 then
-        throw s!"Expected list of length 4, not {a.size}"
-      else
-        return {
-          start := {
-            line := ← fromJson? a[i]
-            character := ← fromJson? a[i+1]
-          }
-          «end» := {
-            line := ← fromJson? a[i+2]
-            character := ← fromJson? a[i+3]
-          }
-        }
-    let toParentDecl (a : Array Json) (i : Nat) : Except String RefInfo.ParentDecl := do
-      let name ← fromJson? a[i]!
-      let range ← toRange a (i + 1)
-      let selectionRange ← toRange a (i + 5)
-      return ⟨name, range, selectionRange⟩
     let toLocation (a : Array Json) : Except String RefInfo.Location := do
-      if a.size != 4 && a.size != 13 then
-        .error "Expected list of length 4 or 13, not {l.size}"
-      let range ← toRange a 0
-      if a.size == 13 then
-        let parentDecl ← toParentDecl a 4
-        return ⟨range, parentDecl⟩
+      if h : a.size ≠ 4 ∧ a.size ≠ 5 then
+        .error s!"Expected list of length 4 or 5, not {a.size}"
       else
-        return ⟨range, none⟩
-
+        let startPosLine ← fromJson? a[0]
+        let startPosCharacter ← fromJson? a[1]
+        let endPosLine ← fromJson? a[2]
+        let endPosCharacter ← fromJson? a[3]
+        if h' : a.size = 5 then
+          return {
+            startPosLine
+            startPosCharacter
+            endPosLine
+            endPosCharacter
+            parentDecl := ← fromJson? a[4]
+          }
+        else
+          return {
+            startPosLine
+            startPosCharacter
+            endPosLine
+            endPosCharacter
+            parentDecl := ""
+          }
     let definition? ← j.getObjValAs? (Option $ Array Json) "definition"
     let definition? ← match definition? with
       | none => pure none
@@ -182,10 +277,10 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := Std.TreeMap RefIdent RefInfo
+@[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
 
-instance : ForIn m ModuleRefs (RefIdent × RefInfo) where
+instance [Monad m] : ForIn m ModuleRefs (RefIdent × RefInfo) where
   forIn map init f :=
     let map : Std.TreeMap RefIdent RefInfo := map
     forIn map init f
@@ -196,16 +291,19 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := ∅) fun m k v =>
+    node.foldlM (init := ∅) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--
-Used in the `$/lean/ileanHeaderInfo` watchdog <- worker notifications.
-Contains the direct imports of the file managed by a worker.
+Used in the `$/lean/ileanHeaderSetupInfo` watchdog <- worker notifications.
+Contains status information about `lake setup-file` and the direct imports of the file managed by
+a worker.
 -/
-structure LeanILeanHeaderInfoParams where
+structure LeanILeanHeaderSetupInfoParams where
   /-- Version of the file these imports are from. -/
-  version       : Nat
+  version        : Nat
+  /-- Whether setting up the header using `lake setup-file` has failed. -/
+  isSetupFailure : Bool
   /-- Direct imports of this file. -/
   directImports : Array ImportInfo
   deriving FromJson, ToJson
@@ -216,9 +314,11 @@ Contains the definitions and references of the file managed by a worker.
 -/
 structure LeanIleanInfoParams where
   /-- Version of the file these references are from. -/
-  version        : Nat
+  version    : Nat
   /-- All references for the file. -/
-  references     : ModuleRefs
+  references : ModuleRefs
+  /-- All decls for the file. -/
+  decls      : Decls
   deriving FromJson, ToJson
 
 /--
@@ -296,5 +396,31 @@ structure LeanQueryModuleResponse where
   -/
   queryResults : Array LeanQueriedModule
   deriving FromJson, ToJson, Inhabited
+
+/-- Name of a declaration in a given module. -/
+structure LeanDeclIdent where
+  /-- Name of the module that this identifier is in. -/
+  module : Name
+  /-- Name of the declaration. -/
+  decl   : Name
+  deriving FromJson, ToJson
+
+/--
+`LocationLink` with additional meta-data that allows the watchdog to resolve the range of this
+`LocationLink`. This is necessary because the position information from the .olean may be stale
+(e.g. if the user has edited the file that the definition is from, but neither saved or built it),
+while file workers sync their current reference information into the watchdog using ilean info
+notifications, which is up-to-date.
+-/
+structure LeanLocationLink extends LocationLink where
+  /-- Identifier that caused this location link. -/
+  ident? : Option LeanDeclIdent
+  /--
+  Whether this location link was generated by a fallback handler.
+  If the file worker can't produce any non-fallback location links, the watchdog tries again
+  using its reference information from the ileans and ilean updates.
+  -/
+  isDefault : Bool
+  deriving FromJson, ToJson
 
 end Lean.Lsp

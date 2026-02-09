@@ -17,6 +17,21 @@ example : let x := 22; 0 ≤ x := by
   exact Nat.zero_le _
 
 /-!
+Check that `clear_value` preserves the order of the local context.
+-/
+/--
+trace: x : Nat
+y : Nat := 23
+⊢ True
+-/
+#guard_msgs in
+example : let _x := 22; let _y := 23; True := by
+  intro x y
+  clear_value x
+  trace_state
+  trivial
+
+/-!
 Test `*` mode.
 -/
 /--
@@ -167,7 +182,7 @@ example : let x := 22; 0 ≤ x := by
 Error if unification does not solve all metavariables.
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'e'
+error: don't know how to synthesize placeholder for argument `e`
 context:
 x : Nat := ⋯
 ⊢ Nat
@@ -291,7 +306,7 @@ trace: α : Type := Nat
 x : α
 ⊢ x = 1
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : let α := Nat; let x : α := 1; @Eq α x 1 := by

@@ -3,12 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Generalize
+public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Generalize
+
+public section
 
 namespace Lean.Meta
 namespace Split
@@ -17,7 +22,7 @@ def getSimpMatchContext : MetaM Simp.Context := do
    Simp.mkContext
       (simpTheorems   := {})
       (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with dsimp := false, etaStruct := .none })
+      (config        := { Simp.neutralConfig with dsimp := false, etaStruct := .none, letToHave := true })
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
   let discharge? ← SplitIf.mkDischarge?
@@ -89,6 +94,28 @@ def isDiscrGenException (ex : Exception) : Bool :=
   | .internal id => id == discrGenExId
   | _ => false
 
+/-- Throws an error with message `msg` with a hint that a foreign metaprogram may be misusing `split` internals. -/
+private def throwInternalMisuseError [Monad m] [MonadError m] (msg : MessageData) : m α :=
+  throwError msg ++ .note m!"This error typically occurs when the `split` tactic's internal functions have been used in a new metaprogram"
+
+/--
+Split works best if all discriminants are already free variables. If they are not, it will generalize
+them, but that may fail if the motive is dependent. So to avoid that, we first generalize all
+non-FVar discriminants that are propositions; because of proof irrelevance, that's much simpler.
+-/
+private partial def generalizeMatchPropDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array Expr × MVarId) := mvarId.withContext do
+  let mut mvarId := mvarId
+  let mut discrs' := #[]
+  for discr in discrs do
+    if !discr.isFVar then
+      if(← isProof discr) then
+        let (fvarIds, mvarId') ← mvarId.generalize #[{expr := discr}]
+        mvarId := mvarId'
+        discrs' := discrs'.push (mkFVar fvarIds[0]!)
+        continue
+    discrs' := discrs'.push discr
+  return (discrs', mvarId)
+
 /--
   This method makes sure each discriminant is a free variable.
   Return the tuple `(discrsNew, discrEqs, mvarId)`. `discrsNew` in an array representing the new discriminants, `discrEqs` is an array of auxiliary equality hypotheses
@@ -121,6 +148,7 @@ def isDiscrGenException (ex : Exception) : Bool :=
 -/
 private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : Name) (motiveType : Expr) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := mvarId.withContext do
   if discrs.all (·.isFVar) then
+    trace[split.debug] "no need to generalize discriminants, all are fvars"
     return (discrs.map (·.fvarId!), #[], mvarId)
   let some matcherInfo ← getMatcherInfo? matcherDeclName | unreachable!
   let numDiscrEqs := matcherInfo.getNumDiscrEqs -- Number of `h : discr = pattern` equations
@@ -140,18 +168,19 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
           let mut altsNew := #[]
-          for h : i in [:matcherApp.alts.size] do
+          for h : i in *...matcherApp.alts.size do
             let alt := matcherApp.alts[i]
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
-                throwError "internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming."
-              let body ← mkLambdaFVars xs[altNumParams:] (← mkNewTarget body)
-              let ys  := xs[:altNumParams - numDiscrEqs]
+                throwError m!"Internal error in `split` tactic: Encountered an unexpected `match` expression alternative"
+                  ++ .note m!"This error typically occurs when the `match` expression has been constructed using metaprogramming."
+              let body ← mkLambdaFVars xs[altNumParams...*] (← mkNewTarget body)
+              let ys  := xs[*...(altNumParams - numDiscrEqs)]
               if numDiscrEqs == 0 then
                 mkLambdaFVars ys body
               else
-                let altEqs := xs[altNumParams - numDiscrEqs : altNumParams]
+                let altEqs := xs[(altNumParams - numDiscrEqs)...altNumParams]
                 withNewAltEqs matcherInfo eqs altEqs fun altEqsNew subst => do
                   let body := body.replaceFVars altEqs subst
                   mkLambdaFVars (ys++altEqsNew) body
@@ -160,9 +189,11 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
         transform (← instantiateMVars e) pre
       let targetNew ← mkNewTarget (← mvarId.getType)
       unless (← foundRef.get) do
-        throwError "internal error in `split` tactic: failed to find match-expression discriminants\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
+        throwInternalMisuseError m!"Internal error in `split` tactic: Failed to find match-expression discriminants"
       let targetNew ← mkForallFVars (discrVars ++ eqs) targetNew
-      unless (← isTypeCorrect targetNew) do
+      try check targetNew
+      catch e =>
+        trace[split.debug] "targetNew not type correct:{indentExpr targetNew}\n{e.toMessageData}"
         throw <| Exception.internal discrGenExId
       return (targetNew, rfls)
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
@@ -198,7 +229,7 @@ where
           withLocalDeclD altEqDecl.userName (← mkHEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkHEqTrans eq altEqNew))
         | _, _ =>
-          throwError "internal error in `split` tactic: encountered unexpected auxiliary equalities created to generalize `match`-expression discriminant\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
+          throwInternalMisuseError m!"Internal error in `split` tactic: Encountered unexpected auxiliary equalities created to generalize `match`-expression discriminant"
       else
         k altEqsNew subst
     go 0 #[] #[]
@@ -218,13 +249,15 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
   return mvarId
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
-  let some info ← getMatcherInfo? matcherDeclName | throwError "internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
+  let some info ← getMatcherInfo? matcherDeclName | throwInternalMisuseError m!"Internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions"
   let matchEqns ← Match.getEquationsFor matcherDeclName
   -- splitterPre does not have the correct universe elimination level, but this is fine, we only use it to compute the `motiveType`,
   -- and we only care about the `motiveType` arguments, and not the resulting `Sort u`.
   let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
   trace[split.debug] "applyMatchSplitter\n{mvarId}"
+  let (discrs, mvarId) ← generalizeMatchPropDiscrs mvarId discrs
+  trace[split.debug] "after generalizeMatchPropDiscrs\n{mvarId}"
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
   trace[split.debug] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
@@ -240,7 +273,8 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     pure <| us.set! uElimPos elimUniv
   else
     unless elimUniv.isZero do
-      throwError "`split` tactic failed to split a match-expression: the splitter auxiliary theorem `{matchEqns.splitterName}` can only eliminate into `Prop`"
+      throwError "`split` tactic failed to split a match-expression: The splitter auxiliary theorem \
+        `{.ofConstName matchEqns.splitterName}` can only eliminate into `Prop`"
     pure us
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   mvarId.withContext do
@@ -250,10 +284,17 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     trace[split.debug] "after check splitter"
     let mvarIds ← mvarId.applyN splitter matchEqns.size
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let numParams := matchEqns.splitterAltNumParams[i]!
-      let (_, mvarId) ← mvarId.introN numParams
+      let altInfo := matchEqns.splitterMatchInfo.altInfos[i]!
+      let mvarId ←
+        if altInfo.hasUnitThunk then
+          trace[split.debug] "introducing unit param for alt {(i : Nat)}"
+          let (unitFvarId, mvarId) ← mvarId.intro1
+          mvarId.tryClear unitFvarId
+        else
+          let (_, mvarId) ← mvarId.introN (altInfo.numFields + altInfo.numOverlaps)
+          pure mvarId
       trace[split.debug] "before unifyEqs\n{mvarId}"
-      match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
+      match (← Cases.unifyEqs? (info.getNumDiscrEqs + numEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
         trace[split.debug] "after unifyEqs\n{mvarId}"
@@ -268,7 +309,7 @@ def throwDiscrGenError (e : Expr) : MetaM α :=
   throwError (mkDiscrGenErrorMsg e)
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withContext do
-  let some app ← matchMatcherApp? e | throwError "internal error in `split` tactic: match application expected{indentExpr e}\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
+  let some app ← matchMatcherApp? e | throwInternalMisuseError m!"Internal error in `split` tactic: Match application expected{indentExpr e}"
   let matchEqns ← Match.getEquationsFor app.matcherName
   let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
   let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
@@ -280,12 +321,16 @@ end Split
 
 open Split
 
-partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do
+/--
+Splits an `if-then-else` of `match`-expression in the goal target.
+If `useNewSemantics` is `true`, the flag `backward.split` is ignored. Recall this flag only affects the split of `if-then-else` expressions.
+-/
+partial def splitTarget? (mvarId : MVarId) (splitIte := true) (useNewSemantics := false) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e ← findSplit? target (if splitIte then .both else .match) badCases then
       if e.isIte || e.isDIte then
-        return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
+        return (← splitIfTarget? mvarId (useNewSemantics := useNewSemantics)).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else
         try
           splitMatch mvarId e

@@ -3,11 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -51,11 +52,11 @@ We assume this limitation is irrelevant in practice.
 namespace FindUsed
 
 structure Context where
-  decl : Decl
+  decl : Decl .pure
   params : FVarIdSet
 
 structure State where
-  used : FVarIdSet := {}
+  used : FVarIdHashSet := {}
 
 abbrev FindUsedM := ReaderT Context <| StateRefT State CompilerM
 
@@ -63,12 +64,12 @@ def visitFVar (fvarId : FVarId) : FindUsedM Unit := do
   if (← read).params.contains fvarId then
     modify fun s => { s with used := s.used.insert fvarId }
 
-def visitArg (arg : Arg) : FindUsedM Unit := do
+def visitArg (arg : Arg .pure) : FindUsedM Unit := do
   match arg with
   | .erased | .type .. => return ()
   | .fvar fvarId => visitFVar fvarId
 
-def visitLetValue (e : LetValue) : FindUsedM Unit := do
+def visitLetValue (e : LetValue .pure) : FindUsedM Unit := do
   match e with
   | .erased | .lit .. => return ()
   | .proj _ _ fvarId => visitFVar fvarId
@@ -83,16 +84,16 @@ def visitLetValue (e : LetValue) : FindUsedM Unit := do
             visitFVar fvarId
         | .erased | .type .. => pure ()
       -- over-application
-      for arg in args[decl.params.size:] do
+      for arg in args[decl.params.size...*] do
         visitArg arg
       -- partial-application
-      for param in decl.params[args.size:] do
+      for param in decl.params[args.size...*] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
     else
       args.forM visitArg
 
-partial def visit (code : Code) : FindUsedM Unit := do
+partial def visit (code : Code .pure) : FindUsedM Unit := do
   match code with
   | .let decl k =>
     visitLetValue decl.value
@@ -106,7 +107,7 @@ partial def visit (code : Code) : FindUsedM Unit := do
   | .return fvarId => visitFVar fvarId
   | .unreach _ => return ()
 
-def collectUsedParams (decl : Decl) : CompilerM FVarIdSet := do
+def collectUsedParams (decl : Decl .pure) : CompilerM FVarIdHashSet := do
   let params := decl.params.foldl (init := {}) fun s p => s.insert p.fvarId
   let (_, { used, .. }) ← decl.value.forCodeM visit |>.run { decl, params } |>.run {}
   return used
@@ -122,15 +123,17 @@ structure Context where
 
 abbrev ReduceM := ReaderT Context CompilerM
 
-partial def reduce (code : Code) : ReduceM Code := do
+partial def reduce (code : Code .pure) : ReduceM (Code .pure) := do
   match code with
   | .let decl k =>
     let .const declName _ args := decl.value | do return code.updateLet! decl (← reduce k)
     unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
+    let mask := (← read).paramMask
     let mut argsNew := #[]
-    for used in (← read).paramMask, arg in args do
-      if used then
-        argsNew := argsNew.push arg
+    for h : i in *...args.size do
+      -- keep over-application
+      if mask.getD i true then
+        argsNew := argsNew.push args[i]
     let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)
     return code.updateLet! decl (← reduce k)
   | .fun decl k | .jp decl k =>
@@ -145,7 +148,7 @@ end ReduceArity
 
 open FindUsed ReduceArity Internalize
 
-def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
+def Decl.reduceArity (decl : Decl .pure) : CompilerM (Array (Decl .pure)) := do
   match decl.value with
   | .code code =>
     let used ← collectUsedParams decl
@@ -157,7 +160,7 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
       trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
       let mask   := decl.params.map fun param => used.contains param.fvarId
       let auxName   := decl.name ++ `_redArg
-      let mkAuxDecl : CompilerM Decl := do
+      let mkAuxDecl : CompilerM (Decl .pure) := do
         let params := decl.params.filter fun param => used.contains param.fvarId
         let value  ← decl.value.mapCodeM reduce |>.run { declName := decl.name, auxDeclName := auxName, paramMask := mask }
         let type ← code.inferType
@@ -165,7 +168,7 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
         let auxDecl := { decl with name := auxName, levelParams := [], type, params, value }
         auxDecl.saveMono
         return auxDecl
-      let updateDecl : InternalizeM Decl := do
+      let updateDecl : InternalizeM .pure (Decl .pure) := do
         let params ← decl.params.mapM internalizeParam
         let mut args := #[]
         for used in mask, param in params do
@@ -185,6 +188,7 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
 
 def reduceArity : Pass where
   phase := .mono
+  phaseOut := .mono
   name  := `reduceArity
   run   := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.reduceArity)

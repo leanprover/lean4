@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Extract
-// Imports: Init.Data.Array.Lemmas Init.Data.List.Nat.TakeDrop
+// Imports: public import Init.BinderPredicates public import Init.Ext public import Init.NotationExtra import Init.ByCases import Init.Data.Array.Bootstrap import Init.Data.Array.Lemmas import Init.Data.Bool import Init.Data.List.Nat.TakeDrop import Init.Data.List.TakeDrop import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,49 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Extract(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Extract(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_BinderPredicates(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Nat_TakeDrop(builtin, lean_io_mk_world());
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

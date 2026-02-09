@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Server.InfoUtils
+public import Lean.Elab.Command
+public import Lean.Server.InfoUtils
+import Lean.Linter.Basic
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!
@@ -152,7 +157,7 @@ def bitVecWidths (t : InfoTree) : List (Syntax × Name) :=
 
 /-- Strip optional suffixes from a binder name. -/
 def stripBinderName (s : String) : String :=
-  s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂" |>.stripSuffix "₃" |>.stripSuffix "₄"
+  s.dropSuffix "'" |>.dropSuffix "₁" |>.dropSuffix "₂" |>.dropSuffix "₃" |>.dropSuffix "₄" |>.copy
 
 /-- Allowed names for index variables. -/
 def allowedIndices : List String := ["i", "j", "k", "start", "stop", "step"]
@@ -210,7 +215,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
       -- despite passing the local context here.
       -- We fail quietly by returning a `Unit` type.
       let ty ← ctx.runMetaM ti.lctx do instantiateMVars (← (Meta.inferType ti.expr) <|> pure (.const `Unit []))
-      if p ty then
+      if p ty.cleanupAnnotations then
         if let .fvar i := ti.expr then
           match ti.lctx.find? i with
           | some ldecl => return some (ti.stx, ldecl.userName, ty)

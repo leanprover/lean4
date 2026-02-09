@@ -6,7 +6,14 @@ Author: Leonardo de Moura
 module
 
 prelude
+public import Init.GetElem
+public import Init.WFTactics
+import Init.ByCases
+import Init.Classical
+import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -18,65 +25,6 @@ namespace List
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 /-! ## Alternative getters -/
-
-/-! ### get? -/
-
-/--
-Returns the `i`-th element in the list (zero-based).
-
-If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
-Also see `get`, `getD` and `get!`.
--/
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), expose]
-def get? : (as : List α) → (i : Nat) → Option α
-  | a::_,  0   => some a
-  | _::as, n+1 => get? as n
-  | _,     _   => none
-
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
-theorem get?_nil : @get? α [] n = none := rfl
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
-theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
-theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
-
-set_option linter.deprecated false in
-@[deprecated "Use `List.ext_getElem?`." (since := "2025-02-12")]
-theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
-  | [], [], _ => rfl
-  | _ :: _, [], h => nomatch h 0
-  | [], _ :: _, h => nomatch h 0
-  | a :: l₁, a' :: l₂, h => by
-    have h0 : some a = some a' := h 0
-    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
-
-/-! ### get! -/
-
-/--
-Returns the `i`-th element in the list (zero-based).
-
-If the index is out of bounds (`i ≥ as.length`), this function panics when executed, and returns
-`default`. See `get?` and `getD` for safer alternatives.
--/
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12"), expose]
-def get! [Inhabited α] : (as : List α) → (i : Nat) → α
-  | a::_,  0   => a
-  | _::as, n+1 => get! as n
-  | _,     _   => panic! "invalid index"
-
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
-theorem get!_nil [Inhabited α] (n : Nat) : [].get! n = (default : α) := rfl
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
-theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
-    (a::l).get! (n+1) = get! l n := rfl
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
-theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
 
 /-! ### getD -/
 
@@ -114,7 +62,7 @@ Examples:
 @[expose]
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
-  | a::as => getLast (a::as) (fun h => List.noConfusion h)
+  | a::as => getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /-! ## Head and tail -/
 
@@ -128,7 +76,7 @@ Safer alternatives include:
   * `List.head?`, which returns an `Option`, and
   * `List.headD`, which returns an explicitly-provided fallback value on empty lists.
 -/
-def head! [Inhabited α] : List α → α
+@[expose] def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
   | a::_ => a
 
@@ -276,19 +224,8 @@ theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
+    cases i with simp [Nat.succ_sub_succ] <;> simp at h₁
     | succ i => apply ih; simp [h₁]
-
-@[deprecated "Deprecated without replacement." (since := "2025-02-13")]
-theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.length) : (as ++ [a] : List _).get i = a := by
-  cases i; rename_i i h'
-  induction as generalizing i with
-  | nil => cases i with
-    | zero => simp [List.get]
-    | succ => simp +arith at h'
-  | cons a as ih =>
-    cases i with simp at h
-    | succ i => apply ih; simp [h]
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   induction h with
@@ -340,8 +277,8 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
     apply Nat.lt_trans ih
     simp +arith
 
-theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
-    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+theorem lex_trichotomous [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (trichotomous : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
     {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
   match as, bs with
   | [],    []    => rfl
@@ -354,19 +291,26 @@ theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel
       · subst eq
         have h₁ : ¬ Lex r bs as := fun h => h₁ (List.Lex.cons h)
         have h₂ : ¬ Lex r as bs := fun h => h₂ (List.Lex.cons h)
-        simp [not_lex_antisymm antisymm h₁ h₂]
+        simp [lex_trichotomous trichotomous h₁ h₂]
       · exfalso
         by_cases hba : r b a
         · exact h₁ (Lex.rel hba)
-        · exact eq (antisymm _ _ hab hba)
+        · exact eq (trichotomous _ _ hab hba)
 
-protected theorem le_antisymm [DecidableEq α] [LT α] [DecidableLT α]
-    [i : Std.Antisymm (¬ · < · : α → α → Prop)]
+@[deprecated lex_trichotomous (since := "2025-10-27")]
+theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+    {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
+  lex_trichotomous antisymm h₁ h₂
+
+protected theorem le_antisymm [LT α]
+    [i : Std.Trichotomous (· < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
-  not_lex_antisymm i.antisymm h₁ h₂
+  open Classical in
+  lex_trichotomous i.trichotomous h₁ h₂
 
-instance [DecidableEq α] [LT α] [DecidableLT α]
-    [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
+instance [LT α]
+    [s : Std.Trichotomous (· < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂
 

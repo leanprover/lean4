@@ -6,28 +6,128 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Except
+public import Init.NotationExtra
 import Init.Classical
-import Init.Control.EState
-import Init.Control.Reader
 
-/--
-A restricted version of `IO` in which mutable state and exceptions are the only side effects.
+public section
 
-It is possible to run `EST` computations in a non-monadic context using `runEST`.
--/
-@[expose] def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
+opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
+
+@[expose] def Void (σ : Type) : Type := Void.nonemptyType σ |>.type
+
+instance Void.instNonempty : Nonempty (Void σ) :=
+  by exact (Void.nonemptyType σ).property
+
+@[extern "lean_void_mk"]
+opaque Void.mk (x : σ) : Void σ
+
+structure ST.Out (σ : Type) (α : Type) where
+  val : α
+  state : Void σ
 
 /--
 A restricted version of `IO` in which mutable state is the only side effect.
 
 It is possible to run `ST` computations in a non-monadic context using `runST`.
 -/
-abbrev ST (σ : Type) := EST Empty σ
+@[expose] def ST (σ : Type) (α : Type) := Void σ → ST.Out σ α
 
-instance (ε σ : Type) : Monad (EST ε σ) := inferInstanceAs (Monad (EStateM _ _))
-instance (ε σ : Type) : MonadExceptOf ε (EST ε σ) := inferInstanceAs (MonadExceptOf ε (EStateM _ _))
-instance {ε σ : Type} {α : Type} [Inhabited ε] : Inhabited (EST ε σ α) := inferInstanceAs (Inhabited (EStateM _ _ _))
-instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
+namespace ST
+
+@[always_inline, inline]
+protected def pure (x : α) : ST σ α := fun s => .mk x s
+
+@[always_inline, inline]
+protected def bind (x : ST σ α) (f : α → ST σ β) : ST σ β :=
+  fun s =>
+    match x s with
+    | .mk x s => f x s
+
+end ST
+
+instance (σ : Type) : Monad (ST σ) where
+  pure := ST.pure
+  bind := ST.bind
+
+@[always_inline]
+instance : MonadFinally (ST σ) where
+  tryFinally' x f := fun s =>
+    match x s with
+    | .mk x s =>
+      match f (some x) s with
+      | .mk y s => .mk (x, y) s
+
+instance {σ : Type} {α : Type} [Inhabited α] : Inhabited (ST σ α) where
+  default := fun s => .mk default s
+
+instance {σ : Type} : MonadAttach (ST σ) where
+  CanReturn x a := ∃ s s', x s = ⟨a, s'⟩
+  attach x s := match h : x s with | ⟨a, s'⟩ => ⟨⟨a, s, s', h⟩, s'⟩
+
+inductive EST.Out (ε : Type) (σ : Type) (α : Type) where
+  | ok : α → Void σ → EST.Out ε σ α
+  | error : ε → Void σ → EST.Out ε σ α
+
+/--
+A restricted version of `IO` in which mutable state and exceptions are the only side effects.
+
+It is possible to run `EST` computations in a non-monadic context using `runEST`.
+-/
+@[expose] def EST (ε : Type) (σ : Type) (α : Type) : Type := Void σ → EST.Out ε σ α
+
+namespace EST
+
+@[always_inline, inline]
+protected def pure (a : α) : EST ε σ α := fun s => .ok a s
+
+@[always_inline, inline]
+protected def bind (x : EST ε σ α) (f : α → EST ε σ β) : EST ε σ β :=
+  fun s => match x s with
+  | .ok a s    => f a s
+  | .error e s => .error e s
+
+@[always_inline, inline]
+protected def throw (e : ε) : EST ε σ α := fun s => .error e s
+
+@[always_inline, inline]
+protected def tryCatch (x : EST ε σ α) (handle : ε → EST ε σ α) : EST ε σ α :=
+  fun s => match x s with
+  | .ok a s => .ok a s
+  | .error e s => handle e s
+
+end EST
+
+instance (ε σ : Type) : Monad (EST ε σ) where
+  pure := EST.pure
+  bind := EST.bind
+
+@[always_inline]
+instance : MonadFinally (EST ε σ) where
+  tryFinally' x f := fun s =>
+    let r := x s
+    match r with
+    | .ok x s =>
+      match f (some x) s with
+      | .ok y s => .ok (x, y) s
+      | .error e s => .error e s
+    | .error e s =>
+      match f none s with
+      | .ok _ s => .error e s
+      | .error e s => .error e s
+
+instance {ε σ : Type} : MonadAttach (EST ε σ) where
+  CanReturn x a := ∃ s s', x s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
+
+instance (ε σ : Type) : MonadExceptOf ε (EST ε σ) where
+  throw := EST.throw
+  tryCatch := EST.tryCatch
+
+instance {ε σ : Type} {α : Type} [Inhabited ε] : Inhabited (EST ε σ α) where
+  default := fun s => .error default s
 
 /--
 An auxiliary class used to infer the “state” of `EST` and `ST` monads.
@@ -35,6 +135,7 @@ An auxiliary class used to infer the “state” of `EST` and `ST` monads.
 class STWorld (σ : outParam Type) (m : Type → Type)
 
 instance {σ m n} [MonadLift m n] [STWorld σ m] : STWorld σ n := ⟨⟩
+instance {σ} : STWorld σ (ST σ) := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
 /--
@@ -42,24 +143,22 @@ Runs an `EST` computation, in which mutable state and exceptions are the only si
 -/
 @[noinline, nospecialize]
 def runEST {ε α : Type} (x : (σ : Type) → EST ε σ α) : Except ε α :=
-  match x Unit () with
-  | EStateM.Result.ok a _     => Except.ok a
-  | EStateM.Result.error ex _ => Except.error ex
+  match x Unit (Void.mk ()) with
+  | .ok a _     => Except.ok a
+  | .error ex _ => Except.error ex
 
 /--
 Runs an `ST` computation, in which mutable state via `ST.Ref` is the only side effect.
 -/
 @[noinline, nospecialize]
 def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
-  match x Unit () with
-  | EStateM.Result.ok a _     => a
-  | EStateM.Result.error ex _ => nomatch ex
+  match x Unit (Void.mk ()) with
+  | .mk a _ => a
 
 @[always_inline]
 instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
   match x s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex _ => nomatch ex⟩
+  | .mk a s => .ok a s⟩
 
 namespace ST
 

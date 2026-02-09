@@ -7,8 +7,13 @@ module
 
 prelude
 import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+public import Init.NotationExtra
 import Init.Data.Array.Lemmas
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+
+public section
 
 /-!
 These lemmas are used in the internals of HashMap.

@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
+public import Std.Sat.AIG.Basic
+import Init.Omega
+
+@[expose] public section
 
 /-!
 The lawful operator framework provides free theorems around the typeclass `LawfulOperator`.
@@ -54,13 +59,13 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
   unfold denote.go
   have hidx1 := hprefix.idx_eq start hbounds1
   split
-  · next heq =>
+  next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  · next heq =>
+  next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  · next lhs rhs heq =>
+  next lhs rhs heq =>
     rw [hidx1] at heq
     have := hdag1 hbounds1 heq
     have hidx2 := hprefix.idx_eq lhs.gate (by omega)

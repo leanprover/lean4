@@ -9,7 +9,7 @@ c 2.5
    "severity": 2,
    "range":
    {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 9}},
-   "message": "declaration uses 'sorry'",
+   "message": "declaration uses `sorry`",
    "fullRange":
    {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 9}}}]}
 d 0
@@ -31,20 +31,20 @@ sh
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 2, "character": 17}, "end": {"line": 3, "character": 0}},
-   "message": "unsolved goals\n⊢ True",
-   "leanTags": [1],
-   "fullRange":
-   {"start": {"line": 2, "character": 17},
-    "end": {"line": 6, "character": 18}}},
-  {"source": "Lean 4",
-   "severity": 1,
-   "range":
    {"start": {"line": 1, "character": 24}, "end": {"line": 2, "character": 0}},
    "message": "unsolved goals\nthis : True\n⊢ True",
    "leanTags": [1],
    "fullRange":
    {"start": {"line": 1, "character": 24},
+    "end": {"line": 6, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 17}, "end": {"line": 3, "character": 0}},
+   "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
+   "fullRange":
+   {"start": {"line": 2, "character": 17},
     "end": {"line": 6, "character": 18}}}]}
 sh
 {"version": 2,
@@ -53,20 +53,20 @@ sh
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 2, "character": 18}, "end": {"line": 3, "character": 0}},
-   "message": "unsolved goals\n⊢ True",
-   "leanTags": [1],
-   "fullRange":
-   {"start": {"line": 2, "character": 18},
-    "end": {"line": 6, "character": 18}}},
-  {"source": "Lean 4",
-   "severity": 1,
-   "range":
    {"start": {"line": 1, "character": 24}, "end": {"line": 2, "character": 0}},
    "message": "unsolved goals\nthis : True\n⊢ True",
    "leanTags": [1],
    "fullRange":
    {"start": {"line": 1, "character": 24},
+    "end": {"line": 6, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 18}, "end": {"line": 3, "character": 0}},
+   "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
+   "fullRange":
+   {"start": {"line": 2, "character": 18},
     "end": {"line": 6, "character": 18}}}]}
 n 0
 n 1
@@ -74,3 +74,26 @@ n 1.5
 i 0
 i 1
 i 1.5
+{"version": 2,
+ "uri": "file:///incrementalCombinator.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 1, "character": 0}, "end": {"line": 2, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 1, "character": 0},
+    "end": {"line": 6, "character": 18}}}]}
+{"version": 2,
+ "uri": "file:///incrementalCombinator.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 7}},
+   "message": "declaration uses `sorry`",
+   "fullRange":
+   {"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 7}}}]}

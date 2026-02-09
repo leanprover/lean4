@@ -3,13 +3,15 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PullFunDecls
-import Lean.Compiler.LCNF.FVarUtil
-import Lean.Compiler.LCNF.ScopeM
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PullFunDecls
+public import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.ScopeM
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -32,6 +34,23 @@ structure CandidateInfo where
   associated : Std.HashSet FVarId
   deriving Inhabited
 
+structure FindCtx where
+  /--
+  The current definition depth is defined by how many `fun` binders we are
+  nested in at the current point. Note that this does *not* include `jp`
+  binders.
+  -/
+  definitionDepth : Nat := 0
+  /--
+  A map from function declarations that are currently in scope to their
+  definition depth.
+  -/
+  scope : FVarIdMap Nat := {}
+  /--
+  The current function binder we are inside of if any.
+  -/
+  currentFunction : Option FVarId := none
+
 /--
 The state for the join point candidate finder.
 -/
@@ -40,22 +59,26 @@ structure FindState where
   All current join point candidates accessible by their `FVarId`.
   -/
   candidates : Std.HashMap FVarId CandidateInfo := ∅
-  /--
-  The `FVarId`s of all `fun` declarations that were declared within the
-  current `fun`.
-  -/
-  scope : Std.HashSet FVarId := ∅
+
+
+abbrev FindM := ReaderT FindCtx StateRefT FindState CompilerM
 
 abbrev ReplaceCtx := Std.HashMap FVarId Name
-
-abbrev FindM := ReaderT (Option FVarId) StateRefT FindState ScopeM
 abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
 
 /--
 Attempt to find a join point candidate by its `FVarId`.
 -/
+@[inline]
 private def findCandidate? (fvarId : FVarId) : FindM (Option CandidateInfo) := do
   return (← get).candidates[fvarId]?
+
+/--
+Combinator for modifying the candidates in `FindM`.
+-/
+@[inline]
+private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
+  modify (fun state => { state with candidates := f state.candidates })
 
 /--
 Erase a join point candidate as well as all the ones that depend on it
@@ -63,25 +86,19 @@ by its `FVarId`, no error is thrown is the candidate does not exist.
 -/
 private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
   if let some info ← findCandidate? fvarId then
-    modify (fun state => { state with candidates := state.candidates.erase fvarId })
+    modifyCandidates  fun cs => cs.erase fvarId
     info.associated.forM eraseCandidate
-
-/--
-Combinator for modifying the candidates in `FindM`.
--/
-private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
-  modify (fun state => {state with candidates := f state.candidates })
 
 /--
 Remove all join point candidates contained in `a`.
 -/
-private partial def removeCandidatesInArg (a : Arg) : FindM Unit := do
+private partial def removeCandidatesInArg (a : Arg .pure) : FindM Unit := do
   forFVarM eraseCandidate a
 
 /--
 Remove all join point candidates contained in `a`.
 -/
-private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
+private partial def removeCandidatesInLetValue (e : LetValue .pure) : FindM Unit := do
   forFVarM eraseCandidate e
 
 /--
@@ -89,16 +106,30 @@ Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
   let cinfo := { arity, associated := ∅ }
-  modifyCandidates (fun cs => cs.insert fvarId cinfo )
+  modifyCandidates fun cs => cs.insert fvarId cinfo
 
 /--
 Add a new join point dependency from `src` to `dst`.
 -/
 private def addDependency (src : FVarId) (target : FVarId) : FindM Unit := do
-  if let some targetInfo ← findCandidate? target then
-    modifyCandidates (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
-  else
-    eraseCandidate src
+  modifyCandidates fun cs =>
+    cs.modify target fun targetInfo =>
+      { targetInfo with associated := targetInfo.associated.insert src }
+
+@[inline]
+private def withFnBody (decl : FunDecl .pure) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          definitionDepth := ctx.definitionDepth + 1,
+          currentFunction := some decl.fvarId }) do
+      x
+
+@[inline]
+private def withFnDefined (decl : FunDecl .pure) (x : FindM α) : FindM α :=
+    withReader (fun ctx => {
+        ctx with
+          scope := ctx.scope.insert decl.fvarId ctx.definitionDepth }) do
+      x
 
 /--
 Find all `fun` declarations that qualify as a join point, that is:
@@ -132,11 +163,11 @@ def test (b : Bool) (x y : Nat) : Nat :=
 this. This is because otherwise the calls to `myjp` in `f` and `g` would
 produce out of scope join point jumps.
 -/
-partial def find (decl : Decl) : CompilerM FindState := do
-  let (_, candidates) ← decl.value.forCodeM go |>.run none |>.run {} |>.run' {}
+partial def find (decl : Decl .pure) : CompilerM FindState := do
+  let (_, candidates) ← decl.value.forCodeM go |>.run {} |>.run {}
   return candidates
 where
-  go : Code → FindM Unit
+  go : Code .pure → FindM Unit
   | .let decl k => do
     match k, decl.value with
     | .return valId, .fvar fvarId args =>
@@ -146,42 +177,43 @@ where
         if valId != decl.fvarId || args.size != candidateInfo.arity then
           eraseCandidate fvarId
         -- Out of scope join point candidate handling
-        else if let some upperCandidate ← read then
-          if !(← isInScope fvarId) then
-            addDependency fvarId upperCandidate
-      else
-        eraseCandidate fvarId
+        else
+          let currDepth := (← read).definitionDepth
+          let calleeDepth := (← read).scope.get! fvarId
+          if currDepth == calleeDepth then
+            return ()
+          else if calleeDepth + 1 == currDepth then
+            addDependency fvarId (← read).currentFunction.get!
+          else
+            eraseCandidate fvarId
     | _, _ =>
       removeCandidatesInLetValue decl.value
       go k
   | .fun decl k => do
-    withReader (fun _ => some decl.fvarId) do
-      withNewScope do
-        go decl.value
     addCandidate decl.fvarId decl.getArity
-    addToScope decl.fvarId
-    go k
+    withFnBody decl do
+      go decl.value
+    withFnDefined decl do
+      go k
   | .jp decl k => do
     go decl.value
     go k
   | .jmp _ args => args.forM removeCandidatesInArg
   | .return val => eraseCandidate val
-  | .cases c => do
-    eraseCandidate c.discr
-    c.alts.forM (·.forCodeM go)
+  | .cases c => c.alts.forM (·.forCodeM go)
   | .unreach .. => return ()
 
 /--
 Replace all join point candidate `fun` declarations with `jp` ones
 and all calls to them with `jmp`s.
 -/
-partial def replace (decl : Decl) (state : FindState) : CompilerM Decl := do
+partial def replace (decl : Decl .pure) (state : FindState) : CompilerM (Decl .pure) := do
   let mapper := fun acc cname _ => do return acc.insert cname (← mkFreshJpName)
   let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := ∅) mapper
   let newValue ← decl.value.mapCodeM go |>.run replaceCtx
   return { decl with value := newValue }
 where
-  go (code : Code) : ReplaceM Code := do
+  go (code : Code .pure) : ReplaceM (Code .pure) := do
     match code with
     | .let decl k =>
       match k, decl.value with
@@ -197,10 +229,8 @@ where
       | _, _ => return Code.updateLet! code decl (← go k)
     | .fun decl k =>
       if let some replacement := (← read)[decl.fvarId]? then
-        let newDecl := { decl with
-          binderName := replacement,
-          value := (← go decl.value)
-        }
+        let newValue ← go decl.value
+        let newDecl := ⟨decl.fvarId, replacement, decl.params, decl.type, newValue⟩
         modifyLCtx fun lctx => lctx.addFunDecl newDecl
         return .jp newDecl (← go k)
       else
@@ -244,7 +274,7 @@ structure ExtendState where
   to `Param`s. The free variables in this map are the once that the context
   of said join point will be extended by passing in the respective parameter.
   -/
-  fvarMap : Std.HashMap FVarId (Std.HashMap FVarId Param) := {}
+  fvarMap : Std.HashMap FVarId (Std.HashMap FVarId (Param .pure)) := {}
 
 /--
 The monad for the `extendJoinPointContext` pass.
@@ -358,7 +388,7 @@ the join point. This is so in the case of nested join points that refer
 to parameters of the current one we extend the context of the nested
 join points by said parameters.
 -/
-def withNewJpScope (decl : FunDecl) (x : ExtendM α): ExtendM α := do
+def withNewJpScope (decl : FunDecl .pure) (x : ExtendM α): ExtendM α := do
   withReader (fun ctx => { ctx with currentJp? := some decl.fvarId }) do
     modify fun s => { s with fvarMap := s.fvarMap.insert decl.fvarId {} }
     withNewScope do
@@ -371,14 +401,14 @@ It will back up the current scope (since we are doing a case split
 and want to continue with other arms afterwards) and add all of the
 parameters of the match arm to the list of candidates.
 -/
-def withNewAltScope (alt : Alt) (x : ExtendM α) : ExtendM α := do
+def withNewAltScope (alt : Alt .pure) (x : ExtendM α) : ExtendM α := do
   withBackTrackingScope do
     withNewCandidates (alt.getParams.map (·.fvarId)) do
       x
 
 /--
 Use all of the above functions to find free variables declared outside
-of join points that said join points can be reasonaly extended by. Reasonable
+of join points that said join points can be reasonably extended by. Reasonable
 meaning that in case the current join point is nested within a function
 declaration we will not extend it by free variables declared before the
 function declaration because we cannot lift join points outside of function
@@ -388,7 +418,7 @@ All of this is done to eliminate dependencies of join points onto their
 position within the code so we can pull them out as far as possible, hopefully
 enabling new inlining possibilities in the next simplifier run.
 -/
-partial def extend (decl : Decl) : CompilerM Decl := do
+partial def extend (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let newValue ← decl.value.mapCodeM go |>.run {} |>.run' {} |>.run' {}
   let decl := { decl with value := newValue }
   decl.pullFunDecls
@@ -396,7 +426,7 @@ where
   goFVar (fvar : FVarId) : ExtendM FVarId := do
     extendByIfNecessary fvar
     replaceFVar fvar
-  go (code : Code) : ExtendM Code := do
+  go (code : Code .pure) : ExtendM (Code .pure) := do
     match code with
     | .let decl k =>
       let decl ← decl.updateValue (← mapFVarM goFVar decl.value)
@@ -461,13 +491,13 @@ structure AnalysisState where
   A map, that for each join point id contains a map from all (so far)
   duplicated argument ids to the respective duplicate value
   -/
-  jpJmpArgs : FVarIdMap FVarSubst := {}
+  jpJmpArgs : FVarIdMap (FVarSubst .pure) := {}
 
 abbrev ReduceAnalysisM := ReaderT AnalysisCtx StateRefT AnalysisState ScopeM
 abbrev ReduceActionM := ReaderT AnalysisState CompilerM
 
 def isInJpScope (jp : FVarId) (var : FVarId) : ReduceAnalysisM Bool := do
-  return (← read).jpScopes.find! jp |>.contains var
+  return (← read).jpScopes.get! jp |>.contains var
 
 open ScopeM
 
@@ -509,17 +539,17 @@ After we have performed all of these optimizations we can take away the
 (remaining) common arguments and end up with nicely floated and optimized
 code that has as little arguments as possible in the join points.
 -/
-partial def reduce (decl : Decl) : CompilerM Decl := do
+partial def reduce (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let (_, analysis) ← decl.value.forCodeM goAnalyze |>.run {} |>.run {} |>.run' {}
   let newValue ← decl.value.mapCodeM goReduce |>.run analysis
   return { decl with value := newValue }
 where
-  goAnalyzeFunDecl (fn : FunDecl) : ReduceAnalysisM Unit := do
+  goAnalyzeFunDecl (fn : FunDecl .pure) : ReduceAnalysisM Unit := do
     withNewScope do
       fn.params.forM (addToScope ·.fvarId)
       goAnalyze fn.value
 
-  goAnalyze (code : Code) : ReduceAnalysisM Unit := do
+  goAnalyze (code : Code .pure) : ReduceAnalysisM Unit := do
     match code with
     | .let decl k =>
       addToScope decl.fvarId
@@ -541,8 +571,8 @@ where
           goAnalyze alt.getCode
       cs.alts.forM visitor
     | .jmp fn args =>
-      let decl ← getFunDecl fn
-      if let some knownArgs := (← get).jpJmpArgs.find? fn then
+      let decl ← getFunDecl (pu := .pure) fn
+      if let some knownArgs := (← get).jpJmpArgs.get? fn then
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs[param.fvarId]? then
@@ -559,10 +589,10 @@ where
         modify fun s => { s with jpJmpArgs := s.jpJmpArgs.insert fn interestingArgs }
     | .return .. | .unreach .. => return ()
 
-  goReduce (code : Code) : ReduceActionM Code := do
+  goReduce (code : Code .pure) : ReduceActionM (Code .pure) := do
     match code with
     | .jp decl k =>
-      if let some reducibleArgs := (← read).jpJmpArgs.find? decl.fvarId then
+      if let some reducibleArgs := (← read).jpJmpArgs.get? decl.fvarId then
         let filter param := do
           let erasable := reducibleArgs.contains param.fvarId
           if erasable then
@@ -582,8 +612,8 @@ where
       else
         return Code.updateFun! code decl (← goReduce k)
     | .jmp fn args =>
-      let reducibleArgs := (← read).jpJmpArgs.find! fn
-      let decl ← getFunDecl fn
+      let reducibleArgs := (← read).jpJmpArgs.get! fn
+      let decl ← getFunDecl (pu := .pure) fn
       let newParams := decl.params.zip args
         |>.filter (!reducibleArgs.contains ·.fst.fvarId)
         |>.map Prod.snd
@@ -600,35 +630,44 @@ where
 
 end JoinPointCommonArgs
 
+def Decl.findJoinPoints? (decl : Decl .pure) : CompilerM (Option (Decl .pure)) := do
+  let findResult ← JoinPointFinder.find decl
+  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
+  if findResult.candidates.isEmpty then
+    return none
+  else
+    return some (← JoinPointFinder.replace decl findResult)
+
 /--
 Find all `fun` declarations in `decl` that qualify as join points then replace
 their definitions and call sites with `jp`/`jmp`.
 -/
-def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
-  let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found: {findResult.candidates.size} jp candidates"
-  JoinPointFinder.replace decl findResult
+def Decl.findJoinPoints (decl : Decl .pure) : CompilerM (Decl .pure) := do
+  return (← Decl.findJoinPoints? decl).getD decl
 
-def findJoinPoints : Pass :=
-  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
+def findJoinPoints (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `findJoinPoints .base Decl.findJoinPoints (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.findJoinPoints (inherited := true)
 
-def Decl.extendJoinPointContext (decl : Decl) : CompilerM Decl := do
+def Decl.extendJoinPointContext (decl : Decl .pure) : CompilerM (Decl .pure) := do
   JoinPointContextExtender.extend decl
 
+-- TODO: It might make sense to extend this to impure one day
 def extendJoinPointContext (occurrence : Nat := 0) (phase := Phase.mono) (_h : phase ≠ .base := by simp): Pass :=
-  .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext phase (occurrence := occurrence)
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `extendJoinPointContext phase (h ▸ Decl.extendJoinPointContext) (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.extendJoinPointContext (inherited := true)
 
-def Decl.commonJoinPointArgs (decl : Decl) : CompilerM Decl := do
+def Decl.commonJoinPointArgs (decl : Decl .pure) : CompilerM (Decl .pure) := do
   JoinPointCommonArgs.reduce decl
 
+-- TODO: It might make sense to extend this to impure one day
 def commonJoinPointArgs : Pass :=
-  .mkPerDeclaration `commonJoinPointArgs Decl.commonJoinPointArgs .mono
+  .mkPerDeclaration `commonJoinPointArgs .mono Decl.commonJoinPointArgs
 
 builtin_initialize
   registerTraceClass `Compiler.commonJoinPointArgs (inherited := true)

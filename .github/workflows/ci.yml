@@ -31,10 +31,6 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     outputs:
-      # 0: PRs without special label
-      # 1: PRs with `merge-ci` label, merge queue checks, master commits
-      # 2: PRs with `release-ci` label, releases (incl. nightlies)
-      check-level: ${{ steps.set-level.outputs.check-level }}
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       # secondary build jobs that should not block the CI success/merge queue
@@ -54,9 +50,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
       - name: Set Nightly
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
         id: set-nightly
@@ -110,6 +106,54 @@ jobs:
           TAG_NAME="${GITHUB_REF##*/}"
           echo "RELEASE_TAG=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Validate CMakeLists.txt version matches tag
+        if: steps.set-release.outputs.RELEASE_TAG != ''
+        run: |
+          echo "Validating CMakeLists.txt version matches tag ${{ steps.set-release.outputs.RELEASE_TAG }}"
+
+          # Extract version values from CMakeLists.txt
+          CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | sed -nE 's/^set\(LEAN_VERSION_IS_RELEASE ([0-9]+)\).*/\1/p')
+
+          # Expected values from tag parsing
+          TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"
+          TAG_MINOR="${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}"
+          TAG_PATCH="${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}"
+
+          ERRORS=""
+
+          if [[ "$CMAKE_MAJOR" != "$TAG_MAJOR" ]]; then
+            ERRORS+="LEAN_VERSION_MAJOR: expected $TAG_MAJOR, found $CMAKE_MAJOR\n"
+          fi
+          if [[ "$CMAKE_MINOR" != "$TAG_MINOR" ]]; then
+            ERRORS+="LEAN_VERSION_MINOR: expected $TAG_MINOR, found $CMAKE_MINOR\n"
+          fi
+          if [[ "$CMAKE_PATCH" != "$TAG_PATCH" ]]; then
+            ERRORS+="LEAN_VERSION_PATCH: expected $TAG_PATCH, found $CMAKE_PATCH\n"
+          fi
+          if [[ "$CMAKE_IS_RELEASE" != "1" ]]; then
+            ERRORS+="LEAN_VERSION_IS_RELEASE: expected 1, found $CMAKE_IS_RELEASE\n"
+          fi
+
+          if [[ -n "$ERRORS" ]]; then
+            echo "::error::Version mismatch between tag and src/CMakeLists.txt"
+            echo ""
+            echo "Tag ${{ steps.set-release.outputs.RELEASE_TAG }} expects version $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+            echo "But src/CMakeLists.txt has mismatched values:"
+            echo -e "$ERRORS"
+            echo ""
+            echo "Fix src/CMakeLists.txt, delete the tag, and re-tag."
+            exit 1
+          fi
+
+          echo "Version validation passed: $TAG_MAJOR.$TAG_MINOR.$TAG_PATCH"
+
+      # 0: PRs without special label
+      # 1: PRs with `merge-ci` label, merge queue checks, master commits
+      # 2: nightlies
+      # 3: PRs with `release-ci` label, full releases
       - name: Set check level
         id: set-level
         # We do not use github.event.pull_request.labels.*.name here because
@@ -117,41 +161,51 @@ jobs:
         # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
         run: |
           check_level=0
+          fast=false
 
-          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+          if [[ -n "${{ steps.set-release.outputs.RELEASE_TAG }}" || -n "${{ steps.set-release-custom.outputs.RELEASE_TAG }}" ]]; then
+            check_level=3
+          elif [[ -n "${{ steps.set-nightly.outputs.nightly }}" ]]; then
             check_level=2
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
           else
             labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels')"
             if echo "$labels" | grep -q "release-ci"; then
-              check_level=2
+              check_level=3
             elif echo "$labels" | grep -q "merge-ci"; then
               check_level=1
+            fi
+            if echo "$labels" | grep -q "fast-ci"; then
+              fast=true
             fi
           fi
 
           echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
+          echo "fast=$fast" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Configure build matrix
         id: set-matrix
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
-            console.log(`level: ${level}`);
+            const fast = ${{ steps.set-level.outputs.fast }};
+            console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
+            const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -164,66 +218,84 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
+                // usually not a bottleneck so make exclusive to `fast-ci`
+                "os": large && fast ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developrs get PR toolchains (so secondary is sufficient)
+                // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
                 // 2. To skip it in merge queues as it takes longer than the
                 //    Linux lake build and adds little value in the merge queue
                 // 3. To run it in release (obviously)
-                "check-level": isPr ? 0 : 2,
-                "secondary": isPr,
+                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
+                //    available as an artifact for Grove to use.
+                "enabled": isPr || level != 1 || isPushToMaster,
+                "test": level >= 1,
+                "secondary": level == 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'"
+                "CTEST_OPTIONS": "-E 'foreign'",
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
-                "check-level": 0,
-                "test": true,
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "enabled": true,
                 "check-rebootstrap": level >= 1,
                 "check-stage3": level >= 2,
+                "test": true,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
-                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
+                // We are not warning-free yet on all platforms, start here
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror",
               },
               {
                 "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "CMAKE_PRESET": "reldebug",
-                // exclude seriously slow/stackoverflowing tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
-              // TODO: suddenly started failing in CI
-              /*{
+              {
                 "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
-                "check-level": 2,
+                // Always run on large if available, more reliable regarding timeouts
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "enabled": level >= 2,
+                // do not fail nightlies on this for now
+                "secondary": level <= 2,
+                "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
+                // * `StackOverflow*` correctly triggers ubsan.
+                // * `reverse-ffi` fails to link in sanitizers.
+                // * `interactive` and `async_select_channel` fail nondeterministically, would need
+                //   to be investigated..
+                // * 9366 is too close to timeout.
+                // * `bv_` sometimes times out calling into cadical even though we should be using
+                //   the standard compile flags for it.
+                // * `grind_guide` always times out.
+                // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
+                //   failures?
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/|lake/'"
+              },
               {
                 "name": "macOS",
-                "os": "macos-13",
+                "os": "macos-15-intel",
                 "release": true,
-                "check-level": 2,
+                "test": false,  // Tier 2 platform
+                "enabled": level >= 2,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+                "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
+                "CTEST_OPTIONS": "-E 'leanlaketest_hello'", // started failing from unpack
               },
               {
                 "name": "macOS aarch64",
-                // standard GH runner only comes with 7GB so use large runner if possible
-                "os": large ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
+                // standard GH runner only comes with 7GB so use large runner if possible when running tests
+                "os": large && (fast || level >= 1) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -231,32 +303,33 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // See above for release job levels
-                "check-level": isPr ? 0 : 2,
-                "secondary": isPr,
+                // See "Linux release" for release job levels; Grove is not a concern here
+                "enabled": isPr || level != 1,
+                "test": level >= 1,
+                "secondary": level == 0,
               },
               {
                 "name": "Windows",
-                "os": "windows-2022",
+                "os": large && (fast || level >= 2) ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                // for reasons unknown, interactivetests are flaky on Windows
-                "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd"
+                "binary-check": "ldd",
               },
               {
                 "name": "Linux aarch64",
                 "os": "nscloud-ubuntu-22.04-arm64-4x16",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
-                "check-level": 2,
+                "enabled": level >= 2,
+                "test": true,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
               //{
@@ -266,7 +339,7 @@ jobs:
               //  "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
               //  "cmultilib": true,
               //  "release": true,
-              //  "check-level": 2,
+              //  "enabled": level >= 2,
               //  "cross": true,
               //  "shell": "bash -euxo pipefail {0}"
               //}
@@ -278,15 +351,21 @@ jobs:
               //   "wasm": true,
               //   "cmultilib": true,
               //   "release": true,
-              //   "check-level": 2,
+              //   "enabled": level >= 2,
               //   "cross": true,
               //   "shell": "bash -euxo pipefail {0}",
               //   // Just a few selected tests because wasm is slow
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
+            for (const job of matrix) {
+              if (job["prepare-llvm"]) {
+                // `USE_LAKE` is not compatible with `prepare-llvm` currently
+                job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DUSE_LAKE=OFF";
+              }
+            }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
-            matrix = matrix.filter((job) => level >= job["check-level"]);
+            matrix = matrix.filter((job) => job["enabled"]);
             core.setOutput('matrix', matrix.filter((job) => !job["secondary"]));
             core.setOutput('matrix-secondary', matrix.filter((job) => job["secondary"]));
 
@@ -296,7 +375,6 @@ jobs:
     uses: ./.github/workflows/build-template.yml
     with:
       config: ${{needs.configure.outputs.matrix}}
-      check-level: ${{ needs.configure.outputs.check-level }}
       nightly: ${{ needs.configure.outputs.nightly }}
       LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
       LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
@@ -312,7 +390,6 @@ jobs:
     uses: ./.github/workflows/build-template.yml
     with:
       config: ${{needs.configure.outputs.matrix-secondary}}
-      check-level: ${{ needs.configure.outputs.check-level }}
       nightly: ${{ needs.configure.outputs.nightly }}
       LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
       LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
@@ -343,7 +420,7 @@ jobs:
         content: |
           A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
     - if: contains(needs.*.result, 'failure')
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
             core.setFailed('Some jobs failed')
@@ -356,11 +433,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -381,12 +458,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # needed for tagging
           fetch-depth: 0
+          # Doesn't seem to be working when additionally fetching from lean4-nightly
+          #filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -404,7 +483,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           body_path: diff.md
           prerelease: true
@@ -421,6 +500,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
       - name: Update toolchain on mathlib4's nightly-testing branch
         run: |
-          gh workflow -R leanprover-community/mathlib4 run nightly_bump_toolchain.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}

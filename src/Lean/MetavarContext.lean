@@ -3,10 +3,17 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Util.MonadCache
-import Lean.LocalContext
+public import Init.ShareCommon
+public import Lean.Util.MonadCache
+public import Lean.LocalContext
+import Init.Data.Slice
+import Init.Data.ToString.Macro
+import Init.Omega
+
+public section
 
 namespace Lean
 
@@ -100,7 +107,7 @@ the requirements imposed by these modules.
      assigned by `isDefEq`.
 
   3. SyntheticOpaque metavariables are never assigned by `isDefEq`.
-     That is, the constraint `?n =?= Nat.succ Nat.zero` always fail
+     That is, the constraint `?n =?= Nat.succ Nat.zero` will always fail
      if `?n` is a syntheticOpaque metavariable. This kind of metavariable
      is created by tactics such as `intro`. Reason: in the tactic framework,
      subgoals as represented as metavariables, and a subgoal `?n` is considered
@@ -144,7 +151,7 @@ the requirements imposed by these modules.
     process above is recursive. We claim it terminates because we keep
     creating new metavariables with smaller local contexts.
 
-  - Suppose, we have `t[?m]` and we want to create a let-expression by
+  - Suppose we have `t[?m]` and we want to create a `let`-expression by
     abstracting a let-decl free variable `x`, and the local context of
     `?m` contains `x`. Similarly to the previous case
     ```
@@ -153,13 +160,14 @@ the requirements imposed by these modules.
     will be ill-formed if we later assign a term `s` to `?m`, and
     `s` contains free variable `x`. Again, assume the type of `?m` is `A[x]`.
 
-    1. If `?m` is natural or synthetic, then we create `?n : (let x : T := v; A[x])` with
-       and local context := local context of `?m` - `x`, we assign `?m := ?n`,
-       and produce the term `let x : T := v; t[?n]`. That is, we are just making
+    1. If `?m` is natural or synthetic, then we create `?n : (let x : T := v; A[x])` whose
+       local context is the local context of `?m` minus `x`, we assign `?m := ?n`
+       (which is correct since the types of `?m` and `?n` both reduce to `A[v]`),
+       and then produce the term `let x : T := v; t[?n]`. That is, we are just making
        sure `?n` must never be assigned to a term containing `x`.
 
     2. If `?m` is syntheticOpaque, we create a fresh syntheticOpaque `?n`
-       with type `?n : T -> (let x : T := v; A[x])` and local context := local context of `?m` - `x`,
+       with type `?n : T -> (let x : T := v; A[x])` whose local context is the local context of `?m` minus `x`,
        create the delayed assignment `?n #[x] := ?m`, and produce the term `let x : T := v; t[?n x]`.
 
        Now suppose we assign `s` to `?m`. We do not assign the term `fun (x : T) => s` to `?n`, since
@@ -169,6 +177,18 @@ the requirements imposed by these modules.
 
        We are essentially using the pair "delayed assignment + application" to implement a delayed
        substitution.
+
+  - Suppose we have `t[?m]` and we want to create a `have`-expression
+    by abstracting a *nondependent* let-decl free variable `x`.
+    This needs a different procedure since `A[x]` does not reduce to `A[v]`.
+    It is the same as abstracting for lambda expressions, but it produces `have` instead of lambda terms:
+
+    1. If `?m` is natural or synthetic, then we create `?n : ∀ (x : T), A[x]` whose
+       local context is the local context of `?m` minus `x`, and then we assign `?m := ?n x`,
+       and we produce the term `have x : T := v; t[?n x]`.
+
+    2. If `?m` is syntheticOpaque, we create the same `?n` but as syntheticOpaque,
+       create the delayed assignment `?n #[x] := ?m`, and produce the term `have x : T := v; t[?n x]`.
 
 - We use TC for implementing coercions. Both Joe Hendrix and Reid Barton
   reported a nasty limitation. In Lean3, TC will not be used if there are
@@ -578,6 +598,16 @@ run_meta do
   let e' ← instantiateMVars e
   -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
+
+There are a few gotchas concerning delayed assignments.
+
+* Regular assignments take precedence over delayed ones. This happens when an error occurs, in which
+  case Lean assigns `sorry` to all unassigned metavariables, delayed assigned or not.
+* Unless a delayed assigned metavariable `?m := fun fvars => ?pending` is fully applied to its free
+  variables `fvars`, it will not be instantiated to `?pending`.
+* A delayed assigned metavariable `?m := fun fvars => ?pending` that occurs fully applied `?m fvars`
+  will not be instantiated to `?pending` unless (1) `?pending` is assigned, and (2) the
+  assignment to `?pending` is ground (i.e., does not contain unassigned metavariables).
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   if !e.hasMVar then
@@ -593,17 +623,17 @@ def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m Local
      match ldecl with
      | .cdecl _ fvarId userName type _ .auxDecl =>
         let type ← instantiateMVars type
-        let .some fullName := auxDeclToFullName.find? fvarId
+        let .some fullName := auxDeclToFullName.get? fvarId
           | panic! s!"Invalid auxiliary declaration found in local context: \
                       {userName} does not have an associated full name."
         return lctx.mkAuxDecl fvarId userName type fullName
      | .cdecl _ fvarId userName type bi k =>
        let type ← instantiateMVars type
        return lctx.mkLocalDecl fvarId userName type bi k
-     | .ldecl _ fvarId userName type value nonDep k =>
+     | .ldecl _ fvarId userName type value nondep k =>
        let type ← instantiateMVars type
        let value ← instantiateMVars value
-       return lctx.mkLetDecl fvarId userName type value nonDep k
+       return lctx.mkLetDecl fvarId userName type value nondep k
 
 def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit := do
   let mvarDecl     := (← getMCtx).getDecl mvarId
@@ -616,8 +646,8 @@ def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : 
   match localDecl with
   | .cdecl idx id n type bi k =>
     return .cdecl idx id n (← instantiateMVars type) bi k
-  | .ldecl idx id n type val nonDep k =>
-    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep k
+  | .ldecl idx id n type val nondep k =>
+    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nondep k
 
 namespace DependsOn
 
@@ -627,7 +657,7 @@ structure State where
 
 private abbrev M := StateM State
 
-instance : MonadMCtx M where
+private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
@@ -681,7 +711,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | _                    => pure false
   visit e
 
-@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+@[inline] private partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
   if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
 
 end DependsOn
@@ -698,15 +728,21 @@ end DependsOn
   return result
 
 /--
-  Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
-  depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
+depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true.
+- When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored,
+  for computing dependencies from "within" a telescope.
+-/
+@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
   match localDecl with
   | .cdecl (type := t) ..  => findExprDependsOn t pf pm
-  | .ldecl (type := t) (value := v) .. =>
-    let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
-    setMCtx mctx
-    return result
+  | .ldecl (type := t) (value := v) (nondep := nondep) .. =>
+    if generalizeNondepLet && nondep then
+      findExprDependsOn t pf pm
+    else
+      let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
+      setMCtx mctx
+      return result
 
 def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   findExprDependsOn e (fvarId == ·)
@@ -715,9 +751,13 @@ def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool 
 def dependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   exprDependsOn e fvarId
 
-/-- Return true iff `localDecl` depends on the free variable `fvarId` -/
-def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) : m Bool :=
-  findLocalDeclDependsOn localDecl (fvarId == ·)
+/--
+Returns true iff `localDecl` depends on the free variable `fvarId`
+- When `generalizeNondepLet := true` (the default), then values of nondependent lets are ignored,
+  for computing dependencies from "within" a telescope.
+-/
+def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) (generalizeNondepLet := true) : m Bool :=
+  findLocalDeclDependsOn localDecl (fvarId == ·) (generalizeNondepLet := generalizeNondepLet)
 
 /-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
 def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
@@ -729,11 +769,11 @@ def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
     return false
 
 /-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) : m Bool :=
+def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) (generalizeNondepLet := true) : m Bool :=
   if x.isFVar then
-    findLocalDeclDependsOn localDecl (x.fvarId! == ·)
+    findLocalDeclDependsOn localDecl (x.fvarId! == ·) (generalizeNondepLet := generalizeNondepLet)
   else if x.isMVar then
-    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·))
+    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·)) (generalizeNondepLet := generalizeNondepLet)
   else
     return false
 
@@ -742,14 +782,11 @@ def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fu
   findExprDependsOn e pf pm
 
 /-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  findLocalDeclDependsOn localDecl pf pm
+def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) (generalizeNondepLet := true) : m Bool := do
+  findLocalDeclDependsOn localDecl pf pm (generalizeNondepLet := generalizeNondepLet)
 
 
 namespace MetavarContext
-
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
 
 /-- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
@@ -909,7 +946,7 @@ structure State where
   cache          : Std.HashMap ExprStructEq Expr := {}
 
 structure Context where
-  mainModule         : Name
+  quotContext        : Name
   preserveOrder      : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
@@ -925,7 +962,7 @@ instance : MonadMCtx M where
 
 private def mkFreshBinderName (n : Name := `x) : M Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
-  return addMacroScope (← read).mainModule n fresh
+  return addMacroScope (← read).quotContext n fresh
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -937,7 +974,7 @@ instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := Id.run do
   let mut d : LocalDecl := lctx.getFVar! xs[0]!
-  for x in xs[1:] do
+  for x in xs[1...*] do
     if x.isFVar then
       let curr := lctx.getFVar! x
       if curr.index < d.index then
@@ -948,6 +985,9 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
   return a new array of free variables that contains `toRevert` and all variables
   in `lctx` that may depend on `toRevert`.
+
+  When `generalizeNondepLet := true` (the default), then the values of nondependent lets are not considered
+  when computing forward dependencies.
 
   Remark: the result is sorted by `LocalDecl` indices.
 
@@ -969,7 +1009,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   When we try to create the lambda `fun {α : Type} (a : α) => ?m`, we first need to create
   an auxiliary `?n` which does not contain `α` and `a` in its context. That is,
   we create the metavariable `?n : {α : Type} → (a : α) → (f : α → List α) → List α`,
-  add the delayed assignment `?n #[α, a, f] := ?m`, and create the lambda
+  add the delayed assignment `?n #[l, a, f] := ?m`, and create the lambda
   `fun {α : Type} (a : α) => ?n α a f`.
 
   See `elimMVarDeps` for more information.
@@ -980,7 +1020,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   Note that <https://github.com/leanprover/lean/issues/1258> is not an issue in Lean4 because
   we have changed how we compile recursive definitions.
 -/
-def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array Expr) := do
+def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) (generalizeNondepLet := true) : M (Array Expr) := do
   if toRevert.size == 0 then
     pure toRevert
   else
@@ -991,7 +1031,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
         i.forM fun j _ => do
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
-          if (← localDeclDependsOn prevDecl fvar.fvarId!) then
+          if (← localDeclDependsOn prevDecl fvar.fvarId! (generalizeNondepLet := generalizeNondepLet)) then
             throw (Exception.revertFailure (← getMCtx) lctx toRevert prevDecl.userName.toString)
     let newToRevert      := if (← preserveOrder) then toRevert else Array.mkEmpty toRevert.size
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
@@ -1001,7 +1041,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         return newToRevert.push decl.toExpr
-      else if (← findLocalDeclDependsOn decl (newToRevert.any fun x => x.fvarId! == ·)) then
+      else if (← findLocalDeclDependsOn decl (newToRevert.any fun x => x.fvarId! == ·) (generalizeNondepLet := generalizeNondepLet)) then
         return newToRevert.push decl.toExpr
       else
         return newToRevert
@@ -1076,12 +1116,16 @@ mutual
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
+        | LocalDecl.ldecl (nondep := true) _ _ n type _ _ =>
+          let type := type.headBeta
+          let type ← abstractRangeAux xs i type
+          return Lean.mkForall n .default type e
+        | LocalDecl.ldecl (nondep := false) _ _ n type value _ =>
           if !usedLetOnly || e.hasLooseBVar 0 then
             let type := type.headBeta
             let type  ← abstractRangeAux xs i type
             let value ← abstractRangeAux xs i value
-            let e := mkLet n type value e nonDep
+            let e := mkLet n type value e false
             match kind with
             | MetavarKind.syntheticOpaque =>
               -- See "Gruesome details" section in the beginning of the file
@@ -1233,16 +1277,29 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
     mkLambda x bi t b
 
 /--
-  Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
-  If `usedOnly == true` then `forall` and `lambda` expressions are created only for used variables.
-  If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
-def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
+Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
+This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+
+- If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
+- If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
+- If `generalizeNondepLet := true` then nondependent let variables become `forall` or `lambda` expressions
+  according to the value of `usedOnly`.
+  Generally, `generalizeNondepLet` should be `true`
+  *unless* all nondep entries in `xs` have known provenance,
+  e.g. when leaving a telescope combinator like `Meta.lambdaLetTelescope`.
+  See also `LocalDecl.ldecl`.
+  - This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
+    for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)`
+    and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+    then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
+  - **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
+-/
+def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNondepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
       if x.isFVar then
-        match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi _ =>
+        let handleCDecl (n : Name) (type : Expr) (bi : BinderInfo) : M Expr := do
           if !usedOnly || e.hasLooseBVar 0 then
             let type := type.headBeta;
             let type ← abstractRange xs i type
@@ -1252,11 +1309,16 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
               return Lean.mkForall n bi type e
           else
             return e.lowerLooseBVars 1 1
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          if !usedLetOnly || e.hasLooseBVar 0 then
+        match lctx.getFVar! x with
+        | LocalDecl.cdecl _ _ n type bi _ =>
+          handleCDecl n type bi
+        | LocalDecl.ldecl _ _ n type value nondep _ =>
+          if generalizeNondepLet && nondep then
+            handleCDecl n type .default
+          else if !usedLetOnly || e.hasLooseBVar 0 then
             let type  ← abstractRange xs i type
             let value ← abstractRange xs i value
-            return mkLet n type value e nonDep
+            return mkLet n type value e nondep
           else
             return e.lowerLooseBVars 1 1
       else
@@ -1272,32 +1334,32 @@ def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Exp
 end MkBinding
 
 structure MkBindingM.Context where
-  mainModule : Name
-  lctx       : LocalContext
+  quotContext : Name
+  lctx        : LocalContext
 
 abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
-  MkBinding.elimMVarDeps xs e { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.elimMVarDeps xs e { preserveOrder, quotContext := ctx.quotContext }
 
 def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
-  MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
+  MkBinding.revert xs mvarId { preserveOrder, quotContext := ctx.quotContext }
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce generalizeNondepLet { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, quotContext := ctx.quotContext }
 
-@[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce binderInfoForMVars
+@[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
+  mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce generalizeNondepLet binderInfoForMVars
 
-@[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  mkBinding (isLambda := false) xs e usedOnly usedLetOnly false binderInfoForMVars
+@[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (generalizeNondepLet := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
+  mkBinding (isLambda := false) xs e usedOnly usedLetOnly false generalizeNondepLet binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
-  MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
+  MkBinding.abstractRange xs n e { preserveOrder := false, quotContext := ctx.quotContext }
 
-@[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MkBindingM (Array Expr) := fun ctx =>
-  MkBinding.collectForwardDeps ctx.lctx toRevert { preserveOrder, mainModule := ctx.mainModule }
+@[inline] def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) (generalizeNondepLet := true) : MkBindingM (Array Expr) := fun ctx =>
+  MkBinding.collectForwardDeps ctx.lctx toRevert generalizeNondepLet { preserveOrder, quotContext := ctx.quotContext }
 
 /--
   `isWellFormed lctx e` returns true iff

@@ -3,10 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.Attr  -- shake: keep (macro output dependency)
+public meta import Lean.Meta.Tactic.Simp.Simproc
+
+public section
 
 namespace Lean.Meta.Simp
 
@@ -19,11 +22,11 @@ macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   let procStr := procId.getId.toString
   let procIdParser := mkIdentFrom procId (`Parser.Attr ++ procId.getId)
   let procDescr := quote s!"simproc set for {procId.getId.toString}"
-  -- TODO: better docDomment for simprocs
-  `($[$doc:docComment]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
+  -- TODO: better docComment for simprocs
+  `($[$doc:docComment]? public meta initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
     $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (prio)? : attr
     /-- Simplification procedure -/
-    initialize extProc : SimprocExtension ← registerSimprocAttr $(quote procId.getId) $procDescr none $(quote procId.getId)
+    public meta initialize extProc : SimprocExtension ← registerSimprocAttr $(quote procId.getId) $procDescr none
     /-- Simplification procedure -/
     syntax (name := $procIdParser:ident) $(quote procStr):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? : attr)
 

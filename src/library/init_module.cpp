@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/init_module.h"
 #include "library/constants.h"
-#include "library/class.h"
 #include "library/num.h"
 #include "library/annotation.h"
 #include "library/print.h"
@@ -15,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/formatter.h"
 #include "library/dynlib.h"
+#include "library/ir_interpreter.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -33,16 +33,16 @@ void initialize_library_module() {
     initialize_print();
     initialize_num();
     initialize_annotation();
-    initialize_class();
     initialize_library_util();
     initialize_time_task();
     initialize_dynlib();
+    initialize_ir_interpreter();
 }
 
 void finalize_library_module() {
+    finalize_ir_interpreter();
     finalize_time_task();
     finalize_library_util();
-    finalize_class();
     finalize_annotation();
     finalize_num();
     finalize_print();

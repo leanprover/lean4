@@ -138,8 +138,11 @@ example (ty : {α : Prop // Nonempty α}) : ty.val := by
 Fails, type hint can't hint enough since `.some _` is postponed.
 -/
 /--
-error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?_
+error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `some`
+  [apply] `Option.Rel.some`
 -/
 #guard_msgs in example : some true = (some true).map id := by
   change _ = .some _
@@ -181,7 +184,7 @@ example (m n : Nat) : m + 2 = n := by
 conv `change` unsolved metavariables
 -/
 /--
-error: don't know how to synthesize placeholder for argument 'e'
+error: don't know how to synthesize placeholder for argument `e`
 context:
 case a
 m n : Nat

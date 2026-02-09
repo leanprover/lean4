@@ -37,7 +37,7 @@ def mkFoo₂ := mkFoo₁
 syntax (name := elabTest) "test" : term
 
 @[term_elab elabTest] def elabElabTest : Lean.Elab.Term.TermElab := fun orig _ => do
-  let stx ← `(2)
+  let stx ← `(Nat.succ (Nat.succ Nat.zero))
   Lean.Elab.withMacroExpansionInfo orig stx $ Lean.Elab.Term.elabTerm stx none
 
      --v textDocument/declaration
@@ -46,7 +46,7 @@ syntax (name := elabTest) "test" : term
 
 def Baz (α : Type) := α
 
-#check fun (b : Baz Nat) => b
+#check fun (b : Baz Foo) => b
                           --^ textDocument/typeDefinition
 
 example : Nat :=
@@ -57,7 +57,7 @@ example : Nat :=
 where
   b := 2
 
-macro_rules | `(test) => `(3)
+macro_rules | `(test) => `(Nat.succ (Nat.succ Nat.zero))
 #check test
      --^ textDocument/definition
 
@@ -112,3 +112,15 @@ set_option pp.all true in
 -- duplicate definitions link to the original
 def mkFoo₁ := 1
      --^ textDocument/definition
+
+-- go-to-projection should be able to look through reducible definitions
+@[reducible] def foo'' (n : Nat) := Foo2.foo n
+
+#check foo'' 0
+      --^ textDocument/definition
+
+-- go-to-projection should not be able to look through semi-reducible definitions
+def foo''' (n : Nat) := Foo2.foo n
+
+#check foo''' 0
+      --^ textDocument/definition

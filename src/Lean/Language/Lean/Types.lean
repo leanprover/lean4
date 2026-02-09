@@ -8,9 +8,12 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Elab.Command
+public import Lean.Elab.Command
+
+public section
 
 set_option linter.missingDocs true
 
@@ -18,7 +21,8 @@ namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
 
-private def pushOpt (a? : Option α) (as : Array α) : Array α :=
+/-- Pushes `a?` into the array if it is `some`. -/
+def pushOpt (a? : Option α) (as : Array α) : Array α :=
   match a? with
   | some a => as.push a
   | none   => as

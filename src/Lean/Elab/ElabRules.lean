@@ -3,9 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.MacroArgUtil
-import Lean.Elab.AuxDef
+public import Lean.Elab.MacroArgUtil
+public import Lean.Elab.AuxDef
+public import Lean.Elab.Do.Basic
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -27,13 +32,13 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
         pure alt
       else if k' == choiceKind then
          match quoted.getArgs.find? fun quotAlt => checkRuleKind quotAlt.getKind k with
-         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind '{k}'"
+         | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind `{k}`"
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
            `(matchAltExpr| | $pats,* => $rhs)
       else
-        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"
+        throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind `{k'}`"
     | _ => throwUnsupportedSyntax
   let catName ← match cat?, expty? with
     | some cat, _ => pure cat.getId
@@ -45,31 +50,42 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     pure <| match attrs? with
       | some attrs => attrs.getElems.push attr
       | none => #[attr]
+  let vis := Parser.Command.visibility.ofAttrKind attrKind
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
+      `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*] $vis:visibility
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Term.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
+    else if catName == `doElem then
+      `($[$doc?:docComment]? @[$(← mkAttrs `do_elab),*] $vis:visibility
+        aux_def elabRules $(mkIdent k) : Lean.Elab.Do.DoElab :=
+        fun stx $expId => match stx with
+          $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
-      throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
+      throwErrorAt expId "syntax category `{catName}` does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `tactic || catName == `conv then
-    `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
+  else if catName == `doElem then
+    `($[$doc?:docComment]? @[$(← mkAttrs `do_elab),*] $vis:visibility
+      aux_def elabRules $(mkIdent k) : Lean.Elab.Do.DoElab :=
+      fun stx cont => match stx with
+        $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab_rules` macro that uses this one as a fallback.
-    throwError "unsupported syntax category '{catName}'"
+    throwError "unsupported syntax category `{catName}`"
 
 @[builtin_command_elab «elab_rules»] def elabElabRules : CommandElab :=
   adaptExpander fun stx => match stx with
@@ -87,15 +103,11 @@ def elabElab : CommandElab
       $cat $[<= $expectedType?]? => $rhs) => do
     let prio    ← liftMacroM <| evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
-    -- name
-    let name ← match name? with
-      | some name => pure name.getId
-      | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)) attrKind
-    let nameId := name?.getD (mkIdentFrom tk name (canonical := true))
-    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
-    elabCommand <|← `(
+    let kind ← elabSyntax <|← `(
       $[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-      syntax%$tk$[:$prec?]? (name := $nameId) (priority := $(quote prio):num) $[$stxParts]* : $cat
+      syntax%$tk$[:$prec?]? $[(name := $name?)]? (priority := $(quote prio):num) $[$stxParts]* : $cat)
+    let pat := ⟨mkNode kind patArgs⟩
+    elabCommand <|← `(
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => throwUnsupportedSyntax
 

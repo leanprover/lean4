@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeMap.Raw.Lemmas
-// Imports: Std.Data.DTreeMap.Raw.Lemmas Std.Data.TreeMap.Raw.Basic Std.Data.TreeMap.Raw.AdditionalOperations
+// Imports: import Std.Data.DTreeMap.Raw.Lemmas public import Std.Data.TreeMap.Raw.AdditionalOperations import Init.Data.List.Find import Init.Data.List.Impl import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_Equiv_instTrans(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -26,25 +26,37 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_TreeMap_Raw_Equiv_instTrans(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_TreeMap_Raw_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_TreeMap_Raw_AdditionalOperations(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeMap_Raw_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_Prod(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_TreeMap_Raw_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_TreeMap_Raw_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_TreeMap_Raw_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_TreeMap_Raw_AdditionalOperations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_TreeMap_Raw_AdditionalOperations(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Impl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

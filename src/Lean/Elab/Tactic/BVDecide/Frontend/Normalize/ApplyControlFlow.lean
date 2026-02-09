@@ -3,8 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Tactic.Simp
+import Init.ByCases
+import Init.Omega
+
+public section
 
 /-!
 This modules contains simprocs and functions to compute discrimination tree keys in order to

@@ -38,7 +38,10 @@ opaque C : Prop
 axiom imp : A → B → C
 axiom a : A
 axiom b : B
-/-- info: Try this: (expose_names; exact imp h_1 h) -/
+/--
+info: Try this:
+  [apply] (expose_names; exact imp h_1 h)
+-/
 #guard_msgs in
 example : C := by
   have h : A := a
@@ -60,9 +63,9 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
 
-/-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
-/-- info: Try this: (expose_names; exact h) -/
-#guard_msgs in
+/-! `exact?` no longer uses `solve_by_elim` first, so it can't find local hypotheses.
+However, star-indexed lemmas (like `Function.comp`) may find a proof via fallback. -/
+#guard_msgs (drop info) in
 example {P : Prop} : P → P := by
   intro
   exact?
@@ -71,7 +74,10 @@ example {P : Prop} : P → P := by
 /-! Does *not* suggest `expose_names` when the inaccessible name is an implicit argument. -/
 opaque D : Nat → Type
 axiom c_of_d {n : Nat} : D n → C
-/-- info: Try this: exact c_of_d x -/
+/--
+info: Try this:
+  [apply] exact c_of_d x
+-/
 #guard_msgs in
 example : (n : Nat) → D n → C := by
   intro
@@ -84,14 +90,17 @@ opaque E : Prop
 axiom option1 : A → E
 axiom option2 {_ : B} : E
 /--
-info: Try this: refine option1 ?_
+info: Try this:
+  [apply] refine option1 ?_
+  -- Remaining subgoals:
+  -- ⊢ A
 ---
 info: found a partial proof, but the corresponding tactic failed:
   (expose_names; refine option2)
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : E := by apply?
@@ -104,9 +113,12 @@ of parenthesized sequencing.
 opaque R : A → B → Prop
 axiom rImp (b : B) : R a b → R a b
 /--
-info: Try this: (expose_names; refine rImp b ?_)
+info: Try this:
+  [apply] (expose_names; refine rImp b ?_)
+  -- Remaining subgoals:
+  -- ⊢ R a b
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : (b : B) → R a b := by
@@ -115,7 +127,10 @@ example : (b : B) → R a b := by
 
 
 /-! `show_term` exhibits the same behavior as `exact?` -/
-/-- info: Try this: (expose_names; exact h) -/
+/--
+info: Try this:
+  [apply] (expose_names; exact h)
+-/
 #guard_msgs in
 example : E → E := by
   intro
@@ -134,7 +149,10 @@ a✝ : B
 example : B → E := by
   intro
   show_term apply option2
-/-- info: Try this: exact c_of_d d -/
+/--
+info: Try this:
+  [apply] exact c_of_d d
+-/
 #guard_msgs in
 example : (n : Nat) → D n → C := by
   intro _ d
@@ -152,8 +170,9 @@ noncomputable opaque a : A
 axiom eq (a' : A) : a = a'
 
 /--
-info: Try this: (expose_names; rw [eq a'])
--- Foo a' a'
+info: Try this:
+  [apply] (expose_names; rw [eq a'])
+  -- Foo a' a'
 ---
 error: unsolved goals
 a'✝ : A

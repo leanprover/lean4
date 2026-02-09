@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
+import Init.Data.Array.GetLit
+
+public section
 
 namespace Lean.Widget
 open Server
@@ -51,6 +55,14 @@ partial def mapM : TaggedText α → m (TaggedText β)
   | append as => return append (← as.mapM mapM)
   | tag t a => return tag (← f t) (← mapM a)
 
+variable [Monad m] (f : α → TaggedText α → m Unit) in
+partial def forM : TaggedText α → m Unit
+  | text _ => return
+  | append as => as.forM forM
+  | tag t a => do
+    f t a
+    forM a
+
 variable (f : α → TaggedText α → TaggedText β) in
 partial def rewrite : TaggedText α → TaggedText β
   | text s => text s
@@ -74,7 +86,7 @@ private structure TaggedState where
   column   : Nat                                 := 0
   deriving Inhabited
 
-instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
+private instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
   pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
   pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column

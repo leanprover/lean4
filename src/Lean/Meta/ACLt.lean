@@ -3,11 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.DiscrTree.Main
+import Init.Data.Range.Polymorphic.Iterators
 import Lean.Meta.FunInfo
-import Lean.Meta.DiscrTree
-
+public section
 namespace Lean
 
 def Expr.ctorWeight : Expr → UInt8
@@ -51,7 +52,7 @@ mutual
   Remark: the order is not really total on terms since
    - We instance implicit arguments.
    - We ignore metadata.
-   - We ignore universe parameterst at constants.
+   - We ignore universe parameters at constants.
 -/
 partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
   lt a b
@@ -115,14 +116,14 @@ where
         return false
       else
         let infos ← getParamsInfo aFn aArgs.size
-        for i in [:infos.size] do
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if (← lt aArgs[i]! bArgs[i]!) then
               return true
             else if (← lt bArgs[i]! aArgs[i]!) then
               return false
-        for i in [infos.size:aArgs.size] do
+        for i in infos.size...aArgs.size do
           if (← lt aArgs[i]! bArgs[i]!) then
             return true
           else if (← lt bArgs[i]! aArgs[i]!) then
@@ -153,12 +154,12 @@ where
     | .app ..           =>
       a.withApp fun f args => do
         let infos ← getParamsInfo f args.size
-        for i in [:infos.size] do
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i]!.isInstImplicit then
+          if !infos[i]!.isInstance then
             if !(← lt args[i]! b) then
               return false
-        for h : i in [infos.size:args.size] do
+        for h : i in infos.size...args.size do
           if !(← lt args[i] b) then
             return false
         return true

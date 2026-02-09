@@ -3,44 +3,42 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.InferType
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
 
 register_builtin_option pp.auxDecls : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "display auxiliary declarations used to compile recursive functions"
 }
 
 register_builtin_option pp.implementationDetailHyps : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "display implementation detail hypotheses in the local context"
 }
 
 register_builtin_option pp.inaccessibleNames : Bool := {
   defValue := true
-  group    := "pp"
   descr    := "display inaccessible declarations in the local context"
 }
 
 register_builtin_option pp.showLetValues : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "always display let-declaration values in the info view"
 }
 
 register_builtin_option pp.showLetValues.threshold : Nat := {
   defValue := 0
-  group    := "pp"
   descr    := "when `pp.showLetValues` is false, the maximum size of a term allowed before it is replaced by `⋯`"
 }
 
 register_builtin_option pp.showLetValues.tactic.threshold : Nat := {
   defValue := 255
-  group    := "pp"
   descr    := "when `pp.showLetValues` is false, the maximum size of a term allowed before it is replaced by `⋯`, for tactic goals"
 }
 
@@ -102,7 +100,8 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
         match localDecl with
-        | .cdecl _ _ varName type _ _ =>
+        | .cdecl _ _ varName type ..
+        | .ldecl _ _ varName type (nondep := true) .. =>
           let varName := varName.simpMacroScopes
           let type ← instantiateMVars type
           if prevType? == none || prevType? == some type then
@@ -110,7 +109,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           else do
             let fmt ← pushPending varNames prevType? fmt
             return ([varName], some type, fmt)
-        | .ldecl _ _ varName type val _ _ => do
+        | .ldecl _ _ varName type val (nondep := false) .. => do
           let varName := varName.simpMacroScopes
           let fmt ← pushPending varNames prevType? fmt
           let fmt  := addLine fmt

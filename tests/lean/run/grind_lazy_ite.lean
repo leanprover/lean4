@@ -1,3 +1,4 @@
+module
 def f (n : Nat) (m : Nat) :=
   if n < m then
     f (n+1) m + n

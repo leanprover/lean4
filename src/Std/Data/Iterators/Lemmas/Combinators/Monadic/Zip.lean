@@ -3,11 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Combinators.Monadic.Zip
-import Init.Data.Iterators.Lemmas.Consumers.Monadic
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Combinators.Monadic.Zip
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+
+@[expose] public section
+
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 variable {α₁ α₂ β₁ β₂ : Type w} {m : Type w → Type w'}
 
@@ -38,51 +43,49 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
     (Intermediate.zip it₁ memo it₂).step = (do
       match memo with
       | none =>
-        match ← it₁.step with
+        match (← it₁.step).inflate with
         | .yield it₁' out hp =>
-          pure <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
+          pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
             (.yieldLeft rfl hp)
         | .skip it₁' hp =>
-          pure <| .skip (Intermediate.zip it₁' none it₂)
+          pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
             (.skipLeft rfl hp)
         | .done hp =>
-          pure <| .done (.doneLeft rfl hp)
+          pure <| .deflate <| .done (.doneLeft rfl hp)
       | some out₁ =>
-        match ← it₂.step with
+        match (← it₂.step).inflate with
         | .yield it₂' out₂ hp =>
-          pure <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
+          pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
             (.yieldRight rfl hp)
         | .skip it₂' hp =>
-          pure <| .skip (Intermediate.zip it₁ (some out₁) it₂')
+          pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
             (.skipRight rfl hp)
         | .done hp =>
-          pure <| .done (.doneRight rfl hp)) := by
-  simp only [Intermediate.zip, step, Iterator.step, internalState_toIterM]
+          pure <| .deflate <| .done (.doneRight rfl hp)) := by
+  simp only [Intermediate.zip, step, Iterator.step]
   split
   · apply bind_congr
     intro step
-    obtain ⟨step, h⟩ := step
-    cases step <;> rfl
+    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
   · rename_i heq
     cases heq
     apply bind_congr
     intro step
-    obtain ⟨step, h⟩ := step
-    cases step <;> rfl
+    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
 theorem IterM.step_zip [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
     {it₂ : IterM (α := α₂) m β₂} :
     (it₁.zip it₂).step = (do
-      match ← it₁.step with
+      match (← it₁.step).inflate with
       | .yield it₁' out hp =>
-        pure <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
+        pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
           (.yieldLeft rfl hp)
       | .skip it₁' hp =>
-        pure <| .skip (Intermediate.zip it₁' none it₂)
+        pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
           (.skipLeft rfl hp)
       | .done hp =>
-        pure <| .done (.doneLeft rfl hp)) := by
+        pure <| .deflate <| .done (.doneLeft rfl hp)) := by
   simp [zip_eq_intermediateZip, step_intermediateZip]
 
-end Std.Iterators
+end Std

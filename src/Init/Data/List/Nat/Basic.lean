@@ -6,10 +6,16 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
+public import Init.Data.List.MinMax
+import Init.Data.Bool
 import Init.Data.List.Count
-import Init.Data.List.Find
-import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.Data.Nat.MinMax
+import Init.Data.Option.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # Miscellaneous `List` lemmas, that require more `Nat` lemmas than are available in `Init.Data.List.Lemmas`.
@@ -68,7 +74,7 @@ theorem length_filterMap_pos_iff {xs : List α} {f : α → Option β} :
   | cons x xs ih =>
     simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
     split
-    · simp_all [ih]
+    · simp_all
     · simp_all
 
 @[simp]
@@ -102,9 +108,6 @@ theorem length_leftpad {n : Nat} {a : α} {l : List α} :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
 
-@[deprecated length_leftpad (since := "2025-02-24")]
-abbrev leftpad_length := @length_leftpad
-
 theorem length_rightpad {n : Nat} {a : α} {l : List α} :
     (rightpad n a l).length = max n l.length := by
   simp [rightpad]
@@ -116,7 +119,7 @@ section intersperse
 variable {l : List α} {sep : α} {i : Nat}
 
 @[simp, grind =] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
-  fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at *
+  fun_induction intersperse <;> simp only [length_cons, length_nil] at *
   rename_i h _
   have := length_pos_iff.mpr h
   omega
@@ -194,7 +197,7 @@ theorem mem_eraseIdx_iff_getElem {x : α} :
   | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
   | a::l, k+1 => by
     rw [← Nat.or_exists_add_one]
-    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj, Nat.succ_lt_succ_iff]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, Nat.succ_lt_succ_iff]
 
 theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
   simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]
@@ -208,12 +211,10 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 /-! ### min? -/
 
 -- A specialization of `min?_eq_some_iff` to Nat.
+@[deprecated min?_eq_some_iff (since := "2025-08-08")]
 theorem min?_eq_some_iff' {xs : List Nat} :
-    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  min?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
-    (le_min_iff := fun _ _ _ => Nat.le_min)
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) := by
+  exact min?_eq_some_iff
 
 theorem min?_get_le_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     l.min?.get (isSome_min?_of_mem h) ≤ a := by
@@ -235,12 +236,10 @@ theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.ge
 /-! ### max? -/
 
 -- A specialization of `max?_eq_some_iff` to Nat.
+@[deprecated max?_eq_some_iff (since := "2025-08-08")]
 theorem max?_eq_some_iff' {xs : List Nat} :
     xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
   max?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => Nat.max_def .. ▸ by split <;> simp)
-    (max_le_iff := fun _ _ _ => Nat.max_le)
 
 theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     a ≤ l.max?.get (isSome_max?_of_mem h) := by
@@ -259,5 +258,19 @@ theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
 theorem le_max?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
     a ≤ l.max?.getD k :=
   Option.get_eq_getD _ ▸ le_max?_get_of_mem h
+
+/-! #### append -/
+
+theorem append_eq_append_iff_of_size_eq_left {ws xs ys zs : List α}
+    (h : ws.length = xs.length) : ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  rw [append_eq_append_iff]
+  refine ⟨?_, ?_⟩
+  · rintro (⟨as, rfl, rfl⟩|⟨as, rfl, rfl⟩) <;> simp_all
+  · rintro ⟨rfl, rfl⟩ <;> simp_all
+
+theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : List α}
+    (h : ys.length = zs.length) : ws ++ ys = xs ++ zs ↔ ws = xs ∧ ys = zs := by
+  rw [← reverse_inj, reverse_append, reverse_append,
+    append_eq_append_iff_of_size_eq_left (by simpa), reverse_inj, reverse_inj, and_comm]
 
 end List

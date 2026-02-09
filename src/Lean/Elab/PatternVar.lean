@@ -3,10 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatchPatternAttr
-import Lean.Elab.Arg
-import Lean.Elab.MatchAltView
+public import Lean.Elab.Arg
+public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Nat.Linear
+import Init.Omega
+
+public section
 
 namespace Lean.Elab.Term
 
@@ -63,35 +69,13 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
-  else if h : candidates.size = 1 then
-    throwError message ++ .hint' m!"'{candidates[0]}' is similar"
-  else
-    let sorted := candidates.qsort (·.toString < ·.toString)
-    let diff :=
-      if candidates.size > 10 then [m!" (or {candidates.size - 10} others)"]
-      else []
-    let suggestions : MessageData := .group <|
-      .joinSep ((sorted.extract 0 10 |>.toList |>.map (showName env)) ++ diff)
-        ("," ++ Format.line)
-    throwError message ++ .group (.hint' ("These are similar:" ++ .nestD (Format.line ++ suggestions)))
-where
-  -- Create some `MessageData` for a name that shows it without an `@`, but with the metadata that
-  -- makes infoview hovers and the like work. This technique only works because the names are known
-  -- to be global constants, so we don't need the local context.
-  showName (env : Environment) (n : Name) : MessageData :=
-    let params :=
-      env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-    .ofFormatWithInfos {
-      fmt := "'" ++ .tag 0 (format n) ++ "'",
-      infos :=
-        .fromList [(0, .ofTermInfo {
-          lctx := .empty,
-          expr := .const n params,
-          stx := .ident .none (toString n).toSubstring n [.decl n []],
-          elaborator := `Delab,
-          expectedType? := none
-        })] _
-    }
+  let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
+  let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
+    suggestion := mkIdent candidate
+    toCodeActionTitle? := .some (s!"Change to {·}")
+    messageData? := .some m!"`{.ofConstName candidate}`",
+  })
+  throwError message ++ hint
 
 private def throwInvalidPattern {α} : M α :=
   throwError "Invalid pattern"
@@ -111,42 +95,81 @@ structure Context where
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
-  paramDecls    : Array (Name × BinderInfo) -- parameters names and binder information
+  paramDecls    : Array (Name × BinderInfo) -- parameters' names and binder information
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
+  usedNames     : Std.HashSet Name := {}
   args          : List Arg
   newArgs       : Array Term := #[]
   deriving Inhabited
 
-private def throwInvalidNamedArgs [Monad m] [MonadError m]
-    (namedArgs : Array NamedArg) (funId : Term) : m α :=
-  let names := (namedArgs.map fun narg => m!"'{narg.name}'").toList
+private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) : MetaM α := do
+  let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
-  throwError m!"Invalid argument {nameStr} {.andList names} for function '{funId}'"
-
-private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
-  if !ctx.namedArgs.isEmpty then
-    throwInvalidNamedArgs ctx.namedArgs ctx.funId
-  let numExpectedArgs :=
-    (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
-  let argKind := if ctx.explicit then "" else "explicit "
-  let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
-  let discrepancyKind := if tooMany then "Too many" else "Not enough"
-  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to '{ctx.funId}'; \
-    expected {numExpectedArgs} {argKind}{argWord}"
-  if !tooMany then
-    msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
-  throwError msg
+  let validNames := ctx.paramDecls.filterMap fun (name, _) =>
+    if name.hasMacroScopes then none else some name
+  have h := Nat.zero_lt_of_ne_zero (mt Array.isEmpty_iff_size_eq_zero.mpr (Bool.not_eq.mp h))
+  -- We offer hints only for the first argument
+  let firstNamedArg := ctx.namedArgs[0]'h
+  let replacementSpan := firstNamedArg.ref[1]
+  let unused := validNames.filter (!ctx.usedNames.contains ·)
+  let hint ← do
+    if replacementSpan.getHeadInfo matches .original .. then
+      let suggestions := unused.map fun validName =>
+        { suggestion := validName.toString
+          span? := replacementSpan
+          preInfo? := some s!"`{validName}`: "
+          toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
+      let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
+      MessageData.hint (forceList := true) hintMsg suggestions
+    else
+      let validNamesMsg := MessageData.orList <| unused.map (m!"`{·}`") |>.toList
+      pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
+  throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
+private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
+  let i := ctx.paramDeclIdx
+  let d := ctx.paramDecls[i]!
+  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
+
+private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
+  let numExpectedArgs :=
+    (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
+  -- If we have too few arguments because we skipped invalid named args, show that error instead
+  if !tooMany && !ctx.namedArgs.isEmpty then checkNamedArgs
+  let argKind := if ctx.explicit then "" else "explicit "
+  let argWord := if numExpectedArgs == 1 then "argument" else "arguments"
+  let discrepancyKind := if tooMany then "Too many" else "Not enough"
+  let mut msg := m!"Invalid pattern: {discrepancyKind} arguments to `{ctx.funId}`; \
+    expected {numExpectedArgs} {argKind}{argWord}"
+  if !tooMany then
+    msg := msg ++ .hint' "To ignore all remaining arguments, use the ellipsis notation `..`"
+  throwError msg
+where
+  checkNamedArgs := do
+    let mut ctx := ctx
+    let mut remainingNames : Std.HashSet Name := {}
+    -- If there were too few (unnamed) arguments, we may not have processed the parameters that
+    -- match the outstanding named arguments, so some names in `namedArgs` may be valid
+    while !isDone ctx do
+      let ((name, _), ctx') := getNextParam ctx
+      ctx := ctx'
+      if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
+        ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                          usedNames := ctx.usedNames.insert name }
+    if h : !ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
+
 private def finalize (ctx : Context) : M Syntax := do
-  if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
-    let fStx ← `(@$(ctx.funId):ident)
-    return Syntax.mkApp fStx ctx.newArgs
-  else if ctx.args.isEmpty then
-    throwInvalidNamedArgs ctx.namedArgs ctx.funId
+  if ctx.args.isEmpty then
+    if h : !ctx.namedArgs.isEmpty then
+      throwInvalidNamedArgs ctx h
+    else
+      let fStx ← `(@$(ctx.funId):ident)
+      return Syntax.mkApp fStx ctx.newArgs
   else
     throwWrongArgCount ctx true
 
@@ -162,26 +185,22 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
     else
       false
 
-private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
-  let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]!
-  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
-
 private def processVar (idStx : Syntax) : M Syntax := do
   unless idStx.isIdent do
     throwErrorAt idStx "Invalid pattern variable: Identifier expected, but found{indentD idStx}"
   let id := idStx.getId
   unless id.eraseMacroScopes.isAtomic do
-    throwError "Invalid pattern variable: Variable name must be atomic, but '{id}' has multiple components"
+    throwError "Invalid pattern variable: Variable name must be atomic, but `{id}` has multiple components"
   if (← get).found.contains id then
-    throwError "Invalid pattern variable: Variable name '{id}' was already used"
+    throwError "Invalid pattern variable: Variable name `{id}` was already used"
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
   if h₁ : s₁.vars.size = s₂.vars.size then
-    for h₂ : i in [startingAt:s₁.vars.size] do
-      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all +zetaDelta) then return false
+    for h₂ : i in startingAt...s₁.vars.size do
+      if s₁.vars[i] != s₂.vars[i] then
+        return false
     true
   else
     false
@@ -275,7 +294,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let arg0 ← collect args[0]!
     let stateNew ← get
     let mut argsNew := #[arg0]
-    for arg in args[1:] do
+    for arg in args[1...*] do
       set stateSaved
       argsNew := argsNew.push (← collect arg)
       unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
@@ -300,7 +319,8 @@ where
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        -- We must ensure that `ref[1]` remains original to allow named-argument hints
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -360,7 +380,8 @@ where
       match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
         let arg := ctx.namedArgs[idx]
-        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
+        let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
+                              usedNames := ctx.usedNames.insert arg.name }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
       | none =>

@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.DecidableEq
+public import Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -47,19 +49,6 @@ theorem isEqv_self [DecidableEq α] (xs : Vector α n) : Vector.isEqv xs xs (· 
 theorem beq_eq_decide [BEq α] (xs ys : Vector α n) :
     (xs == ys) = decide (∀ (i : Nat) (h' : i < n), xs[i] == ys[i]) := by
   simp [BEq.beq, isEqv_eq_decide]
-
-@[deprecated mk_beq_mk (since := "2025-05-26")]
-theorem beq_mk [BEq α] (xs ys : Array α) (ha : xs.size = n) (hb : ys.size = n) :
-    (mk xs ha == mk ys hb) = (xs == ys) := by
-  simp
-
-@[deprecated toArray_beq_toArray (since := "2025-05-26")]
-theorem beq_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray == ys.toArray) = (xs == ys) := by
-  simp
-
-@[deprecated toList_beq_toList (since := "2025-05-26")]
-theorem beq_toList [BEq α] (xs ys : Vector α n) : (xs.toList == ys.toList) = (xs == ys) := by
-  simp
 
 instance [BEq α] [ReflBEq α] : ReflBEq (Vector α n) where
   rfl := by simp [BEq.beq, isEqv_self_beq]

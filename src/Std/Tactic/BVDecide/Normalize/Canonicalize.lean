@@ -3,9 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Lemmas
-import Std.Tactic.BVDecide.Syntax
+public import Init.Data.BitVec.Lemmas
+public import Std.Tactic.BVDecide.Syntax
+public import Init.Data.BitVec.Bootstrap
+import Init.PropLemmas
+
+@[expose] public section
 
 /-!
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
@@ -76,10 +82,8 @@ theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   simp only [(· < ·)]
   simp
 
-@[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
-@[bv_normalize]
 theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
   ext
   simp

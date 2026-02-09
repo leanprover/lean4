@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Producers.Monadic.Array
+public import Std.Data.Iterators.Producers.Monadic.Array
+
+@[expose] public section
 
 /-!
 # Array iterator
@@ -12,7 +16,7 @@ import Std.Data.Iterators.Producers.Monadic.Array
 This module provides an iterator for arrays that is accessible via `Array.iter`.
 -/
 
-namespace Std.Iterators
+open Std Std.Iterators Std.Iterators.Types
 
 /--
 Returns a finite iterator for the given array starting at the given index.
@@ -26,7 +30,7 @@ The monadic version of this iterator is `Array.iterFromIdxM`.
 * `Productive` instance: always
 -/
 @[always_inline, inline]
-def _root_.Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
+def Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterFromIdxM Id pos).toIter : Iter α)
 
@@ -42,8 +46,6 @@ The monadic version of this iterator is `Array.iterM`.
 * `Productive` instance: always
 -/
 @[always_inline, inline]
-def _root_.Array.iter {α : Type w} (l : Array α) :
+def Array.iter {α : Type w} (l : Array α) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterM Id).toIter : Iter α)
-
-end Std.Iterators

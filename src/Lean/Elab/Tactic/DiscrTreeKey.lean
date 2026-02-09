@@ -3,10 +3,13 @@ Copyright (c) 2024 Matthew Robert Ballard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Tomas Skrivan, Matthew Robert Ballard
 -/
+module
+
 prelude
-import Init.Tactics
-import Lean.Elab.Command
-import Lean.Meta.Tactic.Simp.SimpTheorems
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.Simp.SimpTheorems
+
+public section
 
 namespace Lean.Elab.Tactic.DiscrTreeKey
 

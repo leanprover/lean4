@@ -1,3 +1,4 @@
+module
 def Set (α : Type) := α → Bool
 
 def insertElem [DecidableEq α] (s : Set α) (a : α) : Set α :=
@@ -40,17 +41,10 @@ grind_pattern fooThm => foo x [a, b]
 
 
 /--
-trace: [grind.internalize] foo x y
-[grind.internalize] [a, b]
-[grind.internalize] Nat
-[grind.internalize] a
-[grind.internalize] [b]
-[grind.internalize] b
-[grind.internalize] []
-[grind.ematch] activated `fooThm`, [foo #0 `[[a, b]]]
-[grind.internalize] x
-[grind.internalize] y
-[grind.internalize] z
+trace: [grind.internalize] [0] x
+[grind.internalize] [0] y
+[grind.internalize] [0] z
+[grind.internalize] [0] foo x y
 -/
 #guard_msgs (trace) in
 set_option trace.grind.internalize true in
@@ -66,3 +60,15 @@ trace: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)
+
+namespace Foo.Bla
+set_option trace.grind.ematch false
+set_option trace.grind.ematch.pattern false
+opaque P : {n : Nat} → Fin (n+1) → Prop
+/--
+info: Try this:
+  [apply] [grind .] for pattern: [@P #0 (@OfNat.ofNat (Fin _) `[0] _)]
+-/
+#guard_msgs in
+@[grind] axiom Pax : @P n 0
+end Foo.Bla

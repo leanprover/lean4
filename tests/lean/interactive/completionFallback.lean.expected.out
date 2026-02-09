@@ -1,80 +1,78 @@
 {"textDocument": {"uri": "file:///completionFallback.lean"},
  "position": {"line": 14, "character": 14}}
 {"items":
- [{"label": "noConfusionType",
+ [{"label": "up",
+   "kind": 4,
+   "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.up"]},
+  {"label": "noConfusionType",
    "kind": 3,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.noConfusionType"}},
-    "cPos": 0}},
+   ["file:///completionFallback.lean",
+    14,
+    14,
+    0,
+    "cDirection.noConfusionType"]},
   {"label": "left",
    "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.left"}},
-    "cPos": 0}},
-  {"label": "toCtorIdx",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.toCtorIdx"}},
-    "cPos": 0}},
-  {"label": "right",
-   "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.right"}},
-    "cPos": 0}},
-  {"label": "up",
-   "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.up"}},
-    "cPos": 0}},
+   "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.left"]},
   {"label": "down",
    "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 14, "character": 14}},
-    "id": {"const": {"declName": "Direction.down"}},
-    "cPos": 0}}],
+   "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.down"]},
+  {"label": "right",
+   "kind": 4,
+   "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.right"]}],
  "isIncomplete": true}
+Resolution of up:
+{"label": "up",
+ "kind": 4,
+ "detail": "Direction",
+ "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.up"]}
+Resolution of noConfusionType:
+{"label": "noConfusionType",
+ "kind": 3,
+ "detail": "Sort v✝ → Direction → Direction → Sort v✝",
+ "data":
+ ["file:///completionFallback.lean", 14, 14, 0, "cDirection.noConfusionType"]}
+Resolution of left:
+{"label": "left",
+ "kind": 4,
+ "detail": "Direction",
+ "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.left"]}
+Resolution of down:
+{"label": "down",
+ "kind": 4,
+ "detail": "Direction",
+ "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.down"]}
+Resolution of right:
+{"label": "right",
+ "kind": 4,
+ "detail": "Direction",
+ "data": ["file:///completionFallback.lean", 14, 14, 0, "cDirection.right"]}
 {"textDocument": {"uri": "file:///completionFallback.lean"},
  "position": {"line": 28, "character": 30}}
 {"items":
  [{"label": "mk",
    "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 28, "character": 30}},
-    "id": {"const": {"declName": "CustomAnd.mk"}},
-    "cPos": 0}},
-  {"label": "hb",
-   "kind": 23,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 28, "character": 30}},
-    "id": {"const": {"declName": "CustomAnd.hb"}},
-    "cPos": 0}},
+   "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.mk"]},
   {"label": "ha",
    "kind": 23,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionFallback.lean"},
-     "position": {"line": 28, "character": 30}},
-    "id": {"const": {"declName": "CustomAnd.ha"}},
-    "cPos": 0}}],
+   "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.ha"]},
+  {"label": "hb",
+   "kind": 23,
+   "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.hb"]}],
  "isIncomplete": false}
+Resolution of mk:
+{"label": "mk",
+ "kind": 4,
+ "detail": "a → b → CustomAnd a b",
+ "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.mk"]}
+Resolution of ha:
+{"label": "ha",
+ "kind": 23,
+ "detail": "CustomAnd a b → a",
+ "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.ha"]}
+Resolution of hb:
+{"label": "hb",
+ "kind": 23,
+ "detail": "CustomAnd a b → b",
+ "data": ["file:///completionFallback.lean", 28, 30, 0, "cCustomAnd.hb"]}

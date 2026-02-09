@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Util
+
+public section
 
 namespace Lean.Meta
 
@@ -31,6 +35,11 @@ namespace Lean.Meta
       let val    := val.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
       let (n, s) ← mkName lctx n true s
+      /-
+      We have both dependent and non-dependent `let` expressions result in dependent `ldecl`s.
+      It is counterintuitive if `have` expressions are introduced with opaque values,
+      especially when we run transformations to aggressively turn `let`s into `have`s.
+      -/
       let lctx   := lctx.mkLetDecl fvarId n type val
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
@@ -45,41 +54,29 @@ namespace Lean.Meta
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
     | i+1, type =>
-      if let some (n, type, val, body) := type.letFun? then
-        let type   := type.instantiateRevRange j fvars.size fvars
-        let type   := type.headBeta
-        let val    := val.instantiateRevRange j fvars.size fvars
-        let fvarId ← mkFreshFVarId
-        let (n, s) ← mkName lctx n true s
-        let lctx   := lctx.mkLetDecl fvarId n type val
-        let fvar   := mkFVar fvarId
-        let fvars  := fvars.push fvar
-        loop i lctx fvars j s body
-      else
-        let type := type.instantiateRevRange j fvars.size fvars
-        withLCtx' lctx do
-          withNewLocalInstances fvars j do
-            /- We used to use just `whnf`, but it produces counterintuitive behavior if
-              - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
-              - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
+      let type := type.instantiateRevRange j fvars.size fvars
+      withLCtx' lctx do
+        withNewLocalInstances fvars j do
+          /- We used to use just `whnf`, but it produces counterintuitive behavior if
+            - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
+            - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
 
-              `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
-            -/
-            let newType := (← instantiateMVars type).cleanupAnnotations
-            if newType.isForall || newType.isLet || newType.isLetFun then
+            `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
+          -/
+          let newType := (← instantiateMVars type).cleanupAnnotations
+          if newType.isForall || newType.isLet then
+            loop (i+1) lctx fvars fvars.size s newType
+          else
+            let newType ← whnf newType
+            if newType.isForall then
               loop (i+1) lctx fvars fvars.size s newType
             else
-              let newType ← whnf newType
-              if newType.isForall then
-                loop (i+1) lctx fvars fvars.size s newType
-              else
-                throwTacticEx `introN mvarId "insufficient number of binders"
+              throwTacticEx `introN mvarId <| m!"There are no additional binders or `let` bindings in the goal to introduce"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 
 register_builtin_option tactic.hygienic : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "make sure tactics are hygienic"
 }
 
@@ -109,7 +106,7 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useName
       mkAuxNameWithoutGivenName rest
 where
   mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
-    -- Use a nicer binder name than `[anonymous]`, which can appear in for example `letFun x f` when `f` is not a lambda expression.
+    -- Use a nicer binder name than `[anonymous]`.
     -- In this case, we make sure the name is hygienic.
     let binderName ← if binderName.isAnonymous then mkFreshUserName `a else pure binderName
     if preserveBinderNames then
@@ -165,6 +162,23 @@ abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :
   intro1Core mvarId true
 
 /--
+Given a goal `... |- β → α`, returns a goal `... ⊢ α`.
+Like `intro h; clear h`, but without ever appending to the local context.
+-/
+def _root_.Lean.MVarId.intro1_ (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.withContext do
+    let target ← mvarId.getType'
+    match target with
+    | .forallE n β α bi =>
+      if α.hasLooseBVars then
+        throwError "intro1_: expected arrow type\n{mvarId}"
+      let tag ← mvarId.getTag
+      let newMVar ← mkFreshExprSyntheticOpaqueMVar α tag
+      mvarId.assign (.lam n β newMVar bi)
+      return newMVar.mvarId!
+    | _ => throwError "intro1_: expected arrow type\n{mvarId}"
+
+/--
 Calculate the number of new hypotheses that would be created by `intros`,
 i.e. the number of binders which can be introduced without unfolding definitions.
 -/
@@ -172,11 +186,7 @@ partial def getIntrosSize : Expr → Nat
   | .forallE _ _ b _ => getIntrosSize b + 1
   | .letE _ _ _ b _  => getIntrosSize b + 1
   | .mdata _ b       => getIntrosSize b
-  | e                =>
-    if let some (_, _, _, b) := e.letFun? then
-      getIntrosSize b + 1
-    else
-      0
+  | _                => 0
 
 /--
 Introduce as many binders as possible without unfolding definitions.

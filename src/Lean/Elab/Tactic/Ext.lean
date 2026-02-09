@@ -3,15 +3,15 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Ext
 import Lean.Meta.Tactic.Ext
-import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
-import Lean.Elab.Tactic.Repeat
-import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
 import Lean.Linter.Basic
+-- These public imports are needed because for now we make `extCore` public.
+public import Lean.Elab.Term.TermElabM
 
 /-!
 # Implementation of the `@[ext]` attribute
@@ -30,7 +30,7 @@ states that two structures are equal if their fields are equal.
 
 Calls the continuation `k` with the list of parameters to the structure,
 two structure variables `x` and `y`, and a list of pairs `(field, ty)`
-where each `ty` is of the form `x.field = y.field` or `HEq x.field y.field`.
+where each `ty` is of the form `x.field = y.field` or `x.field ≍ y.field`.
 
 If `flat` parses to `true`, any fields inherited from parent structures
 are treated as fields of the given structure type.
@@ -39,10 +39,11 @@ is visible in the extensionality lemma.
 -/
 def withExtHyps (struct : Name) (flat : Bool)
     (k : Array Expr → (x y : Expr) → Array (Name × Expr) → MetaM α) : MetaM α := do
-  unless isStructure (← getEnv) struct do throwError "not a structure: {struct}"
+  unless isStructure (← getEnv) struct do
+    throwError "Internal error when constructing `ext` hypotheses: `{struct}` is not a structure"
   let structC ← mkConstWithLevelParams struct
   forallTelescope (← inferType structC) fun params _ => do
-  withNewBinderInfos (params.map (·.fvarId!, BinderInfo.implicit)) do
+  withImplicitBinderInfos params do
   withLocalDecl `x .implicit (mkAppN structC params) fun x => do
   withLocalDecl `y .implicit (mkAppN structC params) fun y => do
     let mut hyps := #[]
@@ -71,28 +72,28 @@ Derives the type of the `iff` form of an ext theorem.
 -/
 def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
   forallTelescopeReducing (← getConstInfo extThmName).type fun args ty => do
-    let failNotEq := throwError "expecting a theorem proving x = y, but instead it proves{indentD ty}"
+    let failNotEq := throwError "Expected a theorem proving a proposition of the form `x = y`, but `{.ofConstName extThmName}` proves{indentD ty}"
     let some (_, x, y) := ty.eq? | failNotEq
     let some xIdx := args.findIdx? (· == x) | failNotEq
     let some yIdx := args.findIdx? (· == y) | failNotEq
     unless xIdx + 1 == yIdx do
-      throwError "expecting {x} and {y} to be consecutive arguments"
+      throwError "Expected `{x}` and `{y}` to be consecutive arguments"
     let startIdx := yIdx + 1
-    let toRevert := args[startIdx:].toArray
+    let toRevert := args[startIdx...*].toArray
     let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
     for fvar in toRevert do
       unless ← Meta.isProof fvar do
-        throwError "argument {fvar} is not a proof, which is not supported for arguments after {x} and {y}"
+        throwError "Argument `{fvar}` is not a proof, but all arguments after `{x}` and `{y}` must be proofs"
       if fvars.fvarSet.contains fvar.fvarId! then
-        throwError "argument {fvar} is depended upon, which is not supported for arguments after {x} and {y}"
+        throwError "Argument `{fvar}` is depended upon by a subsequent argument, which is not supported for arguments after `{x}` and `{y}`"
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
     -- Make everything implicit except for inst implicits
     let mut newBis := #[]
-    for fvar in args[0:startIdx] do
+    for fvar in args[*...startIdx] do
       if (← fvar.fvarId!.getBinderInfo) matches .default | .strictImplicit then
         newBis := newBis.push (fvar.fvarId!, .implicit)
     withNewBinderInfos newBis do
-      mkForallFVars args[:startIdx] <| mkIff ty conj
+      mkForallFVars args[*...startIdx] <| mkIff ty conj
 
 /--
 Ensures that the given structure has an ext theorem, without validating any pre-existing theorems.
@@ -102,20 +103,20 @@ See `Lean.Elab.Tactic.Ext.withExtHyps` for an explanation of the `flat` argument
 -/
 def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandElabM Name := do
   unless isStructure (← getEnv) structName do
-    throwError "'{structName}' is not a structure"
+    throwError "Internal error when realizing `ext` theorem: `{structName}` is not a structure"
   let extName := structName.mkStr "ext"
   unless (← getEnv).contains extName do
     try
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
         let type ← mkExtType structName flat
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           let indVal ← getConstInfoInduct structName
           let params := Array.replicate indVal.numParams (← `(_))
           Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
             -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
             (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
         let pf ← instantiateMVars pf
-        if pf.hasMVar then throwError "(internal error) synthesized ext proof contains metavariables{indentD pf}"
+        if pf.hasMVar then throwError "Internal error: Synthesized `ext` proof contains metavariables{indentD pf}"
         let info ← getConstInfo structName
         addDecl <| Declaration.thmDecl {
           name := extName
@@ -127,7 +128,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext' theorem for '{.ofConstName structName}': {e.toMessageData}"
+        Failed to generate an `ext` theorem for `{.ofConstName structName}`: {e.toMessageData}"
   return extName
 
 /--
@@ -145,14 +146,14 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
       let info ← getConstInfo extName
       Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
         let type ← mkExtIffType extName
-        let pf ← withSynthesize do
+        let pf ← withoutExporting <| withSynthesize do
           Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
             intros
             refine ⟨?_, ?_⟩
             · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
             · intro; (repeat cases ‹_ ∧ _›); apply $(mkCIdent extName) <;> assumption)
         let pf ← instantiateMVars pf
-        if pf.hasMVar then throwError "(internal error) synthesized ext_iff proof contains metavariables{indentD pf}"
+        if pf.hasMVar then throwError "Internal error: Synthesized `ext_iff` proof contains metavariables{indentD pf}"
         addDecl <| Declaration.thmDecl {
           name := extIffName
           type
@@ -165,9 +166,8 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         addDeclarationRangesFromSyntax extIffName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext_iff' theorem from '{.ofConstName extName}': {e.toMessageData}\n\
-        \n\
-        Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem."
+        Failed to generate an `ext_iff` theorem from `{.ofConstName extName}`: {e.toMessageData}"
+        ++ .hint' m!"Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem."
   return extIffName
 
 
@@ -175,27 +175,26 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 ### Attribute
 -/
 
-abbrev extExtension := Meta.Ext.extExtension
-abbrev getExtTheorems := Meta.Ext.getExtTheorems
+open Ext
 
 builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
   add := fun declName stx kind => MetaM.run' do
     let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
-      | throwError "invalid syntax for 'ext' attribute"
+      | throwError "Invalid `[ext]` attribute syntax"
     let iff := iffFalse?.isNone
     let flat := flatFalse?.isNone
     let mut declName := declName
     if isStructure (← getEnv) declName then
       declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
     else if let some stx := flatFalse? then
-      throwErrorAt stx "unexpected 'flat' configuration on @[ext] theorem"
+      throwErrorAt stx "Unexpected `flat` configuration on `[ext]` theorem"
     -- Validate and add theorem to environment extension
     let declTy := (← getConstInfo declName).type
     let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy
     let failNotEq := throwError "\
-      @[ext] attribute only applies to structures and to theorems proving 'x = y' where 'x' and 'y' are variables, \
+      `[ext]` attribute only applies to structures and to theorems proving `x = y` where `x` and `y` are variables, \
       but this theorem proves{indentD declTy}"
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq
@@ -217,10 +216,11 @@ builtin_initialize registerBuiltinAttribute {
 -/
 
 /-- Apply a single extensionality theorem to `goal`. -/
-def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
+-- Tis is public for now as it is used internally in `aesop`.
+public def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext do
   let tgt ← goal.getType'
   unless tgt.isAppOfArity ``Eq 3 do
-    throwError "applyExtTheorem only applies to equations, not{indentExpr tgt}"
+    throwError "This extensionality tactic only applies to equalities, not{indentExpr tgt}"
   let ty := tgt.getArg! 0
   let s ← saveState
   for lem in ← getExtTheorems ty do
@@ -238,7 +238,8 @@ def applyExtTheoremAt (goal : MVarId) : MetaM (List MVarId) := goal.withContext 
       -- more useful in practice with dependently typed arguments of `@[ext]` theorems.
       return ← goal.apply (cfg := { newGoals := .all }) (← mkConstWithFreshMVarLevels lem.declName)
     catch _ => s.restore
-  throwError "no applicable extensionality theorem found for{indentExpr ty}"
+  throwError m!"No applicable extensionality theorem found for type{indentExpr ty}"
+    ++ .note m!"Extensionality theorems can be registered by marking them with the `[ext]` attribute"
 
 /-- Apply a single extensionality theorem to the current goal. -/
 @[builtin_tactic applyExtTheorem] def evalApplyExtTheorem : Tactic := fun _ => do
@@ -294,7 +295,8 @@ in extensionality theorems like `funext`. Returns a list of subgoals.
 This is built on top of `withExtN`, running in `TermElabM` to build the list of new subgoals.
 (And, for each goal, the patterns consumed.)
 -/
-def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
+-- This is public as it is used in the implementation of `rcongr` in Batteries.
+public def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     (depth := 100) (failIfUnchanged := true) :
     TermElabM (Nat × Array (MVarId × List (TSyntax `rcasesPat))) := do
   StateT.run (m := TermElabM) (s := #[])
@@ -308,8 +310,9 @@ def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
     let (used, gs) ← extCore (← getMainGoal) pats.toList depth
     if RCases.linter.unusedRCasesPattern.get (← getOptions) then
       if used < pats.size then
-        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used:].toArray)
-          m!"`ext` did not consume the patterns: {pats[used:]}"
+        let unused := MessageData.andList <| pats[used...*].toList.map (m!"`{·}`")
+        Linter.logLint RCases.linter.unusedRCasesPattern (mkNullNode pats[used...*].toArray)
+          m!"`ext` did not consume the patterns {unused}"
     replaceMainGoal <| gs.map (·.1) |>.toList
   | _ => throwUnsupportedSyntax
 

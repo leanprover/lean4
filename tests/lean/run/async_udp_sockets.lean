@@ -11,26 +11,6 @@ def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
     throw <| IO.userError <|
       s!"expected '{expected}', got '{actual}'"
 
--- Define the Async monad
-structure Async (α : Type) where
-  run : IO (AsyncTask α)
-
-namespace Async
-
--- Monad instance for Async
-instance : Monad Async where
-  pure x := Async.mk (pure (AsyncTask.pure x))
-  bind ma f := Async.mk do
-    let task ← ma.run
-    task.bindIO fun a => (f a).run
-
--- Await function to simplify AsyncTask handling
-def await (task : IO (AsyncTask α)) : Async α :=
-  Async.mk task
-
-instance : MonadLift IO Async where
-  monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
-
 /-- Joe is another client. -/
 def runJoe (addr : UInt16 → SocketAddress) (first second : UInt16) : Async Unit := do
   let client ← UDP.Socket.mk
@@ -38,7 +18,7 @@ def runJoe (addr : UInt16 → SocketAddress) (first second : UInt16) : Async Uni
   client.bind (addr second)
   client.connect (addr first)
 
-  await (client.send (String.toUTF8 "hello robert!"))
+  client.send (String.toUTF8 "hello robert!")
 
 
 def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO Unit := do
@@ -46,10 +26,10 @@ def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO U
   let server ← UDP.Socket.mk
   server.bind (addr first)
 
-  let res ← (runJoe addr first second).run
+  let res ← (runJoe addr first second).toIO
   res.block
 
-  let res ← server.recv 1024
+  let res ← server.recv 1024 |>.toBaseIO
   let (msg, addr) ← res.block
 
   if let some addr := addr then

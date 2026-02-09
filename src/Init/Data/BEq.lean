@@ -6,7 +6,10 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
+public import Init.Grind.Tactics
 import Init.Data.Bool
+
+public section
 
 set_option linter.missingDocs true
 
@@ -21,11 +24,14 @@ class PartialEquivBEq (α) [BEq α] : Prop where
   /-- Transitivity for `BEq`. If `a == b` and `b == c` then `a == c`. -/
   trans : (a : α) == b → b == c → a == c
 
+instance [BEq α] [PartialEquivBEq α] : Std.Symm (α := α) (· == ·) where
+  symm _ _ h := PartialEquivBEq.symm h
+
 /-- `EquivBEq` says that the `BEq` implementation is an equivalence relation. -/
 class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
 
-theorem BEq.symm [BEq α] [PartialEquivBEq α] {a b : α} : a == b → b == a :=
-  PartialEquivBEq.symm
+theorem BEq.symm [BEq α] [Std.Symm (α := α) (· == ·)] {a b : α} : a == b → b == a :=
+  Std.Symm.symm a b (r := (· == ·))
 
 theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩

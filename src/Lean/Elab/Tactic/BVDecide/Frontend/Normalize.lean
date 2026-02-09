@@ -3,20 +3,24 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
+
+public section
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -36,7 +40,7 @@ def passPipeline : PreProcessM (List Pass) := do
   if cfg.acNf then
     passPipeline := passPipeline ++ [bvAcNormalizePass]
 
-  if cfg.andFlattening then
+  if cfg.embeddedConstraintSubst && cfg.andFlattening then
     passPipeline := passPipeline ++ [andFlatteningPass]
 
   if cfg.embeddedConstraintSubst then

@@ -3,10 +3,11 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.DiscrTree
-
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.DiscrTree
+public section
 namespace Lean.Meta.Ext
 
 /-!
@@ -39,7 +40,7 @@ builtin_initialize extExtension :
     SimpleScopedEnvExtension ExtTheorem ExtTheorems ←
   registerSimpleScopedEnvExtension {
     addEntry := fun { tree, erased } thm =>
-      { tree := tree.insertCore thm.keys thm, erased := erased.erase thm.declName }
+      { tree := tree.insertKeyValue thm.keys thm, erased := erased.erase thm.declName }
     initial := {}
   }
 
@@ -79,7 +80,7 @@ found somewhere in the state's tree, and is not erased.
 def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
     m ExtTheorems := do
   unless d.contains declName do
-    throwError "'{declName}' does not have [ext] attribute"
+    throwError "Cannot erase `[ext]` attribute from `{.ofConstName declName}`: It does not have this attribute"
   return d.eraseCore declName
 
 end Lean.Meta.Ext

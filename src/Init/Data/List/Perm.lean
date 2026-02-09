@@ -6,10 +6,15 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Erase
-import Init.Data.List.Find
 import all Init.Data.List.Attach
+public import Init.Data.List.Attach
+import Init.Data.List.Erase
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+
+public section
 
 /-!
 # List Permutations
@@ -198,8 +203,8 @@ theorem Perm.filterMap (f : α → Option β) {l₁ l₂ : List α} (p : l₁ ~ 
     filterMap f l₁ ~ filterMap f l₂ := by
   induction p with
   | nil => simp
-  | cons x _p IH => cases h : f x <;> simp [h, filterMap_cons, IH, Perm.cons]
-  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, filterMap_cons, swap]
+  | cons x _p IH => cases h : f x <;> simp [h, IH, Perm.cons]
+  | swap x y l₂ => cases hx : f x <;> cases hy : f y <;> simp [hx, hy, swap]
   | trans _p₁ _p₂ IH₁ IH₂ => exact IH₁.trans IH₂
 
 grind_pattern Perm.filterMap => l₁ ~ l₂, filterMap f l₁
@@ -341,9 +346,9 @@ theorem Perm.foldr_eq' {f : α → β → β} {l₁ l₂ : List α} (p : l₁ ~ 
     intros; apply comm <;> apply p₁.symm.subset <;> assumption
 
 theorem Perm.rec_heq {β : List α → Sort _} {f : ∀ a l, β l → β (a :: l)} {b : β []} {l l' : List α}
-    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → HEq b b' → HEq (f a l b) (f a l' b'))
-    (f_swap : ∀ {a a' l b}, HEq (f a (a' :: l) (f a' l b)) (f a' (a :: l) (f a l b))) :
-    HEq (@List.rec α β b f l) (@List.rec α β b f l') := by
+    (hl : l ~ l') (f_congr : ∀ {a l l' b b'}, l ~ l' → b ≍ b' → f a l b ≍ f a l' b')
+    (f_swap : ∀ {a a' l b}, f a (a' :: l) (f a' l b) ≍ f a' (a :: l) (f a l b)) :
+    @List.rec α β b f l ≍ @List.rec α β b f l' := by
   induction hl with
   | nil => rfl
   | cons a h ih => exact f_congr h ih
@@ -442,7 +447,7 @@ grind_pattern Perm.count => l₁ ~ l₂, count a l₂
 
 theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], [] => by simp [isPerm, isEmpty]
-  | [], _ :: _ => by simp [isPerm, isEmpty, Perm.nil_eq]
+  | [], _ :: _ => by simp [isPerm, isEmpty]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
 instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
@@ -491,7 +496,7 @@ theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (h
 If two lists are sorted by an antisymmetric relation, and permutations of each other,
 they must be equal.
 -/
-theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
+theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
     (_ : ∀ a b, a ∈ l₁ → b ∈ l₂ → le a b → le b a → a = b)
     (_ : l₁.Pairwise le) (_ : l₂.Pairwise le) (_ : l₁ ~ l₂), l₁ = l₂
   | [], [], _, _, _, _ => rfl
@@ -511,10 +516,13 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
             (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
     subst ab
     simp only [perm_cons] at h
-    have := Perm.eq_of_sorted
+    have := Perm.eq_of_pairwise
       (fun x y hx hy => w x y (mem_cons_of_mem a hx) (mem_cons_of_mem a hy))
       h₁.tail h₂.tail h
     simp_all
+
+@[deprecated Perm.eq_of_pairwise (since := "2025-10-23")]
+abbrev Perm.eq_of_sorted := @Perm.eq_of_pairwise
 
 theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
   Pairwise.perm hR hl (by intro x y h h'; simp_all)
@@ -597,6 +605,12 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | cons _ _ ih => simp [ih]
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
+
+theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
+
+theorem any_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.any f = l₂.any f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
 
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum

@@ -1,6 +1,7 @@
 module
 
 prelude
+public import Module.PrivateImported
 import all Module.PrivateImported
 
 /-! `import all` should activate nested `private import`s. -/

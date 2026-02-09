@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Parser
-import Lean.CoreM
-import Std.Internal.Parsec
+public import Std.Tactic.BVDecide.LRAT.Parser
+public import Lean.CoreM
+public import Std.Tactic.BVDecide.Syntax
+
+public section
 
 /-!
 This module implements the logic to call CaDiCal (or CLI interface compatible SAT solvers) and
@@ -143,7 +147,7 @@ solvers the solver is run with `timeout` in seconds as a maximum time limit to s
 Note: This function currently assume that the solver has the same CLI as CaDiCal.
 -/
 def satQuery (solverPath : System.FilePath) (problemPath : System.FilePath) (proofOutput : System.FilePath)
-    (timeout : Nat) (binaryProofs : Bool) :
+    (timeout : Nat) (binaryProofs : Bool) (mode : Frontend.SolverMode) :
     CoreM SolverResult := do
   let cmd := solverPath.toString
   let mut args := #[
@@ -153,17 +157,12 @@ def satQuery (solverPath : System.FilePath) (problemPath : System.FilePath) (pro
     s!"--binary={binaryProofs}",
     "--quiet",
     /-
-    This sets the magic parameters of cadical to optimize for UNSAT search.
-    Given the fact that we are mostly interested in proving things and expect user goals to be
-    provable this is a fine value to set
-    -/
-    "--unsat",
-    /-
     Bitwuzla sets this option and it does improve performance practically:
     https://github.com/bitwuzla/bitwuzla/blob/0e81e616af4d4421729884f01928b194c3536c76/src/sat/cadical.cpp#L34
     -/
     "--shrink=0"
   ]
+  args := args ++ solverModeFlags mode
 
   -- We implement timeouting ourselves because cadicals -t option is not available on Windows.
   let out? ← runInterruptible timeout { cmd, args, stdin := .piped, stdout := .piped, stderr := .null }
@@ -187,6 +186,12 @@ def satQuery (solverPath : System.FilePath) (problemPath : System.FilePath) (pro
           throwError s!"Error {err} while parsing:\n{stdout}"
       else
         throwError s!"The external prover produced unexpected output, stdout:\n{stdout}stderr:\n{stderr}"
+where
+  solverModeFlags (mode : Frontend.SolverMode) : Array String :=
+    match mode with
+    | .proof => #["--unsat"]
+    | .counterexample => #["--sat"]
+    | .default => #["--default"]
 
 end External
 

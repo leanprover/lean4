@@ -6,13 +6,21 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ring.Basic
-import Init.GrindInstances.ToInt
+public import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
+import all Init.Grind.ToInt
+public import Init.Data.BitVec.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Data.BitVec.Bootstrap
+import Init.Grind.Ring.ToInt
+
+public section
 
 namespace Lean.Grind
 
 instance : CommRing (BitVec w) where
+  nsmul := ⟨(· * ·)⟩
+  zsmul := ⟨(· * ·)⟩
   add_assoc := BitVec.add_assoc
   add_comm := BitVec.add_comm
   add_zero := BitVec.add_zero
@@ -30,13 +38,22 @@ instance : CommRing (BitVec w) where
   pow_succ _ _ := BitVec.pow_succ
   ofNat_succ x := BitVec.ofNat_add x 1
   intCast_neg _ := BitVec.ofInt_neg
+  neg_zsmul i x := by
+    change (BitVec.ofInt _ (-i) * x = _)
+    rw [BitVec.ofInt_neg]
+    rw [BitVec.neg_mul]
+    rfl
+  zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
-  (ofNat_eq_zero_iff := fun x => by simp [BitVec.ofInt, BitVec.toNat_eq])
+  (ofNat_eq_zero_iff := fun x => by simp [BitVec.toNat_eq])
 
 -- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add (BitVec w) (some 0) (some (2^w)) := inferInstance
-example : ToInt.Neg (BitVec w) (some 0) (some (2^w)) := inferInstance
-example : ToInt.Sub (BitVec w) (some 0) (some (2^w)) := inferInstance
+example : ToInt.Add (BitVec w) (.uint w) := inferInstance
+example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
+example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
+
+instance : ToInt.Pow (BitVec w) (.uint w) :=
+  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

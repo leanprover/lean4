@@ -3,8 +3,12 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Util.Paths
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 namespace Lean
 
@@ -38,6 +42,9 @@ instance : Coe Bool LeanOptionValue where
 
 instance : Coe Nat LeanOptionValue where
   coe := LeanOptionValue.ofNat
+
+instance {n : Nat} : OfNat LeanOptionValue n where
+  ofNat := .ofNat n
 
 instance : FromJson LeanOptionValue where
   fromJson?
@@ -82,7 +89,7 @@ def LeanOptions.ofArray (opts : Array LeanOption) : LeanOptions :=
 
 /-- Add the options from `new`, overriding those in `self`. -/
 protected def LeanOptions.append (self new : LeanOptions) : LeanOptions :=
-  ⟨self.values.mergeBy (fun _ _ b => b) new.values⟩
+  ⟨self.values.mergeWith (fun _ _ b => b) new.values⟩
 
 instance : Append LeanOptions := ⟨LeanOptions.append⟩
 
@@ -93,13 +100,13 @@ def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : Lean
 instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
 
 def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
-  let mut options := KVMap.empty
+  let mut options := Options.empty
   for ⟨name, optionValue⟩ in leanOptions.values do
-    options := options.insert name optionValue.toDataValue
+    options := options.set name optionValue.toDataValue
   return options
 
 def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do
-  let mut values := RBMap.empty
+  let mut values := Std.TreeMap.empty
   for ⟨name, dataValue⟩ in options do
     let optionValue ← LeanOptionValue.ofDataValue? dataValue
     values := values.insert name optionValue

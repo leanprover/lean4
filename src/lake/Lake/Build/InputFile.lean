@@ -3,9 +3,13 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.FacetConfig
+import Lake.Build.Job
 import Lake.Build.Common
-import Lake.Config.InputFile
+import Lake.Build.Infos
 
 /-! # Input File Build
 Build function definitions for input files and directories.
@@ -22,14 +26,14 @@ private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
   inputFile t.path t.text
 
 /-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
-def InputFile.defaultFacetConfig : KFacetConfig InputFile.facetKind defaultFacet :=
+public def InputFile.defaultFacetConfig : KFacetConfig InputFile.facetKind defaultFacet :=
   mkFacetJobConfig recFetch
 
 /--
 A name-configuration map for the initial set of
 input file facets (e.g., `default`).
 -/
-def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKind) :=
+public def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKind) :=
   DNameMap.empty
   |>.insert defaultFacet defaultFacetConfig
 
@@ -40,13 +44,13 @@ private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
   inputDir t.path t.text t.filter
 
 /-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
-def InputDir.defaultFacetConfig : KFacetConfig InputDir.facetKind defaultFacet :=
+public def InputDir.defaultFacetConfig : KFacetConfig InputDir.facetKind defaultFacet :=
   mkFacetJobConfig recFetch
 
 /--
 A name-configuration map for the initial set of
 input directory facets (e.g., `default`).
 -/
-def InputDir.initFacetConfigs : DNameMap (KFacetConfig InputDir.facetKind) :=
+public def InputDir.initFacetConfigs : DNameMap (KFacetConfig InputDir.facetKind) :=
   DNameMap.empty
   |>.insert defaultFacet defaultFacetConfig

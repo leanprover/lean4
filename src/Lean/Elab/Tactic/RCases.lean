@@ -3,8 +3,15 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
+public import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
+import Lean.Meta.Tactic.Replace
+import Init.Omega
+import Lean.Elab.Binders
+import Lean.Meta.Tactic.Generalize
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -13,25 +20,26 @@ open Meta Parser Tactic
 Enables the 'unused rcases pattern' linter. This will warn when a pattern is ignored by
 `rcases`, `rintro`, `ext` and similar tactics.
 -/
-register_option linter.unusedRCasesPattern : Bool := {
+public register_option linter.unusedRCasesPattern : Bool := {
   defValue := true
   descr := "enable the 'unused rcases pattern' linter"
 }
 
-instance : Coe Ident (TSyntax `rcasesPat) where
+public instance : Coe Ident (TSyntax `rcasesPat) where
   coe stx := Unhygienic.run `(rcasesPat| $stx:ident)
-instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax ``rcasesPatMed) where
   coe stx := Unhygienic.run `(rcasesPatMed| $stx:rcasesPat)
-instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
+public instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
   coe stx := Unhygienic.run `(rcasesPatLo| $stx:rcasesPatMed)
-instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
+public instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
-/-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
-local notation "ListΣ" => List
+-- These frequently cause bootstrapping issues. Commented out for now, using `List/-Σ-/` and `List/-Π-/` instead.
+-- /-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
+-- local notation "ListΣ" => List
 
-/-- A list, with a conjunctive meaning (like a list of constructor arguments, or hypotheses) -/
-local notation "ListΠ" => List
+-- /-- A list, with a conjunctive meaning (like a list of constructor arguments, or hypotheses) -/
+-- local notation "ListΠ" => List
 
 /--
 An `rcases` pattern can be one of the following, in a nested combination:
@@ -53,7 +61,7 @@ the type being destructed, the extra patterns will match on the last element, me
 `p1 | p2 | p3` will act like `p1 | (p2 | p3)` when matching `a1 ∨ a2 ∨ a3`. If matching against a
 type with 3 constructors,  `p1 | (p2 | p3)` will act like `p1 | (p2 | p3) | _` instead.
 -/
-inductive RCasesPatt : Type
+public inductive RCasesPatt : Type
   /-- A parenthesized expression, used for hovers -/
   | paren (ref : Syntax) : RCasesPatt → RCasesPatt
   /-- A named pattern like `foo` -/
@@ -65,9 +73,9 @@ inductive RCasesPatt : Type
   /-- A type ascription like `pat : ty` (parentheses are optional) -/
   | typed (ref : Syntax) : RCasesPatt → Term → RCasesPatt
   /-- A tuple constructor like `⟨p1, p2, p3⟩` -/
-  | tuple (ref : Syntax) : ListΠ RCasesPatt → RCasesPatt
+  | tuple (ref : Syntax) : List/-Π-/ RCasesPatt → RCasesPatt
   /-- An alternation / variant pattern `p1 | p2 | p3` -/
-  | alts (ref : Syntax) : ListΣ RCasesPatt → RCasesPatt
+  | alts (ref : Syntax) : List/-Σ-/ RCasesPatt → RCasesPatt
   deriving Repr
 
 namespace RCasesPatt
@@ -97,7 +105,7 @@ def ref : RCasesPatt → Syntax
 /--
 Interpret an rcases pattern as a tuple, where `p` becomes `⟨p⟩` if `p` is not already a tuple.
 -/
-def asTuple : RCasesPatt → Bool × ListΠ RCasesPatt
+def asTuple : RCasesPatt → Bool × List/-Π-/ RCasesPatt
   | paren _ p    => p.asTuple
   | explicit _ p => (true, p.asTuple.2)
   | tuple _ ps   => (false, ps)
@@ -107,7 +115,7 @@ def asTuple : RCasesPatt → Bool × ListΠ RCasesPatt
 Interpret an rcases pattern as an alternation, where non-alternations are treated as one
 alternative.
 -/
-def asAlts : RCasesPatt → ListΣ RCasesPatt
+def asAlts : RCasesPatt → List/-Σ-/ RCasesPatt
   | paren _ p => p.asAlts
   | alts _ ps => ps
   | p         => [p]
@@ -118,7 +126,7 @@ def typed? (ref : Syntax) : RCasesPatt → Option Term → RCasesPatt
   | p, some ty => typed ref p ty
 
 /-- Convert a list of patterns to a tuple pattern, but mapping `[p]` to `p` instead of `⟨p⟩`. -/
-def tuple' : ListΠ RCasesPatt → RCasesPatt
+def tuple' : List/-Π-/ RCasesPatt → RCasesPatt
   | [p] => p
   | ps  => tuple (ps.head?.map (·.ref) |>.getD .missing) ps
 
@@ -126,7 +134,7 @@ def tuple' : ListΠ RCasesPatt → RCasesPatt
 Convert a list of patterns to an alternation pattern, but mapping `[p]` to `p` instead of
 a unary alternation `|p`.
 -/
-def alts' (ref : Syntax) : ListΣ RCasesPatt → RCasesPatt
+def alts' (ref : Syntax) : List/-Σ-/ RCasesPatt → RCasesPatt
   | [p] => p
   | ps  => alts ref ps
 
@@ -139,7 +147,7 @@ becomes `⟨a, b, c, d⟩` instead of `⟨a, b, ⟨c, d⟩⟩`.
 We must be careful to turn `[a, ⟨⟩]` into `⟨a, ⟨⟩⟩` instead of `⟨a⟩` (which will not perform the
 nested match).
 -/
-def tuple₁Core : ListΠ RCasesPatt → ListΠ RCasesPatt
+def tuple₁Core : List/-Π-/ RCasesPatt → List/-Π-/ RCasesPatt
   | []         => []
   | [tuple ref []] => [tuple ref []]
   | [tuple _ ps] => ps
@@ -150,7 +158,7 @@ This function is used for producing rcases patterns based on a case tree. This i
 `tuple₁Core` but it produces a pattern instead of a tuple pattern list, converting `[n]` to `n`
 instead of `⟨n⟩` and `[]` to `_`, and otherwise just converting `[a, b, c]` to `⟨a, b, c⟩`.
 -/
-def tuple₁ : ListΠ RCasesPatt → RCasesPatt
+def tuple₁ : List/-Π-/ RCasesPatt → RCasesPatt
   | []      => default
   | [one ref n] => one ref n
   | ps      => tuple ps.head!.ref $ tuple₁Core ps
@@ -162,7 +170,7 @@ produce a list of alternatives with the same effect. This function calls `tuple�
 individual alternatives, and handles merging `[a, b, c | d]` to `a | b | c | d` instead of
 `a | b | (c | d)`.
 -/
-def alts₁Core : ListΣ (ListΠ RCasesPatt) → ListΣ RCasesPatt
+def alts₁Core : List/-Σ-/ (List/-Π-/ RCasesPatt) → List/-Σ-/ RCasesPatt
   | []          => []
   | [[alts _ ps]] => ps
   | p :: ps     => tuple₁ p :: alts₁Core ps
@@ -174,7 +182,7 @@ specially translate the empty alternation to `⟨⟩`, and translate `|(a | b)` 
 don't have any syntax for unary alternation). Otherwise we can use the regular merging of
 alternations at the last argument so that `a | b | (c | d)` becomes `a | b | c | d`.
 -/
-def alts₁ (ref : Syntax) : ListΣ (ListΠ RCasesPatt) → RCasesPatt
+def alts₁ (ref : Syntax) : List/-Σ-/ (List/-Π-/ RCasesPatt) → RCasesPatt
   | [[]]        => tuple .missing []
   | [[alts ref ps]] => tuple ref ps
   | ps          => alts' ref $ alts₁Core ps
@@ -204,7 +212,7 @@ constructor. The `name` is the name which will be used in the top-level `cases` 
 tactics.
 -/
 def processConstructor (ref : Syntax) (info : Array ParamInfo)
-    (explicit : Bool) (idx : Nat) (ps : ListΠ RCasesPatt) : ListΠ Name × ListΠ RCasesPatt :=
+    (explicit : Bool) (idx : Nat) (ps : List/-Π-/ RCasesPatt) : List/-Π-/ Name × List/-Π-/ RCasesPatt :=
   if _ : idx < info.size then
     if !explicit && info[idx].binderInfo != .default then
       let (ns, tl) := processConstructor ref info explicit (idx+1) ps
@@ -227,7 +235,7 @@ and the list of `(constructor name, patterns)` for each constructor, where `patt
 (conjunctive) list of patterns to apply to each constructor argument.
 -/
 def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVarNames := #[]) :
-    ListΣ Name → ListΣ RCasesPatt → MetaM (Array AltVarNames × ListΣ (Name × ListΠ RCasesPatt))
+    List/-Σ-/ Name → List/-Σ-/ RCasesPatt → MetaM (Array AltVarNames × List/-Σ-/ (Name × List/-Π-/ RCasesPatt))
   | [], _ => pure (altVarNames, [])
   | c :: cs, ps => do
     let info := (← getFunInfo (← mkConstWithLevelParams c)).paramInfo
@@ -241,34 +249,6 @@ def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVa
     pure (altVarNames, (c, ps) :: r)
 
 open Elab Tactic
-
--- TODO(Mario): this belongs in core
-/-- Like `Lean.Meta.subst`, but preserves the `FVarSubst`. -/
-def subst' (goal : MVarId) (hFVarId : FVarId)
-    (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
-  let hLocalDecl ← hFVarId.getDecl
-  let error {α} _ : MetaM α := throwTacticEx `subst goal
-    m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
-  let some (_, lhs, rhs) ← matchEq? hLocalDecl.type | error ()
-  let substReduced (newType : Expr) (symm : Bool) : MetaM (FVarSubst × MVarId) := do
-    let goal ← goal.assert hLocalDecl.userName newType (mkFVar hFVarId)
-    let (hFVarId', goal) ← goal.intro1P
-    let goal ← goal.clear hFVarId
-    substCore goal hFVarId' (symm := symm) (tryToSkip := true) (fvarSubst := fvarSubst)
-  let rhs' ← whnf rhs
-  if rhs'.isFVar then
-    if rhs != rhs' then
-      substReduced (← mkEq lhs rhs') true
-    else
-      substCore goal hFVarId (symm := true) (tryToSkip := true) (fvarSubst := fvarSubst)
-  else
-    let lhs' ← whnf lhs
-    if lhs'.isFVar then
-      if lhs != lhs' then
-        substReduced (← mkEq lhs' rhs) false
-      else
-        substCore goal hFVarId (symm := false) (tryToSkip := true) (fvarSubst := fvarSubst)
-    else error ()
 
 mutual
 
@@ -288,17 +268,17 @@ This will match a pattern `pat` against a local hypothesis `e`.
   match, with updated values for `g` , `fs`, `clears`, and `a`.
 -/
 partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e : Expr) (a : α)
-    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+    (pat : RCasesPatt) (cont : MVarId → FVarSubst → Array FVarId → α → Term.TermElabM α) :
     TermElabM α := do
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
-    | e => throwError "rcases tactic failed: {e} is not a fvar"
+    | e => throwError "Tactic `rcases` failed: `{e}` is not a free variable"
   withRef pat.ref <| g.withContext do match pat with
   | .one ref `rfl =>
     Term.synthesizeSyntheticMVarsNoPostponing
     -- Note: the mdata prevents the span from getting highlighted like a variable
     Term.addTermInfo' ref (.mdata {} e)
-    let (fs, g) ← subst' g (← asFVar (fs.apply e)) fs
+    let (fs, g) ← substEq g (← asFVar (fs.apply e)) fs
     cont g fs clears a
   | .one ref _ =>
     if e.isFVar then
@@ -313,7 +293,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
-      Term.throwTypeMismatchError "rcases: scrutinee" expected etype e
+      Term.throwTypeMismatchError "Tactic `rcases` failed: scrutinee" expected etype e
     let g ← if let .fvar e := e then g.replaceLocalDeclDefEq e expected else pure g
     rcasesCore g fs clears e a pat cont
   | .paren ref p
@@ -327,7 +307,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← whnfD (← inferType e)
     let failK {α} _ : TermElabM α :=
-      throwError "rcases tactic failed: {e} : {type} is not an inductive datatype"
+      throwError "Tactic `rcases` failed: `{e} : {type}` is not an inductive datatype"
     let (r, subgoals) ← matchConst type.getAppFn failK fun
       | ConstantInfo.quotInfo info, _ => do
         unless info.kind matches QuotKind.type do failK ()
@@ -345,7 +325,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
           let (v, g) ← g.intro x
           let (varsOut, g) ← g.introNP vars.size
           let fs' := (vars.zip varsOut).foldl (init := fs) fun fs (v, w) => fs.insert v (mkFVar w)
-          pure ([(n, ps)], #[⟨⟨g, #[mkFVar v], fs'⟩, n⟩])
+          pure ([(n, ps)], #[{mvarId := g, fields := #[mkFVar v], subst := fs', ctorName := n }])
       | ConstantInfo.inductInfo info, _ => do
         let (altVarNames, r) ← processConstructors pat.ref info.numParams #[] info.ctors pat.asAlts
         (r, ·) <$> g.cases e.fvarId! altVarNames (useNatCasesAuxOn := true)
@@ -354,7 +334,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
       let rec
       /-- Runs `rcasesContinue` on the first pattern in `r` with a matching `ctorName`.
       The unprocessed patterns (subsequent to the matching pattern) are returned. -/
-      align : ListΠ (Name × ListΠ RCasesPatt) → TermElabM (ListΠ (Name × ListΠ RCasesPatt) × α)
+      align : List/-Π-/ (Name × List/-Π-/ RCasesPatt) → TermElabM (List/-Π-/ (Name × List/-Π-/ RCasesPatt) × α)
       | [] => pure ([], a)
       | (tgt, ps) :: as => do
         if tgt == ctorName then
@@ -372,7 +352,7 @@ earlier arguments. For example `⟨a | b, ⟨c, d⟩⟩` performs the `⟨c, d�
 `a` branch and once on `b`.
 -/
 partial def rcasesContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (a : α)
-  (pats : ListΠ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+  (pats : List/-Π-/ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
   TermElabM α :=
   match pats with
   | []  => cont g fs clears a
@@ -435,19 +415,19 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
 against the pattern. Returns the list of produced subgoals.
 -/
-def rcases (tgts : Array (Option Ident × Syntax))
+public def rcases (tgts : Array (Option Ident × Syntax))
   (pat : RCasesPatt) (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   let pats ← match tgts.size with
   | 0 => return [g]
   | 1 => pure [pat]
   | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
-  let (pats, args) := Array.unzip <|← (tgts.zip pats.toArray).mapM fun ((hName?, tgt), pat) => do
+  let (pats, args) := Array.unzip <|← tgts.zipWithM (bs := pats.toArray) fun (hName?, tgt) pat => do
     let (pat, ty) ← match pat with
     | .typed ref pat ty => withRef ref do
       let ty ← Term.elabType ty
@@ -488,7 +468,7 @@ partial def expandRIntroPat (pat : TSyntax `rintroPat)
   | _ => acc
 
 /-- Expand a list of `rintroPat` into an equivalent list of `rcasesPat` patterns. -/
-partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
+public partial def expandRIntroPats (pats : Array (TSyntax `rintroPat))
     (acc : Array (TSyntax `rcasesPat) := #[]) (ty? : Option Term := none) :
     Array (TSyntax `rcasesPat) :=
   pats.foldl (fun acc p => expandRIntroPat p acc ty?) acc
@@ -523,7 +503,7 @@ partial def rintroContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId)
     (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) : TermElabM α := do
   g.withContext (loop 0 g fs clears a)
 where
-  /-- Runs `rintroContinue` on `pats[i:]` -/
+  /-- Runs `rintroContinue` on `pats[i...*]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
       rintroCore g fs clears a ref pats[i] ty? (loop (i+1))
@@ -535,7 +515,7 @@ end
 The implementation of the `rintro` tactic. It takes a list of patterns `pats` and
 an optional type ascription `ty?` and introduces the patterns, resulting in zero or more goals.
 -/
-def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
+public def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     (g : MVarId) : TermElabM (List MVarId) := Term.withSynthesize do
   (·.toList) <$> rintroContinue g {} #[] .missing pats ty? #[] finish
 

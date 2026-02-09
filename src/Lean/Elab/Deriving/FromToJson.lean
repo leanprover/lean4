@@ -3,11 +3,13 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
-import Lean.Data.Json.FromToJson
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command
@@ -26,7 +28,7 @@ def mkFromJsonHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkJsonField (n : Name) : CoreM (Bool × Term) := do
   let .str .anonymous s := n | throwError "invalid json field name {n}"
-  let s₁ := s.dropRightWhile (· == '?')
+  let s₁ := s.dropEndWhile (· == '?') |>.copy
   return (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term := do
@@ -71,16 +73,16 @@ where
         let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
           let mut patterns := #[]
           -- add `_` pattern for indices
-          for _ in [:indVal.numIndices] do
+          for _ in *...indVal.numIndices do
             patterns := patterns.push (← `(_))
           let mut ctorArgs := #[]
           -- add `_` for inductive parameters, they are inaccessible
-          for _ in [:indVal.numParams] do
+          for _ in *...indVal.numParams do
             ctorArgs := ctorArgs.push (← `(_))
           -- bound constructor arguments and their types
           let mut binders := #[]
           let mut userNames := #[]
-          for i in [:ctorInfo.numFields] do
+          for i in *...ctorInfo.numFields do
             let x := xs[indVal.numParams + i]!
             let localDecl ← x.fvarId!.getDecl
             if !localDecl.userName.hasMacroScopes then
@@ -108,18 +110,22 @@ def mkFromJsonBodyForStruct (indName : Name) : TermElabM Term := do
 
 def mkFromJsonBodyForInduct (ctx : Context) (indName : Name) : TermElabM Term := do
   let indVal ← getConstInfoInduct indName
-  let alts ← mkAlts indVal
-  let auxTerm ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
-  `($auxTerm)
+  let (ctors, alts) := (← mkAlts indVal).unzip
+  `(match Json.getTag? json with
+    | some tag => match tag with
+      $[| $(ctors.map Syntax.mkStrLit) => $(alts)]*
+      | _ => Except.error "no inductive constructor matched"
+    | none => Except.error "no inductive tag found")
 where
-  mkAlts (indVal : InductiveVal) : TermElabM (Array Term) := do
+  mkAlts (indVal : InductiveVal) : TermElabM (Array (String × Term)) := do
   let mut alts := #[]
   for ctorName in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctorName
+    let ctorStr := ctorName.eraseMacroScopes.getString!
     let alt ← do forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut binders   := #[]
         let mut userNames := #[]
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
           let localDecl ← x.fvarId!.getDecl
           if !localDecl.userName.hasMacroScopes then
@@ -139,11 +145,14 @@ where
         else
           ``(none)
         let stx ←
-          `((Json.parseTagged json $(quote ctorName.eraseMacroScopes.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
-            (fun jsons => do
-              $[let $identNames:ident ← $fromJsons:doExpr]*
-              return $(mkIdent ctorName):ident $identNames*))
-        pure (stx, ctorInfo.numFields)
+          if ctorInfo.numFields == 0 then
+            `(return $(mkIdent ctorName):ident $identNames*)
+          else
+            `((Json.parseCtorFields json $(quote ctorStr) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
+              (fun jsons => do
+                $[let $identNames:ident ← $fromJsons:doExpr]*
+                return $(mkIdent ctorName):ident $identNames*))
+        pure ((ctorStr, stx), ctorInfo.numFields)
       alts := alts.push alt
   -- the smaller cases, especially the ones without fields are likely faster
   let alts' := alts.qsort (fun (_, x) (_, y) => x < y)
@@ -166,9 +175,9 @@ def mkToJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
 
 def mkFromJsonBody (ctx : Context) (e : Expr) : TermElabM Term := do
   let indName := e.getAppFn.constName!
@@ -188,14 +197,14 @@ def mkFromJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial || indval.isRec then
     let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
 
 
 def mkToJsonMutualBlock (ctx : Context) : TermElabM Command := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkToJsonAuxFunction ctx i)
   `(mutual
      $auxDefs:command*
@@ -203,20 +212,20 @@ def mkToJsonMutualBlock (ctx : Context) : TermElabM Command := do
 
 def mkFromJsonMutualBlock (ctx : Context) : TermElabM Command := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkFromJsonAuxFunction ctx i)
   `(mutual
      $auxDefs:command*
     end)
 
 private def mkToJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "toJson" declName
+  let ctx ← mkContext ``ToJson "toJson" declName
   let cmds := #[← mkToJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``ToJson #[declName])
   trace[Elab.Deriving.toJson] "\n{cmds}"
   return cmds
 
 private def mkFromJsonInstance (declName : Name) : TermElabM (Array Command) := do
-  let ctx ← mkContext "fromJson" declName
+  let ctx ← mkContext ``FromJson "fromJson" declName
   let cmds := #[← mkFromJsonMutualBlock ctx] ++ (← mkInstanceCmds ctx ``FromJson #[declName])
   trace[Elab.Deriving.fromJson] "\n{cmds}"
   return cmds

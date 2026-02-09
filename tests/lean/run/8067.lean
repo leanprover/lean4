@@ -1,3 +1,3 @@
-#guard !"".toSubstring.isNat
+#guard !"".toRawSubstring.isNat
 #guard !"-".isInt
 #guard "-".toInt? = none

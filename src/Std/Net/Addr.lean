@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.Data.Vector.Basic
+public import Init.System.IO
+public import Init.Data.Vector.Basic
+
+@[expose] public section
 
 /-!
 This module contains Lean representations of IP and socket addresses:

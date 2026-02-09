@@ -32,7 +32,7 @@ set_option pp.all true
 def BV (n : Nat) := { a : Array Bool // a.size = n }
 
 def sext (x : BV s) (n : Nat) : BV (s+n) :=
-  ⟨mkArray (s+n) false, Array.size_mkArray ..⟩
+  ⟨Array.replicate (s+n) false, Array.size_replicate ..⟩
 
 def bvmul (x y : BV w) : BV w :=
   x

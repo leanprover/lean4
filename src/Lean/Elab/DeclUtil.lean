@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Check
+public import Lean.Meta.Check
+public import Lean.Parser.Command
+
+public section
 
 namespace Lean.Meta
 
@@ -18,21 +22,21 @@ def forallTelescopeCompatibleAux (k : Array Expr → Expr → Expr → MetaM α)
     | .forallE n₁ d₁ b₁ c₁, .forallE n₂ d₂ b₂ c₂ =>
       -- Remark: we use `mkIdent` to ensure macroscopes do not leak into error messages
       unless c₁ == c₂ do
-        throwError "binder annotation mismatch at parameter '{mkIdent n₁}'"
+        throwError "Binder annotations for parameter `{mkIdent n₁}` must match"
       /-
       Remark: recall that users may suppress parameter names for instance implicit arguments.
       A fresh name (with macro scopes) is generated in this case. Thus, we allow the names
       to be different in this case. See issue #4310.
       -/
       unless n₁ == n₂ || (c₁.isInstImplicit && n₁.hasMacroScopes && n₂.hasMacroScopes) do
-        throwError "parameter name mismatch '{mkIdent n₁}', expected '{mkIdent n₂}'"
+        throwError "Parameter names `{mkIdent n₁}` and `{mkIdent n₂}` differ but were expected to match"
       unless (← isDefEq d₁ d₂) do
-        throwError "parameter '{mkIdent n₁}' {← mkHasTypeButIsExpectedMsg d₁ d₂}"
+        throwError "Parameter `{mkIdent n₁}` {← mkHasTypeButIsExpectedMsg d₁ d₂}"
       withLocalDecl n₁ c₁ d₁ fun x =>
         let type₁ := b₁.instantiate1 x
         let type₂ := b₂.instantiate1 x
         forallTelescopeCompatibleAux k i type₁ type₂ (xs.push x)
-    | _, _ => throwError "unexpected number of parameters"
+    | _, _ => throwError "Internal error: Mismatched number of parameters when checking type compatibility"
 
 /-- Given two forall-expressions `type₁` and `type₂`, ensure the first `numParams` parameters are compatible, and
     then execute `k` with the parameters and remaining types. -/

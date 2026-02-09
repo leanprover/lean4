@@ -3,11 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Init.Data.Iterators.Consumers
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers
+import Init.Omega
+
+@[expose] public section
 
 /-!
 # Array iterator
@@ -15,7 +17,7 @@ import Init.Data.Iterators.Internal.Termination
 This module provides an iterator for arrays that is accessible via `Array.iterM`.
 -/
 
-namespace Std.Iterators
+namespace Std.Iterators.Types
 
 variable {α : Type w} {m : Type w → Type w'}
 
@@ -53,7 +55,7 @@ The pure version of this iterator is `Array.iterFromIdx`.
 def _root_.Array.iterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayIterator α) m α :=
-  toIterM { array := array, pos := pos } m α
+  ⟨{ array := array, pos := pos }⟩
 
 /--
 Returns a finite monadic iterator for the given array.
@@ -73,7 +75,7 @@ def _root_.Array.iterM {α : Type w} (array : Array α) (m : Type w → Type w')
   array.iterFromIdxM m 0
 
 @[always_inline, inline]
-instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
+instance ArrayIterator.instIterator {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
   IsPlausibleStep it
     | .yield it' out => it.internalState.array = it'.internalState.array ∧
       it'.internalState.pos = it.internalState.pos + 1 ∧
@@ -81,7 +83,7 @@ instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
       it.internalState.array[it.internalState.pos] = out
     | .skip _ => False
     | .done => it.internalState.pos ≥ it.internalState.array.size
-  step it := pure <| if h : it.internalState.pos < it.internalState.array.size then
+  step it := pure <| .deflate <| if h : it.internalState.pos < it.internalState.array.size then
         .yield
           ⟨⟨it.internalState.array, it.internalState.pos + 1⟩⟩
           it.internalState.array[it.internalState.pos]
@@ -89,9 +91,9 @@ instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
       else
         .done (Nat.not_lt.mp h)
 
-private def ArrayIterator.finitenessRelation [Pure m] :
+private def ArrayIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ArrayIterator α) m where
-  rel := InvImage WellFoundedRelation.rel
+  Rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.array.size - it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
@@ -106,31 +108,12 @@ private def ArrayIterator.finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-instance [Pure m] : Finite (ArrayIterator α) m :=
-  Finite.of_finitenessRelation ArrayIterator.finitenessRelation
+instance ArrayIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
+  exact Finite.of_finitenessRelation ArrayIterator.instFinitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ArrayIterator α) m n :=
+instance ArrayIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
-@[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ArrayIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSize (ArrayIterator α) m :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] : IteratorSizePartial (ArrayIterator α) m :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

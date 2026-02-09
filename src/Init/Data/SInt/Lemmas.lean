@@ -7,14 +7,24 @@ module
 
 prelude
 import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.SInt.Basic
 import all Init.Data.SInt.Basic
 import all Init.Data.BitVec.Basic
-import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Bitblast
-import Init.Data.Int.LemmasAux
 import all Init.Data.UInt.Basic
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.Int.Order
+import Init.ByCases
+import Init.Data.BitVec.Bitblast
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
 import Init.Data.UInt.Lemmas
 import Init.System.Platform
+
+public section
+
+open Std
 
 open Lean in
 set_option hygiene false in
@@ -27,6 +37,12 @@ macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do
 
   theorem toBitVec_inj {a b : $typeName} : a.toBitVec = b.toBitVec ↔ a = b :=
     ⟨toBitVec.inj, (· ▸ rfl)⟩
+  theorem ofBitVec_inj {a b : BitVec $_bits} : ofBitVec a = ofBitVec b ↔ a = b := by
+    apply Iff.intro <;> (rintro h; cases h; rfl)
+  theorem eq_iff_ofBitVec_eq {a b : BitVec $_bits} : a = b ↔ ofBitVec a = ofBitVec b :=
+    ofBitVec_inj.symm
+  theorem ne_iff_ofBitVec_ne {a b : BitVec $_bits} : a ≠ b ↔ ofBitVec a ≠ ofBitVec b := by
+    simp [ofBitVec_inj]
   @[int_toBitVec] theorem eq_iff_toBitVec_eq {a b : $typeName} : a = b ↔ a.toBitVec = b.toBitVec :=
     toBitVec_inj.symm
   @[int_toBitVec] theorem ne_iff_toBitVec_ne {a b : $typeName} : a ≠ b ↔ a.toBitVec ≠ b.toBitVec :=
@@ -50,28 +66,6 @@ declare_int_theorems Int32 32
 declare_int_theorems Int64 64
 declare_int_theorems ISize System.Platform.numBits
 
-@[deprecated Int8.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int8.le_def {a b : Int8} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int16.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int16.le_def {a b : Int16} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int32.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int32.le_def {a b : Int32} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated Int64.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem Int64.le_def {a b : Int64} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-@[deprecated ISize.le_iff_toBitVec_sle (since := "2025-03-20")]
-theorem ISize.le_def {a b : ISize} : a ≤ b ↔ a.toBitVec.sle b.toBitVec := Iff.rfl
-
-@[deprecated Int8.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int8.lt_def {a b : Int8} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int16.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int16.lt_def {a b : Int16} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int32.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int32.lt_def {a b : Int32} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated Int64.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem Int64.lt_def {a b : Int64} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-@[deprecated ISize.lt_iff_toBitVec_slt (since := "2025-03-20")]
-theorem ISize.lt_def {a b : ISize} : a < b ↔ a.toBitVec.slt b.toBitVec := Iff.rfl
-
 theorem Int8.toInt.inj {x y : Int8} (h : x.toInt = y.toInt) : x = y := Int8.toBitVec.inj (BitVec.eq_of_toInt_eq h)
 theorem Int8.toInt_inj {x y : Int8} : x.toInt = y.toInt ↔ x = y := ⟨Int8.toInt.inj, fun h => h ▸ rfl⟩
 theorem Int16.toInt.inj {x y : Int16} (h : x.toInt = y.toInt) : x = y := Int16.toBitVec.inj (BitVec.eq_of_toInt_eq h)
@@ -83,11 +77,11 @@ theorem Int64.toInt_inj {x y : Int64} : x.toInt = y.toInt ↔ x = y := ⟨Int64.
 theorem ISize.toInt.inj {x y : ISize} (h : x.toInt = y.toInt) : x = y := ISize.toBitVec.inj (BitVec.eq_of_toInt_eq h)
 theorem ISize.toInt_inj {x y : ISize} : x.toInt = y.toInt ↔ x = y := ⟨ISize.toInt.inj, fun h => h ▸ rfl⟩
 
-@[simp] theorem Int8.toBitVec_neg (x : Int8) : (-x).toBitVec = -x.toBitVec := (rfl)
-@[simp] theorem Int16.toBitVec_neg (x : Int16) : (-x).toBitVec = -x.toBitVec := (rfl)
-@[simp] theorem Int32.toBitVec_neg (x : Int32) : (-x).toBitVec = -x.toBitVec := (rfl)
-@[simp] theorem Int64.toBitVec_neg (x : Int64) : (-x).toBitVec = -x.toBitVec := (rfl)
-@[simp] theorem ISize.toBitVec_neg (x : ISize) : (-x).toBitVec = -x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_neg (x : Int8) : (-x).toBitVec = -x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_neg (x : Int16) : (-x).toBitVec = -x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_neg (x : Int32) : (-x).toBitVec = -x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_neg (x : Int64) : (-x).toBitVec = -x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_neg (x : ISize) : (-x).toBitVec = -x.toBitVec := (rfl)
 
 @[simp] theorem Int8.toBitVec_zero : toBitVec 0 = 0#8 := (rfl)
 @[simp] theorem Int16.toBitVec_zero : toBitVec 0 = 0#16 := (rfl)
@@ -101,11 +95,11 @@ theorem Int32.toBitVec_one : (1 : Int32).toBitVec = 1#32 := (rfl)
 theorem Int64.toBitVec_one : (1 : Int64).toBitVec = 1#64 := (rfl)
 theorem ISize.toBitVec_one : (1 : ISize).toBitVec = 1#System.Platform.numBits := (rfl)
 
-@[simp] theorem Int8.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
-@[simp] theorem Int16.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
-@[simp] theorem Int32.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
-@[simp] theorem Int64.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
-@[simp] theorem ISize.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := (rfl)
 
 @[simp] protected theorem Int8.neg_zero : -(0 : Int8) = 0 := (rfl)
 @[simp] protected theorem Int16.neg_zero : -(0 : Int16) = 0 := (rfl)
@@ -127,6 +121,28 @@ theorem ISize.toNat_toBitVec_ofNat_of_lt {n : Nat} (h : n < 2^32) :
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt]
 theorem ISize.toInt_ofInt {n : Int} : toInt (ofInt n) = n.bmod ISize.size := by
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt]
+
+@[simp] theorem Int8.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int8.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int16.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int16.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int32.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int32.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem Int64.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int64.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+@[simp] theorem ISize.toInt_ofNat' {n : Nat} : toInt (ofNat n) = (n : Int).bmod ISize.size := by
+  rw [toInt, toBitVec_ofNat', BitVec.toInt_ofNat']
+
+theorem Int8.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int8.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int16.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int16.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int32.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int32.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem Int64.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod Int64.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
+theorem ISize.toInt_ofNat {n : Nat} : toInt (no_index (OfNat.ofNat n)) = (n : Int).bmod ISize.size := by
+  rw [toInt, toBitVec_ofNat, BitVec.toInt_ofNat]
 
 theorem Int8.toInt_ofInt_of_le {n : Int} (hn : -2^7 ≤ n) (hn' : n < 2^7) : toInt (ofInt n) = n := by
   rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt_eq_self (by decide) hn hn']
@@ -165,17 +181,6 @@ theorem Int16.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by s
 theorem Int32.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
 theorem Int64.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
 theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
-
-@[simp] theorem Int8.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int8.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int16.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int16.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int32.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int32.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem Int64.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod Int64.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
-@[simp] theorem ISize.toInt_ofNat {n : Nat} : toInt (ofNat n) = (n : Int).bmod ISize.size := by
-  rw [← ofInt_eq_ofNat, toInt_ofInt]
 
 theorem Int8.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
   rw [← neg_ofInt, ofInt_eq_ofNat]
@@ -258,11 +263,11 @@ theorem ISize.toInt_maxValue : ISize.maxValue.toInt = 2 ^ (System.Platform.numBi
   rw [toNatClampNeg, toInt_minValue]
   cases System.Platform.numBits_eq <;> simp_all
 
-@[simp] theorem UInt8.toBitVec_toInt8 (x : UInt8) : x.toInt8.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem UInt16.toBitVec_toInt16 (x : UInt16) : x.toInt16.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem UInt32.toBitVec_toInt32 (x : UInt32) : x.toInt32.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem UInt64.toBitVec_toInt64 (x : UInt64) : x.toInt64.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem USize.toBitVec_toISize (x : USize) : x.toISize.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem UInt8.toBitVec_toInt8 (x : UInt8) : x.toInt8.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem UInt16.toBitVec_toInt16 (x : UInt16) : x.toInt16.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem UInt32.toBitVec_toInt32 (x : UInt32) : x.toInt32.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem UInt64.toBitVec_toInt64 (x : UInt64) : x.toInt64.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem USize.toBitVec_toISize (x : USize) : x.toISize.toBitVec = x.toBitVec := (rfl)
 
 @[simp] theorem Int8.ofBitVec_uInt8ToBitVec (x : UInt8) : Int8.ofBitVec x.toBitVec = x.toInt8 := (rfl)
 @[simp] theorem Int16.ofBitVec_uInt16ToBitVec (x : UInt16) : Int16.ofBitVec x.toBitVec = x.toInt16 := (rfl)
@@ -288,30 +293,30 @@ theorem ISize.toInt_maxValue : ISize.maxValue.toInt = 2 ^ (System.Platform.numBi
 @[simp] theorem Int64.toInt_toBitVec (x : Int64) : x.toBitVec.toInt = x.toInt := (rfl)
 @[simp] theorem ISize.toInt_toBitVec (x : ISize) : x.toBitVec.toInt = x.toInt := (rfl)
 
-@[simp] theorem Int8.toBitVec_toInt16 (x : Int8) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
-@[simp] theorem Int8.toBitVec_toInt32 (x : Int8) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
-@[simp] theorem Int8.toBitVec_toInt64 (x : Int8) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
-@[simp] theorem Int8.toBitVec_toISize (x : Int8) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_toInt16 (x : Int8) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_toInt32 (x : Int8) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_toInt64 (x : Int8) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_toISize (x : Int8) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
 
-@[simp] theorem Int16.toBitVec_toInt8 (x : Int16) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
-@[simp] theorem Int16.toBitVec_toInt32 (x : Int16) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
-@[simp] theorem Int16.toBitVec_toInt64 (x : Int16) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
-@[simp] theorem Int16.toBitVec_toISize (x : Int16) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_toInt8 (x : Int16) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_toInt32 (x : Int16) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_toInt64 (x : Int16) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_toISize (x : Int16) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
 
-@[simp] theorem Int32.toBitVec_toInt8 (x : Int32) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
-@[simp] theorem Int32.toBitVec_toInt16 (x : Int32) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
-@[simp] theorem Int32.toBitVec_toInt64 (x : Int32) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
-@[simp] theorem Int32.toBitVec_toISize (x : Int32) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_toInt8 (x : Int32) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_toInt16 (x : Int32) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_toInt64 (x : Int32) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_toISize (x : Int32) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
 
-@[simp] theorem Int64.toBitVec_toInt8 (x : Int64) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
-@[simp] theorem Int64.toBitVec_toInt16 (x : Int64) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
-@[simp] theorem Int64.toBitVec_toInt32 (x : Int64) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
-@[simp] theorem Int64.toBitVec_toISize (x : Int64) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_toInt8 (x : Int64) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_toInt16 (x : Int64) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_toInt32 (x : Int64) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_toISize (x : Int64) : x.toISize.toBitVec = x.toBitVec.signExtend System.Platform.numBits := (rfl)
 
-@[simp] theorem ISize.toBitVec_toInt8 (x : ISize) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
-@[simp] theorem ISize.toBitVec_toInt16 (x : ISize) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
-@[simp] theorem ISize.toBitVec_toInt32 (x : ISize) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
-@[simp] theorem ISize.toBitVec_toInt64 (x : ISize) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_toInt8 (x : ISize) : x.toInt8.toBitVec = x.toBitVec.signExtend 8 := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_toInt16 (x : ISize) : x.toInt16.toBitVec = x.toBitVec.signExtend 16 := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_toInt32 (x : ISize) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_toInt64 (x : ISize) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := (rfl)
 
 theorem Int8.toInt_lt (x : Int8) : x.toInt < 2 ^ 7 := Int.lt_of_mul_lt_mul_left BitVec.two_mul_toInt_lt (by decide)
 theorem Int8.le_toInt (x : Int8) : -2 ^ 7 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_two_mul_toInt (by decide)
@@ -494,11 +499,11 @@ theorem Int32.toFin_toBitVec (x : Int32) : x.toBitVec.toFin = x.toUInt32.toFin :
 theorem Int64.toFin_toBitVec (x : Int64) : x.toBitVec.toFin = x.toUInt64.toFin := (rfl)
 theorem ISize.toFin_toBitVec (x : ISize) : x.toBitVec.toFin = x.toUSize.toFin := (rfl)
 
-@[simp] theorem Int8.toBitVec_toUInt8 (x : Int8) : x.toUInt8.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem Int16.toBitVec_toUInt16 (x : Int16) : x.toUInt16.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem Int32.toBitVec_toUInt32 (x : Int32) : x.toUInt32.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem Int64.toBitVec_toUInt64 (x : Int64) : x.toUInt64.toBitVec = x.toBitVec := (rfl)
-@[simp] theorem ISize.toBitVec_toUSize (x : ISize) : x.toUSize.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_toUInt8 (x : Int8) : x.toUInt8.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_toUInt16 (x : Int16) : x.toUInt16.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_toUInt32 (x : Int32) : x.toUInt32.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_toUInt64 (x : Int64) : x.toUInt64.toBitVec = x.toBitVec := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_toUSize (x : ISize) : x.toUSize.toBitVec = x.toBitVec := (rfl)
 
 @[simp] theorem UInt8.ofBitVec_int8ToBitVec (x : Int8) : UInt8.ofBitVec x.toBitVec = x.toUInt8 := (rfl)
 @[simp] theorem UInt16.ofBitVec_int16ToBitVec (x : Int16) : UInt16.ofBitVec x.toBitVec = x.toUInt16 := (rfl)
@@ -988,11 +993,11 @@ theorem USize.toISize_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toISize = IS
 @[simp] theorem UInt64.toInt64_ofBitVec (b) : (UInt64.ofBitVec b).toInt64 = Int64.ofBitVec b := (rfl)
 @[simp] theorem USize.toISize_ofBitVec (b) : (USize.ofBitVec b).toISize = ISize.ofBitVec b := (rfl)
 
-@[simp] theorem Int8.toBitVec_ofBitVec (b) : (Int8.ofBitVec b).toBitVec = b := (rfl)
-@[simp] theorem Int16.toBitVec_ofBitVec (b) : (Int16.ofBitVec b).toBitVec = b := (rfl)
-@[simp] theorem Int32.toBitVec_ofBitVec (b) : (Int32.ofBitVec b).toBitVec = b := (rfl)
-@[simp] theorem Int64.toBitVec_ofBitVec (b) : (Int64.ofBitVec b).toBitVec = b := (rfl)
-@[simp] theorem ISize.toBitVec_ofBitVec (b) : (ISize.ofBitVec b).toBitVec = b := (rfl)
+@[simp, int_toBitVec] theorem Int8.toBitVec_ofBitVec (b) : (Int8.ofBitVec b).toBitVec = b := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_ofBitVec (b) : (Int16.ofBitVec b).toBitVec = b := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_ofBitVec (b) : (Int32.ofBitVec b).toBitVec = b := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_ofBitVec (b) : (Int64.ofBitVec b).toBitVec = b := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_ofBitVec (b) : (ISize.ofBitVec b).toBitVec = b := (rfl)
 
 theorem Int8.toBitVec_ofIntTruncate {n : Int} (h₁ : Int8.minValue.toInt ≤ n) (h₂ : n ≤ Int8.maxValue.toInt) :
     (Int8.ofIntTruncate n).toBitVec = BitVec.ofInt _ n := by
@@ -1056,7 +1061,7 @@ theorem Int8.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 7) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1065,7 +1070,7 @@ theorem Int16.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 15) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1074,7 +1079,7 @@ theorem Int32.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 31) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1083,7 +1088,7 @@ theorem Int64.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 63) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1092,7 +1097,7 @@ theorem ISize.toNatClampNeg_ofIntTruncate_of_lt_two_pow_numBits {n : Int} (h₁ 
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1268,13 +1273,20 @@ theorem Int64.toISize_ofIntTruncate {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n <
     (Int64.ofIntTruncate n).toISize = ISize.ofInt n := by
   rw [← ofIntLE_eq_ofIntTruncate (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toISize_ofIntLE]
 
-@[simp] theorem Int8.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
-@[simp] theorem Int16.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
-@[simp] theorem Int32.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
-@[simp] theorem Int64.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
-@[simp] theorem ISize.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ :=
+@[simp, int_toBitVec] theorem Int8.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_minValue : minValue.toBitVec = BitVec.intMin _ :=
   BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_minValue,
     BitVec.toInt_intMin_of_pos (by cases System.Platform.numBits_eq <;> simp_all)])
+
+@[simp, int_toBitVec] theorem Int8.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int16.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int32.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem Int64.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ := (rfl)
+@[simp, int_toBitVec] theorem ISize.toBitVec_maxValue : maxValue.toBitVec = BitVec.intMax _ :=
+  BitVec.eq_of_toInt_eq (by rw [toInt_toBitVec, toInt_maxValue, BitVec.toInt_intMax])
 
 @[simp] theorem Int16.toInt8_neg (x : Int16) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
 @[simp] theorem Int32.toInt8_neg (x : Int32) : (-x).toInt8 = -x.toInt8 := Int8.toBitVec.inj (by simp)
@@ -1622,23 +1634,23 @@ theorem ISize.toInt_div_of_ne_right (a b : ISize) (h : b ≠ -1) : (a / b).toInt
   exact Or.inr (by simpa [← toBitVec_inj] using h)
 
 theorem Int8.toInt16_ne_minValue (a : Int8) : a.toInt16 ≠ Int16.minValue :=
-  have := a.le_toInt; by simp [← Int16.toInt_inj, Int16.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int16.toInt_inj]; omega
 theorem Int8.toInt32_ne_minValue (a : Int8) : a.toInt32 ≠ Int32.minValue :=
-  have := a.le_toInt; by simp [← Int32.toInt_inj, Int32.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int32.toInt_inj]; omega
 theorem Int8.toInt64_ne_minValue (a : Int8) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int8.toISize_ne_minValue (a : Int8) : a.toISize ≠ ISize.minValue :=
   have := a.le_toInt; have := ISize.toInt_minValue_le; by simp [← ISize.toInt_inj]; omega
 
 theorem Int16.toInt32_ne_minValue (a : Int16) : a.toInt32 ≠ Int32.minValue :=
-  have := a.le_toInt; by simp [← Int32.toInt_inj, Int32.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int32.toInt_inj]; omega
 theorem Int16.toInt64_ne_minValue (a : Int16) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int16.toISize_ne_minValue (a : Int16) : a.toISize ≠ ISize.minValue :=
   have := a.le_toInt; have := ISize.toInt_minValue_le; by simp [← ISize.toInt_inj]; omega
 
 theorem Int32.toInt64_ne_minValue (a : Int32) : a.toInt64 ≠ Int64.minValue :=
-  have := a.le_toInt; by simp [← Int64.toInt_inj, Int64.toInt_minValue]; omega
+  have := a.le_toInt; by simp [← Int64.toInt_inj]; omega
 theorem Int32.toISize_ne_minValue (a : Int32) (ha : a ≠ minValue) : a.toISize ≠ ISize.minValue := by
   have := a.le_toInt
   have := ISize.toInt_minValue_le
@@ -2155,10 +2167,10 @@ theorem Int64.ofNat_div {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
 theorem ISize.ofNat_div {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
     ISize.ofNat (a / b) = ISize.ofNat a / ISize.ofNat b := by
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv, ofInt_tdiv]
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
 
@@ -2224,10 +2236,10 @@ theorem Int64.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
 theorem ISize.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
     ISize.ofNat a ≤ ISize.ofNat b ↔ a ≤ b := by
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le, Int.ofNat_le]
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
 
@@ -2287,10 +2299,10 @@ theorem Int64.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
 theorem ISize.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
     ISize.ofNat a < ISize.ofNat b ↔ a < b := by
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt, Int.ofNat_lt]
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
 
@@ -2483,6 +2495,17 @@ protected theorem ISize.neg_add {a b : ISize} : - (a + b) = -a - b := ISize.toBi
   rw [Int64.sub_eq_add_neg, Int64.neg_add, Int64.sub_neg, Int64.add_comm, ← Int64.sub_eq_add_neg]
 @[simp] protected theorem ISize.neg_sub {a b : ISize} : -(a - b) = b - a := by
   rw [ISize.sub_eq_add_neg, ISize.neg_add, ISize.sub_neg, ISize.add_comm, ← ISize.sub_eq_add_neg]
+
+protected theorem Int8.sub_sub (a b c : Int8) : a - b - c = a - (b + c) := by
+  simp [Int8.sub_eq_add_neg, Int8.add_assoc, Int8.neg_add]
+protected theorem Int16.sub_sub (a b c : Int16) : a - b - c = a - (b + c) := by
+  simp [Int16.sub_eq_add_neg, Int16.add_assoc, Int16.neg_add]
+protected theorem Int32.sub_sub (a b c : Int32) : a - b - c = a - (b + c) := by
+  simp [Int32.sub_eq_add_neg, Int32.add_assoc, Int32.neg_add]
+protected theorem Int64.sub_sub (a b c : Int64) : a - b - c = a - (b + c) := by
+  simp [Int64.sub_eq_add_neg, Int64.add_assoc, Int64.neg_add]
+protected theorem ISize.sub_sub (a b c : ISize) : a - b - c = a - (b + c) := by
+  simp [ISize.sub_eq_add_neg, ISize.add_assoc, ISize.neg_add]
 
 @[simp] protected theorem Int8.add_left_inj {a b : Int8} (c : Int8) : (a + c = b + c) ↔ a = b := by
   simp [← Int8.toBitVec_inj]
@@ -3012,6 +3035,56 @@ protected theorem Int64.lt_asymm {a b : Int64} : a < b → ¬b < a :=
 protected theorem ISize.lt_asymm {a b : ISize} : a < b → ¬b < a :=
   fun hab hba => ISize.lt_irrefl (ISize.lt_trans hab hba)
 
+instance Int8.instIsLinearOrder : IsLinearOrder Int8 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int8.le_antisymm
+  case le_total => constructor; apply Int8.le_total
+  case le_trans => constructor; apply Int8.le_trans
+
+instance : LawfulOrderLT Int8 where
+  lt_iff := by
+    simp [← Int8.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int16.instIsLinearOrder : IsLinearOrder Int16 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int16.le_antisymm
+  case le_total => constructor; apply Int16.le_total
+  case le_trans => constructor; apply Int16.le_trans
+
+instance : LawfulOrderLT Int16 where
+  lt_iff := by
+    simp [← Int16.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int32.instIsLinearOrder : IsLinearOrder Int32 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int32.le_antisymm
+  case le_total => constructor; apply Int32.le_total
+  case le_trans => constructor; apply Int32.le_trans
+
+instance : LawfulOrderLT Int32 where
+  lt_iff := by
+    simp [← Int32.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance Int64.instIsLinearOrder : IsLinearOrder Int64 := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply Int64.le_antisymm
+  case le_total => constructor; apply Int64.le_total
+  case le_trans => constructor; apply Int64.le_trans
+
+instance : LawfulOrderLT Int64 where
+  lt_iff := by
+    simp [← Int64.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance ISize.instIsLinearOrder : IsLinearOrder ISize := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply ISize.le_antisymm
+  case le_total => constructor; apply ISize.le_total
+  case le_trans => constructor; apply ISize.le_trans
+
+instance : LawfulOrderLT ISize where
+  lt_iff := by
+    simp [← ISize.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
 protected theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int32.add_neg_eq_sub {a b : Int32} : a + -b = a - b := Int32.toBitVec_inj.1 BitVec.add_neg_eq_sub
@@ -3174,20 +3247,20 @@ theorem ISize.toUSize_le {a b : ISize} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUSiz
 
 theorem Int8.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 7) : 0 ≤ Int8.ofNat a := by
   rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int8.toInt_zero]
-  exact Int.ofNat_zero_le _
+  exact Int.natCast_nonneg _
 theorem Int16.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 15) : 0 ≤ Int16.ofNat a := by
   rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int16.toInt_zero]
-  exact Int.ofNat_zero_le _
+  exact Int.natCast_nonneg _
 theorem Int32.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 31) : 0 ≤ Int32.ofNat a := by
   rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int32.toInt_zero]
-  exact Int.ofNat_zero_le _
+  exact Int.natCast_nonneg _
 theorem Int64.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 63) : 0 ≤ Int64.ofNat a := by
   rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int64.toInt_zero]
-  exact Int.ofNat_zero_le _
+  exact Int.natCast_nonneg _
 theorem ISize.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) :
     0 ≤ ISize.ofNat a := by
   rw [le_iff_toInt_le, toInt_ofNat_of_lt_two_pow_numBits ha, ISize.toInt_zero]
-  exact Int.ofNat_zero_le _
+  exact Int.natCast_nonneg _
 
 protected theorem Int8.sub_nonneg_of_le {a b : Int8} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
   rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (Int8.le_trans hb hab),
@@ -3411,9 +3484,9 @@ theorem Int64.ofNat_mod {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
 theorem ISize.ofNat_mod {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
     ISize.ofNat (a % b) = ISize.ofNat a % ISize.ofNat b := by
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod, ofInt_tmod]
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
-  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
     simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb

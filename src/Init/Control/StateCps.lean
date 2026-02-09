@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+public import Init.Ext
+
+public section
 
 set_option linter.missingDocs true
 
@@ -65,6 +68,13 @@ instance : MonadStateOf σ (StateCpsT σ m) where
   get   := fun _ s k => k s s
   set s := fun _ _ k => k ⟨⟩ s
   modifyGet f := fun _ s k => let (a, s) := f s; k a s
+
+/--
+For continuation monads, it is not possible to provide a computable `MonadAttach` instance that
+actually adds information about the return value. Therefore, this instance always attaches a proof
+of `True`.
+-/
+instance : MonadAttach (StateCpsT ε m) := .trivial
 
 /--
 Runs an action from the underlying monad in the monad with state. The state is not modified.

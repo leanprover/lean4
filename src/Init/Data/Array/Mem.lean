@@ -6,9 +6,13 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Nat.Linear
+public import Init.Data.Array.Basic
+public import Init.WFTactics
 import Init.Data.List.BasicAux
+import Init.Data.Nat.Linear
+meta import Init.MetaTypes
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -16,11 +20,11 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace Array
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
-  cases as with | _ as =>
+  cases as with | _ as
   exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp +arith)
 
 theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
-  cases as with | _ as =>
+  cases as with | _ as
   simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
 
 @[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :

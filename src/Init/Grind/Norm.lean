@@ -4,15 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-import Init.SimpLemmas
-import Init.PropLemmas
-import Init.Classical
+public import Init.Data.Int.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Linear  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Rat.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Omega
 import Init.ByCases
-import Init.Data.Int.Linear
-import Init.Data.Int.Pow
-import Init.Grind.Ring.Field
+public section
 
 namespace Lean.Grind
 /-!
@@ -43,21 +44,25 @@ theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
 theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
 theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
-theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by
-  by_cases p <;> by_cases q <;> simp [*]
+theorem not_true : (¬True) = False := by simp
+theorem not_false : (¬False) = True := by simp
+theorem not_not (p : Prop) : (¬¬p) = p := by by_cases p <;> simp [*]
+theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
+theorem not_or (p q : Prop) : (¬(p ∨ q)) = (¬p ∧ ¬q) := by by_cases p <;> by_cases q <;> simp [*]
+theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by by_cases p <;> simp [*]
+theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
+theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
+theorem not_implies (p q : Prop) : (¬(p → q)) = (p ∧ ¬q) := by simp
 
-theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by
-  by_cases p <;> simp [*]
+theorem or_assoc (p q r : Prop) : ((p ∨ q) ∨ r) = (p ∨ (q ∨ r)) := by by_cases p <;> simp [*]
+theorem or_swap12 (p q r : Prop) : (p ∨ q ∨ r) = (q ∨ p ∨ r) := by by_cases p <;> simp [*]
+theorem or_swap13 (p q r : Prop) : (p ∨ q ∨ r) = (r ∨ q ∨ p) := by by_cases p <;> by_cases q <;> simp [*]
 
 theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
   by_cases p <;> simp
 
 theorem ite_false_true {_ : Decidable p} : (ite p False True) = ¬p := by
   by_cases p <;> simp
-
-theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
-
-theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
 
 theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = ite c a b := by
   cases c <;> simp [*]
@@ -68,9 +73,6 @@ theorem Nat.lt_eq (a b : Nat) : (a < b) = (a + 1 ≤ b) := by
 theorem Int.lt_eq (a b : Int) : (a < b) = (a + 1 ≤ b) := by
   simp [Int.lt, LT.lt]
 
-theorem ge_eq [LE α] (a b : α) : (a ≥ b) = (b ≤ a) := rfl
-theorem gt_eq [LT α] (a b : α) : (a > b) = (b < a) := rfl
-
 theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a == b) = (decide (a = b)) := by
   by_cases a = b
   next h => simp [h]
@@ -79,14 +81,12 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
-theorem xor_eq (a b : Bool) : (a ^^ b) = (a != b) := by
-  rfl
-
-theorem natCast_eq [NatCast α] (a : Nat) : (Nat.cast a : α) = (NatCast.natCast a : α) := rfl
 theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.natCast a) / (NatCast.natCast b) := rfl
 theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
 theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
 theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
+theorem natCast_pow (a b : Nat) : (NatCast.natCast (a ^ b : Nat) : Int) = (NatCast.natCast a : Int) ^ b := by simp
+theorem natCast_id (a : Nat) : NatCast.natCast a = a := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -125,52 +125,65 @@ theorem forall_forall_or {α : Sort u} {β : α → Sort v} (p : α → Prop) (q
     intro h'; simp at h'; have ⟨⟨b, h₁⟩, h₂⟩ := h'
     replace h := h a b; simp [h₁, h₂] at h
 
+theorem forall_and {α} {p q : α → Prop} : (∀ x, p x ∧ q x) = ((∀ x, p x) ∧ (∀ x, q x)) := by
+  apply propext; apply _root_.forall_and
+
+theorem exists_const (α : Sort u) [i : Nonempty α] {b : Prop} : (∃ _ : α, b) = b := by
+  apply propext; apply _root_.exists_const
+
+theorem exists_or {α : Sort u} {p q : α → Prop} : (∃ x, p x ∨ q x) = ((∃ x, p x) ∨ ∃ x, q x) := by
+  apply propext; apply _root_.exists_or
+
+theorem exists_prop {a b : Prop} : (∃ _h : a, b) = (a ∧ b) := by
+  apply propext; apply _root_.exists_prop
+
+theorem exists_and_left {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, b ∧ p x) = (b ∧ (∃ x, p x)) := by
+  apply propext; apply _root_.exists_and_left
+
+theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p x ∧ b) = ((∃ x, p x) ∧ b) := by
+  apply propext; apply _root_.exists_and_right
+
+theorem zero_sub (a : Nat) : 0 - a = 0 := by
+  simp
+
+attribute [local instance] Semiring.natCast Ring.intCast
+theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCast.natCast n * a := by
+  rw [Semiring.nsmul_eq_natCast_mul]
+
+theorem smul_int_eq_mul {α} [Ring α] (i : Int) (a : α) : i • a = Int.cast i * a := by
+  rw [Ring.zsmul_eq_intCast_mul]
+
+theorem Int.subNatNat_eq (a b : Nat) : Int.subNatNat a b = NatCast.natCast a - NatCast.natCast b := by
+  apply Int.subNatNat_eq_coe
+
+theorem Int.sign_eq (x : Int) : x.sign = if x > 0 then 1 else if x < 0 then -1 else 0 := by
+  split; simp [*]
+  split; simp [*]
+  have : x = 0 := by omega
+  simp [*]
+
+-- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
 init_grind_norm
   /- Pre theorems -/
-  not_and not_or not_ite not_forall not_exists
-  /- Nat relational ops neg -/
-  Nat.not_ge_eq Nat.not_le_eq
   |
   /- Post theorems -/
-  Classical.not_not
-  ne_eq iff_eq eq_self heq_eq_eq
-  forall_or_forall forall_forall_or
-  -- Prop equality
-  eq_true_eq eq_false_eq not_eq_prop
-  -- True
-  not_true
-  -- False
-  not_false_eq_true
-  -- Implication
-  true_imp_eq false_imp_eq imp_true_eq imp_false_eq imp_self_eq
+  iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
-  -- Or
-  or_true true_or or_false false_or or_assoc
   -- ite
-  ite_true ite_false ite_true_false ite_false_true
-  dite_eq_ite
-  -- Forall
-  forall_and forall_false forall_true
-  forall_imp_eq_or
-  -- Exists
-  exists_const exists_or exists_prop exists_and_left exists_and_right
+  ite_true_false ite_false_true
   -- Bool cond
   cond_eq_ite
   -- Bool or
-  Bool.or_false Bool.or_true Bool.false_or Bool.true_or Bool.or_eq_true Bool.or_assoc
+  Bool.or_false Bool.or_true Bool.false_or Bool.true_or Bool.or_eq_true
   -- Bool and
-  Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true Bool.and_assoc
+  Bool.and_false Bool.and_true Bool.false_and Bool.true_and Bool.and_eq_true
   -- Bool not
   Bool.not_not
-  -- Bool xor
-  xor_eq
   -- beq
   beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
   bne_iff_ne bne_eq_decide_not_eq
-  -- Bool not eq true/false
-  Bool.not_eq_true Bool.not_eq_false
   -- decide
   decide_eq_true_eq decide_not not_decide_eq_true
   -- Nat
@@ -178,28 +191,48 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
-  Nat.one_pow
+  Nat.one_pow Nat.zero_sub Nat.sub_zero
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.negSucc_eq
-  natCast_eq natCast_div natCast_mod
-  natCast_add natCast_mul
+  natCast_div natCast_mod natCast_id
+  natCast_add natCast_mul natCast_pow
   Int.one_pow
-  Int.pow_zero Int.pow_one
-  -- GT GE
-  ge_eq gt_eq
+  Int.pow_zero Int.pow_one Int.subNatNat_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Int alternative div and mod. We just expand them
+  Int.fdiv_eq_ediv Int.tdiv_eq_ediv
+  Int.fmod_eq_emod Int.tmod_eq_emod Int.bmod_eq_emod
+  -- Int sign. We just expand it
+  Int.sign_eq
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
+  -- SMul normalizer
+  smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
+  -- Rationals
+  Rat.zpow_neg
   -- Field
-  Field.div_eq_mul_inv Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  -- Semiring
+  Semiring.one_mul Semiring.mul_one
+  Semiring.zero_mul Semiring.mul_zero
 
 end Lean.Grind

@@ -24,7 +24,7 @@
 {"rendered": "```lean\ncase zero\n⊢ True\n```", "goals": ["case zero\n⊢ True"]}
 {"textDocument": {"uri": "file:///2881.lean"},
  "position": {"line": 41, "character": 2}}
-{"rendered": "```lean\nn : Nat\n⊢ True\n```", "goals": ["n : Nat\n⊢ True"]}
+{"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///2881.lean"},
  "position": {"line": 46, "character": 4}}
 {"rendered": "```lean\nthis : True\n⊢ True\n```",

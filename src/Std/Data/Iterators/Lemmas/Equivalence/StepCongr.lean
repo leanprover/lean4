@@ -3,15 +3,20 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.Iterators.Lemmas.Equivalence.Basic
+public import Std.Data.Iterators.Lemmas.Equivalence.Basic
+
+@[expose] public section
 
 /-!
 This module proves that the step functions of equivalent iterators behave the same under certain
 circumstances.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 This function is used in lemmas about iterator equivalence (`Iter.Equiv` and `IterM.Equiv`).
@@ -84,7 +89,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
     ((IterM.stepAsHetT ita).map IterStep.bundledQuotient).Property s →
       ∃ s' : itb.Step, s = s'.1.bundledQuotient := by
   intro h
-  simp only [HetT.property_map, forall_exists_index, and_imp] at h
+  simp only [HetT.property_map] at h
   rcases h with ⟨sa, rfl, hs⟩
   rcases IterM.Equiv.exists_step_of_step h ⟨sa, hs⟩ with ⟨sb, hsb⟩
   exact ⟨sb, hsb⟩
@@ -92,7 +97,7 @@ private theorem IterM.Equiv.step_eq.aux {α₁ α₂ : Type w} {m : Type w → T
 private theorem IterM.Equiv.step_eq.aux_subtypeMk_congr {α : Type u} {P Q R : α → Prop}
     {h₁ : ∀ a, P a → R a}
     {h₂ : ∀ a, Q a → R a} (h : P = Q) :
-    HEq (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha))
+    (fun (a : α) (ha : P a) => Subtype.mk a (h₁ a ha)) ≍
       (fun (a : α) (ha : Q a) => Subtype.mk a (h₂ a ha)) := by
   cases h
   simp
@@ -125,11 +130,12 @@ cancellation property does not hold for all monads.
 theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
-    (Quot.mk _ : _ → ita.QuotStep) <$> ita.step =
-      IterM.QuotStep.transportAlongEquiv h.symm <$> (Quot.mk _ : _ → itb.QuotStep) <$> itb.step := by
+    (fun s => Shrink.deflate (Quot.mk _ s.inflate : ita.QuotStep)) <$> ita.step =
+      (fun s => Shrink.deflate (QuotStep.transportAlongEquiv h.symm s.inflate)) <$>
+        (fun s => Shrink.deflate (Quot.mk _ s.inflate : itb.QuotStep)) <$> itb.step := by
   have he := h
   simp only [IterM.Equiv, BundledIterM.ofIterM, BundledIterM.Equiv, BundledIterM.step,
-    Functor.map] at h
+    ] at h
   simp only [← HetT.comp_map, ← IterStep.mapIterator_comp] at h
   replace h : (IterM.stepAsHetT ita).map IterStep.bundledQuotient =
       (IterM.stepAsHetT itb).map IterStep.bundledQuotient := h
@@ -144,11 +150,12 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
   replace h' := congrArg (·.map IterM.QuotStep.restrict) h'
   simp only [HetT.map_pmap, IterStep.restrict_bundle (α₂ := α₂),
     IterStep.restrict_bundle (α₂ := α₁)] at h'
-  replace h' := congrArg (HetT.prun · (fun x _ => pure x)) h'
+  replace h' := congrArg (HetT.prun · (fun x _ => pure (Shrink.deflate x))) h'
   simp only [Equivalence.property_step, HetT.prun_pmap, Equivalence.prun_step, bind_pure_comp] at h'
-  simp only [QuotStep.transportAlongEquiv, Functor.map_map, ← h']
+  simp only [QuotStep.transportAlongEquiv, Functor.map_map, Shrink.inflate_deflate, ← h']
   congr
   ext step
+  rw [Shrink.deflate_inj]
   apply Quot.sound
   change _ = IterStep.bundledQuotient (Subtype.val (Exists.choose ?hex))
   let hex := ?hex
@@ -159,31 +166,37 @@ theorem IterM.Equiv.lift_step_bind_congr {α₁ α₂ : Type w} [Monad m] [Lawfu
     [Iterator α₁ m β] [Iterator α₂ m β]
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb)
     {f : _ → n γ} {g : _ → n γ}
-    (hfg : ∀ s₁ s₂, s₁.1.bundledQuotient = s₂.1.bundledQuotient → f s₁ = g s₂) :
-    ((ita.step : n _) >>= f) = ((itb.step : n _) >>= g) := by
-  let flift : ita.QuotStep → n γ := by
+    (hfg : ∀ s₁ s₂, s₁.inflate.1.bundledQuotient = s₂.inflate.1.bundledQuotient → f s₁ = g s₂) :
+    ((ita.step : n _) >>= f) = ((itb.step : n _) >>= g) := by -- .deflate this
+  let flift : Shrink ita.QuotStep → n γ := by
+    refine ?_ ∘ Shrink.inflate
     refine Quot.lift ?_ ?_
-    · exact f
+    · exact f ∘ Shrink.deflate
     · intro s s' h''
       have hs := (IterM.Equiv.exists_step_of_step h s)
-      rw [hfg s hs.choose hs.choose_spec, hfg s' hs.choose (h'' ▸ hs.choose_spec)]
-  have hf : f = flift ∘ Quot.mk _ := rfl
-  let glift : itb.QuotStep → n γ := by
+      simp only [Function.comp_apply]
+      rw [hfg (.deflate s) (.deflate hs.choose) (by simpa using hs.choose_spec),
+        hfg (.deflate s') (.deflate hs.choose) (by simpa [h''] using hs.choose_spec)]
+  have hf : f = flift ∘ Shrink.deflate ∘ Quot.mk _ ∘ Shrink.inflate := by simp [Function.comp_def, flift]
+  let glift : Shrink itb.QuotStep → n γ := by
+    refine ?_ ∘ Shrink.inflate
     refine Quot.lift ?_ ?_
-    · exact g
+    · exact g ∘ Shrink.deflate
     · intro s s' h''
       have hs := (IterM.Equiv.exists_step_of_step h.symm s)
-      rw [← hfg hs.choose s hs.choose_spec.symm, ← hfg hs.choose s' (h'' ▸ hs.choose_spec.symm)]
-  have hg : g = glift ∘ Quot.mk _ := rfl
-  rw [hf, hg, bind_comp_eq_map_bind, bind_comp_eq_map_bind]
+      simp only [Function.comp_apply]
+      rw [← hfg (.deflate hs.choose) (.deflate s) (by simpa using hs.choose_spec.symm),
+        ← hfg (.deflate hs.choose) (.deflate s') (by simpa [h''] using hs.choose_spec.symm)]
+  have hg : g = glift ∘ Shrink.deflate ∘ Quot.mk _ ∘ Shrink.inflate := by simp [Function.comp_def, glift]
+  rw [hf, bind_comp_eq_map_bind (g := flift), hg, bind_comp_eq_map_bind (g := glift)]
   have := congrArg (fun x => liftM (n := n) x) (step_eq h)
-  simp only [liftM_map, Functor.map_map] at this
-  simp only [this, map_eq_pure_bind, bind_assoc]
-  apply bind_congr
-  intro step
+  simp only [liftM_map] at this
+  simp only [Function.comp_def, this, Functor.map_map, Shrink.inflate_deflate]
+  simp only [map_eq_pure_bind, bind_assoc]
+  apply bind_congr; intro step
   simp only [QuotStep.transportAlongEquiv, pure_bind, flift, glift]
-  have hex := exists_step_of_step h.symm step
-  exact hfg hex.choose step hex.choose_spec.symm
+  have hex := exists_step_of_step h.symm step.inflate
+  simp [hfg (.deflate hex.choose) step (by simpa using hex.choose_spec.symm)]
 
 theorem IterM.Equiv.liftInner_stepAsHetT_pbind_congr [Monad m] [LawfulMonad m]
     [Monad n] [LawfulMonad n]
@@ -207,7 +220,7 @@ theorem IterM.Equiv.liftInner_stepAsHetT_pbind_congr [Monad m] [LawfulMonad m]
   · intro γ l
     apply lift_step_bind_congr h
     intro s₁ s₂ h
-    simp only [hfg s₁.1 s₁.2 s₂.1 s₂.2 h]
+    simp only [hfg s₁.inflate.1 s₁.inflate.2 s₂.inflate.1 s₂.inflate.2 h]
 
 theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
     [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β]
@@ -220,4 +233,4 @@ theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
   apply liftInner_stepAsHetT_pbind_congr h
   exact hfg
 
-end Std.Iterators
+end Std

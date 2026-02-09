@@ -1,3 +1,38 @@
+{"textDocument": {"uri": "file:///codeaction.lean"},
+ "range":
+ {"start": {"line": 28, "character": 4}, "end": {"line": 28, "character": 4}},
+ "context": {"diagnostics": []}}
+[{"title": "hello world",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 28, "character": 4},
+        "end": {"line": 28, "character": 4}},
+       "newText": "hello!!!"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName": "helloProvider",
+   "params":
+   {"textDocument": {"uri": "file:///codeaction.lean"},
+    "range":
+    {"start": {"line": 28, "character": 4},
+     "end": {"line": 28, "character": 4}},
+    "context": {"diagnostics": []}}}},
+ {"title": "a long-running action",
+  "kind": "refactor",
+  "data":
+  {"providerResultIndex": 1,
+   "providerName": "helloProvider",
+   "params":
+   {"textDocument": {"uri": "file:///codeaction.lean"},
+    "range":
+    {"start": {"line": 28, "character": 4},
+     "end": {"line": 28, "character": 4}},
+    "context": {"diagnostics": []}}}}]
+Resolution of hello world:
 {"title": "hello world",
  "kind": "quickfix",
  "edit":
@@ -5,16 +40,25 @@
   [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 30, "character": 4},
-       "end": {"line": 30, "character": 4}},
-      "newText": "hello!!!"}]}]}}
-{"title": "a long-running action",
- "kind": "refactor",
+      {"start": {"line": 28, "character": 4},
+       "end": {"line": 28, "character": 4}},
+      "newText": "hello!!!"}]}]},
  "data":
- {"providerResultIndex": 1,
+ {"providerResultIndex": 0,
   "providerName": "helloProvider",
   "params":
   {"textDocument": {"uri": "file:///codeaction.lean"},
    "range":
-   {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
+   {"start": {"line": 28, "character": 4}, "end": {"line": 28, "character": 4}},
    "context": {"diagnostics": []}}}}
+Resolution of a long-running action:
+{"title": "a long-running action",
+ "kind": "refactor",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 28, "character": 4},
+       "end": {"line": 28, "character": 4}},
+      "newText": "lazy result"}]}]}}

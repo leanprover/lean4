@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Omega
-import Init.Data.Int.DivMod.Lemmas
-import Std.Classes.Ord.Basic
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Order.Ord
+public import Init.Omega
+import Init.Ext
+
+@[expose] public section
 
 namespace Std
 namespace Time
@@ -18,7 +23,7 @@ set_option linter.all true in
 A `Bounded` is represented by an `Int` that is constrained by a lower and higher bounded using some
 relation `rel`. It includes all the integers that `rel lo val ∧ rel val hi`.
 -/
-def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi }
+@[expose] def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi }
 
 namespace Bounded
 
@@ -57,7 +62,7 @@ instance : LawfulEqOrd (Bounded rel n m) where
 variable {rel a b}
 
 /--
-A `Bounded` integer that the relation used is the the less-equal relation so, it includes all
+A `Bounded` integer where the relation used is the less-equal relation, so it includes all
 integers that `lo ≤ val ≤ hi`.
 -/
 abbrev LE := @Bounded LE.le
@@ -70,7 +75,7 @@ def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 
 /--
-A `Bounded` integer that the relation used is the the less-than relation so, it includes all
+A `Bounded` integer where the relation used is the less-than relation, so it includes all
 integers that `lo < val < hi`.
 -/
 abbrev LT := @Bounded LT.lt
@@ -97,7 +102,7 @@ namespace LE
 /--
 Convert a `Nat` to a `Bounded.LE` by wrapping it.
 -/
-@[inline]
+@[inline, expose]
 def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi := by
   let range := hi - lo + 1
   have range_pos := Int.add_pos_of_nonneg_of_pos (b := 1) (Int.sub_nonneg_of_le h) (by decide)
@@ -115,12 +120,12 @@ def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi
 
 instance {k : Nat} : OfNat (Bounded.LE lo (lo + k)) n where
   ofNat :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping n h
 
 instance {k : Nat} : Inhabited (Bounded.LE lo (lo + k)) where
   default :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping lo h
 
 /--
@@ -151,7 +156,7 @@ Convert a `Nat` to a `Bounded.LE`.
 -/
 @[inline]
 def ofNat (val : Nat) (h : val ≤ hi) : Bounded.LE 0 hi :=
-  Bounded.mk val (And.intro (Int.ofNat_zero_le val) (Int.ofNat_le.mpr h))
+  Bounded.mk val (And.intro (Int.natCast_nonneg val) (Int.ofNat_le.mpr h))
 
 /--
 Convert a `Nat` to a `Bounded.LE` if it checks.
@@ -208,7 +213,7 @@ def toInt (n : Bounded.LE lo hi) : Int :=
 /--
 Convert a `Bounded.LE` to a `Fin`.
 -/
-@[inline, simp]
+@[inline, simp, expose]
 def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) : Fin (hi + 1).toNat := by
   let h := n.property.right
   let h₁ := Int.le_trans h₀ n.property.left
@@ -242,7 +247,7 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     intro a
     simp_all [Int.lt_irrefl]
   · apply Int.le_of_lt_add_one
-    simp [Int.add_sub_assoc]
+    simp
     exact Int.emod_lt_of_pos b hi
 
 /--
@@ -278,7 +283,7 @@ def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
 Adjust the bounds of a `Bounded` by changing the higher bound if another value `j` satisfies the same
 constraint.
 -/
-@[inline, simp]
+@[inline, simp, expose]
 def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE n j := by
   refine ⟨bounded.val, And.intro ?_ ?_⟩
   · exact bounded.property.left
@@ -306,7 +311,7 @@ def neg (bounded : Bounded.LE n m) : Bounded.LE (-m) (-n) := by
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
 -/
-@[inline, simp]
+@[inline, simp, expose]
 def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   all_goals apply (Int.add_le_add · (Int.le_refl num))
@@ -325,7 +330,7 @@ def addProven (bounded : Bounded.LE n m) (h₀ : bounded.val + num ≤ m) (h₁ 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
 -/
-@[inline]
+@[inline, expose]
 def addTop (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE n (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   · let h := Int.add_le_add bounded.property.left h
@@ -356,7 +361,7 @@ def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded
 /--
 Adjust the bounds of a `Bounded` by subtracting a constant value to both the lower and upper bounds.
 -/
-@[inline, simp]
+@[inline, simp, expose]
 def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) :=
   add bounded (-num)
 
@@ -471,11 +476,11 @@ def max (bounded : Bounded.LE n m) (val : Int) : Bounded.LE (Max.max n val) (Max
     simp [Int.max_def]
     split <;> split
 
-  next h => simp [h, Int.le_trans left h]
+  next h => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
-  next h => simp [h, Int.le_trans left h]
+  next h => simp [Int.le_trans left h]
   next h h₁ => exact left
-  next h h₁ => simp [h, Int.le_trans left h]
+  next h h₁ => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
   next h h₁ =>
     let h₃ := Int.lt_of_lt_of_le (Int.not_le.mp h) right

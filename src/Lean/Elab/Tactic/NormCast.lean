@@ -3,10 +3,13 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.NormCast
-import Lean.Elab.Tactic.Conv.Simp
-import Lean.Elab.ElabRules
+public import Lean.Meta.Tactic.NormCast
+public import Lean.Elab.Tactic.Conv.Simp
+
+public section
 
 /-!
 # The `norm_cast` family of tactics.
@@ -266,7 +269,7 @@ def evalConvNormCast : Tactic :=
 
 @[builtin_tactic pushCast]
 def evalPushCast : Tactic := fun stx => do
-  let { ctx, simprocs, dischargeWrapper } ← withMainContext do
+  let { ctx, simprocs, dischargeWrapper, .. } ← withMainContext do
     mkSimpContext (simpTheorems := pushCastExt.getTheorems) stx (eraseLocal := false)
   let ctx := ctx.setFailIfUnchanged false
   dischargeWrapper.with fun discharge? =>

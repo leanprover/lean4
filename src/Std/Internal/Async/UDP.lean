@@ -3,11 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time
-import Std.Internal.UV.UDP
-import Std.Internal.Async.Select
-import Std.Net.Addr
+public import Std.Time
+public import Std.Internal.UV.UDP
+public import Std.Internal.Async.Select
+
+public section
 
 namespace Std
 namespace Internal
@@ -58,12 +61,20 @@ def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
   s.native.connect addr
 
 /--
+Sends multiple data buffers through an UDP socket. The `addr` parameter specifies the destination
+address. If `addr` is `none`, the data is sent to the default peer address set by `connect`.
+-/
+@[inline]
+def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
+  Async.ofPromise <| s.native.send data addr
+
+/--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
-def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : IO (AsyncTask Unit) :=
-  AsyncTask.ofPromise <$> s.native.send data addr
+def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
+  Async.ofPromise <| s.native.send #[data] addr
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive.
@@ -73,27 +84,31 @@ has not been previously bound with `bind`, it is automatically bound to `0.0.0.0
 Furthermore calling this function in parallel with `recvSelector` is not supported.
 -/
 @[inline]
-def recv (s : Socket) (size : UInt64) : IO (AsyncTask (ByteArray × Option SocketAddress)) :=
-  AsyncTask.ofPromise <$> s.native.recv size
+def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=
+  Async.ofPromise <| s.native.recv size
 
 /--
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
 and provides that data. If the socket has not been previously bound with `bind`, it is
 automatically bound to `0.0.0.0` (all interfaces) with a random port.
-Calling this function starts the data wait, so it must not be called in parallel with `recv`.
+Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
+It must not be called in parallel with `recv`.
 -/
-def recvSelector (s : Socket) (size : UInt64) :
-    IO (Selector (ByteArray × Option SocketAddress)) := do
-  let readableWaiter ← s.native.waitReadable
-  return {
+def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
+ {
     tryFn := do
+      let readableWaiter ← s.native.waitReadable
+
       if ← readableWaiter.isResolved then
         -- We know that this read should not block
-        let res ← (← s.recv size).block
+        let res ← (s.recv size).block
         return some res
       else
+        s.native.cancelRecv
         return none
     registerFn waiter := do
+      let readableWaiter ← s.native.waitReadable
+
       -- If we get cancelled the promise will be dropped so prepare for that
       discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
         match res with
@@ -104,11 +119,12 @@ def recvSelector (s : Socket) (size : UInt64) :
             try
               discard <| IO.ofExcept res
               -- We know that this read should not block
-              let res ← (← s.recv size).block
+              let res ← (s.recv size).block
               promise.resolve (.ok res)
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
+
     unregisterFn := s.native.cancelRecv
   }
 

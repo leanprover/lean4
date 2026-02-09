@@ -8,7 +8,9 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial
@@ -35,6 +37,67 @@ theorem eq_false_of_decide {p : Prop} {_ : Decidable p} (h : decide p = false) :
 
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
+
+theorem implies_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : (p₁ → q) = (p₂ → q) :=
+  h ▸ rfl
+
+theorem implies_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : (p → q₁) = (p → q₂) :=
+  h ▸ rfl
+
+namespace Lean
+/--
+`Arrow α β` is definitionally equal to `α → β`, but represented as a function
+application rather than `Expr.forallE`.
+
+This representation is useful for proof automation that builds nested implications
+like `pₙ → ... → p₂ → p₁`. With `Expr.forallE`, each nesting level introduces a
+binder that bumps de Bruijn indices in subterms, destroying sharing even with
+hash-consing. For example, if `p₁` contains `#20`, then at depth 2 it becomes `#21`,
+at depth 3 it becomes `#22`, etc., causing quadratic proof growth.
+
+With `arrow`, both arguments are explicit (not under binders), so subterms remain
+identical across nesting levels and can be shared, yielding linear-sized proofs.
+-/
+def Arrow (α : Sort u) (β : Sort v) : Sort (imax u v) := α → β
+
+theorem arrow_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : Arrow p₁ q₁ = Arrow p₂ q₂ :=
+  h₁ ▸ h₂ ▸ rfl
+
+theorem arrow_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : Arrow p₁ q = Arrow p₂ q :=
+  h ▸ rfl
+
+theorem arrow_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : Arrow p q₁ = Arrow p q₂ :=
+  h ▸ rfl
+
+theorem true_arrow (p : Prop) : Arrow True p = p := by
+  simp [Arrow]; constructor
+  next => intro h; exact h .intro
+  next => intros; assumption
+
+theorem true_arrow_congr_left (p q : Prop) : p = True → Arrow p q = q := by
+  intros; subst p; apply true_arrow
+
+theorem true_arrow_congr_right (q q' : Prop) : q = q' → Arrow True q = q' := by
+  intros; subst q; apply true_arrow
+
+theorem true_arrow_congr (p q q' : Prop) : p = True → q = q' → Arrow p q = q' := by
+  intros; subst p q; apply true_arrow
+
+theorem false_arrow (p : Prop) : Arrow False p = True := by
+  simp [Arrow]; constructor
+  next => intros; exact .intro
+  next => intros; contradiction
+
+theorem false_arrow_congr (p q : Prop) : p = False → Arrow p q = True := by
+  intros; subst p; apply false_arrow
+
+theorem arrow_true (α : Sort u) : Arrow α True = True := by
+  simp [Arrow]; constructor <;> intros <;> exact .intro
+
+theorem arrow_true_congr (α : Sort u) (p : Prop) : p = True → Arrow α p = True := by
+  intros; subst p; apply arrow_true
+
+end Lean
 
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
   Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)
@@ -74,6 +137,22 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
+/-!
+Congruence lemmas for `have` have kernel performance issues when stated using `have` directly.
+Illustration of the problem: the kernel infers that the type of
+`have_congr (fun x => b) (fun x => b') h₁ h₂`
+is
+`(have x := a; (fun x => b) x) = (have x := a'; (fun x => b') x)`
+rather than
+`(have x := a; b x) = (have x := a'; b' x)`
+That means the kernel will do `whnf_core` at every step of checking a sequence of these lemmas.
+Thus, we get quadratically many zeta reductions.
+
+For reference, we have the `have` versions of the theorems in the following comment,
+and then after that we have the versions that `simpHaveTelescope` actually uses,
+which avoid this issue.
+-/
+/-
 theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
     (h : b = b') : (have _ := a; b) = b' := h
 
@@ -95,21 +174,29 @@ theorem have_body_congr_dep {α : Sort u} {β : α → Sort v} (a : α) {f f' : 
 theorem have_body_congr {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
     (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
   h a
+-/
 
-theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
-  h
+theorem have_unused' {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (fun _ => b) a = b' := h
 
-theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
-  rw [h₁, funext h₂]
+theorem have_unused_dep' {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : b a = b' := h a
 
-theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
-  rw [funext h]
+theorem have_congr' {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : f a = f' a' :=
+  @congr α β f f' a a' (funext h₂) h₁
 
-theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
-  rw [h]
+theorem have_val_congr' {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : f a = f a' :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep' {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
+
+theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
 
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
@@ -117,6 +204,12 @@ theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
   cases Decidable.em c with
   | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
   | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
+
+theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
+    (h₁ : b = c) : ite b x y = ite c x y := by
+  cases Decidable.em c with
+  | inl h => rw [if_pos h]; subst b; rw [if_pos h]
+  | inr h => rw [if_neg h]; subst b; rw [if_neg h]
 
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
@@ -131,6 +224,13 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
   cases Decidable.em c with
   | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
+
+theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
+    {x : b → α} {y : ¬ b → α} (h₁ : b = c) :
+    dite b x y = dite c (fun h => x (h₁.mpr_prop h)) (fun h => y (h₁.mpr_not h)) := by
+  cases Decidable.em c with
+  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]
+  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq

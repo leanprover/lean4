@@ -1,5 +1,5 @@
 def pro : Bool :=
-let x := 42;
+have x := 42;
 false
 def f : Nat → Nat :=
 fun x =>

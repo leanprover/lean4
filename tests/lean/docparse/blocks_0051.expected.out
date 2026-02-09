@@ -1,0 +1,22 @@
+Failure @45 (⟨2, 29⟩): expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
+Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text (str "\"My link\""))]
+      "]"
+      (Lean.Doc.Syntax.ref
+       "["
+       (str "\"lean\"")
+       "]"))
+     (Lean.Doc.Syntax.linebreak
+      "line!"
+      (str "\"\\n\""))
+     (Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text (str "\"lean\""))]
+      "]"
+      (Lean.Doc.Syntax.url <missing>))]
+    "}")]
+Remaining: ""

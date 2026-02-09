@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+
+public section
 
 namespace Lean
 namespace Parser
@@ -45,6 +49,14 @@ builtin_initialize
   register_parser_alias doSeq
   register_parser_alias termBeforeDo
 
+def getDoElems (doSeq : TSyntax ``doSeq) : Array (TSyntax `doElem) :=
+  if doSeq.raw.getKind == ``Parser.Term.doSeqBracketed then
+    doSeq.raw[1].getArgs.map fun arg => ⟨arg[0]⟩
+  else if doSeq.raw.getKind == ``Parser.Term.doSeqIndent then
+    doSeq.raw[0].getArgs.map fun arg => ⟨arg[0]⟩
+  else
+    #[]
+
 def notFollowedByRedefinedTermToken :=
   -- Remark: we don't currently support `open` and `set_option` in `do`-blocks,
   -- but we include them in the following list to fix the ambiguity where
@@ -79,17 +91,22 @@ def doPatDecl  := leading_parser
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
--- We use `letIdDeclNoBinders` to define `doReassign`.
--- Motivation: we do not reassign functions, and avoid parser conflict
+/-
+We use `letIdDeclNoBinders` to define `doReassign`.
+Motivations:
+- we do not reassign functions,
+- we do not want `hygieneInfo` case, and
+- avoid parser conflict
+-/
 def letIdDeclNoBinders := node ``letIdDecl <|
-  atomic (ident >> pushNone >> optType >> " := ") >> termParser
+  atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have" >> Term.haveDecl
+  "have" >> Term.letDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as
@@ -148,7 +165,7 @@ def doForDecl := leading_parser
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,
 until at least one of them is exhausted.
-The types of `e2` etc. must implement the `ToStream` typeclass.
+The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq

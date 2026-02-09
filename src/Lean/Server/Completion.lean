@@ -3,37 +3,40 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.CompletionCollectors
-import Lean.Server.RequestCancellation
-import Std.Data.HashMap
+public import Lean.Server.Completion.CompletionCollectors
+public import Std.Data.HashMap
+
+public section
 
 namespace Lean.Server.Completion
 open Lsp
 open Elab
 
 private def filterDuplicateCompletionItems
-    (items : Array CompletionItem)
-    : Array CompletionItem :=
-  let duplicationGroups := items.groupByKey fun i => (
-      i.label,
-      i.textEdit?,
-      i.detail?,
-      i.kind?,
-      i.tags?,
-      i.documentation?,
-    )
-  duplicationGroups.map (fun _ duplicateItems => duplicateItems[0]!)
-    |>.valuesArray
+    (items : Array ResolvableCompletionItem)
+    : Array ResolvableCompletionItem := Id.run do
+  let mut r : Array ResolvableCompletionItem := #[]
+  let mut index : Std.HashSet (String × Option InsertReplaceEdit) := ∅
+  for i in items do
+    let key := (i.label, i.textEdit?)
+    let (isDup, index') := index.containsThenInsert key
+    index := index'
+    if ! isDup then
+      r := r.push i
+  return r
 
 partial def find?
-    (params   : CompletionParams)
+    (uri      : DocumentUri)
+    (pos      : Lsp.Position)
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)
-    : CancellableM CompletionList := do
+    : CancellableM ResolvableCompletionList := do
   let (prioritizedPartitions, isComplete) := findPrioritizedCompletionPartitionsAt fileMap hoverPos cmdStx infoTree
   let mut allCompletions := #[]
   for partition in prioritizedPartitions do
@@ -42,19 +45,21 @@ partial def find?
       let completions : Array ScoredCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>
-          idCompletion params completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
+          idCompletion uri pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
         | .dot info .. =>
-          dotCompletion params completionInfoPos i.ctx info
+          dotCompletion uri pos completionInfoPos i.ctx info
         | .dotId _ id lctx expectedType? =>
-          dotIdCompletion params completionInfoPos i.ctx lctx id expectedType?
+          dotIdCompletion uri pos completionInfoPos i.ctx lctx id expectedType?
         | .fieldId _ id lctx structName =>
-          fieldIdCompletion params completionInfoPos i.ctx lctx id structName
+          fieldIdCompletion uri pos completionInfoPos i.ctx lctx id structName
         | .option stx =>
-          optionCompletion params completionInfoPos i.ctx stx caps
+          optionCompletion uri pos completionInfoPos i.ctx stx caps
         | .errorName _ partialId =>
-          errorNameCompletion params completionInfoPos i.ctx partialId caps
+          errorNameCompletion uri pos completionInfoPos i.ctx partialId caps
+        | .endSection _ id? danglingDot scopeNames =>
+          endSectionCompletion uri pos completionInfoPos id? danglingDot scopeNames
         | .tactic .. =>
-          tacticCompletion params completionInfoPos i.ctx
+          tacticCompletion uri pos completionInfoPos i.ctx
         | _ =>
           pure #[]
       allCompletions := allCompletions ++ completions

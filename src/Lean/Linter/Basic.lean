@@ -3,17 +3,20 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König
 -/
+module
+
 prelude
-import Lean.Data.Options
-import Lean.MonadEnv
-import Lean.Log
+public import Lean.MonadEnv
+import Init.Data.Function
+
+public section
 
 namespace Lean.Linter
 
 /-- Linter sets are represented as a map from linter name to set name,
 to make it easy to look up which sets to check for enabling a linter.
 -/
-def LinterSets := NameMap (Array Name)
+@[expose] def LinterSets := NameMap (Array Name)
   deriving EmptyCollection, Inhabited
 
 /-- Insert a set into a `LinterSets` map.
@@ -22,8 +25,8 @@ def LinterSets := NameMap (Array Name)
 `entry.2` contains the names of the set's linter options.
 -/
 def insertLinterSetEntry (map : LinterSets) (setName : Name) (options : NameSet) : LinterSets :=
-  options.fold (init := map) fun map linterName =>
-    map.insert linterName ((map.findD linterName #[]).push setName)
+  options.foldl (init := map) fun map linterName =>
+    map.insert linterName ((map.getD linterName #[]).push setName)
 
 builtin_initialize linterSetsExt : SimplePersistentEnvExtension (Name × NameSet) LinterSets ← Lean.registerSimplePersistentEnvExtension {
   addImportedFn := mkStateFromImportedEntries (Function.uncurry <| insertLinterSetEntry ·) {}
@@ -52,7 +55,7 @@ def _root_.Lean.Options.toLinterOptions [Monad m] [MonadEnv m] (o : Options) : m
 
 /-- Return the set of linter sets that this option is contained in. -/
 def LinterOptions.getSet (o : LinterOptions) (opt : Lean.Option α) : Array Name :=
-  o.linterSets.findD opt.name #[]
+  o.linterSets.getD opt.name #[]
 
 def getLinterOptions [Monad m] [MonadOptions m] [MonadEnv m] : m LinterOptions := do
   (← getOptions).toLinterOptions
@@ -70,8 +73,8 @@ def getLinterValue (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
-  let disable := m!"note: this linter can be disabled with `set_option {linterOption.name} false`"
-  logWarningAt stx (.tagged linterOption.name m!"{msg}\n{disable}")
+  let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
+  logWarningAt stx (.tagged linterOption.name m!"{msg}{disable}")
 
 /--
 If `linterOption` is enabled, print a linter warning message at the position determined by `stx`.

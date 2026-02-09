@@ -3,22 +3,24 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Util.HasConstCache
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Tactic.Cleanup
+public import Lean.Util.HasConstCache
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Meta.ArgsPacker
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.WF.Basic
+public import Lean.Data.Array
 import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.TryThis
-import Lean.Meta.ArgsPacker
-import Lean.Elab.Quotation
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.WF.Basic
-import Lean.Data.Array
+import Init.Data.Prod
+
+public section
 
 
 /-!
@@ -26,7 +28,7 @@ This module finds lexicographic termination measures for well-founded recursion.
 
 Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
-until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive
@@ -107,7 +109,7 @@ case, the user gets to keep both pieces (and may have to rename variables).
 partial
 def naryVarNames (xs : Array Name) : MetaM (Array Name) := do
   let mut ns : Array Name := #[]
-  for h : i in [:xs.size] do
+  for h : i in *...xs.size do
     let n := xs[i]
     let n ← if n.hasMacroScopes then
         freshen ns (.mkSimple s!"x{i+1}")
@@ -164,13 +166,13 @@ def mayOmitSizeOf (is_mutual : Bool) (args : Array Expr) (x : Expr) : MetaM Bool
     catch _ =>
       pure false
 
-/-- Sets the user names for the given freevars in `xs`. -/
+/-- Sets the user names for the given free variables in `xs`. -/
 def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : MetaM α := do
   let mut lctx ←  getLCtx
   for x in xs, n in ns do lctx := lctx.setUserName x.fvarId! n
   withLCtx' lctx k
 
-/-- Create one measure for each (eligible) parameter of the given predefintion.  -/
+/-- Create one measure for each (eligible) parameter of the given predefinition.  -/
 def simpleMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) : MetaM (Array (Array BasicMeasure)) := do
   let is_mutual : Bool := preDefs.size > 1
@@ -241,10 +243,10 @@ where
       loop param d
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
+    | Expr.letE n type val body nondep =>
       loop param type
       loop param val
-      withLetDecl n type val fun x => do
+      withLetDecl n type val (nondep := nondep) fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then
@@ -348,7 +350,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
   lambdaBoundedTelescope unaryPreDef.value (fixedParamPerms.numFixed + 1) fun xs body => do
     unless xs.size == fixedParamPerms.numFixed + 1 do
       throwError "Unexpected number of lambdas in unary pre-definition"
-    let ys := xs[:fixedParamPerms.numFixed]
+    let ys := xs[*...fixedParamPerms.numFixed]
     let param := xs[fixedParamPerms.numFixed]!
     withRecApps unaryPreDef.declName fixedParamPerms.numFixed param body fun param args => do
       unless args.size ≥ fixedParamPerms.numFixed + 1 do
@@ -561,7 +563,7 @@ where
   go (fidx : Nat) : OptionT (ReaderT (Array Nat) (StateM (Array (Array Nat)))) Unit := do
     if h : fidx < numMeasures.size then
       let n := numMeasures[fidx]
-      for idx in [:n] do withReader (·.push idx) (go (fidx + 1))
+      for idx in *...n do withReader (·.push idx) (go (fidx + 1))
     else
       let comb ← read
       unless comb.all (· == comb[0]!) do
@@ -604,7 +606,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     if calls.isEmpty then return .some acc
 
     -- Find the first measure that has at least one < and otherwise only = or <=
-    for h : measureIdx in [:measures.size] do
+    for h : measureIdx in *...measures.size do
       let measure := measures[measureIdx]
       let mut has_lt := false
       let mut all_le := true
@@ -633,20 +635,20 @@ Single space as column separator.
 -/
 def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
-  for hi : i in [:xss.size] do
-    for hj : j in [:xss[i].size] do
+  for hi : i in *...xss.size do
+    for hj : j in *...xss[i].size do
       if xss[i][j].length > colWidths[j]! then
         colWidths := colWidths.set! j xss[i][j].length
   let mut str := ""
-  for hi : i in [:xss.size] do
-    for hj : j in [:xss[i].size] do
+  for hi : i in *...xss.size do
+    for hj : j in *...xss[i].size do
       let s := xss[i][j]
       if j > 0 then -- right-align
-        for _ in [:colWidths[j]! - s.length] do
+        for _ in *...(colWidths[j]! - s.length) do
           str := str ++ " "
       str := str ++ s
       if j = 0 then -- left-align
-        for _ in [:colWidths[j]! - s.length] do
+        for _ in *...(colWidths[j]! - s.length) do
           str := str ++ " "
       if j + 1 < xss[i].size then
         str := str ++ " "
@@ -691,9 +693,9 @@ def collectHeaders {α} (a : StateT (Nat × String) MetaM α) : MetaM (α × Str
 def explainNonMutualFailure (measures : Array BasicMeasure) (rcs : Array RecCallCache) : MetaM Format := do
   let (header, footer) ← collectHeaders (measures.mapM measureHeader)
   let mut table : Array (Array String) := #[#[""] ++ header]
-  for i in [:rcs.size], rc in rcs do
+  for i in *...rcs.size, rc in rcs do
     let mut row := #[s!"{i+1}) {← rc.rcc.posString}"]
-    for argIdx in [:measures.size] do
+    for argIdx in *...measures.size do
       row := row.push (← rc.prettyEntry argIdx argIdx)
     table := table.push row
   let out := formatTable table
@@ -719,14 +721,14 @@ def explainMutualFailure (declNames : Array Name) (measuress : Array (Array Basi
     if caller = callee then
       -- For self-calls, only the diagonal is interesting, so put it into one row
       let mut row := #[""]
-      for argIdx in [:measuress[caller]!.size] do
+      for argIdx in *...measuress[caller]!.size do
         row := row.push (← rc.prettyEntry argIdx argIdx)
       table := table.push row
     else
-      for argIdx in [:measuress[callee]!.size] do
+      for argIdx in *...measuress[callee]!.size do
         let mut row := #[]
         row := row.push headerss[callee]![argIdx]!
-        for paramIdx in [:measuress[caller]!.size] do
+        for paramIdx in *...measuress[caller]!.size do
           row := row.push (← rc.prettyEntry paramIdx argIdx)
         table := table.push row
     r := r ++ formatTable table ++ "\n"
@@ -755,7 +757,7 @@ def mkProdElem (xs : Array Expr) : MetaM Expr := do
   | 1 => return xs[0]!
   | _ =>
     let n := xs.size
-    xs[0:n-1].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
+    xs[*...(n-1)].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
 
 def toTerminationMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (measuress : Array (Array BasicMeasure))
@@ -806,10 +808,10 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
-  let basicMeassures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
-  let basicMeassures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
-  let basicMeasures := Array.zipWith (· ++ ·) basicMeassures₁ basicMeassures₂
+  -- (One for each non-forbidden arg)
+  let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
+  let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
+  let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last

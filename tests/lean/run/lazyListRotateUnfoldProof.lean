@@ -61,7 +61,7 @@ a✝ : ∀ (h : t.get.length + 1 = R.length), (rotate t.get R nil h).length = t.
 ⊢ ∀ (h : (LazyList.delayed t).length + 1 = R.length),
     (rotate (LazyList.delayed t) R nil h).length = (LazyList.delayed t).length + R.length
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 theorem rotate_inv' {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.length) → (rotate F R nil h).length = F.length + R.length := by

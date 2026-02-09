@@ -3,16 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-
-namespace Lean.Meta.Grind.Arith
-
-
-namespace Linear
+public section
+namespace Lean.Meta.Grind.Arith.Linear
 
 /-- If `e` is a function application supported by the linarith module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -45,9 +45,41 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     true
 
-def markVars (e : Expr) : LinearM Unit := do
-  -- TODO: avoid creation of auxiliary reified expression
-  discard <| reify? e (skipVar := true)
+partial def markVars (e : Expr) : LinearM Unit := do
+  match_expr e with
+  | HAdd.hAdd _ _ _ i a b =>
+    if isAddInst (← getStruct) i then markVars a; markVars b else markVar e
+  | HSub.hSub _ _ _ i a b => if isSubInst (← getStruct) i then markVars a; markVars b else markVar e
+  | HMul.hMul _ _ _ i a b =>
+    if isHomoMulInst (← getStruct) i then
+      if isNumeral a then
+        return (← markVar b)
+      else if isNumeral b then
+        return (← markVar a)
+      else
+        markVar a; markVar b; markVar e
+        return
+    markVar e
+  | HSMul.hSMul _ _ _ i a b =>
+    if isSMulIntInst (← getStruct) i then
+      if (← getIntValue? a).isSome then
+        return (← markVar b)
+    if isSMulNatInst (← getStruct) i then
+      if (← getNatValue? a).isSome then
+        return (← markVar b)
+    markVar e
+  | Neg.neg _ _ a => markVars a
+  | Zero.zero _ _ => return ()
+  | OfNat.ofNat _ _ _ => return ()
+  | _ => markVar e
+where
+  markVar (e : Expr) : LinearM Unit :=
+    discard <| mkVar e
+  isNumeral (e : Expr) : Bool :=
+    match_expr e with
+    | Neg.neg _ _ a => isNumeral a
+    | OfNat.ofNat _ n _ => isNatNum n
+    | _ => false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   unless (← getConfig).linarith do return ()
@@ -56,11 +88,14 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  let some structId ← getStructId? type | return ()
-  LinearM.run structId do
+  if let some structId ← getStructId? type then LinearM.run structId do
     trace[grind.linarith.internalize] "{e}"
     setTermStructId e
-    markAsLinarithTerm e
+    linearExt.markTerm e
     markVars e
+  else if let some natStructId ← getNatStructId? type then OfNatModuleM.run natStructId do
+    let (e', _) ← ofNatModule e
+    trace[grind.linarith.internalize] "{e} ==> {e'}"
+    linearExt.markTerm e
 
 end Lean.Meta.Grind.Arith.Linear

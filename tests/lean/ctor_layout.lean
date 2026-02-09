@@ -3,16 +3,12 @@ import Lean.Compiler.IR
 open Lean
 open Lean.IR
 
-unsafe def main : IO Unit :=
-withImportModules #[{module := `Lean.Compiler.IR.Basic}] {} fun env => do
-   let ctorLayout ← IO.ofExcept $ getCtorLayout env `Lean.IR.Expr.reuse;
+def test : CoreM Unit := do
+   let ctorLayout ← Compiler.LCNF.getCtorLayout ``Lean.IR.Expr.reuse;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    IO.println "---";
-   let ctorLayout ← IO.ofExcept $ getCtorLayout env `Lean.EnvironmentHeader.mk;
-   ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
-   IO.println "---";
-   let ctorLayout ← IO.ofExcept $ getCtorLayout env `Subtype.mk;
+   let ctorLayout ← Compiler.LCNF.getCtorLayout ``Subtype.mk;
    ctorLayout.fieldInfo.forM $ fun finfo => IO.println (format finfo);
    pure ()
 
-#eval main
+#eval test

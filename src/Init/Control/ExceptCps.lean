@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+import Init.SimpLemmas
+
+public section
 
 /-!
 The Exception monad transformer using CPS style.
@@ -72,6 +75,13 @@ instance [Monad m] : MonadLift m (ExceptCpsT σ m) where
 
 instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
   default := fun _ _ k₂ => k₂ default
+
+/--
+For continuation monads, it is not possible to provide a computable `MonadAttach` instance that
+actually adds information about the return value. Therefore, this instance always attaches a proof
+of `True`.
+-/
+instance : MonadAttach (ExceptCpsT ε m) := .trivial
 
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptCpsT ε m α) = pure (Except.ok x) := rfl
 

@@ -7,8 +7,11 @@ module
 
 prelude
 import all Init.Data.Array.Basic
+public import Init.Data.Array.Set
+public import Init.Util
 import Init.Data.Nat.Linear
-import Init.NotationExtra
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

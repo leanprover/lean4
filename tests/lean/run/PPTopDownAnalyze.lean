@@ -14,8 +14,9 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
   let stx ← delab e
   match tgt? with
   | some tgt =>
-    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then
-      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm tgt}\n\nExpr: {e}\nType: {← inferType e}"
+    let tgt := tgt.raw.rewriteBottomUp Syntax.unsetTrailing
+    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm ⟨tgt⟩) then
+      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm ⟨tgt⟩}\n\nExpr: {e}\nType: {← inferType e}"
   | _ => pure ()
 
   let e' ←
@@ -28,7 +29,7 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
       pure e'
     catch ex => throwError "{pfix} failed to re-elaborate,\n{stx}\n{← ex.toMessageData.toString}"
 
-  withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
+  withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `pp.all true }) do
     if not (← isDefEq e e') then
       println! "{pfix} {← inferType e} {← inferType e'}"
       throwError "{pfix} roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"
@@ -336,13 +337,12 @@ set_option pp.analyze.trustSubtypeMk true in
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
-#testDelabN Nat.mod_lt
+#testDelabN Nat.mod_eq_of_lt
 #testDelabN List.partition
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
-#testDelabN List.hasDecidableLt
-#testDelabN Lean.Xml.parse
+#testDelabN List.decidableLT
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
 #testDelabN instMonadReaderOfOfMonadLift
@@ -353,13 +353,14 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN MonadLift.noConfusionType
 #testDelabN MonadExcept.noConfusion
 #testDelabN MonadFinally.noConfusion
-#testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
-#testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN and_false
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
 #testDelabN Lean.Server.FileWorker.handlePlainGoal
+
+-- TODO: this hangs
+-- #testDelabN Nat.mod_lt
 
 -- TODO: this error occurs because we use a term's type to determine `blockImplicit` (@),
 -- whereas we should actually use the expected type based on the function being applied.

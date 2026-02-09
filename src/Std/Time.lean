@@ -3,15 +3,19 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Time
-import Std.Time.Date
-import Std.Time.Zoned
-import Std.Time.Format
-import Std.Time.DateTime
-import Std.Time.Notation
-import Std.Time.Duration
-import Std.Time.Zoned.Database
+public import Std.Time.Time
+public import Std.Time.Date
+public import Std.Time.Zoned
+public import Std.Time.Format
+public import Std.Time.DateTime
+public import Std.Time.Notation
+public import Std.Time.Duration
+public import Std.Time.Zoned.Database
+
+public section
 
 namespace Std
 namespace Time
@@ -70,7 +74,7 @@ like `23:59:60` that is valid in ISO 8601.
   - `Minute.Ordinal`: Ranges from 0 to 59.
   - `Nanosecond.Ordinal`: Ranges from 0 to 999,999,999.
   - `Second.Ordinal`: Ranges from 0 to 60.
-  - `Weekday`: That is a inductive type with all the seven days.
+  - `Weekday`: That is an inductive type with all the seven days.
 
 ## Span
 
@@ -167,7 +171,7 @@ The supported formats include:
   - `EEEE`: Displays the full day name (e.g., "Tuesday").
   - `EEEEE`: Displays the narrow day name (e.g., "T" for Tuesday).
 - `e`: Represents the weekday as number or text.
-  - `e`, `ee`: Displays the the as a number, starting from 1 (Monday) to 7 (Sunday).
+  - `e`, `ee`: Displays the weekday as a number, starting from 1 (Monday) to 7 (Sunday).
   - `eee`, `eeee`, `eeeee`: Displays the weekday as text (same format as `E`).
 - `F`: Represents the week of the month that the first week starts on the first day of the month (e.g., "3").
 - `a`: Represents the AM or PM designation of the day.

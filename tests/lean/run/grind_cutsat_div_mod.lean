@@ -1,3 +1,4 @@
+module
 example (x y : Int) : x / 2 + y = 3 → x = 5 → y = 1 := by
   grind
 
@@ -11,11 +12,11 @@ example (x y : Int) : x % 2 + y = 3 → x = 5 → y = 2 := by
   grind
 
 /--
-trace: [grind.cutsat.model] x := 5
-[grind.cutsat.model] y := 2
+trace: [grind.lia.model] x := 5
+[grind.lia.model] y := 2
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y : Int) : x % 2 + y = 3 → x ≤ 5 → x > 4 → y = 1 := by
   fail_if_success grind
   sorry

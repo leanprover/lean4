@@ -3,9 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.AC
-import Std.Data.DTreeMap.Internal.Def
+public import Init.Data.AC
+public import Std.Data.DTreeMap.Internal.Def
+import Init.Omega
+import Init.RCases
+
+@[expose] public section
 
 /-!
 # `Balanced` predicate
@@ -104,7 +110,7 @@ theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Bal
 
 theorem BalancedAtRoot.symm {l r : Nat} (h : BalancedAtRoot l r) : BalancedAtRoot r l := by
   cases h
-  · next h => exact Or.inl <| Nat.add_comm _ _ ▸ h
-  · next h => exact Or.inr h.symm
+  next h => exact Or.inl <| Nat.add_comm _ _ ▸ h
+  next h => exact Or.inr h.symm
 
 end Std.DTreeMap.Internal.Impl

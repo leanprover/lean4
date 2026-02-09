@@ -4,12 +4,19 @@
  [{"label": "x",
    "kind": 5,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
-     "position": {"line": 3, "character": 26}},
-    "id":
-    {"const":
-     {"declName":
-      "_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"}},
-    "cPos": 1}}],
+   ["file:///completionPrivateTypes.lean",
+    3,
+    26,
+    1,
+    "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}],
  "isIncomplete": false}
+Resolution of x:
+{"label": "x",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data":
+ ["file:///completionPrivateTypes.lean",
+  3,
+  26,
+  1,
+  "c_private.«external:file:///completionPrivateTypes.lean».0.Foo.x"]}

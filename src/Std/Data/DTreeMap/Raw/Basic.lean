@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
-import Std.Data.DTreeMap.Basic
+public import Std.Data.DTreeMap.Basic
+
+@[expose] public section
 
 /-
 # Dependent tree maps with unbundled well-formedness invariant
@@ -27,12 +30,13 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std
 
 namespace DTreeMap
 open Internal (Impl)
+
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Dependent tree maps without a bundled well-formedness invariant, suitable for use in nested
@@ -99,7 +103,7 @@ structure Equiv (m₁ m₂ : Raw α β cmp) where
 
 @[inherit_doc] scoped infix:50 " ~m " => Equiv
 
-@[simp]
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
   rfl
 
@@ -166,10 +170,6 @@ def erase (t : Raw α β cmp) (a : α) : Raw α β cmp :=
 def get? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
-@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
-def find? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) : Option (β a) :=
-  t.get? a
-
 @[inline, inherit_doc DTreeMap.get]
 def get [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
@@ -178,17 +178,25 @@ def get [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
 def get! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get! a
 
-@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
-def find! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β a :=
-  t.get! a
-
 @[inline, inherit_doc DTreeMap.getD]
 def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
-@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
-def findD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
-  t.getD a fallback
+@[inline, inherit_doc DTreeMap.getEntry?]
+def getEntry? (t : Raw α β cmp) (a : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry? a
+
+@[inline, inherit_doc DTreeMap.getEntry]
+def getEntry [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry a h
+
+@[inline, inherit_doc DTreeMap.getEntry!]
+def getEntry! [Inhabited ((a : α) × β a)](t : Raw α β cmp) (a : α) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntry! a
+
+@[inline, inherit_doc DTreeMap.getEntryD]
+def getEntryD (t : Raw α β cmp) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getEntryD a fallback
 
 @[inline, inherit_doc DTreeMap.getKey?]
 def getKey? (t : Raw α β cmp) (a : α) : Option α :=
@@ -210,10 +218,6 @@ def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
 def minEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.minEntry?
 
-@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
-def min? (t : Raw α β cmp) : Option ((a : α) × β a) :=
-  t.minEntry?
-
 /-!
 We do not provide `minEntry` for the raw trees.
 -/
@@ -222,25 +226,13 @@ We do not provide `minEntry` for the raw trees.
 def minEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.minEntry!
 
-@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
-def min! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
-  t.minEntry!
-
 @[inline, inherit_doc DTreeMap.minEntryD]
 def minEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.minEntryD fallback
 
-@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
-def minD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  t.minEntryD fallback
-
 @[inline, inherit_doc DTreeMap.maxEntry?]
 def maxEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxEntry?
-
-@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
-def max? (t : Raw α β cmp) : Option ((a : α) × β a) :=
-  t.maxEntry?
 
 /-!
 We do not provide `maxEntry` for the raw trees.
@@ -250,17 +242,9 @@ We do not provide `maxEntry` for the raw trees.
 def maxEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxEntry!
 
-@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
-def max! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
-  t.maxEntry!
-
 @[inline, inherit_doc DTreeMap.maxEntryD]
 def maxEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxEntryD fallback
-
-@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
-def maxD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  t.maxEntryD fallback
 
 @[inline, inherit_doc DTreeMap.minKey?]
 def minKey? (t : Raw α β cmp) : Option α :=
@@ -314,10 +298,6 @@ def entryAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a
 def keyAtIdx? (t : Raw α β cmp) (n : Nat) : Option α :=
   letI : Ord α := ⟨cmp⟩; Impl.keyAtIdx? t.inner n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-25")]
-def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
-  keyAtIdx? t n
-
 /-!
 We do not provide `keyAtIdx` for the raw trees.
 -/
@@ -326,17 +306,9 @@ We do not provide `keyAtIdx` for the raw trees.
 def keyAtIdx! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdx! n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
-def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
-  keyAtIdx! t n
-
 @[inline, inherit_doc DTreeMap.keyAtIdxD]
 def keyAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdxD n fallback
-
-@[inline, inherit_doc DTreeMap.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-25")]
-def keyAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
-  keyAtIdxD t n fallback
 
 @[inline, inherit_doc DTreeMap.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
@@ -456,37 +428,21 @@ def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw
 def get? (t : Raw α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
-@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
-def find? (t : Raw α β cmp) (a : α) : Option β :=
-  get? t a
-
 @[inline, inherit_doc DTreeMap.Const.get]
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Const.get!]
-def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
+def get! [Inhabited β] (t : Raw α β cmp) (a : α) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
-
-@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
-def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
-  get! t a
 
 @[inline, inherit_doc DTreeMap.Const.getD]
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
-@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
-def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
-  getD t a fallback
-
 @[inline, inherit_doc DTreeMap.Const.minEntry?]
 def minEntry? (t : Raw α β cmp) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry? t.inner
-
-@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
-def min? (t : Raw α β cmp) : Option (α × β) :=
-  minEntry? t
 
 /-!
 We do not provide `minEntry` for the raw trees.
@@ -496,41 +452,21 @@ We do not provide `minEntry` for the raw trees.
 def minEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry! t.inner
 
-@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
-def min! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  minEntry! t
-
 @[inline, inherit_doc DTreeMap.Const.minEntryD]
 def minEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.minEntryD t.inner fallback
-
-@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
-def minD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  minEntryD t fallback
 
 @[inline, inherit_doc DTreeMap.Const.maxEntry?]
 def maxEntry? (t : Raw α β cmp) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry? t.inner
 
-@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
-def max? (t : Raw α β cmp) : Option (α × β) :=
-  maxEntry? t
-
 @[inline, inherit_doc DTreeMap.Const.maxEntry!]
 def maxEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry! t.inner
 
-@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
-def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  maxEntry! t
-
 @[inline, inherit_doc DTreeMap.Const.maxEntryD]
 def maxEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntryD t.inner fallback
-
-@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
-def maxD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  maxEntryD t fallback
 
 @[inline, inherit_doc DTreeMap.Const.entryAtIdx?]
 def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
@@ -613,17 +549,9 @@ def filter (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp 
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.foldlM f init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
-def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
-  t.foldlM f init
-
 @[inline, inherit_doc DTreeMap.foldl]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldl f init
-
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
-def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
-  t.foldl f init
 
 @[inline, inherit_doc DTreeMap.foldrM]
 def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
@@ -632,10 +560,6 @@ def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : Raw α β cm
 @[inline, inherit_doc DTreeMap.foldr]
 def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldr f init
-
-@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
-  foldr (fun k v acc => f acc k v) init t
 
 @[inline, inherit_doc DTreeMap.partition]
 def partition (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
@@ -653,10 +577,10 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn f init
 
-instance : ForM m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (Raw α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Raw α β cmp) ((a : α) × β a) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -680,16 +604,12 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : R
 end Const
 
 @[inline, inherit_doc DTreeMap.any]
-def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b then return true
-  return false
+def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool :=
+  t.inner.any p
 
 @[inline, inherit_doc DTreeMap.all]
 def all (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b = false then return false
-  return true
+  t.inner.all p
 
 @[inline, inherit_doc DTreeMap.keys]
 def keys (t : Raw α β cmp) : List α :=
@@ -717,10 +637,6 @@ def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exa
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofList l⟩
 
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
-def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
@@ -730,10 +646,6 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofArray a⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofArray a cmp
 
 @[inline, inherit_doc DTreeMap.modify]
 def modify [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : β a → β a) : Raw α β cmp :=
@@ -748,11 +660,6 @@ def alter [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : Option (β a) → 
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
     Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
-
-@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
-def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
-    Raw α β cmp :=
-  mergeWith mergeFn t₁ t₂
 
 namespace Const
 open Internal (Impl)
@@ -795,15 +702,49 @@ def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
 
-@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
-def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
-  mergeWith mergeFn t₁ t₂
-
 end Const
 
 @[inline, inherit_doc DTreeMap.insertMany]
 def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany! l⟩
+
+/--
+Computes the union of the given tree maps. If a key appears in both maps, the entry contained in the second argument will appear in the result.
+
+This function always merges the smaller map into the larger map.
+-/
+def union (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.union! t₂.inner⟩
+
+instance : Union (Raw α β cmp) := ⟨union⟩
+
+/--
+Computes the intersection of the given tree maps. The result will only contain entries from the first map.
+
+This function always merges the smaller map into the larger map.
+-/
+def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter! t₂.inner⟩
+
+instance : Inter (Raw α β cmp) := ⟨inter⟩
+
+
+@[inherit_doc DTreeMap.beq] def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : Raw α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
+
+instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq⟩
+
+@[inherit_doc DTreeMap.beq] def Const.beq {β : Type v} [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+
+/--
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
+-/
+def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff! t₂.inner⟩
+
+instance : SDiff (Raw α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
@@ -820,7 +761,6 @@ def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw 
 @[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertManyIfNewUnit! t.inner l⟩
-
 end Const
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β cmp) where

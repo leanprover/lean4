@@ -6,7 +6,10 @@ Authors: Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
+public import Init.Data.Int.Basic
+import Init.Data.Nat.Div.Basic
+
+public section
 
 @[expose] section
 
@@ -115,9 +118,6 @@ instance : Mod Int where
   mod := Int.emod
 
 @[simp, norm_cast] theorem natCast_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
-
-@[deprecated natCast_ediv (since := "2025-04-17")]
-theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := natCast_ediv m n
 
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]

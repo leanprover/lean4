@@ -6,11 +6,12 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.TakeDrop
-import Init.Data.List.Attach
-import Init.Data.List.OfFn
-import Init.Data.Array.Bootstrap
+public import Init.Data.List.Attach
 import all Init.Data.List.Control
+import Init.Data.Array.Bootstrap
+import Init.Data.Bool
+
+public section
 
 /-!
 # Lemmas about `List.mapM` and `List.forM`.
@@ -72,10 +73,6 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
 @[simp, grind =] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
 
-@[deprecated idRun_mapM (since := "2025-05-21")]
-theorem mapM_id {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
-  mapM_pure
-
 @[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
     (l.map f).mapM g = l.mapM (g ∘ f) := by
   induction l <;> simp_all
@@ -90,8 +87,8 @@ theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] {f : α → m β} {as : 
   induction as generalizing b bs with
   | nil => simp
   | cons a as ih =>
-    simp only [bind_pure_comp] at ih
-    simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
+    simp only at ih
+    simp [ih, _root_.map_bind, Functor.map_map]
 
 theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} :
     mapM f l = reverse <$> (l.foldlM (fun acc a => (· :: acc) <$> f a) []) := by
@@ -99,8 +96,8 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} 
   induction l with
   | nil => simp
   | cons a as ih =>
-    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons, LawfulMonad.bind_assoc, pure_bind,
-      foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, Function.comp_def, reverse_append,
+    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons,
+      foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, reverse_append,
       reverse_cons, reverse_nil, nil_append, singleton_append]
     simp [bind_pure_comp]
 
@@ -135,6 +132,43 @@ theorem filterMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (Option β)} 
     rw [filterMapM_loop_eq, filterMapM]
     simp
 
+/-! ### zipWithM -/
+
+/--
+Applies the monadic action `f` to the corresponding elements of two lists, left-to-right, stopping
+at the end of the shorter list. `zipWithM' f as bs` is equivalent to `mapM id (zipWith f as bs)`
+for lawful `Monad` instances.
+-/
+@[expose]
+def zipWithM' {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ : Type u} (f : α → β → m γ) : (xs : List α) → (ys : List β) → m (List γ)
+  | x::xs, y::ys => do
+    let z ← f x y
+    let zs ← zipWithM' f xs ys
+    pure (z :: zs)
+  | _,     _     => pure []
+
+@[simp, grind =] theorem zipWithM'_nil_left [Monad m] {f : α → β → m γ} : zipWithM' f [] l = pure (f := m) [] := by simp only [zipWithM']
+@[simp, grind =] theorem zipWithM'_nil_right [Monad m] {f : α → β → m γ} : zipWithM' f l [] = pure (f := m) [] := by simp only [zipWithM']
+@[simp, grind =] theorem zipWithM'_cons_cons [Monad m] {f : α → β → m γ} :
+    zipWithM' f (a :: as) (b :: bs) = do return (← f a b) :: (← zipWithM' f as bs) := by simp only [zipWithM']
+
+@[grind =]
+theorem zipWithM'_eq_zipWithM [Monad m] [LawfulMonad m] {f : α → β → m γ} {l : List α} {l' : List β} :
+    zipWithM' f l l' = zipWithM f l l' := by simp [zipWithM, go l l' #[]] where
+  go l l' acc : zipWithM.loop f l l' acc = return acc.toList ++ (← zipWithM' f l l') := by
+    fun_induction zipWithM.loop <;> simp [zipWithM', *]
+
+@[simp, grind =] theorem zipWithM_nil_left [Monad m] {f : α → β → m γ} : zipWithM f [] l = pure (f := m) [] := rfl
+@[simp, grind =] theorem zipWithM_nil_right [Monad m] {f : α → β → m γ} : zipWithM f l [] = pure (f := m) [] := by simp only [zipWithM, zipWithM.loop]
+@[simp, grind =] theorem zipWithM_cons_cons [Monad m] [LawfulMonad m] {f : α → β → m γ} :
+    zipWithM f (a :: as) (b :: bs) = do return (← f a b) :: (← zipWithM f as bs) := by
+  simp [← zipWithM'_eq_zipWithM]
+
+@[simp, grind =]
+theorem zipWithM'_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMonad m] {f : α → β → m γ} {as : List α} {bs : List β} :
+    zipWithM' f as bs = mapM id (zipWith f as bs) := by
+  fun_induction zipWithM' <;> simp [zipWith, *]
+
 /-! ### flatMapM -/
 
 @[simp, grind =] theorem flatMapM_nil [Monad m] {f : α → m (List β)} : [].flatMapM f = pure [] := rfl
@@ -144,7 +178,7 @@ theorem flatMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (List β)} {l :
   induction l generalizing acc with
   | nil => simp [flatMapM.loop]
   | cons a l ih =>
-    simp only [flatMapM.loop, append_nil, _root_.map_bind]
+    simp only [flatMapM.loop, _root_.map_bind]
     congr
     funext bs
     rw [ih, ih (acc := [bs])]
@@ -222,13 +256,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
 
 /-! ### forM -/
 
-@[deprecated forM_nil (since := "2025-01-31")]
-theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
 
-@[deprecated forM_cons (since := "2025-01-31")]
-theorem forM_cons' [Monad m] :
-    (a::as).forM f = (f a >>= fun _ => as.forM f : m PUnit) :=
-  List.forM_cons
 
 @[simp, grind =] theorem forM_append [Monad m] [LawfulMonad m] {l₁ l₂ : List α} {f : α → m PUnit} :
     forM (l₁ ++ l₂) f = (do forM l₁ f; forM l₂ f) := by
@@ -356,13 +384,6 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
   forIn'_pure_yield_eq_foldl _ _
 
-@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn'_yield_eq_foldl
-    {l : List α} (f : (a : α) → a ∈ l → β → β) (init : β) :
-    forIn' (m := Id) l init (fun a m b => .yield (f a m b)) =
-      l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
-  forIn'_pure_yield_eq_foldl _ _
-
 @[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
     forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem h) y := by
@@ -381,7 +402,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   induction l generalizing init with
   | nil => simp
   | cons a as ih =>
-    simp only [foldlM_cons, bind_pure_comp, forIn_cons, _root_.map_bind]
+    simp only [foldlM_cons, forIn_cons, _root_.map_bind]
     congr 1
     funext x
     match x with
@@ -415,13 +436,6 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
       l.foldl (fun b a => f a b |>.run) init :=
   forIn_pure_yield_eq_foldl _ _
 
-@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn_yield_eq_foldl
-    {l : List α} (f : α → β → β) (init : β) :
-    forIn (m := Id) l init (fun a b => .yield (f a b)) =
-      l.foldl (fun b a => f a b) init :=
-  forIn_pure_yield_eq_foldl _ _
-
 @[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]
     {l : List α} {g : α → β} {f : β → γ → m (ForInStep γ)} :
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
@@ -444,12 +458,40 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
   induction as with
   | nil => simp
   | cons a as ih =>
-    simp only [anyM, ih, pure_bind, all_cons]
+    simp only [anyM, ih, pure_bind]
     split <;> simp_all
+
+@[simp] theorem anyM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).anyM p = pure false :=
+  (rfl)
+
+@[simp] theorem anyM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).anyM p = (do
+      if (← p x) then
+        return true
+      else
+        xs.anyM p) := by
+  rw [anyM]
+  apply bind_congr; intro px
+  split <;> simp
 
 @[simp] theorem allM_pure [Monad m] [LawfulMonad m] {p : α → Bool} {as : List α} :
     as.allM (m := m) (pure <| p ·) = pure (as.all p) := by
   simp [allM_eq_not_anyM_not, all_eq_not_any_not]
+
+@[simp] theorem allM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).allM p = pure true :=
+  (rfl)
+
+@[simp] theorem allM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).allM p = (do
+      if (← p x) then
+        xs.allM p
+      else
+        return false) := by
+  rw [allM]
+  apply bind_congr; intro px
+  split <;> simp
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 
@@ -486,7 +528,7 @@ and simplifies these to the function directly taking the value.
   induction l generalizing x with
   | nil => simp
   | cons a l ih =>
-    simp [ih, hf, foldrM_cons]
+    simp [ih, foldrM_cons]
     congr
     funext b
     simp [hf]

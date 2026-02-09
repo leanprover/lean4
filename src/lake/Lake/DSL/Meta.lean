@@ -3,21 +3,20 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lean.ToExpr
 import Lean.Elab.Eval
-import Lean.Elab.ElabRules
-import Lake.Util.FilePath
 import Lake.DSL.Syntax
 
 /-!
 Syntax for elaboration time control flow.
 -/
 
-namespace Lake.DSL
 open Lean Meta Elab Command Term
 
-@[implemented_by Term.evalTerm]
-opaque evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α
+namespace Lake.DSL
 
 def expandCmdDo : TSyntax ``cmdDo → Array Command
 | `(cmdDo|do $cmds*) => cmds
@@ -28,17 +27,16 @@ def expandCmdDo : TSyntax ``cmdDo → Array Command
 def elabMetaIf : CommandElab := fun stx => do
   let `(meta if $c then $t $[else $e?]?) := stx
     | throwErrorAt stx "ill-formed meta if command"
-  if (← withRef c <| runTermElabM fun _ => evalTerm Bool (toTypeExpr Bool) c .unsafe) then
+  let c ← withRef c <| runTermElabM fun _ =>
+    unsafe evalTerm Bool (toTypeExpr Bool) c .unsafe
+  if c then
     let cmd := mkNullNode (expandCmdDo t)
     withMacroExpansion (← getRef) cmd <| elabCommand cmd
   else if let some e := e? then
     let cmd := mkNullNode (expandCmdDo e)
     withMacroExpansion (← getRef) cmd <| elabCommand cmd
 
-@[implemented_by Meta.evalExpr]
-opaque evalExpr (α) (expectedType : Expr) (value : Expr) (safety := DefinitionSafety.safe) : MetaM α
-
-def toExprIO [ToExpr α] (x : IO α) : IO Expr :=
+public def toExprIO [ToExpr α] (x : IO α) : IO Expr :=
   toExpr <$> x
 
 @[builtin_term_elab runIO]
@@ -53,7 +51,7 @@ def elabRunIO : TermElab := fun stx expectedType? =>
     if (← logUnassignedUsingErrorInfos (← getMVars v)) then
       throwAbortTerm
     let v ← mkAppM ``toExprIO #[v]
-    let io ← evalExpr (IO Expr) (mkApp (mkConst ``IO) (mkConst ``Expr)) v
+    let io ← unsafe evalExpr (IO Expr) (mkApp (mkConst ``IO) (mkConst ``Expr)) v
     let (out, x) ← IO.FS.withIsolatedStreams io.toBaseIO
     unless out.isEmpty do
       logInfoAt tk out

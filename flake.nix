@@ -18,14 +18,15 @@
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
 
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; };
+      llvmPackages = pkgs.llvmPackages_15;
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
-          stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
+          stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
             cmake gmp libuv ccache pkg-config
-            lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+            llvmPackages.bintools  # wrapped lld
+            llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
           ];
@@ -60,12 +61,6 @@
           GDB = pkgsDist.gdb;
         });
     in {
-      packages.${system} = {
-        # to be removed when Nix CI is not needed anymore
-        inherit (lean-packages) cacheRoots test update-stage0-commit ciShell;
-        deprecated = lean-packages;
-      };
-
       devShells.${system} = {
         # The default development shell for working on lean itself
         default = devShellWithDist pkgs;

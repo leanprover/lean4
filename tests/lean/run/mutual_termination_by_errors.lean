@@ -131,20 +131,20 @@ mutual
   partial_fixpoint
 
   def g (x : Nat) : Prop := f (x + 1)
-  least_fixpoint
+  inductive_fixpoint
 end
 end Test6
 
 
 namespace Test7
 /--
-error: Incompatible termination hint; this function is mutually recursive with Test7.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test7.f, which is marked as `coinductive_fixpoint` so this one also needs to be marked `inductive_fixpoint` or `coinductive_fixpoint`.
 -/
 #guard_msgs in
 mutual
   def f (x : Nat) : Prop :=
     g (x + 1)
-  greatest_fixpoint
+  coinductive_fixpoint
 
   def g (x : Nat) : Prop :=
     f (x + 1)
@@ -170,7 +170,7 @@ end Test8
 
 namespace Test9
 /--
-error: Incompatible termination hint; this function is mutually recursive with Test9.f, which is not also marked as `least_fixpoint` or `greatest_fixpoint`, so this one cannot be either.
+error: Incompatible termination hint; this function is mutually recursive with Test9.f, which is not also marked as `inductive_fixpoint` or `coinductive_fixpoint`, so this one cannot be either.
 -/
 #guard_msgs in
 mutual
@@ -180,19 +180,19 @@ mutual
 
   def g (x : Nat) : Prop :=
     f (x + 1)
-    least_fixpoint
+    inductive_fixpoint
 end
 end Test9
 
 namespace Test10
 /--
-error: Incompatible termination hint; this function is mutually recursive with Test10.f, which is marked as `greatest_fixpoint` so this one also needs to be marked `least_fixpoint` or `greatest_fixpoint`.
+error: Incompatible termination hint; this function is mutually recursive with Test10.f, which is marked as `coinductive_fixpoint` so this one also needs to be marked `inductive_fixpoint` or `coinductive_fixpoint`.
 -/
 #guard_msgs in
 mutual
   def f (x : Nat) : Prop :=
     g (x + 1)
-    greatest_fixpoint
+    coinductive_fixpoint
 
   def g (x : Nat) : Prop :=
     f (x + 1)

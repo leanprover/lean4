@@ -3,10 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Combinators.Monadic.Drop
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Combinators.Monadic.Drop
+
+@[expose] public section
+
+namespace Std
+open Std.Iterators.Types
 
 /--
 Given an iterator `it` and a natural number `n`, `it.drop n` is an iterator that forwards all of
@@ -37,4 +42,4 @@ def Iter.drop {α : Type w} {β : Type w} (n : Nat) (it : Iter (α := α) β) :
     Iter (α := Drop α Id β) β :=
   it.toIterM.drop n |>.toIter
 
-end Std.Iterators
+end Std

@@ -52,8 +52,8 @@ Example resolution order failure
 -/
 
 /--
-warning: failed to compute strict resolution order:
-- parent 'B' must come after parent 'D'
+warning: Failed to compute strict resolution order:
+- parent `B` must come after parent `D`
 ---
 trace: [Elab.structure.resolutionOrder] computed resolution order: [D', B, D, C, A]
 -/

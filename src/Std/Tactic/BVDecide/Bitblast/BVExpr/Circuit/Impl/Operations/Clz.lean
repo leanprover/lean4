@@ -3,9 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-import Std.Sat.AIG.If
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+public import Std.Sat.AIG.If
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.clz`.

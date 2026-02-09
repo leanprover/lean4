@@ -6,9 +6,11 @@ Authors: Joe Hendrix
 module
 
 prelude
+public import Init.Grind.Tactics
 import Init.Data.Bool
-import Init.Data.Nat.Basic
 import Init.Data.Nat.Lemmas
+
+public section
 
 /-!
 This contains lemmas used by the Nat simprocs for simplifying arithmetic

@@ -6,8 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.GetElem
+import Init.ByCases
+import Init.Data.Bool
 import Init.Data.List.Count
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.MinMax
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -45,7 +54,7 @@ theorem countP_replace [BEq α] [LawfulBEq α] {a b : α} {l : List α} {p : α 
     simp [replace_cons]
     split <;> rename_i h
     · simp at h
-      simp [h, ih, countP_cons]
+      simp [h, countP_cons]
       omega
     · simp only [beq_eq_false_iff_ne, ne_eq] at h
       simp only [countP_cons, ih, contains_eq_mem, decide_eq_true_eq, mem_cons, h, false_or]
@@ -75,12 +84,12 @@ theorem count_replace [BEq α] [LawfulBEq α] {a b c : α} {l : List α} :
       · have := List.count_pos_iff.mpr (h' ▸ h)
         omega
       · rfl
-    · simp [h']
+    · simp
   · rw [count_cons]
     split <;> rename_i h'
     · simp only [beq_iff_eq] at h'
       rw [count_eq_zero.mpr (h' ▸ h)]
-      simp [h']
+      simp
     · simp
 
 /--

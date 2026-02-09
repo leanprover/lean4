@@ -3,11 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Hashable
+public import Init.Data.Hashable
+public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+public import Init.Data.RArray
+public import Init.Data.ToString.Macro
 import Init.Data.BitVec.Lemmas
-import Init.Data.RArray
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
@@ -434,7 +440,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
   rw [eval]
   split
-  · next h =>
+  next h =>
     subst h
     simp
   · rfl

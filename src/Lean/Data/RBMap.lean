@@ -3,9 +3,15 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Ord
-import Init.Data.Nat.Linear
+public import Init.Data.Ord.Basic
+public import Init.Data.Nat.Linear
+public import Init.Data.Array.Basic
+import Init.WFTactics
+
+public section
 
 namespace Lean
 universe u v w w'
@@ -227,7 +233,7 @@ inductive WellFormed (cmp : α → α → Ordering) : RBNode α β → Prop wher
 
 section Map
 
-@[specialize] def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
+@[specialize] def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type w} [Applicative M]
   (f : (a : α) → β a → M (γ a))
   : RBNode α β → M (RBNode α γ)
   | leaf => pure leaf
@@ -253,7 +259,7 @@ open Lean.RBNode
 
 /- TODO(Leo): define dRBMap -/
 
-def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+@[expose] def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
   {t : RBNode α (fun _ => β) // t.WellFormed cmp }
 
 @[inline] def mkRBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : RBMap α β cmp :=
@@ -291,7 +297,7 @@ def isSingleton (t : RBMap α β cmp) : Bool :=
 @[inline] protected def forIn [Monad m] (t : RBMap α β cmp) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a b acc => f (a, b) acc)
 
-instance : ForIn m (RBMap α β cmp) (α × β) where
+instance [Monad m] : ForIn m (RBMap α β cmp) (α × β) where
   forIn := RBMap.forIn
 
 @[inline] def isEmpty : RBMap α β cmp → Bool

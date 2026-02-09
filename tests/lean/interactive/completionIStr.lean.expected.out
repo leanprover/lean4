@@ -1,28 +1,28 @@
 {"textDocument": {"uri": "file:///completionIStr.lean"},
  "position": {"line": 5, "character": 34}}
 {"items":
- [{"label": "f2",
+ [{"label": "f1",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f2"}},
-    "cPos": 1}},
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f1"]},
   {"label": "b1",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.b1"}},
-    "cPos": 1}},
-  {"label": "f1",
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.b1"]},
+  {"label": "f2",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionIStr.lean"},
-     "position": {"line": 5, "character": 34}},
-    "id": {"const": {"declName": "C.f1"}},
-    "cPos": 1}}],
+   "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f2"]}],
  "isIncomplete": false}
+Resolution of f1:
+{"label": "f1",
+ "kind": 5,
+ "detail": "C → Nat",
+ "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f1"]}
+Resolution of b1:
+{"label": "b1",
+ "kind": 5,
+ "detail": "C → String",
+ "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.b1"]}
+Resolution of f2:
+{"label": "f2",
+ "kind": 5,
+ "detail": "C → Bool",
+ "data": ["file:///completionIStr.lean", 5, 34, 1, "cC.f2"]}

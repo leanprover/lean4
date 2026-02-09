@@ -3,9 +3,14 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.DocString
+public import Lean.DocString
+public meta import Init.Data.String.Extra
+public meta import Init.Data.ToString.Name
+
+public section
 
 /-!
 # "Label" attributes

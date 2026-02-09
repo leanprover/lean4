@@ -1,3 +1,4 @@
+module
 import Std.Data.HashMap
 reset_grind_attrs%
 

@@ -3,9 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Init.Data.UInt.Lemmas
+
+public section
 
 open Lean Meta Simp
 

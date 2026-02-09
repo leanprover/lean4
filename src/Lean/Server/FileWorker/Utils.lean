@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Language.Lean.Types
-import Lean.Server.Utils
-import Lean.Server.Snapshots
-import Lean.Server.AsyncList
-import Lean.Server.Rpc.Basic
+public import Lean.Language.Lean.Types
+public import Lean.Server.Snapshots
+public import Lean.Server.AsyncList
+
+public section
 
 namespace Lean.Server.FileWorker
 open Snapshots
@@ -47,7 +49,7 @@ structure EditableDocumentCore where
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList IO.Error Snapshot := mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
   /--
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.

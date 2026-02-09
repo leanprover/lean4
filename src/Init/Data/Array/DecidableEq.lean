@@ -7,9 +7,16 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.BEq
-import Init.Data.List.Nat.BEq
+public import Init.Data.Array.Basic
+public import Init.Data.Nat.Lemmas
 import Init.ByCases
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
+import Init.Data.List.Nat.BEq
+import Init.RCases
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -23,7 +30,7 @@ private theorem rel_of_isEqvAux
   induction i with
   | zero => contradiction
   | succ i ih =>
-    simp only [Array.isEqvAux, Bool.and_eq_true, decide_eq_true_eq] at heqv
+    simp only [Array.isEqvAux, Bool.and_eq_true] at heqv
     by_cases hj' : j < i
     next =>
       exact ih _ heqv.right hj'
@@ -88,11 +95,57 @@ theorem isEqv_self_beq [BEq α] [ReflBEq α] (xs : Array α) : Array.isEqv xs xs
 theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·) = true := by
   simp [isEqv, isEqvAux_self]
 
-instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun xs ys =>
-    match h:isEqv xs ys (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv xs ys h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+def instDecidableEqImpl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+  match h:isEqv xs ys (fun a b => a = b) with
+  | true  => isTrue (eq_of_isEqv xs ys h)
+  | false => isFalse (by subst ·; rw [isEqv_self] at h; contradiction)
+
+instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
+  match xs with
+  | ⟨[]⟩ =>
+    match ys with
+    | ⟨[]⟩ => isTrue rfl
+    | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
+  | ⟨a :: as⟩ =>
+    match ys with
+    | ⟨[]⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
+    | ⟨b :: bs⟩ => instDecidableEqImpl ⟨a :: as⟩ ⟨b :: bs⟩
+
+@[csimp]
+theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEqImpl :=
+  Subsingleton.allEq _ _
+
+/--
+Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
+-/
+instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
+  match xs with
+  | ⟨[]⟩ => isTrue rfl
+  | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
+
+/--
+Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
+-/
+instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
+  match ys with
+  | ⟨[]⟩ => isTrue rfl
+  | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
+
+@[inline]
+def instDecidableEqEmpImpl (xs : Array α) : Decidable (xs = #[]) :=
+  decidable_of_iff xs.isEmpty <| by rcases xs with ⟨⟨⟩⟩ <;> simp [Array.isEmpty]
+
+@[inline]
+def instDecidableEmpEqImpl (xs : Array α) : Decidable (#[] = xs) :=
+  decidable_of_iff xs.isEmpty <| by rcases xs with ⟨⟨⟩⟩ <;> simp [Array.isEmpty]
+
+@[csimp]
+theorem instDecidableEqEmp_csimp : @instDecidableEqEmp = @instDecidableEqEmpImpl :=
+  Subsingleton.allEq _ _
+
+@[csimp]
+theorem instDecidableEmpEq_csimp : @instDecidableEmpEq = @instDecidableEmpEqImpl :=
+  Subsingleton.allEq _ _
 
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :
     (xs == ys) = if h : xs.size = ys.size then

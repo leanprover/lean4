@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Slice.Basic
+
+public section
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 set_option linter.missingDocs true
@@ -14,14 +17,9 @@ set_option linter.missingDocs true
 universe u v w
 
 /--
-A region of some underlying array.
-
-A subarray contains an array together with the start and end indices of a region of interest.
-Subarrays can be used to avoid copying or allocating space, while being more convenient than
-tracking the bounds by hand. The region of interest consists of every index that is both greater
-than or equal to `start` and strictly less than `stop`.
+Internal representation of `Subarray`, which is an abbreviation for `Slice SubarrayData`.
 -/
-structure Subarray (α : Type u) where
+structure Std.Slice.Internal.SubarrayData (α : Type u) where
   /-- The underlying array. -/
   array : Array α
   /-- The starting index of the region of interest (inclusive). -/
@@ -42,6 +40,40 @@ structure Subarray (α : Type u) where
   -/
   stop_le_array_size : stop ≤ array.size
 
+open Std.Slice
+
+/--
+A region of some underlying array.
+
+A subarray contains an array together with the start and end indices of a region of interest.
+Subarrays can be used to avoid copying or allocating space, while being more convenient than
+tracking the bounds by hand. The region of interest consists of every index that is both greater
+than or equal to `start` and strictly less than `stop`.
+-/
+abbrev Subarray (α : Type u) := Std.Slice (Internal.SubarrayData α)
+
+instance {α : Type u} : Self (Std.Slice (Internal.SubarrayData α)) (Subarray α) where
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.array]
+def Subarray.array (xs : Subarray α) : Array α :=
+  xs.internalRepresentation.array
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start]
+def Subarray.start (xs : Subarray α) : Nat :=
+  xs.internalRepresentation.start
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop]
+def Subarray.stop (xs : Subarray α) : Nat :=
+  xs.internalRepresentation.stop
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
+def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
+  xs.internalRepresentation.start_le_stop
+
+@[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
+def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
+  xs.internalRepresentation.stop_le_array_size
+
 namespace Subarray
 
 /--
@@ -51,8 +83,8 @@ def size (s : Subarray α) : Nat :=
   s.stop - s.start
 
 theorem size_le_array_size {s : Subarray α} : s.size ≤ s.array.size := by
-  let {array, start, stop, start_le_stop, stop_le_array_size} := s
-  simp [size]
+  let ⟨{array, start, stop, start_le_stop, stop_le_array_size}⟩ := s
+  simp only [size, ge_iff_le]
   apply Nat.le_trans (Nat.sub_le stop start)
   assumption
 
@@ -65,7 +97,7 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
   have : s.start + i.val < s.array.size := by
    apply Nat.lt_of_lt_of_le _ s.stop_le_array_size
    have := i.isLt
-   simp [size] at this
+   simp only [size] at this
    rw [Nat.add_comm]
    exact Nat.add_lt_of_lt_sub this
   s.array[s.start + i.val]
@@ -102,7 +134,9 @@ Examples:
 -/
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then
-    { s with start := s.start + 1, start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
+    ⟨{ s.internalRepresentation with
+        start := s.start + 1,
+        start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }⟩
   else
     s
 
@@ -111,12 +145,13 @@ The empty subarray.
 
 This empty subarray is backed by an empty array.
 -/
-protected def empty : Subarray α where
-  array := #[]
-  start := 0
-  stop := 0
-  start_le_stop := Nat.le_refl 0
-  stop_le_array_size := Nat.le_refl 0
+protected def empty : Subarray α := ⟨{
+    array := #[]
+    start := 0
+    stop := 0
+    start_le_stop := Nat.le_refl 0
+    stop_le_array_size := Nat.le_refl 0
+  }⟩
 
 instance : EmptyCollection (Subarray α) :=
   ⟨Subarray.empty⟩
@@ -124,64 +159,10 @@ instance : EmptyCollection (Subarray α) :=
 instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
-/--
-The run-time implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for`
-loops in `do`-notation.
-
-This definition replaces `Subarray.forIn`.
+/-!
+`ForIn`, `foldlM`, `foldl` and other operations are implemented in `Init.Data.Slice.Array.Iterator`
+using the slice iterator.
 -/
-@[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat s.stop
-  let rec @[specialize] loop (i : USize) (b : β) : m β := do
-    if i < sz then
-      let a := s.array.uget i lcProof
-      match (← f a b) with
-      | ForInStep.done  b => pure b
-      | ForInStep.yield b => loop (i+1) b
-    else
-      pure b
-  loop (USize.ofNat s.start) b
-
-/--
-The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
-`do`-notation.
--/
--- TODO: provide reference implementation
-@[implemented_by Subarray.forInUnsafe]
-protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  pure b
-
-instance : ForIn m (Subarray α) α where
-  forIn := Subarray.forIn
-
-/--
-Folds a monadic operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and monadically combining each
-element of the subarray with the current accumulator value in turn. The monad in question may permit
-early termination or repetition.
-
-Examples:
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
-  let l ← Option.guard (· ≠ 0) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-some "(3)red (5)green (4)blue "
-```
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
-  let l ← Option.guard (· ≠ 5) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-none
-```
--/
-@[inline]
-def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 /--
 Folds a monadic operation from right to left over the elements in a subarray.
@@ -279,28 +260,14 @@ def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit)
   as.array.forRevM f (start := as.stop) (stop := as.start)
 
 /--
-Folds an operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and combining each
-element of the subarray with the current accumulator value in turn.
-
-Examples:
- * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
--/
-@[inline]
-def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldlM (pure <| f · ·) (init := init)
-
-/--
 Folds an operation from right to left over the elements in a subarray.
 
 An accumulator of type `β` is constructed by starting with `init` and combining each element of the
 subarray with the current accumulator value in turn, moving from the end to the start.
 
 Examples:
- * `#eval #["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldlr (·.length + ·) 0 = 9`
+ * `#["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
+ * `#["red", "green", "blue"].toSubarray.popFront.foldr (·.length + ·) 0 = 9`
 -/
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=
@@ -312,7 +279,7 @@ Checks whether any of the elements in a subarray satisfy a Boolean predicate.
 The elements are tested starting at the lowest index and moving up. The search terminates as soon as
 an element that satisfies the predicate is found.
 -/
-@[inline]
+@[inline, suggest_for Subarray.some]
 def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
   Id.run <| as.anyM (pure <| p ·)
 
@@ -322,7 +289,7 @@ Checks whether all of the elements in a subarray satisfy a Boolean predicate.
 The elements are tested starting at the lowest index and moving up. The search terminates as soon as
 an element that does not satisfy the predicate is found.
 -/
-@[inline]
+@[inline, suggest_for Subarray.every]
 def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
   Id.run <| as.allM (pure <| p ·)
 
@@ -410,36 +377,24 @@ Additionally, the starting index is clamped to the ending index.
 def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Subarray α :=
   if h₂ : stop ≤ as.size then
     if h₁ : start ≤ stop then
-      { array := as, start := start, stop := stop,
-        start_le_stop := h₁, stop_le_array_size := h₂ }
+      ⟨{ array := as, start := start, stop := stop,
+         start_le_stop := h₁, stop_le_array_size := h₂ }⟩
     else
-      { array := as, start := stop, stop := stop,
-        start_le_stop := Nat.le_refl _, stop_le_array_size := h₂ }
+      ⟨{ array := as, start := stop, stop := stop,
+         start_le_stop := Nat.le_refl _, stop_le_array_size := h₂ }⟩
   else
     if h₁ : start ≤ as.size then
-      { array := as,
-        start := start,
-        stop := as.size,
-        start_le_stop := h₁,
-        stop_le_array_size := Nat.le_refl _ }
+      ⟨{ array := as,
+         start := start,
+         stop := as.size,
+         start_le_stop := h₁,
+         stop_le_array_size := Nat.le_refl _ }⟩
     else
-      { array := as,
-        start := as.size,
-        stop := as.size,
-        start_le_stop := Nat.le_refl _,
-        stop_le_array_size := Nat.le_refl _ }
-
-/--
-Allocates a new array that contains the contents of the subarray.
--/
-@[coe]
-def ofSubarray (s : Subarray α) : Array α := Id.run do
-  let mut as := mkEmpty (s.stop - s.start)
-  for a in s do
-    as := as.push a
-  return as
-
-instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
+      ⟨{ array := as,
+         start := as.size,
+         stop := as.size,
+         start_le_stop := Nat.le_refl _,
+         stop_le_array_size := Nat.le_refl _ }⟩
 
 /-- A subarray with the provided bounds.-/
 syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term
@@ -454,22 +409,3 @@ macro_rules
   | `($a[$start : ])      => `(let a := $a; Array.toSubarray a $start a.size)
 
 end Array
-
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s
-
-instance : Append (Subarray α) where
-  append x y :=
-   let a := x.toArray ++ y.toArray
-   a.toSubarray 0 a.size
-
-/-- `Subarray` representation. -/
-protected def Subarray.repr [Repr α] (s : Subarray α) : Std.Format :=
-  repr s.toArray ++ ".toSubarray"
-
-instance [Repr α] : Repr (Subarray α) where
-  reprPrec s  _ := Subarray.repr s
-
-instance [ToString α] : ToString (Subarray α) where
-  toString s := toString s.toArray

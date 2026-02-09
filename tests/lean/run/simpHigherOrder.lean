@@ -33,9 +33,15 @@ l : List Nat
 ⊢ List.foldr (fun x a => a + x * x) 0 l = (List.map (fun x => x * x) l).sum
 -/
 #guard_msgs in
+set_option linter.unusedSimpArgs false in
 example (l : List Nat) :
   l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
-  simp [foldr_to_sum]
+  simp (failIfUnchanged := false) [foldr_to_sum]
+
+example (l : List Nat) :
+  l.foldr (fun x a => a + x*x) 0 = List.sum (l.map (fun x => x * x)) := by
+  simp [List.sum, List.foldr_map, Nat.add_comm]
+
 
 -- but with stronger simp normal forms, it would work:
 
@@ -61,5 +67,5 @@ theorem zipWith_ignores_right
     · simp [List.zipWith, h, ih]
 
 example (l₁ l₂ : List Nat) (hlen: l₁.length = l₂.length):
-  List.zipWith (fun x y => x*x) l₁ l₂ = l₁.map (fun x => x * x) := by
+  List.zipWith (fun x _ => x*x) l₁ l₂ = l₁.map (fun x => x * x) := by
   simp only [zipWith_ignores_right, hlen.symm, List.take_length]

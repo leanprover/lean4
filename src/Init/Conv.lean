@@ -8,8 +8,10 @@ Notation for operators defined at Prelude.lean
 module
 
 prelude
-import Init.Tactics
-meta import Init.Meta
+public import Init.Tactics
+public meta import Init.Meta
+
+public section
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -48,6 +50,10 @@ scoped syntax (name := withAnnotateState)
 
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
+
+/-- `cbv` performs simplification that closely mimics call-by-value evaluation,
+using equations associated with definitions and the matchers. -/
+syntax (name := cbv) "cbv" : conv
 
 /--
 Traverses into the left subterm of a binary operator.
@@ -185,6 +191,9 @@ match [a, b] with
 simplifies to `a`. -/
 syntax (name := simpMatch) "simp_match" : conv
 
+/-- Removes one or more hypotheses from the local context. -/
+syntax (name := clear) "clear" (ppSpace colGt term:max)+ : conv
+
 /-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 
@@ -260,7 +269,7 @@ resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
-macro dot:patternIgnore("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s) })
+macro dot:patternIgnore("· " <|> ". ") s:convSeq : conv => `(conv| {%$dot ($s) })
 
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
@@ -285,13 +294,17 @@ macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(ppSpace colGt binderIdent)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := binderIdent <|> argArg
+syntax enterPattern := "in " (occs)? term
+
+syntax enterArg := binderIdent <|> argArg <|> enterPattern
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
 * `enter [i]` is equivalent to `arg i`.
 * `enter [@i]` is equivalent to `arg @i`.
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
+* `enter [in e]` (where `e` is a term) is equivalent to `pattern e`.
+  Occurrences can be specified with `enter [in (occs := ...) e]`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
 syntax (name := enter) "enter" " [" withoutPosition(enterArg,+) "]" : conv
@@ -321,7 +334,7 @@ macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
 
 /--
-Extracts `let` and `let_fun` expressions from within the target expression.
+Extracts `let` and `have` expressions from within the target expression.
 This is the conv mode version of the `extract_lets` tactic.
 
 - `extract_lets` extracts all the lets from the target.
@@ -334,10 +347,16 @@ See also `lift_lets`, which does not extract lets as local declarations.
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* : conv
 
 /--
-Lifts `let` and `let_fun` expressions within the target expression as far out as possible.
+Lifts `let` and `have` expressions within the target expression as far out as possible.
 This is the conv mode version of the `lift_lets` tactic.
 -/
 syntax (name := liftLets) "lift_lets " optConfig : conv
+
+/--
+Transforms `let` expressions into `have` expressions within the target expression when possible.
+This is the conv mode version of the `let_to_have` tactic.
+-/
+syntax (name := letToHave) "let_to_have" : conv
 
 /--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,

@@ -3,14 +3,35 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Grind.Types
-
+import Init.Grind.Util
+public section
 namespace Lean.Meta.Grind
 
 private def isEqProof (h : Expr) : MetaM Bool := do
   return (← whnfD (← inferType h)).isAppOf ``Eq
+
+/--
+Given two applications `a` and `b`, finds the common prefix.
+Returns `some (f, n)` if `a` and `b` are of the form
+- `f a_1 ... a_n`
+- `f b_1 ... b_n`
+
+and `none` otherwise.
+-/
+private partial def findCommonPrefix (a b : Expr) : Option (Expr × Nat) :=
+  if isSameExpr a b then
+    some (a, 0)
+  else if a.isApp && b.isApp then
+    if let some (f, n) := findCommonPrefix a.appFn! b.appFn! then
+      some (f, n+1)
+    else
+      none
+  else
+    none
 
 private def flipProof (h : Expr) (flipped : Bool) (heq : Bool) : MetaM Expr := do
   let mut h' := h
@@ -35,7 +56,7 @@ private def mkTrans' (h₁ : Option Expr) (h₂ : Expr) (heq : Bool) : MetaM Exp
   mkTrans h₁ h₂ heq
 
 /--
-Given `h : HEq a b`, returns a proof `a = b` if `heq == false`.
+Given `h : a ≍ b`, returns a proof `a = b` if `heq == false`.
 Otherwise, it returns `h`.
 -/
 private def mkEqOfHEqIfNeeded (h : Expr) (heq : Bool) : MetaM Expr := do
@@ -49,7 +70,7 @@ Recall that this expression must exist since it is the root itself in the
 worst case.
 -/
 private def findCommon (lhs rhs : Expr) : GoalM Expr := do
-  let mut visited : RBMap Nat Expr compare := {}
+  let mut visited : Std.TreeMap Nat Expr := {}
   let mut it := lhs
   -- Mark elements found following the path from `lhs` to the root.
   repeat
@@ -61,7 +82,7 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
   it := rhs
   repeat
     let n ← getENode it
-    if let some common := visited.find? n.idx then
+    if let some common := visited.get? n.idx then
       return common
     let some target := n.target? | unreachable! --
     it := target
@@ -94,7 +115,7 @@ private partial def isCongrDefaultProofTarget (lhs rhs : Expr) (f g : Expr) (num
 mutual
   /--
   Given `lhs` and `rhs` proof terms of the form `nestedProof p hp` and `nestedProof q hq`,
-  constructs a congruence proof for `HEq (nestedProof p hp) (nestedProof q hq)`.
+  constructs a congruence proof for `nestedProof p hp ≍ nestedProof q hq`.
   `p` and `q` are in the same equivalence class.
   -/
   private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
@@ -104,6 +125,39 @@ mutual
     let hq := rhs.appArg!
     let h  := mkApp5 (mkConst ``Lean.Grind.nestedProof_congr) p q (← mkEqProofCore p q false) hp hq
     mkEqOfHEqIfNeeded h heq
+
+  /--
+  Given `lhs` and `rhs` proof terms of the form `nestedDecidable p hp` and `nestedDecidable q hq`,
+  constructs a congruence proof for `nestedDecidable p hp ≍ nestedDecidable q hq`.
+  `p` and `q` are in the same equivalence class.
+  -/
+  private partial def mkNestedDecidableCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let p  := lhs.appFn!.appArg!
+    let hp := lhs.appArg!
+    let q  := rhs.appFn!.appArg!
+    let hq := rhs.appArg!
+    let h  := mkApp5 (mkConst ``Lean.Grind.nestedDecidable_congr) p q (← mkEqProofCore p q false) hp hq
+    mkEqOfHEqIfNeeded h heq
+
+  partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
+    else
+      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+
+  partial def mkEqCongrSymmProof (lhs rhs : Expr) : GoalM Expr := withIncRecDepth do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
+    else
+      return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
 
   /--
   Constructs a congruence proof for `lhs` and `rhs` using `congr`, `congrFun`, and `congrArg`.
@@ -128,50 +182,67 @@ mutual
     let r := (← loop lhs rhs).get!
     if heq then mkHEqOfEq r else return r
 
-  private partial def mkHCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    let f := lhs.getAppFn
-    let g := rhs.getAppFn
-    let numArgs := lhs.getAppNumArgs
-    assert! rhs.getAppNumArgs == numArgs
+  private partial def mkHCongrProofHelper (thm : CongrTheorem) (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
+    if i > 0 then
+      let i := i - 1
+      let proof ← mkHCongrProofHelper thm lhs.appFn! rhs.appFn! i
+      let a₁  := lhs.appArg!
+      let a₂  := rhs.appArg!
+      let k   := thm.argKinds[i]!
+      return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
+    else
+      return thm.proof
+
+  private partial def mkHCongrProof' (f g : Expr) (numArgs : Nat) (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let thm ← mkHCongrWithArity f numArgs
     assert! thm.argKinds.size == numArgs
-    let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
-      let i := i - 1
-      if lhs.isApp then
-        let proof ← loop lhs.appFn! rhs.appFn! i
-        let a₁  := lhs.appArg!
-        let a₂  := rhs.appArg!
-        let k   := thm.argKinds[i]!
-        return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
-      else
-        return thm.proof
-    let proof ← loop lhs rhs numArgs
+    let proof ← mkHCongrProofHelper thm lhs rhs numArgs
     if isSameExpr f g then
       mkEqOfHEqIfNeeded proof heq
     else
       /-
       `lhs` is of the form `f a_1 ... a_n`
       `rhs` is of the form `g b_1 ... b_n`
-      `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
-      We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
+      `proof : f a_1 ... a_n ≍ f b_1 ... b_n`
+      We construct a proof for `f a_1 ... a_n ≍ g b_1 ... b_n` using `Eq.ndrec`
       -/
       let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
-        mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
+        mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x (rhs.getAppArgsN numArgs)))
       let fEq ← mkEqProofCore f g false
       let proof ← mkEqNDRec motive proof fEq
       mkEqOfHEqIfNeeded proof heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
-    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
-    let us := f.constLevels!
-    if !isSameExpr α₁ α₂ then
-      mkHCongrProof lhs rhs heq
-    else if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
-      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+  private partial def mkHCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let f := lhs.getAppFn
+    let g := rhs.getAppFn
+    let numArgs := lhs.getAppNumArgs
+    assert! rhs.getAppNumArgs == numArgs
+    let fInfo ← getFunInfo f
+    if fInfo.getArity < numArgs then
+      -- Function is over-applied. We try to find a common prefix between `lhs` and `rhs`
+      -- and compute the congruence theorem from there.
+      let throwUnsupported {α} : GoalM α :=
+        throwError "`grind` currently cannot build congruence proofs for over-applied terms such as{indentExpr lhs}\nand{indentExpr rhs}"
+      let some (f, numArgs) := findCommonPrefix lhs rhs
+        | throwUnsupported
+      let thm ← try mkHCongrWithArity f numArgs catch _ => throwUnsupported
+      let proof ← mkHCongrProofHelper thm lhs rhs numArgs
+      mkEqOfHEqIfNeeded proof heq
     else
-      assert! (← get).hasSameRoot a₁ b₂ && (← get).hasSameRoot b₁ a₂
-      return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
+      mkHCongrProof' f g numArgs lhs rhs heq
+
+  private partial def mkCongrProofFunCC (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let rec go (e₁ e₂ : Expr) (numArgs : Nat) : GoalM Expr := do
+      let .app f _ := e₁ | unreachable!
+      let .app g _ := e₂ | unreachable!
+      let numArgs := numArgs + 1
+      if isSameExpr f g then
+        mkHCongrProof' f g numArgs lhs rhs heq
+      else if (← hasSameType f g) then
+        mkHCongrProof' f g numArgs lhs rhs heq
+      else
+        go f g numArgs
+    go lhs rhs 0
 
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
@@ -180,23 +251,31 @@ mutual
       let u ← withDefault <| getLevel p₁
       let v ← withDefault <| getLevel q₁
       return mkApp6 (mkConst ``implies_congr [u, v]) p₁ p₂ q₁ q₂ (← mkEqProofCore p₁ p₂ false) (← mkEqProofCore q₁ q₂ false)
+    else if (← useFunCC lhs) then
+      mkCongrProofFunCC lhs rhs heq
     else
       let f := lhs.getAppFn
       let g := rhs.getAppFn
       let numArgs := lhs.getAppNumArgs
       assert! rhs.getAppNumArgs == numArgs
-      if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
+      if numArgs == 2 && f.isConstOf ``Grind.nestedProof && g.isConstOf ``Grind.nestedProof then
         mkNestedProofCongr lhs rhs heq
-      else if f.isConstOf ``Eq && g.isConstOf ``Eq && numArgs == 3 then
-        mkEqCongrProof lhs rhs heq
+      else if numArgs == 2 && f.isConstOf ``Grind.nestedDecidable && g.isConstOf ``Grind.nestedDecidable then
+        mkNestedDecidableCongr lhs rhs heq
+      else if numArgs == 3 && f.isConstOf ``Eq && g.isConstOf ``Eq then
+        let r ← mkEqCongrProof lhs rhs
+        if heq then mkHEqOfEq r else return r
       else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
         mkCongrDefaultProof lhs rhs heq
       else
         mkHCongrProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
-    let h ← if h == congrPlaceholderProof then
+    if h == congrPlaceholderProof then
       mkCongrProof lhs rhs heq
+    else if h == eqCongrSymmPlaceholderProof then
+      let r ← mkEqCongrSymmProof lhs rhs
+      if heq then mkHEqOfEq r else return r
     else
       flipProof h flipped heq
 
@@ -226,7 +305,7 @@ mutual
     mkTrans' h' h heq
 
   /--
-  Returns a proof of `lhs = rhs` (`HEq lhs rhs`) if `heq = false` (`heq = true`).
+  Returns a proof of `lhs = rhs` (`lhs ≍ rhs`) if `heq = false` (`heq = true`).
   If `heq = false`, this function assumes that `lhs` and `rhs` have the same type.
   -/
   private partial def mkEqProofCore (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do

@@ -6,10 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Meta
+public import Init.Control.Basic
+public import Init.Grind.Tactics
+public meta import Init.Grind.Tactics
 import Init.Omega
+import Init.WFTactics
 
-namespace Std
+public section
+
+namespace Std.Legacy
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
 -- We don't put `Range` in the top-level namespace to avoid collisions with user defined types
 structure Range where
@@ -42,7 +47,7 @@ universe u v
   have := range.step_pos
   loop init range.start (by simp)
 
-instance : ForIn' m Range Nat inferInstance where
+instance [Monad m] : ForIn' m Range Nat inferInstance where
   forIn' := Range.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -58,7 +63,7 @@ instance : ForIn' m Range Nat inferInstance where
   have := range.step_pos
   loop range.start
 
-instance : ForM m Range Nat where
+instance [Monad m] : ForM m Range Nat where
   forM := Range.forM
 
 syntax:max "[" withoutPosition(":" term) "]" : term
@@ -73,15 +78,15 @@ macro_rules
   | `([ : $stop : $step ]) => `({ stop := $stop, step := $step, step_pos := by decide : Range })
 
 end Range
-end Std
+end Std.Legacy
 
-theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := h.2.1
+theorem Membership.mem.upper {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : i < r.stop := h.2.1
 
-theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := h.1
+theorem Membership.mem.lower {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : r.start ≤ i := h.1
 
-theorem Membership.mem.step {i : Nat} {r : Std.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
+theorem Membership.mem.step {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
 
-theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
+theorem Membership.get_elem_helper {i n : Nat} {r : Std.Legacy.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
     i < n := h₂ ▸ h₁.2.1
 
 macro_rules

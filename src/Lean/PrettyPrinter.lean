@@ -3,27 +3,19 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
+public import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator
-import Lean.PrettyPrinter.Parenthesizer
-import Lean.PrettyPrinter.Formatter
-import Lean.Parser.Module
-import Lean.ParserCompiler
-import Lean.Util.NumObjs
-import Lean.Util.ShareCommon
-namespace Lean
+public import Lean.Parser.Module
+public import Lean.ParserCompiler
+public import Lean.Util.NumObjs
+public import Lean.Util.ShareCommon
 
-def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
-  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
-                        openDecls := ppCtx.openDecls
-                        fileName := "<PrettyPrinter>", fileMap := default
-                        diag     := getDiag ppCtx.opts }
-                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
+public section
 
-def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
-
-namespace PrettyPrinter
+namespace Lean.PrettyPrinter
 
 def ppCategory (cat : Name) (stx : Syntax) : CoreM Format := do
   let opts ← getOptions
@@ -39,7 +31,6 @@ def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
 
 register_builtin_option pp.exprSizes : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) prefix each embedded expression with its sizes in the format \
     (size disregarding sharing/size with sharing/size with max sharing)"
 }
@@ -74,7 +65,6 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
 
-@[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
     { fileName := "<PrettyPrinter>", fileMap := default }
@@ -146,22 +136,6 @@ def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
     match (← ctx.runMetaM fmt |>.toBaseIO) with
     | .ok fmt => return .ofFormatWithInfos fmt
     | .error ex => return m!"[Error pretty printing: {ex}]"
-
-/--
-Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
-The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
-comprise the expressions that are included in the message data.
--/
-def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
-  .lazy
-    (f := fun ppctxt => do
-      match (← ppctxt.runMetaM f |>.toBaseIO) with
-      | .ok fmt => return fmt
-      | .error ex => return m!"[Error pretty printing: {ex}]"
-      )
-    (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
-        instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
-    ))
 
 /--
 Pretty print a const expression using `delabConst` and generate terminfo.

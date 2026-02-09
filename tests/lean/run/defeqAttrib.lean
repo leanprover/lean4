@@ -22,7 +22,7 @@ theorem a_eq_c'' : a = c := Eq.refl _
 @[defeq] theorem a_eq_c''' : ac := by with_unfolding_all rfl
 @[defeq] theorem a_eq_d : a = d := by simp [d]
 
-/-- error: Not a definitional equality: the conclusion should be an equality, but is True -/
+/-- error: Not a definitional equality: the conclusion should be an equality, but is `True` -/
 #guard_msgs in
 @[defeq] def not_an_eq : True := trivial
 
@@ -45,21 +45,21 @@ theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
 
 /-! Does dsimp use it? -/
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P b) : P a := by dsimp [a_eq_b]; exact h
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P b) : P a := by dsimp [Tricky.a_eq_b]; exact h
 
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c]; exact h
 
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c']; exact h
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c'']; exact h
 
 -- a_eq_c''' is correctly tagged, but not used by `a_eq_c` because simp does not look through `ac`.
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c''']; exact h
 
 #guard_msgs in example (h : P d) : P a := by dsimp [a_eq_d]; exact h
@@ -75,7 +75,7 @@ def e2 := a
 
 def e3 := a
 @[simp,defeq] theorem e3_eq_a : e2 = a := (rfl) -- defeq has to come before simp
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P a) : P e3 := by dsimp; exact h
 
 -- Tests the `defeq` attribute on a realized constant: That they are set, and that they
@@ -89,5 +89,5 @@ def f := a
 
 def Q := 1 = 1
 @[defeq, simp] theorem Q_true : Q := rfl
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example : Q := by dsimp [Q_true]

@@ -8,7 +8,11 @@ module
 prelude
 import all Init.Data.Array.Count
 import all Init.Data.Vector.Basic
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
 import Init.Data.Vector.Lemmas
+
+public section
 
 /-!
 # Lemmas about `Vector.countP` and `Vector.count`.
@@ -68,6 +72,18 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   cases xs
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Vector.countP_eq_zero_of_forall {xs : Vector α n} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Vector.not_of_countP_eq_zero_of_mem {xs : Vector α n} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Vector.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -77,21 +93,19 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   simp
 
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
-  simp only [replicate_eq_mk_replicate, countP_cast, countP_mk]
+  simp only [replicate_eq_mk_replicate, countP_mk]
   simp [Array.countP_replicate]
-
-@[deprecated countP_replicate (since := "2025-03-18")]
-abbrev countP_mkVector := @countP_replicate
 
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.boole_getElem_le_countP]
 
+@[grind =]
 theorem countP_set {p : α → Bool} {xs : Vector α n} {a : α} (h : i < n) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.countP_set, h]
+  simp [Array.countP_set]
 
 @[simp] theorem countP_true : (countP fun (_ : α) => true) = (fun (_ : Vector α n) => n) := by
   funext xs
@@ -177,12 +191,12 @@ theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count
 theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.boole_getElem_le_count, h]
+  simp [Array.boole_getElem_le_count]
 
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.count_set, h]
+  simp [Array.count_set]
 
 @[simp] theorem count_cast {xs : Vector α n} : (xs.cast h).count a = xs.count a := by
   rcases xs with ⟨xs, rfl⟩
@@ -203,7 +217,7 @@ theorem count_singleton_self {a : α} : count a #v[a] = 1 := by simp
 @[simp]
 theorem count_pos_iff {a : α} {xs : Vector α n} : 0 < count a xs ↔ a ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.count_pos_iff, beq_iff_eq, exists_eq_right]
+  simp [Array.count_pos_iff]
 
 @[simp] theorem one_le_count_iff {a : α} {xs : Vector α n} : 1 ≤ count a xs ↔ a ∈ xs :=
   count_pos_iff
@@ -222,18 +236,12 @@ theorem count_eq_size {xs : Vector α n} : count a xs = n ↔ ∀ b ∈ xs, a = 
   simp [Array.count_eq_size]
 
 @[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
-  simp only [replicate_eq_mk_replicate, count_cast, count_mk]
+  simp only [replicate_eq_mk_replicate, count_mk]
   simp
 
-@[deprecated count_replicate_self (since := "2025-03-18")]
-abbrev count_mkVector_self := @count_replicate_self
-
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
-  simp only [replicate_eq_mk_replicate, count_cast, count_mk]
+  simp only [replicate_eq_mk_replicate, count_mk]
   simp [Array.count_replicate]
-
-@[deprecated count_replicate (since := "2025-03-18")]
-abbrev count_mkVector := @count_replicate
 
 theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Vector α n} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by

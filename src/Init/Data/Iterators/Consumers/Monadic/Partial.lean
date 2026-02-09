@@ -6,14 +6,21 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Basic
 
-namespace Std.Iterators
+set_option linter.missingDocs true
+
+public section
+
+namespace Std
 
 /--
 A wrapper around an iterator that provides partial consumers. See `IterM.allowNontermination`.
 -/
 structure IterM.Partial {α : Type w} (m : Type w → Type w') (β : Type w) where
+  /--
+  The wrapped iterator, which was wrapped by `IterM.allowNontermination`.
+  -/
   it : IterM (α := α) m β
 
 /--
@@ -22,9 +29,9 @@ consumers such as `toList`. They can be used without any proof of termination su
 or `Productive`, but as they are implemented with the `partial` declaration modifier, they are
 opaque for the kernel and it is impossible to prove anything about them.
 -/
-@[always_inline, inline]
+@[always_inline, inline, deprecated "The consumers on iterators do not require proofs of termination anymore. For example, use `it.toList` instead of `it.allowNontermination.toList`." (since := "2026-01-28")]
 def IterM.allowNontermination {α : Type w} {m : Type w → Type w'} {β : Type w}
     (it : IterM (α := α) m β) : IterM.Partial (α := α) m β :=
   ⟨it⟩
 
-end Std.Iterators
+end Std

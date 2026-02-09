@@ -1,3 +1,4 @@
+module
 open Int.Linear
 
 def p : Poly := .add 1 1 <| .add 2 0 <| .num 3

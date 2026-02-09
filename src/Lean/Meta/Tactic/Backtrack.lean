@@ -3,10 +3,15 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Meta.Iterator
-import Lean.Meta.Tactic.IndependentOf
+public import Lean.Meta.Iterator
+public import Lean.Meta.Tactic.IndependentOf
+import Init.Data.Nat.Linear
+import Init.Omega
+
+public section
 
 /-!
 # `backtrack`
@@ -98,7 +103,7 @@ private def run (goals : List MVarId) (n : Nat) (curr acc : List MVarId) : MetaM
   match n with
   | 0 => do
     -- We're out of fuel.
-    throwError "backtrack exceeded the recursion limit"
+    throwError "Backtrack exceeded the recursion limit"
   | n + 1 => do
   -- First, run `cfg.proc`, to see if it wants to modify the goals.
   let procResult? ← try

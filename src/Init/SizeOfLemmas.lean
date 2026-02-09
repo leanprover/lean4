@@ -7,9 +7,12 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-import Init.Meta
 import all Init.SizeOf
+public import Init.Data.Char.Basic
 import Init.Data.Nat.Linear
+meta import Init.MetaTypes
+
+public section
 
 @[simp] protected theorem Fin.sizeOf (a : Fin n) : sizeOf a = a.val + 1 := by
   cases a; simp +arith

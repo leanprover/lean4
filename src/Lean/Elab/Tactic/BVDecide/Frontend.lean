@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-import Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
-import Lean.Elab.Tactic.BVDecide.Frontend.BVTrace
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVTrace
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+
+public section
 
 /-!
 This module provides the tactic frontends, consisting of:

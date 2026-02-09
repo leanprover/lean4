@@ -6,12 +6,20 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.Lemmas
 import all Init.Data.Array.Basic
 import all Init.Data.Array.OfFn
+public import Init.BinderPredicates
+public import Init.Data.Nat.Lemmas
+public import Init.Ext
+import Init.ByCases
+import Init.Data.Array.Count
 import Init.Data.Array.MapIdx
 import Init.Data.Array.Zip
+import Init.Data.List.Find
 import Init.Data.List.Nat.Range
+import Init.Data.List.Range
+
+public section
 
 /-!
 # Lemmas about `Array.range'`, `Array.range`, and `Array.zipIdx`
@@ -112,7 +120,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [← List.toArray_range']
-  simp only [List.find?_toArray, mem_toArray]
+  simp only [List.find?_toArray, List.mem_toArray]
   simp [List.find?_range'_eq_some]
 
 @[simp] theorem find?_range'_eq_none {s n : Nat} {p : Nat → Bool} :
@@ -219,7 +227,7 @@ theorem getElem?_zipIdx {xs : Array α} {i j} : (zipIdx xs i)[j]? = xs[j]?.map f
 
 theorem map_snd_add_zipIdx_eq_zipIdx {xs : Array α} {n k : Nat} :
     map (Prod.map id (· + n)) (zipIdx xs k) = zipIdx xs (n + k) :=
-  ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
+  ext_getElem? fun i ↦ by simp [Nat.add_comm, Nat.add_left_comm]; rfl
 
 -- Arguments are explicit for parity with `zipIdx_map_fst`.
 @[simp]

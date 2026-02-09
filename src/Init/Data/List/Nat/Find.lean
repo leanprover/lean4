@@ -6,8 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Range
+public import Init.BinderPredicates
+public import Init.NotationExtra
 import Init.Data.List.Find
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -15,6 +24,8 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 open Nat
+
+/-! ### Results about `List.sum` specialized to `Nat` -/
 
 theorem find?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {b : α} :
     xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by

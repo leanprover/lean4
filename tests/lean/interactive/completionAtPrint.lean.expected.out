@@ -3,10 +3,10 @@
 {"items":
  [{"label": "gg",
    "kind": 21,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
-     "position": {"line": 2, "character": 10}},
-    "id": {"const": {"declName": "f.gg"}},
-    "cPos": 0}}],
+   "data": ["file:///completionAtPrint.lean", 2, 10, 0, "cf.gg"]}],
  "isIncomplete": false}
+Resolution of gg:
+{"label": "gg",
+ "kind": 21,
+ "detail": "Nat",
+ "data": ["file:///completionAtPrint.lean", 2, 10, 0, "cf.gg"]}

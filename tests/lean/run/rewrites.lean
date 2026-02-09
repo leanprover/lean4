@@ -4,16 +4,18 @@ private axiom test_sorry : ∀ {α}, α
 -- set_option trace.Tactic.rewrites.lemmas true
 
 /--
-info: Try this: rw [List.map_append]
--- no goals
+info: Try this:
+  [apply] rw [List.map_append]
+  -- no goals
 -/
 #guard_msgs in
 example (f : α → β) (L M : List α) : (L ++ M).map f = L.map f ++ M.map f := by
   rw?
 
 /--
-info: Try this: rw [Nat.one_mul]
--- no goals
+info: Try this:
+  [apply] rw [Nat.one_mul]
+  -- no goals
 -/
 #guard_msgs in
 example (h : Nat) : 1 * h = h := by
@@ -26,7 +28,7 @@ example (h : Int) (hyp : g * 1 = h) : g = h := by
 
 #guard_msgs(drop info) in
 example : ∀ (x y : Nat), x ≤ y := by
-  intros x y
+  intro x y
   rw? -- Used to be an error here https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/panic.20and.20error.20with.20rw.3F/near/370495531
   exact test_sorry
 
@@ -97,8 +99,9 @@ example : zero = 0 := by
 
 -- Discharge side conditions from local hypotheses.
 /--
-info: Try this: rw [h p]
--- no goals
+info: Try this:
+  [apply] rw [h p]
+  -- no goals
 -/
 #guard_msgs in
 example {P : Prop} (p : P) (h : P → 1 = 2) : 2 = 1 := by
@@ -106,8 +109,9 @@ example {P : Prop} (p : P) (h : P → 1 = 2) : 2 = 1 := by
 
 -- Use `solve_by_elim` to discharge side conditions.
 /--
-info: Try this: rw [h (f p)]
--- no goals
+info: Try this:
+  [apply] rw [h (f p)]
+  -- no goals
 -/
 #guard_msgs in
 example {P Q : Prop} (p : P) (f : P → Q) (h : Q → 1 = 2) : 2 = 1 := by
@@ -115,8 +119,9 @@ example {P Q : Prop} (p : P) (f : P → Q) (h : Q → 1 = 2) : 2 = 1 := by
 
 -- Rewrite in reverse, discharging side conditions from local hypotheses.
 /--
-info: Try this: rw [← h₁ p]
--- Q a
+info: Try this:
+  [apply] rw [← h₁ p]
+  -- Q a
 -/
 #guard_msgs in
 example {P : Prop} (p : P) (Q : α → Prop) (a b : α) (h₁ : P → a = b) (w : Q a) : Q b := by

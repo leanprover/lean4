@@ -16,11 +16,24 @@ namespace lean {
 LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);
 LEAN_THREAD_VALUE(size_t, g_heartbeat, 0);
 
+extern "C" LEAN_EXPORT obj_res lean_internal_get_default_max_heartbeat() {
+#ifdef LEAN_DEFAULT_MAX_HEARTBEAT
+    return lean_box(LEAN_DEFAULT_MAX_HEARTBEAT);
+#else
+    return lean_box(0);
+#endif
+}
+
 void inc_heartbeat() { g_heartbeat++; }
 
 void reset_heartbeat() { g_heartbeat = 0; }
 
 void set_max_heartbeat(size_t max) { g_max_heartbeat = max; }
+
+extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
+    set_max_heartbeat(max);
+    return lean_box(0);
+}
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 
@@ -45,12 +58,12 @@ LEAN_THREAD_VALUE(lean_object *, g_cancel_tk, nullptr);
 LEAN_EXPORT scope_cancel_tk::scope_cancel_tk(lean_object * o):flet<lean_object *>(g_cancel_tk, o) {}
 
 /* CancelToken.isSet : @& IO.CancelToken → BaseIO Bool */
-extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk, lean_obj_arg);
+extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk);
 
 void check_interrupted() {
     if (g_cancel_tk) {
         inc_ref(g_cancel_tk);
-        if (get_io_scalar_result<bool>(lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world())) &&
+        if (lean_io_cancel_token_is_set(g_cancel_tk) &&
             !std::uncaught_exception()) {
             throw interrupted();
         }

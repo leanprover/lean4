@@ -1,7 +1,11 @@
+module
+
 import Lean.Elab.Command
 import Lean.Elab.Syntax
+import all Lean.Elab.Syntax
 
-open Lean.Elab.Term.toParserDescr (isValidAtom)
+abbrev isValidAtom := Lean.Elab.Term.toParserDescr.isValidAtom
+
 open Lean Elab Command
 
 /-!

@@ -15,7 +15,7 @@ not the equations machinery.
 -- check that simp rewrites even without constants
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Bool → Prop
 o : Option Nat
 ⊢ P
@@ -41,7 +41,7 @@ attribute [simp] red
 run_meta Lean.logInfo m!"{← Lean.hasConst `red.eq_1}"
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Bool → Prop
 o : Option Nat
 ⊢ P
@@ -62,7 +62,7 @@ def semired : Option α → Bool
 -- `SimpTheorems.unfoldEvenWithEqns`), in addition to applying their rewrite rules:
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Bool → Prop
 o : Option Nat
 ⊢ P
@@ -90,7 +90,7 @@ attribute [simp] semired2
 run_meta Lean.logInfo m!"{← Lean.hasConst `semired2.eq_1}"
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Bool → Prop
 o : Option Nat
 ⊢ P

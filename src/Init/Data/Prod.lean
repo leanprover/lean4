@@ -6,10 +6,13 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 namespace Prod
+
+attribute [grind =] Prod.map_fst Prod.map_snd
 
 instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where
   rfl {a} := by cases a; simp [BEq.beq]

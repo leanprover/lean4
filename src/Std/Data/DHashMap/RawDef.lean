@@ -3,8 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.DHashMap.Internal.AssocList.Basic
+public import Init.Data.Array.Basic
+
+public section
 
 /-!
 # Definition of `DHashMap.Raw`
@@ -16,9 +21,11 @@ This file defines the type `Std.Data.DHashMap.Raw`. All of its functions are def
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w w'
 
 namespace Std.DHashMap
+
+open Internal
 
 /--
 Dependent hash maps without a bundled well-formedness invariant, suitable for use in nested
@@ -30,7 +37,7 @@ The hash table is backed by an `Array`. Users should make sure that the hash map
 avoid expensive copies.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -45,5 +52,48 @@ structure Raw (α : Type u) (β : α → Type v) where
   size : Nat
   /-- Internal implementation detail of the hash map -/
   buckets : Array (DHashMap.Internal.AssocList α β)
+
+namespace Raw
+
+variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'}
+
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
+@[inline] def foldM [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
+
+/-- Folds the given function over the mappings in the hash map in some order. -/
+@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldM (pure <| f · · ·) init)
+
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+@[inline] def forM [Monad m] (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
+  b.buckets.forM (AssocList.forM f)
+
+/-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
+  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
+
+instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
+  forM m f := m.forM (fun a b => f ⟨a, b⟩)
+
+instance [Monad m] : ForIn m (Raw α β) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a.1 a.2 then return false
+  return true
+
+/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if p a.1 a.2 then return true
+  return false
+
+end Raw
 
 end Std.DHashMap

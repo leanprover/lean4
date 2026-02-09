@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SizeOf
-import Init.BinderNameHint
+public import Init.BinderNameHint
+public import Init.Grind.Tactics
 import Init.Data.Nat.Basic
+
+public section
 
 @[expose] section
 
@@ -42,8 +44,7 @@ noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
--- `def` for `WellFounded.fix`
-def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
+theorem inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
   h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
@@ -76,8 +77,8 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
--- `def` for `WellFounded.fix`
-def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+
+theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
 section
@@ -102,8 +103,22 @@ theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p :
   induction acx with
   | intro x r _ => exact rfl
 
-@[deprecated fixF_eq (since := "2025-04-04")]
-abbrev fixFEq := @fixF_eq
+/-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
+This can be used in recursive function definitions to explicitly use a different relation
+than the one inferred by default:
+
+```
+def otherWF : WellFounded Nat := …
+def foo (n : Nat) := …
+termination_by otherWF.wrap n
+```
+-/
+def wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) : {x : α // Acc r x} :=
+  ⟨_, h.apply x⟩
+
+@[simp]
+theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) :
+    (h.wrap x).val = x := (rfl)
 
 end
 
@@ -129,6 +144,7 @@ end WellFounded
 open WellFounded
 
 -- Empty relation is well-founded
+@[instance_reducible]
 def emptyWf {α : Sort u} : WellFoundedRelation α where
   rel := emptyRelation
   wf  := by
@@ -157,15 +173,13 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
+theorem accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
   Acc.recOn ac fun _ _ ih => fun _ e => Acc.intro _ (fun y lt => ih (f y) (e ▸ lt) y rfl)
 
--- `def` for `WellFounded.fix`
-def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
--- `def` for `WellFounded.fix`
-def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -198,6 +212,7 @@ theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
 namespace Nat
 
 -- less-than is well-founded
+@[instance_reducible]
 def lt_wfRel : WellFoundedRelation Nat where
   rel := (· < ·)
   wf  := by
@@ -273,6 +288,7 @@ protected inductive Lex : α × β → α × β → Prop where
   -/
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
+@[grind =]
 theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :
     Prod.Lex r s p q ↔ r p.1 q.1 ∨ p.1 = q.1 ∧ s p.2 q.2 :=
   ⟨fun h => by cases h <;> simp [*], fun h =>
@@ -341,6 +357,7 @@ theorem RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.L
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
+@[instance_reducible]
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := RProd ha.rel hb.rel
   wf  := by
@@ -433,6 +450,7 @@ section
 def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
   RevLex emptyRelation s
 
+@[instance_reducible]
 def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun _ : α => β) where
   rel := SkipLeft α hb.rel
   wf  := revLex emptyWf.wf hb.wf
@@ -442,6 +460,53 @@ theorem mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β �
 end
 
 end PSigma
+
+namespace WellFounded
+
+variable {α : Sort u}
+variable {motive : α → Sort v}
+variable (h : α → Nat)
+variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
+
+/-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evaluates to a ground term. -/
+def Nat.eager (n : Nat) : Nat :=
+  if Nat.beq n n = true then n else n
+
+theorem Nat.eager_eq (n : Nat) : Nat.eager n = n := ite_self n
+
+/--
+A well-founded fixpoint operator specialized for `Nat`-valued measures. Given a measure `h`, it expects
+its higher order function argument `F` to invoke its argument only on values `y` that are smaller
+than `x` with regard to `h`.
+
+In contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms. (More precisely:
+when `h x` evaluates to a ground value)
+
+-/
+def Nat.fix : (x : α) → motive x :=
+  let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
+    Nat.rec
+      (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
+      (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+  fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
+
+protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
+    Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by
+  induction fuel₁ generalizing x fuel₂ with
+  | zero => contradiction
+  | succ fuel₁ ih =>
+    cases fuel₂ with
+    | zero => contradiction
+    | succ fuel₂ =>
+      exact congrArg (F x) (funext fun y => funext fun hy => ih y fuel₂ _ _ )
+
+theorem Nat.fix_eq (x : α) :
+    Nat.fix h F x = F x (fun y _ => Nat.fix h F y) := by
+  unfold Nat.fix
+  simp [Nat.eager_eq]
+  exact congrArg (F x) (funext fun _ => funext fun _ => Nat.fix.go_congr ..)
+
+end WellFounded
 
 /--
 The `wfParam` gadget is used internally during the construction of recursive functions by

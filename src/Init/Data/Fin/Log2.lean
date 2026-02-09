@@ -6,7 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
+public import Init.Prelude
 import Init.Data.Nat.Log2
+
+public section
 
 set_option linter.missingDocs true
 

@@ -3,11 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for predicates over `BitVec` expressions
@@ -78,7 +81,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
     | ult =>
-      simp only [bitblast]
+      simp only
       rw [AIG.LawfulOperator.decl_eq (f := mkUlt)]
       rw [BVExpr.bitblast_decl_eq]
       rw [BVExpr.bitblast_decl_eq]
@@ -88,7 +91,7 @@ theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_lt_size_of_lt_aig_size
         assumption
   | getLsbD expr idx =>
-    simp only [bitblast]
+    simp only
     rw [BVExpr.bitblast_decl_eq]
 
 theorem bitblast_le_size (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :

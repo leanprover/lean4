@@ -6,7 +6,9 @@ Authors: Mario Carneiro, Gabriel Ebner
 module
 
 prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 
 /-!
 # `NatCast`

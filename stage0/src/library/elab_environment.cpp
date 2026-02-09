@@ -8,7 +8,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "library/elab_environment.h"
-#include "library/compiler/ir_interpreter.h"
 
 namespace lean {
 /* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) (decl : Declaration) : Environment
@@ -64,5 +63,10 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * obj_env, le
     return catch_kernel_exceptions<object*>([&]() {
         return type_checker(env.to_kernel_env(), local_ctx(lctx)).check(expr(a)).steal();
     });
+}
+
+/* getBelieverTrustLevel (_ : Unit) : UInt32 */
+extern "C" LEAN_EXPORT uint32 lean_internal_get_believer_trust_level(obj_arg) {
+   return LEAN_BELIEVER_TRUST_LEVEL;
 }
 }

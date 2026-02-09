@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.Data.Int.Gcd
 import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Gcd
+import Init.Omega
+import Init.RCases
+
+public section
 
 /-!
 ## Cooper resolution: small solutions to boundedness and divisibility constraints.

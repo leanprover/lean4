@@ -25,19 +25,19 @@ def MESSAGES : Nat := 100_000
 def THREADS : Nat := 4
 
 def seq (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
-  for i in [:amount] do
+  for i in *...amount do
     ch.send i
 
-  for _ in [:amount] do
+  for _ in *...amount do
     discard <| ch.recv
 
 def spsc (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
   let t1 ← IO.asTask (prio := .dedicated) do
-    for i in [:amount] do
+    for i in *...amount do
       ch.send i
 
   let t2 ← BaseIO.asTask (prio := .dedicated) do
-    for _ in [:amount] do
+    for _ in *...amount do
       discard <| ch.recv
 
   IO.ofExcept (← IO.wait t1)
@@ -45,14 +45,14 @@ def spsc (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
 
 def mpsc (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
   let mut producers := Array.emptyWithCapacity THREADS
-  for _ in [:THREADS] do
+  for _ in *...THREADS do
     let t ← IO.asTask (prio := .dedicated) do
-      for i in [:(amount/THREADS)] do
+      for i in *...(amount/THREADS) do
         ch.send i
     producers := producers.push t
 
   let consumer ← BaseIO.asTask (prio := .dedicated) do
-    for _ in [:amount] do
+    for _ in *...amount do
       discard <| ch.recv
 
   IO.wait consumer
@@ -61,14 +61,14 @@ def mpsc (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
 
 def mpmc (ch : Std.CloseableChannel.Sync Nat) (amount : Nat) : IO Unit := do
   let mut producers := Array.emptyWithCapacity THREADS
-  for _ in [:THREADS] do
+  for _ in *...THREADS do
     let t ← IO.asTask (prio := .dedicated) do
-      for i in [:(amount/THREADS)] do
+      for i in *...(amount/THREADS) do
         ch.send i
     producers := producers.push t
 
   let mut consumers := Array.emptyWithCapacity THREADS
-  for _ in [:THREADS] do
+  for _ in *...THREADS do
     let t ← IO.asTask (prio := .dedicated) do
       while true do
         if let some _ ← ch.recv then

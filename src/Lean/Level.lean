@@ -3,15 +3,16 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.QSort
-import Lean.Data.PersistentHashMap
-import Lean.Data.PersistentHashSet
-import Lean.Hygiene
-import Lean.Data.Name
-import Lean.Data.Format
-import Init.Data.Option.Coe
-import Std.Data.TreeSet.Basic
+public import Init.Data.Array.QSort
+public import Lean.Data.PersistentHashSet
+public import Lean.Hygiene
+public import Init.Data.Option.Coe
+import Init.Data.Nat.Linear
+
+public section
 
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m
@@ -24,7 +25,7 @@ namespace Lean
    hasMVar   : 1-bit
    hasParam  : 1-bit
    depth     : 24-bits -/
-def Level.Data := UInt64
+@[expose] def Level.Data := UInt64
 
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -71,16 +72,16 @@ abbrev LMVarId := LevelMVarId
 instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def LMVarIdSet := RBTree LMVarId (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdSet := Std.TreeSet LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+instance [Monad m] : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
-def LMVarIdMap (α : Type) := RBMap LMVarId α (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdMap (α : Type) := Std.TreeMap LMVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
+instance [Monad m] : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (LMVarIdMap α) where
   default := {}
@@ -128,7 +129,7 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-def levelZero :=
+@[expose] def levelZero :=
   Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
@@ -137,7 +138,7 @@ def mkLevelMVar (mvarId : LMVarId) :=
 def mkLevelParam (name : Name) :=
   Level.param name
 
-def mkLevelSucc (u : Level) :=
+@[expose] def mkLevelSucc (u : Level) :=
   Level.succ u
 
 def mkLevelMax (u v : Level) :=
@@ -200,7 +201,19 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
-def ofNat : Nat → Level
+/--
+Returns true if and only if `l` evaluates to zero for all instantiations of parameters and
+meta-variables.
+-/
+def isAlwaysZero : Level → Bool
+  | zero         => true
+  | param ..     => false
+  | mvar ..      => false
+  | succ ..      => false
+  | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
+  | imax _  l₂   => isAlwaysZero l₂
+
+@[expose] def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
 
@@ -284,7 +297,7 @@ def normLtAux : Level → Nat → Level → Nat → Bool
 def normLt (l₁ l₂ : Level) : Bool :=
   normLtAux l₁ 0 l₂ 0
 
-private def isAlreadyNormalizedCheap : Level → Bool
+def isAlreadyNormalizedCheap : Level → Bool
   | zero    => true
   | param _ => true
   | mvar _  => true
@@ -436,7 +449,7 @@ private def flattenAux (l : Level) (off : Nat) (acc : FlatLevel) : FlatLevel :=
 private def FlatLevel.merge (l l' : FlatLevel) : FlatLevel :=
   { l with
     constOff := l.constOff.max l'.constOff,
-    paramOffs := l.paramOffs.mergeBy (fun _ => Max.max) l'.paramOffs,
+    paramOffs := l.paramOffs.mergeWith (fun _ => Max.max) l'.paramOffs,
     extra := l.extra ++ l'.extra } -- `zeroConds` is not maintained during the equiv checks
 
 private partial def FlatLevel.setZero (l : FlatLevel) (param : Name) : FlatLevel := Id.run do
@@ -465,14 +478,14 @@ private partial def FlatLevel.setNonzero (l : FlatLevel) (param : Name) : FlatLe
 private partial def FlatLevel.isEquiv (l₁ l₂ : FlatLevel) : Bool := Id.run do
   if l₁.constOff != l₂.constOff then
     return false
-  if h : l₁.extra.size ≠ 0 then
+  if h : l₁.extra.size > 0 then
     let a := l₁.extra[0]
-    let .node _ _ nm _ _ := a.conds.val | unreachable! -- any key from the set
+    let .inner _ nm _ _ _ := a.conds.inner.inner.inner | unreachable! -- any key from the set
     return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
       isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
-  if h : l₂.extra.size ≠ 0 then
+  if h : l₂.extra.size > 0 then
     let a := l₂.extra[0]
-    let .node _ _ nm _ _ := a.conds.val | unreachable! -- any key from the set
+    let .inner _ nm _ _ _ := a.conds.inner.inner.inner | unreachable! -- any key from the set
     return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
       isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
   return l₁.paramOffs.size == l₂.paramOffs.size && l₁.paramOffs.toArray == l₂.paramOffs.toArray

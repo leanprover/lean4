@@ -6,11 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Array.MapIdx
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Attach
-import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Attach
+import Init.ByCases
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -95,18 +96,7 @@ theorem mem_zipIdx_iff_getElem? {x : α × Nat} {xs : Vector α n} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mem_zipIdx_iff_getElem?]
 
-@[deprecated toList_zipIdx (since := "2025-01-27")]
-abbrev toList_zipWithIndex := @toList_zipIdx
-@[deprecated getElem_zipIdx (since := "2025-01-27")]
-abbrev getElem_zipWithIndex := @getElem_zipIdx
-@[deprecated mk_mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_le_and_getElem?_sub := @mk_mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
-@[deprecated mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_le_and_getElem?_sub := @mem_zipIdx_iff_le_and_getElem?_sub
-@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-27")]
-abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
+
 
 /-! ### mapFinIdx -/
 
@@ -186,7 +176,7 @@ theorem mapFinIdx_eq_append_iff {xs : Vector α (n + m)} {f : (i : Nat) → α �
   rcases ys with ⟨ys, rfl⟩
   rcases zs with ⟨zs, rfl⟩
   simp only [mapFinIdx_mk, mk_append_mk, eq_mk, Array.mapFinIdx_eq_append_iff, toArray_mapFinIdx,
-    mk_eq, toArray_append, exists_and_left, exists_prop]
+    mk_eq, toArray_append]
   constructor
   · rintro ⟨ys', zs', rfl, h₁, h₂⟩
     have h₁' := congrArg Array.size h₁
@@ -227,9 +217,6 @@ theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapFinIdx_eq_replicate_iff]
 
-@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (n - 1 - i) a (by omega))).reverse := by
   rcases xs with ⟨xs, rfl⟩
@@ -254,8 +241,7 @@ theorem mapIdx_eq_zipIdx_map {xs : Vector α n} {f : Nat → α → β} :
     xs.mapIdx f = xs.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
 
-@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-27")]
-abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
+
 
 @[grind =]
 theorem mapIdx_append {xs : Vector α n} {ys : Vector α m} :
@@ -290,7 +276,7 @@ theorem mapIdx_eq_push_iff {xs : Vector α (n + 1)} {b : β} :
     mapIdx f xs = ys.push b ↔
       ∃ (a : α) (zs : Vector α n), xs = zs.push a ∧ mapIdx f zs = ys ∧ f n a = b := by
   rw [mapIdx_eq_mapFinIdx, mapFinIdx_eq_push_iff]
-  simp only [mapFinIdx_eq_mapIdx, exists_and_left, exists_prop]
+  simp only [mapFinIdx_eq_mapIdx]
   constructor
   · rintro ⟨zs, a, rfl, rfl, rfl⟩
     exact ⟨a, zs, by simp⟩
@@ -327,7 +313,7 @@ theorem mapIdx_eq_iff {xs : Vector α n} {f : Nat → α → β} {ys : Vector β
     · specialize h' w
       simp_all
     · simp only [Nat.not_lt] at w
-      simp_all [Array.getElem?_eq_none_iff.mpr w]
+      simp_all
 
 theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
     mapIdx f xs = mapIdx g xs ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = g i xs[i] := by
@@ -362,9 +348,6 @@ theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : 
     mapIdx f xs = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_eq_replicate_iff]
-
-@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
 
 @[simp, grind =] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (n - 1 - i)) xs).reverse := by

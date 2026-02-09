@@ -1,3 +1,5 @@
+module
+
 inductive Foo (α : Type u) (β : Type v) where
   | mk₁ : α → Foo α β
   | mk₂ : List β → Foo α β
@@ -47,3 +49,34 @@ end
 
 def ex5 : Inhabited (Boo α) :=
   inferInstance
+
+structure A where
+deriving Inhabited
+
+/--
+info: @[instance_reducible] private def instInhabitedA : Inhabited A :=
+{ default := instInhabitedA.default }
+-/
+#guard_msgs in
+#print instInhabitedA
+
+/-! Public structures with private fields should yield public opaque instances. -/
+
+public structure PrivField where
+  private a : Nat
+deriving Inhabited
+
+/-- info: instInhabitedPrivField.default -/
+#guard_msgs in
+#with_exporting
+#reduce (default : PrivField)
+
+/-! ...which should not be compatible with explicit `@[expose]`. -/
+
+/--
+error: cannot use `deriving ... @[expose]` with `PrivFieldExp` as it has one or more private constructors
+-/
+#guard_msgs in
+public structure PrivFieldExp where
+  private a : Nat
+deriving @[expose] Inhabited

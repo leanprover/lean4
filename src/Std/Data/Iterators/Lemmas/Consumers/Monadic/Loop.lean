@@ -3,16 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Init.Control.Lawful.Basic
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
-import Init.Data.Iterators.Lemmas.Monadic.Basic
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
-import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+module
 
-namespace Std.Iterators
+prelude
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Monadic.Basic
+
+@[expose] public section
+
+namespace Std
+open Std.Iterators
 
 theorem IterM.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Iterator α₁ m β] [Iterator α₂ m β]
@@ -30,9 +31,10 @@ theorem IterM.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w
   apply h.lift_step_bind_congr
   intro sa sb hs
   simp only [IterStep.bundledQuotient, IterStep.mapIterator_comp, Function.comp_apply] at hs
-  cases sa using PlausibleIterStep.casesOn <;> cases sb using PlausibleIterStep.casesOn
+  cases ha : sa.inflate using PlausibleIterStep.casesOn <;>
+    cases hb : sb.inflate using PlausibleIterStep.casesOn
   all_goals try exfalso; simp_all; done
-  · simp only [IterStep.mapIterator_yield, IterStep.yield.injEq,
+  · simp only [ha, hb, IterStep.mapIterator_yield, IterStep.yield.injEq,
       BundledIterM.Equiv.quotMk_eq_iff] at hs
     rcases hs with ⟨hs, rfl⟩
     apply bind_congr
@@ -40,8 +42,8 @@ theorem IterM.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w
     cases forInStep
     · rfl
     · exact ihy ‹_› hs
-  · simp only [IterStep.mapIterator_skip, IterStep.skip.injEq,
-    BundledIterM.Equiv.quotMk_eq_iff] at hs
+  · simp only [ha, hb, IterStep.mapIterator_skip, IterStep.skip.injEq,
+      BundledIterM.Equiv.quotMk_eq_iff] at hs
     exact ihs ‹_› hs
   · rfl
 
@@ -74,4 +76,4 @@ theorem IterM.Equiv.drain_eq {α₁ α₂ β : Type w} {m : Type w → Type w'}
     ita.drain = itb.drain := by
   simp [IterM.drain_eq_fold, h.fold_eq]
 
-end Std.Iterators
+end Std

@@ -1,3 +1,4 @@
+module
 opaque f (a : Array Bool) (i : Nat) (h : i < a.size) : Bool
 
 set_option trace.grind.eqc true

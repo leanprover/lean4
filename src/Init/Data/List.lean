@@ -6,28 +6,32 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.List.Attach
-import Init.Data.List.Basic
-import Init.Data.List.BasicAux
-import Init.Data.List.Control
-import Init.Data.List.Count
-import Init.Data.List.Erase
-import Init.Data.List.Find
-import Init.Data.List.Impl
-import Init.Data.List.Lemmas
-import Init.Data.List.MinMax
-import Init.Data.List.Monadic
-import Init.Data.List.Nat
-import Init.Data.List.Notation
-import Init.Data.List.Pairwise
-import Init.Data.List.Sublist
-import Init.Data.List.TakeDrop
-import Init.Data.List.Zip
-import Init.Data.List.Perm
-import Init.Data.List.Sort
-import Init.Data.List.ToArray
-import Init.Data.List.ToArrayImpl
-import Init.Data.List.MapIdx
-import Init.Data.List.OfFn
-import Init.Data.List.FinRange
-import Init.Data.List.Lex
+public import Init.Data.List.Attach
+public import Init.Data.List.Basic
+public import Init.Data.List.BasicAux
+public import Init.Data.List.Control
+public import Init.Data.List.Count
+public import Init.Data.List.Erase
+public import Init.Data.List.Find
+public import Init.Data.List.Impl
+public import Init.Data.List.Lemmas
+public import Init.Data.List.MinMax
+public import Init.Data.List.MinMaxIdx
+public import Init.Data.List.MinMaxOn
+public import Init.Data.List.Monadic
+public import Init.Data.List.Nat
+public import Init.Data.List.Int
+public import Init.Data.List.Notation
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Sublist
+public import Init.Data.List.TakeDrop
+public import Init.Data.List.Zip
+public import Init.Data.List.Perm
+public import Init.Data.List.Sort
+public import Init.Data.List.ToArray
+public import Init.Data.List.ToArrayImpl
+public import Init.Data.List.MapIdx
+public import Init.Data.List.OfFn
+public import Init.Data.List.FinRange
+public import Init.Data.List.Lex
+public import Init.Data.List.Range

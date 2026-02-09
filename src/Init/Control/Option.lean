@@ -6,9 +6,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.Option.Basic
-import Init.Control.Basic
-import Init.Control.Except
+public import Init.Data.Option.Basic
+public import Init.Control.MonadAttach
+
+public section
 
 set_option linter.missingDocs true
 
@@ -26,7 +27,7 @@ failure occurred.
 /--
 Executes an action that might fail in the underlying monad `m`, returning `none` in case of failure.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def OptionT.run {m : Type u → Type v} {α : Type u} (x : OptionT m α) : m (Option α) :=
   x
 
@@ -37,13 +38,14 @@ variable {m : Type u → Type v} [Monad m] {α β : Type u}
 Converts an action that returns an `Option` into one that might fail, with `none` indicating
 failure.
 -/
+@[always_inline, inline, expose]
 protected def mk (x : m (Option α)) : OptionT m α :=
   x
 
 /--
 Sequences two potentially-failing actions. The second action is run only if the first succeeds.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
   match (← x) with
   | some a => f a
@@ -52,7 +54,7 @@ protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β :
 /--
 Succeeds with the provided value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def pure (a : α) : OptionT m α := OptionT.mk do
   pure (some a)
 
@@ -67,7 +69,7 @@ instance {m : Type u → Type v} [Pure m] : Inhabited (OptionT m α) where
 /--
 Recovers from failures. Typically used via the `<|>` operator.
 -/
-@[always_inline, inline] protected def orElse (x : OptionT m α) (y : Unit → OptionT m α) : OptionT m α := OptionT.mk do
+@[always_inline, inline, expose] protected def orElse (x : OptionT m α) (y : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   match (← x) with
   | some a => pure (some a)
   | _      => y ()
@@ -75,7 +77,7 @@ Recovers from failures. Typically used via the `<|>` operator.
 /--
 A recoverable failure.
 -/
-@[always_inline, inline] protected def fail : OptionT m α := OptionT.mk do
+@[always_inline, inline, expose] protected def fail : OptionT m α := OptionT.mk do
   pure none
 
 instance : Alternative (OptionT m) where
@@ -88,7 +90,7 @@ Converts a computation from the underlying monad into one that could fail, even 
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic
 lifting](lean-manual://section/monad-lifting).
 -/
-@[always_inline, inline] protected def lift (x : m α) : OptionT m α := OptionT.mk do
+@[always_inline, inline, expose] protected def lift (x : m α) : OptionT m α := OptionT.mk do
   return some (← x)
 
 instance : MonadLift m (OptionT m) := ⟨OptionT.lift⟩
@@ -98,17 +100,23 @@ instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
 /--
 Handles failures by treating them as exceptions of type `Unit`.
 -/
-@[always_inline, inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
-  let some a ← x | handle ()
+@[always_inline, inline, expose] protected def tryCatch (x : OptionT m α) (handle : PUnit → OptionT m α) : OptionT m α := OptionT.mk do
+  let some a ← x | handle ⟨⟩
   pure <| some a
 
-instance : MonadExceptOf Unit (OptionT m) where
+instance : MonadExceptOf PUnit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 
 instance (ε : Type u) [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
   throw e           := OptionT.mk <| throwThe ε e
   tryCatch x handle := OptionT.mk <| tryCatchThe ε x handle
+
+instance [MonadAttach m] : MonadAttach (OptionT m) where
+  CanReturn x a := MonadAttach.CanReturn x.run (some a)
+  attach x := .mk ((fun
+      | ⟨some a, h⟩ => some ⟨a, h⟩
+      | ⟨none, _⟩ => none) <$> MonadAttach.attach x.run)
 
 end OptionT
 

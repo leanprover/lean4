@@ -8,9 +8,9 @@ The State monad transformer.
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Except
+public import Init.Control.Except
+
+public section
 
 set_option linter.missingDocs true
 
@@ -24,6 +24,12 @@ of a value and a state.
 -/
 @[expose] def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
+
+/--
+Interpret `σ → m (α × σ)` as an element of `StateT σ m α`.
+-/
+@[always_inline, inline, expose]
+def StateT.mk {σ : Type u} {m : Type u → Type v} {α : Type u} (x : σ → m (α × σ)) : StateT σ m α := x
 
 /--
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial
@@ -198,3 +204,7 @@ instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m
       | some (a, s') => h (some a) s'
       | none         => h none s
     pure ((a, b), s'')
+
+instance [Monad m] [MonadAttach m] : MonadAttach (StateT σ m) where
+  CanReturn x a := Exists fun s => Exists fun s' => MonadAttach.CanReturn (x.run s) (a, s')
+  attach x := fun s => (fun ⟨⟨a, s'⟩, h⟩ => ⟨⟨a, s, s', h⟩, s'⟩) <$> MonadAttach.attach (x.run s)

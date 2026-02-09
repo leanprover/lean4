@@ -3,10 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Simp
+
+public section
 
 /-!
 This module implements the preprocessing of function definitions involved in well-founded recursion.
@@ -46,7 +48,7 @@ The process proceeds in these steps, to guide the transformation:
 
    The `binderNameHint` preserves the user-chosen name in `f` if that is a lambda.
 
-   The `wfParam` on the right hand side ensurses that doubly-nested recursion works.
+   The `wfParam` on the right hand side ensures that doubly-nested recursion works.
 
 4. All left-over `wfParam` gadgets are removed.
 
@@ -73,7 +75,9 @@ private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[simpTheorems])
     (congrTheorems := {})
-    (config        := { Simp.neutralConfig with dsimp := true })
+    -- Remark: we use `congrConsts` because this module uses `withoutModifyingEnv`
+    -- which would erase any congruence lemmas realized in the `withoutModifyingEnv` block.
+    (config        := { Simp.neutralConfig with dsimp := true, congrConsts := false })
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
@@ -110,18 +114,74 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   let matcherApp' := { matcherApp with discrs := discrs', alts := alts' }
   return .continue <| matcherApp'.toExpr
 
-/-- `let x := (wfParam e); body[x] ==> let x := e; body[wfParam y] -/
+private def anyLetValueIsWfParam (e : Expr) : Bool :=
+  match e with
+  | .letE _ _ v b _ => (isWfParam? v).isSome || anyLetValueIsWfParam b
+  | _               => false
+
+private def numLetsWithValueNotIsWfParam (e : Expr) (acc := 0) : Nat :=
+  match e with
+  | .letE _ _ v b _ => if (isWfParam? v).isSome then acc else numLetsWithValueNotIsWfParam b (acc + 1)
+  | _               => acc
+
+private partial def processParamLet (e : Expr) : MetaM Expr := do
+  if let .letE _ t v b _ := e then
+    if let some v' := isWfParam? v then
+      if ← Meta.isProp t then
+        processParamLet <| e.updateLetE! t v' b
+      else
+        let u ← getLevel t
+        let b' := b.instantiate1 <| mkApp2 (.const ``wfParam [u]) t (.bvar 0)
+        processParamLet <| e.updateLetE! t v' b'
+    else
+      let num := numLetsWithValueNotIsWfParam e
+      assert! num > 0
+      letBoundedTelescope e num fun xs b => do
+        let b' ← processParamLet b
+        mkLetFVars (usedLetOnly := false) (generalizeNondepLet := false) xs b'
+  else
+    return e
+
+/--
+`let x : T := (wfParam e); body[x] ==> let x : T := e; body[wfParam y]` if `T` is not a proposition,
+otherwise `... ==> let x : T := e; body[x]`. (Applies to `have`s too.)
+
+Note: simprocs are provided the head of a let telescope, but not intermediate lets.
+-/
 builtin_dsimproc paramLet (_) := fun e => do
-  unless e.isLet do return .continue
-  let some v := isWfParam? e.letValue! | return .continue
-  let u ← getLevel e.letType!
-  let body' := e.letBody!.instantiate1 <|
-    mkApp2 (.const ``wfParam [u]) e.letType! (.bvar 0)
-  return .continue <| e.updateLetE! e.letType! v body'
+  unless e.isLet || anyLetValueIsWfParam e do return .continue
+  return .continue (← processParamLet e)
+
+/--
+Transforms non-Prop `have`s to `let`s, so that the values can be used in GuessLex and decreasing-by proofs.
+These `have`s may have been introduced by `simp`, which converts `let`s to `have`s.
+-/
+private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
+  Meta.transform e (pre := fun e => do
+    if (← Meta.isProof e) then
+      return .done e
+    else if e.isLet then
+      -- Recall that `Meta.transform` processes entire let telescopes,
+      -- so we need to handle the telescope all at once.
+      let lctx ← getLCtx
+      let e' ← letTelescope e fun xs b => do
+        let lctx' ← xs.foldlM (init := lctx) fun lctx' x => do
+          let decl ← x.fvarId!.getDecl
+          -- Clear the flag if it's not a prop.
+          let decl' := decl.setNondep <| ← pure decl.isNondep <&&> Meta.isProp decl.type
+          pure <| lctx'.addDecl decl'
+        withLCtx' lctx' do
+          mkLetFVars (usedLetOnly := false) (generalizeNondepLet := false) xs b
+      return .continue e'
+    else
+      return .continue
+  )
 
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
     return { expr := e }
+  -- Transform `let`s to `have`s to enable `simp` entering let bodies.
+  let e ← letToHave e
   lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
@@ -139,11 +199,15 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
-            return .continue (mkAppN as[1] as[2:])
+            return .continue (mkAppN as[1] as[2...*])
         return .continue
-    let result := { result with expr := e'' }
 
-    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}\ncleaned up as{indentExpr e''}"
+    -- Transform `have`s to `let`s for non-propositions.
+    let e''' ← nonPropHaveToLet e''
+
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}\ncleand up to {indentExpr e'''}"
+
+    let result := { result with expr := e''' }
     result.addLambdas xs
 
 end Lean.Elab.WF

@@ -3,14 +3,14 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
 prelude
+public import Std.Data.HashMap
+public import Std.Sat.CNF.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Init.Data.List.Erase
-import Init.Data.Array.Lemmas
-import Std.Data.HashMap
-import Std.Sat.CNF.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.PosFin
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-import Init.Grind
+import Init.Data.List.Pairwise
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -55,7 +55,10 @@ class Clause (α : outParam (Type u)) (β : Type v) where
 
 namespace Clause
 
-attribute [grind] empty_eq unit_eq isUnit_iff negate_eq delete_iff contains_iff
+grind_pattern empty_eq => toList (empty : β)
+grind_pattern unit_eq => @toList _ _ self (unit l)
+attribute [grind =] isUnit_iff negate_eq delete_iff
+attribute [grind ←] contains_iff
 
 instance : Entails α (Literal α) where
   eval := fun p l => p l.1 = l.2
@@ -102,7 +105,7 @@ namespace DefaultClause
 
 @[grind] def toList (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause
 
-attribute [local grind] DefaultClause.nodup DefaultClause.nodupkey
+attribute [local grind! ←] DefaultClause.nodup DefaultClause.nodupkey
 
 theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     l ∉ toList c ∨ ¬Literal.negate l ∈ toList c := by
@@ -153,6 +156,9 @@ theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.nega
 -- so we add the attribute after the fact.
 attribute [local grind] DefaultClause.ofArray.folder
 
+-- This isn't a good global `grind` lemma, because it can cause a loop with `Pairwise.sublist`.
+attribute [local grind =] List.pairwise_iff_forall_sublist
+
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   let mapOption := ls.foldl ofArray.folder (some (HashMap.emptyWithCapacity ls.size))
   match mapOption with
@@ -165,14 +171,14 @@ def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
   apply List.foldlRecOn (motive := (· = none)) <;> grind
 
-attribute [local grind] ofArray.foldl_folder_none_eq_none
+attribute [local grind =] ofArray.foldl_folder_none_eq_none
 
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
     (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') (l) (h : l ∈ acc.toList) :
       l ∈ acc'.toList := by
-  induction ls generalizing acc with grind (gen := 7)
+  induction ls generalizing acc with grind
 
-attribute [local grind] ofArray.mem_of_mem_of_foldl_folder_eq_some
+grind_pattern ofArray.mem_of_mem_of_foldl_folder_eq_some => l ∈ acc'.toList, List.foldl ofArray.folder (some acc) ls
 
 theorem ofArray.folder_foldl_mem_of_mem
     (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :
@@ -182,8 +188,7 @@ theorem ofArray.folder_foldl_mem_of_mem
   | nil => grind
   | cons x xs ih =>
     simp at hl h
-    rw [DefaultClause.ofArray.folder.eq_def] at h -- TODO why doesn't `grind` handle this?
-    rcases hl <;> grind (gen := 7)
+    rcases hl <;> grind [DefaultClause.ofArray.folder.eq_def]
 
 @[inline, local grind]
 def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n where

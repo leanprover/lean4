@@ -1,10 +1,10 @@
 import Std.Sync.Barrier
 
 def consBarrier (b : Std.Barrier) (list : IO.Ref (List Nat)) : IO Bool := do
-  for _ in [0:1000] do
+  for _ in *...(1000 : Nat) do
     list.modify fun l => 1 :: l
   let isLeader ← b.wait
-  for _ in [0:1000] do
+  for _ in *...(1000 : Nat) do
     list.modify fun l => 2 :: l
   return isLeader
 

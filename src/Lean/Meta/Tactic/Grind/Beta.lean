@@ -3,9 +3,10 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-
+public import Lean.Meta.Tactic.Grind.Types
+public section
 namespace Lean.Meta.Grind
 
 /-- Returns all lambda expressions in the equivalence class with root `root`. -/
@@ -53,7 +54,8 @@ private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
 where
   go (f : Expr) : GoalM Bool := do
     if let some root ← getRootENode? f then
-      return root.hasLambdas
+      if root.hasLambdas then
+        return true
     let .app f _ := f | return false
     go f
 

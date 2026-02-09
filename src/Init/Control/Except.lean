@@ -8,9 +8,10 @@ The Except monad transformer.
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Coe
+public import Init.Control.Basic
+public import Init.Control.Id
+
+@[expose] public section
 
 namespace Except
 variable {ε : Type u}
@@ -146,6 +147,23 @@ This is the inverse of `ExceptT.mk`.
 -/
 @[always_inline, inline, expose]
 def ExceptT.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : ExceptT ε m α) : m (Except ε α) := x
+
+/--
+Use a monadic action that may throw an exception by providing explicit success and failure
+continuations.
+-/
+@[always_inline, inline, expose]
+def ExceptT.runK [Monad m] (x : ExceptT ε m α) (ok : α → m β) (error : ε → m β) : m β :=
+  x.run >>= (·.casesOn error ok)
+
+/--
+Returns the value of a computation, forgetting whether it was an exception or a success.
+
+This corresponds to early return.
+-/
+@[always_inline, inline, expose]
+def ExceptT.runCatch [Monad m] (x : ExceptT α m α) : m α :=
+  x.runK pure pure
 
 namespace ExceptT
 
@@ -311,3 +329,8 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
     | (.ok a,    .ok b)    => pure (.ok (a, b))
     | (_,        .error e) => pure (.error e)  -- second error has precedence
     | (.error e, _)        => pure (.error e)
+
+instance [Monad m] [MonadAttach m] : MonadAttach (ExceptT ε m) where
+  CanReturn x a := MonadAttach.CanReturn (m := m) x (.ok a)
+  attach x := show m (Except ε _) from
+      (fun ⟨a, h⟩ => match a with | .ok a => .ok ⟨a, h⟩ | .error e => .error e) <$> MonadAttach.attach (m := m) x

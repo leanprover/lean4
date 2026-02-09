@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Server.InfoUtils
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -48,7 +52,7 @@ yields the closest one of those `Info`s.
 Otherwise, yields the closest `Info` that contains `hoverPos` and has an empty `LocalContext`.
 -/
 private def findClosestInfoWithLocalContextAt?
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (infoTree : InfoTree)
     : Option (ContextInfo × Info) :=
   findBest? infoTree isBetter fun ctx info _ =>
@@ -72,7 +76,7 @@ where
       false
 
 private def findSyntheticIdentifierCompletion?
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (infoTree : InfoTree)
     : Option ContextualizedCompletionInfo := do
   let some (ctx, info) := findClosestInfoWithLocalContextAt? hoverPos infoTree
@@ -95,21 +99,21 @@ private def findSyntheticIdentifierCompletion?
   let tailPos := stx.getTailPos?.get!
   let hoverInfo :=
     if hoverPos < tailPos then
-      HoverInfo.inside (tailPos - hoverPos).byteIdx
+      HoverInfo.inside (hoverPos.byteDistance tailPos)
     else
       HoverInfo.after
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
 
-private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos) : Bool :=
-  fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace
+private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
+  hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace
 
-private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos) : Bool :=
-  (fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace)
-    && (fileMap.source.get (hoverPos - ⟨1⟩)).isWhitespace
+private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
+  (hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace)
+    && ((hoverPos.unoffsetBy ⟨1⟩).get fileMap.source).isWhitespace
 
 private partial def isSyntheticTacticCompletion
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let hoverFilePos := fileMap.toPosition hoverPos
@@ -220,7 +224,7 @@ where
 
 private def findSyntheticTacticCompletion?
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Option ContextualizedCompletionInfo := do
@@ -230,7 +234,7 @@ private def findSyntheticTacticCompletion?
   -- Neither `HoverInfo` nor the syntax in `.tactic` are important for tactic completion.
   return { hoverInfo := HoverInfo.after, ctx, info := .tactic .missing }
 
-private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Expr) := do
+private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos.Raw) : Option (ContextInfo × Expr) := do
   let (ctx, .ofTermInfo i) ← infoTree.smallestInfo? fun i => Id.run do
       let some pos := i.pos?
         | return false
@@ -280,7 +284,7 @@ private def findWithLeadingToken?
 
 private def isSyntheticStructFieldCompletion
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let isCursorOnWhitespace := isCursorOnWhitespace fileMap hoverPos
@@ -304,7 +308,7 @@ private def isSyntheticStructFieldCompletion
         stx.getTrailingTailPos? (canonicalOnly := true)
           <|> leadingToken.getTrailingTailPos? (canonicalOnly := true)
       | return false
-    let outerBounds : String.Range := ⟨outerBoundsStart, outerBoundsStop⟩
+    let outerBounds : Lean.Syntax.Range := ⟨outerBoundsStart, outerBoundsStop⟩
 
     let isCompletionInEmptyBlock :=
       fieldsAndSeps.isEmpty && outerBounds.contains hoverPos (includeStop := true)
@@ -334,7 +338,7 @@ private def isSyntheticStructFieldCompletion
 
 private def findSyntheticFieldCompletion?
   (fileMap  : FileMap)
-  (hoverPos : String.Pos)
+  (hoverPos : String.Pos.Raw)
   (cmdStx   : Syntax)
   (infoTree : InfoTree)
   : Option ContextualizedCompletionInfo := do
@@ -349,7 +353,7 @@ private def findSyntheticFieldCompletion?
 
 def findSyntheticCompletions
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array ContextualizedCompletionInfo :=

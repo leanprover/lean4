@@ -11,11 +11,14 @@ it would over-report local variables. This comes down to two kinds of issues:
 This file tests that it resets the tracking and filters the list.
 -/
 
+set_option linter.unusedSimpArgs false
+
 /-!
 Example from #6655. This used to suggest `simp only [e, d]`.
 -/
 /--
-info: Try this: simp only [e]
+info: Try this:
+  [apply] simp only [e]
 ---
 trace: α : Type
 c : α → α
@@ -24,7 +27,7 @@ d : α → α := c
 e : α → α := d
 ⊢ d x = x
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (c : α → α) (x : α) : c x = x := by
@@ -39,9 +42,10 @@ example {α : Type} (c : α → α) (x : α) : c x = x := by
 Example from #6655. This used to suggest `simp only [d]`.
 -/
 /--
-info: Try this: simp only
+info: Try this:
+  [apply] simp only
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (c : α → α) (x : α) : c x = x := by
@@ -56,7 +60,10 @@ example {α : Type} (c : α → α) (x : α) : c x = x := by
 Example from comments of #6655. This used to suggest `simp only [Int.add_sub_cancel, p]`.
 (N.B. the goal at that point does not have `p` in it!)
 -/
-/-- info: Try this: simp only [Int.add_sub_cancel] -/
+/--
+info: Try this:
+  [apply] simp only [Int.add_sub_cancel]
+-/
 #guard_msgs in
 example (a b : Int) : a + b - b = a := by
   let p := 1
@@ -69,9 +76,11 @@ Example from https://github.com/leanprover/lean4/pull/7539 by JovanGerb.
 This used to suggest `simp only [a, b] ` and `simp only [a, b]`
 -/
 /--
-info: Try this: simp only [a]
+info: Try this:
+  [apply] simp only [a]
 ---
-info: Try this: simp only
+info: Try this:
+  [apply] simp only
 -/
 #guard_msgs in
 example : True := by
@@ -86,7 +95,8 @@ example : True := by
 Test that there is still a deficiency. This should say `simp only [e]`.
 -/
 /--
-info: Try this: simp only [e, c]
+info: Try this:
+  [apply] simp only [e, c]
 ---
 trace: α : Type
 b : α → α
@@ -96,7 +106,7 @@ d : α → α := c
 e : α → α := d
 ⊢ d x = x
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (b : α → α) (x : α) : b x = x := by

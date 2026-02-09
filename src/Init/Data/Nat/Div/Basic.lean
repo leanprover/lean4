@@ -6,10 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WF
-import Init.WFTactics
-import Init.Data.Nat.Basic
+public import Init.Data.NeZero
+public import Init.WF
 meta import Init.MetaTypes
+import Init.WFTactics
+
+public section
 
 @[expose] section
 
@@ -21,47 +23,6 @@ there is some `c` such that `b = a * c`.
 -/
 instance : Dvd Nat where
   dvd a b := Exists (fun c => b = a * c)
-
-theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
-  fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
-
-theorem div_rec_fuel_lemma {x y fuel : Nat} (hy : 0 < y) (hle : y ≤ x) (hfuel : x < fuel + 1) :
-    x - y < fuel :=
-  Nat.lt_of_lt_of_le (div_rec_lemma ⟨hy, hle⟩) (Nat.le_of_lt_succ hfuel)
-
-/--
-Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
-via the `/` operator.
-
-This operation is sometimes called “floor division.”
-
-This function is overridden at runtime with an efficient implementation. This definition is
-the logical model.
-
-Examples:
- * `21 / 3 = 7`
- * `21 / 5 = 4`
- * `0 / 22 = 0`
- * `5 / 0 = 0`
--/
-@[extern "lean_nat_div", irreducible]
-protected def div (x y : @& Nat) : Nat :=
-  if hy : 0 < y then
-    let rec
-      go (fuel : Nat) (x : Nat) (hfuel : x < fuel) : Nat :=
-      match fuel with
-      | 0 => by contradiction
-      | succ fuel =>
-        if h : y ≤ x then
-          go fuel (x - y) (div_rec_fuel_lemma hy h hfuel) + 1
-        else
-          0
-      termination_by structural fuel
-    go (x + 1) x (Nat.lt_succ_self _)
-  else
-    0
-
-instance instDiv : Div Nat := ⟨Nat.div⟩
 
 private theorem div.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x < fuel1) (h2 : x < fuel2) :
     Nat.div.go y hy fuel1 x h1 = Nat.div.go y hy fuel2 x h2 := by
@@ -152,36 +113,6 @@ protected def divExact (x y : @& Nat) (h : y ∣ x) : Nat :=
 @[simp]
 theorem divExact_eq_div {x y : Nat} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
-/--
-The modulo operator, which computes the remainder when dividing one natural number by another.
-Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
-than an error.
-
-This is the core implementation of `Nat.mod`. It computes the correct result for any two closed
-natural numbers, but it does not have some convenient [definitional
-reductions](lean-manual://section/type-system) when the `Nat`s contain free variables. The wrapper
-`Nat.mod` handles those cases specially and then calls `Nat.modCore`.
-
-This function is overridden at runtime with an efficient implementation. This definition is the
-logical model.
--/
-@[extern "lean_nat_mod", irreducible]
-protected noncomputable def modCore (x y : Nat) : Nat :=
-  if hy : 0 < y then
-    let rec
-      go (fuel : Nat) (x : Nat) (hfuel : x < fuel) : Nat :=
-      match fuel with
-      | 0 => by contradiction
-      | succ fuel =>
-        if h : y ≤ x then
-          go fuel (x - y) (div_rec_fuel_lemma hy h hfuel)
-        else
-          x
-      termination_by structural fuel
-    go (x + 1) x (Nat.lt_succ_self _)
-  else
-    x
-
 private theorem modCore.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x < fuel1) (h2 : x < fuel2) :
     Nat.modCore.go y hy fuel1 x h1 = Nat.modCore.go y hy fuel2 x h2 := by
   match fuel1, fuel2 with
@@ -211,51 +142,6 @@ protected theorem modCore_eq (x y : Nat) : Nat.modCore x y =
       simp only [and_false, ↓reduceIte, *]
   next =>
     simp only [false_and, ↓reduceIte, *]
-
-
-/--
-The modulo operator, which computes the remainder when dividing one natural number by another.
-Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
-than an error.
-
-`Nat.mod` is a wrapper around `Nat.modCore` that special-cases two situations, giving better
-definitional reductions:
- * `Nat.mod 0 m` should reduce to `m`, for all terms `m : Nat`.
- * `Nat.mod n (m + n + 1)` should reduce to `n` for concrete `Nat` literals `n`.
-
-These reductions help `Fin n` literals work well, because the `OfNat` instance for `Fin` uses
-`Nat.mod`. In particular, `(0 : Fin (n + 1)).val` should reduce definitionally to `0`. `Nat.modCore`
-can handle all numbers, but its definitional reductions are not as convenient.
-
-This function is overridden at runtime with an efficient implementation. This definition is the
-logical model.
-
-Examples:
- * `7 % 2 = 1`
- * `9 % 3 = 0`
- * `5 % 7 = 5`
- * `5 % 0 = 5`
- * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
- * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
--/
-@[extern "lean_nat_mod"]
-protected def mod : @& Nat → @& Nat → Nat
-  /-
-  Nat.modCore is defined with fuel and thus does not reduce with open terms very well.
-  Nevertheless it is desirable for trivial `Nat.mod` calculations, namely
-  * `Nat.mod 0 m` for all `m`
-  * `Nat.mod n (m + n + 1)` for concrete literals `n`,
-  to reduce definitionally.
-  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
-  definition.
-   -/
-  | 0, _ => 0
-  | n@(_ + 1), m =>
-    if m ≤ n -- NB: if n < m does not reduce as well as `m ≤ n`!
-    then Nat.modCore n m
-    else n
-
-instance instMod : Mod Nat := ⟨Nat.mod⟩
 
 protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
   change Nat.modCore n m = Nat.mod n m
@@ -313,24 +199,6 @@ theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
   | Or.inr h₁ => (mod_eq a b).symm ▸ if_pos ⟨h₁, h⟩
 
-theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
-  induction x, y using mod.inductionOn with
-  | base x y h₁ =>
-    intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Decidable.not_and_iff_or_not.mp h₁
-    match h₁ with
-    | Or.inl h₁ => exact absurd h₂ h₁
-    | Or.inr h₁ =>
-      have hgt : y > x := gt_of_not_le h₁
-      have heq : x % y = x := mod_eq_of_lt hgt
-      rw [← heq] at hgt
-      exact hgt
-  | ind x y h h₂ =>
-    intro h₃
-    have ⟨_, h₁⟩ := h
-    rw [mod_eq_sub_mod h₁]
-    exact h₂ h₃
-
 @[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
   rw [Nat.sub_add_cancel]
   cases a with
@@ -348,12 +216,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
   Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
 
-@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
-  rw [mod_eq]
-  have : ¬ (0 < b ∧ b = 0) := by
-    intro ⟨h₁, h₂⟩
-    simp_all
-  simp [this]
+@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := rfl
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
   rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]
@@ -512,7 +375,7 @@ theorem sub_mul_div_of_le (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x /
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by

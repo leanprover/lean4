@@ -3,8 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+import Init.Data.ToString.Name
+import Init.Data.ToString.Macro
+
+public section
 namespace Lean
 
 /-- Internal exception identifier -/

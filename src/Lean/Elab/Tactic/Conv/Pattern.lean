@@ -3,10 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Conv.Basic
-import Lean.HeadIndex
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta

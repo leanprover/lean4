@@ -1,14 +1,17 @@
-theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := sorry
-theorem lt_of_succ_lt          (_: a + 1 < b): a < b := sorry
-theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := sorry
+axiom testSorry : α
+
+theorem le_of_not_lt {a b : Nat} (_: ¬ a < b): b ≤ a := testSorry
+theorem lt_of_succ_lt          (_: a + 1 < b): a < b := testSorry
+theorem succ_pred_eq_of_pos        (_: 0 < v): v - 1 + 1 = v := testSorry
 
 set_option trace.Meta.Tactic.simp true
+set_option linter.unusedSimpArgs false
 --set_option trace.Debug.Meta.Tactic.simp true
 
 set_option Elab.async false -- for stable message ordering in #guard_msgs
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
@@ -48,7 +51,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 -- it works
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1
@@ -86,7 +89,7 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
     ]
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: [Meta.Tactic.simp.rewrite] h₁:1000:
       k ≤ v - 1

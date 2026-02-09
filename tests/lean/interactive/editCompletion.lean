@@ -3,4 +3,4 @@ structure Foo where
 
 example (f : Foo) : f
                    --^ insert: "."
-                    --^ textDocument/completion
+                    --^ completion

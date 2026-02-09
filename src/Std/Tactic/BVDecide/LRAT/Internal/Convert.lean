@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.CNF.RelabelFin
-import Std.Tactic.BVDecide.LRAT.Internal.Formula
+public import Std.Sat.CNF.RelabelFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula
+import Init.Data.Array.Bootstrap
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 
@@ -46,8 +51,8 @@ def CNF.Clause.convertLRAT' (clause : CNF.Clause (PosFin n)) : Option (DefaultCl
 /--
 Turn a `CNF PosFin` into the representation used by the LRAT checker.
 -/
-def CNF.convertLRAT' (clauses : CNF (PosFin n)) : List (Option (DefaultClause n)) :=
-  clauses.filterMap (fun clause =>
+def CNF.convertLRAT' (clauses : CNF (PosFin n)) : Array (Option (DefaultClause n)) :=
+  clauses.clauses.filterMap (fun clause =>
     match CNF.Clause.convertLRAT' clause with
     | some clause => some (some clause)
     -- This might look stupid but we are in an Option (Option x) here so explicitly returning none
@@ -69,7 +74,7 @@ theorem CNF.Clause.convertLRAT_sat_of_sat (clause : CNF.Clause (PosFin n))
     (h : Clause.convertLRAT' clause = some lratClause) :
     clause.eval assign → assign ⊨ lratClause := by
   intro h2
-  simp only [CNF.Clause.eval, List.any_eq_true, bne_iff_ne, ne_eq] at h2
+  simp only [CNF.Clause.eval, List.any_eq_true] at h2
   simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq]
   rcases h2 with ⟨lit, ⟨hlit1, hlit2⟩⟩
   apply Exists.intro lit
@@ -91,7 +96,7 @@ Notably this:
 def CNF.convertLRAT (cnf : CNF Nat) : DefaultFormula (cnf.numLiterals + 1) :=
   let lifted := CNF.lift cnf
   let lratCnf := CNF.convertLRAT' lifted
-  DefaultFormula.ofArray (none :: lratCnf).toArray
+  DefaultFormula.ofArray (#[none] ++ lratCnf)
 
 theorem CNF.convertLRAT_readyForRupAdd (cnf : CNF Nat) :
     DefaultFormula.ReadyForRupAdd (CNF.convertLRAT cnf) := by
@@ -127,16 +132,21 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   apply h1
   simp only [Formula.formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro lratClause hlclause
-  simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray,
-    CNF.convertLRAT', List.size_toArray, List.length_map, List.toList_toArray,
-    List.map_nil, List.append_nil, List.mem_filterMap, List.mem_map, id_eq, exists_eq_right] at hlclause
+  simp only [Formula.toList, DefaultFormula.toList, DefaultFormula.ofArray, convertLRAT',
+    Array.size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
+    Array.foldl_append', List.foldl_toArray', List.foldl_cons,
+    List.foldl_nil, Array.toList_append, Array.toList_filterMap', List.cons_append, List.nil_append,
+    List.toList_toArray, id_eq, List.filterMap_cons_none, List.map_nil, List.append_nil,
+    List.mem_filterMap, Array.mem_toList_iff, exists_eq_right] at hlclause
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
-  simp only [CNF.eval, List.all_eq_true] at h2
+  simp only [CNF.eval, Array.all_eq_true] at h2
   split at hrclause2
   · next heq =>
     rw [← heq] at hrclause2
     simp only [Option.some.injEq] at hrclause2
-    simp [CNF.Clause.convertLRAT_sat_of_sat reflectClause hrclause2, h2 reflectClause hrclause1]
+    rw [Array.mem_iff_getElem] at hrclause1
+    rcases hrclause1 with ⟨i, h, rfl⟩
+    simp [CNF.Clause.convertLRAT_sat_of_sat _ hrclause2, h2 i h]
   · contradiction
 
 end Internal

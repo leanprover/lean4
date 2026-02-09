@@ -3,17 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Meta.Basic
+public import Lean.Util.ForEachExprWhere
+public import Lean.Meta.PPGoal
 import Lean.Meta.AppBuilder
-import Lean.Meta.PPGoal
+
+public section
 
 namespace Lean.Meta
 
 register_builtin_option debug.terminalTacticsAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "when enabled, terminal tactics such as `grind` and `omega` are replaced with `sorry`. Useful for debugging and fixing bootstrapping issues"
 }
 
@@ -34,18 +36,37 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
+/--
+Produces an error message indicating that tactic `tacticName` has failed with the message `msg`,
+and displays the state of `mvarId` below the message.
+-/
+def mkTacticExMsg (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MessageData :=
+  m!"Tactic `{tacticName}` failed: {msg}\n\n{mvarId}"
+
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
   match msg? with
-  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
-  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  | none => throwError "Tactic `{tacticName}` failed\n\n{mvarId}"
+  | some msg => throwError (mkTacticExMsg tacticName mvarId msg)
 
+/--
+Rethrows the error as a nested error with the given tactic name prepended.
+If the error was tagged, prepends `nested` to the tag and preserves it.
+-/
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
-  throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
+  let nestedMsg := ex.toMessageData
+  let msg := m!"Tactic `{tacticName}` failed with a nested error:\n{ex.toMessageData}"
+  let kind := nestedMsg.kind
+  let msg := if !kind.isAnonymous then
+    .tagged (`nested ++ kind) msg
+  else msg
+  throwError msg
 
 /-- Throw a tactic exception with given tactic name if the given metavariable is assigned. -/
 def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   if (← mvarId.isAssigned) then
-    throwTacticEx tacticName mvarId "metavariable has already been assigned"
+    let msg := m!"The metavariable below has already been assigned"
+      ++ .note "This likely indicates an internal error in this tactic or a prior one"
+    throwTacticEx tacticName mvarId msg
 
 /-- Get the type the given metavariable. -/
 def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=
@@ -78,7 +99,8 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
   let removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
     let e ← instantiateMVars e
     let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
-      e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
+      if e.hasFVar then
+        e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
       get
     visit |>.run' candidates
   mvarId.withContext do
@@ -153,7 +175,6 @@ def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
 
 register_builtin_option tactic.skipAssignedInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
 }
 

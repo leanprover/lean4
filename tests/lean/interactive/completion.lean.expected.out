@@ -3,46 +3,46 @@
 {"items":
  [{"label": "foo",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion.lean"},
-     "position": {"line": 3, "character": 22}},
-    "id": {"const": {"declName": "Foo.foo"}},
-    "cPos": 1}}],
+   "data": ["file:///completion.lean", 3, 22, 1, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["file:///completion.lean", 3, 22, 1, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 5, "character": 23}}
 {"items":
  [{"label": "foo",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion.lean"},
-     "position": {"line": 5, "character": 23}},
-    "id": {"const": {"declName": "Foo.foo"}},
-    "cPos": 1}}],
+   "data": ["file:///completion.lean", 5, 23, 1, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["file:///completion.lean", 5, 23, 1, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 7, "character": 28}}
 {"items":
  [{"label": "foo",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion.lean"},
-     "position": {"line": 7, "character": 28}},
-    "id": {"const": {"declName": "Foo.foo"}},
-    "cPos": 0}}],
+   "data": ["file:///completion.lean", 7, 28, 0, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["file:///completion.lean", 7, 28, 0, "cFoo.foo"]}
 {"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 9, "character": 29}}
 {"items":
  [{"label": "foo",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion.lean"},
-     "position": {"line": 9, "character": 29}},
-    "id": {"const": {"declName": "Foo.foo"}},
-    "cPos": 0}}],
+   "data": ["file:///completion.lean", 9, 29, 0, "cFoo.foo"]}],
  "isIncomplete": false}
+Resolution of foo:
+{"label": "foo",
+ "kind": 5,
+ "detail": "Foo → Nat",
+ "data": ["file:///completion.lean", 9, 29, 0, "cFoo.foo"]}

@@ -3,11 +3,22 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Init.Data.Array.Subarray.Split
-import Init.Data.Range
-import Std.Data.HashMap.Basic
+public import Init.Data.Array.Subarray.Split
+public import Init.Data.Slice.Array.Iterator
+public import Init.Data.Range
+public import Std.Data.HashMap.Basic
+public import Init.Data.String.Basic
+public import Init.Data.Range.Polymorphic.RangeIterator
+public import Init.While
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.ToString.Macro
 import Init.Omega
+
+public section
 
 namespace Lean.Diff
 /--
@@ -57,7 +68,7 @@ structure Histogram.Entry (α : Type u) (lsize rsize : Nat) where
   rightWF : rightCount = 0 ↔ rightIndex = none
 
 /-- A histogram for arrays maps each element to a count and, if applicable, an index.-/
-def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
+@[expose] def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
   Std.HashMap α (Histogram.Entry α lsize rsize)
 
 
@@ -106,7 +117,6 @@ def matchPrefix (left right : Subarray α) : Array α × Subarray α × Subarray
   termination_by left.size - pref.size
   go #[]
 
-
 /-- Given two `Subarray`s, find their common suffix and return their differing prefixes -/
 def matchSuffix (left right : Subarray α) : Subarray α × Subarray α × Array α :=
   let rec go (i : Nat) : Subarray α × Subarray α × Array α :=
@@ -133,10 +143,10 @@ partial def lcs (left right : Subarray α) : Array α := Id.run do
   let (pref, left, right) := matchPrefix left right
   let (left, right, suff) := matchSuffix left right
   let mut hist : Histogram α left.size right.size := (∅ : Std.HashMap ..)
-  for h : i in [0:left.size] do
-    hist := hist.addLeft ⟨i, Membership.get_elem_helper h rfl⟩ left[i]
-  for h : i in [0:right.size] do
-    hist := hist.addRight ⟨i, Membership.get_elem_helper h rfl⟩ right[i]
+  for h : i in *...left.size do
+    hist := hist.addLeft ⟨i, Std.Rio.Internal.get_elem_helper_upper_open h rfl⟩ left[i]
+  for h : i in *...right.size do
+    hist := hist.addRight ⟨i, Std.Rio.Internal.get_elem_helper_upper_open h rfl⟩ right[i]
   let mut best := none
   for (k, v) in hist.toList do
     if let {leftCount := lc, leftIndex := some li, rightCount := rc, rightIndex := some ri, ..} := v then

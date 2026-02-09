@@ -3,9 +3,11 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
+import Lean.Meta.LitValues
+public section
 
 /-!
 Reifies `BitVec` problems with boolean substructure.
@@ -47,9 +49,11 @@ where
       binaryReflection lhsExpr rhsExpr .umod ``Std.Tactic.BVDecide.Reflect.BitVec.umod_congr origExpr
     | Complement.complement _ _ innerExpr =>
       unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr origExpr
-    | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>
+    | HShiftLeft.hShiftLeft α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
-      if distance?.isSome then throwError "internal error: constant shift should have been eliminated."
+      let_expr BitVec wExpr := α | return none
+      if (← getNatValue? wExpr).isSome && distance?.isSome then
+        throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
         distanceExpr
@@ -58,9 +62,11 @@ where
         ``BVExpr.shiftLeft
         ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeft_congr
         origExpr
-    | HShiftRight.hShiftRight _ β _ _ innerExpr distanceExpr =>
+    | HShiftRight.hShiftRight α β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
-      if distance?.isSome then throwError "internal error: constant shift should have been eliminated."
+      let_expr BitVec wExpr := α | return none
+      if (← getNatValue? wExpr).isSome && distance?.isSome then
+        throwError "internal error: constant shift should have been eliminated."
       let_expr BitVec _ := β | return none
       shiftReflection
         distanceExpr

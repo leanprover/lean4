@@ -1,0 +1,8 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.inline_math
+   "$"
+   (Lean.Doc.Syntax.code
+    "`"
+    (str "\"\\\\frac{\\n  x\\n}{\\n  4\\n}\\n\"")
+    "`"))
+All input consumed.

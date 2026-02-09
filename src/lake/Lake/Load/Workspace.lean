@@ -3,8 +3,14 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Load.Config
+public import Lake.Config.Workspace
 import Lake.Load.Resolve
+import Lake.Load.Package
+import Lake.Load.Lean.Eval
 import Lake.Build.InitFacets
 
 /-! # Workspace Loader
@@ -20,9 +26,10 @@ namespace Lake
 Load a `Workspace` for a Lake package by elaborating its configuration file.
 Does not resolve dependencies.
 -/
-def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
+private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackageCore "[root]" config
+  let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
+  let root := {root with outputsRef? := ← CacheRef.mk}
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
@@ -39,7 +46,7 @@ Load a `Workspace` for a Lake package by
 elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
-def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
+public def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
   let {reconfigure, leanOpts, updateDeps, updateToolchain, packageOverrides, ..} := config
   let ws ← loadWorkspaceRoot config
   if updateDeps then
@@ -50,7 +57,8 @@ def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
     ws.updateAndMaterialize {} leanOpts updateToolchain
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
-def updateManifest (config : LoadConfig) (toUpdate : NameSet := {})
+public def updateManifest
+  (config : LoadConfig) (toUpdate : NameSet := {})
 : LoggerIO Unit := do
   let {leanOpts, updateToolchain, ..} := config
   let ws ← loadWorkspaceRoot config

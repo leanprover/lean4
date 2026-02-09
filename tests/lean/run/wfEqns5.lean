@@ -6,7 +6,7 @@ termination_by n => n
 
 /--
 info: equations:
-theorem foo.eq_1 : foo 0 0 = 0
+@[defeq] theorem foo.eq_1 : foo 0 0 = 0
 theorem foo.eq_2 : ∀ (x : Nat), (x = 0 → False) → foo 0 x = x
 theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 -/
@@ -26,7 +26,7 @@ info: foo.eq_def (x✝ x✝¹ : Nat) :
 #guard_msgs in
 #check foo.eq_def
 
-/-- error: unknown identifier 'foo.eq_4' -/
+/-- error: Unknown identifier `foo.eq_4` -/
 #guard_msgs in
 #check foo.eq_4
 
@@ -53,7 +53,7 @@ termination_by n => n
 
 /--
 info: equations:
-theorem bar.eq_1 : ∀ (x : Nat),
+@[defeq] theorem bar.eq_1 : ∀ (x : Nat),
   bar 0 x =
     match x with
     | 0 => 0
@@ -107,7 +107,7 @@ info: Structural.foo.eq_def (x✝ x✝¹ : Nat) :
 #guard_msgs in
 #check foo.eq_def
 
-/-- error: unknown identifier 'foo.eq_4' -/
+/-- error: Unknown identifier `Structural.foo.eq_4` -/
 #guard_msgs in
 #check Structural.foo.eq_4
 
@@ -120,7 +120,7 @@ termination_by n => n
 
 /--
 info: equations:
-theorem Structural.bar.eq_1 : ∀ (x : Nat),
+@[defeq] theorem Structural.bar.eq_1 : ∀ (x : Nat),
   bar 0 x =
     match x with
     | 0 => 0

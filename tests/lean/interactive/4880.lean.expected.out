@@ -17,10 +17,11 @@
    {"start": {"line": 16, "character": 12},
     "end": {"line": 17, "character": 0}},
    "message":
-   "failed to synthesize\n  A\n\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "failed to synthesize instance of type class\n  A\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
    "fullRange":
    {"start": {"line": 16, "character": 12},
-    "end": {"line": 20, "character": 0}}},
+    "end": {"line": 20, "character": 0}},
+   "code": "lean.synthInstanceFailed"},
   {"source": "Lean 4",
    "severity": 1,
    "range":
@@ -37,10 +38,11 @@
    {"start": {"line": 22, "character": 17},
     "end": {"line": 22, "character": 20}},
    "message":
-   "failed to synthesize\n  A\n\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "failed to synthesize instance of type class\n  A\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
    "fullRange":
    {"start": {"line": 22, "character": 17},
-    "end": {"line": 22, "character": 20}}},
+    "end": {"line": 22, "character": 20}},
+   "code": "lean.synthInstanceFailed"},
   {"source": "Lean 4",
    "severity": 1,
    "range":

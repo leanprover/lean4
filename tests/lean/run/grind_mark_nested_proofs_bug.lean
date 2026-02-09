@@ -1,3 +1,4 @@
+module
 example (as bs cs : Array α) (v : α)
         (i : Nat)
         (h₁ : i < as.size)

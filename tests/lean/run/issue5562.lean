@@ -20,10 +20,13 @@ def n1 : Nat := x 1
 attribute [irreducible] T
 
 /--
-error: function expected at
+error: Function expected at
   x
-term has type
+but this term has type
   T
+
+Note: Expected a function because this term is being applied to the argument
+  1
 -/
 #guard_msgs in
 def n2 : Nat := x 1

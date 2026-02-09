@@ -8,10 +8,25 @@
 name = "lean4"
 bootstrap = true
 
-defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc", "LeanChecker"]
+
+# Have Lake use CMake's build type (e.g., `Release`, `Debug`) where possible
+buildType = "${CMAKE_BUILD_TYPE_TOML}"
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
+
+# Enables the Lake artifact cache if configured via CMake
+# (i.e., for stage 1 when the CMake `USE_LAKE_CACHE` option is set).
+enableArtifactCache = ${LAKE_ARTIFACT_CACHE_TOML}
+
+# Ensure build artifacts end up in the build directory even when the Lake
+# local artifact cache is enabled. This is necessary because subsequent stages
+# will expect the previous stage's artifacts to be in the build directory.
+restoreAllArtifacts = true
+
+# Lean expects its libraries to always have a `lib` prefix
+libPrefixOnWindows = true
 
 # The directory of Lean source files (i.e., `src`)
 srcDir = "${LEAN_SOURCE_DIR}"
@@ -25,19 +40,25 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+# Additional options derived from the CMake configuration
+# For example, CI will set `-DwarningAsError=true` through this
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+
+# Uncomment to limit number of reported errors further in case of overwhelming cmdline output
+#weakLeanArgs = ["-DmaxErrors=1"]
+
+${LEAN_EXTRA_LAKEFILE_TOML}
+
 [[lean_lib]]
 name = "Init"
-libName = "${LAKE_LIB_PREFIX}Init"
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
-libName = "${LAKE_LIB_PREFIX}Std"
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
-libName = "${LAKE_LIB_PREFIX}Lean"
 defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
@@ -51,23 +72,20 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
-globs = [
-  # Lake API imported by configuration files
-  "Lake",
-  # API only imported by `LakeMain` and the `lake` CLI
-  "Lake.CLI",
-]
-libName = "${LAKE_LIB_PREFIX}Lake"
+# Build Lake and all its submodules (which may not be imported elsewhere)
+globs = ["Lake.*"]
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "LakeMain"
 srcDir = "lake"
-libName = "${LAKE_LIB_PREFIX}LakeMain"
 defaultFacets = ["static.export"]
 
 [[lean_lib]]
 name = "Leanc"
 srcDir = "${CMAKE_BINARY_DIR}/leanc"
-libName = "${LAKE_LIB_PREFIX}Leanc"
+defaultFacets = ["static"]
+
+[[lean_lib]]
+name = "LeanChecker"
 defaultFacets = ["static"]

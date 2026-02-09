@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.DocString
-import Lean.PrettyPrinter
-import Lean.Parser.Tactic.Doc
+public import Lean.DocString
+public import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Elab
 
@@ -181,6 +184,8 @@ def Info.stx : Info → Syntax
   | ofFieldRedeclInfo i    => i.stx
   | ofDelabTermInfo i      => i.stx
   | ofChoiceInfo i         => i.stx
+  | ofDocInfo i            => i.stx
+  | ofDocElabInfo i        => i.stx
 
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
@@ -190,22 +195,22 @@ def Info.lctx : Info → LocalContext
   | .ofCompletionInfo i     => i.lctx
   | _                       => LocalContext.empty
 
-def Info.pos? (i : Info) : Option String.Pos :=
+def Info.pos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getPos? (canonicalOnly := true)
 
-def Info.tailPos? (i : Info) : Option String.Pos :=
+def Info.tailPos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getTailPos? (canonicalOnly := true)
 
-def Info.range? (i : Info) : Option String.Range :=
+def Info.range? (i : Info) : Option Lean.Syntax.Range :=
   i.stx.getRange? (canonicalOnly := true)
 
-def Info.contains (i : Info) (pos : String.Pos) (includeStop := false) : Bool :=
+def Info.contains (i : Info) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   i.range?.any (·.contains pos includeStop)
 
-def Info.size? (i : Info) : Option String.Pos := do
+def Info.size? (i : Info) : Option String.Pos.Raw := do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
-  return tailPos - pos
+  return tailPos.unoffsetBy pos
 
 -- `Info` without position information are considered to have "infinite" size
 def Info.isSmaller (i₁ i₂ : Info) : Bool :=
@@ -214,13 +219,13 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
+def Info.occursInside? (i : Info) (hoverPos : String.Pos.Raw) : Option String.Pos.Raw := do
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)
-  return hoverPos - headPos
+  return hoverPos.unoffsetBy headPos
 
-def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
+def Info.occursInOrOnBoundary (i : Info) (hoverPos : String.Pos.Raw) : Bool := Id.run do
   let some headPos := i.pos?
     | return false
   let some tailPos := i.tailPos?
@@ -231,56 +236,87 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 
   let infos := ts.filterMap fun (ci, i) => do
-    let diff := (← i.tailPos?) - (← i.pos?)
+    let diff := (← i.pos?).byteDistance (← i.tailPos?)
     return (diff, ci, i)
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
+structure HoverableInfoPrio where
+  -- Prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+  isHoverPosOnStop : Bool
+  -- Relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
+  -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
+  -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
+  -- surrounding the cursor.
+  size : Nat
+  -- Prefer results for constants over variables (which overlap at declaration names)
+  isVariableInfo : Bool
+  -- Prefer non-partial infos over partial infos
+  isPartialTermInfo : Bool
+  deriving BEq
+
+instance : Ord HoverableInfoPrio where
+  compare i1 i2 := Id.run do
+    if i1.isHoverPosOnStop && ! i2.isHoverPosOnStop then
+      return .lt
+    if ! i1.isHoverPosOnStop && i2.isHoverPosOnStop then
+      return .gt
+    if i1.size > i2.size then
+      return .lt
+    if i1.size < i2.size then
+      return .gt
+    if i1.isVariableInfo && ! i2.isVariableInfo then
+      return .lt
+    if ! i1.isVariableInfo && i2.isVariableInfo then
+      return .gt
+    if i1.isPartialTermInfo && ! i2.isPartialTermInfo then
+      return .lt
+    if ! i1.isPartialTermInfo && i2.isPartialTermInfo then
+      return .gt
+    return .eq
+
+instance : LE HoverableInfoPrio := leOfOrd
+instance : Max HoverableInfoPrio := maxOfLe
+
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option InfoWithCtx := Id.run do
-  let results := (← t.visitM (postNode := fun ctx info children results => do
-    let mut results := results.flatMap (·.getD [])
-    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-      results := results.filter (·.2.info.stx != info.stx[0])
-    if omitIdentApps && info.stx.isIdent then
-      -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
-      if let .ofTermInfo ti := info then
-        if ti.expr.isApp then
-          results := results.filter (·.2.info.stx != info.stx)
-    unless results.isEmpty do
-      return results  -- prefer innermost results
-    /-
-      Remark: we skip `info` nodes associated with the `nullKind` and `withAnnotateState` because they are used by tactics (e.g., `rewrite`) to control
-      which goal is displayed in the info views. See issue #1403
-    -/
-    if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
-      return results
-    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ | .ofErrorNameInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
-      return results
-    let r := info.range?.get!
-    let priority := (
-      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-      if r.stop == hoverPos then 0 else 1,
-      -- relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
-      -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
-      -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
-      -- surrounding the cursor
-      Int.negOfNat (r.stop - r.start).byteIdx,
-      -- prefer results for constants over variables (which overlap at declaration names)
-      if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
-    [(priority, {ctx, info, children})])) |>.getD []
-  -- sort results by lexicographical priority
-  let maxPrio? :=
-    let _ := @lexOrd
-    let _ := @leOfOrd.{0}
-    let _ := @maxOfLe
-    results.map (·.1) |>.max?
-  let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
-  if let some i := res? then
-    if let .ofTermInfo ti := i.info then
+partial def InfoTree.hoverableInfoAtM? [Monad m] (t : InfoTree) (hoverPos : String.Pos.Raw) (includeStop := false)
+    (filter : (ctx : ContextInfo) → (info : Info) → (children : PersistentArray InfoTree) →
+      (results : List (HoverableInfoPrio × InfoWithCtx)) →
+      m (List (HoverableInfoPrio × InfoWithCtx)) := fun _ _ _ results => pure results) :
+    m (Option InfoWithCtx) := do
+  let postNode ctx info children results : m (Option (HoverableInfoPrio × InfoWithCtx)) := do
+    let results ← results.filterMap (fun r? => r?.join) |> filter ctx info children
+    let maxPrio? := results.map (·.1) |>.max?
+    let bestResult? := results.find? (·.1 == maxPrio?)
+    if let some (prio, i) := bestResult? then
+      -- Prefer innermost results
+      return (prio, i)
+    -- We skip `info` nodes associated with the `nullKind` and `withAnnotateState` because they are used by tactics (e.g. `rewrite`) to control
+    -- which goal is displayed in the info views. See issue #1403.
+    let isAuxInfo := info.stx.isOfKind nullKind
+      || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState)
+    if isAuxInfo then
+      return none
+    let isEligibleInfoKind := info matches .ofFieldInfo _ | .ofOptionInfo _ | .ofErrorNameInfo _ || info.toElabInfo?.isSome
+    let some r := info.stx.getRange? (canonicalOnly := true)
+      | return none
+    if ! r.contains hoverPos includeStop || ! isEligibleInfoKind then
+      return none
+    let priority : HoverableInfoPrio := {
+      isHoverPosOnStop := r.stop == hoverPos
+      size := r.start.byteDistance r.stop
+      isVariableInfo := info matches .ofTermInfo { expr := .fvar .., .. }
+      isPartialTermInfo := info matches .ofPartialTermInfo ..
+    }
+    let result := { ctx, info, children }
+    return some (priority, result)
+  let results ← t.visitM (m := m) (postNode := postNode)
+  let bestResult? : Option InfoWithCtx := results.join.map (·.2)
+  if let some bestResult := bestResult? then
+    if let .ofTermInfo ti := bestResult.info then
       if ti.expr.isSyntheticSorry then
         return none
-  return res?
+  return bestResult?
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with
@@ -302,11 +338,15 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some doc ← findDocString? env oi.declName then
       return doc
     if let some decl := (← getOptionDecls).find? oi.optionName then
-      return decl.descr
+      return decl.fullDescr
     return none
   | .ofErrorNameInfo eni => do
-    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    let some errorExplanation ← getErrorExplanation? eni.errorName | return none
     return errorExplanation.summaryWithSeverity
+  | .ofDocInfo di =>
+    return (← findDocString? env di.stx.getKind)
+  | .ofDocElabInfo dei =>
+    return (← findDocString? env dei.name)
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
@@ -351,12 +391,19 @@ where
         let eFmt ← PrettyPrinter.ppSignature c
         return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
+      let lctx ← getLCtx
       -- Try not to show too scary internals
-      let showTerm := if let .fvar _ := e then
-        if let some ldecl := (← getLCtx).findFVar? e then
-          !ldecl.userName.hasMacroScopes
-        else false
-      else isAtomicFormat eFmt
+      let showTerm :=
+        if ti.isDisplayableTerm then
+          true
+        else
+          if let .fvar _ := e then
+            if let some ldecl := lctx.findFVar? e then
+              !ldecl.userName.hasMacroScopes
+            else
+              false
+          else
+            isAtomicFormat eFmt
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
@@ -397,7 +444,7 @@ structure GoalsAtResult where
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
     where to show intermediate states by calling `withTacticInfoContext`) -/
-partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult :=
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos.Raw) : List GoalsAtResult :=
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     let Info.ofTacticInfo ti := i
       | return gs
@@ -405,7 +452,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       | return gs
     let trailSize := i.stx.getTrailingSize
     -- show info at EOF even if strictly outside token + trail
-    let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+    let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
     -- include at least one trailing character (see also `priority` below)
     if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
       -- overwrite bottom-up results according to "innermost" heuristics documented above
@@ -443,8 +490,13 @@ where
     stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
 
 
-partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option InfoWithCtx :=
+partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos.Raw) : Option InfoWithCtx :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
-  hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
+  let filter ctx info children results :=
+    if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+      results.filter (·.2.info.stx != info.stx[0])
+    else
+      results
+  hoverableInfoAtM? (m := Id) t hoverPos (includeStop := true) (filter := filter)
 
 end Lean.Elab

@@ -6,9 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Perm
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Perm
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -82,9 +88,6 @@ theorem Perm.size_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
   simp only [perm_iff_toList_perm] at p
   simpa using p.length_eq
 
-@[deprecated Perm.size_eq (since := "2025-04-17")]
-abbrev Perm.length_eq := @Perm.size_eq
-
 theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
@@ -105,7 +108,7 @@ grind_pattern Perm.append => xs ~ ys, as ~ bs, ys ++ bs
 
 theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
     xs.push x ~ ys.push x := by
-  rw [push_eq_append_singleton]
+  rw [push_eq_append]
   exact p.append .rfl
 
 grind_pattern Perm.push => xs ~ ys, xs.push x

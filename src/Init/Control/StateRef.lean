@@ -8,7 +8,10 @@ The State monad transformer using IO references.
 module
 
 prelude
-import Init.System.ST
+public import Init.System.ST
+public import Init.Control.Reader
+
+public section
 
 set_option linter.missingDocs true
 
@@ -62,6 +65,7 @@ instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (Reade
 instance : MonadLift m (StateRefT' ω σ m) := ⟨StateRefT'.lift⟩
 instance (σ m) : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
 instance [Alternative m] [Monad m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
+instance [Monad m] [MonadAttach m] : MonadAttach (StateRefT' ω σ m) := inferInstanceAs (MonadAttach (ReaderT _ _))
 
 /--
 Retrieves the current value of the monad's mutable state.

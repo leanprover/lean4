@@ -3,12 +3,13 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
-import Lean.Meta.CompletionName
+public import Lean.Meta.Basic
 import Lean.Meta.PProdN
+import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Refl
 
 namespace Lean
 open Meta
@@ -51,13 +52,11 @@ Constructs the `.below` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
-@[reducible] protected def List.below.{u_1, u} : {α : Type u} →
-  {motive : List α → Sort u_1} → List α → Sort (max 1 u_1) :=
-fun {α} {motive} t =>
-  List.rec PUnit (fun head tail tail_ih => PProd (PProd (motive tail) tail_ih) PUnit) t
+@[reducible] protected def List.below.{u} : {a : Type} → {motive : List a → Sort u} → List a → Sort (max 1 u) :=
+fun {a} {motive} t => List.rec PUnit (fun a_1 a a_ih => motive a ×' a_ih) t
 ```
 -/
-private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
+private def mkBelowFromRec (recName : Name) (nParams : Nat)
   (belowName : Name) : MetaM Unit := do
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName
@@ -67,10 +66,10 @@ private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
 
   let decl ← forallTelescope recVal.type fun refArgs _ => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     -- universe parameter of the type fomer.
@@ -81,11 +80,7 @@ private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
       | throwError "type of type of major premise {major} not a type former"
 
     -- universe level of the resultant type
-    let rlvl : Level :=
-      if reflexive then
-        mkLevelMax ilvl lvl
-      else
-        mkLevelMax 1 lvl
+    let rlvl : Level := mkLevelMax ilvl lvl
 
     let mut val := .const recName (rlvl.succ :: lvls)
     -- add parameters
@@ -108,29 +103,30 @@ private def mkBelowFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    mkDefinitionValInferrringUnsafe belowName recVal.levelParams type val .abbrev
+    mkDefinitionValInferringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
   modifyEnv fun env => markAuxRecursor env decl.name
   modifyEnv fun env => addProtected env decl.name
 
-def mkBelow (indName : Name) : MetaM Unit := do
+public def mkBelow (indName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkBelow (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
   let recName := mkRecName indName
   let belowName := mkBelowName indName
-  mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
+  mkBelowFromRec recName indVal.numParams belowName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
-      mkBelowFromRec recName indVal.isReflexive indVal.numParams belowName
+      mkBelowFromRec recName indVal.numParams belowName
 
 /--
 If `minorType` is the type of a minor premies of a recursor, such as
@@ -178,30 +174,36 @@ Constructs the `.brecOn` definition for a inductive predicate.
 
 For example for the `List` type, it constructs,
 ```
-@[reducible] protected def List.brecOn.{u_1, u} : {α : Type u} → {motive : List α → Sort u_1} →
-  (t : List α) → ((t : List α) → List.below t → motive t) → motive t :=
-fun {α} {motive} t (F_1 : (t : List α) → List.below t → motive t) => (
-  @List.rec α (fun t => PProd (motive t) (@List.below α motive t))
-    ⟨F_1 [] PUnit.unit, PUnit.unit⟩
-    (fun head tail tail_ih => ⟨F_1 (head :: tail) ⟨tail_ih, PUnit.unit⟩, ⟨tail_ih, PUnit.unit⟩⟩)
-    t
-  ).1
+@[reducible] protected def List.brecOn.go.{u} : {a : Type} →
+  {motive : List a → Sort u} →
+    (t : List a) → ((t : List a) → List.below t → motive t) → motive t ×' List.below t :=
+fun {a} {motive} t F_1 =>
+  List.rec ⟨F_1 List.nil PUnit.unit, PUnit.unit⟩ (fun a_1 a_2 a_ih => ⟨F_1 (List.cons a_1 a_2) a_ih, a_ih⟩) t
+
+@[reducible] protected def List.brecOn.{u} : {a : Type} →
+  {motive : List a → Sort u} → (t : List a) → ((t : List a) → List.below t → motive t) → motive t :=
+fun {a} {motive} t F_1 => (List.brecOn.go t F_1).1
+
+protected theorem List.brecOn.eq.{u} : ∀ {a : Type} {motive : List a → Sort u} (t : List a)
+  (F_1 : (t : List a) → List.below t → motive t), List.brecOn t F_1 = F_1 t (List.brecOn.go t F_1).2
 ```
 -/
-private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
+private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     (all : Array Name) (brecOnName : Name) : MetaM Unit := do
+  let brecOnGoName := brecOnName.str "go"
+  let brecOnEqName := brecOnName.str "eq"
   let .recInfo recVal ← getConstInfo recName | return
   let lvl::lvls := recVal.levelParams.map (Level.param ·)
     | throwError "recursor {recName} has no levelParams"
   -- universe parameter names of brecOn
   let blps := recVal.levelParams
 
-  let decl ← forallTelescope recVal.type fun refArgs refBody => do
+  forallTelescope recVal.type fun refArgs refBody => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     let some idx := motives.idxOf? refBody.getAppFn
@@ -215,11 +217,7 @@ private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
       | throwError "type of type of major premise {major} not a type former"
 
     -- universe level of the resultant type
-    let rlvl : Level :=
-      if reflexive then
-        mkLevelMax ilvl lvl
-      else
-        mkLevelMax 1 lvl
+    let rlvl : Level := mkLevelMax ilvl lvl
 
     -- One `below` for each motive, with the same motive parameters
     let blvls := lvl::lvls
@@ -235,16 +233,16 @@ private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
     --   (F_1 : (t : List α) → (f : List.below t) → motive t)
     -- and bring parameters of that type into scope
     let mut fDecls : Array (Name × (Array Expr -> MetaM Expr)) := #[]
-    for motive in motives, below in belows, i in [:motives.size] do
+    for motive in motives, below in belows, i in *...motives.size do
       let fType ← forallTelescope (← inferType motive) fun targs _ => do
         withLocalDeclD `f (mkAppN below targs) fun f =>
           mkForallFVars (targs.push f) (mkAppN motive targs)
       let fName := .mkSimple s!"F_{i + 1}"
       fDecls := fDecls.push (fName, fun _ => pure fType)
     withLocalDeclsD fDecls fun fs => do
-      let mut val := .const recName (rlvl :: lvls)
+      let mut go_val := .const recName (rlvl :: lvls)
       -- add parameters
-      val := mkAppN val params
+      go_val := mkAppN go_val params
       -- add type formers
       for motive in motives, below in belows do
         -- example: (motive := fun t => PProd (motive t) (@List.below α motive t))
@@ -253,42 +251,79 @@ private def mkBRecOnFromRec (recName : Name) (reflexive : Bool) (nParams : Nat)
           let belowType := mkAppN below targs
           let arg ← mkPProd cType belowType
           mkLambdaFVars targs arg
-        val := .app val arg
+        go_val := .app go_val arg
       -- add minor premises
       for minor in minors do
         let arg ← buildBRecOnMinorPremise rlvl motives belows fs (← inferType minor)
-        val := .app val arg
+        go_val := .app go_val arg
       -- add indices and major premise
-      val := mkAppN val indices
-      val := mkApp val major
-      -- project out first component
-      val ← mkPProdFstM val
+      go_val := mkAppN go_val indices
+      go_val := mkApp go_val major
 
       -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs
-      let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
-      val ← mkLambdaFVars below_params val
+      let motive_app := mkAppN motives[idx]! (indices.push major)
+      let below_app := mkAppN belows[idx]! (indices.push major)
+      let type ← mkForallFVars below_params (← mkPProd motive_app below_app)
+      go_val ← mkLambdaFVars below_params go_val
 
-      mkDefinitionValInferrringUnsafe brecOnName blps type val .abbrev
+      let go_decl ← mkDefinitionValInferringUnsafe brecOnGoName blps type go_val .abbrev
 
-  addDecl (.defnDecl decl)
-  setReducibleAttribute decl.name
-  modifyEnv fun env => markAuxRecursor env decl.name
-  modifyEnv fun env => addProtected env decl.name
+      addDecl (.defnDecl go_decl)
+      setReducibleAttribute go_decl.name
+      modifyEnv fun env => addProtected env go_decl.name
 
-def mkBRecOn (indName : Name) : MetaM Unit := do
+      -- project out first component
+      let brecOnGoApp := mkAppN (.const brecOnGoName blvls) below_params
+      let val ← mkPProdFstM brecOnGoApp
+      let val ← mkLambdaFVars below_params val
+      let type ← mkForallFVars below_params motive_app
+      let decl ← mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
+
+      addDecl (.defnDecl decl)
+      setReducibleAttribute decl.name
+      modifyEnv fun env => markAuxRecursor env decl.name
+      modifyEnv fun env => addProtected env decl.name
+
+      let lhs := mkAppN (.const decl.name blvls) below_params
+      let rhs := fs[idx]!
+      let rhs := mkAppN rhs (indices.push major)
+      let rhs := mkApp rhs (← mkPProdSndM brecOnGoApp)
+      let thm_type ← mkEq lhs rhs
+      let thm_val ← mkFreshExprSyntheticOpaqueMVar thm_type
+      let mvar := thm_val.mvarId!
+      let cases ← mvar.cases major.fvarId!
+      for case in cases do
+        case.mvarId.refl (check := false)
+      let thm_val ← instantiateMVars thm_val
+      let thm_type ← mkForallFVars below_params thm_type
+      let thm_val ← mkLambdaFVars below_params thm_val
+      let thm_decl ← mkThmOrUnsafeDef {
+        name := brecOnEqName
+        levelParams := blps
+        type := thm_type
+        value := thm_val
+      }
+      addDecl thm_decl
+      modifyEnv fun env => addProtected env brecOnEqName
+
+public def mkBRecOn (indName : Name) : MetaM Unit := do
+  withTraceNode `Meta.mkBRecOn (fun _ => return m!"{indName}") do
   let .inductInfo indVal ← getConstInfo indName | return
   unless indVal.isRec do return
   if ← isPropFormerType indVal.type then return
 
   let recName := mkRecName indName
   let brecOnName := mkBRecOnName indName
-  mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
+  mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName
 
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
-      mkBRecOnFromRec recName indVal.isReflexive indVal.numParams indVal.all.toArray brecOnName
+      mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName
+
+builtin_initialize
+  registerTraceClass `Meta.mkBRecOn

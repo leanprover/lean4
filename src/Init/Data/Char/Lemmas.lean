@@ -7,16 +7,24 @@ module
 
 prelude
 import all Init.Data.Char.Basic
+public import Init.Data.Char.Basic
+public import Init.Ext
 import Init.Data.UInt.Lemmas
+
+public section
 
 namespace Char
 
-@[ext] protected theorem ext : {a b : Char} → a.val = b.val → a = b
+@[deprecated Char.ext (since := "2025-10-26")]
+protected theorem eq_of_val_eq : {a b : Char} → a.val = b.val → a = b
   | ⟨_,_⟩, ⟨_,_⟩, rfl => rfl
 
 theorem le_def {a b : Char} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
 theorem lt_def {a b : Char} : a < b ↔ a.1 < b.1 := .rfl
+
+@[deprecated lt_def (since := "2025-10-26")]
 theorem lt_iff_val_lt_val {a b : Char} : a < b ↔ a.val < b.val := Iff.rfl
+
 @[simp] protected theorem not_le {a b : Char} : ¬ a ≤ b ↔ b < a := UInt32.not_le
 @[simp] protected theorem not_lt {a b : Char} : ¬ a < b ↔ b ≤ a := UInt32.not_lt
 @[simp] protected theorem le_refl (a : Char) : a ≤ a := by simp [le_def]
@@ -42,6 +50,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 
@@ -49,8 +58,12 @@ instance leAntisymm : Std.Antisymm (· ≤ · : Char → Char → Prop) where
   antisymm _ _ := Char.le_antisymm
 
 -- This instance is useful while setting up instances for `String`.
+instance ltTrichotomous : Std.Trichotomous (· < · : Char → Char → Prop) where
+  trichotomous _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
+
+@[deprecated ltTrichotomous (since := "2025-10-27")]
 def notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
-  antisymm _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
+  antisymm := Char.ltTrichotomous.trichotomous
 
 instance ltAsymm : Std.Asymm (· < · : Char → Char → Prop) where
   asymm _ _ := Char.lt_asymm
@@ -59,16 +72,17 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
   total := Char.le_total
 
 -- This instance is useful while setting up instances for `String`.
+@[deprecated ltAsymm (since := "2025-08-01")]
 def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
-
-theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
-  have := c.utf8Size_pos
-  have := c.utf8Size_le_four
-  omega
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]
   rfl
+
+@[simp]
+theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
+
+theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 end Char

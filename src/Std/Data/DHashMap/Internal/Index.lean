@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
+public import Init.Data.UInt.Bitwise
+import Init.ByCases
 import Init.Data.UInt.Lemmas
-import Init.Data.UInt.Bitwise
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -43,7 +48,7 @@ def scrambleHash (hash : UInt64) : UInt64 :=
 `sz` is an explicit parameter because having it inferred from `h` can lead to suboptimal IR,
 cf. https://github.com/leanprover/lean4/issues/4157
 -/
-@[irreducible, inline] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) :
+@[irreducible, inline, expose] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) :
     { u : USize // u.toNat < sz } :=
   ⟨(scrambleHash hash).toUSize &&& (USize.ofNat sz - 1), by
     -- This proof is a good test for our USize API

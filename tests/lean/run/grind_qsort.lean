@@ -3,6 +3,8 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+import all Init.Data.Array.QSort.Basic
 
 -- TODO: when `grind` is ready for production use, move this file to `src/Init/Data/Array/QSort/Lemmas.lean`.
 /-!
@@ -49,14 +51,14 @@ grind_pattern List.Perm.trans => l₁ ~ l₂, l₁ ~ l₃
 grind_pattern Array.Perm.trans => xs ~ ys, xs ~ zs
 grind_pattern Vector.Perm.trans => xs ~ ys, xs ~ zs
 
-/-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
+/-- Variant of `List.Perm.take` specifying the permutation is constant after `i` elementwise. -/
 theorem _root_.List.Perm.take_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, i ≤ j → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.take i ~ l₂.take i := by
   apply h.take_of_getElem?
   sorry
 
-/-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
+/-- Variant of `List.Perm.drop` specifying the permutation is constant before `i` elementwise. -/
 theorem _root_.List.Perm.drop_of_getElem {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat}
     (w : ∀ j, j < i → (_ : j < l₁.length) → l₁[j] = l₂[j]'(by have := h.length_eq; omega)) :
     l₁.drop i ~ l₂.drop i := by
@@ -87,7 +89,7 @@ attribute [grind] Vector.Perm.extract'
 
 variable (lt : α → α → Bool) (lo hi : Nat)
 
-@[simp, grind] theorem size_qsort (as : Array α) :
+@[simp, grind =] theorem size_qsort (as : Array α) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
 
@@ -127,7 +129,7 @@ private theorem getElem_qpartition_snd_of_lt_lo (as : Vector α n)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
-@[local grind] private theorem getElem_qsort_sort_of_lt_lo
+@[local grind =] private theorem getElem_qsort_sort_of_lt_lo
     (as : Vector α n)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
@@ -191,6 +193,7 @@ private theorem qpartition_spec₁
     (w_mid : mid = (qpartition as lt lo hi).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
+  set_option trace.grind.ematch.pattern true in
   grind [qpartition, qpartition_loop_spec₁]
 
 /--

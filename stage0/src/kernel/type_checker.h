@@ -25,7 +25,7 @@ class type_checker {
 public:
     class state {
         typedef expr_map<expr> infer_cache;
-        typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+        typedef lean::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;
         infer_cache               m_infer_type[2];
@@ -33,6 +33,7 @@ public:
         expr_map<expr>            m_whnf;
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
+        expr_map<expr>            m_unfold;
         friend type_checker;
     public:
         state(environment const & env);
@@ -46,6 +47,11 @@ private:
     diagnostics *             m_diag;
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
+    /*
+    `m_eager_reduce` is set to true whenever we are type checking an application argument that has been
+    wrapped with `eagerReduce`.
+    */
+    bool                      m_eager_reduce = false;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;

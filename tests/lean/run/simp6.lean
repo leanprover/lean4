@@ -15,7 +15,7 @@ theorem ex5 : (10 = 20) = False :=
 
 /--
 info: theorem ex5 : (10 = 20) = False :=
-of_eq_true (Eq.trans (congrArg (fun x => x = False) (eq_false_of_decide (Eq.refl false))) (eq_self False))
+of_eq_true (Eq.trans (congrFun' (congrArg Eq (eq_false_of_decide (Eq.refl false))) False) (eq_self False))
 -/
 #guard_msgs in
 #print ex5

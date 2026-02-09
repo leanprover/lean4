@@ -3,12 +3,15 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.NameTrie
-import Lean.Util.Paths
-import Lean.Util.LakePath
-import Lean.Server.Completion.CompletionItemData
-import Lean.Parser.Module
+public import Lean.Util.LakePath
+public import Lean.Data.Lsp
+public import Lean.Parser.Module
+meta import Lean.Parser.Module
+
+public section
 
 namespace ImportCompletion
 
@@ -24,7 +27,7 @@ def AvailableImports.toImportTrie (imports : AvailableImports) : ImportTrie := I
     importTrie := importTrie.insert i i
   return importTrie
 
-def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos.Raw) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
   return importsStx.any fun importStx => Id.run do
@@ -38,7 +41,7 @@ def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (
     return importId.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
 
 /-- Checks whether `completionPos` points at a free space in the header. -/
-def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
+def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos.Raw) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
   return ! importsStx.any fun importStx => importStx.raw.getArgs.any fun arg =>
@@ -47,13 +50,13 @@ def isImportCmdCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (c
 
 def computePartialImportCompletions
     (headerStx : TSyntax ``Parser.Module.header)
-    (completionPos : String.Pos)
+    (completionPos : String.Pos.Raw)
     (availableImports : ImportTrie)
     : Array Name := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
-      let `(Parser.Module.«import»| $[private]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+      let `(Parser.Module.«import»| $[public]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
         | unreachable!
       match trailingDotTk? with
       | none =>
@@ -93,7 +96,7 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
     args   := #["available-imports"]
   }
   let lakeProc ← IO.Process.spawn spawnArgs
-  let stdout := String.trim (← lakeProc.stdout.readToEnd)
+  let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let exitCode ← lakeProc.wait
   match exitCode with
   | 0 =>
@@ -124,30 +127,30 @@ Sets the `data?` field of every `CompletionItem` in `completionList` using `para
 `completionItem/resolve` requests can be routed to the correct file worker even for
 `CompletionItem`s produced by the import completion.
 -/
-def addCompletionItemData (completionList : CompletionList) (params : CompletionParams)
+def addCompletionItemData (uri : DocumentUri) (pos : Lsp.Position) (completionList : CompletionList)
     : CompletionList :=
-  let data := { params : Lean.Lsp.CompletionItemData }
+  let data := { uri, pos : Lean.Lsp.ResolvableCompletionItemData }
   { completionList with items := completionList.items.map fun item =>
     { item with data? := some <| toJson data } }
 
-def find (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (params : CompletionParams) (availableImports : AvailableImports) : CompletionList :=
+def find (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (availableImports : AvailableImports) : CompletionList :=
   let availableImports := availableImports.toImportTrie
-  let completionPos := text.lspPosToUtf8Pos params.position
+  let completionPos := text.lspPosToUtf8Pos pos
   if isImportNameCompletionRequest headerStx completionPos then
     let allAvailableImportNameCompletions := availableImports.toArray.map ({ label := toString · })
-    addCompletionItemData { isIncomplete := false, items := allAvailableImportNameCompletions } params
+    addCompletionItemData uri pos { isIncomplete := false, items := allAvailableImportNameCompletions }
   else if isImportCmdCompletionRequest headerStx completionPos then
     let allAvailableFullImportCompletions := availableImports.toArray.map ({ label := s!"import {·}" })
-    addCompletionItemData { isIncomplete := false, items := allAvailableFullImportCompletions } params
+    addCompletionItemData uri pos { isIncomplete := false, items := allAvailableFullImportCompletions }
   else
     let completionNames : Array Name := computePartialImportCompletions headerStx completionPos availableImports
     let completions : Array CompletionItem := completionNames.map ({ label := toString · })
-    addCompletionItemData { isIncomplete := false, items := completions } params
+    addCompletionItemData uri pos { isIncomplete := false, items := completions }
 
-def computeCompletions (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (params : CompletionParams)
+def computeCompletions (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header)
     : IO CompletionList := do
   let availableImports ← collectAvailableImports
-  let completionList := find text headerStx params availableImports
-  return addCompletionItemData completionList params
+  let completionList := find uri pos text headerStx availableImports
+  return addCompletionItemData uri pos completionList
 
 end ImportCompletion

@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Basic
+public meta import Lean.Elab.Tactic.Basic
+
+public section
 
 /-!
 Helpers for testing cancellation in interactive tests. Put here because of `initialize` restrictions
@@ -14,7 +19,7 @@ and to avoid repeated elaboration overhead per test.
 
 namespace Lean.Server.Test.Cancel
 
-initialize onceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
+meta initialize onceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
 
 /--
 On first invocation, sends a diagnostics "blocked", blocks until cancelled, and then eprints
@@ -54,7 +59,7 @@ elab_rules : tactic
   Core.checkInterrupted
 
 -- can't use a naked promise in `initialize` as marking it persistent would block
-initialize unblockedCancelTk : IO.CancelToken ← IO.CancelToken.new
+meta initialize unblockedCancelTk : IO.CancelToken ← IO.CancelToken.new
 
 /--
 Waits for `unblock` to be called, which is expected to happen in a subsequent document version that

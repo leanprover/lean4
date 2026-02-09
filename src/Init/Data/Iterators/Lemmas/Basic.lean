@@ -6,9 +6,12 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Basic
 
-namespace Std.Iterators
+public section
+
+namespace Std
+open Std.Iterators
 
 /--
 Induction principle for finite iterators: One can define a function `f` that maps every
@@ -44,4 +47,4 @@ def Iter.inductSkips {α β} [Iterator α Id β] [Productive α Id]
   step it (fun {it'} _ => inductSkips motive step it')
 termination_by it.finitelyManySkips
 
-end Std.Iterators
+end Std

@@ -3,11 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.SimpLemmas
-import Init.Data.Bool
-import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Decidable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Decidable
+import Init.Data.BEq
+
+@[expose] public section
 
 /-!
 This module contains the `Bool` simplifying part of the `bv_normalize` simp set.
@@ -18,10 +21,6 @@ namespace Normalize
 
 attribute [bv_normalize] Bool.not_true
 attribute [bv_normalize] Bool.not_false
-attribute [bv_normalize] Bool.and_true
-attribute [bv_normalize] Bool.true_and
-attribute [bv_normalize] Bool.and_false
-attribute [bv_normalize] Bool.false_and
 attribute [bv_normalize] Bool.true_beq
 attribute [bv_normalize] beq_true
 attribute [bv_normalize] Bool.false_beq
@@ -34,15 +33,14 @@ attribute [bv_normalize] Bool.xor_true
 attribute [bv_normalize] Bool.not_xor_self
 attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
-attribute [bv_normalize] Bool.cond_self
 attribute [bv_normalize] Bool.cond_not
 
 @[bv_normalize]
 theorem if_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
-  rw [cond_eq_if]
+  rw [cond_eq_ite]
 
 @[bv_normalize]
-theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
+theorem Bool.not_xor : ∀ (a b : Bool), (!(a ^^ b)) = (a == b) := by decide
 
 @[bv_normalize]
 theorem Bool.not_beq_one : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
@@ -101,7 +99,6 @@ theorem BitVec.ite_same_else' :
   intro c t e
   cases c <;> simp [BEq.comm (a := t) (b := e)]
 
-@[bv_normalize]
 theorem Bool.ite_then_ite (cond : Bool) {a b c : α} :
     (bif cond then (bif cond then a else b) else c) = (bif cond then a else c) := by
   cases cond <;> simp
@@ -116,7 +113,6 @@ theorem BitVec.ite_then_not_ite (cond : Bool) {a b c : BitVec w} :
     (bif cond then ~~~(bif cond then a else b) else c) = (bif cond then ~~~a else c) := by
   cases cond <;> simp
 
-@[bv_normalize]
 theorem Bool.ite_else_ite (cond : Bool) {a b c : α} :
     (bif cond then a else (bif cond then b else c)) = (bif cond then a else c) := by
   cases cond <;> simp
@@ -131,7 +127,6 @@ theorem BitVec.ite_else_not_ite (cond : Bool) {a b c : BitVec w} :
     (bif cond then a else ~~~(bif cond then b else c)) = (bif cond then a else ~~~c) := by
   cases cond <;> simp
 
-@[bv_normalize]
 theorem Bool.ite_then_ite' (c0 c1 : Bool) {a b : α} :
     (bif c0 then (bif c1 then a else b) else a) = (bif c0 && !c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
@@ -146,7 +141,6 @@ theorem BitVec.ite_then_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then ~~~(bif c1 then ~~~a else b) else a) = (bif c0 && !c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-@[bv_normalize]
 theorem Bool.ite_else_ite' (c0 c1 : Bool) {a b : α} :
     (bif c0 then a else (bif c1 then a else b)) = (bif !c0 && !c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
@@ -161,7 +155,6 @@ theorem BitVec.ite_else_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then a else ~~~(bif c1 then ~~~a else b)) = (bif !c0 && !c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-@[bv_normalize]
 theorem Bool.ite_then_ite'' (c0 c1 : Bool) {a b : α} :
     (bif c0 then (bif c1 then b else a) else a) = (bif c0 && c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
@@ -176,7 +169,6 @@ theorem BitVec.ite_then_not_ite'' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then ~~~(bif c1 then b else ~~~a) else a) = (bif c0 && c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
-@[bv_normalize]
 theorem Bool.ite_else_ite'' (c0 c1 : Bool) {a b : α} :
     (bif c0 then a else (bif c1 then b else a)) = (bif !c0 && c1 then b else a) := by
   cases c0 <;> cases c1 <;> simp
@@ -298,6 +290,9 @@ theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true :=
 theorem Bool.and_right (lhs rhs : Bool) (h : (lhs && rhs) = true) : rhs = true := by
   revert lhs rhs
   decide
+
+theorem Bool.beq_self_eq_true (a : Bool) : (a == a) = true := by
+  apply _root_.beq_self_eq_true
 
 end Normalize
 end Std.Tactic.BVDecide

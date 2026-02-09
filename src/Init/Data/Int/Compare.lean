@@ -6,8 +6,11 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 module
 
 prelude
-import all Init.Data.Ord
-import Init.Data.Int.Order
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
+import Init.Omega
+
+public section
 
 /-! # Basic lemmas about comparing integers
 
@@ -25,7 +28,7 @@ theorem compare_eq_ite_lt (a b : Int) :
   simp only [compare, compareOfLessAndEq]
   split
   · rfl
-  · next h =>
+  next h =>
     match Int.lt_or_eq_of_le (Int.not_lt.1 h) with
     | .inl h => simp [h, Int.ne_of_gt h]
     | .inr rfl => simp
@@ -34,11 +37,11 @@ theorem compare_eq_ite_le (a b : Int) :
     compare a b = if a ≤ b then if b ≤ a then .eq else .lt else .gt := by
   rw [compare_eq_ite_lt]
   split
-  · next hlt => simp [Int.le_of_lt hlt, Int.not_le.2 hlt]
-  · next hge =>
+  next hlt => simp [Int.le_of_lt hlt, Int.not_le.2 hlt]
+  next hge =>
     split
-    · next hgt => simp [Int.le_of_lt hgt, Int.not_le.2 hgt]
-    · next hle => simp [Int.not_lt.1 hge, Int.not_lt.1 hle]
+    next hgt => simp [Int.not_le.2 hgt]
+    next hle => simp [Int.not_lt.1 hge, Int.not_lt.1 hle]
 
 protected theorem compare_swap (a b : Int) : (compare a b).swap = compare b a := by
   simp only [compare_eq_ite_le]; (repeat' split) <;> try rfl

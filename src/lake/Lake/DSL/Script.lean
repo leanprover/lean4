@@ -3,9 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Config.Package
-import Lake.DSL.Attributes
+public import Init.Prelude
+import Lake.Config.Package  -- shake: keep (builtin macro output dependency)
+import Lake.DSL.Attributes  -- shake: keep (builtin macro output dependency)
 import Lake.DSL.Syntax
 
 /-! # Script Declarations

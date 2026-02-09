@@ -1,3 +1,4 @@
+module
 axiom R : Type
 instance : Lean.Grind.CommRing R := sorry
 
@@ -30,5 +31,5 @@ example (f : R → Nat) : 4 * f ((cos x + sin x)^2) ≠ 2 + f (2 * cos x * sin x
 example (f : R → Nat) : max 3 (4 * f ((cos x + sin x)^2)) ≠ 2 + f (2 * cos x * sin x + 1) := by
   grind
 
--- See https://github.com/leanprover-community/mathlib4/blob/nightly-testing/MathlibTest/grind/trig.lean
+-- See https://github.com/leanprover-community/mathlib4-nightly-testing/blob/nightly-testing/MathlibTest/grind/trig.lean
 -- for the Mathlib version of this test, using the real `ℝ`, `cos`, `sin`, and `cos_sq_and_sin_sq` declarations.

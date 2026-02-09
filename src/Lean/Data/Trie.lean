@@ -5,9 +5,14 @@ Author: Sebastian Ullrich, Leonardo de Moura, Joachim Breitner
 
 A string trie data structure, used for tokenizing the Lean language
 -/
+module
+
 prelude
-import Lean.Data.Format
-import Init.Data.Option.Coe
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+import Init.Omega
+
+public section
 
 namespace Lean
 namespace Data
@@ -17,7 +22,7 @@ namespace Data
 
 Tries have typically many nodes with small degree, where a linear scan
 through the (compact) `ByteArray` is faster than using binary search or
-search trees like `RBTree`.
+search trees like `Std.TreeMap`.
 
 Moreover, many nodes have degree 1, which justifies the special case `Node1`
 constructor.
@@ -25,7 +30,7 @@ constructor.
 The code would be a bit less repetitive if we used something like the following
 ```
 mutual
-def Trie α := Option α × ByteAssoc α
+@[expose] def Trie α := Option α × ByteAssoc α
 
 inductive ByteAssoc α where
   | leaf : Trie α
@@ -59,7 +64,7 @@ instance : Inhabited (Trie α) where
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
     if h : i < s.utf8ByteSize then
-      let c := s.getUtf8Byte i h
+      let c := s.getUTF8Byte ⟨i⟩ h
       let t := insertEmpty (i + 1)
       node1 none c t
     else
@@ -67,14 +72,14 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
   let rec loop
     | i, leaf v =>
       if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+        let c := s.getUTF8Byte ⟨i⟩ h
         let t := insertEmpty (i + 1)
         node1 v c t
       else
         leaf (f v)
     | i, node1 v c' t' =>
       if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+        let c := s.getUTF8Byte ⟨i⟩ h
         if c == c'
         then node1 v c' (loop (i + 1) t')
         else
@@ -84,7 +89,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         node1 (f v) c' t'
     | i, node v cs ts =>
       if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+        let c := s.getUTF8Byte ⟨i⟩ h
         match cs.findIdx? (· == c) with
           | none   =>
             let t := insertEmpty (i + 1)
@@ -109,7 +114,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         val
     | i, node1 val c' t' =>
       if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+        let c := s.getUTF8Byte ⟨i⟩ h
         if c == c'
         then loop (i + 1) t'
         else none
@@ -117,7 +122,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         val
     | i, node val cs ts =>
       if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+        let c := s.getUTF8Byte ⟨i⟩ h
         match cs.findIdx? (· == c) with
         | none   => none
         | some idx => loop (i + 1) ts[idx]!
@@ -146,7 +151,7 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
   where
     go (t : Trie α) (i : Nat) : Array α :=
       if h : i < pre.utf8ByteSize then
-        let c := pre.getUtf8Byte i h
+        let c := pre.getUTF8Byte ⟨i⟩ h
         match t with
         | leaf _val => .empty
         | node1 _val c' t' =>
@@ -162,14 +167,16 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
 
 /-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
 and return the associated value. -/
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos.Raw)
+    (endByte := s.utf8ByteSize)
+    (endByte_valid : endByte ≤ s.utf8ByteSize := by simp) : Option α :=
   let rec loop
     | leaf v, _, res =>
       if v.isSome then v else res
     | node1 v c' t', i, res =>
       let res := if v.isSome then v else res
-      if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+      if h : i < endByte then
+        let c := s.getUTF8Byte ⟨i⟩ (by simp [String.Pos.Raw.lt_iff]; omega)
         if c == c'
         then loop t' (i + 1) res
         else res
@@ -177,8 +184,8 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α 
         res
     | node v cs ts, i, res =>
       let res := if v.isSome then v else res
-      if h : i < s.utf8ByteSize then
-        let c := s.getUtf8Byte i h
+      if h : i < endByte then
+        let c := s.getUTF8Byte ⟨i⟩ (by simp [String.Pos.Raw.lt_iff]; omega)
         match cs.findIdx? (· == c) with
         | none => res
         | some idx => loop ts[idx]! (i + 1) res
@@ -195,8 +202,8 @@ private partial def toStringAux {α : Type} : Trie α → List Format
       [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
     ) cs.toList ts.toList
 
-instance {α : Type} : ToString (Trie α) :=
-  ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+instance {α : Type} : ToString (Trie α) where
+  toString t := private (flip Format.joinSep Format.line $ toStringAux t).pretty
 
 end Trie
 

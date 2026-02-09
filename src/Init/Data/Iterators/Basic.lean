@@ -6,21 +6,83 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Classical
+public import Init.NotationExtra
+public import Init.WFTactics
 import Init.Ext
-import Init.NotationExtra
-import Init.TacticsExtra
+import Init.PropLemmas
+
+set_option doc.verso true
+set_option linter.missingDocs true
+
+public section
 
 /-!
-### Definition of iterators
+# Definition of iterators
 
 This module defines iterators and what it means for an iterator to be finite and productive.
 -/
 
 namespace Std
 
-namespace Iterators
+private opaque Internal.idOpaque {α} : { f : α → α // f = id } := ⟨id, rfl⟩
+
+/--
+Currently, {lean}`Shrink α` is just a wrapper around {lean}`α`.
+
+In the future, {name}`Shrink` should allow shrinking {lean}`α` into a potentially smaller universe,
+given a proof that {name}`α` is actually small, just like Mathlib's {lit}`Shrink`, except that
+the latter's conversion functions are noncomputable. Until then, {lean}`Shrink α` is always in the
+same universe as {name}`α`.
+
+This no-op type exists so that fewer breaking changes will be needed when the
+real {lit}`Shrink` type is available and the iterators will be made more flexible with regard to
+universes.
+
+The conversion functions {name (scope := "Init.Data.Iterators.Basic")}`Shrink.deflate` and
+{name (scope := "Init.Data.Iterators.Basic")}`Shrink.inflate` form an equivalence between
+{name}`α` and {lean}`Shrink α`, but this equivalence is intentionally not definitional.
+-/
+public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
+
+/-- Converts elements of {name}`α` into elements of {lean}`Shrink α`. -/
+@[always_inline]
+public def Shrink.deflate {α} (x : α) : Shrink α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+/-- Converts elements of {lean}`Shrink α` into elements of {name}`α`. -/
+@[always_inline]
+public def Shrink.inflate {α} (x : Shrink α) : α :=
+  cast (by simp [Shrink, Internal.idOpaque.property]) x
+
+@[simp, grind =]
+public theorem Shrink.deflate_inflate {α} {x : Shrink α} :
+    Shrink.deflate x.inflate = x := by
+  simp [deflate, inflate]
+
+@[simp, grind =]
+public theorem Shrink.inflate_deflate {α} {x : α} :
+    (Shrink.deflate x).inflate = x := by
+  simp [deflate, inflate]
+
+public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
+    x.inflate = y.inflate ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.deflate h
+  · rintro rfl
+    rfl
+
+public theorem Shrink.deflate_inj {α} {x y : α} :
+    Shrink.deflate x = Shrink.deflate y ↔ x = y := by
+  apply Iff.intro
+  · intro h
+    simpa using congrArg Shrink.inflate h
+  · rintro rfl
+    rfl
+
+-- It is not fruitful to move the following docstrings to verso right now because there are lots of
+-- forward references that cannot be realized nicely.
+set_option doc.verso false
 
 /--
 An iterator that sequentially emits values of type `β` in the monad `m`. It may be finite
@@ -34,8 +96,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `Iter` for a more convenient interface in case that no monadic effects are needed (`m = Id`).
@@ -66,6 +129,9 @@ structure IterM {α : Type w} (m : Type w → Type w') (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
 
+/-- Wraps the state of an iterator into an `IterM` object. -/
+add_decl_doc IterM.mk
+
 /--
 An iterator that sequentially emits values of type `β`. It may be finite
 or infinite.
@@ -78,8 +144,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `IterM` for iterators that operate in a monad.
@@ -108,6 +175,9 @@ def x := ([1, 2, 3].iter : Iter Nat)
 structure Iter {α : Type w} (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `Iter` object. -/
+add_decl_doc IterM.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
@@ -180,6 +250,16 @@ def IterStep.successor : IterStep α β → Option α
   | .skip it => some it
   | .done => none
 
+@[simp]
+theorem IterStep.successor_yield {it : α} {out : β} :
+  (IterStep.yield it out).successor = some it := rfl
+
+@[simp]
+theorem IterStep.successor_skip {it : α} : (IterStep.skip (β := β) it).successor = some it := rfl
+
+@[simp]
+theorem IterStep.successor_done : (IterStep.done (α := α) (β := β)).successor = none := rfl
+
 /--
 If present, applies `f` to the iterator of an `IterStep` and replaces the iterator
 with the result of the application of `f`.
@@ -222,6 +302,11 @@ theorem IterStep.mapIterator_id {step : IterStep α β} :
     step.mapIterator id = step := by
   cases step <;> rfl
 
+@[simp]
+theorem IterStep.mapIterator_id' {step : IterStep α β} :
+    step.mapIterator (fun x => x) = step := by
+  cases step <;> rfl
+
 /--
 A variant of `IterStep` that bundles the step together with a proof that it is "plausible".
 The plausibility predicate will later be chosen to assert that a state is a plausible successor
@@ -235,7 +320,7 @@ def PlausibleIterStep (IsPlausibleStep : IterStep α β → Prop) := Subtype IsP
 /--
 Match pattern for the `yield` case. See also `IterStep.yield`.
 -/
-@[match_pattern, simp, expose]
+@[match_pattern, simp, spec, expose]
 def PlausibleIterStep.yield {IsPlausibleStep : IterStep α β → Prop}
     (it' : α) (out : β) (h : IsPlausibleStep (.yield it' out)) :
     PlausibleIterStep IsPlausibleStep :=
@@ -244,7 +329,7 @@ def PlausibleIterStep.yield {IsPlausibleStep : IterStep α β → Prop}
 /--
 Match pattern for the `skip` case. See also `IterStep.skip`.
 -/
-@[match_pattern, simp, expose]
+@[match_pattern, simp, grind =, expose]
 def PlausibleIterStep.skip {IsPlausibleStep : IterStep α β → Prop}
     (it' : α) (h : IsPlausibleStep (.skip it')) : PlausibleIterStep IsPlausibleStep :=
   ⟨.skip it', h⟩
@@ -252,7 +337,7 @@ def PlausibleIterStep.skip {IsPlausibleStep : IterStep α β → Prop}
 /--
 Match pattern for the `done` case. See also `IterStep.done`.
 -/
-@[match_pattern, simp, expose]
+@[match_pattern, simp, grind =, expose]
 def PlausibleIterStep.done {IsPlausibleStep : IterStep α β → Prop}
     (h : IsPlausibleStep .done) : PlausibleIterStep IsPlausibleStep :=
   ⟨.done, h⟩
@@ -274,34 +359,65 @@ abbrev PlausibleIterStep.casesOn {IsPlausibleStep : IterStep α β → Prop}
 end IterStep
 
 /--
-The typeclass providing the step function of an iterator in `Iter (α := α) β` or
-`IterM (α := α) m β`.
+The step function of an iterator in `Iter (α := α) β` or `IterM (α := α) m β`.
 
 In order to allow intrinsic termination proofs when iterating with the `step` function, the
 step object is bundled with a proof that it is a "plausible" step for the given current iterator.
 -/
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
+  /--
+  A relation that governs the allowed steps from a given iterator.
+
+  The "plausible" steps are those which make sense for a given state; plausibility can ensure
+  properties such as the successor iterator being drawn from the same collection, that an iterator
+  resulting from a skip will return the same next value, or that the next item yielded is next one
+  in the original collection.
+  -/
   IsPlausibleStep : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
-  step : (it : IterM (α := α) m β) → m (PlausibleIterStep <| IsPlausibleStep it)
+  /--
+  Carries out a step of iteration.
+  -/
+  step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
 section Monadic
 
-/--
-Converts wraps the state of an iterator into an `IterM` object.
--/
-@[always_inline, inline, expose]
-def toIterM {α : Type w} (it : α) (m : Type w → Type w') (β : Type w) :
-    IterM (α := α) m β :=
+/-- The constructor has been renamed. -/
+@[deprecated IterM.mk (since := "2025-01-19"), inline, expose]
+abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk']
+def Iterators.toIterM := @IterM.mk
+
+theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
+    ⟨it.internalState⟩ = it := by
+  simp
+
+set_option linter.missingDocs false in
+@[deprecated IterM.mk_internalState (since := "2025-12-01")]
+def Iterators.toIterM_internalState := @IterM.mk_internalState
+
 @[simp]
-theorem toIterM_internalState {α m β} (it : IterM (α := α) m β) :
-    toIterM it.internalState m β = it :=
+theorem IterM.internalState_mk {α m β} (it : α) :
+    (⟨it⟩ : IterM m β).internalState = it :=
+  rfl
+
+set_option linter.missingDocs false in
+@[expose, deprecated IterM.internalState_mk (since := "2025-01-29")]
+def internalState_toIterM := @IterM.internalState_mk
+
+@[simp]
+theorem Iter.internalState_toIterM {α β} (it : Std.Iter (α := α) β) :
+    it.toIterM.internalState = it.internalState := rfl
+
+@[simp]
+theorem Iter.toIterM_mk {α β} {it : α} :
+    (⟨it⟩ : Iter β).toIterM = ⟨it⟩ :=
   rfl
 
 @[simp]
-theorem internalState_toIterM {α m β} (it : α) :
-    (toIterM it m β).internalState = it :=
+theorem IterM.toIter_mk {α β} {it : α} :
+    (⟨it⟩ : IterM Id β).toIter = ⟨it⟩ :=
   rfl
 
 /--
@@ -321,6 +437,25 @@ and a proof that this is a plausible step for the given iterator.
 abbrev IterM.Step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) :=
   PlausibleIterStep it.IsPlausibleStep
+
+/--
+Makes a single step with the given iterator `it`, potentially emitting a value and providing a
+succeeding iterator. If this function is used recursively, termination can sometimes be proved with
+the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
+-/
+@[always_inline, inline, expose]
+def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
+  Iterator.step it
+
+theorem IterM.step_eq {α m β IsPlausibleStep step} {it : IterM (α := α) m β} :
+    letI : Iterator α m β := ⟨IsPlausibleStep, step⟩
+    it.step = step it :=
+  (rfl)
+
+theorem IterM.step_mk {α m β} [Iterator α m β] (it : α) :
+    (⟨it⟩ : IterM m β).step = Iterator.step (⟨it⟩ : IterM m β) := by
+  simp [IterM.step_eq]
 
 /--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next
@@ -349,16 +484,6 @@ def IterM.IsPlausibleSkipSuccessorOf {α : Type w} {m : Type w → Type w'} {β 
     [Iterator α m β] (it' it : IterM (α := α) m β) : Prop :=
   it.IsPlausibleStep (.skip it')
 
-/--
-Makes a single step with the given iterator `it`, potentially emitting a value and providing a
-succeeding iterator. If this function is used recursively, termination can sometimes be proved with
-the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
--/
-@[always_inline, inline]
-def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) : m it.Step :=
-  Iterator.step it
-
 end Monadic
 
 section Pure
@@ -378,10 +503,46 @@ number of steps.
 -/
 inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     : IterM (α := α) m β → β → Prop where
+  /-- The output value could plausibly be emitted in the next step. -/
   | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output value could plausibly be emitted in a step after the next step. -/
   | indirect {it it' : IterM (α := α) m β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
+
+/--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
+inductive IterM.IsPlausibleIndirectSuccessorOf {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] : IterM (α := α) m β → IterM (α := α) m β → Prop where
+  /-- Every iterator is a plausible indirect successor of itself. -/
+  | refl (it : IterM (α := α) m β) : it.IsPlausibleIndirectSuccessorOf it
+  /-- The iterator is a plausible successor of one of the current iterator's successors. -/
+  | cons_right {it'' it' it : IterM (α := α) m β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem IterM.IsPlausibleIndirectSuccessorOf.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it'' it' it : IterM (α := α) m β}
+    (h' : it''.IsPlausibleIndirectSuccessorOf it') (h : it'.IsPlausibleIndirectSuccessorOf it) :
+    it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+theorem IterM.IsPlausibleIndirectSuccessorOf.single {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it' it : IterM (α := α) m β}
+    (h : it'.IsPlausibleSuccessorOf it) :
+    it'.IsPlausibleIndirectSuccessorOf it :=
+  .cons_right (.refl _) h
+
+theorem IterM.IsPlausibleIndirectOutput.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β]
+    {it' it : IterM (α := α) m β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
 
 /--
 The type of the step object returned by `Iter.step`, containing an `IterStep`
@@ -394,7 +555,7 @@ def Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := 
 /--
 Converts an `Iter.Step` into an `IterM.Step`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
   ⟨step.val.mapIterator Iter.toIterM, step.property⟩
@@ -431,6 +592,16 @@ def Iter.IsPlausibleOutput {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (out : β) : Prop :=
   it.toIterM.IsPlausibleOutput out
 
+theorem Iter.isPlausibleOutput_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it : Iter (α := α) β} {out : β} :
+    it.IsPlausibleOutput out ↔ ∃ it', it.IsPlausibleStep (.yield it' out) := by
+  simp only [IsPlausibleOutput, IterM.IsPlausibleOutput]
+  constructor
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIter, h⟩
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIterM, h⟩
+
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it`.
@@ -440,14 +611,42 @@ def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
 
+theorem Iter.isPlausibleSuccessorOf_eq_invImage {α : Type w} {β : Type w} [Iterator α Id β] :
+    IsPlausibleSuccessorOf (α := α) (β := β) =
+      InvImage (IterM.IsPlausibleSuccessorOf (α := α) (β := β) (m := Id)) Iter.toIterM := rfl
+
+theorem Iter.isPlausibleSuccessorOf_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} :
+    it'.IsPlausibleSuccessorOf it ↔ ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step := by
+  simp only [IsPlausibleSuccessorOf, IterM.IsPlausibleSuccessorOf]
+  constructor
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator IterM.toIter,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator Iter.toIterM,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
+
+theorem Iter.IsPlausibleStep.isPlausibleSuccessor_of_yield {α : Type w} {β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} {out : β}
+    (h : it.IsPlausibleStep (.yield it' out)) : it'.IsPlausibleSuccessorOf it := by
+  simpa [isPlausibleSuccessorOf_iff_exists] using ⟨.yield it' out, by simp [h]⟩
+
+theorem Iter.IsPlausibleStep.isPlausibleSuccessor_of_skip {α : Type w} {β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} (h : it.IsPlausibleStep (.skip it')) :
+    it'.IsPlausibleSuccessorOf it := by
+  simpa [isPlausibleSuccessorOf_iff_exists] using ⟨.skip it', by simp [h]⟩
+
 /--
 Asserts that a certain iterator `it` could plausibly yield the value `out` after an arbitrary
 number of steps.
 -/
 inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
     Iter (α := α) β → β → Prop where
+  /-- The output value could plausibly be emitted in the next step. -/
   | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output value could plausibly be emitted in a step after the next step. -/
   | indirect {it it' : Iter (α := α) β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
@@ -473,6 +672,47 @@ theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α
       exact .indirect (α := α) h ih
 
 /--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
+inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
+    Iter (α := α) β → Iter (α := α) β → Prop where
+  /-- Every iterator is a plausible indirect successor of itself. -/
+  | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
+  /-- The iterator is a plausible indirect successor of one of the current iterator's successors. -/
+  | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem Iter.isPlausibleIndirectSuccessor_iff_isPlausibleIndirectSuccessor_toIterM {α β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} :
+    it'.IsPlausibleIndirectSuccessorOf it ↔ it'.toIterM.IsPlausibleIndirectSuccessorOf it.toIterM := by
+  constructor
+  · intro h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
+  · intro h
+    rw [← Iter.toIter_toIterM (it := it), ← Iter.toIter_toIterM (it := it')]
+    generalize it.toIterM = it at ⊢ h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
+
+theorem Iter.IsPlausibleIndirectSuccessorOf.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+    (h : it'.IsPlausibleIndirectSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+theorem Iter.IsPlausibleIndirectOutput.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
+
+/--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it` while no value is emitted (see `IterStep.skip`).
 -/
@@ -487,7 +727,12 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
-  it.toIterM.step.run.toPure
+  it.toIterM.step.run.inflate.toPure
+
+theorem Iter.step_eq {IsPlausibleStep step} {it : Iter (α := α) β} :
+    letI : Iterator α Id β := ⟨IsPlausibleStep, step⟩
+    it.step = IterM.Step.toPure (it := it.toIterM) (step it.toIterM).run.inflate :=
+  (rfl)
 
 end Pure
 
@@ -499,8 +744,13 @@ this means that the relation of plausible successors is well-founded.
 Given this typeclass, termination proofs for well-founded recursion over an iterator `it` can use
 `it.finitelyManySteps` as a termination measure.
 -/
-class Finite (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] : Prop where
+class Iterators.Finite (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSuccessorOf (α := α) (m := m))
+
+theorem Iterators.Finite.wf_of_id {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] :
+    WellFounded (Iter.IsPlausibleSuccessorOf (α := α)) := by
+  simpa [Iter.isPlausibleSuccessorOf_eq_invImage] using InvImage.wf _ Finite.wf
 
 /--
 This type is a wrapper around `IterM` so that it becomes a useful termination measure for
@@ -508,6 +758,11 @@ recursion over finite iterators. See also `IterM.finitelyManySteps` and `Iter.fi
 -/
 structure IterM.TerminationMeasures.Finite
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  The wrapped iterator.
+
+  In the wrapper, its finiteness is used as a termination measure.
+  -/
   it : IterM (α := α) m β
 
 /--
@@ -520,10 +775,11 @@ def IterM.TerminationMeasures.Finite.Rel
     TerminationMeasures.Finite α m → TerminationMeasures.Finite α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSuccessorOf IterM.TerminationMeasures.Finite.it
 
-instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [Finite α m] : WellFoundedRelation (IterM.TerminationMeasures.Finite α m) where
+instance IterM.TerminationMeasures.instWellFoundedRelationFinite {α : Type w} {m : Type w → Type w'}
+    {β : Type w} [Iterator α m β] [Iterators.Finite α m] :
+    WellFoundedRelation (IterM.TerminationMeasures.Finite α m) where
   rel := IterM.TerminationMeasures.Finite.Rel
-  wf := by exact (InvImage.wf _ Finite.wf).transGen
+  wf := by exact (InvImage.wf _ Iterators.Finite.wf).transGen
 
 /--
 Termination measure to be used in well-founded recursive functions recursing over a finite iterator
@@ -531,7 +787,16 @@ Termination measure to be used in well-founded recursive functions recursing ove
 -/
 @[expose]
 def IterM.finitelyManySteps {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [Finite α m] (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
+    [Iterators.Finite α m] (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
+  ⟨it⟩
+
+/--
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a finite iterator without requiring a proof of finiteness (see also `Finite`).
+-/
+@[expose]
+def IterM.finitelyManySteps! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
   ⟨it⟩
 
 /--
@@ -551,6 +816,12 @@ theorem IterM.TerminationMeasures.Finite.rel_of_skip
     Rel ⟨it'⟩ ⟨it⟩ := by
   exact .single ⟨_, rfl, h⟩
 
+theorem IterM.TerminationMeasures.Finite.rel_trans
+    {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    {it it' it'' : TerminationMeasures.Finite α m} :
+    it.Rel it' → it'.Rel it'' → it.Rel it'' :=
+  .trans
+
 macro_rules | `(tactic| decreasing_trivial) => `(tactic|
   first
   | exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
@@ -558,9 +829,14 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
   | fail)
 
 @[inherit_doc IterM.finitelyManySteps, expose]
-def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id]
+def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Finite α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
   it.toIterM.finitelyManySteps
+
+@[inherit_doc IterM.finitelyManySteps!, expose]
+def Iter.finitelyManySteps! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
+  it.toIterM.finitelyManySteps!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
@@ -608,7 +884,8 @@ well-founded.
 Given this typeclass, termination proofs for well-founded recursion over an iterator `it` can use
 `it.finitelyManySkips` as a termination measure.
 -/
-class Productive (α m) {β} [Iterator α m β] : Prop where
+class Iterators.Productive (α m) {β} [Iterator α m β] : Prop where
+  /-- The relation of plausible successors during skips is well-founded. -/
   wf : WellFounded (IterM.IsPlausibleSkipSuccessorOf (α := α) (m := m))
 
 /--
@@ -617,6 +894,11 @@ recursion over productive iterators. See also `IterM.finitelyManySkips` and `Ite
 -/
 structure IterM.TerminationMeasures.Productive
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  The wrapped iterator.
+
+  In the wrapper, its productivity is used as a termination measure.
+  -/
   it : IterM (α := α) m β
 
 /--
@@ -629,10 +911,29 @@ def IterM.TerminationMeasures.Productive.Rel
     TerminationMeasures.Productive α m → TerminationMeasures.Productive α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSkipSuccessorOf IterM.TerminationMeasures.Productive.it
 
-instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [Productive α m] : WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where
+theorem IterM.TerminationMeasures.Finite.Rel.of_productive
+    {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β] {a b : Finite α m} :
+    Productive.Rel ⟨a.it⟩ ⟨b.it⟩ → Finite.Rel a b := by
+  generalize ha' : Productive.mk a.it = a'
+  generalize hb' : Productive.mk b.it = b'
+  have ha : a = ⟨a'.it⟩ := by simp [← ha']
+  have hb : b = ⟨b'.it⟩ := by simp [← hb']
+  rw [ha, hb]
+  clear ha hb ha' hb' a b
+  rw [Productive.Rel, Finite.Rel]
+  intro h
+  induction h
+  · rename_i ih
+    exact .single ⟨_, rfl, ih⟩
+  · rename_i hab ih
+    refine .trans ih ?_
+    exact .single ⟨_, rfl, hab⟩
+
+instance IterM.TerminationMeasures.instWellFoundedRelationProductive {α : Type w}
+    {m : Type w → Type w'} {β : Type w} [Iterator α m β] [Iterators.Productive α m] :
+    WellFoundedRelation (IterM.TerminationMeasures.Productive α m) where
   rel := IterM.TerminationMeasures.Productive.Rel
-  wf := by exact (InvImage.wf _ Productive.wf).transGen
+  wf := by exact (InvImage.wf _ Iterators.Productive.wf).transGen
 
 /--
 Termination measure to be used in well-founded recursive functions recursing over a productive
@@ -640,7 +941,17 @@ iterator (see also `Productive`).
 -/
 @[expose]
 def IterM.finitelyManySkips {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [Productive α m] (it : IterM (α := α) m β) : IterM.TerminationMeasures.Productive α m :=
+    [Iterators.Productive α m] (it : IterM (α := α) m β) : IterM.TerminationMeasures.Productive α m :=
+  ⟨it⟩
+
+/--
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a productive iterator without requiring a proof of productiveness
+(see also `Productive`).
+-/
+@[expose]
+def IterM.finitelyManySkips! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : IterM.TerminationMeasures.Productive α m :=
   ⟨it⟩
 
 /--
@@ -659,9 +970,14 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
     | fail)
 
 @[inherit_doc IterM.finitelyManySkips, expose]
-def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Productive α Id]
+def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Productive α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
   it.toIterM.finitelyManySkips
+
+@[inherit_doc IterM.finitelyManySkips!, expose]
+def Iter.finitelyManySkips! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
+  it.toIterM.finitelyManySkips!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
@@ -678,17 +994,86 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
     | exact Iter.TerminationMeasures.Productive.rel_of_skip ‹_›
     | fail)
 
-instance [Iterator α m β] [Finite α m] : Productive α m where
+instance Iterators.instProductiveOfFinte [Iterator α m β] [Iterators.Finite α m] :
+    Iterators.Productive α m where
   wf := by
     apply Subrelation.wf (r := IterM.IsPlausibleSuccessorOf)
     · intro it' it h
       exact IterM.isPlausibleSuccessorOf_of_skip h
-    · exact Finite.wf
+    · exact Iterators.Finite.wf
 
 end Productive
 
-end Iterators
+/--
+This typeclass characterizes iterators that have deterministic return values. This typeclass does
+*not* guarantee that there are no monadic side effects such as exceptions.
 
-export Iterators (Iter IterM)
+General monadic iterators can be nondeterministic, so that `it.IsPlausibleStep step` will be true
+for no or more than one choice of `step`. This typeclass ensures that there is exactly one such
+choice.
 
-end Std
+This is an experimental instance and it should not be explicitly used downstream of the standard
+library.
+-/
+class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterator α m β]
+    where
+  /--
+  Every iterator with state `α` in monad `m` has exactly one plausible step.
+  -/
+  isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
+
+namespace Iterators
+
+/--
+This structure provides a more convenient way to define `Finite α m` instances using
+`Finite.of_finitenessRelation : FinitenessRelation α m → Finite α m`.
+-/
+structure FinitenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
+    [Iterator α m β] where
+  /--
+  A well-founded relation such that if `it'` is a successor iterator of `it`, then `Rel it' it`.
+  -/
+  Rel (it' it : IterM (α := α) m β) : Prop
+  /-- `Rel` is well-founded. -/
+  wf : WellFounded Rel
+  /-- If `it'` is a successor iterator of `it`, then `Rel it' it`. -/
+  subrelation : ∀ {it it'}, it'.IsPlausibleSuccessorOf it → Rel it' it
+
+theorem Finite.of_finitenessRelation
+    {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] (r : FinitenessRelation α m) : Finite α m where
+  wf := by
+    refine Subrelation.wf (r := r.Rel) ?_ ?_
+    · intro x y h
+      apply FinitenessRelation.subrelation
+      exact h
+    · apply InvImage.wf
+      exact r.wf
+
+/--
+This structure provides a more convenient way to define `Productive α m` instances using
+`Productive.of_productivenessRelation : ProductivenessRelation α m → Productive α m`.
+-/
+structure ProductivenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
+    [Iterator α m β] where
+  /--
+  A well-founded relation such that if `it'` is obtained from `it` by skipping, then `Rel it' it`.
+  -/
+  Rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
+  /-- `Rel` is well-founded. -/
+  wf : WellFounded Rel
+  /-- If `it'` is obtained from `it` by skipping, then `Rel it' it`. -/
+  subrelation : ∀ {it it'}, it'.IsPlausibleSkipSuccessorOf it → Rel it' it
+
+theorem Productive.of_productivenessRelation
+    {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] (r : ProductivenessRelation α m) : Productive α m where
+  wf := by
+    refine Subrelation.wf (r := r.Rel) ?_ ?_
+    · intro x y h
+      apply ProductivenessRelation.subrelation
+      exact h
+    · apply InvImage.wf
+      exact r.wf
+
+end Std.Iterators

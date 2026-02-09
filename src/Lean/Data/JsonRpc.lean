@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.RBTree
-import Lean.Data.Json
+public import Lean.Data.Json.Stream
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/
@@ -22,7 +25,7 @@ inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
   | null
-  deriving Inhabited, BEq, Ord
+  deriving Inhabited, BEq, Hashable, Ord
 
 instance : OfNat RequestID n := ⟨RequestID.num n⟩
 
@@ -113,7 +116,7 @@ inductive Message where
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
   deriving Inhabited
 
-def Batch := Array Message
+@[expose] def Batch := Array Message
 
 /-- Generic version of `Message.request`.
 
@@ -131,6 +134,14 @@ structure Request (α : Type u) where
 instance [ToJson α] : CoeOut (Request α) Message :=
   ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
+def Request.ofMessage? : Message → Option (Request Json)
+  | .request id method params? => some {
+      id
+      method
+      param := toJson params?
+    }
+  | _ => none
+
 /-- Generic version of `Message.notification`.
 
 A notification message. A processed notification message must not send a response back. They work like events.
@@ -145,6 +156,13 @@ structure Notification (α : Type u) where
 
 instance [ToJson α] : CoeOut (Notification α) Message :=
   ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
+
+def Notification.ofMessage? : Message → Option (Notification Json)
+  | .notification method params? => some {
+      method
+      param := toJson params?
+    }
+  | _ => none
 
 /-- Generic version of `Message.response`.
 
@@ -164,6 +182,10 @@ structure Response (α : Type u) where
 
 instance [ToJson α] : CoeOut (Response α) Message :=
   ⟨fun r => Message.response r.id (toJson r.result)⟩
+
+def Response.ofMessage? : Message → Option (Response Json)
+  | .response id result => some { id, result }
+  | _ => none
 
 /-- Generic version of `Message.responseError`.
 
@@ -187,10 +209,14 @@ instance [ToJson α] : CoeOut (ResponseError α) Message :=
 instance : CoeOut (ResponseError Unit) Message :=
   ⟨fun r => Message.responseError r.id r.code r.message none⟩
 
+def ResponseError.ofMessage? : Message → Option (ResponseError Json)
+  | .responseError id code message data? => some { id, code, message, data? }
+  | _ => none
+
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
-private def RequestID.lt : RequestID → RequestID → Bool
+@[expose] def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.str a, RequestID.str b            => a < b
   | RequestID.num a, RequestID.num b            => a < b
   | RequestID.null,  RequestID.num _            => true
@@ -198,7 +224,7 @@ private def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-private def RequestID.ltProp : LT RequestID :=
+@[expose] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=
@@ -268,6 +294,129 @@ instance [FromJson α] : FromJson (Notification α) where
       let param : α ← fromJson? (toJson params)
       pure $ ⟨method, param⟩
     else throw "not a notification"
+
+/--
+A variant of `Message` that has been parsed *partially*, without the payload.
+This is useful when we want to process the metadata of a `Message` without parsing and converting
+the whole thing.
+-/
+inductive MessageMetaData where
+  | request (id : RequestID) (method : String)
+  | notification (method : String)
+  | response (id : RequestID)
+  | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
+  deriving Inhabited
+
+def Message.metaData : Message → MessageMetaData
+  | .request id method .. => .request id method
+  | .notification method .. => .notification method
+  | .response id .. => .response id
+  | .responseError id code message data? => .responseError id code message data?
+
+def MessageMetaData.toMessage : MessageMetaData → Message
+  | .request id method => .request id method none
+  | .notification method => .notification method none
+  | .response id => .response id .null
+  | .responseError id code message data? => .responseError id code message data?
+
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
+open Json.Parser in
+private def messageMetaDataParser (input : String) : Parser MessageMetaData := do
+  skip
+  let k ← parseStr
+  skip
+  match k with
+  | "id" =>
+    -- Request or response
+    let id ← parseRequestID
+    skip
+    -- Skip `jsonrpc` field
+    let _ ← parseStr
+    skip
+    let _ ← parseStr
+    skip
+    let k' ← parseStr
+    match k' with
+    | "method" =>
+      skip
+      let method ← parseStr
+      return .request id method
+    | "result" =>
+      -- Response
+      return .response id
+    | _ =>
+      fail "expected `method` or `result` field"
+  | "jsonrpc" =>
+    -- Notification
+    -- Skip `jsonrpc` version
+    let _ ← parseStr
+    skip
+    -- Skip `method` field name
+    let _ ← parseStr
+    skip
+    let method ← parseStr
+    return .notification method
+  | "error" =>
+    -- Response error
+    -- Response errors are usually small, so we just parse them normally.
+    match Json.parse input with
+    | .ok parsed =>
+      match fromJson? parsed with
+      | .ok (.responseError id code message data? : Message) =>
+        return .responseError id code message data?
+      | .ok _ =>
+        fail "expected response error message kind"
+      | .error err =>
+        fail err
+    | .error err =>
+      fail err
+  | _ =>
+    fail "expected `id`, `jsonrpc` or `error` field"
+where
+  parseStr : Parser String := do
+    let c ← peek!
+    if  c != '"' then
+      fail "expected \""
+    skip
+    str
+  parseRequestID : Parser RequestID := do
+    (do
+      let num ← Parser.num
+      return .num num) <|>
+    (do
+      let str ← parseStr
+      return .str str) <|>
+    (do
+      skipString "null"
+      return .null)
+
+/--
+Danger: For performance reasons, this function makes a number of fragile assumptions about `input`.
+Namely:
+- `input` is the output of `(toJson (v : Message)).compress`
+- `compress` yields a lexicographic ordering of JSON object keys
+-/
+def parseMessageMetaData (input : String) : Except String MessageMetaData :=
+  messageMetaDataParser input |>.run input
+
+public inductive MessageDirection where
+  | clientToServer
+  | serverToClient
+  deriving Inhabited, FromJson, ToJson
+
+inductive MessageKind where
+  | request
+  | notification
+  | response
+  | responseError
+  deriving FromJson, ToJson
+
+def MessageKind.ofMessage : Message → MessageKind
+  | .request .. => .request
+  | .notification .. => .notification
+  | .response .. => .response
+  | .responseError .. => .responseError
 
 end Lean.JsonRpc
 

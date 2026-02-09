@@ -3,14 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.AddDecl
-import Lean.Util.FoldConsts
-import Lean.Meta.Basic
-import Lean.Meta.Check
-import Lean.Meta.Tactic.AuxLemma
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.AuxLemma
+import Lean.Util.ForEachExpr
+
+public section
 
 /-!
 
@@ -56,7 +56,7 @@ In this module, we produce
 ```lean
 def aux := fun (y : Nat) => h (g y)
 ```
-Note that in this particular case, it is safe to lambda abstract the let-varible `y`.
+Note that in this particular case, it is safe to lambda abstract the let-variable `y`.
 This module uses the following approach to decide whether it is safe or not to lambda
 abstract a let-variable.
 1) We enable zetaDelta-expansion tracking in `MetaM`. That is, whenever we perform type checking
@@ -286,9 +286,10 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
-      if !zetaDeltaFVarIds.contains fvarId then
+      -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
+      if nondep || !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -321,11 +322,11 @@ partial def process : ClosureM Unit := do
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | .ldecl _ _ n ty val nonDep _ =>
+    | .ldecl _ _ n ty val nondep _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b nondep
       else
         b.lowerLooseBVars 1 1
 
@@ -349,18 +350,77 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
     process
     pure (type, value)
 
+private structure TopoSort where
+  tempMark  : FVarIdHashSet := {}
+  doneMark  : FVarIdHashSet := {}
+  newDecls : Array LocalDecl := #[]
+  newArgs : Array Expr := #[]
+
+/--
+By construction, the `newLocalDecls` for fvars are in dependency order, but those for MVars may not be,
+and need to be interleaved appropriately. This we do a “topological insertion sort” of these.
+We care about efficiency for the common case of many fvars and no mvars.
+-/
+private partial def sortDecls (sortedDecls : Array LocalDecl) (sortedArgs : Array Expr)
+  (toSortDecls : Array LocalDecl) (toSortArgs : Array Expr) : CoreM (Array LocalDecl × Array Expr):= do
+  assert! sortedDecls.size = sortedArgs.size
+  assert! toSortDecls.size = toSortArgs.size
+  if toSortDecls.isEmpty then
+    return (sortedDecls, sortedArgs)
+  trace[Meta.Closure] "MVars to abstract, topologically sorting the abstracted variables"
+  let mut m : Std.HashMap FVarId (LocalDecl × Expr) := {}
+  for decl in sortedDecls, arg in sortedArgs do
+    m := m.insert decl.fvarId (decl, arg)
+  for decl in toSortDecls, arg in toSortArgs do
+    m := m.insert decl.fvarId (decl, arg)
+
+  let rec visit (fvarId : FVarId) : StateT TopoSort CoreM Unit := do
+    let some (decl, arg) := m.get? fvarId | return
+    if (← get).doneMark.contains decl.fvarId then
+      return ()
+    trace[Meta.Closure] "Sorting decl {mkFVar decl.fvarId} : {decl.type}"
+    if (← get).tempMark.contains decl.fvarId then
+      throwError "cycle detected in sorting abstracted variables"
+    assert! !decl.isLet (allowNondep := true) -- should all be cdecls
+    modify fun s => { s with tempMark := s.tempMark.insert decl.fvarId }
+    let type := decl.type
+    type.forEach' fun e => do
+      if e.hasFVar then
+        if e.isFVar then
+          visit e.fvarId!
+        return true
+      else
+        return false
+    modify fun s => { s with
+      newDecls := s.newDecls.push decl
+      newArgs := s.newArgs.push arg
+      doneMark := s.doneMark.insert decl.fvarId
+    }
+
+  let s₀ := { newDecls := .emptyWithCapacity m.size, newArgs := .emptyWithCapacity m.size }
+  StateT.run' (s := s₀) do
+    for decl in sortedDecls do
+      visit decl.fvarId
+    for decl in toSortDecls do
+      visit decl.fvarId
+    let {newDecls, newArgs, .. } ← get
+    trace[Meta.Closure] "Sorted fvars: {newDecls.map (mkFVar ·.fvarId)}"
+    return (newDecls, newArgs)
+
 def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
   let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
-  let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
+  let (newLocalDecls, newArgs) ← sortDecls s.newLocalDecls.reverse s.exprFVarArgs.reverse
+                                           s.newLocalDeclsForMVars s.exprMVarArgs
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
   let value := mkLambda newLocalDecls (mkLambda newLetDecls value)
+  assert! !value.hasFVar  -- In case https://github.com/leanprover/lean4/issues/10705 resurfaces in a new way
   pure {
     type        := type,
     value       := value,
     levelParams := s.levelParams,
     levelArgs   := s.levelArgs,
-    exprArgs    := s.exprFVarArgs.reverse ++ s.exprMVarArgs
+    exprArgs    := newArgs
   }
 
 end Closure
@@ -375,7 +435,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
-  let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+  let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
     result.type result.value  hints)
   addDecl decl
   if compile then
@@ -383,10 +443,10 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) (compile := true) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
-  mkAuxDefinition name type value (zetaDelta := zetaDelta)
+  mkAuxDefinition name type value (zetaDelta := zetaDelta) (compile := compile)
 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
@@ -395,5 +455,8 @@ def mkAuxTheorem (type : Expr) (value : Expr) (zetaDelta : Bool := false) (kind?
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let name ← mkAuxLemma (kind? := kind?) (cache := cache) result.levelParams.toList result.type result.value
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+
+builtin_initialize
+  registerTraceClass `Meta.Closure
 
 end Lean.Meta

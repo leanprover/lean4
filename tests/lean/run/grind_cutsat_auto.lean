@@ -1,3 +1,4 @@
+module
 example : ∀ x : Int, x > 7 → 2 * x > 14 := by
   grind
 
@@ -28,14 +29,14 @@ abbrev problem (x y z w v : Int) : Prop :=
   (y ≥ -10)
 
 /--
-trace: [grind.cutsat.model] x := 121
-[grind.cutsat.model] y := -10
-[grind.cutsat.model] z := -34
-[grind.cutsat.model] w := 0
-[grind.cutsat.model] v := 1
+trace: [grind.lia.model] x := 121
+[grind.lia.model] y := -10
+[grind.lia.model] z := -34
+[grind.lia.model] w := 0
+[grind.lia.model] v := 1
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y z w v : Int) : problem x y z w v → False := by
   fail_if_success grind
   sorry

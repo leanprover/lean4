@@ -13,7 +13,7 @@ section structure_abstract
 variable (s : S)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 s : S
 ⊢ P s.1
@@ -27,7 +27,7 @@ example : P (s.proj) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 s : S
 ⊢ P s.1
@@ -37,7 +37,7 @@ example : P (s.proj) := by
   unfold S.proj
   fail
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example : P (s.proj) := by
   simp [S.proj]
@@ -49,7 +49,7 @@ section structure_concrete
 
 variable (n : Nat)
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 n : Nat
 ⊢ P { proj := n }.1
@@ -61,7 +61,7 @@ example : P (S.proj ⟨n⟩) := by rw [S.proj]; fail
   -- here as, as that elaborates as `P s.proj`
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 n : Nat
 ⊢ P { proj := n }.1
@@ -70,12 +70,13 @@ n : Nat
 example : P (S.proj ⟨n⟩) := by unfold S.proj; fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 n : Nat
 ⊢ P n
 -/
 #guard_msgs in
+set_option linter.unusedSimpArgs false in
 example : P (S.proj ⟨n⟩) := by simp [S.proj]; fail -- NB: reduces the projectino
 
 end structure_concrete
@@ -91,7 +92,7 @@ instance : C Bool where
 variable (α : Type) [C α]
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 α : Type
 inst✝ : C α
@@ -101,7 +102,7 @@ inst✝ : C α
 example : P (C.meth α) := by rw [C.meth]; fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 α : Type
 inst✝ : C α
@@ -110,7 +111,7 @@ inst✝ : C α
 #guard_msgs in
 example : P (C.meth α) := by unfold C.meth; fail
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example : P (C.meth α) := by simp [C.meth]; fail
 
@@ -119,7 +120,7 @@ end class_abstract
 section class_concrete
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 ⊢ P instCBool.1
 -/
@@ -127,7 +128,7 @@ P : Nat → Prop
 example : P (C.meth Bool) := by rw [C.meth]; fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 ⊢ P instCBool.1
 -/
@@ -135,7 +136,7 @@ P : Nat → Prop
 example : P (C.meth Bool) := by unfold C.meth; fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 P : Nat → Prop
 ⊢ P 42
 -/

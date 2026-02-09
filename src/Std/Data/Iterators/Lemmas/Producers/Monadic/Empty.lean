@@ -3,16 +3,19 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Producers.Monadic.Empty
-import Init.Data.Iterators.Lemmas.Consumers.Monadic
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Producers.Monadic.Empty
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+
+@[expose] public section
+
+namespace Std
 
 @[simp]
 theorem IterM.step_empty {m β} [Monad m] :
-    (IterM.empty m β).step = pure ⟨.done, rfl⟩ :=
+    (IterM.empty m β).step = pure (.deflate ⟨.done, rfl⟩) :=
   rfl
 
 @[simp]
@@ -59,4 +62,4 @@ theorem IterM.drain_empty {m β} [Monad m] [LawfulMonad m] :
     (IterM.empty m β).drain = pure .unit := by
   simp [IterM.drain_eq_fold]
 
-end Std.Iterators
+end Std

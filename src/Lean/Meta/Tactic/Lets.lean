@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.LetToHave
+
+public section
 
 /-!
 # Tactics to manipulate `let` expressions
@@ -17,17 +22,18 @@ namespace Lean.Meta
 /-!
 ### `let` extraction
 
-Extracting `let`s means to locate `let`/`letFun`s in a term and to extract them
+Extracting `let`s means to locate `let`/`have`s in a term and to extract them
 from the term, extending the local context with new declarations in the process.
-A related process is lifting `lets`, which means to move `let`/`letFun`s toward the root of a term.
+A related process is lifting `lets`, which means to move `let`/`have`s toward the root of a term.
 -/
 
 namespace ExtractLets
 
 structure LocalDecl' where
+  /-- An `ldecl` with `nondep := false`. -/
   decl : LocalDecl
   /--
-  If true, is a `let`, if false, is a `letFun`.
+  If true, is a `let`, if false, is a `have`.
   Used in `lift` mode.
   -/
   isLet : Bool
@@ -66,7 +72,7 @@ def nextNameForBinderName? (binderName : Name) : M (Option Name) := do
       return n
     else
       if binderName.isAnonymous then
-        -- Use a nicer binder name than `[anonymous]`, which can appear for example in `letFun x f` when `f` is not a lambda expression.
+        -- Use a nicer binder name than `[anonymous]`.
         mkFreshUserName `a
       else if (← read).preserveBinderNames || n.hasMacroScopes then
         return n
@@ -90,13 +96,13 @@ def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Na
     if let some n ← nextNameForBinderName? n then
       return (true, n)
   -- In lift mode, we temporarily extract non-extractable lets, but we do not make use of `givenNames` for them.
-  -- These will be flushed as let/letFun expressions, and we wish to preserve the original binder name.
+  -- These will be flushed as let/have expressions, and we wish to preserve the original binder name.
   if (← read).lift then
     return (true, n)
   return (false, n)
 
 /--
-Adds the `decl` to the `decls` list. Assumes that `decl` is an ldecl.
+Adds the `decl` to the `decls` list. Assumes that `decl` is an ldecl with `nondep := false`.
 -/
 def addDecl (decl : LocalDecl) (isLet : Bool) : M Unit := do
   let cfg ← read
@@ -131,7 +137,7 @@ def withEnsuringDeclsInContext [Monad m] [MonadControlT MetaM m] [MonadLCtx m] (
   withExistingLocalDecls decls.toList k
 
 /--
-Closes all the local declarations in `e`, creating `let` and `letFun` expressions.
+Closes all the local declarations in `e`, creating `let` and `have` expressions.
 Does not require that any of the declarations are in context.
 Assumes that `e` contains no metavariables with local contexts that contain any of these metavariables
 (the extraction procedure creates no new metavariables, so this is the case).
@@ -140,17 +146,13 @@ This should *not* be used when closing lets for new goal metavariables, since
 1. The goal contains the decls in its local context, violating the assumption.
 2. We need to use true `let`s in that case, since tactics may zeta-delta reduce these declarations.
 -/
-def mkLetDecls (decls : Array LocalDecl') (e : Expr) : MetaM Expr := do
-  withEnsuringDeclsInContext decls do
-    decls.foldrM (init := e) fun { decl, isLet } e => do
-      if isLet then
-        return .letE decl.userName decl.type decl.value (e.abstract #[decl.toExpr]) false
-      else
-        mkLetFun decl.toExpr decl.value e
+def mkLetDecls (decls : Array LocalDecl') (e : Expr) : Expr :=
+  decls.foldr (init := e) fun { decl, isLet } e =>
+    Expr.letE decl.userName decl.type decl.value (e.abstract #[decl.toExpr]) (nondep := !isLet)
 
 /--
 Makes sure the declaration for `fvarId` is marked with `isLet := true`.
-Used in `lift + merge` mode to ensure that, after merging, if any version was a `let` then it's a `let` rather than a `letFun`.
+Used in `lift + merge` mode to ensure that, after merging, if any version was a `let` then it's a `let` rather than a `have`.
 -/
 def ensureIsLet (fvarId : FVarId) : M Unit := do
   modify fun s => { s with
@@ -171,7 +173,7 @@ def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
     -- Is either pre-existing or already added.
     k
   else if let some idx := decls.findIdx? (·.decl.fvarId == fvarId) then
-    withEnsuringDeclsInContext decls[0:idx+1] k
+    withEnsuringDeclsInContext decls[*...(idx+1)] k
   else
     k
 
@@ -187,12 +189,11 @@ def initializeValueMap : M Unit := do
       modify fun s => { s with valueMap := s.valueMap.insert value decl.fvarId }
 
 /--
-Returns `true` if the expression contains a `let` expression or a `letFun`
-(this does not verify that the `letFun`s are well-formed).
+Returns `true` if the expression contains a `let` expression or a `have`.
 Its purpose is to be a check for whether a subexpression can be skipped.
 -/
 def containsLet (e : Expr) : Bool :=
-  Option.isSome <| e.find? fun e' => e'.isLet || e'.isConstOf ``letFun
+  Option.isSome <| e.find? (·.isLet)
 
 /--
 Extracts lets from `e`.
@@ -216,7 +217,7 @@ partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false
       if !containsLet e then
         return e
       -- Don't honor `proofs := false` or `types := false` for top-level lets, since it's confusing not having them be extracted.
-      unless topLevel && (e.isLet || e.isLetFun || e.isMData) do
+      unless topLevel && (e.isLet || e.isMData) do
         if !cfg.proofs then
           if ← isProof e then
             return e
@@ -227,12 +228,8 @@ partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false
       match e with
       | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. => unreachable!
       | .mdata _ e'      => return e.updateMData! (← extractCore fvars e' (topLevel := topLevel))
-      | .letE n t v b _  => extractLetLike true n t v b (fun t v b => pure <| e.updateLetE! t v b) (topLevel := topLevel)
-      | .app ..          =>
-        if e.isLetFun then
-          extractLetFun e (topLevel := topLevel)
-        else
-          whenDescend do extractApp e.getAppFn e.getAppArgs
+      | .letE n t v b nondep  => extractLetLike (!nondep) n t v b (topLevel := topLevel)
+      | .app ..          => whenDescend do extractApp e.getAppFn e.getAppArgs
       | .proj _ _ s      => whenDescend do return e.updateProj! (← extractCore fvars s)
       | .lam n t b i     => whenDescend do extractBinder n t b i (fun t b => e.updateLambda! i t b)
       | .forallE n t b i => whenDescend do extractBinder n t b i (fun t b => e.updateForall! i t b)
@@ -244,13 +241,13 @@ where
         let b ← extractCore (x :: fvars) (b.instantiate1 x)
         if (← read).lift then
           let toFlush ← flushDecls x.fvarId!
-          let b ← mkLetDecls toFlush b
+          let b := mkLetDecls toFlush b
           return mk t (b.abstract #[x])
         else
           return mk t (b.abstract #[x])
     else
       return mk t b
-  extractLetLike (isLet : Bool) (n : Name) (t v b : Expr) (mk : Expr → Expr → Expr → M Expr) (topLevel : Bool) : M Expr := do
+  extractLetLike (isLet : Bool) (n : Name) (t v b : Expr) (topLevel : Bool) : M Expr := do
     let cfg ← read
     let t ← extractCore fvars t
     let v ← extractCore fvars v
@@ -263,39 +260,26 @@ where
           extractCore fvars (b.instantiate1 (.fvar fvarId)) (topLevel := topLevel)
     let (extract, n) ← isExtractableLet fvars n t v
     if !extract && (!cfg.underBinder || !cfg.descend) then
-      return ← mk t v b
+      return e.updateLetE! t v b
     withLetDecl n t v fun x => do
       if extract then
         addDecl (← x.fvarId!.getDecl) isLet
         extractCore fvars (b.instantiate1 x) (topLevel := topLevel)
       else
         let b ← extractCore (x :: fvars) (b.instantiate1 x)
-        mk t v (b.abstract #[x])
-  /-- `e` is the letFun expression -/
-  extractLetFun (e : Expr) (topLevel : Bool) : M Expr := do
-    let letFunE := e.getAppFn
-    let β := e.getArg! 1
-    let (n, t, v, b) := e.letFun?.get!
-    extractLetLike false n t v b (topLevel := topLevel)
-      (fun t v b =>
-        -- Strategy: construct letFun directly rather than use `mkLetFun`.
-        -- We don't update the `β` argument.
-        return mkApp4 letFunE t β v (.lam n t b .default))
+        return e.updateLetE! t v (b.abstract #[x])
   extractApp (f : Expr) (args : Array Expr) : M Expr := do
     let cfg ← read
-    if f.isConstOf ``letFun && args.size ≥ 4 then
-      extractApp (mkAppN f args[0:4]) args[4:]
+    let f' ← extractCore fvars f
+    if cfg.implicits then
+      return mkAppN f' (← args.mapM (extractCore fvars))
     else
-      let f' ← extractCore fvars f
-      if cfg.implicits then
-        return mkAppN f' (← args.mapM (extractCore fvars))
-      else
-        let (paramInfos, _) ← instantiateForallWithParamInfos (← inferType f) args
-        let mut args := args
-        for i in [0:args.size] do
-          if paramInfos[i]!.binderInfo.isExplicit then
-            args := args.set! i (← extractCore fvars args[i]!)
-        return mkAppN f' args
+      let (paramInfos, _) ← instantiateForallWithParamInfos (← inferType f) args
+      let mut args := args
+      for i in *...args.size do
+        if paramInfos[i]!.binderInfo.isExplicit then
+          args := args.set! i (← extractCore fvars args[i]!)
+      return mkAppN f' args
 
 def extractTopLevel (e : Expr) : M Expr := do
   let e ← instantiateMVars e
@@ -326,7 +310,7 @@ private def extractLetsImp (es : Array Expr) (givenNames : List Name)
   withExistingLocalDecls decls.toList <| k (decls.map (·.fvarId)) es givenNames'
 
 /--
-Extracts `let` and `letFun` expressions into local definitions,
+Extracts `let` and `have` expressions into local definitions,
 evaluating `k` at the post-extracted expressions and the extracted fvarids, within a context containing those local declarations.
 - The `givenNames` is a list of explicit names to use for extracted local declarations.
   If a name is `_` (or if there is no provided given name and `config.onlyGivenNames` is true) then uses a hygienic name
@@ -337,11 +321,11 @@ def extractLets [Monad m] [MonadControlT MetaM m] (es : Array Expr) (givenNames 
   map3MetaM (fun k => extractLetsImp es givenNames k config) k
 
 /--
-Lifts `let` and `letFun` expressions in the given expression as far out as possible.
+Lifts `let` and `have` expressions in the given expression as far out as possible.
 -/
 def liftLets (e : Expr) (config : LiftLetsConfig := {}) : MetaM Expr := do
   let (es, st) ← ExtractLets.extract #[e] |>.run { config with onlyGivenNames := true } |>.run' {} |>.run { givenNames := [] }
-  ExtractLets.mkLetDecls st.decls es[0]!
+  return ExtractLets.mkLetDecls st.decls es[0]!
 
 end Lean.Meta
 
@@ -349,7 +333,7 @@ private def throwMadeNoProgress (tactic : Name) (mvarId : MVarId) : MetaM α :=
   throwTacticEx tactic mvarId m!"made no progress"
 
 /--
-Extracts `let` and `letFun` expressions from the target,
+Extracts `let` and `have` expressions from the target,
 returning `FVarId`s for the extracted let declarations along with the new goal.
 - The `givenNames` is a list of explicit names to use for extracted local declarations.
   If a name is `_` (or if there is no provided given name and `config.onlyGivenNames` is true) then uses a hygienic name
@@ -397,7 +381,7 @@ def Lean.MVarId.extractLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (givenN
     | _ => throwTacticEx `extract_lets mvarId "unexpected auxiliary target"
 
 /--
-Lifts `let` and `letFun` expressions in target as far out as possible.
+Lifts `let` and `have` expressions in target as far out as possible.
 Throws an exception if nothing is lifted.
 
 Like `Lean.MVarId.extractLets`, but top-level lets are not added to the local context.
@@ -435,3 +419,33 @@ def Lean.MVarId.liftLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (config : 
         throwMadeNoProgress `lift_lets mvarId
       finalize (.letE n t' v' b ndep)
     | _ => throwTacticEx `lift_lets mvarId "unexpected auxiliary target"
+
+/-!
+### Let-to-have transformation
+
+A meta tactic version of `Lean.Meta.letToHave`.
+-/
+
+/--
+Transforms lets to haves in the target. Throws an error if no progress is made.
+-/
+def Lean.MVarId.letToHave (mvarId : MVarId) (failIfUnchanged := true) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `let_to_have
+    let ty ← mvarId.getType
+    let ty' ← Meta.letToHave ty
+    if failIfUnchanged && ty == ty' then
+      throwMadeNoProgress `let_to_have mvarId
+    mvarId.replaceTargetDefEq ty'
+
+/--
+Transforms lets to haves in the type of `fvarId`. Throws an error if no progress is made.
+-/
+def Lean.MVarId.letToHaveLocalDecl (mvarId : MVarId) (fvarId : FVarId) (failIfUnchanged := true) : MetaM MVarId := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `let_to_have
+    let ty ← fvarId.getType
+    let ty' ← Meta.letToHave ty
+    if failIfUnchanged && ty == ty' then
+      throwMadeNoProgress `let_to_have mvarId
+    mvarId.replaceLocalDeclDefEq fvarId ty'

@@ -1,0 +1,8 @@
+[Compiler.IR] [result]
+    extern _private.lean.externBoxing.0.Foo.bar (x_0 : obj) (x_1 : u64) : u64
+    def _private.lean.externBoxing.0.Foo.bar._boxed (x_1 : obj) (x_2 : tobj) : tobj :=
+      let x_3 : u64 := unbox x_2;
+      dec x_2;
+      let x_4 : u64 := _private.lean.externBoxing.0.Foo.bar x_1 x_3;
+      let x_5 : tobj := box x_4;
+      ret x_5

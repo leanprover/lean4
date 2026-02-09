@@ -3,9 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for symbolic `BitVec` values from
@@ -35,16 +42,15 @@ theorem go_get_aux (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
     · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
+      simp
     · apply go_le_size
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -90,12 +96,12 @@ theorem go_denote_eq (aig : AIG BVBit) (a : Nat) (assign : Assignment) (curr : N
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
   split at hgo
-  · next hlt =>
+  next hlt =>
     dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [← heq]
         rw [go_denote_mem_prefix]

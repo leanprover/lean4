@@ -1,7 +1,8 @@
 module
 
-prelude
+public import Module.Basic
 import all Module.Basic
+import Lean
 
 /-! `import all` should import private information, privately. -/
 
@@ -12,42 +13,37 @@ testSorry
 #guard_msgs in
 #print t
 
+/-- info: true -/
+#guard_msgs in
+#eval (return (← Lean.findDeclarationRanges? ``t).isSome : Lean.CoreM _)
+
 /--
-error: type mismatch
+error: Type mismatch
   y
 has type
-  Vector Unit 1 : Type
+  Vector Unit 1
 but is expected to have type
-  Vector Unit f : Type
+  Vector Unit f
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
 -/
 #guard_msgs in
-theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
+public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
 example : P f := by simp only [t]; exact hP1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl]; exact hP1
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 
-/--
-error: unknown identifier 'trflprivate'
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate]; exact hP1
-/--
-error: unknown identifier 'trflprivate''
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate']; exact hP1
 
 
@@ -109,7 +105,7 @@ info: theorem f_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat → P
 -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.induct_unfolding
 
-/-- info: theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
+/-- info: @[defeq] theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
 #guard_msgs in #print sig f_exp_wfrec.eq_1
 
 /--
@@ -136,3 +132,37 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
       ∀ (a a_1 : Nat), motive a a_1 (f_exp_wfrec a a_1)
 -/
 #guard_msgs(pass trace, all) in #print sig f_exp_wfrec.induct_unfolding
+
+/-! `import all` should allow access to private defs, privately. -/
+
+public def pub := priv
+
+/--
+error: Unknown identifier `priv`
+
+Note: A private declaration `priv✝` (from `Module.Basic`) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def pub' := priv
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for `StructWithPrivateField` is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }
+
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)
+
+/-! #11715: `grind` should not fail to apply private matcher from imported module. -/
+
+attribute [local grind] func in
+theorem stmt1 : func ctx op = ctx := by
+  grind

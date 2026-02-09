@@ -3,10 +3,12 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Build.Data
-import Lake.Build.Job.Basic
-import Lake.Config.Dynlib
+public import Lake.Build.Job.Basic
+public import Lake.Build.ModuleArtifacts
+meta import all Lake.Build.Data
 
 /-!
 # Simple Builtin Facet Declarations
@@ -22,37 +24,21 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-structure ModuleDeps where
-  dynlibs : Array Dynlib := #[]
-  plugins : Array Dynlib := #[]
-  deriving Inhabited, Repr
-
 /-! ## Module Facets -/
 
 /-- A module facet name along with proof of its data type. -/
-structure ModuleFacet (α) where
+public structure ModuleFacet (α) where
   /-- The name of the module facet. -/
   name : Name
   /-- Proof that module's facet build result is of type α. -/
   data_eq : FacetOut name = α
   deriving Repr
 
-instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
+public instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
+public instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
-
-/-- A module's source file path plus its parsed header. -/
-structure ModuleInput where
-  path : FilePath
-  header : ModuleHeader
-
-/--
-The module's processed Lean source file.
-Combines tracing the file with parsing its header.
--/
-builtin_facet input : Module => ModuleInput
 
 /-- The module's Lean source file. -/
 builtin_facet lean : Module => FilePath
@@ -61,26 +47,84 @@ builtin_facet lean : Module => FilePath
 builtin_facet header : Module => ModuleHeader
 
 /--
-The facet which builds all of a module's dependencies
-(i.e., transitive local imports and `--load-dynlib` shared libraries).
-Returns the list of shared libraries to load along with their search path.
+The computed configuration of a module for Lean.
+
+In the process, this facet will build all of a module's dependencies,
+including transitive imports, plugins, and those specified by `needs`.
 -/
 builtin_facet setup : Module => ModuleSetup
 
 /--
-The facet which builds all of a module's dependencies
-(i.e., transitive local imports and `--load-dynlib` shared libraries).
-Returns the list of shared libraries to load along with their search path.
+This facet builds all of a module's dependencies,
+including transitive imports, plugins, and those specified by `needs`.
 -/
 builtin_facet deps : Module => Opaque
+
+/-- Information about the imports of a module. -/
+public structure ModuleImportInfo where
+  /-- Artifacts directly needed for the imports of the module. -/
+  directArts : NameMap ImportArtifacts
+  /-- The trace produced by mixing the traces of `directArts` with their transitive imports. -/
+  trace : BuildTrace
+  /-- Transitive import trace for an `import` of the module with the module system enabled. -/
+  transTrace : BuildTrace
+  /-- Transitive import trace for a `meta import` of the module. -/
+  metaTransTrace : BuildTrace
+  /-- Transitive import trace for an `import all` of the module. -/
+  allTransTrace : BuildTrace
+  /-- Transitive import trace for an `import` of the module without the module system enabled. -/
+  legacyTransTrace : BuildTrace
+  deriving Inhabited
+
+/-- **For internal use only.** Information about the imports of this module. -/
+builtin_facet importInfo : Module => ModuleImportInfo
+
+/-- Information useful to importers of a module. -/
+public structure ModuleExportInfo where
+  /-- The trace of the module's source file. -/
+  srcTrace : BuildTrace
+  /-- Artifacts directly needed for an `import` of the module with the module system enabled. -/
+  arts : ImportArtifacts
+  /-- The trace of the module's public olean. -/
+  artsTrace : BuildTrace
+  /-- The trace of the module's public olean and IR. -/
+  metaArtsTrace : BuildTrace
+  /--
+  Artifacts directly needed for an `import` of the module from a module without the module
+  system enabled or `import all` of the module from a module with it enabled.
+  -/
+  allArts : ImportArtifacts
+  /-- The trace produced by mixing the traces of `allArts`. -/
+  allArtsTrace : BuildTrace
+  /-- Transitive import trace for an `import` of the module with the module system enabled. -/
+  transTrace : BuildTrace
+  /-- Transitive import trace for a `meta import` of the module. -/
+  metaTransTrace : BuildTrace
+  /-- Transitive import trace for an `import all` of the module. -/
+  allTransTrace : BuildTrace
+  /-- Transitive import trace for an `import` of the module without the module system enabled. -/
+  legacyTransTrace : BuildTrace
+  deriving Inhabited
+
+/-- **For internal use only.** Information useful to importers of this module. -/
+builtin_facet exportInfo : Module => ModuleExportInfo
+
+/-- Artifacts directly needed for an `import` of this module with the module system enabled. -/
+builtin_facet importArts : Module => ImportArtifacts
+
+/--
+Artifacts directly needed for an `import` of this module from a module without the module
+system enabled or `import all` of this module from a module with it enabled.
+-/
+builtin_facet importAllArts : Module => ImportArtifacts
 
 /--
 The core build facet of a Lean file.
 Elaborates the Lean file via `lean` and produces all the Lean artifacts
-of the module (i.e., `olean`, `ilean`, `c`).
+of the module (e.g., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-builtin_facet leanArts : Module => ModuleArtifacts
+builtin_facet leanArts : Module => ModuleOutputArtifacts
 
 /-- The `olean` file produced by `lean`. -/
 builtin_facet olean : Module => FilePath
@@ -94,10 +138,13 @@ builtin_facet oleanPrivateFacet @ olean.private : Module => FilePath
 /-- The `ilean` file produced by `lean`. -/
 builtin_facet ilean : Module => FilePath
 
-/-- The C file built from the Lean file via `lean`. -/
+/-- The `ir` file produced by `lean` (with the module system enabled). -/
+builtin_facet ir : Module => FilePath
+
+/-- The C file produced by `lean`. -/
 builtin_facet c : Module => FilePath
 
-/-- The LLVM BC file built from the Lean file via `lean`. -/
+/-- The LLVM bitcode (`bc`) file produced by `lean`. -/
 builtin_facet bc : Module => FilePath
 
 /--
@@ -175,7 +222,7 @@ builtin_facet extraDep : Package => Unit
 /-- The library's default facets (as specified by its `defaultFacets` configuration). . -/
 builtin_facet default : LeanLib => Unit
 
-/-- A Lean library's Lean artifacts (i.e., `olean`, `ilean`, `c`). -/
+/-- A Lean library's Lean artifacts (e.g., `olean`, `ilean`, `c`). -/
 builtin_facet leanArts : LeanLib => Unit
 
 /-- A Lean library's static artifact. -/

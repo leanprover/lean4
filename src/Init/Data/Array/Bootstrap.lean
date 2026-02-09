@@ -7,8 +7,12 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.List.TakeDrop
 import all Init.Data.Array.Basic
+public import Init.Data.List.Control
+import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
+
+public section
 
 /-!
 ## Bootstrapping theorems about arrays
@@ -21,29 +25,6 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Array
 
-/--
-Use the indexing notation `a[i]` instead.
-
-Access an element from an array without needing a runtime bounds checks,
-using a `Nat` index and a proof that it is in bounds.
-
-This function does not use `get_elem_tactic` to automatically find the proof that
-the index is in bounds. This is because the tactic itself needs to look up values in
-arrays.
--/
-@[deprecated "Use indexing notation `as[i]` instead" (since := "2025-02-17")]
-def get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
-  a.toList.get ⟨i, h⟩
-
-/--
-Use the indexing notation `a[i]!` instead.
-
-Access an element from an array, or panic if the index is out of bounds.
--/
-@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17"), expose]
-def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  Array.getD a i default
-
 theorem foldlM_toList.aux [Monad m]
     {f : β → α → m β} {xs : Array α} {i j} (H : xs.size ≤ i + j) {b} :
     foldlM.loop f xs xs.size (Nat.le_refl _) i j b = (xs.toList.drop j).foldlM f b := by
@@ -52,7 +33,7 @@ theorem foldlM_toList.aux [Monad m]
   · cases Nat.not_le_of_gt ‹_› (Nat.zero_add _ ▸ H)
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux (j := j+1) H]
-    rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
+    rw (occs := [2]) [← List.getElem_cons_drop ‹_›]
     simp
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; simp
 
@@ -94,9 +75,6 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   rcases xs with ⟨xs⟩
   simp [push, List.concat_eq_append]
 
-@[deprecated toList_push (since := "2025-05-26")]
-abbrev push_toList := @toList_push
-
 @[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]
 
@@ -104,9 +82,6 @@ abbrev push_toList := @toList_push
   simp [toListImpl, ← foldr_toList]
 
 @[simp, grind =] theorem toList_pop {xs : Array α} : xs.pop.toList = xs.toList.dropLast := rfl
-
-@[deprecated toList_pop (since := "2025-02-17")]
-abbrev pop_toList := @Array.toList_pop
 
 @[simp] theorem append_eq_append {xs ys : Array α} : xs.append ys = xs ++ ys := rfl
 
@@ -119,19 +94,19 @@ abbrev pop_toList := @Array.toList_pop
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
 @[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
-  apply ext'; simp only [toList_append, toList_empty, List.append_nil]
-
-@[deprecated append_empty (since := "2025-01-13")]
-abbrev append_nil := @append_empty
+  apply ext'; simp only [toList_append, List.append_nil]
 
 @[simp, grind =] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
-  apply ext'; simp only [toList_append, toList_empty, List.nil_append]
+  apply ext'; simp only [toList_append, List.nil_append]
 
-@[deprecated empty_append (since := "2025-01-13")]
-abbrev nil_append := @empty_append
-
-@[simp, grind _=_] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
+@[simp] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
+
+grind_pattern append_assoc => (xs ++ ys) ++ zs where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
+
+grind_pattern append_assoc => xs ++ (ys ++ zs) where
+  xs =/= #[]; ys =/= #[]; zs =/= #[]
 
 @[simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
 
@@ -139,8 +114,5 @@ abbrev nil_append := @empty_append
     (xs ++ l).toList = xs.toList ++ l := by
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]
-
-@[deprecated toList_appendList (since := "2024-12-11")]
-abbrev appendList_toList := @toList_appendList
 
 end Array

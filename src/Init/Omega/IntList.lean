@@ -6,11 +6,67 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Zip
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Nat.Gcd
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Nat.Gcd
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Nat.Dvd
+import Init.PropLemmas
+import Init.RCases
+
+public section
 
 @[expose] section
+
+-- We replay some `List` theory here in order to avoid importing `List` theory.
+namespace List
+
+private theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
+
+private theorem getElem?_map {f : α → β} : ∀ {l : List α} {i : Nat}, (map f l)[i]? = Option.map f l[i]?
+  | [], _ => rfl
+  | _ :: _, 0 => by simp
+  | _ :: l, i+1 => by simp [getElem?_map, getElem?_cons_succ]
+
+private theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
+    (zipWithAll f as bs)[i]? = match as[i]?, bs[i]? with
+      | none, none => .none | a?, b? => some (f a? b?) := by
+  induction as generalizing bs i with
+  | nil => induction bs generalizing i with
+    | nil => simp
+    | cons b bs bih => cases i <;> simp_all [getElem?_cons_succ]
+  | cons a as aih => cases bs with
+    | nil =>
+      specialize @aih []
+      cases i <;> simp_all [getElem?_cons_succ]
+    | cons b bs => cases i <;> simp_all [getElem?_cons_succ]
+
+private theorem map_id (l : List α) : map (id : α → α) l = l := by
+  induction l <;> simp_all
+
+private theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
+
+private theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
+    (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
+      | some a, some b => some (f a b) | _, _ => none := by
+  induction as generalizing bs i with
+  | nil => cases bs with
+    | nil => simp
+    | cons b bs => simp
+  | cons a as aih => cases bs with
+    | nil => simp
+    | cons b bs => cases i <;> simp_all [getElem?_cons_succ]
+
+private theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
+
+private theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+
+private theorem length_map {as : List α} (f : α → β) : (as.map f).length = as.length := by
+  induction as with
+  | nil => simp [List.map]
+  | cons _ as ih => simp [List.map, ih]
+
+end List
 
 namespace Lean.Omega
 
@@ -29,7 +85,7 @@ def get (xs : IntList) (i : Nat) : Int := xs[i]?.getD 0
 
 @[simp] theorem get_nil : get ([] : IntList) i = 0 := rfl
 @[simp] theorem get_cons_zero : get (x :: xs) 0 = x := by simp [get]
-@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get]
+@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get, List.getElem?_cons_succ]
 
 theorem get_map {xs : IntList} (h : f 0 = 0) : get (xs.map f) i = f (xs.get i) := by
   simp only [get, List.getElem?_map]
@@ -69,8 +125,8 @@ theorem add_def (xs ys : IntList) :
   simp only [get, add_def, List.getElem?_zipWithAll]
   cases xs[i]? <;> cases ys[i]? <;> simp
 
-@[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def]
-@[simp] theorem nil_add (xs : IntList) : [] + xs = xs := by simp [add_def]
+@[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def, List.map_id']
+@[simp] theorem nil_add (xs : IntList) : [] + xs = xs := by simp [add_def, List.map_id']
 @[simp] theorem cons_add_cons (x) (xs : IntList) (y) (ys : IntList) :
     (x :: xs) + (y :: ys) = (x + y) :: (xs + ys) := by simp [add_def]
 
@@ -153,10 +209,10 @@ theorem mul_distrib_left (xs ys zs : IntList) : (xs + ys) * zs = xs * zs + ys * 
     | cons _ _ =>
       cases zs with
       | nil => simp
-      | cons _ _ => simp_all [Int.add_mul]
+      | cons _ _ => simp_all [List.map_id']
   | cons x xs ih₁ =>
     cases ys with
-    | nil => simp_all
+    | nil => simp_all [List.map_id']
     | cons _ _ =>
       cases zs with
       | nil => simp
@@ -173,7 +229,7 @@ theorem mul_neg_left (xs ys : IntList) : (-xs) * ys = -(xs * ys) := by
 attribute [local simp] add_def neg_def sub_def in
 theorem sub_eq_add_neg (xs ys : IntList) : xs - ys = xs + (-ys) := by
   induction xs generalizing ys with
-  | nil => simp
+  | nil => simp [List.map_id']
   | cons x xs ih =>
     cases ys with
     | nil => simp
@@ -196,10 +252,10 @@ def sum (xs : IntList) : Int := xs.foldr (· + ·) 0
 attribute [local simp] sum add_def in
 theorem sum_add (xs ys : IntList) : (xs + ys).sum = xs.sum + ys.sum := by
   induction xs generalizing ys with
-  | nil => simp
+  | nil => simp [List.map_id']
   | cons x xs ih =>
     cases ys with
-    | nil => simp
+    | nil => simp [List.map_id']
     | cons y ys => simp_all [Int.add_assoc, Int.add_left_comm]
 
 @[simp]
@@ -240,7 +296,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
       cases ys with
       | nil => simp
       | cons y ys =>
-        simp only [Nat.zero_eq, set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
+        simp only [set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
         rw [Int.add_right_comm, Int.add_comm (x * y), Int.sub_add_cancel]
     | succ i =>
       cases ys with
@@ -263,7 +319,7 @@ theorem dot_of_left_zero (w : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
     cases ys with
     | nil => simp
     | cons y ys =>
-      rw [dot_cons₂, w x (by simp), ih]
+      rw [dot_cons₂, w x (by simp [List.mem_cons_self]), ih]
       · simp
       · intro x m
         apply w
@@ -312,7 +368,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
     simp
     apply Nat.dvd_gcd
     · apply w
-      simp
+      simp [List.mem_cons_self]
     · apply ih
       intro b m
       apply w

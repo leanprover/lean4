@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Option.Basic
-import Init.Util
+public import Init.Util
+
+public section
 
 universe u
 

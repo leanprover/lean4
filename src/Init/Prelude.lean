@@ -6,6 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude -- Don't import Init, because we're in Init itself
+
+public section
 set_option linter.missingDocs true -- keep it documented
 @[expose] section  -- Expose all defs
 
@@ -20,6 +22,16 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 -/
 
 universe u v w
+
+/-- Marker for information that has been erased by the code generator. -/
+unsafe axiom lcErased : Type
+
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
+/-- Internal representation of `Void` in the compiler. -/
+unsafe axiom lcVoid : Type
+
 
 /--
 The identity function. `id` takes an implicit argument `α : Sort u`
@@ -61,20 +73,14 @@ Examples:
   fun _ => a
 
 /--
-The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
+`letFun v (fun x => b)` is a function version of `have x := v; b`.
 This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
 This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
 
-There is special support for `letFun`.
-Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled,
-despite the fact it is marked `irreducible`.
-For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
-to extract its parts as if it were a `let` expression.
+This used to be the way `have`/`let_fun` syntax was encoded,
+and there used to be special support for `letFun` in WHNF and `simp`.
 -/
 def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
--- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
--- We can work around this rare case by applying the attribute after the fact.
-attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--
@@ -138,12 +144,6 @@ The only element of the unit type.
 It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
-
-/-- Marker for information that has been erased by the code generator. -/
-unsafe axiom lcErased : Type
-
-/-- Marker for type dependency that has been erased by the code generator. -/
-unsafe axiom lcAny : Type
 
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
@@ -322,6 +322,10 @@ For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/
 @[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
+/-- Non-dependent recursor for the equality type (symmetric variant) -/
+@[simp] abbrev Eq.ndrec_symm.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq b a) : motive b :=
+  h.symm.ndrec m
+
 /--
 Equality is transitive: if `a = b` and `b = c` then `a = c`.
 
@@ -373,6 +377,10 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 
 /-- Congruence in the function part of an application: If `f = g` then `f a = g a`. -/
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+  h ▸ rfl
+
+/-- Similar to `congrFun` but `β` does not depend on `α`. -/
+theorem congrFun' {α : Sort u} {β : Sort v} {f g : α → β} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
 /-!
@@ -470,16 +478,16 @@ Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
 unsafe axiom Quot.lcInv {α : Sort u} {r : α → α → Prop} (q : Quot r) : α
 
 /--
-Heterogeneous equality. `HEq a b` asserts that `a` and `b` have the same
+Heterogeneous equality. `a ≍ b` asserts that `a` and `b` have the same
 type, and casting `a` across the equality yields `b`, and vice versa.
 
 You should avoid using this type if you can. Heterogeneous equality does not
 have all the same properties as `Eq`, because the assumption that the types of
 `a` and `b` are equal is often too weak to prove theorems of interest. One
-important non-theorem is the analogue of `congr`: If `HEq f g` and `HEq x y`
-and `f x` and `g y` are well typed it does not follow that `HEq (f x) (g y)`.
+public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
-the same type then `a = b` and `HEq a b` are equivalent.
+the same type then `a = b` and `a ≍ b` are equivalent.
 -/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   /-- Reflexivity of heterogeneous equality. -/
@@ -495,6 +503,10 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
     fun _ _ _ _ h₁ =>
       h₁.rec (fun _ => rfl)
   this α α a a' h rfl
+
+/-- Propositionally equal terms are also heterogeneously equal. -/
+theorem heq_of_eq (h : Eq a a') : HEq a a' :=
+  Eq.subst h (HEq.refl a)
 
 /--
 The product type, usually written `α × β`. Product types are also called pair or tuple types.
@@ -592,7 +604,7 @@ theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absur
 The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-important for programming: both propositions and their proofs are erased in the code generator,
+public important for programming: both propositions and their proofs are erased in the code generator,
 while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
 bit of run-time information.
 -/
@@ -630,6 +642,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   The proof that `val` satisfies the predicate `p`.
   -/
   property : p val
+
+grind_pattern Subtype.property => self.val
 
 set_option linter.unusedVariables.funArgs false in
 /--
@@ -890,6 +904,30 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
+instance [Inhabited α] : Inhabited (ULift α) where
+  default := ULift.up default
+
+/--
+Lifts a type or proposition to a higher universe level.
+
+`PULift α` wraps a value of type `α`. It is a generalization of
+`PLift` that allows lifting values whose type may live in `Sort s`.
+It also subsumes `PLift`.
+-/
+-- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- when `s` can be inferred from the type of `α`.
+structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+  /-- Wraps a value to increase its type's universe level. -/
+  up ::
+  /-- Extracts a wrapped value from a universe-lifted type. -/
+  down : α
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.up_down {α : Sort u} (b : PULift.{v} α) : Eq (up (down b)) b := rfl
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
+
 /--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
 with a proof that the `Bool` is `true` if and only if `p` is true.
@@ -1075,6 +1113,7 @@ until `c` is known.
         | Or.inl h => hp h
         | Or.inr h => hq h
 
+@[inline]
 instance [dp : Decidable p] : Decidable (Not p) :=
   match dp with
   | isTrue hp  => isFalse (absurd hp)
@@ -1158,6 +1197,7 @@ propositional connective is `Not : Prop → Prop`.
 
 export Bool (or and not)
 
+set_option genCtorIdx false in
 /--
 The natural numbers, starting at zero.
 
@@ -1165,6 +1205,7 @@ This type is special-cased by both the kernel and the compiler, and overridden w
 implementation. Both use a fast arbitrary-precision arithmetic library (usually
 [GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.
 -/
+@[suggest_for ℕ]
 inductive Nat where
   /--
   Zero, the smallest natural number.
@@ -1529,7 +1570,7 @@ class HomogeneousPow (α : Type u) where
 
 /-- Typeclass for types with a scalar multiplication operation, denoted `•` (`\bu`) -/
 class SMul (M : Type u) (α : Type v) where
-  /-- `a • b` computes the product of `a` and `b`. The meaning of this notation is type-dependent,
+  /-- `m • a : α` denotes the product of `m : M` and `a : α`. The meaning of this notation is type-dependent,
   but it is intended to be used for left actions. -/
   smul : M → α → α
 
@@ -1565,7 +1606,7 @@ class AndOp (α : Type u) where
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
-class Xor (α : Type u) where
+class XorOp (α : Type u) where
   /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
@@ -1648,8 +1689,8 @@ instance [AndOp α] : HAnd α α α where
   hAnd a b := AndOp.and a b
 
 @[default_instance]
-instance [Xor α] : HXor α α α where
-  hXor a b := Xor.xor a b
+instance [XorOp α] : HXor α α α where
+  hXor a b := XorOp.xor a b
 
 @[default_instance]
 instance [OrOp α] : HOr α α α where
@@ -1757,6 +1798,20 @@ theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq 
     have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
 
+
+private theorem noConfusion_of_Nat.aux : (a : Nat) → (Nat.beq a a).rec False True
+  | Nat.zero   => True.intro
+  | Nat.succ n => noConfusion_of_Nat.aux n
+
+/--
+A helper theorem to deduce `False` from `a = b` when `f a ≠ f b` for some function `f : α → Nat`
+(typically `.ctorIdx`). Used as a simpler alternative to the no-confusion theorems.
+-/
+theorem noConfusion_of_Nat {α : Sort u} (f : α → Nat) {a b : α} (h : Eq a b) :
+    (Nat.beq (f a) (f b)).rec False True :=
+  congrArg f h ▸ noConfusion_of_Nat.aux (f a)
+
+
 /--
 A decision procedure for equality of natural numbers, usually accessed via the `DecidableEq Nat`
 instance.
@@ -1791,10 +1846,11 @@ Examples:
 -/
 @[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
-  | zero,   zero   => true
-  | zero,   succ _ => true
+  | zero,   _      => true
   | succ _, zero   => false
   | succ n, succ m => ble n m
+
+attribute [gen_constructor_elims] Bool
 
 /--
 Non-strict, or weak, inequality of natural numbers, usually accessed via the `≤` operator.
@@ -1819,9 +1875,14 @@ protected def Nat.lt (n m : Nat) : Prop :=
 instance instLTNat : LT Nat where
   lt := Nat.lt
 
-theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
-  | 0      => nofun
-  | succ _ => nofun
+theorem Nat.not_succ_le_zero (n : Nat) : LE.le (succ n) 0 → False :=
+  -- No injectivity tactic until `attribute [gen_constructor_elims] Nat`
+  have : ∀ m, Eq m 0 → LE.le (succ n) m → False := fun _ hm hle =>
+    Nat.le.casesOn (motive := fun m _ => Eq m 0 → False) hle
+      (fun h => Nat.noConfusion h)
+      (fun _ h => Nat.noConfusion h)
+      hm
+  this 0 rfl
 
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n
@@ -1837,21 +1898,21 @@ theorem Nat.succ_le_succ : LE.le n m → LE.le (succ n) (succ m)
 theorem Nat.zero_lt_succ (n : Nat) : LT.lt 0 (succ n) :=
   succ_le_succ (zero_le n)
 
-theorem Nat.le_step (h : LE.le n m) : LE.le n (succ m) :=
+theorem Nat.le_succ_of_le (h : LE.le n m) : LE.le n (succ m) :=
   Nat.le.step h
 
 protected theorem Nat.le_trans {n m k : Nat} : LE.le n m → LE.le m k → LE.le n k
   | h,  Nat.le.refl    => h
   | h₁, Nat.le.step h₂ => Nat.le.step (Nat.le_trans h₁ h₂)
 
+protected theorem Nat.lt_of_lt_of_le {n m k : Nat} : LT.lt n m → LE.le m k → LT.lt n k :=
+  Nat.le_trans
+
 protected theorem Nat.lt_trans {n m k : Nat} (h₁ : LT.lt n m) : LT.lt m k → LT.lt n k :=
-  Nat.le_trans (le_step h₁)
+  Nat.le_trans (le_succ_of_le h₁)
 
 theorem Nat.le_succ (n : Nat) : LE.le n (succ n) :=
   Nat.le.step Nat.le.refl
-
-theorem Nat.le_succ_of_le {n m : Nat} (h : LE.le n m) : LE.le n (succ m) :=
-  Nat.le_trans h (le_succ m)
 
 protected theorem Nat.le_refl (n : Nat) : LE.le n n :=
   Nat.le.refl
@@ -1947,6 +2008,29 @@ theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
 theorem Nat.not_le_of_not_ble_eq_true (h : Not (Eq (Nat.ble n m) true)) : Not (LE.le n m) :=
   fun h' => absurd (Nat.ble_eq_true_of_le h') h
 
+theorem Nat.lt_succ_of_le {n m : Nat} : LE.le n m → LT.lt n (succ m) := succ_le_succ
+
+protected theorem Nat.lt_add_one (n : Nat) : LT.lt n (HAdd.hAdd n 1) := Nat.le_refl (succ n)
+
+theorem Nat.lt_succ_self (n : Nat) : LT.lt n (succ n) := Nat.lt_add_one _
+
+protected theorem Nat.lt_of_not_le {a b : Nat} (h : Not (LE.le a b)) : LT.lt b a :=
+  (Nat.lt_or_ge b a).resolve_right h
+
+protected theorem Nat.add_pos_right :
+    {b : Nat} → (a : Nat) → (hb : LT.lt 0 b) → LT.lt 0 (HAdd.hAdd a b)
+  | zero, _, h => (Nat.not_succ_le_zero _ h).elim
+  | succ _, _, _ => Nat.zero_lt_succ _
+
+protected theorem Nat.mul_pos :
+    {n m : Nat} → (hn : LT.lt 0 n) → (hm : LT.lt 0 m) → LT.lt 0 (HMul.hMul n m)
+  | _, zero, _, hb => (Nat.not_succ_le_zero _ hb).elim
+  | _, succ _, ha, _ => Nat.add_pos_right _ ha
+
+protected theorem Nat.pow_pos {a : Nat} : {n : Nat} → (h : LT.lt 0 a) → LT.lt 0 (HPow.hPow a n)
+  | zero, _ => Nat.zero_lt_succ _
+  | succ _, h => Nat.mul_pos (Nat.pow_pos h) h
+
 /--
 A decision procedure for non-strict inequality of natural numbers, usually accessed via the
 `DecidableLE Nat` instance.
@@ -1997,8 +2081,171 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
 
+attribute [gen_constructor_elims] Nat
+
+-- Grind setup for Nat.ctorIdx, the built-in propagator for `.ctorIdx` does not kick in
+-- due to the special representation of Nat constructors.
+protected theorem Nat.ctorIdx_zero : Eq (Nat.ctorIdx 0) 0 := rfl
+protected theorem Nat.ctorIdx_succ : Eq (Nat.ctorIdx (succ n)) 1 := rfl
+grind_pattern Nat.ctorIdx_zero => Nat.ctorIdx 0
+grind_pattern Nat.ctorIdx_succ => Nat.ctorIdx (.succ n)
+
 instance instSubNat : Sub Nat where
   sub := Nat.sub
+
+theorem Nat.succ_sub_succ_eq_sub (n m : Nat) : Eq (HSub.hSub (succ n) (succ m)) (HSub.hSub n m) :=
+  m.rec rfl (fun _ ih => congrArg pred ih)
+
+theorem Nat.pred_le : ∀ (n : Nat), LE.le (Nat.pred n) n
+  | zero   => Nat.le.refl
+  | succ _ => le_succ _
+
+theorem Nat.sub_le (n m : Nat) : LE.le (HSub.hSub n m) n :=
+  m.rec (Nat.le_refl _) (fun _ ih => Nat.le_trans (pred_le _) ih)
+
+theorem Nat.sub_lt : ∀ {n m : Nat}, LT.lt 0 n → LT.lt 0 m → LT.lt (HSub.hSub n m) n
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | Nat.succ _, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
+  | Nat.succ n, Nat.succ m, _,  _  =>
+    Eq.symm (succ_sub_succ_eq_sub n m) ▸
+      show LT.lt (HSub.hSub n m) (succ n) from
+      lt_succ_of_le (sub_le n m)
+
+theorem Nat.div_rec_lemma {x y : Nat} :
+    (And (LT.lt 0 y) (LE.le y x)) → LT.lt (HSub.hSub x y) x :=
+  fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
+
+theorem Nat.div_rec_fuel_lemma {x y fuel : Nat} (hy : LT.lt 0 y) (hle : LE.le y x)
+    (hfuel : LT.lt x (HAdd.hAdd fuel 1)) : LT.lt (HSub.hSub x y) fuel :=
+  Nat.lt_of_lt_of_le (div_rec_lemma ⟨hy, hle⟩) (Nat.le_of_lt_succ hfuel)
+
+set_option bootstrap.genMatcherCode false in
+/--
+Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
+via the `/` operator.
+
+This operation is sometimes called “floor division.”
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `21 / 3 = 7`
+ * `21 / 5 = 4`
+ * `0 / 22 = 0`
+ * `5 / 0 = 0`
+-/
+@[extern "lean_nat_div", irreducible]
+protected def Nat.div (x y : @& Nat) : Nat :=
+  dite (LT.lt 0 y) (fun hy =>
+    let rec
+      go (fuel : Nat) (x : Nat) (hfuel : LT.lt x fuel) : Nat :=
+      match fuel with
+      | succ fuel =>
+        dite (LE.le y x)
+          (fun h => HAdd.hAdd (go fuel (HSub.hSub x y) (div_rec_fuel_lemma hy h hfuel)) 1)
+          (fun _ => 0)
+      termination_by structural fuel
+    go (succ x) x (Nat.lt_succ_self _))
+    (fun _ => 0)
+
+instance Nat.instDiv : Div Nat := ⟨Nat.div⟩
+
+set_option bootstrap.genMatcherCode false in
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+This is the core implementation of `Nat.mod`. It computes the correct result for any two closed
+natural numbers, but it does not have some convenient [definitional
+reductions](lean-manual://section/type-system) when the `Nat`s contain free variables. The wrapper
+`Nat.mod` handles those cases specially and then calls `Nat.modCore`.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+-/
+@[extern "lean_nat_mod"]
+protected noncomputable def Nat.modCore (x y : Nat) : Nat :=
+  dite (LT.lt 0 y)
+    (fun hy =>
+      let rec
+        go (fuel : Nat) (x : Nat) (hfuel : LT.lt x fuel) : Nat :=
+        match fuel with
+        | succ fuel =>
+          dite (LE.le y x)
+            (fun h => go fuel (HSub.hSub x y) (div_rec_fuel_lemma hy h hfuel))
+            (fun _ => x)
+        termination_by structural fuel
+      go (succ x) x (Nat.lt_succ_self _))
+    (fun _ => x)
+
+theorem Nat.modCoreGo_lt {fuel y : Nat} (hy : LT.lt 0 y) : (x : Nat) → (hfuel : LT.lt x fuel) →
+    LT.lt (Nat.modCore.go y hy fuel x hfuel) y :=
+  fuel.rec (fun _ h => absurd h (Nat.not_lt_zero _))
+    (fun _ ih x _ =>
+      show LT.lt (dite _ _ _) _ from
+        match Nat.decLe y x with
+        | .isTrue _ => ih _ _
+        | .isFalse h => Nat.lt_of_not_le h)
+
+theorem Nat.modCore_lt {x y : Nat} (hy : LT.lt 0 y) : LT.lt (Nat.modCore x y) y :=
+  show LT.lt (dite _ _ _) y from
+    match Nat.decLt 0 y with
+    | .isTrue _ => Nat.modCoreGo_lt hy x (Nat.lt_succ_self _)
+    | .isFalse h => absurd hy h
+
+attribute [irreducible] Nat.modCore
+
+set_option bootstrap.genMatcherCode false in
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+`Nat.mod` is a wrapper around `Nat.modCore` that special-cases two situations, giving better
+definitional reductions:
+ * `Nat.mod 0 m` should reduce to `m`, for all terms `m : Nat`.
+ * `Nat.mod n (m + n + 1)` should reduce to `n` for concrete `Nat` literals `n`.
+
+These reductions help `Fin n` literals work well, because the `OfNat` instance for `Fin` uses
+`Nat.mod`. In particular, `(0 : Fin (n + 1)).val` should reduce definitionally to `0`. `Nat.modCore`
+can handle all numbers, but its definitional reductions are not as convenient.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+
+Examples:
+ * `7 % 2 = 1`
+ * `9 % 3 = 0`
+ * `5 % 7 = 5`
+ * `5 % 0 = 5`
+ * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
+ * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
+-/
+@[extern "lean_nat_mod"]
+protected def Nat.mod : @& Nat → @& Nat → Nat
+  /-
+  Nat.modCore is defined with fuel and thus does not reduce with open terms very well.
+  Nevertheless it is desirable for trivial `Nat.mod` calculations, namely
+  * `Nat.mod 0 m` for all `m`
+  * `Nat.mod n (m + n + 1)` for concrete literals `n`,
+  to reduce definitionally.
+  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
+  definition.
+   -/
+  | 0, _ => 0
+  | n@(succ _), m => ite (LE.le m n) (Nat.modCore n m) n
+
+instance Nat.instMod : Mod Nat := ⟨Nat.mod⟩
+
+theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HMod.hMod x y) y
+  | 0, succ _, _ => Nat.zero_lt_succ _
+  | succ n, m, hm =>
+    show LT.lt (ite (LE.le m (succ n)) (Nat.modCore (succ n) m) (succ n)) _ from
+      match Nat.decLe m (succ n) with
+      | .isTrue _ => Nat.modCore_lt hm
+      | .isFalse h => Nat.lt_of_not_le h
 
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
@@ -2045,6 +2292,7 @@ structure Fin (n : Nat) where
   isLt : LT.lt val n
 
 attribute [coe] Fin.val
+grind_pattern Fin.isLt => self.val
 
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2066,6 +2314,14 @@ instance {n} : LE (Fin n) where
 
 instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b) := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
+
+/--
+Returns `a` modulo `n` as a `Fin n`.
+
+This function exists for bootstrapping purposes. Use `Fin.ofNat` instead.
+-/
+@[expose] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
+  ⟨HMod.hMod a n, Nat.mod_lt _ hn⟩
 
 /--
 A bitvector of the specified width.
@@ -2094,7 +2350,7 @@ def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
   | ⟨n⟩, ⟨m⟩ =>
     dite (Eq n m)
       (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
+      (fun h => isFalse (fun h' => BitVec.noConfusion rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h)))
 
 instance : DecidableEq (BitVec w) := BitVec.decEq
 
@@ -2102,6 +2358,13 @@ instance : DecidableEq (BitVec w) := BitVec.decEq
 @[match_pattern]
 protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitVec w where
   toFin := ⟨i, p⟩
+
+/--
+The bitvector with value `i mod 2^n`.
+-/
+@[expose, match_pattern]
+protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
+  toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 
 /--
 Return the underlying `Nat` that represents a bitvector.
@@ -2151,6 +2414,21 @@ This function is overridden at runtime with an efficient implementation.
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
   toBitVec := BitVec.ofNatLT n h
 
+/--
+Converts a natural number to an 8-bit unsigned integer, wrapping on overflow.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt8.ofNat 5 = 5`
+ * `UInt8.ofNat 255 = 255`
+ * `UInt8.ofNat 256 = 0`
+ * `UInt8.ofNat 259 = 3`
+ * `UInt8.ofNat 32770 = 2`
+-/
+@[extern "lean_uint8_of_nat"]
+def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
+
 set_option bootstrap.genMatcherCode false in
 /--
 Decides whether two 8-bit unsigned integers are equal. Usually accessed via the `DecidableEq UInt8`
@@ -2175,6 +2453,52 @@ instance : DecidableEq UInt8 := UInt8.decEq
 
 instance : Inhabited UInt8 where
   default := UInt8.ofNatLT 0 (of_decide_eq_true rfl)
+
+/--
+Strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
+natural numbers. Usually accessed via the `<` operator.
+-/
+protected def UInt8.lt (a b : UInt8) : Prop := LT.lt a.toBitVec b.toBitVec
+/--
+Non-strict inequality of 8-bit unsigned integers, defined as inequality of the corresponding
+natural numbers. Usually accessed via the `≤` operator.
+-/
+protected def UInt8.le (a b : UInt8) : Prop := LE.le a.toBitVec b.toBitVec
+instance : LT UInt8        := ⟨UInt8.lt⟩
+instance : LE UInt8        := ⟨UInt8.le⟩
+
+/--
+Decides whether one 8-bit unsigned integer is strictly less than another. Usually accessed via the
+`DecidableLT UInt8` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (6 : UInt8) < 7 then "yes" else "no") = "yes"`
+ * `(if (5 : UInt8) < 5 then "yes" else "no") = "no"`
+ * `show ¬((7 : UInt8) < 7) by decide`
+-/
+@[extern "lean_uint8_dec_lt", instance_reducible]
+def UInt8.decLt (a b : UInt8) : Decidable (LT.lt a b) :=
+  inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
+
+/--
+Decides whether one 8-bit unsigned integer is less than or equal to another. Usually accessed via the
+`DecidableLE UInt8` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (15 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
+ * `(if (15 : UInt8) ≤ 5 then "yes" else "no") = "no"`
+ * `(if (5 : UInt8) ≤ 15 then "yes" else "no") = "yes"`
+ * `show (7 : UInt8) ≤ 7 by decide`
+-/
+@[extern "lean_uint8_dec_le", instance_reducible]
+def UInt8.decLe (a b : UInt8) : Decidable (LE.le a b) :=
+  inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
+
+attribute [instance] UInt8.decLt UInt8.decLe
 
 /-- The number of distinct values representable by `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
@@ -2314,7 +2638,7 @@ Examples:
  * `(if (5 : UInt32) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : UInt32) < 7) by decide`
 -/
-@[extern "lean_uint32_dec_lt"]
+@[extern "lean_uint32_dec_lt", instance_reducible]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
@@ -2330,7 +2654,7 @@ Examples:
  * `(if (5 : UInt32) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : UInt32) ≤ 7 by decide`
 -/
-@[extern "lean_uint32_dec_le"]
+@[extern "lean_uint32_dec_le", instance_reducible]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
@@ -2490,6 +2814,8 @@ structure Char where
   /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
+grind_pattern Char.valid => self.val
+
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.lt_trans h (of_decide_eq_true rfl)
@@ -2517,7 +2843,7 @@ def Char.ofNat (n : Nat) : Char :=
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
-theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
+theorem Char.ext : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
@@ -2527,12 +2853,12 @@ theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d)
   fun h' => absurd (val_eq_of_eq h') h
 
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h' => absurd (ext h') h
 
 instance : DecidableEq Char :=
   fun c d =>
     match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
+    | isTrue h  => isTrue (Char.ext h)
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
@@ -2548,6 +2874,7 @@ Optional values, which are either `some` around a value from the underlying type
 `Option` can represent nullable types or computations that might fail. In the codomain of a function
 type, it can also represent partiality.
 -/
+@[suggest_for Maybe, suggest_for Optional, suggest_for Nullable]
 inductive Option (α : Type u) where
   /-- No value. -/
   | none : Option α
@@ -2569,7 +2896,7 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt`
 
 Examples:
  * `(some "hello").getD "goodbye" = "hello"`
- * `none.getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "goodbye"`
 -/
 @[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -2617,17 +2944,50 @@ instance {α} : Inhabited (List α) where
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
 protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
+  | cons _ _, nil        => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
+  | nil,       cons _ _  => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
   | cons a as, cons b bs =>
     match decEq a b with
     | isTrue hab  =>
       match List.hasDecEq as bs with
       | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-      | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-    | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
+      | isFalse nabs => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun _ habs => absurd (eq_of_heq habs) nabs))
+    | isFalse nab => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun hab _ => absurd (eq_of_heq hab)   nab))
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
+  /-
+  The first match step is expanded to make this instance
+  maximally-definitionally-equivalent to the compare-with-empty-list cases.
+  -/
+  match xs with
+  | .nil => match ys with
+    | .nil => isTrue rfl
+    | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
+  | .cons a as => match ys with
+    | .nil => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
+    | .cons b bs =>
+      match decEq a b with
+      | isTrue hab =>
+        match List.hasDecEq as bs with
+        | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
+        | isFalse nabs => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun _ habs => absurd (eq_of_heq habs) nabs))
+      | isFalse nab => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun hab _ => absurd (eq_of_heq hab)   nab))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /--
 The length of a list.
@@ -2716,214 +3076,56 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 /--
-A string is a sequence of Unicode code points.
+Appends two lists. Normally used via the `++` operator.
 
-At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
-of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
-(`String.length`) are cached and take constant time. Many operations on strings perform in-place
-modifications when the reference to the string is unique.
+Appending lists takes time proportional to the length of the first list: `O(|xs|)`.
+
+Examples:
+  * `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
+  * `[] ++ [4, 5] = [4, 5]`.
+  * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
-structure String where
-  /-- Pack a `List Char` into a `String`. This function is overridden by the
-  compiler and is O(n) in the length of the list. -/
-  mk ::
-  /-- Unpack `String` into a `List Char`. This function is overridden by the
-  compiler and is O(n) in the length of the list. -/
-  data : List Char
-
-attribute [extern "lean_string_mk"] String.mk
-attribute [extern "lean_string_data"] String.data
+protected def List.append : (xs ys : List α) → List α
+  | nil,       bs => bs
+  | cons a as, bs => cons a (List.append as bs)
 
 /--
-Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
-`=` operator.
+Concatenates a list of lists into a single list, preserving the order of the elements.
 
-At runtime, this function is overridden with an efficient native implementation.
+`O(|flatten L|)`.
+
+Examples:
+* `[["a"], ["b", "c"]].flatten = ["a", "b", "c"]`
+* `[["a"], [], ["b", "c"], ["d", "e", "f"]].flatten = ["a", "b", "c", "d", "e", "f"]`
 -/
-@[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
-  match s₁, s₂ with
-  | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
-
-instance : DecidableEq String := String.decEq
+def List.flatten : List (List α) → List α
+  | nil      => nil
+  | cons l L => List.append l (flatten L)
 
 /--
-A byte position in a `String`, according to its UTF-8 encoding.
+Applies a function to each element of the list, returning the resulting list of values.
 
-Character positions (counting the Unicode code points rather than bytes) are represented by plain
-`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
-be translated internally to byte positions, which takes linear time.
+`O(|l|)`.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
-character boundary.
+Examples:
+* `[a, b, c].map f = [f a, f b, f c]`
+* `[].map Nat.succ = []`
+* `["one", "two", "three"].map (·.length) = [3, 3, 5]`
+* `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-structure String.Pos where
-  /-- Get the underlying byte index of a `String.Pos` -/
-  byteIdx : Nat := 0
-
-instance : Inhabited String.Pos where
-  default := {}
-
-instance : DecidableEq String.Pos :=
-  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
-    | isTrue h => isTrue (h ▸ rfl)
-    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+@[specialize] def List.map (f : α → β) : (l : List α) → List β
+  | nil       => nil
+  | cons a as => cons (f a) (map f as)
 
 /--
-A region or slice of some underlying string.
+Applies a function that returns a list to each element of a list, and concatenates the resulting
+lists.
 
-A substring contains an string together with the start and end byte positions of a region of
-interest. Actually extracting a substring requires copying and memory allocation, while many
-substrings of the same underlying string may exist with very little overhead, and they are more
-convenient than tracking the bounds by hand.
-
-Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
-the positions is invalid for the string. Many operations will return unexpected or confusing results
-if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
-the validity of the positions in a substring to create and manipulate them.
+Examples:
+* `[2, 3, 2].flatMap List.range = [0, 1, 0, 1, 2, 0, 1]`
+* `["red", "blue"].flatMap String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
 -/
-structure Substring where
-  /-- The underlying string. -/
-  str      : String
-  /-- The byte position of the start of the string slice. -/
-  startPos : String.Pos
-  /-- The byte position of the end of the string slice. -/
-  stopPos  : String.Pos
-
-instance : Inhabited Substring where
-  default := ⟨"", {}, {}⟩
-
-/--
-The number of bytes used by the string's UTF-8 encoding.
--/
-@[inline, expose] def Substring.bsize : Substring → Nat
-  | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
-
-/--
-The number of bytes used by the string's UTF-8 encoding.
-
-At runtime, this function takes constant time because the byte length of strings is cached.
--/
-@[extern "lean_string_utf8_byte_size"]
-def String.utf8ByteSize : (@& String) → Nat
-  | ⟨s⟩ => go s
-where
-  go : List Char → Nat
-   | .nil       => 0
-   | .cons c cs => hAdd (go cs) c.utf8Size
-
-instance : HAdd String.Pos String.Pos String.Pos where
-  hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
-
-instance : HSub String.Pos String.Pos String.Pos where
-  hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
-
-instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
-
-instance : HAdd String.Pos String String.Pos where
-  hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
-
-instance : LE String.Pos where
-  le p₁ p₂ := LE.le p₁.byteIdx p₂.byteIdx
-
-instance : LT String.Pos where
-  lt p₁ p₂ := LT.lt p₁.byteIdx p₂.byteIdx
-
-instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
-  inferInstanceAs (Decidable (LE.le p₁.byteIdx p₂.byteIdx))
-
-instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
-  inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
-
-instance : Min String.Pos := minOfLe
-instance : Max String.Pos := maxOfLe
-
-/--
-A UTF-8 byte position that points at the end of a string, just after the last character.
-
-* `"abc".endPos = ⟨3⟩`
-* `"L∃∀N".endPos = ⟨8⟩`
--/
-@[inline] def String.endPos (s : String) : String.Pos where
-  byteIdx := utf8ByteSize s
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
--/
-@[inline] def String.toSubstring (s : String) : Substring where
-  str      := s
-  startPos := {}
-  stopPos  := s.endPos
-
-/--
-Converts a `String` into a `Substring` that denotes the entire string.
-
-This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
--/
-def String.toSubstring' (s : String) : Substring :=
-  s.toSubstring
-
-/--
-This function will cast a value of type `α` to type `β`, and is a no-op in the
-compiler. This function is **extremely dangerous** because there is no guarantee
-that types `α` and `β` have the same data representation, and this can lead to
-memory unsafety. It is also logically unsound, since you could just cast
-`True` to `False`. For all those reasons this function is marked as `unsafe`.
-
-It is implemented by lifting both `α` and `β` into a common universe, and then
-using `cast (lcProof : ULift (PLift α) = ULift (PLift β))` to actually perform
-the cast. All these operations are no-ops in the compiler.
-
-Using this function correctly requires some knowledge of the data representation
-of the source and target types. Some general classes of casts which are safe in
-the current runtime:
-
-* `Array α` to `Array β` where `α` and `β` have compatible representations,
-  or more generally for other inductive types.
-* `Quot α r` and `α`.
-* `@Subtype α p` and `α`, or generally any structure containing only one
-  non-`Prop` field of type `α`.
-* Casting `α` to/from `NonScalar` when `α` is a boxed generic type
-  (i.e. a function that accepts an arbitrary type `α` and is not specialized to
-  a scalar type like `UInt8`).
--/
-unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
-  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
-
-
-/-- Auxiliary definition for `panic`. -/
-/-
-This is a workaround for `panic` occurring in monadic code. See issue #695.
-The `panicCore` definition cannot be specialized since it is an extern.
-When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a
-`[inst : Monad m]` instance. The `inst` parameter will not be eliminated during
-specialization if it occurs inside of a binder (to avoid work duplication), and
-will prevent the actual monad from being "copied" to the code being specialized.
-When we reimplement the specializer, we may consider copying `inst` if it also
-occurs outside binders or if it is an instance.
--/
-@[never_extract, extern "lean_panic_fn"]
-def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
-
-/--
-`(panic "msg" : α)` has a built-in implementation which prints `msg` to
-the error buffer. It *does not* terminate execution, and because it is a safe
-function, it still has to return an element of `α`, so it takes `[Inhabited α]`
-and returns `default`. It is primarily intended for debugging in pure contexts,
-and assertion failures.
-
-Because this is a pure function with side effects, it is marked as
-`@[never_extract]` so that the compiler will not perform common sub-expression
-elimination and other optimizations that assume that the expression is pure.
--/
-@[noinline, never_extract]
-def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
-  panicCore msg
-
--- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
-attribute [nospecialize] Inhabited
+@[inline] def List.flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
 /--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
@@ -2996,7 +3198,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[expose]
+@[expose, inline]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3006,9 +3208,18 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[extern "lean_array_get_size"]
+@[extern "lean_array_get_size", tagged_return]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
+
+/--
+Version of `Array.getInternal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_fget_borrowed"]
+unsafe opaque Array.getInternalBorrowed {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+  a.toList.get ⟨i, h⟩
 
 /--
 Use the indexing notation `a[i]` instead.
@@ -3038,6 +3249,14 @@ Examples:
 -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
+
+/--
+Version of `Array.get!Internal` that does not increment the reference count of its result.
+
+This is only intended for direct use by the compiler.
+-/
+@[extern "lean_array_get_borrowed"]
+unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -3136,6 +3355,314 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (emptyWithCapacity sz')
+
+/--
+`ByteArray` is like `Array UInt8`, but with an efficient run-time representation as a packed
+byte buffer.
+-/
+structure ByteArray where
+  /--
+  Packs an array of bytes into a `ByteArray`.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
+  mk ::
+  /--
+  The data contained in the byte array.
+
+  Converting between `Array` and `ByteArray` takes linear time.
+  -/
+  data : Array UInt8
+
+attribute [extern "lean_byte_array_mk"] ByteArray.mk
+attribute [extern "lean_byte_array_data"] ByteArray.data
+
+/--
+Constructs a new empty byte array with initial capacity `c`.
+-/
+@[extern "lean_mk_empty_byte_array"]
+def ByteArray.emptyWithCapacity (c : @& Nat) : ByteArray :=
+  { data := Array.empty }
+
+/--
+Constructs a new empty byte array with initial capacity `0`.
+
+Use `ByteArray.emptyWithCapacity` to create an array with a greater initial capacity.
+-/
+def ByteArray.empty : ByteArray := emptyWithCapacity 0
+
+/--
+Adds an element to the end of an array. The resulting array's size is one greater than the input
+array. If there are no other references to the array, then it is modified in-place.
+
+This takes amortized `O(1)` time because `ByteArray` is represented by a dynamic array.
+-/
+@[extern "lean_byte_array_push"]
+def ByteArray.push : ByteArray → UInt8 → ByteArray
+  | ⟨bs⟩, b => ⟨bs.push b⟩
+
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
+def List.toByteArray (bs : List UInt8) : ByteArray :=
+  let rec loop
+    | nil,        r => r
+    | cons b bs,  r => loop bs (r.push b)
+  loop bs ByteArray.empty
+
+/--
+Returns the number of bytes in the byte array.
+
+This is the number of bytes actually in the array, as distinct from its capacity, which is the
+amount of memory presently allocated for the array.
+-/
+@[extern "lean_byte_array_size", tagged_return]
+def ByteArray.size : (@& ByteArray) → Nat
+  | ⟨bs⟩ => bs.size
+
+/--
+Returns the sequence of bytes in a character's UTF-8 encoding.
+-/
+def String.utf8EncodeChar (c : Char) : List UInt8 :=
+  let v := c.val.toNat
+  ite (LE.le v 0x7f)
+    (List.cons (UInt8.ofNat v) List.nil)
+    (ite (LE.le v 0x7ff)
+      (List.cons
+        (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x20) 0xc0))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+          List.nil))
+      (ite (LE.le v 0xffff)
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x10) 0xe0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+              List.nil)))
+        (List.cons
+          (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 262144) 0x08) 0xf0))
+          (List.cons
+            (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 4096) 0x40) 0x80))
+            (List.cons
+              (UInt8.ofNat (HAdd.hAdd (HMod.hMod (HDiv.hDiv v 64) 0x40) 0x80))
+              (List.cons
+                (UInt8.ofNat (HAdd.hAdd (HMod.hMod v 0x40) 0x80))
+                List.nil))))))
+
+/-- Encode a list of characters (Unicode scalar value) in UTF-8. This is an inefficient model
+implementation. Use `List.asString` instead. -/
+def List.utf8Encode (l : List Char) : ByteArray :=
+  l.flatMap String.utf8EncodeChar |>.toByteArray
+
+/-- A byte array is valid UTF-8 if it is of the form `List.Internal.utf8Encode m` for some `m`.
+
+Note that in order for this definition to be well-behaved it is necessary to know that this `m`
+is unique. To show this, one defines UTF-8 decoding and shows that encoding and decoding are
+mutually inverse. -/
+inductive ByteArray.IsValidUTF8 (b : ByteArray) : Prop
+  /--
+  Show that a byte array is valid UTF-8 by exhibiting it as `List.utf8Encode m` for some list `m`
+  of characters.
+   -/
+  | intro (m : List Char) (hm : Eq b (List.utf8Encode m))
+
+/--
+A string is a sequence of Unicode scalar values.
+
+At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
+of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
+(`String.length`) are cached and take constant time. Many operations on strings perform in-place
+modifications when the reference to the string is unique.
+-/
+structure String where ofByteArray ::
+  /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
+  the runtime, this function actually takes linear time and space at runtime. For efficient access
+  to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
+  toByteArray : ByteArray
+  /-- The bytes of the string form valid UTF-8. -/
+  isValidUTF8 : ByteArray.IsValidUTF8 toByteArray
+
+attribute [extern "lean_string_to_utf8"] String.toByteArray
+attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
+
+/--
+Creates a string that contains the characters in a list, in order.
+
+Examples:
+ * `String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"`
+ * `String.ofList [] = ""`
+ * `String.ofList ['a', 'a', 'a'] = "aaa"`
+-/
+@[extern "lean_string_mk"]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data, .intro data rfl⟩
+
+/--
+Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
+`=` operator.
+
+At runtime, this function is overridden with an efficient native implementation.
+-/
+@[extern "lean_string_dec_eq"]
+def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
+  match s₁, s₂ with
+  | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>
+    dite (Eq s₁ s₂) (fun h => match s₁, s₂, h with | _, _, Eq.refl _ => isTrue rfl)
+      (fun h => isFalse
+        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.toByteArray s))) h')))
+
+instance : DecidableEq String := String.decEq
+
+/--
+A byte position in a `String`, according to its UTF-8 encoding.
+
+Character positions (counting the Unicode code points rather than bytes) are represented by plain
+`Nat`s. Indexing a `String` by a `String.Pos.Raw` takes constant time, while character positions need to
+be translated internally to byte positions, which takes linear time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
+character boundary, see `String.Pos.IsValid`.
+
+There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
+instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.
+-/
+structure String.Pos.Raw where
+  /-- Get the underlying byte index of a `String.Pos.Raw` -/
+  byteIdx : Nat := 0
+
+instance : Inhabited String.Pos.Raw where
+  default := {}
+
+instance : DecidableEq String.Pos.Raw :=
+  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
+    | isTrue h => isTrue (h ▸ rfl)
+    | isFalse h => isFalse (fun he => String.Pos.Raw.noConfusion he fun he => absurd he h)
+
+/--
+A region or slice of some underlying string.
+
+A substring contains a string together with the start and end byte positions of a region of
+interest. Actually extracting a substring requires copying and memory allocation, while many
+substrings of the same underlying string may exist with very little overhead, and they are more
+convenient than tracking the bounds by hand.
+
+Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
+the positions is invalid for the string. Many operations will return unexpected or confusing results
+if the start and stop positions are not valid. For this reason, `Substring` will be deprecated in
+favor of `String.Slice`, which always represents a valid substring.
+-/
+structure Substring.Raw where
+  /-- The underlying string. -/
+  str      : String
+  /-- The byte position of the start of the string slice. -/
+  startPos : String.Pos.Raw
+  /-- The byte position of the end of the string slice. -/
+  stopPos  : String.Pos.Raw
+
+instance : Inhabited Substring.Raw where
+  default := ⟨"", {}, {}⟩
+
+/--
+The number of bytes used by the string's UTF-8 encoding.
+-/
+@[inline, expose] def Substring.Raw.bsize : Substring.Raw → Nat
+  | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
+
+/--
+The number of bytes used by the string's UTF-8 encoding.
+
+At runtime, this function takes constant time because the byte length of strings is cached.
+-/
+@[extern "lean_string_utf8_byte_size", tagged_return]
+def String.utf8ByteSize (s : @& String) : Nat :=
+  s.toByteArray.size
+
+/--
+A UTF-8 byte position that points at the end of a string, just after the last character.
+
+* `"abc".rawEndPos = ⟨3⟩`
+* `"L∃∀N".rawEndPos = ⟨8⟩`
+-/
+@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
+  byteIdx := utf8ByteSize s
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
+@[inline] def String.toRawSubstring (s : String) : Substring.Raw where
+  str      := s
+  startPos := {}
+  stopPos  := s.rawEndPos
+
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toRawSubstring` that doesn't have an `@[inline]` annotation.
+-/
+def String.toRawSubstring' (s : String) : Substring.Raw :=
+  s.toRawSubstring
+
+/--
+This function will cast a value of type `α` to type `β`, and is a no-op in the
+compiler. This function is **extremely dangerous** because there is no guarantee
+that types `α` and `β` have the same data representation, and this can lead to
+memory unsafety. It is also logically unsound, since you could just cast
+`True` to `False`. For all those reasons this function is marked as `unsafe`.
+
+It is implemented by lifting both `α` and `β` into a common universe, and then
+using `cast (lcProof : ULift (PLift α) = ULift (PLift β))` to actually perform
+the cast. All these operations are no-ops in the compiler.
+
+Using this function correctly requires some knowledge of the data representation
+of the source and target types. Some general classes of casts which are safe in
+the current runtime:
+
+* `Array α` to `Array β` where `α` and `β` have compatible representations,
+  or more generally for other inductive types.
+* `Quot α r` and `α`.
+* `@Subtype α p` and `α`, or generally any structure containing only one
+  non-`Prop` field of type `α`.
+* Casting `α` to/from `NonScalar` when `α` is a boxed generic type
+  (i.e. a function that accepts an arbitrary type `α` and is not specialized to
+  a scalar type like `UInt8`).
+-/
+unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
+  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
+
+
+/-- Auxiliary definition for `panic`. -/
+/-
+This is a workaround for `panic` occurring in monadic code. See issue #695.
+The `panicCore` definition cannot be specialized since it is an extern.
+When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a
+`[inst : Monad m]` instance. The `inst` parameter will not be eliminated during
+specialization if it occurs inside of a binder (to avoid work duplication), and
+will prevent the actual monad from being "copied" to the code being specialized.
+When we reimplement the specializer, we may consider copying `inst` if it also
+occurs outside binders or if it is an instance.
+-/
+@[never_extract, extern "lean_panic_fn"]
+def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
+
+/--
+`(panic "msg" : α)` has a built-in implementation which prints `msg` to
+the error buffer. It *does not* terminate execution, and because it is a safe
+function, it still has to return an element of `α`, so it takes `[Inhabited α]`
+and returns `default`. It is primarily intended for debugging in pure contexts,
+and assertion failures.
+
+Because this is a pure function with side effects, it is marked as
+`@[never_extract]` so that the compiler will not perform common sub-expression
+elimination and other optimizations that assume that the expression is pure.
+-/
+@[noinline, never_extract]
+def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
+  panicCore msg
+
+-- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
+attribute [nospecialize] Inhabited
 
 /--
 The `>>=` operator is overloaded via instances of `bind`.
@@ -3257,7 +3784,7 @@ When thinking about `f` as potential side effects, `*>` evaluates first the left
 argument for their side effects, discarding the value of the left argument and returning the value
 of the right argument.
 
-For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+For most applications, `Applicative` or `Monad` should be used rather than `SeqRight` itself.
 -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /--
@@ -3443,6 +3970,7 @@ value of type `α`.
 the `pure` operation is `Except.ok` and the `bind` operation returns the first encountered
 `Except.error`.
 -/
+@[suggest_for Result, suggest_for Exception, suggest_for Either]
 inductive Except (ε : Type u) (α : Type v) where
   /-- A failure value of type `ε` -/
   | error : ε → Except ε α
@@ -3550,6 +4078,12 @@ ordinary actions in `m`.
 -/
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   ρ → m α
+
+/--
+Interpret `ρ → m α` as an element of `ReaderT ρ m α`.
+-/
+@[always_inline, inline]
+def ReaderT.mk {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ρ → m α) : ReaderT ρ m α := x
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
   default := fun _ => default
@@ -3668,7 +4202,7 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
 export MonadReader (read)
 
 /--
-Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more than
 one type of value.
 
 Use `read` for a version that expects the type `ρ` to be inferred from `m`.
@@ -3728,7 +4262,7 @@ class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   During the inner action `x`, reading the value returns `f` applied to the original value. After
   control returns from `x`, the reader monad's value is restored.
   -/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  withReader {α : Type u} : (f : ρ → ρ) → (x : m α) → m α
 
 export MonadWithReader (withReader)
 
@@ -4233,7 +4767,7 @@ instance : BEq Name where
 This function does not have special support for macro scopes.
 See `Name.append`.
 -/
-def appendCore : Name → Name → Name
+@[expose] def appendCore : Name → Name → Name
   | n, .anonymous => n
   | n, .str p s => .str (appendCore n p) s
   | n, .num p d => .num (appendCore n p) d
@@ -4245,7 +4779,9 @@ def defaultMaxRecDepth := 512
 
 /-- The message to display on stack overflow. -/
 def maxRecDepthErrorMessage : String :=
-  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
+  "maximum recursion depth has been reached\n\
+   use `set_option maxRecDepth <num>` to increase limit\n\
+   use `set_option diagnostics true` to get diagnostic information"
 
 /-! # Syntax -/
 
@@ -4270,7 +4806,7 @@ inductive SourceInfo where
   The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
   “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
-  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
+  | original (leading : Substring.Raw) (pos : String.Pos.Raw) (trailing : Substring.Raw) (endPos : String.Pos.Raw)
   /--
   Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
   quotation). Synthetic syntax is annotated with a source span from the original syntax, which
@@ -4294,7 +4830,7 @@ inductive SourceInfo where
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
+  | synthetic (pos : String.Pos.Raw) (endPos : String.Pos.Raw) (canonical := false)
   /-- A synthesized token without position information. -/
   | protected none
 
@@ -4307,7 +4843,7 @@ Gets the position information from a `SourceInfo`, if available.
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info, canonicalOnly with
   | original (pos := pos) ..,  _
   | synthetic (pos := pos) (canonical := true) .., _
@@ -4319,7 +4855,7 @@ Gets the end position information from a `SourceInfo`, if available.
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info, canonicalOnly with
   | original (endPos := endPos) ..,  _
   | synthetic (endPos := endPos) (canonical := true) .., _
@@ -4329,7 +4865,7 @@ def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos
 /--
 Gets the substring representing the trailing whitespace of a `SourceInfo`, if available.
 -/
-def getTrailing? (info : SourceInfo) : Option Substring :=
+def getTrailing? (info : SourceInfo) : Option Substring.Raw :=
   match info with
   | original (trailing := trailing) .. => some trailing
   | _                                  => none
@@ -4339,7 +4875,7 @@ Gets the end position information of the trailing whitespace of a `SourceInfo`, 
 If `canonicalOnly` is true, then `.synthetic` syntax with `canonical := false`
 will also return `none`.
 -/
-def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos.Raw :=
   match info.getTrailing? with
   | some trailing => some trailing.stopPos
   | none          => info.getTailPos? canonicalOnly
@@ -4424,7 +4960,7 @@ inductive Syntax where
   * `preresolved` is the list of possible declarations this could refer to, populated by
     [quotations](lean-manual://section/quasiquotation).
   -/
-  | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
+  | ident  (info : SourceInfo) (rawVal : Substring.Raw) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- Create syntax node with 1 child -/
 def Syntax.node1 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ : Syntax) : Syntax :=
@@ -4521,8 +5057,16 @@ abbrev strLitKind : SyntaxNodeKind := `str
 /-- `` `char `` is the node kind of character literals like `'A'`. -/
 abbrev charLitKind : SyntaxNodeKind := `char
 
-/-- `` `num `` is the node kind of number literals like `42`. -/
+/-- `` `num `` is the node kind of number literals like `42` and `0xa1` -/
 abbrev numLitKind : SyntaxNodeKind := `num
+
+/--
+`` `hexnum `` is the node kind of hexadecimal numbers like `ea10`
+without the `0x` prefix. Recall that `hexnum` is not a token and must be prefixed.
+For hexadecimal number literals, you should use `num` instead.
+Example: `syntax anchor := "#" noWs hexnum`.
+ -/
+abbrev hexnumKind : SyntaxNodeKind := `hexnum
 
 /-- `` `scientific `` is the node kind of floating point literals like `1.23e-3`. -/
 abbrev scientificLitKind : SyntaxNodeKind := `scientific
@@ -4530,7 +5074,7 @@ abbrev scientificLitKind : SyntaxNodeKind := `scientific
 /-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `` `fieldIdx ` is the node kind of projection indices like the `2` in `x.2`. -/
+/-- `` `fieldIdx `` is the node kind of projection indices like the `2` in `x.2`. -/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
@@ -4555,12 +5099,12 @@ in `s!"value = {x}"`.
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+@[inline, expose] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
 /-- Creates an info-less `nullKind` node with the given children, if any. -/
 -- NOTE: used by the quotation elaborator output
-@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+@[inline, expose] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
   mkNode nullKind args |>.raw
 
 namespace Syntax
@@ -4686,7 +5230,7 @@ Get the starting position of the syntax, if possible.
 If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   stx.getHeadInfo.getPos? canonicalOnly
 
 /--
@@ -4694,7 +5238,7 @@ Get the ending position of the syntax, if possible.
 If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos.Raw :=
   match stx, canonicalOnly with
   | atom (SourceInfo.original (endPos := pos) ..) .., _
   | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
@@ -4706,7 +5250,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
   | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
   | node _ _ args, _ =>
-    let rec loop (i : Nat) : Option String.Pos :=
+    let rec loop (i : Nat) : Option String.Pos.Raw :=
       match decide (LT.lt i args.size) with
       | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
@@ -4808,12 +5352,32 @@ inductive ParserDescr where
   The precedence `prec` and `lhsPrec` are used to determine whether the parser
   should apply. -/
   | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
-  /-- A literal symbol parser: parses `val` as a literal.
-  This parser does not work on identifiers, so `symbol` arguments are declared
-  as "keywords" and cannot be used as identifiers anywhere in the file. -/
+  /--
+  Parses the literal symbol.
+
+  The symbol is automatically included in the set of reserved tokens ("keywords").
+  Keywords cannot be used as identifiers, unless the identifier is otherwise escaped.
+  For example, `"fun"` reserves `fun` as a keyword; to refer an identifier named `fun` one can write `«fun»`.
+  Adding a `&` prefix prevents it from being reserved, for example `&"true"`.
+
+  Whitespace before or after the atom is used as a pretty printing hint.
+  For example, `" + "` parses `+` and pretty prints it with whitespace on both sides.
+  The whitespace has no effect on parsing behavior.
+  -/
   | symbol (val : String)
-  /-- Like `symbol`, but without reserving `val` as a keyword.
-  If `includeIdent` is true then `ident` will be reinterpreted as `atom` if it matches. -/
+  /--
+  Parses a literal symbol. The `&` prefix prevents it from being included in the set of reserved tokens ("keywords").
+  This means that the symbol can still be recognized as an identifier by other parsers.
+
+  Some syntax categories, such as `tactic`, automatically apply `&` to the first symbol.
+
+  Whitespace before or after the atom is used as a pretty printing hint.
+  For example, `" + "` parses `+` and pretty prints it with whitespace on both sides.
+  The whitespace has no effect on parsing behavior.
+
+  (Not exposed by parser description syntax:
+  If the `includeIdent` argument is true, lets `ident` be reinterpreted as `atom` if it matches.)
+  -/
   | nonReservedSymbol (val : String) (includeIdent : Bool)
   /-- Parses using the category parser `catName` with right binding power
   (i.e. precedence) `rbp`. -/
@@ -4833,6 +5397,19 @@ inductive ParserDescr where
   /-- `sepBy1` is just like `sepBy`, except it takes 1 or more instead of
   0 or more occurrences of `p`. -/
   | sepBy1 (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
+  /--
+  - `unicode("→", "->")` parses a symbol matching either `→` or `->`. Each symbol is reserved.
+    The second symbol is an ASCII version of the first.
+    The  `pp.unicode` option controls which is used when pretty printing.
+  - `unicode("→", "->", preserveForPP)` is the same except for pretty printing behavior.
+    When the `pp.unicode` option is enabled, then the pretty printer uses whichever symbol
+    matches the underlying atom in the syntax.
+    The intent is that `preserveForPP` means that the ASCII variant is preferred.
+    For example, `fun` notation uses `preserveForPP` for its arrow; the delaborator chooses
+    `↦` or `=>` depending on the value of `pp.unicode.fun`, letting users opt-in to formatting with `↦`.
+    Note that `notation` creates a pretty printer preferring the ASCII version.
+  -/
+  | unicodeSymbol (val asciiVal : String) (preserveForPP : Bool)
 
 instance : Inhabited ParserDescr where
   default := ParserDescr.symbol ""
@@ -4922,9 +5499,8 @@ def withRef? [Monad m] [MonadRef m] {α} (ref? : Option Syntax) (x : m α) : m �
 class MonadQuotation (m : Type → Type) extends MonadRef m where
   /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
-  /-- Get the module name of the current file. This is used to ensure that
-  hygienic names don't clash across multiple files. -/
-  getMainModule     : m Name
+  /-- Get the context name used in Note `Macro Scope Representation`. -/
+  getContext        : m Name
   /--
   Execute action in a new macro invocation context. This transformer should be
   used at all places that morally qualify as the beginning of a "macro call",
@@ -4940,7 +5516,11 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
   -/
   withFreshMacroScope {α : Type} : m α → m α
 
-export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
+export MonadQuotation (getCurrMacroScope withFreshMacroScope)
+
+-- TODO: delete after rebootstrap
+@[inherit_doc MonadQuotation.getContext]
+abbrev MonadQuotation.getMainModule := @MonadQuotation.getContext
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
 @[inline]
@@ -4949,32 +5529,47 @@ def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
 
 instance [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
-  getMainModule       := liftM (m := m) getMainModule
+  getContext          := liftM (m := m) MonadQuotation.getContext
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
 /-!
+# Note [Macro Scope Representation]
+
 We represent a name with macro scopes as
 ```
-<actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
+<actual name>._@.(<ctx>.<scopes>)*.<ctx>._hyg.<scopes>
 ```
-Example: suppose the module name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
+Example: suppose the context name is `Init.Data.List.Basic`, and name is `foo.bla`, and macroscopes [2, 5]
 ```
 foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
+The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 
-We may have to combine scopes from different files/modules.
-The main modules being processed is always the right-most one.
-This situation may happen when we execute a macro generated in
-an imported file in the current file.
+The primary purpose of the context name is to differentiate macro scopes from different files as the
+numeric scopes are reset in each file. The current scope is always the right-most one. Scopes from
+multiple files may be collected when we execute a macro generated in an imported file in the current
+file.
 ```
 foo.bla._@.Init.Data.List.Basic.2.1.Init.Lean.Expr._hyg.4
 ```
 
 The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
+In practice, we further specify the context name down to be unique per declaration so that the
+numeric scopes are not influenced by the elaboration of preceding declarations. This helps both with
+ensuring declaration names are more stable so that `prefer_native` can find the correct native
+symbol as well as making exported information in general more stable, avoiding rebuilds under the
+module system. Thus the actual encoding of the context name in the current implementation is
+```
+<main module>.<uniq>._hygCtx
+```
+where `<uniq>` is an identifier unique within the current module, set by
+`Command.withInitQuotContext`; see there for details. Thus we can assume the full context name to be
+unique throughout all modules and reset the numeric scopes whenever establishing a fresh context
+name.
 -/
 
 /-- Does this name have hygienic macro scopes? -/
-def Name.hasMacroScopes : Name → Bool
+@[expose] def Name.hasMacroScopes : Name → Bool
   | str _ s => beq s "_hyg"
   | num p _ => hasMacroScopes p
   | _       => false
@@ -5018,8 +5613,8 @@ structure MacroScopesView where
   /-- All the name components `(<module_name>.<scopes>)*` from the imports
   concatenated together. -/
   imported   : Name
-  /-- The main module in which this identifier was parsed. -/
-  mainModule : Name
+  /-- The context name, a globally unique prefix. -/
+  ctx        : Name
   /-- The list of macro scopes. -/
   scopes     : List MacroScope
 
@@ -5031,7 +5626,7 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.ctx) "_hyg")
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
@@ -5043,7 +5638,7 @@ private def assembleParts : List Name → Name → Name
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
   | n@(Name.num p _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
@@ -5051,7 +5646,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
   | n@(Name.str p str), parts =>
     match beq str "_@" with
-    | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
+    | true  => { name := p, ctx := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
   | n@(Name.num _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
@@ -5068,23 +5663,23 @@ private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
 def extractMacroScopes (n : Name) : MacroScopesView :=
   match n.hasMacroScopes with
   | true  => extractMacroScopesAux n List.nil
-  | false => { name := n, scopes := List.nil, imported := Name.anonymous, mainModule := Name.anonymous }
+  | false => { name := n, scopes := List.nil, imported := Name.anonymous, ctx := Name.anonymous }
 
-/-- Add a new macro scope onto the name `n`, in the given `mainModule`. -/
-def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
+/-- Add a new macro scope onto the name `n`, in the given `ctx`. -/
+def addMacroScope (ctx : Name) (n : Name) (scp : MacroScope) : Name :=
   match n.hasMacroScopes with
   | true =>
     let view := extractMacroScopes n
-    match beq view.mainModule mainModule with
+    match beq view.ctx ctx with
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.mainModule)
-        mainModule := mainModule
+        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.ctx)
+        ctx := ctx
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") ctx) "_hyg") scp
 
 /--
 Appends two names `a` and `b`, propagating macro scopes from `a` or `b`, if any, to the result.
@@ -5095,7 +5690,7 @@ This function is used for the `Append Name` instance.
 See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
 Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
-def Name.append (a b : Name) : Name :=
+@[expose] def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
   | true, true  =>
     panic "Error: invalid `Name.append`, both arguments have macro scopes, consider using `eraseMacroScopes`"
@@ -5115,9 +5710,9 @@ Add a new macro scope onto the name `n`, using the monad state to supply the
 main module and current macro scope.
 -/
 @[inline] def MonadQuotation.addMacroScope {m : Type → Type} [MonadQuotation m] [Monad m] (n : Name) : m Name :=
-  bind getMainModule     fun mainModule =>
+  bind MonadQuotation.getContext fun ctx =>
   bind getCurrMacroScope fun scp =>
-  pure (Lean.addMacroScope mainModule n scp)
+  pure (Lean.addMacroScope ctx n scp)
 
 namespace Syntax
 
@@ -5162,8 +5757,8 @@ structure Context where
   /-- An opaque reference to the `Methods` object. This is done to break a
   dependency cycle: the `Methods` involve `MacroM` which has not been defined yet. -/
   methods        : MethodsRef
-  /-- The currently parsing module. -/
-  mainModule     : Name
+  /-- The quotation context name for `MonadQuotation.getContext`. -/
+  quotContext    : Name
   /-- The current macro scope. -/
   currMacroScope : MacroScope
   /-- The current recursion depth. -/
@@ -5189,6 +5784,8 @@ structure State where
   /-- The list of trace messages that have been produced, each with a trace
   class and a message. -/
   traceMsgs  : List (Prod Name String) := List.nil
+  /-- Declaration names of expanded macros, for use with `shake`. -/
+  private expandedMacroDecls : List Name := List.nil
   deriving Inhabited
 
 end Macro
@@ -5217,11 +5814,6 @@ namespace Macro
 instance : MonadRef MacroM where
   getRef     := bind read fun ctx => pure ctx.ref
   withRef    := fun ref x => withReader (fun ctx => { ctx with ref := ref }) x
-
-/-- Add a new macro scope to the name `n`. -/
-def addMacroScope (n : Name) : MacroM Name :=
-  bind read fun ctx =>
-  pure (Lean.addMacroScope ctx.mainModule n ctx.currMacroScope)
 
 /-- Throw an `unsupportedSyntax` exception. -/
 def throwUnsupported {α} : MacroM α :=
@@ -5256,8 +5848,12 @@ scope is fresh.
 
 instance : MonadQuotation MacroM where
   getCurrMacroScope ctx := pure ctx.currMacroScope
-  getMainModule     ctx := pure ctx.mainModule
+  getContext        ctx := pure ctx.quotContext
   withFreshMacroScope   := Macro.withFreshMacroScope
+
+/-- Add a new macro scope to the name `n`. -/
+def addMacroScope (n : Name) : MacroM Name :=
+  MonadQuotation.addMacroScope n
 
 /-- The opaque methods that are available to `MacroM`. -/
 structure Methods where
@@ -5356,7 +5952,7 @@ instance : MonadQuotation UnexpandM where
   withRef ref x       := withReader (fun _ => ref) x
   -- unexpanders should not need to introduce new names
   getCurrMacroScope   := pure 0
-  getMainModule       := pure `_fakeMod
+  getContext          := pure `_fakeMod
   withFreshMacroScope := id
 
 end PrettyPrinter

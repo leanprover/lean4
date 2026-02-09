@@ -6,11 +6,17 @@ Authors: Kim Morrison
 module
 prelude
 
-import Init.Grind.Module.Basic
+public import Init.Grind.Ordered.Module
+import Init.Omega
+
+public section
 
 namespace Lean.Grind
 
 instance : AddRightCancel Nat where
   add_right_cancel _ _ _ := Nat.add_right_cancel
+
+instance : ExistsAddOfLT Nat where
+  exists_add_of_le {a b} h := ⟨b - a, by omega⟩
 
 end Lean.Grind

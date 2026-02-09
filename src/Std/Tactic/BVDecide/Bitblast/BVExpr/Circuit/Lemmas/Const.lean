@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec` constant bitblaster from `Impl.Const`.
@@ -37,11 +42,11 @@ theorem go_get_aux (aig : AIG α) (c : BitVec w) (curr : Nat) (hcurr : curr ≤ 
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
+    rw [go_get_aux (hfoo := hfoo) (hidx := Nat.lt_succ_of_lt hidx)]
     rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -70,7 +75,7 @@ theorem go_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool)
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [← heq]
         simp

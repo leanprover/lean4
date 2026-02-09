@@ -3,25 +3,28 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.ReduceJpArity
-import Lean.Compiler.LCNF.Renaming
-import Lean.Compiler.LCNF.Simp.Basic
-import Lean.Compiler.LCNF.Simp.FunDeclInfo
-import Lean.Compiler.LCNF.Simp.JpCases
-import Lean.Compiler.LCNF.Simp.Config
-import Lean.Compiler.LCNF.Simp.InlineCandidate
-import Lean.Compiler.LCNF.Simp.SimpM
-import Lean.Compiler.LCNF.Simp.Main
-import Lean.Compiler.LCNF.Simp.InlineProj
-import Lean.Compiler.LCNF.Simp.DefaultAlt
-import Lean.Compiler.LCNF.Simp.SimpValue
-import Lean.Compiler.LCNF.Simp.Used
+public import Lean.Compiler.LCNF.ReduceJpArity
+public import Lean.Compiler.LCNF.Simp.Basic
+public import Lean.Compiler.LCNF.Simp.FunDeclInfo
+public import Lean.Compiler.LCNF.Simp.JpCases
+public import Lean.Compiler.LCNF.Simp.Config
+public import Lean.Compiler.LCNF.Simp.InlineCandidate
+public import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.Main
+public import Lean.Compiler.LCNF.Simp.InlineProj
+public import Lean.Compiler.LCNF.Simp.DefaultAlt
+public import Lean.Compiler.LCNF.Simp.SimpValue
+public import Lean.Compiler.LCNF.Simp.Used
+
+public section
 
 namespace Lean.Compiler.LCNF
 open Simp
 
-def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
+def Decl.simp? (decl : Decl .pure) : SimpM (Option (Decl .pure)) := do
   let .code code := decl.value | return none
   updateFunDeclInfo code
   traceM `Compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
@@ -39,7 +42,7 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   else
     return none
 
-partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
+partial def Decl.simp (decl : Decl .pure) (config : Config) : CompilerM (Decl .pure) := do
   let mut config := config
   if (← isTemplateLike decl) then
     /-
@@ -51,7 +54,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
     config := { config with etaPoly := false, inlinePartial := false }
   go decl config
 where
-  go (decl : Decl) (config : Config) : CompilerM Decl := do
+  go (decl : Decl .pure) (config : Config) : CompilerM (Decl .pure) := do
     if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} |>.run {} then
       -- TODO: bound number of steps?
       go decl config
@@ -59,7 +62,8 @@ where
       return decl
 
 def simp (config : Config := {}) (occurrence : Nat := 0) (phase := Phase.base) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) phase (occurrence := occurrence)
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `simp phase (h ▸ (Decl.simp · config)) (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

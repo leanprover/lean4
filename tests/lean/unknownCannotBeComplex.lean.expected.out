@@ -1,0 +1,63 @@
+unknownCannotBeComplex.lean:3:0-3:7: warning: declaration uses `sorry`
+unknownCannotBeComplex.lean:4:10-4:22: error: Function expected at
+  Maybe
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  String
+
+Hint: The identifier `Maybe` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+
+Perhaps you meant `Option` in place of `Maybe`?
+unknownCannotBeComplex.lean:5:10-5:27: error: Function expected at
+  Result
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  String
+
+Hint: The identifier `Result` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+
+Perhaps you meant `Except` in place of `Result`?
+unknownCannotBeComplex.lean:6:10-6:29: error: Function expected at
+  Nonsense
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  String
+
+Hint: The identifier `Nonsense` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+unknownCannotBeComplex.lean:7:10-7:22: error: Function expected at
+  MetaM
+but this term has type
+  ?m
+
+Note: Expected a function because this term is being applied to the argument
+  String
+
+Hint: The identifier `MetaM` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+unknownCannotBeComplex.lean:10:10-10:15: error(lean.unknownIdentifier): Unknown identifier `MetaM`
+
+Note: It is not possible to treat `MetaM` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+unknownCannotBeComplex.lean:13:10-13:18: error(lean.unknownIdentifier): Unknown identifier `Nonsense`
+
+Note: It is not possible to treat `Nonsense` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+unknownCannotBeComplex.lean:15:0-15:7: warning: declaration uses `sorry`
+unknownCannotBeComplex.lean:16:68-16:74: error: invalid `▸` notation, argument
+  h
+has type
+  ?m
+equality expected
+unknownCannotBeComplex.lean:17:61-17:67: error: invalid `▸` notation, argument
+  h
+has type
+  ?m
+equality expected
+
+Hint: The identifier `h` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be an equality, and an equality is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+unknownCannotBeComplex.lean:19:60-19:62: error(lean.unknownIdentifier): Unknown identifier `hi`
+
+Note: It is not possible to treat `hi` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.

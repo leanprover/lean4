@@ -1,0 +1,160 @@
+[{"item":
+  {"uri": "file:///incomingCallHierarchy.lean",
+   "selectionRange":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 7}},
+   "range":
+   {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 7}},
+   "name": "foo",
+   "kind": 14,
+   "data":
+   {"name": "foo", "module": "«external:file:///incomingCallHierarchy.lean»"}},
+  "fromRanges": [],
+  "children":
+  [{"item":
+    {"uri": "file:///incomingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 6, "character": 4}, "end": {"line": 6, "character": 8}},
+     "range":
+     {"start": {"line": 6, "character": 0},
+      "end": {"line": 6, "character": 15}},
+     "name": "bar1",
+     "kind": 14,
+     "data":
+     {"name": "bar1",
+      "module": "«external:file:///incomingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 6, "character": 12},
+      "end": {"line": 6, "character": 15}}],
+    "children": []},
+   {"item":
+    {"uri": "file:///incomingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 7, "character": 4}, "end": {"line": 7, "character": 8}},
+     "range":
+     {"start": {"line": 7, "character": 0},
+      "end": {"line": 7, "character": 15}},
+     "name": "bar2",
+     "kind": 14,
+     "data":
+     {"name": "bar2",
+      "module": "«external:file:///incomingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 7, "character": 12},
+      "end": {"line": 7, "character": 15}}],
+    "children": []}]}]
+[{"item":
+  {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+   "selectionRange":
+   {"start": {"line": 17, "character": 11},
+    "end": {"line": 17, "character": 16}},
+   "range":
+   {"start": {"line": 17, "character": 11},
+    "end": {"line": 17, "character": 16}},
+   "name": "Lean.Server.Test.Refs.Test1",
+   "kind": 14,
+   "data":
+   {"name": "Lean.Server.Test.Refs.Test1", "module": "Lean.Server.Test.Refs"}},
+  "fromRanges": [],
+  "children":
+  [{"item":
+    {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+     "selectionRange":
+     {"start": {"line": 18, "character": 11},
+      "end": {"line": 18, "character": 16}},
+     "range":
+     {"start": {"line": 18, "character": 0},
+      "end": {"line": 18, "character": 25}},
+     "name": "Lean.Server.Test.Refs.Test2",
+     "kind": 14,
+     "data":
+     {"name": "Lean.Server.Test.Refs.Test2",
+      "module": "Lean.Server.Test.Refs"}},
+    "fromRanges":
+    [{"start": {"line": 18, "character": 20},
+      "end": {"line": 18, "character": 25}}],
+    "children":
+    [{"item":
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+       "selectionRange":
+       {"start": {"line": 20, "character": 11},
+        "end": {"line": 20, "character": 16}},
+       "range":
+       {"start": {"line": 20, "character": 0},
+        "end": {"line": 20, "character": 25}},
+       "name": "Lean.Server.Test.Refs.Test4",
+       "kind": 14,
+       "data":
+       {"name": "Lean.Server.Test.Refs.Test4",
+        "module": "Lean.Server.Test.Refs"}},
+      "fromRanges":
+      [{"start": {"line": 20, "character": 20},
+        "end": {"line": 20, "character": 25}}],
+      "children": []},
+     {"item":
+      {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+       "selectionRange":
+       {"start": {"line": 21, "character": 11},
+        "end": {"line": 21, "character": 16}},
+       "range":
+       {"start": {"line": 21, "character": 0},
+        "end": {"line": 21, "character": 25}},
+       "name": "Lean.Server.Test.Refs.Test5",
+       "kind": 14,
+       "data":
+       {"name": "Lean.Server.Test.Refs.Test5",
+        "module": "Lean.Server.Test.Refs"}},
+      "fromRanges":
+      [{"start": {"line": 21, "character": 20},
+        "end": {"line": 21, "character": 25}}],
+      "children": []}]},
+   {"item":
+    {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+     "selectionRange":
+     {"start": {"line": 19, "character": 11},
+      "end": {"line": 19, "character": 16}},
+     "range":
+     {"start": {"line": 19, "character": 0},
+      "end": {"line": 19, "character": 25}},
+     "name": "Lean.Server.Test.Refs.Test3",
+     "kind": 14,
+     "data":
+     {"name": "Lean.Server.Test.Refs.Test3",
+      "module": "Lean.Server.Test.Refs"}},
+    "fromRanges":
+    [{"start": {"line": 19, "character": 20},
+      "end": {"line": 19, "character": 25}}],
+    "children": []},
+   {"item":
+    {"uri": "file:///incomingCallHierarchy.lean",
+     "selectionRange":
+     {"start": {"line": 9, "character": 4},
+      "end": {"line": 9, "character": 10}},
+     "range":
+     {"start": {"line": 9, "character": 0},
+      "end": {"line": 9, "character": 49}},
+     "name": "foobar",
+     "kind": 14,
+     "data":
+     {"name": "foobar",
+      "module": "«external:file:///incomingCallHierarchy.lean»"}},
+    "fromRanges":
+    [{"start": {"line": 9, "character": 13},
+      "end": {"line": 9, "character": 40}}],
+    "children":
+    [{"item":
+      {"uri": "file:///incomingCallHierarchy.lean",
+       "selectionRange":
+       {"start": {"line": 11, "character": 4},
+        "end": {"line": 11, "character": 10}},
+       "range":
+       {"start": {"line": 11, "character": 0},
+        "end": {"line": 11, "character": 20}},
+       "name": "barfoo",
+       "kind": 14,
+       "data":
+       {"name": "barfoo",
+        "module": "«external:file:///incomingCallHierarchy.lean»"}},
+      "fromRanges":
+      [{"start": {"line": 11, "character": 14},
+        "end": {"line": 11, "character": 20}}],
+      "children": []}]}]}]

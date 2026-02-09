@@ -100,7 +100,7 @@ protected theorem RedRed.balance2 {l : RBNode α} {v : α} {r : RBNode α}
   unfold balance2; split
   · have .redred _ (.red ha hb) hc := hr; exact ⟨_, .red (.black hl ha) (.black hb hc)⟩
   · have .redred _ ha (.red hb hc) := hr; exact ⟨_, .red (.black hl ha) (.black hb hc)⟩
-  · next H1 H2 => match hr with
+  next H1 H2 => match hr with
     | .balanced hr => exact ⟨_, .black hl hr⟩
     | .redred _ (c₁ := black) (c₂ := black) ha hb => exact ⟨_, .black hl (.red ha hb)⟩
     | .redred _ (c₁ := red) (.red ..) _ => cases H1 _ _ _ _ _ rfl
@@ -111,7 +111,7 @@ protected theorem RedRed.balance1 {l : RBNode α} {v : α} {r : RBNode α}
   unfold balance1; split
   · have .redred _ (.red ha hb) hc := hl; exact ⟨_, .red (.black ha hb) (.black hc hr)⟩
   · have .redred _ ha (.red hb hc) := hl; exact ⟨_, .red (.black ha hb) (.black hc hr)⟩
-  · next H1 H2 => match hl with
+  next H1 H2 => match hl with
     | .balanced hl => exact ⟨_, .black hl hr⟩
     | .redred _ (c₁ := black) (c₂ := black) ha hb => exact ⟨_, .black (.red ha hb) hr⟩
     | .redred _ (c₁ := red) (.red ..) _ => cases H1 _ _ _ _ _ rfl
@@ -120,12 +120,12 @@ protected theorem RedRed.balance1 {l : RBNode α} {v : α} {r : RBNode α}
 protected theorem Balanced.balRight (hl : l.Balanced cl (n + 1)) (hr : r.RedRed True n) :
     (balRight l v r).RedRed (cl = red) (n + 1) := by
   unfold balRight; split
-  · next b y c => exact
+  next b y c => exact
     let ⟨cb, cc, hb, hc⟩ := hr.of_red
     match cl with
     | red => .redred rfl hl (.black hb hc)
     | black => .balanced (.red hl (.black hb hc))
-  · next H => exact match hr with
+  next H => exact match hr with
     | .redred .. => nomatch H _ _ _ rfl
     | .balanced hr => match hl with
       | .black hb hc =>
@@ -136,12 +136,12 @@ protected theorem Balanced.balRight (hl : l.Balanced cl (n + 1)) (hr : r.RedRed 
 protected theorem Balanced.balLeft (hl : l.RedRed True n) (hr : r.Balanced cr (n + 1)) :
     (balLeft l v r).RedRed (cr = red) (n + 1) := by
   unfold balLeft; split
-  · next a x b => exact
+  next a x b => exact
     let ⟨ca, cb, ha, hb⟩ := hl.of_red
     match cr with
     | red => .redred rfl (.black ha hb) hr
     | black => .balanced (.red (.black ha hb) hr)
-  · next H => exact match hl with
+  next H => exact match hl with
     | .redred .. => nomatch H _ _ _ rfl
     | .balanced hl => match hr with
       | .black ha hb =>
@@ -163,23 +163,23 @@ protected theorem Balanced.append {l r : RBNode α}
   unfold append; split
   · exact .balanced hr
   · exact .balanced hl
-  · next b c _ _ =>
+  next b c _ _ =>
     have .red ha hb := hl; have .red hc hd := hr
     have ⟨_, IH⟩ := (hb.append hc).of_false (· rfl rfl); split
-    · next e =>
+    next e =>
       have .red hb' hc' := e ▸ IH
       exact .redred (nofun) (.red ha hb') (.red hc' hd)
-    · next bcc _ H =>
+    next bcc _ H =>
       match bcc, append b c, IH, H with
       | black, _, IH, _ => exact .redred (nofun) ha (.red IH hd)
       | red, _, .red .., H => cases H _ _ _ rfl
-  · next b c _ _ =>
+  next b c _ _ =>
     have .black ha hb := hl; have .black hc hd := hr
     have IH := hb.append hc; split
-    · next e => match e ▸ IH with
+    next e => match e ▸ IH with
       | .balanced (.red hb' hc') | .redred _ hb' hc' =>
         exact .balanced (.red (.black ha hb') (.black hc' hd))
-    · next H =>
+    next H =>
       match append b c, IH, H with
       | bc, .balanced hbc, _ =>
         unfold balLeft; split

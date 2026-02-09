@@ -3,25 +3,26 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+import Init.ByCases
+import Init.Data.Nat.Linear
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
@@ -160,7 +161,7 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
     apply (goCache aig expr cache).result.property
 
 set_option maxHeartbeats 400000
-
+set_option backward.dsimp.instances true in -- **TODO**: Try to remove it.
 mutual
 
 
@@ -198,7 +199,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     apply Cache.Inv_cast
     · apply IsPrefix.rfl
     · exact hinv
-  · next op lhsExpr rhsExpr =>
+  next op lhsExpr rhsExpr =>
     dsimp only at hres
     match op with
     | .and | .or | .xor =>
@@ -278,7 +279,7 @@ theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignme
   generalize hres : goCache aig expr cache = res
   unfold goCache at hres
   split at hres
-  · next heq =>
+  next heq =>
     rw [← hres]
     apply Cache.denote_eq_eval_of_get?_eq_some_of_Inv
     · exact heq
@@ -309,7 +310,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkAndCached, eval_bin,
         BVBinOp.eval_and, BitVec.getLsbD_and]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -319,7 +320,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkOrCached, eval_bin,
         BVBinOp.eval_or, BitVec.getLsbD_or]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -329,7 +330,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkXorCached, eval_bin,
         BVBinOp.eval_xor, BitVec.getLsbD_xor]
       congr 1
-      · rw [goCache_denote_mem_prefix]
+      · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
         rw [goCache_denote_eq]
         exact hinv
       · rw [goCache_denote_eq]
@@ -400,7 +401,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
       split
       all_goals
-      · rw [goCache_denote_eq]
+        rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
@@ -408,7 +409,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
       split
       all_goals
-      · rw [goCache_denote_eq]
+        rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
@@ -432,7 +433,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
-  · next h =>
+  next h =>
     subst h
     rw [← hres]
     simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]
@@ -440,16 +441,16 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [goCache_denote_eq]
       apply goCache_Inv_of_Inv
       exact hinv
-    · rw [goCache_denote_mem_prefix]
+    · rw [goCache_denote_mem_prefix (hstart := Ref.hgate _)]
       rw [goCache_denote_eq]
       exact hinv
-  · next h =>
+  next h =>
     subst h
     rw [← hres]
     simp only [denote_blastReplicate, eval_replicate, hidx, BitVec.getLsbD_eq_getElem,
       BitVec.getElem_replicate]
     split
-    · next h =>
+    next h =>
       simp only [h, Nat.zero_mul, Nat.not_lt_zero] at hidx
     · rw [goCache_denote_eq]
       · apply BitVec.getLsbD_eq_getElem

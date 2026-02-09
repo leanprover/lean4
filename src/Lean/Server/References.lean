@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Internal
-import Lean.Data.Lsp.Extra
-import Lean.Server.Utils
-import Std.Data.TreeMap
-import Lean.Elab.Import
-import Std.Data.TreeSet.Basic
+public import Lean.Data.Lsp.Internal
+public import Lean.Server.Utils
+public import Lean.Elab.Import
+
+public section
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -80,24 +81,26 @@ def addRef (i : RefInfo) (ref : Reference) : RefInfo :=
   | { usages, .. }, { isBinder := false, .. } =>
     { i with usages := usages.push ref }
 
-/-- Converts `i` to a JSON-serializable `Lsp.RefInfo`. -/
-def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
-  let refToRefInfoLocation (ref : Reference) : BaseIO RefInfo.Location := do
+/-- Converts `i` to a JSON-serializable `Lsp.RefInfo` and collects its decls. -/
+def toLspRefInfo (i : RefInfo) : StateT Decls BaseIO Lsp.RefInfo := do
+  let refToRefInfoLocation (ref : Reference) : StateT Decls BaseIO RefInfo.Location := do
     let parentDeclName? := ref.ci.parentDecl?
-    let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
-        let some parentDeclName := parentDeclName?
-          | return none
-        findDeclarationRanges? parentDeclName
-      -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
-      | unreachable!
-    return {
-      range := ref.range
-      parentDecl? := do
-        let parentDeclName ← parentDeclName?
-        let parentDeclRange := (← parentDeclRanges?).range.toLspRange
-        let parentDeclSelectionRange := (← parentDeclRanges?).selectionRange.toLspRange
-        return ⟨parentDeclName.toString, parentDeclRange, parentDeclSelectionRange⟩
-    }
+    let parentDeclNameString? := parentDeclName?.map (·.toString)
+    let parentDeclInfo? : Option DeclInfo := do
+      -- Use final command env that has decl ranges for current declaration as well
+      let cmdEnv ← ref.ci.cmdEnv?
+      let parentDeclName ← parentDeclName?
+      -- Use `local` as it avoids unnecessary blocking, which is especially important when called
+      -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
+      -- `parentDeclName` will not be available in the current environment and we would block only
+      -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
+      -- the full info tree with the main environment, so the access will succeed immediately.
+      let parentDeclRanges ← declRangeExt.find? (asyncMode := .local) cmdEnv parentDeclName
+      return .ofDeclarationRanges parentDeclRanges
+    if let some parentDeclNameString := parentDeclNameString? then
+      if let some parentDeclInfo := parentDeclInfo? then
+        modify (·.insert parentDeclNameString parentDeclInfo)
+    return .mk ref.range (parentDeclName?.map (·.toString))
   let definition? ← i.definition.mapM refToRefInfoLocation
   let usages ← i.usages.mapM refToRefInfoLocation
   return {
@@ -114,11 +117,12 @@ namespace ModuleRefs
 
 /-- Adds `ref` to the `RefInfo` corresponding to `ref.ident` in `self`. See `RefInfo.addRef`. -/
 def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
-  let refInfo := self.getD ref.ident RefInfo.empty
-  self.insert ref.ident (refInfo.addRef ref)
+  self.alter ref.ident fun
+    | some refInfo => some <| refInfo.addRef ref
+    | none => some <| RefInfo.empty.addRef ref
 
-/-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs`. -/
-def toLspModuleRefs (refs : ModuleRefs) : BaseIO Lsp.ModuleRefs := do
+/-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs` and collects all decls. -/
+def toLspModuleRefs (refs : ModuleRefs) : BaseIO (Lsp.ModuleRefs × Decls) := StateT.run (s := ∅) do
   let mut refs' := ∅
   for (k, v) in refs do
     refs' := refs'.insert k (← v.toLspRefInfo)
@@ -201,13 +205,15 @@ open Elab
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   /-- Version number of the ilean format. -/
-  version       : Nat := 4
+  version       : Nat := 5
   /-- Name of the module that this ilean data has been collected for. -/
   module        : Name
   /-- Direct imports of the module. -/
   directImports : Array Lsp.ImportInfo
   /-- All references of this module. -/
   references    : Lsp.ModuleRefs
+  /-- All declarations of this module. -/
+  decls         : Lsp.Decls
   deriving FromJson, ToJson
 
 namespace Ilean
@@ -244,6 +250,8 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
     some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName).toString fi.projName.toString, false)
   | Info.ofOptionInfo oi =>
     some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName).toString oi.declName.toString, false)
+  | Info.ofDocElabInfo dei =>
+    some (RefIdent.const (← getModuleContainingDecl? ci.env dei.name).toString dei.name.toString, false)
   | _ => none
 
 /-- Finds all references in `trees`. -/
@@ -367,9 +375,9 @@ def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := fals
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
-    refsByIdAndRange := match refsByIdAndRange[key]? with
-      | some ref' => refsByIdAndRange.insert key { ref' with aliases := ref'.aliases ++ ref.aliases }
-      | none => refsByIdAndRange.insert key ref
+    refsByIdAndRange := refsByIdAndRange.alter key fun
+      | some ref' => some { ref' with aliases := ref'.aliases ++ ref.aliases }
+      | none => some ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)
@@ -413,7 +421,7 @@ has a name or uri that is not identical to the others.
 -/
 def ModuleImport.collapseIdenticalImports? (identicalImports : Array ModuleImport) : Option ModuleImport := do
   let mut acc ← identicalImports[0]?
-  for h:i in [1:identicalImports.size] do
+  for h:i in 1...identicalImports.size do
     let «import» := identicalImports[i]
     guard <| acc.module == «import».module
     guard <| acc.uri == «import».uri
@@ -487,6 +495,8 @@ structure LoadedILean where
   directImports : DirectImports
   /-- Reference information from this ILean. -/
   refs          : Lsp.ModuleRefs
+  /-- Declarations in the module of the ILean. -/
+  decls         : Lsp.Decls
 
 /-- Paths and module references for every module name. Loaded from `.ilean` files. -/
 abbrev ILeanMap := Std.TreeMap Name LoadedILean Name.quickCmp
@@ -498,13 +508,24 @@ built.
 -/
 structure TransientWorkerILean where
   /-- URI of the module that the file worker is associated with. -/
-  moduleUri     : DocumentUri
+  moduleUri       : DocumentUri
   /-- Document version for which these references have been collected. -/
-  version       : Nat
+  version         : Nat
   /-- Direct imports of the module that the file worker is associated with. -/
-  directImports : DirectImports
+  directImports   : DirectImports
+  /--
+  Whether `lake setup-file` has failed for this worker. `none` if no setup info has been received
+  for this version yet.
+  -/
+  isSetupFailure? : Option Bool
   /-- References provided by the worker. -/
-  refs          : Lsp.ModuleRefs
+  refs            : Lsp.ModuleRefs
+  /-- Declarations provided by the worker. -/
+  decls           : Lsp.Decls
+
+/-- Determines whether this transient worker ILean includes actual references. -/
+def TransientWorkerILean.hasRefs (i : TransientWorkerILean) : Bool :=
+  i.isSetupFailure?.any (fun isSetupFailure => ! isSetupFailure)
 
 /--
 Document versions and module references for every module name. Loaded from the current state
@@ -540,6 +561,7 @@ def addIlean
       ileanPath := path
       directImports
       refs := ilean.references
+      decls := ilean.decls
     }
   }
 
@@ -553,23 +575,26 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
 Replaces the direct imports of a worker for the module `name` in `self` with
 a new set of direct imports.
 -/
-def updateWorkerImports
-    (self          : References)
-    (name          : Name)
-    (moduleUri     : DocumentUri)
-    (version       : Nat)
-    (directImports : Array ImportInfo)
+def updateWorkerSetupInfo
+    (self           : References)
+    (name           : Name)
+    (moduleUri      : DocumentUri)
+    (version        : Nat)
+    (directImports  : Array ImportInfo)
+    (isSetupFailure : Bool)
     : IO References := do
   let directImports ← DirectImports.convertImportInfos directImports
-  let some { version := currVersion, .. } := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
-  match compare version currVersion with
+  let isSetupFailure? := some isSetupFailure
+  let some workerRefs := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := ∅, decls := ∅} }
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs := ∅} }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := ∅, decls := ∅} }
   | .eq =>
-    let refs := self.workers.get? name |>.map (·.refs) |>.getD ∅
+    let refs := workerRefs.refs
+    let decls := workerRefs.decls
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports, refs }
+      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls }
     }
 
 /--
@@ -583,18 +608,21 @@ def updateWorkerRefs
     (moduleUri : DocumentUri)
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
+    (decls     : Lsp.Decls)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let some workerRefs := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure? := none, refs, decls } }
+  let directImports := workerRefs.directImports
+  let isSetupFailure? := workerRefs.isSetupFailure?
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
   | .eq =>
-    let current := self.workers.getD name { moduleUri, version, directImports := ∅, refs := Std.TreeMap.empty }
-    let mergedRefs := refs.foldl (init := current.refs) fun m ident info =>
+    let mergedRefs := refs.foldl (init := workerRefs.refs) fun m ident info =>
       m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
+    let mergedDecls := workerRefs.decls.insertMany decls
     return { self with
-      workers := self.workers.insert name { moduleUri, version, directImports := current.directImports, refs := mergedRefs }
+      workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs := mergedRefs, decls := mergedDecls }
     }
 
 /--
@@ -607,15 +635,17 @@ def finalizeWorkerRefs
     (moduleUri : DocumentUri)
     (version   : Nat)
     (refs      : Lsp.ModuleRefs)
+    (decls     : Lsp.Decls)
     : IO References := do
-  let some { version := currVersion, .. } := self.workers[name]?
-    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs } }
-  match compare version currVersion with
+  let some workerRefs := self.workers[name]?
+    | return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, isSetupFailure? := none, refs, decls } }
+  let directImports := workerRefs.directImports
+  let isSetupFailure? := workerRefs.isSetupFailure?
+  match compare version workerRefs.version with
   | .lt => return self
-  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports := ∅, refs} }
+  | .gt => return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
   | .eq =>
-    let directImports := self.workers.get? name |>.map (·.directImports) |>.getD ∅
-    return { self with workers := self.workers.insert name { moduleUri, version, directImports, refs } }
+    return { self with workers := self.workers.insert name { moduleUri, version, directImports, isSetupFailure?, refs, decls } }
 
 /-- Erases all worker references in `self` for the worker managing `name`. -/
 def removeWorkerRefs (self : References) (name : Name) : References :=
@@ -625,12 +655,16 @@ def removeWorkerRefs (self : References) (name : Name) : References :=
 Map from each module to all of its references.
 The current references in a file worker take precedence over those in .ilean files.
 -/
-abbrev AllRefsMap := Std.TreeMap Name (DocumentUri × Lsp.ModuleRefs) Name.quickCmp
+abbrev AllRefsMap := Std.TreeMap Name (DocumentUri × Lsp.ModuleRefs × Lsp.Decls) Name.quickCmp
 
 /-- Yields a map from all modules to all of their references. -/
 def allRefs (self : References) : AllRefsMap :=
-  let ileanRefs := self.ileans.foldl (init := ∅) fun m name { moduleUri, refs, .. } => m.insert name (moduleUri, refs)
-  self.workers.foldl (init := ileanRefs) fun m name { moduleUri, refs, ..} => m.insert name (moduleUri, refs)
+  let ileanRefs := self.ileans.foldl (init := ∅) fun m name { moduleUri, refs, decls, .. } => m.insert name (moduleUri, refs, decls)
+  self.workers.foldl (init := ileanRefs) fun m name i@{ moduleUri, refs, decls, ..} =>
+    if i.hasRefs then
+      m.insert name (moduleUri, refs, decls)
+    else
+      m
 
 /--
 Map from each module to all of its direct imports.
@@ -644,18 +678,20 @@ def allDirectImports (self : References) : AllDirectImportsMap := Id.run do
   for (name, ilean) in self.ileans do
     allDirectImports := allDirectImports.insert name (ilean.moduleUri, ilean.directImports)
   for (name, worker) in self.workers do
-    allDirectImports := allDirectImports.insert name (worker.moduleUri, worker.directImports)
+    if worker.hasRefs then
+      allDirectImports := allDirectImports.insert name (worker.moduleUri, worker.directImports)
   return allDirectImports
 
 /--
 Gets the references for `mod`.
 The current references in a file worker take precedence over those in .ilean files.
 -/
-def getModuleRefs? (self : References) (mod : Name) : Option (DocumentUri × Lsp.ModuleRefs) := do
+def getModuleRefs? (self : References) (mod : Name) : Option (DocumentUri × Lsp.ModuleRefs × Lsp.Decls) := do
   if let some worker := self.workers[mod]? then
-    return (worker.moduleUri, worker.refs)
+    if worker.hasRefs then
+      return (worker.moduleUri, worker.refs, worker.decls)
   if let some ilean := self.ileans[mod]? then
-    return (ilean.moduleUri, ilean.refs)
+    return (ilean.moduleUri, ilean.refs, ilean.decls)
   none
 
 /--
@@ -664,9 +700,19 @@ The current imports in a file worker take precedence over those in .ilean files.
 -/
 def getDirectImports? (self : References) (mod : Name) : Option DirectImports := do
   if let some worker := self.workers[mod]? then
-    return worker.directImports
+    if worker.hasRefs then
+      return worker.directImports
   if let some ilean := self.ileans[mod]? then
     return ilean.directImports
+  none
+
+/-- Gets the set of declarations of `mod`. -/
+def getDecls? (self : References) (mod : Name) : Option Decls := do
+  if let some worker := self.workers[mod]? then
+    if worker.hasRefs then
+      return worker.decls
+  if let some ilean := self.ileans[mod]? then
+    return ilean.decls
   none
 
 /--
@@ -676,31 +722,49 @@ reference occurs in.
 def allRefsFor
     (self  : References)
     (ident : RefIdent)
-    : Array (DocumentUri × Name × Lsp.RefInfo) := Id.run do
+    : Array (DocumentUri × Name × Lsp.RefInfo × Decls) := Id.run do
   let refsToCheck := match ident with
     | RefIdent.const .. => self.allRefs.toArray
     | RefIdent.fvar identModule .. =>
       let identModuleName := identModule.toName
       match self.getModuleRefs? identModuleName with
       | none => #[]
-      | some (moduleUri, refs) => #[(identModuleName, moduleUri, refs)]
+      | some (moduleUri, refs, decls) => #[(identModuleName, moduleUri, refs, decls)]
   let mut result := #[]
-  for (module, moduleUri, refs) in refsToCheck do
+  for (module, moduleUri, refs, decls) in refsToCheck do
     let some info := refs.get? ident
       | continue
-    result := result.push (moduleUri, module, info)
+    result := result.push (moduleUri, module, info, decls)
   return result
 
 /-- Yields all references in `module` at `pos`. -/
 def findAt (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
-  if let some (_, refs) := self.getModuleRefs? module then
+  if let some (_, refs, _) := self.getModuleRefs? module then
     return refs.findAt pos includeStop
   #[]
 
 /-- Yields the first reference in `module` at `pos`. -/
 def findRange? (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  let (_, refs) ← self.getModuleRefs? module
+  let (_, refs, _) ← self.getModuleRefs? module
   refs.findRange? pos includeStop
+
+/-- Parent declaration of an identifier. -/
+structure ParentDecl where
+  /-- Name of the parent declaration. -/
+  name : String
+  /-- Range of the parent declaration. -/
+  range : Lsp.Range
+  /-- Selection range of the parent declaration. -/
+  selectionRange : Lsp.Range
+
+/-- Yields a `ParentDecl` for the declaration `name`. -/
+def ParentDecl.ofDecls? (ds : Decls) (name : String) : Option ParentDecl := do
+  let d ← ds.get? name
+  return {
+    name
+    range := d.range
+    selectionRange := d.selectionRange
+  }
 
 /-- Location and parent declaration of a reference. -/
 structure DocumentRefInfo where
@@ -709,7 +773,7 @@ structure DocumentRefInfo where
   /-- Module name of the reference. -/
   module      : Name
   /-- Parent declaration of the reference. -/
-  parentInfo? : Option RefInfo.ParentDecl
+  parentInfo? : Option ParentDecl
 
 /-- Yields locations and parent declaration for all references referring to `ident`. -/
 def referringTo
@@ -718,12 +782,16 @@ def referringTo
     (includeDefinition : Bool := true)
     : Array DocumentRefInfo := Id.run do
   let mut result := #[]
-  for (moduleUri, module, info) in self.allRefsFor ident do
+  for (moduleUri, module, info, decls) in self.allRefsFor ident do
     if includeDefinition then
-      if let some ⟨range, parentDeclInfo?⟩ := info.definition? then
-        result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
-    for ⟨range, parentDeclInfo?⟩ in info.usages do
-      result := result.push ⟨⟨moduleUri, range⟩, module, parentDeclInfo?⟩
+      if let some loc := info.definition? then
+        let parentDecl? := do
+          ParentDecl.ofDecls? decls <| ← loc.parentDecl?
+        result := result.push ⟨⟨moduleUri, loc.range⟩, module, parentDecl?⟩
+    for loc in info.usages do
+      let parentDecl? := do
+        ParentDecl.ofDecls? decls <| ← loc.parentDecl?
+      result := result.push ⟨⟨moduleUri, loc.range⟩, module, parentDecl?⟩
   return result
 
 /-- Yields the definition location of `ident`. -/
@@ -731,10 +799,12 @@ def definitionOf?
     (self  : References)
     (ident : RefIdent)
     : Option DocumentRefInfo := Id.run do
-  for (moduleUri, module, info) in self.allRefsFor ident do
-    let some ⟨definitionRange, definitionParentDeclInfo?⟩ := info.definition?
+  for (moduleUri, module, info, decls) in self.allRefsFor ident do
+    let some loc := info.definition?
       | continue
-    return some ⟨⟨moduleUri, definitionRange⟩, module, definitionParentDeclInfo?⟩
+    let definitionParentDecl? := do
+        ParentDecl.ofDecls? decls <| ← loc.parentDecl?
+    return some ⟨⟨moduleUri, loc.range⟩, module, definitionParentDecl?⟩
   return none
 
 /-- A match in `References.definitionsMatching`. -/
@@ -755,16 +825,16 @@ def definitionsMatching
     (cancelTk?      : Option CancelToken := none)
     : BaseIO (Array (MatchedDefinition α)) := do
   let mut result := #[]
-  for (module, moduleUri, refs) in self.allRefs do
+  for (module, moduleUri, refs, _) in self.allRefs do
     if let some cancelTk := cancelTk? then
       if ← cancelTk.isSet then
         return result
     for (ident, info) in refs do
-      let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
+      let (RefIdent.const _ nameString, some loc) := (ident, info.definition?)
         | continue
       let some v := filterMapIdent nameString.toName
         | continue
-      result := result.push ⟨module, moduleUri, v, definitionRange⟩
+      result := result.push ⟨module, moduleUri, v, loc.range⟩
   return result
 
 /-- Yields all imports that import the given `requestedMod`. -/

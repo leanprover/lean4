@@ -95,8 +95,9 @@ Can't do `subst this` with `this : v = n + 2` since `v` is a let binding.
 The tactic sees `m + 1 = n + 2` and fails.
 -/
 /--
-error: tactic 'subst' failed, invalid equality proof, it is not of the form (x = t) or (t = x)
+error: Tactic `subst` failed: invalid equality proof, it is not of the form (x = t) or (t = x)
   v = n + 2
+
 n : Nat
 h : n = 0
 m : Nat := n + 1

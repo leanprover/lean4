@@ -3,20 +3,55 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Std.Internal.Rat
-import Init.Grind.Ring.Poly
-import Init.Grind.Ordered.Linarith
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
-
+public import Init.Grind.Ring.CommSolver
+public import Init.Grind.Ordered.Linarith
+public import Lean.Meta.Tactic.Grind.Types
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
-export Std.Internal (Rat)
+
 abbrev LinExpr := Lean.Grind.Linarith.Expr
 
 deriving instance Hashable for Poly
 deriving instance Hashable for Grind.Linarith.Expr
+
+mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` inequalities. -/
+structure RingIneqCnstr where
+  p      : Grind.CommRing.Poly
+  strict : Bool
+  h      : RingIneqCnstrProof
+
+inductive RingIneqCnstrProof where
+  | core (e : Expr) (lhs rhs : Grind.CommRing.Expr)
+  | notCore (e : Expr) (lhs rhs : Grind.CommRing.Expr)
+  | cancelDen (c : RingIneqCnstr) (val : Int) (x : Var) (n : Var)
+end
+
+mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` equalities. -/
+structure RingEqCnstr where
+  p      : Grind.CommRing.Poly
+  h      : RingEqCnstrProof
+
+inductive RingEqCnstrProof where
+  | core (a b : Expr) (ra rb : Grind.CommRing.Expr)
+  | symm (c : RingEqCnstr)
+  | cancelDen (c : RingEqCnstr) (val : Int) (x : Var) (n : Var)
+end
+
+mutual
+/-- Auxiliary type for normalizing `Ring` and `Field` disequalities. -/
+structure RingDiseqCnstr where
+  p      : Grind.CommRing.Poly
+  h      : RingDiseqCnstrProof
+
+inductive RingDiseqCnstrProof where
+  | core (a b : Expr) (ra rb : Grind.CommRing.Expr)
+  | cancelDen (c : RingDiseqCnstr) (val : Int) (x : Var) (n : Var)
+end
 
 mutual
 /-- An equality constraint and its justification/proof. -/
@@ -27,6 +62,7 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
   | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : EqCnstr)
   | coeff (k : Nat) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -40,8 +76,9 @@ structure IneqCnstr where
 inductive IneqCnstrProof where
   | core (e : Expr) (lhs rhs : LinExpr)
   | notCore (e : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
-  | notCoreCommRing (e : Expr) (lhs rhs : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | ring (c : RingIneqCnstr) (lhs : LinExpr)
+  | coreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
+  | notCoreOfNat (e : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | combine (c₁ : IneqCnstr) (c₂ : IneqCnstr)
   | norm (c₁ : IneqCnstr) (k : Nat)
   | dec (h : FVarId)
@@ -50,7 +87,9 @@ inductive IneqCnstrProof where
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
     ofEq (a b : Expr) (la lb : LinExpr)
   | /-- `a ≤ b` from an equality `a = b` coming from the core. -/
-    ofCommRingEq (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+    ofEqOfNat (a b : Expr) (natStructId : Nat) (la lb : LinExpr)
+  | /-- `p ≤ 0` from a ring equality `p = 0`. -/
+    ringEq (c : RingEqCnstr) (lhs : LinExpr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : IneqCnstr)
 
 structure DiseqCnstr where
@@ -59,7 +98,8 @@ structure DiseqCnstr where
 
 inductive DiseqCnstrProof where
   | core (a b : Expr) (lhs rhs : LinExpr)
-  | coreCommRing (a b : Expr) (ra rb : Grind.CommRing.Expr) (p : Grind.CommRing.Poly) (lhs' : LinExpr)
+  | ring (c : RingDiseqCnstr) (lhs : LinExpr)
+  | coreOfNat (a b : Expr) (natStructId : Nat) (lhs rhs : LinExpr)
   | neg (c : DiseqCnstr)
   | subst (k₁ k₂ : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
   | subst1 (k : Int) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
@@ -77,54 +117,59 @@ instance : Inhabited DiseqCnstr where
 instance : Inhabited EqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /--
 State for each algebraic structure by this module.
 Each type must at least implement the instance `IntModule`.
-For being able to process inequalities, it must at least implement `Preorder`, and `IntModule.IsOrdered`
+For being able to process inequalities, it must at least implement `Preorder`, and `OrderedAdd`
 -/
 structure Struct where
-  id               : Nat
+  id                 : Nat
   /-- If the structure is a ring, we store its id in the `CommRing` module at `ringId?` -/
-  ringId?          : Option Nat
-  type             : Expr
+  ringId?            : Option Nat
+  type               : Expr
   /-- Cached `getDecLevel type` -/
-  u                : Level
+  u                  : Level
   /-- `IntModule` instance -/
-  intModuleInst    : Expr
-  /-- `Preorder` instance if available -/
-  preorderInst?    : Option Expr
-  /-- `IntModule.IsOrdered` instance with `Preorder` if available -/
-  isOrdInst?       : Option Expr
-  /-- `PartialOrder` instance if available -/
-  partialInst?     : Option Expr
-  /-- `LinearOrder` instance if available -/
-  linearInst?      : Option Expr
+  intModuleInst      : Expr
+  /-- `LE` instance if available -/
+  leInst?            : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?            : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst? : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?    : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
+  orderedAddInst?    : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?      : Option Expr
   /-- `NoNatZeroDivisors` -/
-  noNatDivInst?    : Option Expr
+  noNatDivInst?      : Option Expr
   /-- `Ring` instance -/
-  ringInst?        : Option Expr
+  ringInst?          : Option Expr
   /-- `CommRing` instance -/
-  commRingInst?    : Option Expr
-  /-- `Ring.IsOrdered` instance with `Preorder` -/
-  ringIsOrdInst?   : Option Expr
+  commRingInst?      : Option Expr
+  /-- `OrderedRing` instance with `Preorder` -/
+  orderedRingInst?   : Option Expr
   /-- `Field` instance -/
-  fieldInst?       : Option Expr
+  fieldInst?         : Option Expr
   /-- `IsCharP` instance for `type` if available. -/
-  charInst?        : Option (Expr × Nat)
-  zero             : Expr
-  ofNatZero        : Expr
-  one?             : Option Expr
-  leFn?            : Option Expr
-  ltFn?            : Option Expr
-  addFn            : Expr
-  hmulFn           : Expr
-  hmulNatFn        : Expr
-  hsmulFn?         : Option Expr
-  hsmulNatFn?      : Option Expr
-  subFn            : Expr
-  negFn            : Expr
+  charInst?          : Option (Expr × Nat)
+  zero               : Expr
+  ofNatZero          : Expr
+  one?               : Option Expr
+  leFn?              : Option Expr
+  ltFn?              : Option Expr
+  addFn              : Expr
+  zsmulFn            : Expr
+  nsmulFn            : Expr
+  zsmulFn?           : Option Expr
+  nsmulFn?           : Option Expr
+  homomulFn?         : Option Expr -- homogeneous multiplication if structure is a ring
+  subFn              : Expr
+  negFn              : Expr
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -192,6 +237,35 @@ structure Struct where
   ignored : PArray Expr := {}
   deriving Inhabited
 
+structure NatStruct where
+  id                  : Nat
+  /-- Id for `OfNatModule.Q` -/
+  structId            : Nat
+  type                : Expr
+  /-- Cached `getDecLevel type` -/
+  u                   : Level
+  /-- `NatModule` instance for `type` -/
+  natModuleInst       : Expr
+  /-- `LE` instance if available -/
+  leInst?             : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?             : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst?  : Option Expr
+  /-- `IsPreorder` instance if available -/
+  isPreorderInst?     : Option Expr
+  /-- `OrderedAdd` instance with `IsPreorder` if available -/
+  orderedAddInst?     : Option Expr
+  /-- `IsLinearOrder` instance if available -/
+  isLinearInst?       : Option Expr
+  addRightCancelInst? : Option Expr
+  rfl_q               : Expr -- `@Eq.Refl (OfNatModule.Q type)`
+  zero                : Expr
+  toQFn               : Expr
+  addFn               : Expr
+  smulFn              : Expr
+  termMap             : PHashMap ExprPtr (Expr × Expr) := {}
+
 /-- State for all `IntModule` types detected by `grind`. -/
 structure State where
   /--
@@ -205,6 +279,26 @@ structure State where
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /- Mapping from expressions/terms to their structure ids. -/
   exprToStructId : PHashMap ExprPtr Nat := {}
+  /-- `exprToStructId` content as an array for traversal. -/
+  exprToStructIdEntries : PArray (Expr × Nat) := {}
+  /--
+  Some types are unordered rings, so we do not process them in `linarith`.
+  When such types are detected in `getStructId?`, we add them to the set
+  `forbiddenNatModules` to avoid reprocessing them in `getNatStructId?`.
+  -/
+  forbiddenNatModules : PHashSet ExprPtr := {}
+  /-- `NatModule`. We support them using the envelope `OfNatModule.Q` -/
+  natStructs : Array NatStruct := {}
+  /--
+  Mapping from types to its "nat module id". We cache failures using `none`.
+  `natTypeIdOf[type]` is `some id`, then `id < natStructs.size`.
+  If a type is in this map, it is not in `typeIdOf`.
+  -/
+  natTypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /- Mapping from expressions/terms to their nat structure ids. -/
+  exprToNatStructId : PHashMap ExprPtr Nat := {}
   deriving Inhabited
+
+builtin_initialize linearExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Linear

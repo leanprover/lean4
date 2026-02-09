@@ -3,15 +3,14 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 -/
+module
+
 prelude
 import Lean.Server.CodeActions
-import Lean.Widget.UserWidget
-import Lean.Data.Json.Elab
-import Lean.Data.Lsp.Utf16
-import Lean.Meta.CollectFVars
 import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.TryThis
-import Lean.Meta.Hint
+public import Lean.Widget.UserWidget
+
+public section
 
 /-!
 # "Try this" code action and tactic suggestions
@@ -26,68 +25,9 @@ open Lean Elab Tactic PrettyPrinter Meta Server RequestM
 
 /-! # Raw widget -/
 
-/--
-This is a widget which is placed by `TryThis.addSuggestion` and `TryThis.addSuggestions`.
-
-When placed by `addSuggestion`, it says `Try this: <replacement>`
-where `<replacement>` is a link which will perform the replacement.
-
-When placed by `addSuggestions`, it says:
-```
-Try these:
-```
-* `<replacement1>`
-* `<replacement2>`
-* `<replacement3>`
-* ...
-
-where `<replacement*>` is a link which will perform the replacement.
--/
-@[builtin_widget_module] def tryThisWidget : Widget.Module where
-  javascript := "
-import * as React from 'react';
-import { EditorContext, EnvPosContext } from '@leanprover/infoview';
-const e = React.createElement;
-export default function ({ suggestions, range, header, isInline, style }) {
-  const pos = React.useContext(EnvPosContext)
-  const editorConnection = React.useContext(EditorContext)
-  const defStyle = style || {
-    className: 'link pointer dim',
-    style: { color: 'var(--vscode-textLink-foreground)' }
-  }
-
-  // Construct the children of the HTML element for a given suggestion.
-  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {
-    function onClick() {
-      editorConnection.api.applyEdit({
-        changes: { [pos.uri]: [{ range, newText: suggestion }] }
-      })
-    }
-    return [
-      preInfo,
-      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),
-      postInfo
-    ]
-  }
-
-  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.
-  let inner = null
-  if (isInline) {
-    inner = e('div', { className: 'ml1' },
-      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))
-  } else {
-    inner = e('div', { className: 'ml1' },
-      e('pre', { className: 'font-code pre-wrap' }, header),
-      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>
-        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))
-  }
-  return e('details', { open: true },
-    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),
-    inner)
-}"
-
 -- Because we can't use `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
 attribute [builtin_widget_module] Hint.tryThisDiffWidget
+attribute [builtin_widget_module] Hint.textInsertionWidget
 
 /-! # Code action -/
 
@@ -95,28 +35,21 @@ attribute [builtin_widget_module] Hint.tryThisDiffWidget
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
-@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+@[builtin_code_action_provider] private def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result
-    let some { range, suggestionTexts, codeActionPrefix? } :=
+    let some { edit, codeActionTitle, .. } :=
       value.get? TryThisInfo | result
     let some stxRange := stx.getRange? | result
     let stxRange := doc.meta.text.utf8RangeToLspRange stxRange
     unless stxRange.start.line ≤ params.range.end.line do return result
     unless params.range.start.line ≤ stxRange.end.line do return result
-    let mut result := result
-    for h : i in [:suggestionTexts.size] do
-      let (newText, title?) := suggestionTexts[i]
-      let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
-      result := result.push {
-        eager.title := title
-        eager.kind? := "quickfix"
-        -- Only make the first option preferred
-        eager.isPreferred? := if i = 0 then true else none
-        eager.edit? := some <| .ofTextEdit doc.versionedIdentifier { range, newText }
-      }
-    result
+    result.push {
+      eager.title := codeActionTitle
+      eager.kind? := "quickfix"
+      eager.edit? := some <| .ofTextEdit doc.versionedIdentifier edit
+    }
 
 /-! # Formatting -/
 
@@ -126,102 +59,89 @@ def delabToRefinableSyntax (e : Expr) : MetaM Term :=
 
 /-- Delaborate `e` into a suggestion suitable for use by `refine`. -/
 def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
-  return { suggestion := ← delabToRefinableSyntax e, messageData? := e }
+  return { suggestion := ← delabToRefinableSyntax e, messageData? := ← addMessageContext <| toMessageData e }
 
-/-- Core of `addSuggestion` and `addSuggestions`. Whether we use an inline display for a single
-element or a list display is controlled by `isInline`. -/
-private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
-    (header : String) (isInline : Bool) (origSpan? : Option Syntax := none)
-    (style? : Option SuggestionStyle := none)
-    (codeActionPrefix? : Option String := none) : CoreM Unit := do
-  if let some range := (origSpan?.getD ref).getRange? then
-    let { suggestions, info, range } ← processSuggestions ref range suggestions codeActionPrefix?
-    let suggestions := suggestions.map (·.1)
-    let json := json% {
-      suggestions: $suggestions,
-      range: $range,
-      header: $header,
-      isInline: $isInline,
-      style: $style?
-    }
-    pushInfoLeaf info
-    Widget.savePanelWidgetInfo tryThisWidget.javascriptHash ref (props := return json)
+/-- Add a "try this" suggestion. This has two effects:
 
-/-- Add a "try this" suggestion. This has three effects:
-
-* An info diagnostic is displayed saying `Try this: <suggestion>`
-* A widget is registered, saying `Try this: <suggestion>` with a link on `<suggestion>` to apply
-  the suggestion
+* A widget diagnostic is displayed, saying `Try this: <suggestion>` with a link on `<suggestion>`
+  to apply the suggestion
 * A code action is added, which will apply the suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `s`: a `Suggestion`, which contains
-  * `suggestion`: the replacement text;
-  * `preInfo?`: an optional string shown immediately after the replacement text in the widget
+  * `suggestion`: the replacement text
+  * `preInfo?`: an optional string shown immediately before the replacement text in the widget
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `style?`: an optional `Json` object used as the value of the `style` attribute of the
-    suggestion text's element (not the whole suggestion element).
-  * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
-    (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
-    `suggestion` instead.
+  * `messageData?`: an optional `MessageData` displayed instead of `suggestion`.
+    If set, implies `diffGranularity = .none`.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
     If `none`, we simply prepend `"Try This: "` to the suggestion text.
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
-* `header`: a string that begins the display. By default, it is `"Try this: "`.
+* `header`: a string that begins the display. By default, it is `"Try this:"`.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
+* `diffGranularity`: How to compute the diff display in the suggestion. Defaults to only displaying
+  the inserted string.
 -/
 def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := none)
-    (header : String := "Try this: ") (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  logInfoAt ref m!"{header}{s}"
-  addSuggestionCore ref #[s] header (isInline := true) origSpan?
-    (codeActionPrefix? := codeActionPrefix?)
+    (header : String := "Try this:") (codeActionPrefix? : Option String := none)
+    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
+  let hintSuggestion := {
+    span? := origSpan?
+    diffGranularity
+    toTryThisSuggestion := s
+  }
+  let suggs ← Hint.mkSuggestionsMessage #[hintSuggestion] ref codeActionPrefix? (forceList := false)
+  logInfoAt ref m!"{header}{suggs}"
 
-/-- Add a list of "try this" suggestions as a single "try these" suggestion. This has three effects:
+set_option linter.unusedVariables false in
+/-- Add a list of "try this" suggestions as a single "try these" suggestion. This has two effects:
 
-* An info diagnostic is displayed saying `Try these: <list of suggestions>`
-* A widget is registered, saying `Try these: <list of suggestions>` with a link on each
-  `<suggestion>` to apply the suggestion
+* A widget diagnostic is displayed, saying `Try these: <list of suggestions>` with a link on
+  each suggestion in `<list of suggestions>` to apply each suggestion
 * A code action for each suggestion is added, which will apply the suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `suggestions`: an array of `Suggestion`s, which each contain
-  * `suggestion`: the replacement text;
-  * `preInfo?`: an optional string shown immediately after the replacement text in the widget
+  * `suggestion`: the replacement text
+  * `preInfo?`: an optional string shown immediately before the replacement text in the widget
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `style?`: an optional `Json` object used as the value of the `style` attribute of the
-    suggestion text's element (not the whole suggestion element).
-  * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
-    (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
-    `suggestion` instead.
+  * `messageData?`: an optional `MessageData` displayed instead of `suggestion`.
+    If set, implies `diffGranularity = .none`.
   * `toCodeActionTitle?`: an optional function `String → String` describing how to transform the
     pretty-printed suggestion text into the code action text which appears in the lightbulb menu.
-    If `none`, we simply prepend `"Try This: "` to the suggestion text.
+    If `none`, we simply prepend `"Try this: "` to the suggestion text.
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
 * `header`: a string that precedes the list. By default, it is `"Try these:"`.
-* `style?`: a default style for all suggestions which do not have a custom `style?` set.
+* `style?` (**deprecated**): unused.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text for all
   suggestions which do not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is
   used.
+* `diffGranularity`: How to compute the diff display in the suggestion. Defaults to only displaying
+  the inserted string.
 -/
 def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
     (style? : Option SuggestionStyle := none)
-    (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  if suggestions.isEmpty then throwErrorAt ref "no suggestions available"
-  let msgs := suggestions.map toMessageData
-  let msgs := msgs.foldl (init := MessageData.nil) (fun msg m => msg ++ m!"\n• " ++ .nest 2 m)
-  logInfoAt ref m!"{header}{msgs}"
-  addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
+    (codeActionPrefix? : Option String := none)
+    (diffGranularity : Hint.DiffGranularity := .none) : CoreM Unit := do
+  if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
+  let hintSuggestions := suggestions.map fun s => {
+    span? := origSpan?
+    diffGranularity
+    toTryThisSuggestion := s
+  }
+  let suggs ← Hint.mkSuggestionsMessage hintSuggestions ref codeActionPrefix? (forceList := true)
+  logInfoAt ref m!"{header}{suggs}"
 
 /-! # Tactic-specific widget hooks -/
 /--
@@ -240,12 +160,12 @@ private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSynta
       let type ← instantiateMVars type
       let expectedType ← instantiateMVars expectedType
       if type != expectedType then
-        throwError "tactic did not produce expected goal"
+        throwError "Tactic did not produce expected goal"
   finally
     currState.restore
 
 /--
-Returns a possibly modified version of `tac` and `msg` that succeeds in `initialState`, prepending
+Returns a possibly modified version of `tac` that succeeds in `initialState`, prepending
 `expose_names` if necessary. If `expectedType?` is non-`none`, the tactic is only considered to have
 "succeeded" if the resulting goal is equal (up to `Expr` equality modulo metavariable instantiation)
 to the provided type. Returns `none` if the tactic fails even with `expose_names`.
@@ -302,18 +222,18 @@ private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option
     | let messageData := m!"(expose_names; {messageData})"
       return .inr <| mkFailedToMakeTacticMsg m!"a {if hasMVars then "partial " else ""}proof" messageData
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
-    let mut str := "\nRemaining subgoals:"
+    let mut str := "\n-- Remaining subgoals:"
     for g in mvars do
       -- TODO: use a MessageData.ofExpr instead of rendering to string
       let e ← withExposedNames <| PrettyPrinter.ppExpr (← instantiateMVars (← g.getType))
-      str := str ++ Format.pretty ("\n⊢ " ++ e)
+      str := str ++ Format.pretty ("\n-- ⊢ " ++ e)
     pure str
   return .inl { suggestion := suggestion, postInfo?, messageData? := messageData }
 
 /-- Add an `exact e` or `refine e` suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `e`: the replacement expression
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -344,7 +264,7 @@ def addExactSuggestion (ref : Syntax) (e : Expr)
 cannot, display messages indicating the invalid generated tactics.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `es`: the array of replacement expressions
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -381,16 +301,16 @@ def addExactSuggestions (ref : Syntax) (es : Array Expr)
 /-- Add a term suggestion.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `e`: the replacement expression
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
-* `header`: a string which precedes the suggestion. By default, it's `"Try this: "`.
+* `header`: a string which precedes the suggestion. By default, it's `"Try this:"`.
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
 -/
 def addTermSuggestion (ref : Syntax) (e : Expr)
-    (origSpan? : Option Syntax := none) (header : String := "Try this: ")
+    (origSpan? : Option Syntax := none) (header : String := "Try this:")
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
   addSuggestion ref (← delabToRefinableSuggestion e) (origSpan? := origSpan?) (header := header)
     (codeActionPrefix? := codeActionPrefix?)
@@ -398,7 +318,7 @@ def addTermSuggestion (ref : Syntax) (e : Expr)
 /-- Add term suggestions.
 
 The parameters are:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `es`: an array of the replacement expressions
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
@@ -426,19 +346,19 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
       let tstx ← delabToRefinableSyntax t
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) : $tstx := $estx), m!"have {h} : {t} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident : $tstx := $estx), m!"have {h} : {t} := {e}")
         | none => pure (← `(tactic| have : $tstx := $estx), m!"have : {t} := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) : $tstx := $estx), m!"let {h} : {t} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident : $tstx := $estx), m!"let {h} : {t} := {e}")
     else
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) := $estx), m!"have {h} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident := $estx), m!"have {h} := {e}")
         | none => pure (← `(tactic| have := $estx), m!"have := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) := $estx), m!"let {h} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident := $estx), m!"let {h} := {e}")
     pure (tac, ← addMessageContext msg)
   if let some checkState := checkState? then
     let some (tac', msg') ← mkValidatedTactic tac msg checkState
@@ -454,7 +374,7 @@ open Lean.Syntax
 /-- Add a suggestion for `rw [h₁, ← h₂] at loc`.
 
 Parameters:
-* `ref`: the span of the info diagnostic
+* `ref`: the span of the widget diagnostic
 * `rules`: a list of arguments to `rw`, with the second component `true` if the rewrite is reversed
 * `type?`: the goal after the suggested rewrite, `.none` if the rewrite closes the goal, or `.undef`
   if the resulting goal is unknown
@@ -468,7 +388,7 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
   (type? : LOption Expr := .undef) (loc? : Option Expr := none)
   (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) :
     TacticM Unit := do
-  let mut (tac, tacMsg, extraMsg, extraStr) ← withExposedNames do
+  let mut (tac, tacMsg, extraMsg) ← withExposedNames do
     let rulesStx := TSepArray.ofElems <| ← rules.toArray.mapM fun ⟨e, symm⟩ => do
       let t ← delabToRefinableSyntax e
       if symm then `(rwRule| ← $t:term) else `(rwRule| $t:term)
@@ -491,13 +411,13 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
       else
         m!"rw {rulesMsg}"
 
-    let (extraMsg, extraStr) ←
+    let extraMsg ←
       match type? with
       | .some type =>
-        pure (← addMessageContext m!"\n-- {type}", s!"\n-- {← PrettyPrinter.ppExpr type}")
-      | .none => pure (m!"\n-- no goals", "\n-- no goals")
-      | .undef => pure (m!"", "")
-    return (tac, tacMsg, extraMsg, extraStr)
+        pure <| ← addMessageContext m!"\n-- {type}"
+      | .none => pure m!"\n-- no goals"
+      | .undef => pure m!""
+    return (tac, tacMsg, extraMsg)
 
   if let some checkState := checkState? then
     let type? := match type? with
@@ -509,5 +429,5 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
         return
     tac := tac'
     tacMsg := tacMsg'
-  addSuggestion ref (s := { suggestion := tac, postInfo? := extraStr, messageData? := tacMsg ++ extraMsg })
+  addSuggestion ref (s := { suggestion := tac, messageData? := tacMsg ++ extraMsg })
     origSpan?

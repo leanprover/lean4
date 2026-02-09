@@ -11,8 +11,8 @@ example (x : Option Nat) (f : Nat → Nat) : (x.map f).isSome = x.isSome := by
   case case2 =>   simp
 
 /--
-info: List.map.fun_cases.{u} {α : Type u} (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (a : α) (as : List α), motive (a :: as)) (x✝ : List α) : motive x✝
+info: List.map.fun_cases.{u_1} {α : Type u_1} (motive : List α → Prop) (case1 : motive [])
+  (case2 : ∀ (head : α) (tail : List α), motive (head :: tail)) (x✝ : List α) : motive x✝
 -/
 #guard_msgs in
 #check List.map.fun_cases

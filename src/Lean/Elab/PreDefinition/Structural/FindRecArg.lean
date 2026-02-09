@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.RecArgInfo
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+import Init.Omega
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta
@@ -71,8 +75,8 @@ def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array 
     let xType ← whnfD localDecl.type
     matchConstInduct xType.getAppFn (fun _ => throwError "its type is not an inductive") fun indInfo us => do
     let indArgs    : Array Expr := xType.getAppArgs
-    let indParams  : Array Expr := indArgs[0:indInfo.numParams]
-    let indIndices : Array Expr := indArgs[indInfo.numParams:]
+    let indParams  : Array Expr := indArgs[*...indInfo.numParams]
+    let indIndices : Array Expr := indArgs[indInfo.numParams...*]
     if !indIndices.all Expr.isFVar then
       throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
     else if !indIndices.allDiff then
@@ -127,7 +131,7 @@ def getRecArgInfos (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array
       let mut recArgInfos := #[]
       let mut report : MessageData := m!""
       -- No `termination_by`, so try all, and remember the errors
-      for idx in [:args.size] do
+      for idx in *...args.size do
         try
           let recArgInfo ← getRecArgInfo fnName fixedParamPerm args idx
           recArgInfos := recArgInfos.push recArgInfo
@@ -192,7 +196,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
       let x := (xs++ys)[recArgInfo.recArgPos]!
-      for nestedTypeFormer in nestedTypeFormers, indIdx in [group.all.size : group.numMotives] do
+      for nestedTypeFormer in nestedTypeFormers, indIdx in group.all.size...group.numMotives do
         let xType ← whnfD (← inferType x)
         let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
         if (← isDefEqGuarded type xType) then

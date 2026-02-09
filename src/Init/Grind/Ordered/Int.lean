@@ -6,28 +6,33 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Grind.Ordered.Ring
-import Init.GrindInstances.Ring.Int
+public import Init.Grind.Ordered.Ring
+public import Init.GrindInstances.Ring.Int
 import Init.Omega
+
+public section
 
 /-!
 # `grind` instances for `Int` as an ordered module.
 -/
 
+open Std
+
 namespace Lean.Grind
 
-instance : Preorder Int where
+instance : IsLinearOrder Int where
   le_refl := Int.le_refl
-  le_trans := Int.le_trans
-  lt_iff_le_not_le := by omega
+  le_trans _ _ _ := Int.le_trans
+  le_antisymm _ _ := Int.le_antisymm
+  le_total := Int.le_total
 
-instance : IntModule.IsOrdered Int where
-  neg_le_iff := by omega
-  add_le_left := by omega
-  hmul_pos_iff k a ha := ⟨fun h => Int.pos_of_mul_pos_left h ha, fun hk => Int.mul_pos hk ha⟩
-  hmul_nonneg hk ha := Int.mul_nonneg hk ha
+instance : LawfulOrderLT Int where
+  lt_iff := by omega
 
-instance : Ring.IsOrdered Int where
+instance : OrderedAdd Int where
+  add_le_left_iff := by omega
+
+instance : OrderedRing Int where
   zero_lt_one := by omega
   mul_lt_mul_of_pos_left := Int.mul_lt_mul_of_pos_left
   mul_lt_mul_of_pos_right := Int.mul_lt_mul_of_pos_right

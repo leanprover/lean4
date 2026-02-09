@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Classes.Ord.Basic
+public import Init.Data.SInt.Basic
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -73,5 +77,12 @@ def toListModel : Impl α β → List ((a : α) × β a)
 @[simp] theorem toListModel_leaf : (.leaf : Impl α β).toListModel = [] := rfl
 @[simp] theorem toListModel_inner {sz k v l r} :
   (.inner sz k v l r : Impl α β).toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := rfl
+
+/--
+  Computes the size of the tree. Used for verification of iterators.
+-/
+def treeSize : Internal.Impl α β → Nat
+  | .leaf => 0
+  | .inner _ _ _ l r => 1 + l.treeSize + treeSize r
 
 end Std.DTreeMap.Internal.Impl

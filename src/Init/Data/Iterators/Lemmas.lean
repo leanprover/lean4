@@ -6,4 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Lemmas.Consumers
+public import Init.Data.Iterators.Lemmas.Combinators
+public import Init.Data.Iterators.Lemmas.Producers

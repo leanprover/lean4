@@ -3,24 +3,24 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
+module
+
 prelude
-import Lean.Compiler.ClosedTermCache
-import Lean.Compiler.NeverExtractAttr
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.ClosedTermCache
+public import Lean.Compiler.NeverExtractAttr
+public import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.ToExpr
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace ExtractClosed
 
-abbrev ExtractM := StateRefT (Array CodeDecl) CompilerM
+abbrev ExtractM := StateRefT (Array (CodeDecl .pure)) CompilerM
 
 mutual
 
-partial def extractLetValue (v : LetValue) : ExtractM Unit := do
+partial def extractLetValue (v : LetValue .pure) : ExtractM Unit := do
   match v with
   | .const _ _ args => args.forM extractArg
   | .fvar fnVar args =>
@@ -29,7 +29,7 @@ partial def extractLetValue (v : LetValue) : ExtractM Unit := do
   | .proj _ _ baseVar => extractFVar baseVar
   | .lit _ | .erased => return ()
 
-partial def extractArg (arg : Arg) : ExtractM Unit := do
+partial def extractArg (arg : Arg .pure) : ExtractM Unit := do
   match arg with
   | .fvar fvarId => extractFVar fvarId
   | .type _ | .erased => return ()
@@ -41,23 +41,27 @@ partial def extractFVar (fvarId : FVarId) : ExtractM Unit := do
 
 end
 
-def isIrrelevantArg (arg : Arg) : Bool :=
+def isIrrelevantArg (arg : Arg .pure) : Bool :=
   match arg with
   | .erased | .type _ => true
   | .fvar _ => false
 
 structure Context where
   baseName : Name
-  sccDecls : Array Decl
+  sccDecls : Array (Decl .pure)
 
 structure State where
-  decls : Array Decl := {}
+  decls : Array (Decl .pure) := {}
+  /--
+  Cache for `shouldExtractFVar` in order to avoid superlinear behavior.
+  -/
+  fvarDecisionCache : Std.HashMap FVarId Bool := {}
 
 abbrev M := ReaderT Context $ StateRefT State CompilerM
 
 mutual
 
-partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
+partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue .pure) : M Bool := do
   match v with
   | .lit (.str _) => return true
   | .lit (.nat v) =>
@@ -78,26 +82,38 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
         | _ => true
         if !shouldExtract then
           return false
+      if let some decl ← LCNF.getMonoDecl? name then
+        -- We don't want to extract constants as root terms
+        if decl.getArity == 0 then
+          return false
     args.allM shouldExtractArg
   | .fvar fnVar args => return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
   | .proj _ _ baseVar => shouldExtractFVar baseVar
 
-partial def shouldExtractArg (arg : Arg) : M Bool := do
+partial def shouldExtractArg (arg : Arg .pure) : M Bool := do
   match arg with
   | .fvar fvarId => shouldExtractFVar fvarId
   | .type _ | .erased => return true
 
 partial def shouldExtractFVar (fvarId : FVarId) : M Bool := do
-  if let some letDecl ← findLetDecl? fvarId then
-    shouldExtractLetValue false letDecl.value
+  if let some result := (← get).fvarDecisionCache[fvarId]? then
+    return result
   else
-    return false
+    let result ← go
+    modify fun s => { s with fvarDecisionCache := s.fvarDecisionCache.insert fvarId result }
+    return result
+where
+  go : M Bool := do
+    if let some letDecl ← findLetDecl? fvarId then
+      shouldExtractLetValue false letDecl.value
+    else
+      return false
 
 end
 
 mutual
 
-partial def visitCode (code : Code) : M Code := do
+partial def visitCode (code : Code .pure) : M (Code .pure) := do
   match code with
   | .let decl k =>
     if (← shouldExtractLetValue true decl.value) then
@@ -111,7 +127,7 @@ partial def visitCode (code : Code) : M Code := do
         eraseCode closedCode
         pure closedTermName
       else
-        let name := (← read).baseName ++ (`_closedTerm).appendIndexAfter (← get).decls.size
+        let name := (← read).baseName ++ (`_closed).appendIndexAfter (← get).decls.size
         cacheClosedTermName env closedExpr name |> setEnv
         let decl := { name, levelParams := [], type := decl.type, params := #[],
                       value := .code closedCode, inlineAttr? := some .noinline }
@@ -135,13 +151,14 @@ partial def visitCode (code : Code) : M Code := do
 
 end
 
-def visitDecl (decl : Decl) : M Decl := do
+def visitDecl (decl : Decl .pure) : M (Decl .pure) := do
   let value ← decl.value.mapCodeM visitCode
   return { decl with value }
 
 end ExtractClosed
 
-partial def Decl.extractClosed (decl : Decl) (sccDecls : Array Decl) : CompilerM (Array Decl) := do
+partial def Decl.extractClosed (decl : Decl .pure) (sccDecls : Array (Decl .pure)) :
+    CompilerM (Array (Decl .pure)) := do
   let ⟨decl, s⟩ ← ExtractClosed.visitDecl decl |>.run { baseName := decl.name, sccDecls } |>.run {}
   return s.decls.push decl
 
@@ -149,8 +166,7 @@ def extractClosed : Pass where
   phase := .mono
   name := `extractClosed
   run := fun decls => do
-    -- Reuse the option from the old compiler for now.
-    if (← getOptions).getBool `compiler.extract_closed true then
+    if (← getConfig).extractClosed then
       decls.foldlM (init := #[]) fun newDecls decl =>
         return newDecls ++ (← decl.extractClosed decls)
     else

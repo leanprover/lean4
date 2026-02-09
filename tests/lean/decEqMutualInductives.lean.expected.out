@@ -1,55 +1,110 @@
 [Elab.Deriving.decEq] 
     [mutual
-       def decEqTree✝ (x✝ : @Tree✝) (x✝¹ : @Tree✝) : Decidable✝ (x✝ = x✝¹) :=
+       def instDecidableEqListTree.decEq_1 (x✝ : @A.Tree✝) (x✝¹ : @A.Tree✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
-         | @Tree.node a✝, @Tree.node b✝ =>
-           let inst✝ := decEqListTree✝ @a✝ @b✝;
+         | @A.Tree.node a✝, @A.Tree.node b✝ =>
+           let inst✝ := instDecidableEqListTree.decEq_2 @a✝ @b✝;
            if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
            else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
        termination_by structural x✝
-       def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
+       def instDecidableEqListTree.decEq_2 (x✝² : @A.ListTree✝) (x✝³ : @A.ListTree✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
-         | @ListTree.nil, @ListTree.nil => isTrue✝¹ rfl✝¹
-         | ListTree.nil .., ListTree.cons .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
-         | ListTree.cons .., ListTree.nil .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
-         | @ListTree.cons a✝¹ a✝², @ListTree.cons b✝¹ b✝² =>
-           let inst✝¹ := decEqTree✝ @a✝¹ @b✝¹;
+         | @A.ListTree.nil, @A.ListTree.nil => isTrue✝¹ rfl✝¹
+         | A.ListTree.nil .., A.ListTree.cons .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
+         | A.ListTree.cons .., A.ListTree.nil .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
+         | @A.ListTree.cons a✝¹ a✝², @A.ListTree.cons b✝¹ b✝² =>
+           let inst✝¹ := instDecidableEqListTree.decEq_1 @a✝¹ @b✝¹;
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²;
              exact
-               let inst✝² := decEqListTree✝ @a✝² @b✝²;
+               let inst✝² := instDecidableEqListTree.decEq_2 @a✝² @b✝²;
                if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
                else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝³ _; assumption)
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
        termination_by structural x✝²
      end,
-     instance : DecidableEq✝ (@ListTree✝) :=
-       decEqListTree✝]
+     instance instDecidableEqListTree : DecidableEq✝ (@A.ListTree✝) :=
+       instDecidableEqListTree.decEq_2]
 [Elab.Deriving.decEq] 
     [mutual
-       def decEqFoo₁✝ (x✝ : @Foo₁✝) (x✝¹ : @Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
+       def instDecidableEqFoo₁.decEq_1 (x✝ : @A.Foo₁✝) (x✝¹ : @A.Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
          match x✝, x✝¹ with
-         | @Foo₁.foo₁₁, @Foo₁.foo₁₁ => isTrue✝ rfl✝
-         | Foo₁.foo₁₁ .., Foo₁.foo₁₂ .. => isFalse✝ (by intro h✝; injection h✝)
-         | Foo₁.foo₁₂ .., Foo₁.foo₁₁ .. => isFalse✝ (by intro h✝; injection h✝)
-         | @Foo₁.foo₁₂ a✝, @Foo₁.foo₁₂ b✝ =>
-           let inst✝ := decEqFoo₂✝ @a✝ @b✝;
+         | @A.Foo₁.foo₁₁, @A.Foo₁.foo₁₁ => isTrue✝ rfl✝
+         | A.Foo₁.foo₁₁ .., A.Foo₁.foo₁₂ .. => isFalse✝ (by intro h✝; injection h✝)
+         | A.Foo₁.foo₁₂ .., A.Foo₁.foo₁₁ .. => isFalse✝ (by intro h✝; injection h✝)
+         | @A.Foo₁.foo₁₂ a✝, @A.Foo₁.foo₁₂ b✝ =>
+           let inst✝ := instDecidableEqFoo₁.decEq_2 @a✝ @b✝;
            if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
            else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
        termination_by structural x✝
-       def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
+       def instDecidableEqFoo₁.decEq_2 (x✝² : @A.Foo₂✝) (x✝³ : @A.Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
          match x✝², x✝³ with
-         | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
-           let inst✝¹ := decEqFoo₃✝ @a✝¹ @b✝¹;
+         | @A.Foo₂.foo₂ a✝¹, @A.Foo₂.foo₂ b✝¹ =>
+           let inst✝¹ := instDecidableEqFoo₁.decEq_3 @a✝¹ @b✝¹;
            if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
            else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
        termination_by structural x✝²
-       def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
+       def instDecidableEqFoo₁.decEq_3 (x✝⁴ : @A.Foo₃✝) (x✝⁵ : @A.Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
          match x✝⁴, x✝⁵ with
-         | @Foo₃.foo₃ a✝², @Foo₃.foo₃ b✝² =>
-           let inst✝² := decEqFoo₁✝ @a✝² @b✝²;
+         | @A.Foo₃.foo₃ a✝², @A.Foo₃.foo₃ b✝² =>
+           let inst✝² := instDecidableEqFoo₁.decEq_1 @a✝² @b✝²;
            if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝³ rfl✝³
            else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
        termination_by structural x✝⁴
      end,
-     instance : DecidableEq✝ (@Foo₁✝) :=
-       decEqFoo₁✝]
+     instance instDecidableEqFoo₁ : DecidableEq✝ (@A.Foo₁✝) :=
+       instDecidableEqFoo₁.decEq_1]
+[Elab.Deriving.decEq] 
+    [mutual
+       def instDecidableEqListTree.decEq_1 (x✝ : @B.Tree✝) (x✝¹ : @B.Tree✝) : Decidable✝ (x✝ = x✝¹) :=
+         B.Tree.match_on_same_ctor✝ x✝ x✝¹ rfl✝
+           @fun a✝ b✝ =>
+             let inst✝ := instDecidableEqListTree.decEq_2 @a✝ @b✝;
+             if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝¹
+             else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
+       termination_by structural x✝
+       def instDecidableEqListTree.decEq_2 (x✝² : @B.ListTree✝) (x✝³ : @B.ListTree✝) : Decidable✝ (x✝² = x✝³) :=
+         match decEq✝ (B.ListTree.ctorIdx✝ x✝²) (B.ListTree.ctorIdx✝ x✝³) with
+         | .isTrue✝¹ h✝¹ =>
+           B.ListTree.match_on_same_ctor✝ x✝² x✝³ h✝¹ (@fun () => isTrue✝¹ rfl✝)
+             @fun a✝¹ a✝² b✝¹ b✝² =>
+               let inst✝¹ := instDecidableEqListTree.decEq_1 @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²;
+                 exact
+                   let inst✝² := instDecidableEqListTree.decEq_2 @a✝² @b✝²;
+                   if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+                   else isFalse✝¹ (by intro n✝¹; injection n✝¹; apply h✝³ _; assumption)
+               else isFalse✝² (by intro n✝²; injection n✝²; apply h✝² _; assumption)
+         | .isFalse✝³ h✝¹ => isFalse✝³ (fun h'✝ => h✝¹ (congrArg✝ B.ListTree.ctorIdx✝ h'✝))
+       termination_by structural x✝²
+     end,
+     instance instDecidableEqListTree : DecidableEq✝ (@B.ListTree✝) :=
+       instDecidableEqListTree.decEq_2]
+[Elab.Deriving.decEq] 
+    [mutual
+       def instDecidableEqFoo₁.decEq_1 (x✝ : @B.Foo₁✝) (x✝¹ : @B.Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
+         match decEq✝ (B.Foo₁.ctorIdx✝ x✝) (B.Foo₁.ctorIdx✝ x✝¹) with
+         | .isTrue✝ h✝ =>
+           B.Foo₁.match_on_same_ctor✝ x✝ x✝¹ h✝ (@fun () => isTrue✝ rfl✝)
+             @fun a✝ b✝ =>
+               let inst✝ := instDecidableEqFoo₁.decEq_2 @a✝ @b✝;
+               if h✝¹ : @a✝ = @b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
+               else isFalse✝ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
+         | .isFalse✝¹ h✝ => isFalse✝¹ (fun h'✝ => h✝ (congrArg✝ B.Foo₁.ctorIdx✝ h'✝))
+       termination_by structural x✝
+       def instDecidableEqFoo₁.decEq_2 (x✝² : @B.Foo₂✝) (x✝³ : @B.Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
+         B.Foo₂.match_on_same_ctor✝ x✝² x✝³ rfl✝
+           @fun a✝¹ b✝¹ =>
+             let inst✝¹ := instDecidableEqFoo₁.decEq_3 @a✝¹ @b✝¹;
+             if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
+             else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
+       termination_by structural x✝²
+       def instDecidableEqFoo₁.decEq_3 (x✝⁴ : @B.Foo₃✝) (x✝⁵ : @B.Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
+         B.Foo₃.match_on_same_ctor✝ x✝⁴ x✝⁵ rfl✝
+           @fun a✝² b✝² =>
+             let inst✝² := instDecidableEqFoo₁.decEq_1 @a✝² @b✝²;
+             if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝³ rfl✝³
+             else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
+       termination_by structural x✝⁴
+     end,
+     instance instDecidableEqFoo₁ : DecidableEq✝ (@B.Foo₁✝) :=
+       instDecidableEqFoo₁.decEq_1]

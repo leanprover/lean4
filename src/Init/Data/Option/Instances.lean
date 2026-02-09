@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Option.Basic
+public import Init.Data.Option.Basic
+
+public section
 
 universe u v
 
@@ -14,9 +16,9 @@ namespace Option
 
 theorem eq_of_eq_some {α : Type u} : ∀ {x y : Option α}, (∀ z, x = some z ↔ y = some z) → x = y
   | none,   none,   _ => rfl
-  | none,   some z, h => Option.noConfusion ((h z).2 rfl)
-  | some z, none,   h => Option.noConfusion ((h z).1 rfl)
-  | some _, some w, h => Option.noConfusion ((h w).2 rfl) (congrArg some)
+  | none,   some z, h => Option.noConfusion rfl (heq_of_eq ((h z).2 rfl))
+  | some z, none,   h => Option.noConfusion rfl (heq_of_eq ((h z).1 rfl))
+  | some _, some w, h => Option.noConfusion rfl (heq_of_eq ((h w).2 rfl)) (fun h => congrArg some (eq_of_heq h))
 
 theorem eq_none_of_isNone {α : Type u} : ∀ {o : Option α}, o.isNone → o = none
   | none, _ => rfl
@@ -32,21 +34,6 @@ instance [DecidableEq α] (j : α) (o : Option α) : Decidable (j ∈ o) :=
   ⟨Option.eq_none_of_isNone, fun e => e.symm ▸ rfl⟩
 
 theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl
-
-/--
-Equality with `none` is decidable even if the wrapped type does not have decidable equality.
-
-This is not an instance because it is not definitionally equal to the standard instance of
-`DecidableEq (Option α)`, which can cause problems. It can be locally bound if needed.
-
-Try to use the Boolean comparisons `Option.isNone` or `Option.isSome` instead.
--/
-@[inline] def decidableEqNone {o : Option α} : Decidable (o = none) :=
-  decidable_of_decidable_of_iff isNone_iff_eq_none
-
-@[deprecated decidableEqNone (since := "2025-04-10"), inline]
-def decidable_eq_none {o : Option α} : Decidable (o = none) :=
-  decidableEqNone
 
 instance decidableForallMem {p : α → Prop} [DecidablePred p] :
     ∀ o : Option α, Decidable (∀ a, a ∈ o → p a)
@@ -181,10 +168,10 @@ Examples:
   | none  , _ => pure ⟨⟩
   | some a, f => f a
 
-instance : ForM m (Option α) α :=
+instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
-instance : ForIn' m (Option α) α inferInstance where
+instance [Monad m] : ForIn' m (Option α) α inferInstance where
   forIn' x init f := do
     match x with
     | none => return init

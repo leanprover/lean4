@@ -1,56 +1,56 @@
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 6, "character": 11}}
 {"items":
- [{"label": "gfxacc",
+ [{"label": "gfxadc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxacc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxadc"]},
+  {"label": "gfxacc",
+   "kind": 3,
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxacc"]},
   {"label": "gfxabc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxabc"}},
-    "cPos": 0}},
-  {"label": "gfxadc",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "gfxadc"}},
-    "cPos": 0}}],
+   "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxabc"]}],
  "isIncomplete": false}
+Resolution of gfxadc:
+{"label": "gfxadc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxadc"]}
+Resolution of gfxacc:
+{"label": "gfxacc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxacc"]}
+Resolution of gfxabc:
+{"label": "gfxabc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 6, 11, 0, "cgfxabc"]}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 14, "character": 15}}
 {"items":
- [{"label": "gfxacc",
+ [{"label": "gfxabc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxacc"}},
-    "cPos": 0}},
-  {"label": "gfxabc",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxabc"}},
-    "cPos": 0}},
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxabc"]},
   {"label": "gfxadc",
    "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
-     "position": {"line": 14, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxadc"}},
-    "cPos": 0}}],
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxadc"]},
+  {"label": "gfxacc",
+   "kind": 3,
+   "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxacc"]}],
  "isIncomplete": false}
+Resolution of gfxabc:
+{"label": "gfxabc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxabc"]}
+Resolution of gfxadc:
+{"label": "gfxadc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxadc"]}
+Resolution of gfxacc:
+{"label": "gfxacc",
+ "kind": 3,
+ "detail": "Nat → Nat",
+ "data": ["file:///inWordCompletion.lean", 14, 15, 0, "cBoo.gfxacc"]}

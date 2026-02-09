@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.extract` bitblaster from `Impl.Operations.Extract`.
@@ -33,7 +38,7 @@ theorem go_get_aux (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   split at hgo
   · dsimp only at hgo
     rw [← hgo]
-    rw [go_get_aux]
+    rw [go_get_aux]; case hidx1 => omega
     rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
@@ -58,7 +63,7 @@ theorem go_get (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   · rw [← hgo]
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
-      rw [go_get_aux]
+      rw [go_get_aux]; case hidx1 => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · simp [heq]
       · simp [heq]

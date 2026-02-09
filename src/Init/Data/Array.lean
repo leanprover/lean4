@@ -6,27 +6,31 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Array.QSort
-import Init.Data.Array.BinSearch
-import Init.Data.Array.InsertionSort
-import Init.Data.Array.DecidableEq
-import Init.Data.Array.Mem
-import Init.Data.Array.Attach
-import Init.Data.Array.BasicAux
-import Init.Data.Array.Lemmas
-import Init.Data.Array.TakeDrop
-import Init.Data.Array.Bootstrap
-import Init.Data.Array.GetLit
-import Init.Data.Array.MapIdx
-import Init.Data.Array.Set
-import Init.Data.Array.Monadic
-import Init.Data.Array.FinRange
-import Init.Data.Array.Perm
-import Init.Data.Array.Find
-import Init.Data.Array.Lex
-import Init.Data.Array.Range
-import Init.Data.Array.Erase
-import Init.Data.Array.Zip
-import Init.Data.Array.InsertIdx
-import Init.Data.Array.Extract
+public import Init.Data.Array.Basic
+public import Init.Data.Array.QSort
+public import Init.Data.Array.BinSearch
+public import Init.Data.Array.InsertionSort
+public import Init.Data.Array.DecidableEq
+public import Init.Data.Array.Mem
+public import Init.Data.Array.Attach
+public import Init.Data.Array.BasicAux
+public import Init.Data.Array.Lemmas
+public import Init.Data.Array.TakeDrop
+public import Init.Data.Array.Bootstrap
+public import Init.Data.Array.GetLit
+public import Init.Data.Array.MapIdx
+public import Init.Data.Array.Set
+public import Init.Data.Array.Monadic
+public import Init.Data.Array.FinRange
+public import Init.Data.Array.Perm
+public import Init.Data.Array.Find
+public import Init.Data.Array.Lex
+public import Init.Data.Array.Range
+public import Init.Data.Array.Erase
+public import Init.Data.Array.Zip
+public import Init.Data.Array.InsertIdx
+public import Init.Data.Array.Extract
+public import Init.Data.Array.MinMax
+public import Init.Data.Array.Nat
+public import Init.Data.Array.Int
+public import Init.Data.Array.Count

@@ -6,11 +6,15 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Nat.Gcd
-import Init.Data.Nat.Lcm
+public import Init.Data.Nat.Lcm
+public import Init.Data.Int.DivMod.Basic
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Omega
+import Init.RCases
+
+public section
 
 /-!
 Definition and lemmas for gcd and lcm over Int
@@ -112,6 +116,8 @@ theorem gcd_eq_right_iff_dvd (hb : 0 ≤ b) : gcd a b = b ↔ b ∣ a := by
   rw [gcd_comm, gcd_eq_left_iff_dvd hb]
 
 theorem gcd_assoc (a b c : Int) : gcd (gcd a b) c = gcd a (gcd b c) := Nat.gcd_assoc ..
+
+theorem gcd_left_comm (a b c : Int) : gcd a (gcd b c) = gcd b (gcd a c) := Nat.gcd_left_comm ..
 
 theorem gcd_mul_left (m n k : Int) : gcd (m * n) (m * k) = m.natAbs * gcd n k := by
   simp [gcd_eq_natAbs_gcd_natAbs, Nat.gcd_mul_left, natAbs_mul]
@@ -631,7 +637,7 @@ theorem lcm_mul_left_dvd_mul_lcm (k m n : Nat) : lcm (m * n) k ∣ lcm m k * lcm
   simpa [lcm_comm, Nat.mul_comm] using lcm_mul_right_dvd_mul_lcm _ _ _
 
 theorem lcm_dvd_mul_self_left_iff_dvd_mul {k n m : Nat} : lcm k n ∣ k * m ↔ n ∣ k * m := by
-  simp [← natAbs_dvd_natAbs, natAbs_mul, Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
+  simp [Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
     lcm_eq_natAbs_lcm_natAbs]
 
 theorem lcm_dvd_mul_self_right_iff_dvd_mul {k m n : Nat} : lcm n k ∣ m * k ↔ n ∣ m * k := by

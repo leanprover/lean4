@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Partial
-import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Total
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+
+@[expose] public section
 
 /-!
 # Collectors
@@ -19,55 +21,113 @@ Concretely, the following operations are provided:
 * `Iter.toList`, collecting the values in a list
 * `Iter.toListRev`, collecting the values in a list in reverse order but more efficiently
 * `Iter.toArray`, collecting the values in an array
-
-Some operations are implemented using the `IteratorCollect` and `IteratorCollectPartial`
-typeclasses.
 -/
 
-namespace Std.Iterators
-
-@[always_inline, inline, inherit_doc IterM.toArray]
-def Iter.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter (α := α) β) : Array β :=
-  it.toIterM.toArray.run
-
-@[always_inline, inline, inherit_doc IterM.Partial.toArray]
-def Iter.Partial.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
-  it.it.toIterM.allowNontermination.toArray.run
-
-@[always_inline, inline, inherit_doc IterM.toListRev]
-def Iter.toListRev {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] (it : Iter (α := α) β) : List β :=
-  it.toIterM.toListRev.run
-
-@[always_inline, inline, inherit_doc IterM.Partial.toListRev]
-def Iter.Partial.toListRev {α : Type w} {β : Type w}
-    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toIterM.allowNontermination.toListRev.run
-
-@[always_inline, inline, inherit_doc IterM.toList]
-def Iter.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
-  it.toIterM.toList.run
-
-@[always_inline, inline, inherit_doc IterM.Partial.toList]
-def Iter.Partial.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollectPartial α Id Id] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toIterM.allowNontermination.toList.run
+namespace Std
+open Std.Iterators
 
 /--
-This class charaterizes how the plausibility behavior (`IsPlausibleStep`) and the actual iteration
-behavior (`it.step`) should relate to each other for pure iterators. Intuitively, a step should
-only be plausible if it is possible. For simplicity's sake, the actual definition is weaker but
-presupposes that the iterator is finite.
+Traverses the given iterator and stores the emitted values in an array.
 
-This is an experimental instance and it should not be explicitly used downstream of the standard
-library.
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.toArray` always terminates after finitely many steps.
 -/
-class LawfulPureIterator (α : Type w) [Iterator α Id β]
-    [Finite α Id] [IteratorCollect α Id Id] where
-  mem_toList_iff_isPlausibleIndirectOutput {it : Iter (α := α) β} {out : β} :
-    out ∈ it.toList ↔ it.IsPlausibleIndirectOutput out
+@[always_inline, inline]
+def Iter.toArray {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter (α := α) β) : Array β :=
+  it.toIterM.toArray.run
 
-end Std.Iterators
+/--
+Traverses the given iterator and stores the emitted values in an array.
+
+This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
+-/
+@[always_inline, inline, deprecated Iter.toArray (since := "2025-12-04")]
+def Iter.Partial.toArray {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter.Partial (α := α) β) : Array β :=
+  it.it.toArray
+
+/--
+Traverses the given iterator and stores the emitted values in an array.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.toArray`.
+-/
+@[always_inline, inline]
+def Iter.Total.toArray {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
+    Array β :=
+  it.it.toArray
+
+/--
+Traverses the given iterator and stores the emitted values in reverse order in a list. Because
+lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
+
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.toListRev` always terminates after finitely many steps.
+-/
+@[always_inline, inline]
+def Iter.toListRev {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter (α := α) β) : List β :=
+  it.toIterM.toListRev.run
+
+/--
+Traverses the given iterator and stores the emitted values in reverse order in a list. Because
+lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
+
+This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
+-/
+@[always_inline, inline, deprecated Iter.toListRev (since := "2025-12-04")]
+def Iter.Partial.toListRev {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
+  it.it.toListRev
+
+/--
+Traverses the given iterator and stores the emitted values in reverse order in a list. Because
+lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.toListRev`.
+-/
+@[always_inline, inline]
+def Iter.Total.toListRev {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) : List β :=
+  it.it.toListRev
+
+/--
+Traverses the given iterator and stores the emitted values in a list. Because
+lists are prepend-only, `toListRev` is usually more efficient that `toList`.
+
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.toList` always terminates after finitely many steps.
+-/
+@[always_inline, inline]
+def Iter.toList {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter (α := α) β) : List β :=
+  it.toIterM.toList.run
+
+/--
+Traverses the given iterator and stores the emitted values in a list. Because
+lists are prepend-only, `toListRev` is usually more efficient that `toList`.
+
+This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
+-/
+@[always_inline, deprecated Iter.toList (since := "2025-12-04")]
+def Iter.Partial.toList {α : Type w} {β : Type w}
+    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
+  it.it.toList
+
+/--
+Traverses the given iterator and stores the emitted values in a list. Because
+lists are prepend-only, `toListRev` is usually more efficient that `toList`.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.toList`.
+-/
+@[always_inline, inline]
+def Iter.Total.toList {α : Type w} {β : Type w}
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
+    List β :=
+  it.it.toList
+
+end Std

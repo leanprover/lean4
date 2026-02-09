@@ -1,3 +1,5 @@
+module
+
 -- Since we do not have ENNReal in core, we just axiomatize it all for this test
 
 opaque ENNReal : Type
@@ -67,9 +69,10 @@ noncomputable instance : PartialOrder (Distr α) where
   rel_antisymm h1 h2 := funext (fun _ => ENNReal.le_antisymm (h1 _) (h2 _))
 
 noncomputable instance : CCPO (Distr α) where
-  csup c x := ENNReal.sup fun (Distr : Subtype c) => Distr.val x
-  csup_spec := by
-    intros d₁ c hchain
+  has_csup := by
+    intro c hchain
+    exists fun x => ENNReal.sup fun (Distr : Subtype c) => Distr.val x
+    intro d₁
     constructor
     next =>
       intro h d₂ hd₂ x
@@ -79,7 +82,7 @@ noncomputable instance : CCPO (Distr α) where
     next =>
       intro h x
       apply ENNReal.sup_le
-      intros Distr
+      intro Distr
       apply h Distr.1 Distr.2 x
 
 noncomputable instance : MonoBind Distr where

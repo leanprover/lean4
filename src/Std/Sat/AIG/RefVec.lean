@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.LawfulOperator
-import Std.Sat.AIG.CachedGatesLemmas
-import Init.Data.Vector.Lemmas
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Init.Data.Vector.Lemmas
+import Init.ByCases
+import Init.Omega
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -91,7 +96,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (s.push ref).get idx (by omega) = s.get idx hidx := by
   simp only [get, push, Ref.mk.injEq]
   cases ref
-  simp only [Ref.mk.injEq]
+  simp only
   rw [Vector.getElem_push_lt]
   · simp
   · simp [hidx]

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators
-// Imports: Init.Data.Iterators.Basic Init.Data.Iterators.PostconditionMonad Init.Data.Iterators.Consumers Init.Data.Iterators.Lemmas Init.Data.Iterators.Internal
+// Imports: public import Init.Data.Iterators.Basic public import Init.Data.Iterators.PostconditionMonad public import Init.Data.Iterators.Consumers public import Init.Data.Iterators.Producers public import Init.Data.Iterators.Combinators public import Init.Data.Iterators.Lemmas public import Init.Data.Iterators.ToIterator public import Init.Data.Iterators.Internal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,29 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators_Internal(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Producers(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Combinators(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Internal(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Iterators(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Iterators(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_PostconditionMonad(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_PostconditionMonad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Consumers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Producers(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_Combinators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_ToIterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,12 +1,12 @@
-argNameAtPlaceholderError.lean:8:15-8:16: error: don't know how to synthesize placeholder for argument 'catchExPostpone'
+argNameAtPlaceholderError.lean:8:15-8:16: error: don't know how to synthesize placeholder for argument `catchExPostpone`
 context:
 stx : Syntax
 ⊢ Bool
-argNameAtPlaceholderError.lean:8:13-8:14: error: don't know how to synthesize placeholder for argument 'expectedType?'
+argNameAtPlaceholderError.lean:8:13-8:14: error: don't know how to synthesize placeholder for argument `expectedType?`
 context:
 stx : Syntax
 ⊢ Option Expr
-argNameAtPlaceholderError.lean:8:11-8:12: error: don't know how to synthesize placeholder for argument 'stx'
+argNameAtPlaceholderError.lean:8:11-8:12: error: don't know how to synthesize placeholder for argument `stx`
 context:
 stx : Syntax
 ⊢ Syntax

@@ -3,10 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Nat.Fold
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Data.HashMap
+public import Init.Data.Nat.Fold
+public import Std.Tactic.BVDecide.LRAT.Actions
+public import Std.Data.HashMap
+import Init.Data.Range.Polymorphic
+import Init.Omega
+
+public section
 
 /-!
 This module implements the LRAT trimming algorithm described in section 4 of
@@ -196,7 +202,7 @@ def mapping : M (Array IntAction) := do
   let initialId ← M.getInitialId
   let mut nextMapped := initialId
   let mut newProof := #[]
-  for id in [initialId:emptyId+1] do
+  for id in initialId...=emptyId do
     if ← M.isUsed id then
       M.registerIdMap id nextMapped
       -- This should never panic as the use def analysis has already marked this step as being used

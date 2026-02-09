@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
+
+public section
 
 /-! Environment extension to register preferred spellings of notations in identifiers. -/
 
@@ -31,9 +35,9 @@ builtin_initialize recommendedSpellingByNameExt
   registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
-    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.findD x #[] |>.push rec),
+    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.getD x #[] |>.push rec),
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /-- Recommended spellings for notations, stored in such a way that it is easy to generate a table
@@ -68,16 +72,16 @@ the docstring. -/
 def getRecommendedSpellingString (env : Environment) (declName : Name) : String := Id.run do
   let spellings := getRecommendedSpellingsForName env declName
   if spellings.size == 0 then ""
-  else "\n\nConventions for notations in identifiers:\n\n" ++ String.join (spellings.toList.map bullet) |>.trimRight
+  else "\n\nConventions for notations in identifiers:\n\n" ++ String.join (spellings.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
   indentLine (str : String) : String :=
-    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+    (if str.all Char.isWhitespace then str else "   " ++ str) ++ "\n"
   bullet (spelling : RecommendedSpelling) : String :=
     let firstLine := s!" * The recommended spelling of `{spelling.«notation»}` in identifiers is `{spelling.recommendedSpelling}`"
-    let additionalInfoLines := spelling.additionalInformation?.map (·.splitOn "\n")
+    let additionalInfoLines := spelling.additionalInformation?.map (·.split '\n' |>.toStringList)
     match additionalInfoLines with
     | none | some [] => firstLine ++ ".\n\n"
-    | some [l] => firstLine ++ s!" ({l.trimRight}).\n\n"
+    | some [l] => firstLine ++ s!" ({l.trimAsciiEnd}).\n\n"
     | some ls => firstLine ++ ".\n\n" ++ String.join (ls.map indentLine) ++ "\n\n"
 
 end Lean.Parser.Term.Doc

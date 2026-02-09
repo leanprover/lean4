@@ -5,6 +5,8 @@ Author: Marc Huisinga
 -/
 import Lean.Data.AssocList
 import Std.Data.HashMap
+import Std.Data.Iterators.Producers.Range
+import Std.Data.Iterators.Combinators.StepSize
 
 open Lean
 
@@ -55,17 +57,11 @@ namespace Std.HashMap
     let v := xs[k]!
     xs.erase k |>.insert k (f v)
 
-  def any (xs : HashMap α β) (p : α → β → Bool) : Bool := Id.run <| do
-    for (k, v) in xs do
-      if p k v then
-        return true
-    return false
-
   def mapValsM [Monad m] (f : β → m γ) (xs : HashMap α β) : m (HashMap α γ) :=
-    HashMap.empty (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
 
   def mapVals (f : β → γ) (xs : HashMap α β) : HashMap α γ :=
-    HashMap.empty (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
+    HashMap.emptyWithCapacity (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
 
   def fastMapVals (f : α → β → β) (xs : HashMap α β) : HashMap α β :=
     xs.map f
@@ -273,8 +269,8 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
     return none
   if p.equations.any (fun _ eq => eq.const ≠ 0) then
     return some Solution.unsat
-  let mut assignment : Array (Option Int) := mkArray p.nVars none
-  for i in [0:p.nVars] do
+  let mut assignment : Array (Option Int) := Array.replicate p.nVars none
+  for i in *...p.nVars do
     assignment := readSolution i assignment
   return Solution.sat <| assignment.map (·.get!)
 where
@@ -325,7 +321,7 @@ def error (msg : String) : IO α :=
   throw <| IO.userError s!"Error: {msg}."
 
 def Array.ithVal (xs : Array String) (i : Nat) (name : String) : IO Int := do
-  let some unparsed := xs.get? i
+  let some unparsed := xs[i]?
     | error s!"Missing {name}"
   let some parsed := String.toInt? unparsed
     | error s!"Invalid {name}: `{unparsed}`"
@@ -335,20 +331,20 @@ def main (args : List String) : IO UInt32 := do
   let some path := args.head?
     | error "Usage: liasolver <input file>"
   let lines ← IO.FS.lines path <&> Array.filter (¬·.isEmpty)
-  let some headerLine := lines.get? 0
+  let some headerLine := lines[0]?
     | error "No header line"
   let header := headerLine.splitOn.toArray
   let nEquations ← header.ithVal 0 "amount of equations"
   let nVars ← header.ithVal 1 "amount of variables"
   let mut equations : HashMap Nat Equation := ∅
-  for line in lines[1:] do
+  for line in lines[1...*] do
     let elems := line.splitOn.toArray
     let nTerms ← elems.ithVal 0 "amount of equation terms"
     let 0 ← elems.ithVal (elems.size - 1) "end of line symbol"
       | error "Non-zero end of line symbol"
     let const ← elems.ithVal (elems.size - 2) "constant value"
     let mut coeffs := ∅
-    for i in [1:elems.size-2:2] do
+    for i in ((1 : Nat)...(elems.size-2)).iter.stepSize 2 do
       let coeff ← elems.ithVal i "coefficient"
       let varIdx ← elems.ithVal (i + 1) "variable index"
       if varIdx < 1 then

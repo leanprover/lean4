@@ -6,8 +6,11 @@ Authors: Joe Hendrix
 module
 
 prelude
+public import Init.Data.Fin.Basic
 import Init.PropLemmas
-import Init.Data.Fin.Basic
+import Init.WFTactics
+
+public section
 
 namespace Fin
 

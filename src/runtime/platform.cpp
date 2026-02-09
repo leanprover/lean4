@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/macros.h"
 #include "runtime/object.h"
 #include "githash.h"
 
@@ -60,5 +61,25 @@ extern "C" LEAN_EXPORT uint8 lean_internal_has_address_sanitizer(obj_arg) {
 #else
     return 0;
 #endif
+}
+
+extern "C" LEAN_EXPORT uint8 lean_internal_is_multi_thread(obj_arg) {
+#ifdef LEAN_MULTI_THREAD
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+extern "C" LEAN_EXPORT uint8 lean_internal_is_debug(obj_arg) {
+#ifdef LEAN_DEBUG
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+extern "C" LEAN_EXPORT obj_res lean_internal_get_build_type(obj_arg) {
+    return mk_string(LEAN_STR(LEAN_BUILD_TYPE));
 }
 }

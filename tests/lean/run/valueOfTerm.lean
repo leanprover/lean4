@@ -49,7 +49,7 @@ example : True := by
 Referring to a non-existent identifier, error.
 -/
 /--
-error: unknown constant '_TESTS_LEAN_RUN_VALUETERM_not_used_in_Lean'
+error: Unknown constant `_TESTS_LEAN_RUN_VALUETERM_not_used_in_Lean`
 ---
 error: unsolved goals
 ⊢ True

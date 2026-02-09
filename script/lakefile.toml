@@ -1,0 +1,5 @@
+name = "scripts"
+
+[[lean_exe]]
+name = "modulize"
+root = "Modulize"

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
+#include "util/alloc.h"
 
 namespace lean {
 /**
@@ -26,7 +27,7 @@ class expr_eq_fn {
             return hash((size_t)p.first >> 3, (size_t)p.second >> 3);
         }
     };
-    typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
+    typedef lean::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;
     cache * m_cache = nullptr;
     size_t m_max_stack_depth = 0;
     size_t m_counter = 0;

@@ -22,13 +22,13 @@ termination_by _ n => n
 #check foo.eq_3
 
 -- In order to reliably check if simp is not attempting to rewrite with a certain lemma
--- we can look at te diagnostics. But simply dumping all diangostics is too noisy for a test,
+-- we can look at the diagnostics. But simply dumping all diangostics is too noisy for a test,
 -- so here we try to get our hands at the `Simp.Stats` and look there.
 open Lean Meta Elab Tactic in
 elab "simp_foo_with_check" : tactic =>
   withOptions (fun o => diagnostics.set o true) do withMainContext do
     let stx ← `(tactic|simp [foo])
-    let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+    let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
     let stats ← dischargeWrapper.with fun discharge? => do
       simpLocation ctx simprocs discharge? (expandOptLocation stx.raw[5])
     unless stats.diag.triedThmCounter.toList.any (fun (o, _n) => o.key = ``foo.eq_2) do

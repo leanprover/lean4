@@ -3,12 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
-import Std.Time.Date.Unit.Year
-import Std.Time.Date.Unit.Weekday
-import Std.Time.Date.Unit.Week
+public import Std.Time.Date.Unit.Year
+public import Std.Time.Date.Unit.Weekday
+public import Std.Time.Date.Unit.Week
+
+public section
 
 /-!
 This module defines various units used for measuring, counting, and converting between days, months,
@@ -29,7 +31,7 @@ Convert `Week.Offset` into `Day.Offset`.
 -/
 @[inline]
 def ofWeeks (week : Week.Offset) : Day.Offset :=
-  week.mul 7
+  week.mul 7 |>.cast (by decide +kernel)
 
 /--
 Convert `Day.Offset` into `Week.Offset`.

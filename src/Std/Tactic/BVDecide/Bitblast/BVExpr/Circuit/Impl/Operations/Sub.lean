@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Neg
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Neg
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.sub`.
@@ -42,7 +45,7 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
     rw [AIG.LawfulVecOperator.decl_eq (f := blastNeg)]
     apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNeg)
     assumption
-  
+
 
 end bitblast
 end BVExpr

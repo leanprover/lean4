@@ -3,9 +3,12 @@ Copyright (c) 2022 E.W.Ayers. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.SubExpr
+public import Lean.SubExpr
+
+public section
 
 /-!
 
@@ -38,7 +41,7 @@ private def lensCoord (g : Expr → M Expr) (n : Nat) (e : Expr) : M Expr := do
   | 1, .forallE n y b c => withLocalDecl n c y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, .letE _ y a b _  => return e.updateLetE! (← g y) a b
   | 1, .letE _ y a b _  => return e.updateLetE! y (← g a) b
-  | 2, .letE n y a b _  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 2, .letE n y a b nondep => mapLetDecl n y a (nondep := nondep) (usedLetOnly := false) fun x => g <| b.instantiate1 x
   | 0, .proj _ _ b      => e.updateProj! <$> g b
   | n, .mdata _ a       => e.updateMData! <$> lensCoord g n a
   | 3, _                => throwError "Lensing on types is not supported"

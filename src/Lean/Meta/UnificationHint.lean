@@ -3,12 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Meta.Basic
-import Lean.Meta.DiscrTree
-import Lean.Meta.SynthInstance
+public import Lean.Meta.SynthInstance
+
+public section
 
 namespace Lean.Meta
 
@@ -32,7 +32,7 @@ private def config : ConfigWithKey :=
   { iota := false, proj := .no : Config }.toConfigWithKey
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
-  { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
+  { hints with discrTree := hints.discrTree.insertKeyValue e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {

@@ -6,10 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Sublist
+public import Init.Data.Function
+public import Init.Ext
+public import Init.NotationExtra
 import Init.Data.List.Nat.Basic
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
 import Init.Data.Nat.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # Further lemmas about `List.IsSuffix` / `List.IsPrefix` / `List.IsInfix`.
@@ -60,9 +67,6 @@ theorem suffix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+ l₂ ↔
     rw [w, getElem_reverse]
     exact Nat.lt_of_lt_of_le h le
 
-@[deprecated suffix_iff_getElem? (since := "2025-05-27")]
-abbrev isSuffix_iff := @suffix_iff_getElem?
-
 theorem suffix_iff_getElem {l₁ l₂ : List α} :
     l₁ <:+ l₂ ↔ ∃ (_ : l₁.length ≤ l₂.length), ∀ i (_ : i < l₁.length), l₂[i + l₂.length - l₁.length] = l₁[i] := by
   rw [suffix_iff_getElem?]
@@ -111,9 +115,6 @@ theorem infix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+: l₂ ↔
       simp_all
       omega
 
-@[deprecated infix_iff_getElem? (since := "2025-05-27")]
-abbrev isInfix_iff := @infix_iff_getElem?
-
 theorem suffix_iff_eq_append : l₁ <:+ l₂ ↔ take (length l₂ - length l₁) l₂ ++ l₁ = l₂ :=
   ⟨by rintro ⟨r, rfl⟩; simp only [length_append, Nat.add_sub_cancel_right, take_left], fun e =>
     ⟨_, e⟩⟩
@@ -137,11 +138,19 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
   ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ drop_suffix _ _⟩
 
+theorem prefix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
+    l₁.map f <+: l₂.map f ↔ l₁ <+: l₂ := by
+  simp [prefix_iff_eq_take, ← map_take, map_inj_right hf]
+
+theorem suffix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
+    l₁.map f <:+ l₂.map f ↔ l₁ <:+ l₂ := by
+  simp [suffix_iff_eq_drop, ← map_drop, map_inj_right hf]
+
 @[grind =] theorem prefix_take_le_iff {xs : List α} (hm : i < xs.length) :
     xs.take i <+: xs.take j ↔ i ≤ j := by
   simp only [prefix_iff_eq_take, length_take]
   induction i generalizing xs j with
-  | zero => simp [Nat.min_eq_left, eq_self_iff_true, Nat.zero_le, take]
+  | zero => simp [Nat.min_eq_left, Nat.zero_le, take]
   | succ i IH =>
     cases xs with
     | nil => simp_all
@@ -150,7 +159,7 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
       | zero =>
         simp
       | succ j =>
-        simp only [length_cons, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
+        simp only [length_cons, Nat.add_lt_add_iff_right] at hm
         simp [← @IH j xs hm, Nat.min_eq_left, Nat.le_of_lt hm]
 
 @[simp] theorem append_left_sublist_self {xs : List α} (ys : List α) : xs ++ ys <+ ys ↔ xs = [] := by
@@ -193,7 +202,7 @@ theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : xs.length = 0 := by omega
-    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and, append_nil]
+    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp

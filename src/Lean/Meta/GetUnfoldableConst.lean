@@ -3,19 +3,22 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.GlobalInstances
-
+public import Lean.Meta.Basic
+public section
 namespace Lean.Meta
 
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
-  | .all => return true
+  | .none => return false
+  | .all  => return true
   | .default => return !(← isIrreducible info.name)
   | m =>
-    if (← isReducible info.name) then
+    let status ← getReducibilityStatus info.name
+    if status == .reducible then
       return true
-    else if m == .instances && isGlobalInstance (← getEnv) info.name then
+    else if m == .instances && status == .instanceReducible then
       return true
     else
       return false
@@ -54,6 +57,7 @@ def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := 
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some (.axiomInfo _)       => recordUnfoldAxiom constName; return none
   | _                         => return none
 
 end Meta

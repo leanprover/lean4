@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide
+public import Std.Tactic.BVDecide
+public import Std.Tactic.Do
+
+@[expose] public section
 
 /-!
 This directory is mainly used for bootstrapping reasons. Suppose a tactic generates a proof term

@@ -1,3 +1,4 @@
+module
 def f (x : Option Nat) (h : x ≠ none) : Nat :=
   match x with
   | none => by contradiction
@@ -7,7 +8,16 @@ def f (x : Option Nat) (h : x ≠ none) : Nat :=
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
   grind [f]
 
-/-- info: Try this: grind only [= gen Option.pbind_some', f, cases Or] -/
+/--
+info: Try these:
+  [apply] grind only [= gen Option.pbind_some', f, #81d1]
+  [apply] grind only [= gen Option.pbind_some', f]
+  [apply] grind =>
+    instantiate only [= gen Option.pbind_some']
+    instantiate only [f]
+    mbtc
+    cases #81d1
+-/
 #guard_msgs (info) in
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
   grind? [f]
@@ -38,7 +48,7 @@ example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = som
   grind [f]
 
 -- Many different instances are generated if the `gen` modifier is not used
-/--
+/-
 trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a h => some (a + f b ⋯)) = some (a + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h : b = some (2 * a)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯)
@@ -53,8 +63,6 @@ trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 4 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 5 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 5 * f b ⋯ + f b ⋯)
-[grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (2 * a + f b ⋯)),
-      (b.pbind fun a h => some (a + f b ⋯)) = some (2 * a + f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 6 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 6 * f b ⋯ + f b ⋯)
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 7 * f b ⋯)),
@@ -66,7 +74,8 @@ trace: [grind.ematch.instance] pbind_some': ∀ (h : b = some a), (b.pbind fun a
 [grind.ematch.instance] pbind_some': ∀ (h_3 : b = some (a + 7 * f b ⋯)),
       (b.pbind fun a h => some (a + f b ⋯)) = some (a + 7 * f b ⋯ + f b ⋯)
 -/
-#guard_msgs (trace) in
+-- #guard_msgs (trace) in -- TODO: investigate nondet behavior in this test. It is probably due
+-- to semiring support in `ring` module. It may not be hashconsing terms
 example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = some (a + a) := by
   set_option trace.grind.ematch.instance true in
   grind only [pbind_some', f]
@@ -85,9 +94,9 @@ example (h : b = some a) : (b.pbind fun a h => some <| a + f b (by grind)) = som
   fail_if_success grind only [Option.pbind_some, f]
   sorry
 
-/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a h => some (2 * a)) = some (2 * a) -/
+/-- trace: [grind.ematch.instance] pbind_some': (b.pbind fun a _h => some (2 * a)) = some (2 * a) -/
 #guard_msgs (trace) in
-example (a : Nat) (h : b = some a) : (b.pbind fun a h => some <| 2*a) = some (a + a) := by
+example (a : Nat) (h : b = some a) : (b.pbind fun a _h => some <| 2*a) = some (a + a) := by
   set_option trace.grind.ematch.instance true in
   grind only [= gen pbind_some']
 

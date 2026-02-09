@@ -38,7 +38,7 @@ partial def test3 [Nonempty α] (n : Nat) : α := test3 n
 Error message.
 -/
 /--
-error: failed to compile 'partial' definition 'test4', could not prove that the type
+error: failed to compile 'partial' definition `test4`, could not prove that the type
   {α : Sort u_1} → Nat → α
 is nonempty.
 

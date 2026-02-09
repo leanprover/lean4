@@ -3,10 +3,11 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-
+public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
 private def checkVars : RingM Unit := do
@@ -29,16 +30,16 @@ private def checkPoly (p : Poly) : RingM Unit := do
 
 private def checkBasis : RingM Unit := do
   let mut x := 0
-  for c in (← getRing).basis do
+  for c in (← getCommRing).basis do
     checkPoly c.p
     x := x + 1
 
 private def checkQueue : RingM Unit := do
-  for c in (← getRing).queue do
+  for c in (← getCommRing).queue do
     checkPoly c.p
 
 private def checkDiseqs : RingM Unit := do
-  for c in (← getRing).diseqs do
+  for c in (← getCommRing).diseqs do
     checkPoly c.d.p
 
 private def checkRingInvs : RingM Unit := do
@@ -48,8 +49,8 @@ private def checkRingInvs : RingM Unit := do
   checkDiseqs
 
 def checkInvariants : GoalM Unit := do
-  unless grind.debug.get (← getOptions) do return ()
-  for ringId in [: (← get').rings.size] do
+  if (← isDebugEnabled) then
+  for ringId in *...(← get').rings.size do
     RingM.run ringId do
       assert! (← getRingId) == ringId
       checkRingInvs

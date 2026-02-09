@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.GrindInstances.Ring.Int
-import Init.GrindInstances.Ring.UInt
-import Init.GrindInstances.Ring.SInt
-import Init.GrindInstances.Ring.Fin
-import Init.GrindInstances.Ring.BitVec
+public import Init.GrindInstances.Ring.Nat
+public import Init.GrindInstances.Ring.Int
+public import Init.GrindInstances.Ring.UInt
+public import Init.GrindInstances.Ring.SInt
+public import Init.GrindInstances.Ring.Fin
+public import Init.GrindInstances.Ring.BitVec
+public import Init.GrindInstances.Ring.Rat

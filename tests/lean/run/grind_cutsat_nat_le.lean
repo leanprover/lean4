@@ -1,3 +1,8 @@
+module
+
+open Int.Linear
+
+set_option trace.grind.debug.proof true in
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 
@@ -9,7 +14,7 @@ theorem ex3 (x y : Nat) :
     7*y ≤ 9*x + 10 → 9*x ≤ 4 + 7*y → False := by
   grind
 
-open Int.Linear Int.OfNat
+open Int.Linear
 #print ex1
 #print ex2
 #print ex3
@@ -27,20 +32,20 @@ example (a b : Int) : a + b = Int.ofNat 2 → a - 2 = -b := by
   grind
 
 /--
-trace: [grind.cutsat.assert] -1*↑a ≤ 0
-[grind.cutsat.assert] -1*↑b ≤ 0
-[grind.cutsat.assert] -1*「↑a * ↑b」 ≤ 0
-[grind.cutsat.assert] -1*「1」 + 1 = 0
-[grind.cutsat.assert] -1*↑c ≤ 0
-[grind.cutsat.assert] -1*↑c + 「↑a * ↑b」 + 1 ≤ 0
-[grind.cutsat.assert] -1*↑0 = 0
-[grind.cutsat.assert] ↑c = 0
-[grind.cutsat.assert] 0 ≤ 0
-[grind.cutsat.assert] 「↑a * ↑b」 + 1 ≤ 0
-[grind.cutsat.assert] -1*↑0 + ↑c = 0
-[grind.cutsat.assert] 1 ≤ 0
+trace: [grind.lia.assert] -1*「↑a」 ≤ 0
+[grind.lia.assert] -1*「↑b」 ≤ 0
+[grind.lia.assert] -1*「↑c」 ≤ 0
+[grind.lia.assert] -1*「↑a * ↑b」 ≤ 0
+[grind.lia.assert] -1*「↑a * ↑b + -1 * ↑c + 1」 + 「↑a * ↑b」 + -1*「↑c」 + 1 = 0
+[grind.lia.assert] 「↑a * ↑b」 + -1*「↑c」 + 1 ≤ 0
+[grind.lia.assert] -1*「↑0」 = 0
+[grind.lia.assert] 「↑c」 = 0
+[grind.lia.assert] 0 ≤ 0
+[grind.lia.assert] 「↑a * ↑b」 + 1 ≤ 0
+[grind.lia.assert] -1*「↑0」 + 「↑c」 = 0
+[grind.lia.assert] 1 ≤ 0
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.assert true in
+set_option trace.grind.lia.assert true in
 example (a b c : Nat) : c > a * b → c >= 1 := by
   grind

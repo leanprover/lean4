@@ -7,10 +7,20 @@ module
 
 prelude
 import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
-import Init.Data.Nat.Power2
+import Init.TacticsExtra
+public import Init.Data.Nat.Div.Basic
+public import Init.PropLemmas
+import Init.ByCases
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.Linear
+import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
+import Init.Omega
+import Init.RCases
+
+public section
 
 /-! # Basic theorems about natural numbers
 
@@ -109,6 +119,7 @@ protected theorem sub_one (n) : n - 1 = pred n := rfl
 
 theorem one_add (n) : 1 + n = succ n := Nat.add_comm ..
 
+@[deprecated succ_ne_succ_iff (since := "2025-10-26")]
 theorem succ_ne_succ : succ m ≠ succ n ↔ m ≠ n :=
   ⟨mt (congrArg Nat.succ ·), mt succ.inj⟩
 
@@ -116,7 +127,8 @@ theorem one_lt_succ_succ (n : Nat) : 1 < n.succ.succ := succ_lt_succ <| succ_pos
 
 theorem not_succ_lt_self : ¬ succ n < n := Nat.not_lt_of_ge n.le_succ
 
-theorem succ_le_iff : succ m ≤ n ↔ m < n := ⟨lt_of_succ_le, succ_le_of_lt⟩
+@[deprecated succ_le_iff (since := "2025-10-26")]
+theorem succ_le : succ n ≤ m ↔ n < m := .rfl
 
 theorem le_succ_iff {m n : Nat} : m ≤ n.succ ↔ m ≤ n ∨ m = n.succ := by
   refine ⟨fun hmn ↦ (Nat.lt_or_eq_of_le hmn).imp_left le_of_lt_succ, ?_⟩
@@ -174,17 +186,9 @@ theorem sub_one_add_self (n : Nat) : (n - 1) + n = 2 * n - 1 := Nat.add_comm _ n
 theorem self_add_pred (n : Nat) : n + pred n = (2 * n).pred := self_add_sub_one n
 theorem pred_add_self (n : Nat) : pred n + n = (2 * n).pred := sub_one_add_self n
 
-theorem pred_le_iff : pred m ≤ n ↔ m ≤ succ n :=
-  ⟨le_succ_of_pred_le, by
-    cases m
-    · exact fun _ ↦ zero_le n
-    · exact le_of_succ_le_succ⟩
-
 theorem lt_of_lt_pred (h : m < n - 1) : m < n := by omega
 
 theorem le_add_pred_of_pos (a : Nat) (hb : b ≠ 0) : a ≤ b + (a - 1) := by omega
-
-theorem lt_pred_iff : a < pred b ↔ succ a < b := by simp; omega
 
 /-! ## add -/
 
@@ -198,7 +202,7 @@ theorem succ_add_eq_add_succ (a b) : succ a + b = a + succ b := Nat.succ_add ..
 protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
   (Nat.eq_zero_of_add_eq_zero h).1
 
-protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
+@[simp high] protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
   ⟨Nat.eq_zero_of_add_eq_zero, fun ⟨h₁, h₂⟩ => h₂.symm ▸ h₁⟩
 
 @[simp high] protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
@@ -214,15 +218,6 @@ protected theorem add_right_inj {n : Nat} : n + m = n + k ↔ m = k := Nat.add_l
 @[simp high] protected theorem add_eq_right {a b : Nat} : a + b = b ↔ a = 0 := by omega
 @[simp high] protected theorem left_eq_add {a b : Nat} : a = a + b ↔ b = 0 := by omega
 @[simp high] protected theorem right_eq_add {a b : Nat} : b = a + b ↔ a = 0 := by omega
-
-@[deprecated Nat.add_eq_right (since := "2025-04-15")]
-protected theorem add_left_eq_self  {a b : Nat} : a + b = b ↔ a = 0 := Nat.add_eq_right
-@[deprecated Nat.add_eq_left (since := "2025-04-15")]
-protected theorem add_right_eq_self {a b : Nat} : a + b = a ↔ b = 0 := Nat.add_eq_left
-@[deprecated Nat.left_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := Nat.left_eq_add
-@[deprecated Nat.right_eq_add (since := "2025-04-15")]
-protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := Nat.right_eq_add
 
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
   | 0, h => h
@@ -260,16 +255,14 @@ protected theorem pos_of_lt_add_left : n < k + n → 0 < k := by
 protected theorem add_pos_left (h : 0 < m) (n) : 0 < m + n :=
   Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
-protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
-  Nat.lt_of_lt_of_le h (Nat.le_add_left ..)
-
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 
 theorem le_iff_lt_add_one : x ≤ y ↔ x < y + 1 := by
   omega
 
-@[simp high] protected theorem add_eq_zero : m + n = 0 ↔ m = 0 ∧ n = 0 := by omega
+@[deprecated Nat.add_eq_zero_iff (since := "2025-10-26")]
+protected theorem add_eq_zero : m + n = 0 ↔ m = 0 ∧ n = 0 := by omega
 
 theorem add_pos_iff_pos_or_pos : 0 < m + n ↔ 0 < m ∨ 0 < n := by omega
 
@@ -1044,7 +1037,7 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
 protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.mul_div_cancel, Nat.pos_iff_ne_zero.2 ha]
+  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1098,6 +1091,18 @@ protected theorem pow_add (a m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
   | zero => rw [Nat.add_zero, Nat.pow_zero, Nat.mul_one]
   | succ _ ih => rw [Nat.add_succ, Nat.pow_succ, Nat.pow_succ, ih, Nat.mul_assoc]
 
+theorem div_pow_of_pos (a n : Nat) : n > 0 → a ∣ a ^ n := by
+  cases n <;> simp [Nat.pow_add]
+  exact Nat.dvd_mul_left a (a ^ _)
+
+grind_pattern div_pow_of_pos => a ^ n where
+  is_value a
+  guard n > 0
+
+grind_pattern Nat.pow_pos => a ^ n where
+  not_value n
+  guard a > 0
+
 protected theorem pow_add' (a m n : Nat) : a ^ (m + n) = a ^ n * a ^ m := by
   rw [← Nat.pow_add, Nat.add_comm]
 
@@ -1143,8 +1148,7 @@ protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
 
 protected theorem pow_lt_pow_of_lt {a n m : Nat} (h : 1 < a) (w : n < m) : a ^ n < a ^ m := by
   have := Nat.exists_eq_add_of_lt w
-  cases this
-  case intro k p =>
+  cases this with | intro k p
   rw [Nat.add_right_comm] at p
   subst p
   rw [Nat.pow_add, ← Nat.mul_one (a^n)]
@@ -1163,8 +1167,8 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n ≤ a ^ m ↔ n ≤ m := by
   constructor
   · apply Decidable.by_contra
-    intros w
-    simp [Decidable.not_imp_iff_and_not] at w
+    intro w
+    simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
   · intro w
@@ -1176,7 +1180,7 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ n < m := by
   constructor
   · apply Decidable.by_contra
-    intros w
+    intro w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)
@@ -1312,15 +1316,15 @@ theorem pow_eq_self_iff {a b : Nat} (ha : 1 < a) : a ^ b = a ↔ b = 1 := by
 
 @[simp]
 theorem log2_zero : Nat.log2 0 = 0 := by
-  simp [Nat.log2]
+  simp [Nat.log2_def]
 
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]
   | k+1 =>
-    rw [log2]; split
+    rw [log2_def]; split
     · have n0 : 0 < n / 2 := (Nat.le_div_iff_mul_le (by decide)).2 ‹_›
-      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0), le_div_iff_mul_le,
+      simp only [Nat.add_le_add_iff_right, le_log2 (Nat.ne_of_gt n0),
         Nat.pow_succ]
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
@@ -1329,6 +1333,25 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
+
+theorem log2_eq_iff (h : n ≠ 0) : n.log2 = k ↔ 2 ^ k ≤ n ∧ n < 2 ^ (k + 1) := by
+  constructor
+  · intro w
+    exact ⟨(le_log2 h).mp (Nat.le_of_eq w.symm), (log2_lt h).mp (by subst w; apply lt_succ_self)⟩
+  · intro w
+    apply Nat.le_antisymm
+    · apply Nat.le_of_lt_add_one
+      exact (log2_lt h).mpr w.2
+    · exact (le_log2 h).mpr w.1
+
+theorem log2_two_mul (h : n ≠ 0) : (2 * n).log2 = n.log2 + 1 := by
+  obtain ⟨h₁, h₂⟩ := (log2_eq_iff h).mp rfl
+  rw [log2_eq_iff (Nat.mul_ne_zero (by decide) h)]
+  constructor
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    exact mul_le_mul_left 2 h₁
+  · rw [Nat.pow_succ, Nat.mul_comm]
+    rwa [Nat.mul_lt_mul_right (by decide)]
 
 @[simp]
 theorem log2_two_pow : (2 ^ n).log2 = n := by
@@ -1434,7 +1457,7 @@ theorem le_iff_ne_zero_of_dvd (ha : a ≠ 0) (hab : a ∣ b) : a ≤ b ↔ b ≠
 
 theorem div_ne_zero_iff_of_dvd (hba : b ∣ a) : a / b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   obtain rfl | hb := Decidable.em (b = 0) <;>
-    simp [Nat.div_ne_zero_iff, Nat.le_iff_ne_zero_of_dvd, *]
+    simp [Nat.le_iff_ne_zero_of_dvd, *]
 
 theorem pow_mod (a b n : Nat) : a ^ b % n = (a % n) ^ b % n := by
   induction b with
@@ -1559,7 +1582,7 @@ theorem mul_add_mod_of_lt {a b c : Nat} (h : c < b) : (a * b + c) % b = c := by
 @[simp] theorem mod_div_self (m n : Nat) : m % n / n = 0 := by
   cases n
   · exact (m % 0).div_zero
-  · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+  case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
 theorem mod_eq_iff {a b c : Nat} :
     a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
@@ -1686,36 +1709,42 @@ theorem div_lt_div_of_lt_of_dvd {a b d : Nat} (hdb : d ∣ b) (h : a < b) : a / 
 
 /-! ### shiftLeft and shiftRight -/
 
-@[simp] theorem shiftLeft_zero : n <<< 0 = n := rfl
+@[simp, grind =] theorem shiftLeft_zero : n <<< 0 = n := rfl
 
-/-- Shiftleft on successor with multiple moved inside. -/
+/-- Shift left on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
-/-- Shiftleft on successor with multiple moved to outside. -/
+/-- Shift left on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-/-- Shiftright on successor with division moved inside. -/
+/-- Shift right on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 
-@[simp] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
-  | 0 => by simp [shiftLeft]
-  | n + 1 => by simp [shiftLeft, zero_shiftLeft n, shiftLeft_succ]
+@[simp, grind =] theorem zero_shiftLeft : ∀ n, 0 <<< n = 0
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftLeft n, shiftLeft_succ]
 
-@[simp] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
-  | 0 => by simp [shiftRight]
-  | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
+@[simp, grind =] theorem zero_shiftRight : ∀ n, 0 >>> n = 0
+  | 0 => by simp
+  | n + 1 => by simp [zero_shiftRight n, shiftRight_succ]
 
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
+
+grind_pattern shiftLeft_add => m <<< (n + k) where
+  m =/= 0
+
+grind_pattern shiftLeft_add => (m <<< n) <<< k where
+  m =/= 0
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
@@ -1776,13 +1805,3 @@ instance decidableExistsFin (P : Fin n → Prop) [DecidablePred P] : Decidable (
   decidable_of_iff (∃ k, k < n ∧ ((h: k < n) → P ⟨k, h⟩))
     ⟨fun ⟨k, a⟩ => Exists.intro ⟨k, a.left⟩ (a.right a.left),
     fun ⟨i, e⟩ => Exists.intro i.val ⟨i.isLt, fun _ => e⟩⟩
-
-
-/-! ### Results about `List.sum` specialized to `Nat` -/
-
-protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp [← ih]
-    omega

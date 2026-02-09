@@ -1,32 +1,34 @@
 import Lean.Elab.Command
 
+set_option guard_msgs.diff false
+
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs in
 example : α := x
 
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 ---
 error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 #guard_msgs in
 example : α := x
 
 #guard_msgs in
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 example : α := sorry
 
 #guard_msgs in
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs(warning) in
 example : α := sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 #guard_msgs(error) in
 example : α := sorry
@@ -40,19 +42,19 @@ example : α := sorry
 example : α := sorry
 
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs(error, drop warning) in
 example : α := x
 
 #guard_msgs in
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat α 22
 numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
   α
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -108,7 +110,8 @@ Lax whitespace
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -116,7 +119,8 @@ Additional diagnostic information may be available using the `set_option diagnos
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -151,7 +155,8 @@ set_option linter.unusedVariables true
 #guard_msgs in
 /--
 warning: unused variable `n`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
 #guard_msgs in
 example (n : Nat) : True := trivial
@@ -159,7 +164,8 @@ example (n : Nat) : True := trivial
 #guard_msgs in
 /--
 warning: unused variable `n`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
 #guard_msgs in
 #guard_msgs (info) in
@@ -342,3 +348,118 @@ run_meta trace[debug] "a trace"
 run_meta trace[debug] "a trace"
 
 end Trace
+
+section Positions
+
+open Lean
+
+/--
+@ +1:0...7
+info: foo
+-/
+#guard_msgs (positions := true) in
+run_cmd logInfo m!"foo"
+
+syntax logRange := &"from_here" &"to_here"
+syntax "#log" (&"here" <|> logRange) : command
+
+elab_rules : command
+| `(#log here%$tk)     => logInfoAt tk "foo"
+| `(#log $tk:logRange) => logInfoAt tk "foo"
+
+/--
+@ +0:40...44
+info: foo
+-/
+#guard_msgs (positions := true) in #log here
+
+/--
+@ +3:7...11
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   here
+
+/--
+@ +3:7...+4:9
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   from_here
+  to_here
+
+/--
+info: foo
+-/
+#guard_msgs (positions := false) in
+run_cmd logInfo m!"foo"
+
+end Positions
+
+section GuardPanic
+
+/-! Tests for #guard_panic -/
+
+-- Test that #guard_panic succeeds when a panic occurs
+#guard_panic in
+run_cmd (panic! "test panic" : Lean.Elab.Command.CommandElabM Unit)
+
+-- Test that #guard_panic fails when no panic occurs
+/--
+info: Nat : Type
+---
+error: Expected a PANIC but none was found
+-/
+#guard_msgs in
+#guard_panic in
+#check Nat
+
+-- Test that #guard_panic clears messages on success (no output expected)
+#guard_msgs in
+#guard_panic in
+run_cmd (panic! "this message should not appear" : Lean.Elab.Command.CommandElabM Unit)
+
+end GuardPanic
+
+section Substring
+
+/-! Tests for substring matching -/
+
+-- Test that substring mode matches when expected is a substring of actual
+/-- Unknown identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode works with whitespace normalization
+/-- Unknown identifier -/
+#guard_msgs (substring := true, whitespace := lax) in
+example : α := x
+
+-- Test that substring mode fails when expected is not a substring
+/--
+error: Unknown identifier `x`
+---
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
+
+error: Unknown identifier `x`
+-/
+#guard_msgs in
+/-- This text does not appear -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode can match a middle portion
+/-- identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test explicit substring := false (should behave like default)
+/-- error: Unknown identifier `x` -/
+#guard_msgs (substring := false) in
+example : α := x
+
+end Substring

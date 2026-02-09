@@ -21,8 +21,8 @@ namespace Cmd
 
   def subCmdByFullName? (c : Cmd) (fullName : Array String) : Option Cmd := do
     let mut c := c
-    guard <| c.name = fullName.get? 0
-    for subName in fullName[1:] do
+    guard <| some c.name = fullName[0]?
+    for subName in fullName[1...*] do
       c ← c.subCmd? subName
     return c
 end Cmd

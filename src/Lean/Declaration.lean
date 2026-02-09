@@ -3,8 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+import Init.Data.Ord.UInt
+import Init.Data.ToString.Macro
+
+public section
 
 namespace Lean
 /--
@@ -503,11 +509,6 @@ def isInductive : ConstantInfo → Bool
 def isDefinition : ConstantInfo → Bool
   | .defnInfo _ => true
   | _           => false
-
-@[deprecated "May be inaccurate for theorems imported under the module system, use `Lean.getOriginalConstKind?` instead" (since := "2025-04-24")]
-def isTheorem : ConstantInfo → Bool
-  | .thmInfo _ => true
-  | _          => false
 
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val

@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -12,16 +16,16 @@ A mapping from free variable id to binder name.
 -/
 abbrev Renaming := FVarIdMap Name
 
-def Param.applyRenaming (param : Param) (r : Renaming) : CompilerM Param := do
-  if let some binderName := r.find? param.fvarId then
+def Param.applyRenaming (param : Param pu) (r : Renaming) : CompilerM (Param pu) := do
+  if let some binderName := r.get? param.fvarId then
     let param := { param with binderName }
     modifyLCtx fun lctx => lctx.addParam param
     return param
   else
     return param
 
-def LetDecl.applyRenaming (decl : LetDecl) (r : Renaming) : CompilerM LetDecl := do
-  if let some binderName := r.find? decl.fvarId then
+def LetDecl.applyRenaming (decl : LetDecl pu) (r : Renaming) : CompilerM (LetDecl pu) := do
+  if let some binderName := r.get? decl.fvarId then
     let decl := { decl with binderName }
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
@@ -29,28 +33,33 @@ def LetDecl.applyRenaming (decl : LetDecl) (r : Renaming) : CompilerM LetDecl :=
     return decl
 
 mutual
-partial def FunDecl.applyRenaming (decl : FunDecl) (r : Renaming) : CompilerM FunDecl := do
-  if let some binderName := r.find? decl.fvarId then
-    let decl := { decl with binderName }
+partial def FunDecl.applyRenaming (decl : (FunDecl pu)) (r : Renaming) : CompilerM (FunDecl pu) := do
+  if let some binderName := r.get? decl.fvarId then
+    let decl := decl.updateBinderName binderName
     modifyLCtx fun lctx => lctx.addFunDecl decl
     decl.updateValue (← decl.value.applyRenaming r)
   else
     decl.updateValue (← decl.value.applyRenaming r)
 
-partial def Code.applyRenaming (code : Code) (r : Renaming) : CompilerM Code := do
+partial def Code.applyRenaming (code : Code pu) (r : Renaming) : CompilerM (Code pu) := do
   match code with
   | .let decl k => return code.updateLet! (← decl.applyRenaming r) (← k.applyRenaming r)
-  | .fun decl k | .jp decl k => return code.updateFun! (← decl.applyRenaming r) (← k.applyRenaming r)
+  | .fun decl k _ | .jp decl k => return code.updateFun! (← decl.applyRenaming r) (← k.applyRenaming r)
   | .cases c =>
     let alts ← c.alts.mapMonoM fun alt =>
       match alt with
       | .default k => return alt.updateCode (← k.applyRenaming r)
-      | .alt _ ps k => return alt.updateAlt! (← ps.mapMonoM (·.applyRenaming r)) (← k.applyRenaming r)
+      | .alt _ ps k _ => return alt.updateAlt! (← ps.mapMonoM (·.applyRenaming r)) (← k.applyRenaming r)
+      | .ctorAlt _ k _ => return alt.updateCode (← k.applyRenaming r)
     return code.updateAlts! alts
   | .jmp .. | .unreach .. | .return .. => return code
+  | .sset fvarId i offset y ty k _ =>
+    return code.updateSset! fvarId i offset y ty (← k.applyRenaming r)
+  | .uset fvarId offset y k _ =>
+    return code.updateUset! fvarId offset y (← k.applyRenaming r)
 end
 
-def Decl.applyRenaming (decl : Decl) (r : Renaming) : CompilerM Decl := do
+def Decl.applyRenaming (decl : Decl pu) (r : Renaming) : CompilerM (Decl pu) := do
   if r.isEmpty then
     return decl
   else

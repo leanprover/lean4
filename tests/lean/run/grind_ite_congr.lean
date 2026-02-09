@@ -1,3 +1,4 @@
+module
 example : ((if true then id else id) false) = false := by
   grind
 

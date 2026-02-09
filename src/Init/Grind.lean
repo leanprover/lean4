@@ -4,19 +4,27 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-import Init.Grind.Norm
-import Init.Grind.Tactics
-import Init.Grind.Lemmas
-import Init.Grind.Cases
-import Init.Grind.Propagator
-import Init.Grind.Util
-import Init.Grind.Offset
-import Init.Grind.PP
-import Init.Grind.Ring
-import Init.Grind.Module
-import Init.Grind.Ordered
-import Init.Grind.Ext
-import Init.Grind.ToInt
-import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.
+public import Init.Grind.Norm
+public import Init.Grind.Tactics
+public import Init.Grind.Lemmas
+public import Init.Grind.Cases
+public import Init.Grind.Propagator
+public import Init.Grind.Util
+public import Init.Grind.Offset
+public import Init.Grind.PP
+public import Init.Grind.Ring
+public import Init.Grind.Module
+public import Init.Grind.Ordered
+public import Init.Grind.Ext
+public import Init.Grind.ToInt
+public import Init.Grind.ToIntLemmas
+public import Init.Grind.Attr
+public import Init.Grind.AC
+public import Init.Grind.Injective
+public import Init.Grind.Order
+public import Init.Grind.Interactive
+public import Init.Grind.Lint
+public import Init.Grind.Annotated
+public import Init.Grind.FieldNormNum
+public import Init.Grind.Config

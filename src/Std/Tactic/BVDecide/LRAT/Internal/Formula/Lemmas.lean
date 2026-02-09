@@ -3,9 +3,18 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
-import Std.Tactic.BVDecide.LRAT.Internal.CNF
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
+public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Int.OfNat
+import Init.Data.List.Pairwise
+import Init.Data.Nat.Linear
+
+@[expose] public section
 
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
@@ -54,7 +63,7 @@ theorem assignmentsInvariant_of_strongAssignmentsInvariant {n : Nat} (f : Defaul
   apply Exists.intro hsize
   intro i b hb p pf
   specialize h i b hb
-  simp only [(· ⊨ ·), List.any_eq_true, Prod.exists, Bool.exists_bool,
+  simp only [(· ⊨ ·),
     Bool.decide_coe, List.all_eq_true] at pf
   specialize pf (unit (i, b)) h
   simpa [(· ⊨ ·), Clause.eval, unit_eq, Clause.toList] using pf
@@ -68,10 +77,10 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   intro i
   specialize f_AssignmentsInvariant i (decide (p i = false))
   by_cases hasAssignment (decide (p i = false)) (f.assignments[i.1]'(by rw [hsize]; exact i.2.2))
-  · next h =>
+  next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
-  · next h => simp_all [getElem!_def, i.2.2, decidableGetElem?]
+  next h => simp_all [i.2.2]
 
 /--
 performRupAdd adds to f.rupUnits and then clears f.rupUnits. If f begins with some units in f.rupUnits,
@@ -129,7 +138,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
       simp only [ofArray_fold_fn] at h
       split at h
       · exact ih.2 i b h
-      · next cOpt c =>
+      next cOpt c =>
         match heq : isUnit c with
         | none =>
           simp only [heq] at h
@@ -138,10 +147,10 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           simp only [heq] at h
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
-          · next i_eq_l =>
+          next i_eq_l =>
             simp only [i_eq_l, Array.getElem_modify_self] at h
             by_cases b
-            · next b_eq_true =>
+            next b_eq_true =>
               rw [isUnit_iff, DefaultClause.toList] at heq
               simp only [toList, ofArray, List.map, List.append_nil, List.mem_filterMap, id_eq, exists_eq_right]
               have i_eq_l : i = l := Subtype.ext i_eq_l
@@ -149,28 +158,28 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               have c_def : c = ⟨c.clause, c.nodupkey, c.nodup⟩ := rfl
               simp only [heq] at c_def
               grind
-            · next b_eq_false =>
+            next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
               simp only [hasAssignment, b_eq_false, ite_false, hasNeg_addPos, reduceCtorEq] at h
               specialize ih l false
-              simp only [hasAssignment, ite_false] at ih
+              simp only [hasAssignment] at ih
               rw [b_eq_false, Subtype.ext i_eq_l]
               exact ih h
-          · next i_ne_l => grind
+          next i_ne_l => grind
         | some (l, false) =>
           simp only [heq] at h
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
-          · next i_eq_l =>
+          next i_eq_l =>
             simp only [i_eq_l, Array.getElem_modify_self] at h
             by_cases b
-            · next b_eq_true =>
+            next b_eq_true =>
               simp only [hasAssignment, b_eq_true, ite_true, hasPos_addNeg] at h
               specialize ih l true
-              simp only [hasAssignment, ite_false] at ih
+              simp only [hasAssignment] at ih
               rw [b_eq_true, Subtype.ext i_eq_l]
               grind
-            · next b_eq_false =>
+            next b_eq_false =>
               rw [isUnit_iff, DefaultClause.toList] at heq
               simp only [toList, ofArray, List.map, List.append_nil, List.mem_filterMap, id_eq, exists_eq_right]
               have i_eq_l : i = l := Subtype.ext i_eq_l
@@ -178,7 +187,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               have c_def : c = ⟨c.clause, c.nodupkey, c.nodup⟩ := rfl
               simp only [heq] at c_def
               grind
-          · next i_ne_l => grind
+          next i_ne_l => grind
     rcases List.foldlRecOn arr.toList ofArray_fold_fn hb hl with ⟨_h_size, h'⟩
     grind [ofArray]
 
@@ -214,7 +223,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     have hf := f_readyForRupAdd.2.2 i b hb
     simp only [toList] at hf ⊢
     grind
-  · next l hc =>
+  next l hc =>
     have hsize : (Array.modify f.assignments l.1 addPosAssignment).size = n := by
       rw [Array.size_modify, f_readyForRupAdd.2.1]
     refine ⟨f_readyForRupAdd.1, hsize, ?_⟩
@@ -223,29 +232,29 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     have i_in_bounds : i.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact i.2.2
     simp only at hb
     by_cases (i, b) = (l, true)
-    · next ib_eq_c =>
+    next ib_eq_c =>
       simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       apply Or.inl ∘ Or.inr
       rw [isUnit_iff, DefaultClause.toList, ← ib_eq_c] at hc
       apply DefaultClause.ext
       simp only [unit, hc]
-    · next ib_ne_c =>
+    next ib_ne_c =>
       have hb' : hasAssignment b f.assignments[i.1] := by
         by_cases l.1 = i.1
-        · next l_eq_i =>
+        next l_eq_i =>
           have b_eq_false : b = false := by
             by_cases b = true
-            · next b_eq_true =>
+            next b_eq_true =>
               simp only [b_eq_true, Subtype.ext l_eq_i, not_true] at ib_ne_c
-            · next b_eq_false => grind
+            next b_eq_false => grind
           simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_false, hasNeg_addPos, reduceCtorEq] at hb
           grind [hasAssignment]
-        · next l_ne_i => grind
+        next l_ne_i => grind
       specialize hf hb'
       simp only [toList] at hf ⊢
       grind
-  · next l hc =>
+  next l hc =>
     have hsize : (Array.modify f.assignments l.1 addNegAssignment).size = n := by
       rw [Array.size_modify, f_readyForRupAdd.2.1]
     refine ⟨f_readyForRupAdd.1, hsize, ?_⟩
@@ -254,24 +263,24 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     have i_in_bounds : i.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact i.2.2
     simp only at hb
     by_cases (i, b) = (l, false)
-    · next ib_eq_c =>
+    next ib_eq_c =>
       simp only [toList, Array.toList_push, List.append_assoc, List.mem_append, List.mem_filterMap,
         List.mem_singleton, id_eq, exists_eq_right, Option.some.injEq, List.mem_map, Prod.exists, Bool.exists_bool]
       apply Or.inl ∘ Or.inr
       rw [isUnit_iff, DefaultClause.toList, ← ib_eq_c] at hc
       apply DefaultClause.ext
       simp only [unit, hc]
-    · next ib_ne_c =>
+    next ib_ne_c =>
       have hb' : hasAssignment b f.assignments[i.1] := by
         by_cases l.1 = i.1
-        · next l_eq_i =>
+        next l_eq_i =>
           have b_eq_false : b = true := by
             by_cases b = true
             · assumption
-            · next b_eq_false =>
+            next b_eq_false =>
               simp only [b_eq_false, Subtype.ext l_eq_i, not_true] at ib_ne_c
           grind [hasAssignment, hasPos_addNeg]
-        · next l_ne_i => grind
+        next l_ne_i => grind
       specialize hf hb'
       simp only [toList] at hf ⊢
       grind
@@ -372,7 +381,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
       simp only [hl]
       simp only [deleteOne, heq, hl] at hb
       by_cases l.1.1 = i.1
-      · next l_eq_i =>
+      next l_eq_i =>
         simp only [l_eq_i, Array.getElem_modify_self] at hb
         have l_ne_b : l.2 ≠ b := by grind [not_has_remove]
         replace l_ne_b := Bool.eq_not_of_ne l_ne_b
@@ -394,7 +403,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             grind [unit]
           · exact hf
         · exact Or.inr hf
-      · next l_ne_i =>
+      next l_ne_i =>
         simp only [Array.getElem_modify_of_ne l_ne_i] at hb
         specialize hf i b hb
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
@@ -414,8 +423,16 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
         · exact Or.inr hf
     · simp only [Prod.exists, Bool.exists_bool, not_exists, not_or, unit] at hl
       split
-      · next some_eq_none => grind
-      · next l _ _ heq => grind [cases Bool]
+      next some_eq_none => simp at some_eq_none
+      next l _ _ heq =>
+        simp only [Option.some.injEq] at heq
+        rw [heq] at hl
+        specialize hl l.1
+        simp only [DefaultClause.mk.injEq, List.cons.injEq, and_true] at hl
+        by_cases hl2 : l.2
+        · simp only [← hl2, not_true, and_false] at hl
+        · simp only [Bool.not_eq_true] at hl2
+          simp only [← hl2, not_true, false_and] at hl
       · have deleteOne_f_rw : deleteOne f id = ⟨Array.set! f.clauses id none, f.rupUnits, f.ratUnits, f.assignments⟩ := by
           simp only [deleteOne]
           grind
@@ -434,7 +451,23 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
               grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            grind [unit]
+            by_cases id = idx
+            · next id_eq_idx =>
+              exfalso
+              have idx_in_bounds2 : idx < f.clauses.size := by
+                conv => rhs; rw [List.size_toArray]
+                exact hbound
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
+              rw [hidx] at heq
+              simp only [Option.some.injEq] at heq
+              rw [← heq] at hl
+              specialize hl i
+              simp only [unit, DefaultClause.mk.injEq, List.cons.injEq, Prod.mk.injEq, true_and, and_true,
+                Bool.not_eq_false, Bool.not_eq_true] at hl
+              by_cases b_val : b <;> simp [b_val] at hl
+            · next id_ne_idx =>
+              simp [id_ne_idx]; grind only [= Array.getElem_toList]
           · exact hf
         · exact Or.inr hf
 

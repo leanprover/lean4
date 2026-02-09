@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Combinators.Monadic.DropWhile
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Combinators.Monadic.DropWhile
+
+@[expose] public section
+
+namespace Std
 
 /--
 Constructs intermediate states of an iterator created with the combinator `Iter.dropWhile`.
@@ -50,10 +54,10 @@ Depending on `P`, it is possible that `it.dropWhileM P` is productive although
 **Performance:**
 
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
-that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
+that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
 @[always_inline, inline]
 def Iter.dropWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.dropWhile P |>.toIter : Iter β)
 
-end Std.Iterators
+end Std

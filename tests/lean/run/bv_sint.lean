@@ -67,7 +67,7 @@ example (a b c : ISize) (h1 : a < b) (h2 : b < c) : a < c := by
 /--
 warning: Detected USize/ISize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on System.Platform.numBits_eq
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (a b : ISize) : a + b > a := by

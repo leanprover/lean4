@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Attributes
+public import Lean.Elab.Attributes
+import Init.Syntax
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -13,17 +18,17 @@ namespace Lean.Elab.Command
     match stx with
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixl:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op:str rhs:$prec1 => $f lhs rhs)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op rhs:$prec1 => $f lhs rhs)
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? infix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec1 => $f lhs rhs)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op rhs:$prec1 => $f lhs rhs)
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixr:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec => $f lhs rhs)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op rhs:$prec => $f lhs rhs)
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? prefix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str arg:$prec => $f arg)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op arg:$prec => $f arg)
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? postfix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op:str => $f arg)
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op => $f arg)
     | _ => Macro.throwUnsupported
 where
   -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result

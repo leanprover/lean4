@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 namespace Lean
 
@@ -34,6 +36,8 @@ inductive TransparencyMode where
   | reducible
   /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
+  /-- Do not unfold anything -/
+  | none
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/
@@ -92,7 +96,7 @@ structure Config where
   -/
   decide            : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -123,23 +127,33 @@ structure Config where
   -/
   zetaUnused : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
+  /--
+  If `locals` is `true`, `dsimp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
 
 namespace Simp
 
+@[inline]
 def defaultMaxSteps := 100000
 
 /--
 The configuration for `simp`.
-Passed to `simp` using, for example, the `simp (config := {contextual := true})` syntax.
+Passed to `simp` using, for example, the `simp +contextual` or `simp (maxSteps := 100000)` syntax.
 
 See also `Lean.Meta.Simp.neutralConfig` and `Lean.Meta.DSimp.Config`.
 -/
@@ -160,7 +174,7 @@ structure Config where
   -/
   contextual        : Bool := false
   /--
-  When true (default: `true`) then the simplifier caches the result of simplifying each subexpression, if possible.
+  When true (default: `true`) then the simplifier caches the result of simplifying each sub-expression, if possible.
   -/
   memoize           : Bool := true
   /--
@@ -207,7 +221,7 @@ structure Config where
   /--  When `true` (default: `false`), simplifies simple arithmetic expressions. -/
   arith             : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -251,28 +265,64 @@ structure Config where
   -/
   implicitDefEqProofs : Bool := true
   /--
-  When `true` (default : `true`), then `simp` will remove unused `let` and `have` expressions:
+  When `true` (default : `true`), then `simp` removes unused `let` and `have` expressions:
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  This option takes precedence over `zeta` and `zetaHave`.
   -/
   zetaUnused : Bool := true
   /--
-  When `true` (default : `true`), then simps will catch runtime exceptions and
-  convert them into `simp` exceptions.
+  When `true` (default : `true`), then `simp` catches runtime exceptions and
+  converts them into `simp` exceptions.
   -/
   catchRuntime : Bool := true
   /--
-  (Unimplemented)
   When `false` (default: `true`), then disables zeta reduction of `have` expressions.
   If `zeta` is `false`, then this option has no effect.
   Unused `have`s are still removed if `zeta` or `zetaUnused` are true.
   -/
   zetaHave : Bool := true
   /--
-  (Unimplemented)
   When `true` (default : `true`), then `simp` will attempt to transform `let`s into `have`s
   if they are non-dependent. This only applies when `zeta := false`.
   -/
   letToHave : Bool := true
+  /--
+  When `true` (default: `true`), `simp` tries to realize constant `f.congr_simp`
+  when constructing an auxiliary congruence proof for `f`.
+  This option exists because the termination prover uses `simp` and `withoutModifyingEnv`
+  while constructing the termination proof. Thus, any constant realized by `simp`
+  is deleted.
+  -/
+  congrConsts : Bool := true
+  /--
+  When `true` (default: `true`), the bitvector simprocs use `BitVec.ofNat` for representing
+  bitvector literals.
+  -/
+  bitVecOfNat : Bool := true
+  /--
+  When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
+  -/
+  warnExponents : Bool := true
+  /--
+  If `suggestions` is `true`, `simp?` will invoke the currently configured library suggestion engine on the current goal,
+  and attempt to use the resulting suggestions as parameters to the `simp` tactic.
+  -/
+  suggestions : Bool := false
+  /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
+  /--
+  If `locals` is `true`, `simp` will unfold all definitions from the current file.
+  For local theorems, use `+suggestions` instead.
+  -/
+  locals : Bool := false
+  /--
+  If `instances` is `true`, `simp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -339,7 +389,7 @@ structure ExtractLetsConfig where
   /-- If true (default: false), eliminate unused lets rather than extract them. -/
   usedOnly : Bool := false
   /-- If true (default: true), reuse local declarations that have syntactically equal values.
-  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  Note that even when false, the caching strategy for `extract_lets` may result in fewer extracted let bindings than expected. -/
   merge : Bool := true
   /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
   useContext : Bool := true

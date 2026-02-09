@@ -5,7 +5,7 @@ set_option trace.Elab.definition.fixedParams true
 namespace Ex1
 
 /--
-error: well-founded recursion cannot be used, 'Ex1.foo' does not take any (non-fixed) arguments
+error: well-founded recursion cannot be used, `Ex1.foo` does not take any (non-fixed) arguments
 ---
 trace: [Elab.definition.fixedParams] getFixedParams:
       • ⏎
@@ -23,7 +23,7 @@ end Ex1
 
 namespace Ex2
 /--
-error: well-founded recursion cannot be used, 'Ex2.foo' does not take any (non-fixed) arguments
+error: well-founded recursion cannot be used, `Ex2.foo` does not take any (non-fixed) arguments
 ---
 trace: [Elab.definition.fixedParams] getFixedParams:
       • [#1 #1]
@@ -39,7 +39,7 @@ end Ex2
 
 namespace Ex3
 /--
-error: well-founded recursion cannot be used, 'Ex3.foo' does not take any (non-fixed) arguments
+error: well-founded recursion cannot be used, `Ex3.foo` does not take any (non-fixed) arguments
 ---
 trace: [Elab.definition.fixedParams] getFixedParams:
       • [#1 #2] [#2 #1]

@@ -148,7 +148,7 @@ fun x y z =>
         (((((((Expr.var 1).add (Expr.mulL 3 (Expr.var 0))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
               (Expr.var 1)).sub
           (Expr.var 0))
-        (Eq.refl true)))
+        (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
 open Int.Linear in
@@ -161,17 +161,14 @@ theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f 
 info: theorem ex₂ : ∀ (x y z : Int) (f : Int → Int), x + f y + 2 + f y + z + z ≤ f y + 3 * z + 1 + 1 + x + f y - z :=
 fun x y z f =>
   of_eq_true
-    ((fun x_1 =>
-        id
-          (le_eq_true
-            (Lean.RArray.branch 1 (Lean.RArray.leaf x_1)
-              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
-            ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
-            (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
-                  (Expr.var 0)).sub
-              (Expr.var 1))
-            (Eq.refl true)))
-      (f y))
+    (id
+      (le_eq_true
+        (Lean.RArray.branch 1 (Lean.RArray.leaf (f y)) (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
+        ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
+        (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+              (Expr.var 0)).sub
+          (Expr.var 1))
+        (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
 open Int.Linear in
@@ -289,13 +286,15 @@ info: theorem ex3 : ∀ (a b : Int), 6 ∣ a + (21 - a) + 3 * (a + 2 * b) + 12 �
 fun a b =>
   of_eq_true
     (Eq.trans
-      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b + 11)
-        (id
-          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
-            ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
-                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
-              (Expr.num 12))
-            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (Eq.refl true))))
+      (congrFun'
+        (congrArg Iff
+          (id
+            (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+              ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
+                    (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
+                (Expr.num 12))
+              2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (eagerReduce (Eq.refl true)))))
+        (2 ∣ a + 2 * b + 11))
       (iff_self (2 ∣ a + 2 * b + 11)))
 -/
 #guard_msgs (info) in
@@ -318,7 +317,7 @@ fun a b =>
                 ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
                       (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
                   (Expr.num 11))
-                2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true)))
+                2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (eagerReduce (Eq.refl true))))
             Int.dvd_add_self_mul._simp_1))
         Int.dvd_add_self_mul._simp_1)
       (iff_self (2 ∣ a)))

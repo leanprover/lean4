@@ -3,9 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Format
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Omega
+
+public section
 
 namespace Lean.IR
 
@@ -20,7 +25,7 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := alts[i]!.body
   let mut n := 1
-  for h : j in [i+1:alts.size] do
+  for h : j in (i+1)...alts.size do
     if alts[j].body == aBody then
       n := n+1
   return n
@@ -28,7 +33,7 @@ private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
 private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
-  for h : i in [1:alts.size] do
+  for h : i in 1...alts.size do
     let curr := getOccsOf alts i
     if curr > max then
        maxAlt := alts[i]
@@ -74,5 +79,7 @@ def Decl.simpCase (d : Decl) : Decl :=
   match d with
   | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
+
+builtin_initialize registerTraceClass `compiler.ir.simp_case (inherited := true)
 
 end Lean.IR

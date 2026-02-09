@@ -60,7 +60,12 @@ structure C extends B where
 
 -- This first example does not work because the default values at `C` are the only ones considered.
 /--
-error: fields missing: 'y', 'z'
+error: Fields missing: `y`, `z`
+
+Hint: Add missing fields:
+  ⏎
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲y̲ ̲:̲=̲ ̲_̲
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲z̲ ̲:̲=̲ ̲_̲
 ---
 info: { x := 1, y := sorry, z := sorry } : C
 -/
@@ -71,7 +76,7 @@ info: { x := 1, y := sorry, z := sorry } : C
 #guard_msgs in #check { z := 1 : C }
 
 -- This first example does not work because the default values at `C` are the only ones considered.
-/-- error: fields missing: 'y', 'z' -/
+/-- error: Fields missing: `y`, `z` -/
 #guard_msgs in
 def test1 : C where
   x := 1
@@ -220,10 +225,14 @@ structure S where
 variable (x : Fin 3)
 
 /--
-error: fields missing: 'n'
+error: Fields missing: `n`
 
-field 'n' must be explicitly provided, its synthesized value is
+Field `n` must be explicitly provided; its synthesized value is
   3
+
+Hint: Add missing fields:
+  ⏎
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲n̲ ̲:̲=̲ ̲3̲
 ---
 info: { n := 3, m := x } : S
 -/
@@ -265,7 +274,7 @@ instance : B where
 instance : C where
 
 /--
-info: def Issue6046.instC : C :=
+info: @[instance_reducible] def Issue6046.instC : C :=
 { b := B.b }
 -/
 #guard_msgs in #print Issue6046.instC
@@ -333,7 +342,7 @@ class Bar extends Foo where
 instance instBar : Bar where
 
 /--
-info: def Ex6769_1.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_1.instBar : Bar :=
 { x := 0 }
 -/
 #guard_msgs in #print instBar
@@ -352,7 +361,7 @@ instance instBar : Bar where
   x := 0
 
 /--
-info: def Ex6769_2.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_2.instBar : Bar :=
 { x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar
@@ -371,7 +380,7 @@ instance instBar : Bar where
   x := 0
 
 /--
-info: def Ex6769_3.instBar : Bar :=
+info: @[instance_reducible] def Ex6769_3.instBar : Bar :=
 { x := 0, hx := Mathlib12129.bar._proof_1, hx' := Mathlib12129.bar._proof_1 }
 -/
 #guard_msgs in #print instBar

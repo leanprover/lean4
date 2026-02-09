@@ -22,20 +22,6 @@ end Set
 
 end Mathlib.Init.Set
 
-section Mathlib.Init.Function
-
-universe u₁ u₂
-
-variable {α : Sort u₁} {β : Sort u₂}
-
-def Function.Injective (f : α → β) : Prop :=
-  ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
-
-def Function.Surjective (f : α → β) : Prop :=
-  ∀ b, ∃ a, f a = b
-
-end Mathlib.Init.Function
-
 section Mathlib.Data.Subtype
 
 variable {α : Sort _} {p : α → Prop}

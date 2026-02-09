@@ -3,10 +3,13 @@ Copyright (c) 2022 Newell Jensen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Newell Jensen, Thomas Murrills, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Apply
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.Tactic.Refl
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Refl
+
+public section
 
 /-!
 # `rfl` tactic extension for reflexive relations
@@ -23,7 +26,7 @@ open Lean Meta
 initialize reflExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun dt (n, ks) => dt.insertCore ks n
+    addEntry := fun dt (n, ks) => dt.insertKeyValue ks n
     initial := {}
   }
 
@@ -43,10 +46,11 @@ builtin_initialize registerBuiltinAttribute {
     let declTy := (← getConstInfo decl).type
     let (_, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
     let fail := throwError
-      "@[refl] attribute only applies to lemmas proving x ∼ x, got {declTy}"
+      "`[refl]` attribute only applies to lemmas of the form `x ∼ x`, but this declaration is not:\
+        {inlineExprTrailing declTy}"
     let .app (.app rel lhs) rhs := targetTy | fail
     if let .app (.const ``Eq [_]) _ := rel then
-      throwError "@[refl] attribute may not be used on `Eq.refl`."
+      throwError "`[refl]` attribute may not be used on `Eq.refl`"
     unless ← withNewMCtxDepth <| isDefEq lhs rhs do fail
     let key ← DiscrTree.mkPath rel
     reflExt.add (decl, key) kind
@@ -64,7 +68,8 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   -- NB: uses whnfR, we do not want to unfold the relation itself
   let t ← whnfR <|← instantiateMVars <|← goal.getType
   if t.getAppNumArgs < 2 then
-    throwTacticEx `rfl goal "expected goal to be a binary relation"
+    throwTacticEx `rfl goal <| m!"Expected the goal to be a binary relation"
+      ++ MessageData.hint' m!"Reflexivity tactics can only be used on goals of the form `x ~ x` or `R x x`"
 
   -- Special case HEq here as it has a different argument order.
   if t.isAppOfArity ``HEq 4 then
@@ -82,7 +87,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   unless success do
     let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-      return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+      return m!"The left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
     throwTacticEx `rfl goal explanation
 
   if rel.isAppOfArity `Eq 1 then
@@ -111,10 +116,11 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
       sErr.restore
       throw e
     else
-      throwTacticEx `rfl goal m!"no @[refl] lemma registered for relation{indentExpr rel}"
+      throwTacticEx `rfl goal <| m!"No `[refl]` lemma registered for relation{indentExpr rel}"
+        ++ MessageData.hint' m!"Add the `[refl]` attribute to reflexivity lemmas for{inlineExpr rel}to use this tactic"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
-private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
+theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
     {x y : α} (hxy : x = y) (h : R x x) : R x y :=
   hxy ▸ h
 

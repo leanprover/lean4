@@ -3,12 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Meta.GlobalInstances
-import Lean.Meta.DiscrTree
-import Lean.Meta.CollectMVars
-
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.DiscrTree.Main
+public import Lean.Meta.CollectMVars
+import Init.While
+import Lean.OriginalConstKind
+import Lean.ProjFns
+public section
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -74,21 +77,23 @@ structure Instances where
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
+  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
+  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
-    throwError "'{declName}' does not have [instance] attribute"
+    throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
+    exportEntry? := fun level e =>
+      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -147,7 +152,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
     if let .const className .. := classTy.getAppFn then
       forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
       let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
-      for arg in args, i in [:args.size] do
+      for arg in args, i in *...args.size do
         if (← inferType arg).isAppOf ``semiOutParam then
           pos := pos.push i
       return pos
@@ -173,7 +178,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
-  for tyArg in tyArgs, i in [:tyArgs.size] do
+  for tyArg in tyArgs, i in *...tyArgs.size do
     unless tyOutParams.contains i do
       assignMVarsIn tyArg
 
@@ -193,7 +198,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
-      for i in [:argTyArgs.size], argTyArg in argTyArgs do
+      for i in *...argTyArgs.size, argTyArg in argTyArgs do
         if !argOutParams.contains i && argTyArg.hasExprMVar then
           return false
       return true
@@ -227,10 +232,42 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
-  addGlobalInstance declName attrKind
+  let status ← getReducibilityStatus declName
+  unless status matches .reducible | .instanceReducible do
+    let info ← getConstInfo declName
+    if info.isDefinition then
+      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[instance_reducible]`"
+    else if wasOriginallyDefn (← getEnv) declName then
+      logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+
+/-
+Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
+to elaborate `instance` command.
+
+**Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
+However, this was not a robust solution because:
+
+- We have scoped instances, and `isInstance declName` returns true only if the scope is active.
+
+- We have auxiliary declarations used to construct instances manually, such as:
+  ```
+  def lt_wfRel : WellFoundedRelation Nat
+  ```
+  `isInstance` also returns `false` for this kind of declaration.
+
+In both cases, the declaration may be (or may have been) used to construct an instance, but `isInstance`
+returns `false`. We claim it is a mistake to check the reducibility status using `isInstance`.
+`isInstance` indicates whether a declaration is available for the type class resolution mechanism,
+not its transparency status.
+
+Thus, we added a new transparency setting and set it here.
+-/
+def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  setReducibilityStatus declName .instanceReducible
+  addInstance declName attrKind prio
 
 /--
 Registers type class instances.
@@ -283,7 +320,7 @@ structure DefaultInstanceEntry where
   instanceName : Name
   priority     : Nat
 
-abbrev PrioritySet := RBTree Nat (fun x y => compare y x)
+abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
@@ -304,15 +341,15 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   match (← getEnv).find? declName with
-  | none => throwError "unknown constant '{declName}'"
+  | none => throwError "Unknown constant `{.ofConstName declName}`"
   | some info =>
     forallTelescopeReducing info.type fun _ type => do
       match type.getAppFn with
       | Expr.const className _ =>
         unless isClass (← getEnv) className do
-          throwError "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
+          throwError "invalid default instance `{.ofConstName declName}`, it has type `({className} ...)`, but `{.ofConstName className}` is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
-      | _ => throwError "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
+      | _ => throwError "invalid default instance `{.ofConstName declName}`, type must be of the form `(C ...)` where `C` is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -320,7 +357,7 @@ builtin_initialize
     descr := "type class default instance"
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
-      unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `default_instance kind
       discard <| addDefaultInstance declName prio |>.run {} {}
   }
   registerTraceClass `Meta.synthOrder

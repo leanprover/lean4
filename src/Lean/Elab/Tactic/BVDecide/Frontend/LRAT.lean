@@ -3,12 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-import Lean.Elab.Tactic.BVDecide.LRAT.Trim
-import Lean.Elab.Tactic.BVDecide.External
-import Std.Tactic.BVDecide.LRAT.Checker
-import Std.Sat.CNF.Dimacs
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Elab.Tactic.BVDecide.LRAT.Trim
+public import Lean.Elab.Tactic.BVDecide.External
+public import Std.Tactic.BVDecide.LRAT.Checker
+
+public section
 
 /-!
 This module contains the logic around writing proofs of UNSAT, using LRAT proofs, as meta code.
@@ -60,7 +63,7 @@ where
     else
       return option
 
-/-- An LRAT proof read from a file. This will get parsed using ofReduceBool. -/
+/-- An LRAT proof read from a file. This will get parsed using native evaluation. -/
 abbrev LratCert := String
 
 instance : ToExpr LRAT.IntAction where
@@ -128,7 +131,7 @@ Run an external SAT solver on the `CNF` to obtain an LRAT proof.
 This will obtain an `LratCert` if the formula is UNSAT and throw errors otherwise.
 -/
 def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.FilePath)
-    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) :
+    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) (solverMode : Frontend.SolverMode) :
     CoreM (Except (Array (Bool × Nat)) LratCert) := do
   IO.FS.withTempFile fun cnfHandle cnfPath => do
     withTraceNode `Meta.Tactic.sat (fun _ => return "Serializing SAT problem to DIMACS file") do
@@ -138,7 +141,7 @@ def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.Fi
 
     let res ←
       withTraceNode `Meta.Tactic.sat (fun _ => return "Running SAT solver") do
-        External.satQuery solver cnfPath lratPath timeout binaryProofs
+        External.satQuery solver cnfPath lratPath timeout binaryProofs solverMode
     if let .sat assignment := res then
       return .error assignment
 

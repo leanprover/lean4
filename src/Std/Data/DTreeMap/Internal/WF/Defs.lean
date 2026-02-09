@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.Operations
+public import Std.Data.DTreeMap.Internal.Operations
+
+@[expose] public section
 
 /-!
 # Well-formedness predicate on size-bounded trees
@@ -18,12 +22,12 @@ A central consequence of well-formedness, balancedness, is shown for all well-fo
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'}
 
 namespace Std.DTreeMap.Internal
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Impl
 
@@ -57,6 +61,8 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | mergeWith {t₁ t₂ f h} [LawfulEqOrd α] : WF t₁ → WF (t₁.mergeWith f t₂ h).impl
   /-- `mergeWith` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | constMergeWith {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith f t₁ t₂ h).impl
+  /-- `inter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | inter {t₁ t₂ h} : WF t₁ → WF (t₁.inter t₂ h)
 
 /--
 A well-formed tree is balanced. This is needed here already because we need to know that the
@@ -68,6 +74,11 @@ theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
   case empty => exact balanced_empty
   case modify ih => exact balanced_modify ih
   case constModify ih => exact Const.balanced_modify ih
+  case inter ih => exact balanced_inter ih
+
+theorem WF.eraseManyEntries [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.eraseManyEntries l h).val :=
+  (t.eraseManyEntries l h).2 hwf fun _ _ _ hwf' => hwf'.erase
 
 theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.eraseMany l h).val :=
@@ -76,6 +87,10 @@ theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h
 theorem WF.insertMany [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.insertMany l h).val :=
   (t.insertMany l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert
+
+theorem WF.insertManyIfNew [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.insertManyIfNew l h).val :=
+  (t.insertManyIfNew l h).2 hwf fun _ _ _ _ hwf' => hwf'.insertIfNew
 
 theorem WF.constInsertMany [Ord α] {β : Type v} {ρ} [ForIn Id ρ (α × β)] {t : Impl α (fun _ => β)}
     {l : ρ} {h} (hwf : WF t) : WF (Impl.Const.insertMany t l h).val :=
@@ -91,6 +106,20 @@ theorem WF.getThenInsertIfNew? [Ord α] [LawfulEqOrd α] {t : Impl α β} {k v} 
   split
   · exact h.insertIfNew
   · exact h
+
+theorem WF.union [Ord α] {t₁ : Impl α β} {h₁ : t₁.WF} {t₂ : Impl α β} {h₂ : t₂.WF} :
+    (t₁.union t₂ h₁.balanced h₂.balanced).WF := by
+  simp [Impl.union]
+  split
+  . apply WF.insertManyIfNew h₂
+  . apply WF.insertMany h₁
+
+theorem WF.diff [Ord α] {t₁ : Impl α β} {h₁ : t₁.WF} {t₂ : Impl α β} :
+    (t₁.diff t₂ h₁.balanced).WF := by
+  simp [Impl.diff]
+  split
+  · apply WF.filter h₁
+  · apply WF.eraseManyEntries h₁
 
 section Const
 

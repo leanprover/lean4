@@ -3,57 +3,65 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Import
-import Lean.Elab.Exception
-import Lean.Elab.Config
-import Lean.Elab.Command
-import Lean.Elab.Term
-import Lean.Elab.App
-import Lean.Elab.Binders
-import Lean.Elab.BinderPredicates
-import Lean.Elab.LetRec
-import Lean.Elab.Frontend
-import Lean.Elab.BuiltinNotation
-import Lean.Elab.Declaration
-import Lean.Elab.Tactic
-import Lean.Elab.Match
+public import Lean.Elab.Import
+public import Lean.Elab.Exception
+public import Lean.Elab.Config
+public import Lean.Elab.Command
+public import Lean.Elab.Term
+public import Lean.Elab.App
+public import Lean.Elab.Binders
+public import Lean.Elab.BinderPredicates
+public import Lean.Elab.LetRec
+public import Lean.Elab.Frontend
+public import Lean.Elab.BuiltinNotation
+public import Lean.Elab.Declaration
+public import Lean.Elab.Tactic
+public import Lean.Elab.Match
 -- HACK: must come after `Match` because builtin elaborators (for `match` in this case) do not take priorities
-import Lean.Elab.Quotation
-import Lean.Elab.Syntax
-import Lean.Elab.Do
-import Lean.Elab.StructInst
-import Lean.Elab.MutualInductive
-import Lean.Elab.Inductive
-import Lean.Elab.Structure
-import Lean.Elab.Print
-import Lean.Elab.MutualDef
-import Lean.Elab.AuxDef
-import Lean.Elab.PreDefinition
-import Lean.Elab.Deriving
-import Lean.Elab.DeclarationRange
-import Lean.Elab.Extra
-import Lean.Elab.GenInjective
-import Lean.Elab.BuiltinTerm
-import Lean.Elab.Arg
-import Lean.Elab.PatternVar
-import Lean.Elab.ElabRules
-import Lean.Elab.Macro
-import Lean.Elab.Notation
-import Lean.Elab.Mixfix
-import Lean.Elab.MacroRules
-import Lean.Elab.BuiltinCommand
-import Lean.Elab.BuiltinEvalCommand
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.Eval
-import Lean.Elab.Calc
-import Lean.Elab.InheritDoc
-import Lean.Elab.ParseImportsFast
-import Lean.Elab.GuardMsgs
-import Lean.Elab.CheckTactic
-import Lean.Elab.MatchExpr
-import Lean.Elab.Tactic.Doc
-import Lean.Elab.Time
-import Lean.Elab.RecommendedSpelling
-import Lean.Elab.InfoTrees
-import Lean.Elab.ErrorExplanation
+public import Lean.Elab.Quotation
+public import Lean.Elab.Syntax
+public import Lean.Elab.Do
+public import Lean.Elab.StructInst
+public import Lean.Elab.StructInstHint
+public import Lean.Elab.MutualInductive
+public import Lean.Elab.Inductive
+public import Lean.Elab.Structure
+public import Lean.Elab.Print
+public import Lean.Elab.MutualDef
+public import Lean.Elab.AuxDef
+public import Lean.Elab.PreDefinition
+public import Lean.Elab.Deriving
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.Extra
+public import Lean.Elab.GenInjective
+public import Lean.Elab.BuiltinTerm
+public import Lean.Elab.Arg
+public import Lean.Elab.PatternVar
+public import Lean.Elab.ElabRules
+public import Lean.Elab.Macro
+public import Lean.Elab.Notation
+public import Lean.Elab.Mixfix
+public import Lean.Elab.MacroRules
+public import Lean.Elab.BuiltinCommand
+public import Lean.Elab.AssertExists
+public import Lean.Elab.Command.WithWeakNamespace
+public import Lean.Elab.BuiltinEvalCommand
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.Eval
+public import Lean.Elab.Calc
+public import Lean.Elab.InheritDoc
+public import Lean.Elab.ParseImportsFast
+public import Lean.Elab.GuardMsgs
+public import Lean.Elab.CheckTactic
+public import Lean.Elab.MatchExpr
+public import Lean.Elab.Tactic.Doc
+public import Lean.Elab.Time
+public import Lean.Elab.RecommendedSpelling
+public import Lean.Elab.InfoTrees
+public import Lean.Elab.ErrorExplanation
+public import Lean.Elab.DocString
+public import Lean.Elab.DocString.Builtin
+public import Lean.Elab.Parallel

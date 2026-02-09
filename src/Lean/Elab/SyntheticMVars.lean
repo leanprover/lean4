@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Util.NumObjs
-import Lean.Util.ForEachExpr
-import Lean.Util.OccursCheck
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.AbstractNestedProofs
+public import Lean.Util.ForEachExpr
+public import Lean.Util.OccursCheck
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.AbstractNestedProofs
+public import Init.Data.List.Sort.Basic
+import all Lean.Elab.ErrorUtils
+
+public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
@@ -33,10 +37,21 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
         let mvarDecl     ← getMVarDecl mvarId
         let expectedType ← instantiateMVars mvarDecl.type
         withInfoHole mvarId do
-          let result ← resumeElabTerm stx expectedType (!postponeOnError)
-          /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
-            That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-          let result ← withRef stx <| ensureHasType expectedType result
+          /-
+          NOTE: `withInfoTree` discards all but the last info tree pushed inside this `do` block.
+          `resumeElabTerm` usually pushes the term info node and `ensureHasType` sometimes
+          pushes a custom info node with information about the coercions that were applied.
+
+          In order for both trees to be preserved, we use `withTermInfoContext'` to wrap these
+          trees into a single node. Although this results in two nested term nodes for the same
+          syntax element, this should be unproblematic. For example, `hoverableInfoAtM?` selects
+          the innermost info tree.
+          -/
+          let result ← withTermInfoContext' .anonymous stx do
+            let result ← resumeElabTerm stx expectedType (!postponeOnError)
+            /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
+              That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
+            withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
             mvarId.assign result
@@ -70,14 +85,14 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
       | _              => unreachable!
 
 /--
-  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  Try to synthesize `mvarId` by starting using a default instance with the given priority.
   This method succeeds only if the metavariable of fully synthesized.
 
   Remark: In the past, we would return a list of pending TC problems, but this was problematic since
   a default instance may create subproblems that cannot be solved.
 
   Remark: The new approach also has limitations because other pending metavariables are not taken into account
-  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  while backtracking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
   but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
   into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
   This is particularly true if we consider pending metavariables for "postponed" elaboration steps.
@@ -150,7 +165,7 @@ where
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
-        for h : i in [:bis.size] do
+        for h : i in *...bis.size do
           if bis[i] == BinderInfo.instImplicit then
             pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
@@ -205,21 +220,87 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
+
+def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option MessageData) := do
+
+  -- Gather the type arguments and locate the root of the typeclass
+  let mut args := []
+  let mut ty := typeclassProblem
+  while ty.isApp do
+    match ty with
+    | .app fn arg =>
+      ty := fn
+      args := arg :: args
+    | _ => return .none -- Precluded by loop guard
+
+  -- Find the typeclass's type constructor (e.g. `HAdd`) and look up its classifying type
+  let .const name _ := ty
+    | return .none -- Typeclass problem has unexpected structure; fall back to default error
+  let .some defn := (← getEnv).findConstVal? name
+    | return .none
+  let mut kind := defn.type
+
+  /-
+  Simultaneously traverse the typeclass arguments (e.g. `#[_?, Nat, _?]` if
+  our stuck typeclass problem is `HAdd _?, Nat, _?`) and the classifier (e.g.
+  `Type → Type → outParam Type → Type`) and come up with the input positions
+  that are stuck (e.g. `[0]` if only the first type argument is stuck).
+  -/
+  let mut ord := 0
+  let mut stuckArguments := #[]
+  let mut simpleMVars := true
+  for arg in args do
+    match kind with
+    | .forallE _ argType rest _ =>
+      kind := rest
+      if !(argType.isOutParam || argType.isSemiOutParam) then
+        let arg ← instantiateExprMVars arg
+        if let .mvar _ := arg then
+          stuckArguments := stuckArguments.push ord
+        else if (arg.collectMVars {}).result.size > 0 then
+          stuckArguments := stuckArguments.push ord
+          simpleMVars := false
+    | _ => return .none -- Unexpected type structure; fall back to default error
+    ord := ord + 1
+
+  let .sort _ := kind
+    | return .none -- Unexpected type structure; fall back to default error
+  let nStuck := stuckArguments.size
+  if nStuck = 0 then
+    return .none -- This is not a simple inputs-have-metavariables issue
+
+  -- Formulate error message
+  let containMVars :=
+    if simpleMVars then
+      nStuck.plural "is a metavariable" "are metavariables"
+    else
+      nStuck.plural "contains metavariables" "contain metavariables"
+
+  let theTypeArguments :=
+    if args.length = 1 then
+      "the type argument"
+    else
+      s!"the {(stuckArguments.toList.map (·.succ.toOrdinal)).toOxford} type {nStuck.plural "argument" "arguments"}"
+
+  return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
+    ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
+
 /--
 We use this method to report typeclass (and coercion) resolution problems that are "stuck".
 That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
 -/
-def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
-  let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
-  withRef mvarSyntheticDecl.stx do
-    match mvarSyntheticDecl.kind with
+def reportStuckSyntheticMVar (mvarId : MVarId) (mvarDecl : SyntheticMVarDecl) (ignoreStuckTC := false) : TermElabM Unit := do
+  withRef mvarDecl.stx do
+    match mvarDecl.kind with
     | .typeClass extraErrorMsg? =>
       let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
         mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
-            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            let .some note ← explainStuckTypeclassProblem mvarDecl.type
+              | throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
+            throwError m!"typeclass instance problem is stuck{indentExpr mvarDecl.type}{note}{extraErrorMsg}"
     | .coe header expectedType e f? mkErrorMsg? =>
       mvarId.withContext do
         if let some mkErrorMsg := mkErrorMsg? then
@@ -240,8 +321,45 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
 -/
 private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
   let pendingMVars ← modifyGet fun s => (s.pendingMVars, { s with pendingMVars := [] })
-  for mvarId in pendingMVars do
-    reportStuckSyntheticMVar mvarId ignoreStuckTC
+  /-
+  Calling the singular reportStuckSyntheticMVar function will usually raise
+  an exception, meaning that we only expect to report one issue with
+  synthetic MVars. Given that, what's the best one to return?
+
+  If we have stuck typeclass instances associated with overlapping syntactic
+  ranges, we want to report a problem whose syntactic range *does not include
+  other unsolved typeclass problem ranges*. Here's a case where we want to
+  include the innermost range, if `x` has unknown type:
+
+      |--------------------| <- stuck typeclass problem is Decidable (x < x)
+      if x < x then 1 else 2
+         |---| <- stuck typeclass problem is LT _?
+
+  Reporting the `LT _` typeclass is more informative to the user.
+
+  A simple way to achieve this is prioritizing typeclass error messages with
+  smaller syntactic ranges.
+  -/
+  let pendingMVarsWithDecls ← pendingMVars.filterMapM (fun mvarId => do
+    let some decl ← getSyntheticMVarDecl? mvarId | return .none
+    return .some (mvarId, decl)
+  )
+  let prioritizedProblems := pendingMVarsWithDecls.mergeSort (fun (_, decl1) (_, decl2) =>
+    match (decl1.kind, decl2.kind) with
+     | (.typeClass _, .typeClass _) =>
+       match (decl1.stx.getRange?, decl2.stx.getRange?) with
+        | (.some r1, .some r2) => if r1.bsize != r2.bsize then
+            r1.bsize <= r2.bsize
+          else
+            r1.start <= r2.start
+        | (.none, _) => false
+        | _ => true
+     -- All non-typeclass problems are equivalent and come before typeclass problems
+     | (.typeClass _, _) => false
+     | _ => true
+  )
+  for (mvarId, mvarDecl) in prioritizedProblems do
+    reportStuckSyntheticMVar mvarId mvarDecl ignoreStuckTC
 
 private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
   for mvarId in (← get).pendingMVars do
@@ -266,7 +384,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     unless found.contains (lhs, rhs) do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
-  for h : i in [1:uniqueEntries.size] do
+  for h : i in 1...uniqueEntries.size do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
   throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 
@@ -314,9 +432,9 @@ inductive PostponeBehavior where
   -/
   | no
   /--
-  Synthectic metavariables associated with type class resolution can be postponed.
+  Synthetic metavariables associated with type class resolution can be postponed.
   Motivation: this kind of metavariable are not synthetic opaque, and can be assigned by `isDefEq`.
-  Unviverse constraints can also be postponed.
+  Universe constraints can also be postponed.
   -/
   | «partial»
   deriving Inhabited, Repr, BEq
@@ -337,6 +455,13 @@ private def TacticMVarKind.maybeWithoutRecovery (kind : TacticMVarKind) (m : Tac
   else
     m
 
+register_builtin_option backward.proofsInPublic : Bool := {
+  defValue := false
+  descr    := "(module system) Do not abstract proofs used in the public scope into auxiliary \
+    theorems. Enabling this option may lead to failures or, when `backward.privateInPublic` and \
+    its `warn` sub-option are enabled, additional warnings from private accesses."
+}
+
 mutual
 
   /--
@@ -349,7 +474,7 @@ mutual
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
     let wasExporting := (← getEnv).isExporting
     -- exit exporting context if entering proof
-    let isNoLongerExporting ← pure wasExporting <&&> do
+    let isNoLongerExporting ← pure (wasExporting && !(← backward.proofsInPublic.getM)) <&&> do
       mvarId.withContext do
         isProp (← mvarId.getType)
     instantiateMVarDeclMVars mvarId
@@ -397,7 +522,9 @@ mutual
             if !e.isFVar then
               e ← mvarId'.withContext do
                 withExporting (isExporting := wasExporting) do
-                  abstractProof e
+                  -- Like `abstractProof`, but use the expected and not given type here as
+                  -- the latter might not make sense outside the current module (#11672).
+                  mkAuxTheorem (cache := !e.hasSorry) (← mvarId.getType) e (zetaDelta := true)
             mvarId.assign e)
       fun ex => do
         if report then
@@ -422,7 +549,11 @@ mutual
         if (← occursCheck mvarId e) then
           mvarId.assign e
           return true
-      if let .some coerced ← coerce? e expectedType then
+      if let .some (coerced, expandedCoeDecls) ← coerceCollectingNames? e expectedType then
+        pushInfoLeaf (.ofCustomInfo {
+          stx := mvarSyntheticDecl.stx
+          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
+        })
         if (← occursCheck mvarId coerced) then
           mvarId.assign coerced
           return true
@@ -441,7 +572,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length

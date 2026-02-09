@@ -8,79 +8,53 @@ This also serves as documentation to the `NoConfusionLinear` module, so do not d
 from this file without updating that module's docstring.
 -/
 
+-- set_option debug.skipKernelTC true
+-- set_option trace.Meta.mkNoConfusion true
+-- set_option trace.Kernel true
+-- set_option genInjectivity false
+-- set_option trace.Meta.injective true
+-- set_option trace.Meta.Tactic.injection true
+
 inductive Vec.{u} (α : Type) : Nat → Type u where
   | nil : Vec α 0
-  | cons {n} : α → Vec α n → Vec α (n + 1)
+  | cons1 {n} : α → Vec α n → Vec α (n + 1)
+  | cons2 {n} : α → Vec α n → Vec α (n + 1)
 
-@[reducible] protected def Vec.noConfusionType.withCtorType'.{u_1, u} :
-    Type → Type u_1 → Nat → Type (max (u + 1) u_1) := fun α P ctorIdx =>
-  bif Nat.blt ctorIdx 1
-  then PUnit.{u + 2} → P
-  else PUnit.{u + 2} → {n : Nat} → α → Vec.{u} α n → P
-
-/--
-info: @[reducible] protected def Vec.noConfusionType.withCtorType.{u_1, u} : Type → Type u_1 → Nat → Type (max (u + 1) u_1) :=
-fun α P ctorIdx => bif ctorIdx.blt 1 then PUnit → P else PUnit → {n : Nat} → α → Vec α n → P
--/
-#guard_msgs in
-#print Vec.noConfusionType.withCtorType
-
-example : @Vec.noConfusionType.withCtorType.{u_1,u} = @Vec.noConfusionType.withCtorType'.{u_1,u} := rfl
-
-@[reducible] protected noncomputable def Vec.noConfusionType.withCtor'.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType' α P ctorIdx → P → (a : Nat) → Vec.{u} α a → P :=
-fun _α _P ctorIdx k k' _a x =>
-  Vec.casesOn x
-    (if h : ctorIdx = 0 then Eq.ndrec k h PUnit.unit else k')
-    (fun a a_1 => if h : ctorIdx = 1 then Eq.ndrec k h PUnit.unit a a_1 else k')
-
-/--
-info: @[reducible] protected def Vec.noConfusionType.withCtor.{u_1, u} : (α : Type) →
-  (P : Type u_1) → (ctorIdx : Nat) → Vec.noConfusionType.withCtorType α P ctorIdx → P → (a : Nat) → Vec α a → P :=
-fun α P ctorIdx k k' a x =>
-  Vec.casesOn x (if h : ctorIdx = 0 then (h ▸ k) PUnit.unit else k') fun {n} a a_1 =>
-    if h : ctorIdx = 1 then (h ▸ k) PUnit.unit a a_1 else k'
--/
-#guard_msgs in
-#print Vec.noConfusionType.withCtor
-
-example : @Vec.noConfusionType.withCtor.{u_1,u} = @Vec.noConfusionType.withCtor'.{u_1,u} := rfl
-
-@[reducible] protected def Vec.noConfusionType'.{u_1, u} : {α : Type} →
-  {a : Nat} → Sort u_1 → Vec.{u} α a → Vec α a → Sort u_1 :=
-fun {α} {a} P x1 x2 =>
+@[reducible] protected def Vec.noConfusionType'.{u_1, u} : Sort u_1 →
+  {α : Type} → {a : Nat} → Vec.{u} α a →
+  {α : Type} → {a : Nat} → Vec α a → Sort u_1 :=
+fun P _ _ x1 _ _ x2 =>
   Vec.casesOn x1
-    (Vec.noConfusionType.withCtor' α (Sort u_1) 0 (fun _x => P → P) P a x2)
-    (fun {n} a_1 a_2 => Vec.noConfusionType.withCtor' α (Sort u_1) 1 (fun _x {n_1} a a_3 => (n = n_1 → a_1 = a → HEq a_2 a_3 → P) → P) P a x2)
+    (if h : x2.ctorIdx = 0 then
+      Vec.nil.elim (motive := fun _ _ => Sort u_1) x2 h (P → P)
+    else P)
+    (fun {n} a_1 a_2 => if h : x2.ctorIdx = 1 then
+      Vec.cons1.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 ≍ a → a_2 ≍ a_3 → P) → P
+     else P)
+    (fun {n} a_1 a_2 => if h : x2.ctorIdx = 2 then
+      Vec.cons2.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 ≍ a → a_2 ≍ a_3 → P) → P
+     else P)
 
 /--
-info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : {α : Type} →
-  {a : Nat} → Sort u_1 → Vec α a → Vec α a → Sort u_1 :=
-fun {α} {a} P x1 x2 =>
-  Vec.casesOn x1 (Vec.noConfusionType.withCtor α (Sort u_1) 0 (fun x => P → P) P a x2) fun {n} a_1 a_2 =>
-    Vec.noConfusionType.withCtor α (Sort u_1) 1 (fun x {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P) P a x2
+info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : Sort u_1 →
+  {α : Type} → {a : Nat} → Vec α a → {α' : Type} → {a' : Nat} → Vec α' a' → Sort u_1 :=
+fun P {α} {a} t {α'} {a'} t' =>
+  Vec.casesOn t (if h : t'.ctorIdx = 0 then Vec.nil.elim t' h (P → P) else P)
+    (fun {n} a a_1 =>
+      if h : t'.ctorIdx = 1 then Vec.cons1.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a ≍ a_2 → a_1 ≍ a_3 → P) → P
+      else P)
+    fun {n} a a_1 =>
+    if h : t'.ctorIdx = 2 then Vec.cons2.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a ≍ a_2 → a_1 ≍ a_3 → P) → P else P
 -/
 #guard_msgs in
 #print Vec.noConfusionType
 
 example : @Vec.noConfusionType.{u_1,u} = @Vec.noConfusionType'.{u_1,u} := rfl
 
-/-
-run_meta do
-  let mut i := 0
-  for (n, _c) in (← getEnv).constants do
-    if let .str indName "noConfusion" := n then
-      let ConstantInfo.inductInfo _ ← getConstInfo indName | continue
-      logInfo m!"Looking at {.ofConstName indName}"
-      mkToCtorIdx' indName
-      mkWithCtorType indName
-      mkWithCtor indName
-      mkNoConfusionType' indName
-      i := i + 1
-      if i > 10 then
-        return
--/
 
--- inductive Enum.{u} : Type u where | a | b
--- set_option pp.universes true in
--- #print noConfusionTypeEnum
+-- A possibly tricky universes case (resulting universe cannot be decremented)
+
+inductive UnivTest.{u,v} (α : Sort v): Sort (max u v 1) where
+  | mk1 : UnivTest α
+  | mk2 : (x : α) → UnivTest α
+  | mk3 : (x : α) → UnivTest α

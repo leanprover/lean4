@@ -7,8 +7,16 @@ module
 
 prelude
 import all Init.Data.Array.Basic
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
 import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Count
 import Init.Data.List.Nat.Count
+
+public section
 
 /-!
 # Lemmas about `Array.countP` and `Array.count`.
@@ -60,12 +68,12 @@ theorem size_eq_countP_add_countP {xs : Array α} : xs.size = countP p xs + coun
   rcases xs with ⟨xs⟩
   simp [List.length_eq_countP_add_countP (p := p)]
 
-@[grind _=_]
 theorem countP_eq_size_filter {xs : Array α} : countP p xs = (filter p xs).size := by
   rcases xs with ⟨xs⟩
   simp [List.countP_eq_length_filter]
 
-@[grind =]
+grind_pattern countP_eq_size_filter => xs.countP p, xs.filter p
+
 theorem countP_eq_size_filter' : countP p = size ∘ filter p := by
   funext xs
   apply countP_eq_size_filter
@@ -90,15 +98,24 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   rcases xs with ⟨xs⟩
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Array.countP_eq_zero_of_forall {xs : Array α} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Array.not_of_countP_eq_zero_of_mem {xs : Array α} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Array.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} : countP p xs = xs.size ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs⟩
   simp
 
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
-
-@[deprecated countP_replicate (since := "2025-03-18")]
-abbrev countP_mkArray := @countP_replicate
 
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
@@ -223,7 +240,7 @@ theorem boole_getElem_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.si
 @[grind =]
 theorem count_set {xs : Array α} {i : Nat} {a b : α} (h : i < xs.size) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
-  simp [count_eq_countP, countP_set, h]
+  simp [count_eq_countP, countP_set]
 
 variable [LawfulBEq α]
 
@@ -231,7 +248,7 @@ variable [LawfulBEq α]
   simp [count_push]
 
 @[simp] theorem count_push_of_ne {xs : Array α} (h : b ≠ a) : count a (xs.push b) = count a xs := by
-  simp_all [count_push, h]
+  simp_all [count_push]
 
 theorem count_singleton_self {a : α} : count a #[a] = 1 := by simp
 
@@ -260,14 +277,8 @@ theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a
 @[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n := by
   simp [← List.toArray_replicate]
 
-@[deprecated count_replicate_self (since := "2025-03-18")]
-abbrev count_mkArray_self := @count_replicate_self
-
 theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   simp [← List.toArray_replicate, List.count_replicate]
-
-@[deprecated count_replicate (since := "2025-03-18")]
-abbrev count_mkArray := @count_replicate
 
 theorem filter_beq {xs : Array α} (a : α) : xs.filter (· == a) = replicate (count a xs) a := by
   rcases xs with ⟨xs⟩
@@ -282,9 +293,6 @@ theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs
   rw [← toList_inj]
   simp [List.replicate_count_eq_of_count_eq_length (by simpa using h)]
 
-@[deprecated replicate_count_eq_of_count_eq_size (since := "2025-03-18")]
-abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
-
 @[simp] theorem count_filter {xs : Array α} (h : p a) : count a (filter p xs) = count a xs := by
   rcases xs with ⟨xs⟩
   simp [List.count_filter, h]
@@ -292,17 +300,17 @@ abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 theorem count_le_count_map [BEq β] [LawfulBEq β] {xs : Array α} {f : α → β} {x : α} :
     count x xs ≤ count (f x) (map f xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_le_count_map, countP_map]
+  simp [List.count_le_count_map]
 
 theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {xs : Array α} :
     count b (filterMap f xs) = countP (fun a => f a == some b) xs := by
   rcases xs with ⟨xs⟩
-  simp [List.count_filterMap, countP_filterMap]
+  simp [List.count_filterMap]
 
 theorem count_flatMap {α} [BEq β] {xs : Array α} {f : α → Array β} {x : β} :
     count x (xs.flatMap f) = sum (map (count x ∘ f) xs) := by
   rcases xs with ⟨xs⟩
-  simp [List.count_flatMap, countP_flatMap, Function.comp_def]
+  simp [List.count_flatMap, Function.comp_def]
 
 theorem countP_replace {a b : α} {xs : Array α} {p : α → Bool} :
     (xs.replace a b).countP p =

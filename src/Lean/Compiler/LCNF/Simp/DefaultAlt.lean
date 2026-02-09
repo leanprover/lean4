@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -15,10 +19,10 @@ and the number of occurrences.
 We use this function to decide whether to create a `.default` case
 or not.
 -/
-private def getMaxOccs (alts : Array Alt) : Alt × Nat := Id.run do
+private def getMaxOccs (alts : Array (Alt .pure)) : Alt .pure × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getNumOccsOf alts 0
-  for h : i in [1:alts.size] do
+  for h : i in 1...alts.size do
     let curr := getNumOccsOf alts i
     if curr > max then
        maxAlt := alts[i]
@@ -31,10 +35,10 @@ where
   Note that the number of occurrences can be greater than 1 only when
   the alternative does not depend on field parameters
   -/
-  getNumOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
+  getNumOccsOf (alts : Array (Alt .pure)) (i : Nat) : Nat := Id.run do
     let code := alts[i]!.getCode
     let mut n := 1
-    for h : j in [i+1:alts.size] do
+    for h : j in (i+1)...alts.size do
       if Code.alphaEqv alts[j].getCode code then
         n := n+1
     return n
@@ -43,7 +47,7 @@ where
 Add a default case to the given `cases` alternatives if there
 are alternatives with equivalent (aka alpha equivalent) right hand sides.
 -/
-def addDefaultAlt (alts : Array Alt) : SimpM (Array Alt) := do
+def addDefaultAlt (alts : Array (Alt .pure)) : SimpM (Array (Alt .pure)) := do
   if alts.size <= 1 || alts.any (· matches .default ..) then
     return alts
   else

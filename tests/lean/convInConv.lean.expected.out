@@ -17,4 +17,4 @@ y : Nat
 | (fun x => y + x = 0) = fun x => False
 y : Nat
 ⊢ (fun x => y + x = 0) = fun x => False
-convInConv.lean:15:8-15:12: warning: declaration uses 'sorry'
+convInConv.lean:15:8-15:12: warning: declaration uses `sorry`

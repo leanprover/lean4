@@ -3,12 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Siddhartha Gadgil
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Meta.SynthInstance
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.Util
-import Lean.PrettyPrinter
+public import Lean.Meta.Tactic.Util
+public import Lean.PrettyPrinter
+import Lean.Meta.AppBuilder
+import Init.Omega
+
+public section
 
 namespace Lean.Meta
 /--
@@ -32,7 +35,7 @@ private def throwApplyError {α} (mvarId : MVarId)
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
     let conclusion := if conclusionType?.isNone then "type" else "conclusion"
     return m!"could not unify the {conclusion} of {term?.getD "the term"}{indentExpr conclusionType}\n\
-      with the goal{indentExpr targetType}{note}"
+      with the goal{indentExpr targetType}{note}{← mkUnfoldAxiomsNote conclusionType targetType}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (mvarsNew : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit := do
@@ -189,16 +192,16 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     ```
     -/
     let rangeNumArgs ← if hasMVarHead then
-      pure [numArgs : numArgs+1]
+      pure numArgs...(numArgs+1)
     else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      pure [numArgs - targetTypeNumArgs : numArgs+1]
+      pure (numArgs - targetTypeNumArgs)...(numArgs+1)
     /-
     Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
     See comment above
     -/
     let rec go (i : Nat) : MetaM (Array Expr × Array BinderInfo) := do
-      if i < rangeNumArgs.stop then
+      if i < rangeNumArgs.upper then
         let s ← saveState
         let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
         if (← isDefEqApply cfg.approx eType targetType) then
@@ -208,14 +211,14 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
           go (i+1)
       else
 
-        let conclusionType? ← if rangeNumArgs.start = 0 then
+        let conclusionType? ← if rangeNumArgs.lower = 0 then
           pure none
         else
-          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
+          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.lower)
           pure (some r)
         throwApplyError mvarId eType conclusionType? targetType term?
-      termination_by rangeNumArgs.stop - i
-    let (newMVars, binderInfos) ← go rangeNumArgs.start
+      termination_by rangeNumArgs.upper - i
+    let (newMVars, binderInfos) ← go rangeNumArgs.lower
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)

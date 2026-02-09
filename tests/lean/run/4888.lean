@@ -5,14 +5,14 @@ https://github.com/leanprover/lean4/issues/4888
 -/
 
 /--
-error: Application type mismatch: In the application
-  Nat.succ True
-the argument
+error: Application type mismatch: The argument
   True
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  Nat.succ True
 -/
 #guard_msgs in
 theorem bug: True := by
@@ -44,7 +44,7 @@ theorem kernel_declaration_meta_variables (x y z : Option Int) : (x = y) ↔ (x 
 /-!
 Regression test: `all_goals` still respects recovery state.
 -/
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 example (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim

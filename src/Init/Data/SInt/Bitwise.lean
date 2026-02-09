@@ -7,11 +7,16 @@ module
 
 prelude
 import all Init.Data.UInt.Basic
-import Init.Data.UInt.Bitwise
 import all Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Lemmas
 import all Init.Data.SInt.Basic
+public import Init.Data.SInt.Basic
+public import Init.Ext
+import Init.Data.BitVec.Bitblast
 import Init.Data.SInt.Lemmas
+import Init.System.Platform
+
+public section
 
 set_option hygiene false in
 macro "declare_bitwise_int_theorems" typeName:ident bits:term:arg : command =>
@@ -715,7 +720,7 @@ theorem ISize.shiftLeft_or {a b c : ISize} : (a ||| b) <<< c = (a <<< c) ||| (b 
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← Int16.shiftLeft_or]
 @[simp] theorem Int32.neg_one_shiftLeft_or_shiftLeft {a b : Int32} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← Int32.shiftLeft_or]
-@[simp] theorem Int64.neg_one_shiftLeft_or_shiftLeft {a b : Int8} :
+@[simp] theorem Int64.neg_one_shiftLeft_or_shiftLeft {a b : Int64} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← Int64.shiftLeft_or]
 @[simp] theorem ISize.neg_one_shiftLeft_or_shiftLeft {a b : ISize} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← ISize.shiftLeft_or]

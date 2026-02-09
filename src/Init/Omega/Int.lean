@@ -6,8 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Fin.Basic
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.ByCases
+import Init.Data.Int.Lemmas
 import Init.Data.Int.Order
+import Init.PropLemmas
+
+public section
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
@@ -53,7 +60,7 @@ theorem ofNat_shiftRight_eq_div_pow {x y : Nat} : (x >>> y : Int) = (x : Int) / 
   simp only [Nat.shiftRight_eq_div_pow, Int.natCast_ediv]
 
 theorem emod_ofNat_nonneg {x : Nat} {y : Int} : 0 ≤ (x : Int) % y :=
-  Int.ofNat_zero_le _
+  Int.natCast_nonneg _
 
 -- FIXME these are insane:
 theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h
@@ -87,7 +94,7 @@ theorem le_of_ge {x y : Int} (h : x ≥ y) : y ≤ x := ge_iff_le.mp h
 
 theorem ofNat_mul_nonneg {a b : Nat} : 0 ≤ (a : Int) * b := by
   rw [← Int.natCast_mul]
-  exact Int.ofNat_zero_le (a * b)
+  exact Int.natCast_nonneg (a * b)
 
 theorem ofNat_sub_eq_zero {b a : Nat} (h : ¬ b ≤ a) : ((a - b : Nat) : Int) = 0 :=
   Int.ofNat_eq_zero.mpr (Nat.sub_eq_zero_of_le (Nat.le_of_lt (Nat.not_le.mp h)))
@@ -120,9 +127,9 @@ theorem ofNat_max (a b : Nat) : ((max a b : Nat) : Int) = max (a : Int) (b : Int
 theorem ofNat_natAbs (a : Int) : (a.natAbs : Int) = if 0 ≤ a then a else -a := by
   rw [Int.natAbs.eq_def]
   split <;> rename_i n
-  · simp only [Int.ofNat_eq_coe]
+  · simp only [Int.ofNat_eq_natCast]
     rw [if_pos (Int.natCast_nonneg n)]
-  · simp; rfl
+  · simp
 
 theorem natAbs_dichotomy {a : Int} : 0 ≤ a ∧ a.natAbs = a ∨ a < 0 ∧ a.natAbs = -a := by
   by_cases h : 0 ≤ a
@@ -155,10 +162,10 @@ theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ - b := by
   rw [add_le_iff_le_sub, Int.zero_sub]
 theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, add_le_zero_iff_le_neg]
-theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
+theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [le_add_iff_sub_le, Int.zero_sub]
-theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
-  rw [Int.add_comm, add_nonnneg_iff_neg_le]
+theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
+  rw [Int.add_comm, add_nonneg_iff_neg_le]
 
 theorem ofNat_fst_mk {β} {x : Nat} {y : β} : (Prod.mk x y).fst = (x : Int) := rfl
 theorem ofNat_snd_mk {α} {x : α} {y : Nat} : (Prod.mk x y).snd = (y : Int) := rfl

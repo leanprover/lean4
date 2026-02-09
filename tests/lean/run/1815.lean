@@ -5,7 +5,7 @@ abbrev Right (a : α): α := default * a
 
 theorem mul_comm (a b : α) : a * b = b * a := sorry
 
-set_option trace.Meta.Tactic.simp true
+set_option trace.Meta.Tactic.simp.rewrite true
 /--
 trace: [Meta.Tactic.simp.rewrite] mul_comm:1000:perm, perm rejected Left a ==> default * a
 [Meta.Tactic.simp.rewrite] mul_comm:1000:perm:

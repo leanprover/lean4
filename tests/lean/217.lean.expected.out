@@ -1,6 +1,6 @@
-217.lean:5:30-5:31: error: don't know how to synthesize placeholder for argument 'init'
+217.lean:5:30-5:31: error: don't know how to synthesize placeholder for argument `init`
 context:
 ⊢ CoreM Unit
-217.lean:5:28-5:29: error: don't know how to synthesize placeholder for argument 'f'
+217.lean:5:28-5:29: error: don't know how to synthesize placeholder for argument `f`
 context:
 ⊢ CoreM Unit → Name → ConstantInfo → CoreM Unit

@@ -52,9 +52,13 @@ def Nat.foo : F := { f := fun _ b => b }
 
 -- Intentionally fails:
 /--
-error: invalid field notation, function 'Nat.foo' has argument with the expected type
+error: Invalid field notation: `Nat.foo.f` (coerced from `Nat.foo`) has a parameter with expected type
   Nat
 but it cannot be used
+
+Note: Field notation cannot refer to parameter `b` by name because that constant was coerced to a function
+
+Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)
 ---
 info: fun n => sorry : (n : Nat) → ?_ n
 -/
@@ -79,16 +83,21 @@ def Bar.bar : Bar true := {}
 /-- info: fun f => (fun x => false) f : Bar false → Bool -/
 #guard_msgs in #check fun (f : Bar false) => Bar.bar false f
 /--
-error: invalid field notation, function 'Bar.bar' does not have argument with type (Bar ...) that can be used, it must be explicit or implicit with a unique name
+error: Invalid field notation: Function `Bar.mk` (coerced from `Bar.bar`) does not have a usable parameter of type `Bar ...` for which to substitute `f`
+
+Note: Such a parameter must be explicit, or implicit with a unique name, to be used by field notation
 ---
 info: fun f => sorry : (f : Bar false) → ?_ f
 -/
-#guard_msgs in #check fun (f : Bar false) => f.bar false
+#guard_msgs in
+#check fun (f : Bar false) => f.bar false
 
 /-- info: fun f => (fun x => false) f : Bar false → Bool -/
 #guard_msgs in #check fun (f : Bar false) => Bar.bar true false f
 /--
-error: invalid field notation, function 'Bar.bar' does not have argument with type (Bar ...) that can be used, it must be explicit or implicit with a unique name
+error: Invalid field notation: Function `Bar.mk` (coerced from `Bar.bar`) does not have a usable parameter of type `Bar ...` for which to substitute `f`
+
+Note: Such a parameter must be explicit, or implicit with a unique name, to be used by field notation
 ---
 info: fun f => sorry : (f : Bar false) → ?_ f
 -/

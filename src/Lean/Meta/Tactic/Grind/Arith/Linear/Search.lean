@@ -3,17 +3,21 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
+public import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-
+import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 
 def IneqCnstr.throwUnexpected (c : IneqCnstr) : LinearM α := do
   throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
 
 def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : LinearM α := do
+  throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
+
+def EqCnstr.throwUnexpected (c :EqCnstr) : LinearM α := do
   throwError "`grind linarith` internal error, unexpected{indentD (← c.denoteExpr)}"
 
 private def checkIsNextVar (x : Var) : LinearM Unit := do
@@ -210,7 +214,7 @@ def hasAssignment : LinearM Bool := do
 private def findCase (decVars : FVarIdSet) : SearchM Case := do
   repeat
     let numCases := (← get).cases.size
-    assert! numCases > 0
+    unless numCases > 0 do throwError "`grind linarith` internal cases, cases stack is empty"
     let case := (← get).cases[numCases-1]!
     modify fun s => { s with cases := s.cases.pop }
     if decVars.contains case.fvarId then
@@ -236,12 +240,44 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
   trace[grind.debug.linarith.search.backtrack] "resolved diseq split: {← c'.denoteExpr}"
   c'.assert
 
+private def resetDecisionStack : SearchM Unit := do
+  if (← get).cases.isEmpty then
+    -- Nothing to reset
+    return ()
+  -- Backtrack changes but keep the assignment
+  let first := (← get).cases[0]!
+  modifyStruct fun s => { first.saved with assignment := s.assignment }
+
+/-- Assign eliminated variables using `elimEqs` field. -/
+private def assignElimVars : SearchM Unit := do
+  if (← inconsistent) then return ()
+  go (← getStruct).elimStack
+where
+  go (xs : List Var) : SearchM Unit := do
+    match xs with
+    | [] => return ()
+    | x :: xs =>
+      let some c := (← getStruct).elimEqs[x]!
+        | throwError "`grind` internal error, eliminated variable must have equation associated with it"
+      -- `x` may not be the max variable
+      let a := c.p.coeff x
+      if a == 0 then c.throwUnexpected
+      -- ensure `x` is 0 when evaluating `c.p`
+      modifyStruct fun s => { s with assignment := s.assignment.set x 0 }
+      let some v ← c.p.eval? | c.throwUnexpected
+      let v := (-v) / a
+      traceAssignment x v
+      modifyStruct fun s => { s with assignment := s.assignment.set x v }
+      go xs
+
 /-- Search for an assignment/model for the linear constraints. -/
 private def searchAssignmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.linarith.search] "main loop"
     checkSystem "linarith"
     if (← hasAssignment) then
+      trace[grind.debug.linarith.search] "found assignment"
+      assignElimVars
       return ()
     if (← isInconsistent) then
       -- `grind` state is inconsistent
@@ -254,7 +290,7 @@ private def searchAssignmentMain : SearchM Unit := do
       processVar x
 
 private def searchAssignment : LinearM Unit := do
-  searchAssignmentMain |>.run' {}
+  (do searchAssignmentMain; resetDecisionStack) |>.run' {}
 
 /--
 Returns `true` if work/progress has been done.
@@ -264,9 +300,9 @@ There are two kinds of progress:
 
 The result is `false` if module for every structure already has an assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind linarith" (← getOptions) do
   let mut progress := false
-  for structId in [:(← get').structs.size] do
+  for structId in *...(← get').structs.size do
     let r ← LinearM.run structId do
       if (← hasAssignment) then
         return false

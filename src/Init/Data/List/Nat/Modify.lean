@@ -7,8 +7,18 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Nat.TakeDrop
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.List.Erase
 import Init.Data.List.Nat.Erase
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -67,9 +77,12 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
 @[simp, grind =] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp, grind =] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
     (l.modifyHead f).take i = (l.take i).modifyHead f := by
   cases l <;> cases i <;> simp
+
+grind_pattern take_modifyHead => (l.modifyHead f).take i where
+  i =/= 0
 
 @[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
     (l.modifyHead f).drop i = l.drop i := by
@@ -102,7 +115,9 @@ theorem eraseIdx_eq_modifyTailIdx : ∀ i (l : List α), eraseIdx l i = l.modify
   | _+1, [] => rfl
   | _+1, _ :: _ => congrArg (cons _) (eraseIdx_eq_modifyTailIdx _ _)
 
-@[simp, grind =] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
+-- This is not suitable as a `@[grind =]` lemma:
+-- as soon as it is instantiated the hypothesis `H` causes an infinite chain of instantiations.
+@[simp] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
     ∀ (l : List α) i, (l.modifyTailIdx i f).length = l.length
   | _, 0 => H _
   | [], _+1 => rfl
@@ -172,12 +187,12 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     ∀ i (l : List α) j, (l.modify i f)[j]? = (fun a => if i = j then f a else a) <$> l[j]?
   | n, l, 0 => by cases l <;> cases n <;> simp
   | n, [], _+1 => by cases n <;> rfl
-  | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify, j.succ_ne_zero.symm]
+  | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify]
   | i+1, a :: l, j+1 => by
-    simp only [modify_succ_cons, getElem?_cons_succ, Nat.reduceEqDiff, Option.map_eq_map]
+    simp only [modify_succ_cons, getElem?_cons_succ, Option.map_eq_map]
     refine (getElem?_modify f i l j).trans ?_
     cases h' : l[j]? <;> by_cases h : i = j <;>
-      simp [h, if_pos, if_neg, Option.map, mt Nat.succ.inj, not_false_iff, h']
+      simp [h, Option.map]
 
 @[simp, grind =] theorem length_modify (f : α → α) : ∀ (l : List α) i, (l.modify i f).length = l.length :=
   length_modifyTailIdx _ fun l => by cases l <;> rfl
@@ -212,7 +227,6 @@ theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
     intro h
     omega
 
-@[grind =]
 theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     (l.modify i f).modify i g = l.modify i (g ∘ f) := by
   apply ext_getElem
@@ -221,12 +235,15 @@ theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     simp only [getElem_modify, Function.comp_apply]
     split <;> simp
 
+grind_pattern modify_modify_eq => (l.modify i f).modify i g where
+  l =/= []
+
 theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
     (l.modify i f).modify j g = (l.modify j g).modify i f := by
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
-    simp only [getElem_modify, getElem_modify_ne, h₂]
+    simp only [getElem_modify]
     split <;> split <;> first | rfl | omega
 
 theorem modify_eq_set [Inhabited α] (f : α → α) (i) (l : List α) :
@@ -234,7 +251,7 @@ theorem modify_eq_set [Inhabited α] (f : α → α) (i) (l : List α) :
   apply ext_getElem
   · simp
   · intro m h₁ h₂
-    simp [getElem_modify, getElem_set, h₂]
+    simp [getElem_modify, getElem_set]
     split <;> rename_i h
     · subst h
       simp only [length_modify] at h₁
@@ -287,7 +304,7 @@ theorem drop_modify_of_ge (f : α → α) (i j) (l : List α) (h : i ≥ j) :
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
-    simp [getElem_drop, getElem_modify, ite_eq_right_iff]
+    simp [getElem_drop, getElem_modify]
     split <;> split <;> first | rfl | omega
 
 theorem eraseIdx_modify_of_eq (f : α → α) (i) (l : List α) :

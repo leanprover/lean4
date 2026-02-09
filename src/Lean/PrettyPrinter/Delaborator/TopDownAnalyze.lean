@@ -3,18 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+module
+
 prelude
-import Lean.Data.RBMap
-import Lean.Meta.SynthInstance
-import Lean.Meta.CtorRecognizer
-import Lean.Util.FindMVar
-import Lean.Util.FindLevelMVar
-import Lean.Util.CollectLevelParams
-import Lean.Util.ReplaceLevel
-import Lean.PrettyPrinter.Delaborator.FieldNotation
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.Elab.Config
+public import Lean.Meta.SynthInstance
+public import Lean.Util.FindMVar
+public import Lean.Util.FindLevelMVar
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.ReplaceLevel
+public import Lean.PrettyPrinter.Delaborator.FieldNotation
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.Elab.Config
+
+public section
 
 /-!
 The top-down analyzer is an optional preprocessor to the delaborator that aims
@@ -30,7 +31,6 @@ open Meta SubExpr
 
 register_builtin_option pp.analyze : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping"
 }
 
@@ -40,68 +40,57 @@ register_builtin_option pp.analyze.checkInstances : Bool := {
   -- that would otherwise be easy to synthesize. We may consider threading the instances in the future,
   -- or at least tracking a bool for whether the instances have been lost.
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) confirm that instances can be re-synthesized"
 }
 
 register_builtin_option pp.analyze.typeAscriptions : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) add type ascriptions when deemed necessary"
 }
 
 register_builtin_option pp.analyze.trustSubst : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'"
 }
 
 register_builtin_option pp.analyze.trustOfNat : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
 }
 
 register_builtin_option pp.analyze.trustOfScientific : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up"
 }
 
 -- TODO: this is an arbitrary special case of a more general principle.
 register_builtin_option pp.analyze.trustSubtypeMk : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) assume the implicit arguments of Subtype.mk can be inferred"
 }
 
 register_builtin_option pp.analyze.trustId : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) always assume an implicit `fun x => x` can be inferred"
 }
 
 register_builtin_option pp.analyze.trustKnownFOType2TypeHOFuns : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type"
 }
 
 register_builtin_option pp.analyze.omitMax : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)"
 }
 
 register_builtin_option pp.analyze.knowsType : Bool := {
   defValue := true
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) assume the type of the original expression is known"
 }
 
 register_builtin_option pp.analyze.explicitHoles : Bool := {
   defValue := false
-  group    := "pp.analyze"
   descr    := "(pretty printer analyzer) use `_` for explicit arguments that can be inferred"
 }
 
@@ -308,7 +297,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     let args := e.getAppArgs
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
     let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType e.getAppArgs.size
-    for h : i in [:mvars.size] do
+    for h : i in *...mvars.size do
       if bInfos[i]! == BinderInfo.instImplicit then
         inspectOutParams args[i]! mvars[i]
       else if bInfos[i]! == BinderInfo.default then
@@ -328,7 +317,7 @@ def checkKnowsType : AnalyzeM Unit := do
     throw $ Exception.internal analyzeFailureId
 
 def annotateBoolAt (n : Name) (pos : Pos) : AnalyzeM Unit := do
-  let opts := (← get).annotations.findD pos {} |>.setBool n true
+  let opts := (← get).annotations.getD pos {} |>.set n true
   trace[pp.analyze.annotate] "{pos} {n}"
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 
@@ -480,14 +469,14 @@ mutual
     discard <| processPostponed (mayPostpone := true)
     applyFunBinderHeuristic
     analyzeFn
-    for i in [:(← read).args.size] do analyzeArg i
+    for i in *...(← read).args.size do analyzeArg i
     maybeSetExplicit
 
   where
     collectBottomUps := do
       let { args, mvars, bInfos, ..} ← read
       for target in [fun _ => none, fun i => some mvars[i]!] do
-        for h : i in [:args.size] do
+        for h : i in *...args.size do
           if bInfos[i]! == BinderInfo.default then
             if ← typeUnknown mvars[i]! <&&> canBottomUp args[i] (target i) then
               tryUnify args[i]! mvars[i]!
@@ -495,12 +484,12 @@ mutual
 
     checkOutParams := do
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if bInfos[i]! == BinderInfo.instImplicit then inspectOutParams args[i] mvars[i]!
 
     collectHigherOrders := do
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if !(bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
         if !(← isHigherOrder (← inferType args[i])) then continue
         if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i]! then continue
@@ -520,7 +509,7 @@ mutual
       -- motivation: prevent levels from printing in
       -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if bInfos[i]! == BinderInfo.default then
           if ← valUnknown mvars[i]! <&&> isTrivialBottomUp args[i] then
             tryUnify args[i]! mvars[i]!
@@ -533,7 +522,7 @@ mutual
         match ← getExpr, mvarType with
         | Expr.lam .., Expr.forallE _ t b .. =>
           let mut annotated := false
-          for i in [:argIdx] do
+          for i in *...argIdx do
             if ← pure (bInfos[i]! == BinderInfo.implicit) <&&> valUnknown mvars[i]! <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]!) then
               annotateBool `pp.funBinderTypes
               tryUnify args[i]! mvars[i]!
@@ -546,7 +535,7 @@ mutual
 
         | _, _ => return false
 
-      for i in [:args.size] do
+      for i in *...args.size do
         if bInfos[i]! == BinderInfo.default then
           let b ← withNaryArg i (core i (← inferType mvars[i]!))
           if b then modify fun s => { s with funBinders := s.funBinders.set! i true }
@@ -609,7 +598,7 @@ mutual
       let { f, args, bInfos, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
-        for i in [:args.size] do
+        for i in *...args.size do
           if !(← get).provideds[i]! then
             withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analysis.hole
           if bInfos[i]! == BinderInfo.instImplicit && getPPInstanceTypes (← getOptions) then

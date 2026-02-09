@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
-import Lean.Data.PersistentHashMap
+public import Std.Data.HashMap.Basic
+public import Lean.Data.PersistentHashMap
+
+public section
 universe u v w w'
 
 namespace Lean
@@ -28,7 +32,9 @@ namespace Lean
 -/
 structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   stage₁ : Bool         := true
+  /-- Imported constants. -/
   map₁   : Std.HashMap α β  := {}
+  /-- Local constants defined in the current module. -/
   map₂   : PHashMap α β := {}
 
 namespace SMap
@@ -74,10 +80,10 @@ def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
-instance : ForM m (SMap α β) (α × β) where
+instance [Monad m] : ForM m (SMap α β) (α × β) where
   forM s f := forM s fun x y => f (x, y)
 
-instance : ForIn m (SMap α β) (α × β) where
+instance [Monad m] : ForIn m (SMap α β) (α × β) where
   forIn := ForM.forIn
 
 /-- Move from stage 1 into stage 2. -/
@@ -88,7 +94,7 @@ def switch (m : SMap α β) : SMap α β :=
   m.map₂.foldl f s
 
 /-- Monadic fold over a staged map. -/
-def foldM {m : Type w → Type w} [Monad m]
+def foldM {m : Type w → Type w'} [Monad m]
     (f : σ → α → β → m σ) (init : σ) (map : SMap α β) : m σ := do
   map.map₂.foldlM f (← map.map₁.foldM f init)
 

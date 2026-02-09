@@ -3,11 +3,18 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Extension
--- necessary for auto-generation
-import Lean.PrettyPrinter.Parenthesizer
-import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
+-- for `run_builtin_parser_attribute_hooks`
+import all Lean.Parser.Types
+import all Lean.Parser.Basic
+import all Lean.Parser.Extension
+public meta import Lean.Hygiene
+
+public section
 
 namespace Lean
 namespace Parser
@@ -84,18 +91,22 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
 @[run_builtin_parser_attribute_hooks, builtin_doc] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
-/-- The parser `hygieneInfo` parses no text, but captures the current macro scope information
-as though it parsed an identifier at the current position. It returns a `hygieneInfoKind` node
-around an `.ident` which is `Name.anonymous` but with macro scopes like a regular identifier.
+/--
+The parser `hygieneInfo` parses no text, but creates a `hygieneInfoKind` node
+containing an anonymous identifier as if it were parsed at the current position.
+This identifier is modified by syntax quotations to add macro scopes like a regular identifier.
 
 This is used to implement `have := ...` syntax: the `hygieneInfo` between the `have` and `:=`
-substitutes for the identifier which would normally go there as in `have x :=`, so that we
-can expand `have :=` to `have this :=` while retaining the usual macro name resolution behavior.
+collects macro scopes, which we can apply to `this` when expanding to `have this := ...`.
 See [the language reference](lean-manual://section/macro-hygiene) for more information about
 macro hygiene.
 
-This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
-You can use `TSyntax.getHygieneInfo` to extract the name from the resulting syntax object. -/
+This is also used to implement cdot functions such as `(1 + ·)`. The opening parenthesis contains
+a `hygieneInfo` node as does the cdot, which lets cdot expansion hygienically associate parentheses to cdots.
+
+This parser has arity 1: it produces a `hygieneInfoKind` node containing an anonymous `Syntax.ident`.
+You can use `HygieneInfo.mkIdent` to create an `Ident` from the syntax object,
+but you can also use `TSyntax.getHygieneInfo` to get the raw name from the identifier. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def hygieneInfo : Parser :=
   withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
 
@@ -111,6 +122,17 @@ literal.
 You can use `TSyntax.getNat` to extract the number from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
+
+/-- The parser `hexnum` parses a hexadecimal numeric literal not containing the `0x` prefix.
+
+It produces a `hexnumKind` node containing an atom with the text of the
+literal. This parser is mainly used for creating atoms such `#<hexnum>`. Recall that `hexnum`
+is not a token and this parser must be prefixed by another parser.
+
+For numerals such as `0xadef100a`, you should use `numLit`.
+-/
+@[builtin_doc] def hexnum : Parser :=
+  withAntiquot (mkAntiquot "hexnum" hexnumKind) hexnumNoAntiquot
 
 /-- The parser `scientific` parses a scientific-notation literal, such as `1.3e-24`.
 
@@ -186,7 +208,7 @@ This parser has arity 1, and returns a list of the results from `p`.
   withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 open PrettyPrinter Syntax.MonadTraverser Formatter in
-@[combinator_formatter sepByIndent]
+@[combinator_formatter sepByIndent, expose]
 def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
   let stx ← getCur
   let hasNewlineSep := stx.getArgs.mapIdx (fun i n =>
@@ -201,7 +223,7 @@ def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : F
   if hasNewlineSep then
     pushAlign (force := true)
 
-@[combinator_formatter sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
+@[combinator_formatter sepBy1Indent, expose] def sepBy1Indent.formatter := sepByIndent.formatter
 
 attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 
@@ -262,24 +284,24 @@ end Parser
 section
 open PrettyPrinter Parser
 
-@[combinator_formatter ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
-@[combinator_formatter ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
-@[combinator_formatter ppLine] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
-@[combinator_formatter ppRealFill] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
-@[combinator_formatter ppRealGroup] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
-@[combinator_formatter ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
-@[combinator_formatter ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
+@[combinator_formatter ppHardSpace, expose] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
+@[combinator_formatter ppSpace, expose] def ppSpace.formatter : Formatter := Formatter.pushLine
+@[combinator_formatter ppLine, expose] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
+@[combinator_formatter ppRealFill, expose] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
+@[combinator_formatter ppRealGroup, expose] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
+@[combinator_formatter ppIndent, expose] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
+@[combinator_formatter ppDedent, expose] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
   Formatter.indent p (some ((0:Int) - Std.Format.getIndent opts))
 
-@[combinator_formatter ppAllowUngrouped] def ppAllowUngrouped.formatter : Formatter := do
+@[combinator_formatter ppAllowUngrouped, expose] def ppAllowUngrouped.formatter : Formatter := do
   modify ({ · with mustBeGrouped := false })
-@[combinator_formatter ppDedentIfGrouped] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
+@[combinator_formatter ppDedentIfGrouped, expose] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
   Formatter.concat p
   let indent := Std.Format.getIndent (← getOptions)
   unless (← get).isUngrouped do
     modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (·.nest (0 - indent)) }
-@[combinator_formatter ppHardLineUnlessUngrouped] def ppHardLineUnlessUngrouped.formatter : Formatter := do
+@[combinator_formatter ppHardLineUnlessUngrouped, expose] def ppHardLineUnlessUngrouped.formatter : Formatter := do
   if (← get).isUngrouped then
     Formatter.pushLine
   else
@@ -294,7 +316,11 @@ attribute [run_builtin_parser_attribute_hooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-syntax "register_parser_alias " group("(" &"kind" " := " term ") ")? (strLit ppSpace)? ident (ppSpace colGt term)? : term
+-- workaround: we want `ppSpace` below to refer to the built-in parser alias, not the def above that
+-- would require `meta` access
+end Parser
+
+syntax "register_parser_alias " group("(" &"kind" " := " term ") ")? (str ppSpace)? ident (ppSpace colGt term)? : term
 macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
     let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
@@ -305,6 +331,8 @@ macro_rules
     `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
          PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+
+open Parser
 
 builtin_initialize
   register_parser_alias patternIgnore { autoGroupArgs := false }
@@ -321,7 +349,5 @@ builtin_initialize
   register_parser_alias ppDedentIfGrouped { stackSz? := none }
   register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
   register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
-
-end Parser
 
 end Lean

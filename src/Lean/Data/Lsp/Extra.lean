@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Basic
-import Lean.Data.Lsp.TextSync
-import Lean.Server.Rpc.Basic
+public import Lean.Data.Lsp.TextSync
+public import Lean.Server.Rpc.Basic
+
+public section
 
 /-! This file contains Lean-specific extensions to LSP. See the structures below for which
 additional requests and notifications are supported. -/
@@ -60,8 +63,8 @@ an ILean finalization notification for the worker and the document version desig
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where
-  uri     : DocumentUri
-  version : Nat
+  uri?     : Option DocumentUri := none
+  version? : Option Nat := none
   deriving FromJson, ToJson
 
 structure WaitForILeans where
@@ -122,6 +125,13 @@ structure PlainTermGoal where
   deriving FromJson, ToJson
 
 structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
   deriving FromJson, ToJson
 
 structure LeanModule where

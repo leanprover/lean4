@@ -1,6 +1,30 @@
+{"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+ "range":
+ {"start": {"line": 4, "character": 5}, "end": {"line": 4, "character": 5}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: termination_by (n, m)",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 4, "character": 0},
+        "end": {"line": 4, "character": 15}},
+       "newText": "termination_by (n, m)"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+    "range":
+    {"start": {"line": 4, "character": 5}, "end": {"line": 4, "character": 5}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: termination_by (n, m):
 {"title": "Try this: termination_by (n, m)",
  "kind": "quickfix",
- "isPreferred": true,
  "edit":
  {"documentChanges":
   [{"textDocument":
@@ -9,10 +33,44 @@
     [{"range":
       {"start": {"line": 4, "character": 0},
        "end": {"line": 4, "character": 15}},
-      "newText": "termination_by (n, m)"}]}]}}
+      "newText": "termination_by (n, m)"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+   "range":
+   {"start": {"line": 4, "character": 5}, "end": {"line": 4, "character": 5}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+ "range":
+ {"start": {"line": 11, "character": 5}, "end": {"line": 11, "character": 5}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: termination_by structural n",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 11, "character": 0},
+        "end": {"line": 11, "character": 15}},
+       "newText": "termination_by structural n"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+    "range":
+    {"start": {"line": 11, "character": 5},
+     "end": {"line": 11, "character": 5}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: termination_by structural n:
 {"title": "Try this: termination_by structural n",
  "kind": "quickfix",
- "isPreferred": true,
  "edit":
  {"documentChanges":
   [{"textDocument":
@@ -21,10 +79,44 @@
     [{"range":
       {"start": {"line": 11, "character": 0},
        "end": {"line": 11, "character": 15}},
-      "newText": "termination_by structural n"}]}]}}
+      "newText": "termination_by structural n"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+   "range":
+   {"start": {"line": 11, "character": 5}, "end": {"line": 11, "character": 5}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+ "range":
+ {"start": {"line": 17, "character": 5}, "end": {"line": 17, "character": 5}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: termination_by structural x => x",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 17, "character": 0},
+        "end": {"line": 17, "character": 15}},
+       "newText": "termination_by structural x => x"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+    "range":
+    {"start": {"line": 17, "character": 5},
+     "end": {"line": 17, "character": 5}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: termination_by structural x => x:
 {"title": "Try this: termination_by structural x => x",
  "kind": "quickfix",
- "isPreferred": true,
  "edit":
  {"documentChanges":
   [{"textDocument":
@@ -33,10 +125,44 @@
     [{"range":
       {"start": {"line": 17, "character": 0},
        "end": {"line": 17, "character": 15}},
-      "newText": "termination_by structural x => x"}]}]}}
+      "newText": "termination_by structural x => x"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+   "range":
+   {"start": {"line": 17, "character": 5}, "end": {"line": 17, "character": 5}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+ "range":
+ {"start": {"line": 24, "character": 5}, "end": {"line": 24, "character": 5}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: termination_by n",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 24, "character": 0},
+        "end": {"line": 24, "character": 15}},
+       "newText": "termination_by n"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+    "range":
+    {"start": {"line": 24, "character": 5},
+     "end": {"line": 24, "character": 5}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: termination_by n:
 {"title": "Try this: termination_by n",
  "kind": "quickfix",
- "isPreferred": true,
  "edit":
  {"documentChanges":
   [{"textDocument":
@@ -45,10 +171,44 @@
     [{"range":
       {"start": {"line": 24, "character": 0},
        "end": {"line": 24, "character": 15}},
-      "newText": "termination_by n"}]}]}}
+      "newText": "termination_by n"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+   "range":
+   {"start": {"line": 24, "character": 5}, "end": {"line": 24, "character": 5}},
+   "context": {"diagnostics": []}}}}
+{"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+ "range":
+ {"start": {"line": 31, "character": 5}, "end": {"line": 31, "character": 5}},
+ "context": {"diagnostics": []}}
+[{"title": "Try this: termination_by x1 => x1",
+  "kind": "quickfix",
+  "edit":
+  {"documentChanges":
+   [{"textDocument":
+     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+     "edits":
+     [{"range":
+       {"start": {"line": 31, "character": 0},
+        "end": {"line": 31, "character": 15}},
+       "newText": "termination_by x1 => x1"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+    "range":
+    {"start": {"line": 31, "character": 5},
+     "end": {"line": 31, "character": 5}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: termination_by x1 => x1:
 {"title": "Try this: termination_by x1 => x1",
  "kind": "quickfix",
- "isPreferred": true,
  "edit":
  {"documentChanges":
   [{"textDocument":
@@ -57,4 +217,13 @@
     [{"range":
       {"start": {"line": 31, "character": 0},
        "end": {"line": 31, "character": 15}},
-      "newText": "termination_by x1 => x1"}]}]}}
+      "newText": "termination_by x1 => x1"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///terminationBySuggestion.lean"},
+   "range":
+   {"start": {"line": 31, "character": 5}, "end": {"line": 31, "character": 5}},
+   "context": {"diagnostics": []}}}}

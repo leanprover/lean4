@@ -31,7 +31,7 @@ Decimal tests
 #guard_msgs in #term "(1_00_)"
 -- Starting with `_` is an identifier:
 /--
-error: unknown identifier '_10'
+error: Unknown identifier `_10`
 ---
 info: sorry : ?_
 -/
@@ -46,8 +46,8 @@ Scientific tests
 #guard_msgs in #term "100_000.0"
 /-- info: 0. : Float -/
 #guard_msgs in #term "0."
--- The decimal parser requires a digit at the start, so the `_` is left over:
-/-- error: <input>:1:4: expected end of input -/
+-- The decimal parser requires a digit at the start, so the `_` is left over and read as a distinct identifier:
+/-- error: <input>:1:0: unexpected identifier after decimal point; consider parenthesizing the number -/
 #guard_msgs in #term "100._"
 /-- info: 100.111111 : Float -/
 #guard_msgs in #term "100.111_111"

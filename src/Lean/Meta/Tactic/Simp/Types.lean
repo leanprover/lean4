@@ -3,16 +3,23 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Eqns
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Simp.SimpTheorems
+public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.SimpCongrTheorems
-
+import Init.Data.Nat.Linear
+public section
 namespace Lean.Meta
 namespace Simp
+
+register_builtin_option backward.dsimp.instances : Bool := {
+    defValue := false
+    descr    := "Let `dsimp` and `simp` simplify instance terms"
+  }
 
 /-- The result of simplifying some expression `e`. -/
 structure Result where
@@ -69,7 +76,7 @@ structure Context where
   /--
   Stores the "parent" term for the term being simplified.
   If a simplification procedure result depends on this value,
-  then it is its reponsability to set `Result.cache := false`.
+  then it is its responsibility to set `Result.cache := false`.
 
   Motivation for this field:
   Suppose we have a simplification procedure for normalizing arithmetic terms.
@@ -107,7 +114,7 @@ structure Context where
   lctxInitIndices   : Nat := 0
   /--
   If `inDSimp := true`, then `simp` is in `dsimp` mode, and only applying
-  transformations that presereve definitional equality.
+  transformations that preserve definitional equality.
   -/
   inDSimp : Bool := false
   deriving Inhabited
@@ -134,6 +141,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
@@ -152,8 +160,9 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
   let curr ← Meta.getConfig
   return { curr with
     beta         := c.beta
-    zeta         := c.zeta
     iota         := c.iota
+    zeta         := c.zeta
+    zetaHave     := c.zetaHave
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
@@ -163,6 +172,7 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
 
 def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
   let config ← updateArith config
+  let config ← if backward.dsimp.instances.get (← getOptions) then pure { config with instances := true } else pure config
   return {
     config, simpTheorems, congrTheorems
     metaConfig := (← mkMetaConfig config)
@@ -204,6 +214,9 @@ structure UsedSimps where
   size : Nat := 0
   deriving Inhabited
 
+def UsedSimps.contains (s : UsedSimps) (thmId : Origin) : Bool :=
+  s.map.contains thmId
+
 def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
   if s.map.contains thmId then
     s
@@ -244,9 +257,10 @@ structure Stats where
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+def MethodsRef : Type := MethodsRefPointed.type
 
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+instance : Nonempty MethodsRef :=
+  by exact MethodsRefPointed.property
 
 abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
@@ -549,6 +563,13 @@ def Result.mkEqMPR (r : Simp.Result) (e : Expr) : MetaM Expr := do
   else
     Meta.mkEqMPR (← r.getProof) e
 
+/-- Construct the `Expr` `h.mp e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkEqMP (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  if r.proof?.isNone && r.expr == e then
+    pure e
+  else
+    Meta.mkEqMP (← r.getProof) e
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
@@ -577,7 +598,7 @@ def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
 partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
   let mut args := e.getAppArgs
   let mut modified := false
-  for i in [:args.size] do
+  for i in *...args.size do
     let arg := args[i]!
     if isDummyEqRec arg then
       args := args.set! i (elimDummyEqRec arg)
@@ -612,12 +633,12 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
       if h : i < infos.size then
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
-        if cfg.ground && info.isInstImplicit then
-          -- We don't visit instance implicit arguments when we are reducing ground terms.
-          -- Motivation: many instance implicit arguments are ground, and it does not make sense
-          -- to reduce them if the parent term is not ground.
-          -- TODO: consider using it as the default behavior.
-          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+        if info.isInstance && (!cfg.instances || cfg.ground) then
+          /-
+          **Note**: We don't visit instance implicit arguments when we are reducing ground terms.
+          Motivation: many instance implicit arguments are ground, and it does not make sense
+          to reduce them if the parent term is not ground.
+          -/
           r ← mkCongrFun r arg
         else if !info.hasFwdDeps then
           r ← mkCongr r (← simp arg)
@@ -632,27 +653,127 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
       i := i + 1
     return r
 
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrFun' (e : Expr) (r : Result) (a : Expr) : MetaM Result := do
+  let e' := e.updateApp! r.expr a
+  match r.proof? with
+  | none   => return { expr := e', proof? := none }
+  | some hf =>
+    let α ← inferType a
+    let u ← getLevel α
+    let v ← getLevel (← inferType e)
+    let f := e.appFn!
+    let .forallE x _ βx _ ← whnfD (← inferType f)
+      | throwError "failed to build congruence proof, function expected{indentExpr f}"
+    let β := Lean.mkLambda x .default α βx
+    return { expr := e', proof? := mkApp6 (mkConst ``congrFun [u, v]) α β f r.expr hf a }
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrPrefix (declName : Name) (e : Expr) : MetaM Expr := do
+  let α ← inferType e.appArg!
+  let u ← getLevel α
+  let β ← inferType e
+  let v ← getLevel β
+  return mkApp2 (mkConst declName [u, v]) α β
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrArg' (e : Expr) (f : Expr) (r : Result) : MetaM Result := do
+  let e' := e.updateApp! f r.expr
+  match r.proof? with
+  | none   => return { expr := e', proof? := none }
+  | some ha =>
+    let h ← mkCongrPrefix ``congrArg e
+    return { expr := e', proof? := mkApp4 h e.appArg! r.expr f ha }
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongr' (e : Expr) (r₁ r₂ : Result) : MetaM Result := do
+  let e' := e.updateApp! r₁.expr r₂.expr
+  match r₁.proof?, r₂.proof? with
+  | none,    none    => return { expr := e', proof? := none }
+  | some hf,  none    =>
+    let h ← mkCongrPrefix ``congrFun' e
+    return { expr := e', proof? := mkApp4 h e.appFn! r₁.expr hf r₂.expr }
+  | none,    some ha  =>
+    let h ← mkCongrPrefix ``congrArg e
+    return { expr := e', proof? := mkApp4 h e.appArg! r₂.expr r₁.expr ha }
+  | some hf, some ha =>
+    let h ← mkCongrPrefix ``congr e
+    return { expr := e', proof? := mkApp6 h e.appFn! r₁.expr e.appArg! r₂.expr hf ha }
+
+/--
+Given an application `e`, recursively simplifies its function and arguments and constructs a proof
+using `congrArg`, `congrFun`, `congrFun'` and `congr`.
+-/
+def simpAppUsingCongr (e : Expr) : SimpM Result := do
+  let f := e.getAppFn
+  let numArgs := e.getAppNumArgs
+  let cfg ← getConfig
+  let infos := (← getFunInfoNArgs f numArgs).paramInfo
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      simp f
+    else
+      let i := i - 1
+      let .app f a := e | unreachable!
+      let fr ← visit f i
+      if h : i < infos.size then
+        let info := infos[i]
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {a} hasFwdDeps: {infos[i].hasFwdDeps}"
+        if info.isInstance && (!cfg.instances || cfg.ground) then
+          /-
+          **Note**: We don't visit instance implicit arguments when we are reducing ground terms.
+          Motivation: many instance implicit arguments are ground, and it does not make sense
+          to reduce them if the parent term is not ground.
+          -/
+          mkCongrFun' e fr a
+        else if !info.hasFwdDeps then
+          mkCongr' e fr (← simp a)
+        else if (← whnfD (← inferType f)).isArrow then
+          mkCongr' e fr (← simp a)
+        else
+          mkCongrFun' e fr (← dsimp a)
+      else if (← whnfD (← inferType f)).isArrow then
+        mkCongr' e fr (← simp a)
+      else
+        mkCongrFun' e fr (← dsimp a)
+  visit e numArgs
+
 /--
 Retrieve auto-generated congruence lemma for `f`.
 
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
-def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
+def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
-    return none
-  let info ← getFunInfo f
-  let kinds ← getCongrSimpKinds f info
-  if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
-    /- See remark above. -/
     return none
   match (← get).congrCache[f]? with
   | some thm? => return thm?
   | none =>
-    let thm? ← mkCongrSimpCore? f info kinds
+    let thm? ← go?
     modify fun s => { s with congrCache := s.congrCache.insert f thm? }
     return thm?
+where
+  go? : SimpM (Option CongrTheorem) := do
+    let info ← getFunInfo f
+    let argKinds ← getCongrSimpKinds f info
+    if argKinds.all fun k => match k with | .fixed | .eq => true | _ => false then
+      /- See remark above. -/
+      return none
+    else if !(← getConfig).congrConsts then
+      mkCongrSimpCore? f info argKinds
+    else if let .const declName us := f then
+      let some thm ← mkCongrSimpForConst? declName us | mkCongrSimpCore? f info argKinds
+      if thm.argKinds == argKinds then
+        trace[congr.thm] "used global `{thm.proof.getAppFn}`"
+        return some thm
+      else
+        trace[congr.thm] "argKind mismatch while generating congr_simp theorem for `{declName}`"
+        mkCongrSimpCore? f info argKinds
+    else
+      mkCongrSimpCore? f info argKinds
+
 
 /--
 Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
@@ -673,7 +794,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
     if h : config.ground ∧ i < infos.size then
-      if (infos[i]'h.2).isInstImplicit then
+      if (infos[i]'h.2).isInstance then
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
         argsNew := argsNew.push arg
@@ -811,6 +932,44 @@ def Result.addForalls (r : Result) (xs : Array Expr) : MetaM Result := do
     let p ← xs.foldrM (init := h) fun x h => do
       mkForallCongr (← mkLambdaFVars #[x] h)
     return { expr := eNew, proof? := p }
+
+
+@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
+  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
+  withReducible x
+
+/--
+Adds the fvars from `usedZetaDelta` to `s` if they are present in
+the set `zetaDeltaSet` of fvars that are explicitly added to the simp context.
+
+*Note:* `usedZetaDelta` might contain fvars that are not in `zetaDeltaSet`,
+since within `withResetZetaDeltaFVarIds` it is possible for `whnf` to be run with different configurations,
+ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInferTypeConfig` sets `zetaDelta := true`).
+This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
+-/
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  zetaDeltaSet.foldl (init := s) fun s fvarId =>
+    if usedZetaDelta.contains fvarId then
+      s.insert <| .fvar fvarId
+    else
+      s
+
+private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
+  let used := stats.usedTheorems
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.zetaDeltaSet (← getZetaDeltaFVarIds)
+  return { stats with usedTheorems := used }
+
+
+def SimpM.run (ctx : Context) (s : State := {}) (methods : Methods := {}) (k : SimpM α) : MetaM (α × State) := do
+  let ctx ← ctx.setLctxInitIndices
+  withSimpContext ctx do
+    let (r, s) ← k methods.toMethodsRef ctx |>.run s
+    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+    let stats ← updateUsedSimpsWithZetaDelta ctx { s with }
+    let s := { s with diag := stats.diag, usedTheorems := stats.usedTheorems }
+    return (r, s)
 
 end Simp
 

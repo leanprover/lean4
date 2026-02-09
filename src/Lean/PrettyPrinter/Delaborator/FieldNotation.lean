@@ -3,12 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.WHNF
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Structure
+public import Lean.Meta.WHNF
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Options
+import Init.Data.Range.Polymorphic.Iterators
+
+public section
 
 /-!
 # Functions for analyzing projections for pretty printing
@@ -41,15 +44,24 @@ private def projInfo (c : Name) : MetaM (Option (Name × Nat × Bool × Bool × 
     return none
 
 /--
+Checks that `e` is an application of a constant that equals `baseName`, taking into consideration private name mangling.
+-/
+private def isAppOfBaseName (e : Expr) (baseName : Name) : MetaM Bool := do
+  if let some c := e.cleanupAnnotations.getAppFn.constName? then
+    return privateToUserName c == baseName && !(← isInaccessiblePrivateName c)
+  else
+    return false
+
+/--
 Like `Lean.Elab.Term.typeMatchesBaseName` but does not use `Function` for pi types.
 -/
 private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
   withReducibleAndInstances do
-    if type.cleanupAnnotations.isAppOf baseName then
+    if (← isAppOfBaseName type baseName) then
       return true
     else
       let type ← whnfCore type
-      if type.isAppOf baseName then
+      if (← isAppOfBaseName type baseName) then
         return true
       else
         match ← unfoldDefinition? type with
@@ -62,17 +74,17 @@ returns the field name and the index for the argument to be used as the object o
 Otherwise it fails.
 -/
 private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name × Nat) := do
-  let .str _ field := c | failure
-  let field := Name.mkSimple field
-  let baseName := c.getPrefix
+  let .str baseName field := c | failure
+  let baseName := privateToUserName baseName
   guard <| !baseName.isAnonymous
+  let field := Name.mkSimple field
   -- Disallow `Function` since it is used for pi types.
   guard <| baseName != `Function
   let info ← getConstInfo c
   -- Search for the first argument that could be used for field notation
   -- and make sure it is the first explicit argument.
   forallBoundedTelescope info.type args.size fun params _ => do
-    for h : i in [0:params.size] do
+    for h : i in *...params.size do
       let fvarId := params[i].fvarId!
       -- If there is a motive, we will treat this as a sort of control flow structure and so we won't use field notation.
       -- Plus, recursors tend to be riskier when using dot notation.
@@ -83,7 +95,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
         -- We require an exact match for the base name.
         -- While `Lean.Elab.Term.resolveLValLoop` is able to unfold the type and iterate, we do not attempt to exploit this feature.
         -- (To get it right, we would need to check that each relevant namespace does not contain a declaration named `field`.)
-        guard <| (← instantiateMVars <| ← inferType args[i]!).consumeMData.isAppOf baseName
+        guard (← isAppOfBaseName (← instantiateMVars <| ← inferType args[i]!) baseName)
         return (field, i)
       else
         -- We only use the first explicit argument for field notation.
@@ -103,6 +115,8 @@ returns the field name to use and the argument index for the object of the field
 def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldNotation : Bool) : MetaM (Option (Name × Nat)) := do
   let env ← getEnv
   let .const c .. := f.consumeMData | return none
+  if (← isInaccessiblePrivateName c) then
+    return none
   if c.getPrefix.isAnonymous then return none
   -- If there is `pp_nodot` on this function, then don't use field notation for it.
   if hasPPNoDotAttribute env c then

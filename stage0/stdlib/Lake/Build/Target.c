@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Target
-// Imports: Lake.Build.Target.Basic Lake.Build.Target.Fetch
+// Imports: public import Lake.Build.Target.Basic public import Lake.Build.Target.Fetch
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Target_Fetch(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Target_Basic(uint8_t builtin);
+lean_object* initialize_Lake_Build_Target_Fetch(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Target(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Target(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Target_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Target_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Target_Fetch(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Target_Fetch(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

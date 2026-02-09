@@ -3,16 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.Array
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.Basic
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.ArgsPacker
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Tactic.Cleanup
-import Lean.Util.HasConstCache
+public import Lean.Data.Array
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.WF.Basic
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Util.HasConstCache
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -50,7 +52,7 @@ where
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
@@ -84,9 +86,9 @@ where
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop F type) (← loop F val) fun x => do
-        mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop F type) (← loop F val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop F (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop F b
@@ -98,11 +100,11 @@ where
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaBoundedTelescope alt numParams fun xs altBody => do
-              unless xs.size = numParams do
+          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
+            lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
+              unless xs.size = (numParams + 1) do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams - 1]!
+              let FAlt := xs[numParams]!
               let altBody' ← loop FAlt altBody
               mkLambdaFVars xs altBody'
           return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
@@ -150,7 +152,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
     let minor ← lambdaTelescope args[4]! fun xs body => do
         let a := xs[0]!
         let xNew := xs[1]!
-        let valNew ← mkLambdaFVars xs[2:] body
+        let valNew ← mkLambdaFVars xs[2...*] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
           mkLambdaFVars #[a, xNew, FNew] (← processPSigmaCasesOn xNew FNew valNew k)
@@ -219,8 +221,10 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let type ← goal.getType
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          goal.setType type.mdataExpr!
           withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
+        goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
           -- make info from `runTactic` available
           goals.forM fun goal => pushInfoTree (.hole goal)
@@ -233,21 +237,32 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
             Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
+def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
+  match_expr wfRel with
+  | invImage _ β f wfRelβ =>
+    unless (← isDefEq β (mkConst ``Nat)) do return none
+    unless (← isDefEq wfRelβ (mkConst ``Nat.lt_wfRel)) do return none
+    return f
+  | _ => return none
+
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
-    (opaqueProof : Bool) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) :
+    TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
+    let varName ← x.fvarId!.getUserName -- See comment below.
     let α ← inferType x
     let u ← getLevel α
     let v ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
-    let varName ← x.fvarId!.getUserName -- See comment below.
-    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
+    if let some measure ← isNatLtWF wfRel then
+      return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
+    else
+      let rel := mkProj ``WellFoundedRelation 0 wfRel
+      let wf  := mkProj ``WellFoundedRelation 1 wfRel
+      let wf ← mkAppM `Lean.opaqueId #[wf]
+      return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the

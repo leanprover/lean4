@@ -43,7 +43,7 @@ def Common'.String.c (s : String) : Nat := 0
 export Common (String.c)
 export Common' (String.c)
 /--
-error: invalid field notation 'c', the name 'String.c' is ambiguous, possible interpretations: 'Common'.String.c', 'Common.String.c'
+error: Field name `c` is ambiguous: `String.c` has possible interpretations `Common'.String.c`, `Common.String.c`
 -/
 #guard_msgs in #eval "".c
 
@@ -66,10 +66,9 @@ def Common.String.parse (_ : String) : List Nat := []
 
 namespace ExOpen1
 /--
-error: invalid field 'parse', the environment does not contain 'String.parse'
+error: Invalid field `parse`: The environment does not contain `String.parse`, so it is not possible to project the field `parse` from an expression
   ""
-has type
-  String
+of type `String`
 -/
 #guard_msgs in #check "".parse
 section

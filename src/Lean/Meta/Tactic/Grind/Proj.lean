@@ -3,11 +3,10 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.ProjFns
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Internalize
-
+public import Lean.Meta.Tactic.Grind.Types
+public section
 namespace Lean.Meta.Grind
 
 /--
@@ -22,12 +21,24 @@ def propagateProjEq (parent : Expr) : GoalM Unit := do
   -- It is wasteful to add equation if `parent` is not the root of its congruence class
   unless (← isCongrRoot parent) do return ()
   let arg := parent.appArg!
-  let ctor ← getRoot arg
+  let ctorNode ← getRootENode arg
+  let ctor := ctorNode.self
   unless ctor.isAppOf info.ctorName do return ()
   let parentNew ← if isSameExpr arg ctor then
     pure parent
   else
-    let parentNew ← shareCommon (mkApp parent.appFn! ctor)
+    let parentNew ← if ctorNode.heqProofs then
+      /-
+      When the equivalence class contains heterogeneous equalities,
+      type of `arg` and `ctor` may not be definitionally equal.
+      To ensure the projection application is type correct, we use
+      the `ctor` parameters.
+      -/
+      let projFn := parent.getAppFn
+      let params := ctor.getAppArgs[:info.numParams].toArray
+      shareCommon (mkApp (mkAppN projFn params) ctor)
+    else
+      shareCommon (mkApp parent.appFn! ctor)
     internalize parentNew (← getGeneration parent)
     pure parentNew
   trace_goal[grind.debug.proj] "{parentNew}"

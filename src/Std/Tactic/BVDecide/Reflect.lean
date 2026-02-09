@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Checker
-import Std.Tactic.BVDecide.LRAT.Parser
-import Std.Tactic.BVDecide.Bitblast
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
+public import Std.Tactic.BVDecide.LRAT.Checker
+public import Std.Tactic.BVDecide.LRAT.Parser
+public import Std.Tactic.BVDecide.Bitblast
+public import Std.Sat.AIG.CNF
+public import Std.Sat.AIG.RelabelNat
+
+@[expose] public section
 
 /-!
 This file contains theorems used for justifying the reflection procedure of `bv_decide`.

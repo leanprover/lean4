@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.ZonedDateTime
-import Std.Time.Zoned.Database.Basic
-import Std.Time.Zoned.Database.TZdb
-import Std.Time.Zoned.Database.Windows
+public import Std.Time.Zoned.ZonedDateTime
+public import Std.Time.Zoned.Database.Basic
+public import Std.Time.Zoned.Database.TZdb
+public import Std.Time.Zoned.Database.Windows
 import Init.System.Platform
+
+public section
 
 namespace Std
 namespace Time

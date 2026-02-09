@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.LawfulVecOperator
-// Imports: Std.Sat.AIG.LawfulOperator Std.Sat.AIG.RefVec
+// Imports: public import Std.Sat.AIG.RefVec import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Std_Sat_AIG_LawfulOperator(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_LawfulVecOperator(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_AIG_LawfulOperator(builtin, lean_io_mk_world());
+res = initialize_Std_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_RefVec(builtin, lean_io_mk_world());
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -6,20 +6,25 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
+public import Init.Data.Format.Basic
+public import Init.Control.Id
+public import Init.Data.UInt.BasicAux
+import Init.Data.Char.Basic
+
+public section
 open Sum Subtype Nat
 
 open Std
 
 /--
-A typeclass that specifies the standard way of turning values of some type into `Format`.
+The standard way of turning values of some type into `Format`.
 
 When rendered this `Format` should be as close as possible to something that can be parsed as the
 input value.
 -/
 class Repr (α : Type u) where
   /--
-  Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
+  Turn a value of type `α` into a `Format` at a given precedence. The precedence value can be used
   to avoid parentheses if they are not necessary.
   -/
   reprPrec : α → Nat → Format
@@ -27,14 +32,27 @@ class Repr (α : Type u) where
 export Repr (reprPrec)
 
 /--
-Turn `a` into `Format` using its `Repr` instance. The precedence level is initially set to 0.
+Turns `a` into a `Format` using its `Repr` instance. The precedence level is initially set to 0.
 -/
 abbrev repr [Repr α] (a : α) : Format :=
   reprPrec a 0
 
+/--
+Turns `a` into a `String` using its `Repr` instance, rendering the `Format` at the default width of
+120 columns.
+
+The precedence level is initially set to 0.
+-/
 abbrev reprStr [Repr α] (a : α) : String :=
   reprPrec a 0 |>.pretty
 
+/--
+Turns `a` into a `Format` using its `Repr` instance, with the precedence level set to that of
+function application.
+
+Together with `Repr.addAppParen`, this can be used to correctly parenthesize function application
+syntax.
+-/
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a max_prec
 
@@ -62,6 +80,13 @@ protected def Bool.repr : Bool → Nat → Format
 instance : Repr Bool where
   reprPrec := Bool.repr
 
+/--
+Adds parentheses to `f` if the precedence `prec` from the context is at least that of function
+application.
+
+Together with `reprArg`, this can be used to correctly parenthesize function application
+syntax.
+-/
 def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
   if prec >= max_prec then
     Format.paren f
@@ -204,7 +229,7 @@ Examples:
 -/
 @[extern "lean_string_of_usize"]
 protected def _root_.USize.repr (n : @& USize) : String :=
-  (toDigits 10 n.toNat).asString
+  String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
 private def reprArray : Array String := Id.run do
@@ -213,14 +238,14 @@ private def reprArray : Array String := Id.run do
 def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
-  else (toDigits 10 n).asString
+  else String.ofList (toDigits 10 n)
 
 /--
 Converts a natural number to its decimal string representation.
 -/
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
-  (toDigits 10 n).asString
+  String.ofList (toDigits 10 n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode superscript digit character.
@@ -271,7 +296,7 @@ Examples:
  * `Nat.toSuperscriptString 35 = "³⁵"`
 -/
 def toSuperscriptString (n : Nat) : String :=
-  (toSuperDigits n).asString
+  String.ofList (toSuperDigits n)
 
 /--
 Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
@@ -322,7 +347,7 @@ Examples:
  * `Nat.toSubscriptString 35 = "₃₅"`
 -/
 def toSubscriptString (n : Nat) : String :=
-  (toSubDigits n).asString
+  String.ofList (toSubDigits n)
 
 end Nat
 
@@ -334,7 +359,7 @@ Returns the decimal string representation of an integer.
 -/
 protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
-    | negSucc m => "-" ++ Nat.repr (succ m)
+    | negSucc m => String.Internal.append "-" (Nat.repr (succ m))
 
 instance : Repr Int where
   reprPrec i prec := if i < 0 then Repr.addAppParen i.repr prec else i.repr
@@ -348,14 +373,14 @@ def Char.quoteCore (c : Char) (inString : Bool := false) : String :=
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
   else if !inString && c = '\'' then "\\\'"
-  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
+  else if  c.toNat <= 31 ∨ c = '\x7f' then String.Internal.append "\\x" (smallCharToHex c)
   else String.singleton c
 where
   smallCharToHex (c : Char) : String :=
     let n  := Char.toNat c;
     let d2 := n / 16;
     let d1 := n % 16;
-    hexDigitRepr d2 ++ hexDigitRepr d1
+    String.Internal.append (hexDigitRepr d2) (hexDigitRepr d1)
 
 /--
 Quotes the character to its representation as a character literal, surrounded by single quotes and
@@ -366,7 +391,7 @@ Examples:
  * `'"'.quote = "'\\\"'"`
 -/
 def Char.quote (c : Char) : String :=
-  "'" ++ Char.quoteCore c ++ "'"
+  String.Internal.append (String.Internal.append "'" (Char.quoteCore c)) "'"
 
 instance : Repr Char where
   reprPrec c _ := c.quote
@@ -383,20 +408,17 @@ Examples:
 * `"\"".quote = "\"\\\"\""`
 -/
 def String.quote (s : String) : String :=
-  if s.isEmpty then "\"\""
-  else s.foldl (fun s c => s ++ c.quoteCore (inString := true)) "\"" ++ "\""
+  if String.Internal.isEmpty s then "\"\""
+  else String.Internal.append (String.Internal.foldl (fun s c => String.Internal.append s (c.quoteCore (inString := true))) "\"" s) "\""
 
 instance : Repr String where
   reprPrec s _ := s.quote
 
-instance : Repr String.Pos where
+instance : Repr String.Pos.Raw where
   reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
-instance : Repr Substring where
-  reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
-
-instance : Repr String.Iterator where
-  reprPrec | ⟨s, pos⟩, prec => Repr.addAppParen ("String.Iterator.mk " ++ reprArg s ++ " " ++ reprArg pos) prec
+instance : Repr Substring.Raw where
+  reprPrec s _ := Format.text <| String.Internal.append (String.quote (Substring.Raw.Internal.toString s)) ".toRawSubstring"
 
 instance (n : Nat) : Repr (Fin n) where
   reprPrec f _ := repr f.val

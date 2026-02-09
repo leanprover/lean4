@@ -3,13 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Message
-import Lean.InternalExceptionId
-import Lean.Data.Options
-import Lean.Util.MonadCache
--- TODO: This import should be changed to `Lean.ErrorExplanations` once that module is added
-import Lean.ErrorExplanation
+public import Lean.InternalExceptionId
+-- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
+-- all declared explanations:
+public import Lean.ErrorExplanation
+
+public section
 
 namespace Lean
 
@@ -76,7 +78,7 @@ Tag used for `unknown identifier` messages.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
 -/
-def unknownIdentifierMessageTag : Name := `unknownIdentifier
+def unknownIdentifierMessageTag : Name := kindOfErrorName `lean.unknownIdentifier
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
@@ -103,38 +105,63 @@ function directly.
 protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
   withRef ref <| Lean.throwNamedError name msg
 
+/-- Like `mkUnknownIdentifierMessage`, but does not tag the message. -/
+def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let mut msg := msg
+  let env ← getEnv
+  if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
+    let c := .withContext {
+      env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
+    msg := match env.getModuleIdxFor? declHint with
+      | none     =>
+        msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."
+      | some idx =>
+        let mod := env.header.moduleNames[idx]!
+        if isPrivateName declHint then
+          msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
+        else
+          msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
+  return msg
+
 /--
 Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
 The end position of the range of an unknown identifier message should always point at the end of the
 unknown identifier.
+
+If `declHint` is specified, a corresponding hint is added to the message in case the name refers to
+a private declaration that is not accessible in the current context.
 -/
-def mkUnknownIdentifierMessage (msg : MessageData) : MessageData :=
-  MessageData.tagged unknownIdentifierMessageTag msg
+def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let msg ← mkUnknownIdentifierMessageCore msg declHint
+  return MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
 Throw an unknown identifier error message that is tagged with `unknownIdentifierMessageTag`.
 The end position of the range of `ref` should always point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownIdentifierAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α :=
-  Lean.throwErrorAt ref <| mkUnknownIdentifierMessage msg
+def throwUnknownIdentifierAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (msg : MessageData)
+    (declHint := Name.anonymous) : m α := do
+  Lean.throwErrorAt ref (← mkUnknownIdentifierMessage msg declHint)
 
 /--
 Throw an unknown constant error message.
 The end position of the range of `ref` should point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownConstantAt [Monad m] [MonadError m] (ref : Syntax) (constName : Name) : m α := do
-  throwUnknownIdentifierAt ref m!"unknown constant '{.ofConstName constName}'"
+def throwUnknownConstantAt [Monad m] [MonadEnv m] [MonadError m] (ref : Syntax) (constName : Name) : m α :=
+  throwUnknownIdentifierAt (declHint := constName) ref m!"Unknown constant `{.ofConstName constName}`"
 
 /--
 Throw an unknown constant error message.
 The end position of the range of the current reference should point at the unknown identifier.
 See also `mkUnknownIdentifierMessage`.
 -/
-def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α := do
+def throwUnknownConstant [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m α := do
   throwUnknownConstantAt (← getRef) constName
 
 /--
@@ -205,7 +232,10 @@ but it is also produced by `MacroM` which implemented in the prelude, and intern
 been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
-  ex matches error _ (.tagged `runtime.maxRecDepth _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxRecDepth
+  else
+    false
 
 /--
 Increment the current recursion depth and then execute `x`.

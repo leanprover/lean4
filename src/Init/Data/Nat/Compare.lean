@@ -6,7 +6,10 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-import all Init.Data.Ord
+public import Init.Data.Ord.Basic
+import all Init.Data.Ord.Basic
+
+public section
 
 /-! # Basic lemmas about comparing natural numbers
 
@@ -22,26 +25,20 @@ theorem compare_eq_ite_lt (a b : Nat) :
   simp only [compare, compareOfLessAndEq]
   split
   · rfl
-  · next h =>
+  next h =>
     match Nat.lt_or_eq_of_le (Nat.not_lt.1 h) with
     | .inl h => simp [h, Nat.ne_of_gt h]
     | .inr rfl => simp
-
-@[deprecated compare_eq_ite_lt (since := "2025-03_28")]
-def compare_def_lt := compare_eq_ite_lt
 
 theorem compare_eq_ite_le (a b : Nat) :
     compare a b = if a ≤ b then if b ≤ a then .eq else .lt else .gt := by
   rw [compare_eq_ite_lt]
   split
-  · next hlt => simp [Nat.le_of_lt hlt, Nat.not_le.2 hlt]
-  · next hge =>
+  next hlt => simp [Nat.le_of_lt hlt, Nat.not_le.2 hlt]
+  next hge =>
     split
-    · next hgt => simp [Nat.le_of_lt hgt, Nat.not_le.2 hgt]
-    · next hle => simp [Nat.not_lt.1 hge, Nat.not_lt.1 hle]
-
-@[deprecated compare_eq_ite_le (since := "2025-03_28")]
-def compare_def_le := compare_eq_ite_le
+    next hgt => simp [Nat.not_le.2 hgt]
+    next hle => simp [Nat.not_lt.1 hge, Nat.not_lt.1 hle]
 
 protected theorem compare_swap (a b : Nat) : (compare a b).swap = compare b a := by
   simp only [compare_eq_ite_le]; (repeat' split) <;> try rfl

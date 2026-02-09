@@ -22,7 +22,7 @@ theorem ackermann_induct_unfolding (motive : Nat → Nat → Nat → Prop) (case
      n m
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 m✝ : Nat
 ⊢ m✝ + 1 ≤ ackermann (0 + 1) m✝
@@ -58,7 +58,7 @@ theorem ackermann_cases_unfolding (motive : Nat → Nat → Nat → Prop)
      n m
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 m : Nat
 ⊢ m + 1 ≤ ackermann (0 + 1) m
@@ -84,7 +84,7 @@ axiom strange_induction
   ∀ n, motive n (n-1 ≤ n) (n+1)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 ⊢ True ∧ 0 < 42
 -/
@@ -94,7 +94,7 @@ example : n -1 ≤ n ∧ n < n +1 := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 ⊢ True ∧ 0 < 42
 -/
@@ -104,7 +104,7 @@ example : n -1 ≤ n ∧ n < n +1 := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 n : Nat
 ⊢ n - 1 ≤ n ∧ n < 0
@@ -118,7 +118,7 @@ example : n -1 ≤ n ∧ n < n + 1 := by
 -- (induction silently skips abstracting over these)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : (n : Nat) → n > 0 → Prop
 ⊢ P (0 + 1) ⋯
@@ -129,7 +129,7 @@ example (P : (n : Nat) → (h : n > 0) → Prop) : P (n + 1) (Nat.zero_lt_succ n
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : (n : Nat) → n > 0 → Prop
 ⊢ P (0 + 1) ⋯
@@ -147,7 +147,7 @@ axiom dep_induction
   ∀ n, motive n (Fin.last n)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : (n : Nat) → Fin (n + 1) → Prop
 ⊢ P 0 0
@@ -162,7 +162,7 @@ example (P : (n : Nat) → Fin (n+1) → Prop) : P n (Fin.last n) := by
 -- This can be improved, but at least it does not error
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : (n : Nat) → Fin (n + 1) → Prop
 ⊢ P 0 (Fin.last 0)
@@ -176,7 +176,7 @@ example (P : (n : Nat) → Fin (n+1) → Prop) : P n (Fin.last n) := by
 -- This can be improved, but at least it does not error
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : (n : Nat) → Fin (n + 1) → Prop
 ⊢ P 0 (Fin.last 0)

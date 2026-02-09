@@ -3,11 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Clear
-
+import Lean.Meta.AppBuilder
+import Lean.Meta.CtorRecognizer
+public section
 namespace Lean.Meta.Grind
 /--
 The `grind` tactic includes an auxiliary `injection?` tactic that is not intended for direct use by users.
@@ -33,7 +35,11 @@ def injection? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := mv
     let tag ← mvarId.getTag
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
     mvarId.assign (mkApp val mvarNew)
-    return some (← mvarNew.mvarId!.clear fvarId)
+    /-
+    **Note**: The goal may depend on this hypothesis. So, we use `tryClear`.
+    Another possible solution is to construct a new proof using the new hypotheses.
+    -/
+    return some (← mvarNew.mvarId!.tryClear fvarId)
   | _, _ => return none
 
 end Lean.Meta.Grind

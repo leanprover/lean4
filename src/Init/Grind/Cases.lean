@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Grind.Tactics
+public import Init.Grind.Tactics
 
-attribute [grind cases eager] And Prod False Empty True PUnit Exists Subtype
-attribute [grind cases] Or
+public section
+
+attribute [grind cases eager] And False Empty True PUnit Exists Subtype Prod PProd MProd
+attribute [grind cases] Or Sum PSum

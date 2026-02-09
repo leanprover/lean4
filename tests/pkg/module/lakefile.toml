@@ -3,4 +3,5 @@ defaultTargets = ["Module"]
 
 [[lean_lib]]
 name = "Module"
-leanOptions = { experimental.module = true }
+# Elab.inServer to allow for arbitrary `#eval`
+leanOptions = { Elab.inServer = true }

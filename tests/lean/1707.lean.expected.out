@@ -1,2 +1,2 @@
-1707.lean:1:9-1:10: error: unknown identifier 'c'
+1707.lean:1:9-1:10: error(lean.unknownIdentifier): Unknown identifier `c`
 1707.lean:1:12: error: expected token

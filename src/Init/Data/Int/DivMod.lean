@@ -6,6 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Pow

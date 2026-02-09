@@ -27,7 +27,7 @@ info: PrefixTable.step.eq_def.{u_1} {α : Type u_1} [BEq α] (t : PrefixTable α
   t.step x kf =
     match kf with
     | ⟨k, hk⟩ =>
-      let cont := fun x_1 =>
+      have cont := fun x_1 =>
         match k, hk with
         | 0, hk => ⟨0, ⋯⟩
         | k.succ, hk =>

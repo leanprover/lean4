@@ -1,12 +1,12 @@
-pureCoeIssue.lean:6:2-6:4: error: type mismatch
+pureCoeIssue.lean:6:2-6:4: error: Type mismatch
   f1
 has type
-  Nat → IO Unit : Type
+  Nat → IO Unit
 but is expected to have type
-  IO PUnit : Type
-pureCoeIssue.lean:14:2-14:7: error: type mismatch
+  IO PUnit
+pureCoeIssue.lean:14:2-14:7: error: Type mismatch
   f2 10
 has type
-  Nat → IO Unit : Type
+  Nat → IO Unit
 but is expected to have type
-  IO PUnit : Type
+  IO PUnit

@@ -3,66 +3,74 @@
 {"items":
  [{"label": "aaaaaaaa",
    "kind": 21,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 7, "character": 37}},
-    "id": {"const": {"declName": "Foo.aaaaaaaa"}},
-    "cPos": 0}}],
+   "data": ["file:///travellingCompletions.lean", 7, 37, 0, "cFoo.aaaaaaaa"]}],
  "isIncomplete": false}
+Resolution of aaaaaaaa:
+{"label": "aaaaaaaa",
+ "kind": 21,
+ "detail": "Nat",
+ "data": ["file:///travellingCompletions.lean", 7, 37, 0, "cFoo.aaaaaaaa"]}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 20, "character": 20}}
 {"items":
  [{"label": "foobar",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 20, "character": 20}},
-    "id": {"const": {"declName": "Bar.foobar"}},
-    "cPos": 2}}],
+   "data": ["file:///travellingCompletions.lean", 20, 20, 2, "cBar.foobar"]}],
  "isIncomplete": false}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "Bar → Nat",
+ "data": ["file:///travellingCompletions.lean", 20, 20, 2, "cBar.foobar"]}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 24, "character": 16}}
 {"items":
  [{"label": "foobar",
    "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 24, "character": 16}},
-    "id": {"const": {"declName": "Bar.foobar"}},
-    "cPos": 2}}],
+   "data": ["file:///travellingCompletions.lean", 24, 16, 2, "cBar.foobar"]}],
  "isIncomplete": false}
+Resolution of foobar:
+{"label": "foobar",
+ "kind": 5,
+ "detail": "Bar → Nat",
+ "data": ["file:///travellingCompletions.lean", 24, 16, 2, "cBar.foobar"]}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 38, "character": 45}}
 {"items":
  [{"label": "continuousSMul",
    "kind": 23,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 38, "character": 45}},
-    "id": {"const": {"declName": "Prod.continuousSMul"}},
-    "cPos": 1}},
+   ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousSMul"]},
   {"label": "continuousAdd",
    "kind": 23,
    "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 38, "character": 45}},
-    "id": {"const": {"declName": "Prod.continuousAdd"}},
-    "cPos": 1}}],
+   ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousAdd"]}],
  "isIncomplete": false}
+Resolution of continuousSMul:
+{"label": "continuousSMul",
+ "kind": 23,
+ "detail": "ContinuousSMul M (X × Y)",
+ "data":
+ ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousSMul"]}
+Resolution of continuousAdd:
+{"label": "continuousAdd",
+ "kind": 23,
+ "detail": "ContinuousAdd (X × Y)",
+ "data":
+ ["file:///travellingCompletions.lean", 38, 45, 1, "cProd.continuousAdd"]}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 42, "character": 25}}
 {"items":
  [{"label": "intro",
    "kind": 4,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 42, "character": 25}},
-    "id": {"const": {"declName": "True.intro"}},
-    "cPos": 1}}],
+   "data": ["file:///travellingCompletions.lean", 42, 25, 1, "cTrue.intro"]}],
  "isIncomplete": false}
+Resolution of intro:
+{"label": "intro",
+ "kind": 4,
+ "documentation":
+ {"value":
+  "`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
+  "kind": "markdown"},
+ "detail": "True",
+ "data": ["file:///travellingCompletions.lean", 42, 25, 1, "cTrue.intro"]}

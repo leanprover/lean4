@@ -3,10 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Data.Range
-import Std.Internal.Parsec
-import Std.Internal.Parsec.ByteArray
+public import Init.Data.Range.Polymorphic.Iterators
+public import Std.Internal.Parsec
+
+public section
 
 -- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
 
@@ -18,9 +21,9 @@ open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
 set_option linter.all true
 
-private abbrev Int32 := Int
+local notation "Int32" => Int
 
-private abbrev Int64 := Int
+local notation "Int64" => Int
 
 /--
 Represents the header of a TZif file, containing metadata about the file's structure.
@@ -194,15 +197,15 @@ private def toInt64 (bs : ByteArray) : Int64 :=
 
 private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
   let mut result := #[]
-  for _ in [0:n] do
+  for _ in *...n do
     let x ← p
     result := result.push x
   return result
 
-private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> take 8
-private def pi64 : Parser Int64 := toInt64 <$> take 8
-private def pu32 : Parser UInt32 := toUInt32 <$> take 4
-private def pi32 : Parser Int32 := toInt32 <$> take 4
+private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> ByteSlice.toByteArray <$> take 8
+private def pi64 : Parser Int64 := toInt64 <$> ByteSlice.toByteArray <$> take 8
+private def pu32 : Parser UInt32 := toUInt32 <$> ByteSlice.toByteArray <$> take 4
+private def pi32 : Parser Int32 := toInt32 <$> ByteSlice.toByteArray <$> take 4
 private def pu8 : Parser UInt8 := any
 private def pbool : Parser Bool := (· != 0) <$> pu8
 
@@ -242,7 +245,7 @@ private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Pars
   let mut chars ← manyN n.toNat pu8
 
   for time in times do
-    for indx in [time.abbreviationIndex.toNat:n.toNat] do
+    for indx in time.abbreviationIndex.toNat...n.toNat do
       let char := chars[indx]!
       if char = 0 then
         strings := strings.push current

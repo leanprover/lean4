@@ -3,11 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Util
-
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
+public section
 namespace Int.Linear
+
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -28,14 +30,11 @@ end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def isSupportedType (type : Expr) : Bool :=
-  type == Nat.mkType || type == Int.mkType
-
 def get' : GoalM State := do
-  return (← get).arith.cutsat
+  cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.cutsat := f s.arith.cutsat }
+  cutsatExt.modifyState f
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
@@ -55,6 +54,9 @@ def getVar (x : Var) : GoalM Expr :=
 /-- Returns `true` if `e` is already associated with a cutsat variable. -/
 def hasVar (e : Expr) : GoalM Bool :=
   return (← get').varMap.contains { expr := e }
+
+def isIntTerm (e : Expr) : GoalM Bool :=
+  hasVar e
 
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
@@ -214,6 +216,14 @@ Returns `.true` if `c` is satisfied by the current partial model,
 def DiseqCnstr.satisfied (c : DiseqCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
   return v != 0 |>.toLBool
+
+/--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def EqCnstr.satisfied (c : EqCnstr) : GoalM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return v == 0 |>.toLBool
 
 /--
 Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,

@@ -1,9 +1,9 @@
-1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument 'z'
+1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument `z`
   @Linear ?m ?m (?m :: ?m) (?m :: ?m) c.right
 context:
 c : Cover ?m ?m ?m
 ⊢ List ?m
-1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument 'y'
+1616.lean:10:24-10:41: error: don't know how to synthesize implicit argument `y`
   @Linear ?m ?m (?m :: ?m) (?m :: ?m) c.right
 context:
 c : Cover ?m ?m ?m
@@ -13,7 +13,7 @@ c : Cover ?m ?m ?m
 context:
 c : Cover ?m ?m ?m
 ⊢ Type u_1
-1616.lean:10:32-10:40: error: don't know how to synthesize implicit argument 'α'
+1616.lean:10:32-10:40: error: don't know how to synthesize implicit argument `α`
   @Cover.right ?m ?m ?m ?m ?m c
 context:
 c : Cover ?m ?m ?m
@@ -23,12 +23,12 @@ c : Cover ?m ?m ?m
 context:
 c : Cover ?m ?m ?m
 ⊢ Type u_1
-1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument 'z'
+1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument `z`
   @Linear ?m (?m :: ?m) ?m (?m :: ?m) c.left
 context:
 c : Cover ?m ?m ?m
 ⊢ List ?m
-1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument 'x'
+1616.lean:9:23-9:39: error: don't know how to synthesize implicit argument `x`
   @Linear ?m (?m :: ?m) ?m (?m :: ?m) c.left
 context:
 c : Cover ?m ?m ?m
@@ -38,7 +38,7 @@ c : Cover ?m ?m ?m
 context:
 c : Cover ?m ?m ?m
 ⊢ Type u_1
-1616.lean:9:31-9:38: error: don't know how to synthesize implicit argument 'α'
+1616.lean:9:31-9:38: error: don't know how to synthesize implicit argument `α`
   @Cover.left ?m ?m ?m ?m ?m c
 context:
 c : Cover ?m ?m ?m

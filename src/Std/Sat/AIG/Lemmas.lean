@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.LawfulOperator
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module provides a basic theory around the naive AIG node creation functions. It is mostly
@@ -121,13 +125,13 @@ theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
     lhs
     unfold denote denote.go
   split
-  · next heq =>
+  next heq =>
     rw [mkGate, Array.getElem_push_eq] at heq
     contradiction
-  · next heq =>
+  next heq =>
     rw [mkGate, Array.getElem_push_eq] at heq
     contradiction
-  · next heq =>
+  next heq =>
     rw [mkGate, Array.getElem_push_eq] at heq
     injection heq with hl hr
     simp only [← hl, Fanin.gate_mk, mkGate, Fanin.invert_mk, ← hr, Bool.bne_false]
@@ -164,14 +168,14 @@ theorem denote_mkAtom {aig : AIG α} :
     ⟦(aig.mkAtom var), assign⟧ = assign var := by
   unfold denote denote.go
   split
-  · next heq =>
+  next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
-  · next heq =>
+  next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     injection heq with heq
     simp [heq, mkAtom]
-  · next heq =>
+  next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
 
@@ -203,13 +207,13 @@ instance : LawfulOperator α (fun _ => Bool) mkConst where
 theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val := by
   unfold denote denote.go
   split
-  · next heq =>
+  next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     simp [mkConst]
-  · next heq =>
+  next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
-  · next heq =>
+  next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
 
@@ -247,7 +251,7 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
   split
   · simp_all
   · simp_all
-  · next heq =>
+  next heq =>
     rw [h] at heq
     simp_all
 
@@ -302,7 +306,7 @@ theorem of_isConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b :
   unfold isConstant at h
   dsimp only at h
   split at h
-  · next heq =>
+  next heq =>
     rw [denote_idx_false heq]
     cases invert <;> simp_all
   · contradiction
@@ -314,7 +318,7 @@ theorem denote_getConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig}
   unfold getConstant at h
   dsimp only at h
   split at h
-  · next heq =>
+  next heq =>
     rw [denote_idx_false heq]
     cases invert <;> simp_all
   · contradiction

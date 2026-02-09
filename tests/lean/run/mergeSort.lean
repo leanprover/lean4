@@ -32,10 +32,10 @@ inductive NoLE
 /--
 error: could not synthesize default value for parameter 'le' using tactics
 ---
-error: failed to synthesize
+error: failed to synthesize instance of type class
   LE NoLE
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 example : mergeSort [NoLE.mk] = [NoLE.mk] := sorry
@@ -49,12 +49,12 @@ instance : LE UndecidableLE where
 /--
 error: could not synthesize default value for parameter 'le' using tactics
 ---
-error: type mismatch
+error: Type mismatch
   a ≤ b
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Bool : Type
+  Bool
 -/
 #guard_msgs in
 example : mergeSort [UndecidableLE.mk] = [UndecidableLE.mk] := sorry

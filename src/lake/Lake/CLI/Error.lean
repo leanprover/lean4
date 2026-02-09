@@ -3,14 +3,17 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Init.Data.ToString
-import Init.System.FilePath
+module
 
-namespace Lake
+prelude
+public import Init.Data.ToString
+public import Init.System.FilePath
+
 open Lean (Name)
 
-inductive CliError
+namespace Lake
+
+public inductive CliError
 /- CLI Errors -/
 | missingCommand
 | unknownCommand (cmd : String)
@@ -53,7 +56,7 @@ deriving Inhabited, Repr
 
 namespace CliError
 
-protected def toString : CliError → String
+public protected def toString : CliError → String
 | missingCommand          => "missing command"
 | unknownCommand cmd      => s!"unknown command '{cmd}'"
 | missingArg arg          => s!"missing {arg}"
@@ -88,4 +91,4 @@ protected def toString : CliError → String
 | invalidEnv msg          => msg
 | missingRootDir p        => s!"workspace directory not found: {p}"
 
-instance : ToString CliError := ⟨CliError.toString⟩
+public instance : ToString CliError := ⟨CliError.toString⟩

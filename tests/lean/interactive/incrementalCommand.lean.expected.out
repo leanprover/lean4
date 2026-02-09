@@ -30,7 +30,7 @@ w
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}},
-   "message": "tactic 'assumption' failed\n⊢ False",
+   "message": "Tactic `assumption` failed\n\n⊢ False",
    "fullRange":
    {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}}}]}
 {"version": 3, "uri": "file:///incrementalCommand.lean", "diagnostics": []}

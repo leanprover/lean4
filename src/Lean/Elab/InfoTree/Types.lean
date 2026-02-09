@@ -4,24 +4,37 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.DeclarationRange
-import Lean.Data.OpenDecl
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.Data.Json
-import Lean.Server.Rpc.Basic
-import Lean.Widget.Types
+public import Lean.Data.DeclarationRange
+public import Lean.Data.OpenDecl
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.Widget.Types
+
+public section
 
 namespace Lean.Elab
 
 /--
-Context after executing `liftTermElabM`.
+Context at the `CommandElabM/TermElabM` level. Created by `elabCommand` at the top level and then
+nestedly when relevant fields are affected (e.g. just before discarding the `mctx` when exiting from
+`TermElabM`).
+
 Note that the term information collected during elaboration may contain metavariables, and their
 assignments are stored at `mctx`.
 -/
 structure CommandContextInfo where
   env           : Environment
+  /--
+  Final environment at the end of `elabCommand`; empty for nested contexts. This environment can be
+  used to access information about the fully-elaborated current declaration such as declaration
+  ranges. It may not be a strict superset of `env` in case of backtracking, so `env` should be
+  preferred to access information about the elaboration context at the time this context object was
+  created.
+  -/
+  cmdEnv?       : Option Environment := none
   fileMap       : FileMap
   mctx          : MetavarContext := {}
   options       : Options        := {}
@@ -36,6 +49,7 @@ assignments are stored at `mctx`.
 -/
 structure ContextInfo extends CommandContextInfo where
   parentDecl? : Option Name := none
+  autoImplicits : Array Expr := #[]
 
 /--
 Context for a sub-`InfoTree`.
@@ -51,6 +65,7 @@ inductive PartialContextInfo where
   corresponding to the terms within the declaration.
   -/
   | parentDeclCtx (parentDecl : Name)
+  | autoImplicitCtx (autoImplicits : Array Expr)
   -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
   -- used for (e.g. eliminating `Info.updateContext?` would be nice!).
 
@@ -68,6 +83,8 @@ structure TermInfo extends ElabInfo where
   expectedType? : Option Expr
   expr : Expr
   isBinder : Bool := false
+  /-- Whether `expr` should always be displayed in the language server, e.g. in hovers. -/
+  isDisplayableTerm : Bool := false
   deriving Inhabited
 
 /--
@@ -95,7 +112,7 @@ inductive CompletionInfo where
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | errorName (stx partialId : Syntax)
-  | endSection (stx : Syntax) (scopeNames : List String)
+  | endSection (stx : Syntax) (id? : Option Name) (danglingDot : Bool) (scopeNames : List String)
   | tactic (stx : Syntax)
 
 /-- Info for an option reference (e.g. in `set_option`). -/
@@ -203,6 +220,32 @@ the language server provide interactivity even when all overloaded elaborators f
 -/
 structure ChoiceInfo extends ElabInfo where
 
+inductive DocElabKind where
+  | role | codeBlock | directive | command
+deriving Repr
+
+/--
+Indicates that an extensible document elaborator was used. This info is applied to the name on a
+role, directive, code block, or command, and is used to generate the hover.
+
+A `TermInfo` would not give the correct hover for a few reasons:
+ 1. The name used to invoke a document extension is not necessarily the name of the elaborator that
+    was used, but the elaborator's docstring should be shown rather than that of the name as
+    written.
+ 2. The underlying elaborator's Lean type is not an appropriate signature to show to users.
+-/
+structure DocElabInfo extends ElabInfo where
+  name : Name
+  kind : DocElabKind
+
+/--
+Indicates that a piece of syntax was elaborated as documentation. This info is used for ordinary
+documentation constructs, such as paragraphs, list items, and links. It can be used to determine
+that a given piece of documentation syntax in fact has been elaborated.
+-/
+structure DocInfo extends ElabInfo where
+
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -220,6 +263,8 @@ inductive Info where
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
+  | ofDocInfo (i : DocInfo)
+  | ofDocElabInfo (i : DocElabInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used
@@ -293,5 +338,10 @@ class MonadParentDecl (m : Type → Type) where
   getParentDeclName? : m (Option Name)
 
 export MonadParentDecl (getParentDeclName?)
+
+class MonadAutoImplicits (m : Type → Type) where
+  getAutoImplicits : m (Array Expr)
+
+export MonadAutoImplicits (getAutoImplicits)
 
 end Lean.Elab

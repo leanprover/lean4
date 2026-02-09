@@ -6,7 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-meta import Init.Meta
+public meta import Init.Meta
+public import Init.Notation
+
+public section
 
 syntax:max "s!" interpolatedStr(term) : term
 

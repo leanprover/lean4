@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SizeOf
-import Init.MetaTypes
-import Init.WF
+public import Init.WF  -- shake: keep (macro output dependency)
+public import Init.Data.Nat.Basic  -- shake: keep (macro output dependency)
+
+public section
 
 /--
 Unfold definitions commonly used in well founded relation definitions.

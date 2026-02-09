@@ -1,12 +1,14 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 reset_grind_attrs%
 
 /--
 info: Try these:
-• simp
-• simp only [ne_eq, reduceCtorEq, not_false_eq_true]
-• grind
-• grind only
-• simp_all
+  [apply] simp
+  [apply] simp only [ne_eq, reduceCtorEq, not_false_eq_true]
+  [apply] grind
+  [apply] grind only
+  [apply] simp_all
 -/
 #guard_msgs (info) in
 example : [1, 2] ≠ [] := by
@@ -14,10 +16,10 @@ example : [1, 2] ≠ [] := by
 
 /--
 info: Try these:
-• simp +arith
-• simp +arith only [ge_iff_le]
-• grind
-• grind only
+  [apply] simp +arith
+  [apply] simp +arith only [ge_iff_le]
+  [apply] grind
+  [apply] grind only
 -/
 #guard_msgs (info) in
 example : 4 + x + y ≥ 1 + x  := by
@@ -25,8 +27,8 @@ example : 4 + x + y ≥ 1 + x  := by
 
 /--
 info: Try these:
-• simp +arith
-• grind
+  [apply] simp +arith
+  [apply] grind
 -/
 #guard_msgs (info) in
 example : 4 + x + y ≥ 1 + x  := by
@@ -34,21 +36,23 @@ example : 4 + x + y ≥ 1 + x  := by
 
 /--
 info: Try these:
-• grind
-• grind only
+  [apply] grind
+  [apply] grind only
 -/
 #guard_msgs (info) in
 example (f : Nat → Nat) : f a = b → a = c → f c = b := by
   try?
 
-def f : Nat → Nat
+public def f : Nat → Nat
   | 0 => 1
   | _ => 2
 
 /--
 info: Try these:
-• grind [= f]
-• grind only [f]
+  [apply] solve_by_elim
+  [apply] grind [= f]
+  [apply] grind only [f]
+  [apply] grind => instantiate only [f]
 -/
 #guard_msgs (info) in
 example : f (f 0) > 0 := by
@@ -56,8 +60,13 @@ example : f (f 0) > 0 := by
 
 /--
 info: Try these:
-• grind [= f.eq_def]
-• grind only [= f.eq_def]
+  [apply] grind [= f.eq_def]
+  [apply] grind only [= f.eq_def, #6818]
+  [apply] grind only [= f.eq_def]
+  [apply] grind =>
+    instantiate only [= f.eq_def]
+    instantiate only
+    cases #6818 <;> instantiate only
 -/
 #guard_msgs (info) in
 example : f x > 0 := by
@@ -69,9 +78,13 @@ def app : List α → List α → List α
 
 /--
 info: Try these:
-• rfl
-• grind [= app]
-• grind only [app]
+  [apply] rfl
+  [apply] grind [= app]
+  [apply] grind only [app]
+  [apply] grind =>
+    instantiate only [app]
+    instantiate only [app]
+    instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app [a, b] [c] = [a, b, c] := by
@@ -79,22 +92,27 @@ example : app [a, b] [c] = [a, b, c] := by
 
 /--
 info: Try these:
-• (fun_induction app as bs) <;> grind [= app]
-• (fun_induction app as bs) <;> grind only [app]
+  [apply] (fun_induction app as bs) <;> grind [= app]
+  [apply] (fun_induction app as bs) <;> grind only [app]
+  [apply] (fun_induction app as bs) <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try?
 
-/-- info: Try this: (fun_induction app as bs) <;> grind [= app] -/
+/--
+info: Try this:
+  [apply] (fun_induction app as bs) <;> grind [= app]
+-/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try? (max := 1)
 
 /--
 info: Try these:
-• · expose_names; fun_induction app as bs_1 <;> grind [= app]
-• · expose_names; fun_induction app as bs_1 <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs_1 <;> grind [= app]
+  [apply] · expose_names; fun_induction app as bs_1 <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs_1 <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -103,8 +121,9 @@ example : app (app as bs) cs = app as (app bs cs) := by
 
 /--
 info: Try these:
-• · expose_names; fun_induction app as bs <;> grind [= app]
-• · expose_names; fun_induction app as bs <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs <;> grind [= app]
+  [apply] · expose_names; fun_induction app as bs <;> grind only [app]
+  [apply] · expose_names; fun_induction app as bs <;> grind => instantiate only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -121,8 +140,16 @@ attribute [simp] concat
 
 /--
 info: Try these:
-• (fun_induction concat) <;> simp_all
-• (fun_induction concat) <;> simp [*]
+  [apply] (fun_induction concat) <;> simp_all
+  [apply] (fun_induction concat) <;> simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -130,10 +157,19 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 
 /--
 info: Try these:
-• (fun_induction concat) <;> simp_all
-• · fun_induction concat
+  [apply] (fun_induction concat) <;> simp_all
+  [apply] ·
+    fun_induction concat
     · simp
     · simp [*]
+  [apply] ·
+    fun_induction concat
+    · rfl
+    · solve_by_elim
+  [apply] ·
+    fun_induction concat
+    · grind
+    · solve_by_elim
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -145,8 +181,9 @@ def map (f : α → β) : List α → List β
 
 /--
 info: Try these:
-• (fun_induction map f xs) <;> grind [= map]
-• (fun_induction map f xs) <;> grind only [map]
+  [apply] (fun_induction map f xs) <;> grind [= map]
+  [apply] (fun_induction map f xs) <;> grind only [map]
+  [apply] (fun_induction map f xs) <;> grind => instantiate only [map]
 -/
 #guard_msgs (info) in
 theorem map_map (f : α → β) (g : β → γ) xs :
@@ -160,13 +197,20 @@ def foo : Nat → Nat
 
 /--
 info: Try these:
-• · fun_induction foo
+  [apply] ·
+    fun_induction foo
+    · solve_by_elim
+    · sorry
+  [apply] ·
+    fun_induction foo
     · simp
     · sorry
-• · fun_induction foo
+  [apply] ·
+    fun_induction foo
     · grind
     · sorry
-• · fun_induction foo
+  [apply] ·
+    fun_induction foo
     · simp_all
     · sorry
 -/
@@ -176,7 +220,8 @@ example : foo x > 0 := by
   sorry
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 x : Nat
 ⊢ foo x > 0
 -/
@@ -192,11 +237,11 @@ attribute [grind] List.length_reverse bla
 
 /--
 info: Try these:
-• (fun_induction bla) <;> grind
-• (fun_induction bla) <;> simp_all
-• (fun_induction bla) <;> simp [*]
-• (fun_induction bla) <;> simp only [List.length_reverse, *]
-• (fun_induction bla) <;> grind only [List.length_reverse]
+  [apply] (fun_induction bla) <;> grind
+  [apply] (fun_induction bla) <;> simp_all
+  [apply] (fun_induction bla) <;> simp [*]
+  [apply] (fun_induction bla) <;> simp only [List.length_reverse, *]
+  [apply] (fun_induction bla) <;> grind only [= List.length_reverse]
 -/
 #guard_msgs (info) in
 example : (bla xs ys).length = ys.length := by

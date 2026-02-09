@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.Elab.Do
+public import Lean.Elab.Do
+
+public section
 
 /-!
 This module contains helpers used for formatting hovers according to docstring conventions. Links to
@@ -26,11 +30,11 @@ line comment marker.
 -/
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
-  let mut iter := line.iter
-  for _i in [0:indent] do
-    if h : iter.hasNext then
-      if iter.curr' h == ' ' then
-        iter := iter.next' h
+  let mut iter := line.startPos
+  for _i in *...indent do
+    if h : ¬iter.IsAtEnd then
+      if iter.get h == ' ' then
+        iter := iter.next h
       else
         -- Non-whitespace found *before* the indentation level. This output should be indented
         -- as if it were exactly at the indentation level.
@@ -38,7 +42,7 @@ private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
     else
       -- The line was entirely ' ', and was shorter than the indentation level. No `--` added.
       return line
-  let remaining := iter.remainingToString
+  let remaining := line.sliceFrom iter
   if remaining.all (· == ' ') then
     return line
   else
@@ -49,17 +53,17 @@ Splits a string into lines, preserving newline characters.
 -/
 private def lines (s : String) : Array String := Id.run do
   let mut result := #[]
-  let mut lineStart := s.iter
+  let mut lineStart := s.startPos
   let mut iter := lineStart
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  while h : ¬iter.IsAtEnd do
+    let c := iter.get h
+    iter := iter.next h
     if c == '\n' then
-      result := result.push <| lineStart.extract iter
+      result := result.push <| s.extract lineStart iter
       lineStart := iter
 
   if iter != lineStart then
-    result := result.push <| lineStart.extract iter
+    result := result.push <| s.extract lineStart iter
   return result
 
 private inductive RWState where
@@ -84,11 +88,11 @@ def rewriteExamples (docstring : String) : String := Id.run do
   -- The current state, which tracks the context of the line being processed
   let mut inOutput : RWState := .normal
   for l in lines do
-    let indent := l.takeWhile (· == ' ') |>.length
-    let mut l' := l.trimLeft
+    let indent := l.takeWhile (· == ' ') |>.utf8ByteSize -- this makes sense because we know the slice consists only of spaces
+    let mut l' := l.trimAsciiStart
     -- Is this a code block fence?
     if l'.startsWith "```" then
-      let count := l'.takeWhile (· == '`') |>.length
+      let count := l'.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       l' := l'.dropWhile (· == '`')
       l' := l'.dropWhile (· == ' ')
       match inOutput with

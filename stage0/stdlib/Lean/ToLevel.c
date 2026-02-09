@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ToLevel
-// Imports: Lean.Expr
+// Imports: public import Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,11 +15,11 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_instToLevel;
 lean_object* l_Lean_Level_succ___override(lean_object*);
-lean_object* l_Lean_Level_max___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToLevel__1(lean_object*);
+lean_object* l_Lean_Level_max___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ToLevel_max(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ToLevel_imax(lean_object*, lean_object*);
 lean_object* l_Lean_Level_imax___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ToLevel_imax(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instToLevel() {
 _start:
 {
@@ -52,13 +52,13 @@ x_3 = l_Lean_Level_imax___override(x_1, x_2);
 return x_3;
 }
 }
-lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Expr(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_ToLevel(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_ToLevel(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Expr(builtin, lean_io_mk_world());
+res = initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instToLevel = _init_l_Lean_instToLevel();

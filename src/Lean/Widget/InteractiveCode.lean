@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.Rpc.Basic
-import Lean.Server.InfoUtils
-import Lean.Widget.TaggedText
-import Lean.Widget.Basic
+public import Lean.Widget.TaggedText
+public import Lean.Widget.Basic
+
+public section
 
 /-! RPC infrastructure for storing and formatting code fragments, in particular `Expr`s,
 with environment and subexpression information. -/
@@ -46,7 +48,7 @@ abbrev CodeWithInfos := TaggedText SubexprInfo
 def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m SubexprInfo) (pm : Lean.SubExpr.PosMap α) (tt : CodeWithInfos) : m CodeWithInfos :=
   if pm.isEmpty then return tt else
   tt.mapM (fun (info : SubexprInfo) =>
-    match pm.find? info.subexprPos with
+    match pm.get? info.subexprPos with
     | some a => merger info a
     | none => pure info
   )
@@ -64,7 +66,7 @@ partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.I
 where
   go (tt : TaggedText (Nat × Nat)) : BaseIO (TaggedText SubexprInfo) :=
     tt.rewriteM fun (n, _) subTt => do
-      match infos.find? n with
+      match infos.get? n with
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {

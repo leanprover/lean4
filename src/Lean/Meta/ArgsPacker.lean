@@ -4,10 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.PProdN
-import Lean.Meta.ArgsPacker.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.PProdN
+public import Lean.Meta.ArgsPacker.Basic
+import Init.Omega
+import Init.While
+
+public section
 
 /-!
 This module implements the equivalence between the types
@@ -115,7 +121,7 @@ private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   if arity = 0 then return #[]
   let mut result := #[]
   let mut t := t
-  for _ in [:arity - 1] do
+  for _ in *...(arity - 1 : Nat) do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -486,7 +492,7 @@ Given types `(x : A) → (y : B[x]) → R₁[x,y]` and `(z : C) → R₂[z]`, re
 ```
 -/
 def uncurryType (argsPacker : ArgsPacker) (types : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith Unary.uncurryType argsPacker.varNamess types).mapM id
+  let unary ← Array.zipWithM Unary.uncurryType argsPacker.varNamess types
   Mutual.uncurryType unary
 
 /--
@@ -497,11 +503,11 @@ and `(z : C) → R₂[z]`, returns an expression of type
 ```
 -/
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurry unary
 
 def uncurryWithType (argsPacker : ArgsPacker) (resultType : Expr) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurryWithType resultType unary
 
 /--
@@ -512,7 +518,7 @@ and `(z : C) → R`, returns an expression of type
 ```
 -/
 def uncurryND (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
+  let unary ← Array.zipWithM Unary.uncurry argsPacker.varNamess es
   Mutual.uncurryND unary
 
 /--
@@ -548,7 +554,7 @@ Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (dependent), return types
 -/
 def curryType (argsPacker : ArgsPacker) (t : Expr) : MetaM (Array Expr) := do
   let unary ← Mutual.curryType argsPacker.numFuncs t
-  (Array.zipWith Unary.curryType argsPacker.varNamess unary).mapM id
+  Array.zipWithM Unary.curryType argsPacker.varNamess unary
 
 /--
 Given expression `e` of type `(x : a ⊗' b ⊕' c ⊗' d) → e[x]`, wraps that expression
@@ -559,7 +565,7 @@ to produce an expression of the isomorphic type
 -/
 def curry (argsPacker : ArgsPacker) (e : Expr) : MetaM Expr := do
   let mut es := #[]
-  for i in [:argsPacker.numFuncs] do
+  for i in *...argsPacker.numFuncs do
     es := es.push (← argsPacker.curryProj e i)
   PProdN.mk 0 es
 

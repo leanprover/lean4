@@ -143,15 +143,15 @@ for indented multiline string literals.
 -/
 
 def String.dedent (s : String) : Option String :=
-  let parts := s.split (· == '\n') |>.map String.trimLeft
+  let parts := s.split '\n' |>.map String.Slice.trimAsciiStart |>.toList
   match parts with
   | [] => ""
-  | [p] => p
+  | [p] => p.copy
   | p₀ :: parts =>
     if !parts.all (·.startsWith "|") then
       none
     else
-      p₀ ++ "\n" ++ String.intercalate "\n" (parts.map fun p => p.drop 1)
+      p₀.copy ++ "\n" ++ "\n".toSlice.intercalate (parts.map fun p => p.drop 1)
 
 elab "d!" s:str : term => do
   let some s := s.raw.isStrLit? | Lean.Elab.throwIllFormedSyntax

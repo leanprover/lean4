@@ -91,7 +91,8 @@ Too many names, linter warning.
 -/
 /--
 warning: unused name
-note: this linter can be disabled with `set_option linter.tactic.unusedName false`
+
+Note: This linter can be disabled with `set_option linter.tactic.unusedName false`
 ---
 trace: z : Nat := 2
 z' : Nat := 1 + 1
@@ -258,7 +259,8 @@ example : let x := 2; x = 2 := by
 In `-descend` mode, does not extract embedded let.
 -/
 /--
-error: tactic 'extract_lets' failed, made no progress
+error: Tactic `extract_lets` failed: made no progress
+
 ⊢ (let x := 2;
     x) =
     2
@@ -586,7 +588,8 @@ example : ∀ n : Nat, let x := n; let y := 2; x + y = x + y := by
 Can't extract from underneath another `let` when `underBinder := false`.
 -/
 /--
-error: tactic 'extract_lets' failed, made no progress
+error: Tactic `extract_lets` failed: made no progress
+
 ⊢ ∀ (n : Nat),
     let x := n;
     let y := 2;
@@ -651,7 +654,7 @@ example : ∀ n : Nat, n = (let x := n; x) := by
   rfl
 
 /-!
-Same example, but testing `letFun`.
+Same example, but testing `have`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),

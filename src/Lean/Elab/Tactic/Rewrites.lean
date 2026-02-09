@@ -3,10 +3,14 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Location
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.Rewrites
+public import Lean.Elab.Tactic.Location
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.Rewrites
+
+public section
 
 /-!
 # The `rewrites` tactic.

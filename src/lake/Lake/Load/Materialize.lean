@@ -3,11 +3,13 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Env
+public import Lake.Load.Manifest
+public import Lake.Config.Package
 import Lake.Util.Git
-import Lake.Load.Manifest
-import Lake.Config.Dependency
-import Lake.Config.Package
 import Lake.Reservoir
 
 open System Lean
@@ -23,7 +25,7 @@ namespace Lake
 /-- Update the Git package in `repo` to `rev` if not already at it. -/
 def updateGitPkg
   (name : String) (repo : GitRepo) (rev? : Option String)
-: LogIO PUnit := do
+: LoggerIO PUnit := do
   let rev ← repo.findRemoteRevision rev?
   if (← repo.getHeadRevision) = rev then
     if (← repo.hasDiff) then
@@ -35,7 +37,7 @@ def updateGitPkg
 /-- Clone the Git package as `repo`. -/
 def cloneGitPkg
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
-: LogIO PUnit := do
+: LoggerIO PUnit := do
   logInfo s!"{name}: cloning {url}"
   repo.clone url
   if let some rev := rev? then
@@ -50,7 +52,7 @@ Otherwise, delete the local repository and clone a fresh copy from `url`.
 -/
 def updateGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
-: LogIO Unit := do
+: LoggerIO Unit := do
   let sameUrl ← EIO.catchExceptions (h := fun _ => pure false) <| show IO Bool from do
     let some remoteUrl ← repo.getRemoteUrl? | return false
     if remoteUrl = url then return true
@@ -73,13 +75,13 @@ Clone it if no local copy exists, otherwise update it.
 -/
 def materializeGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
-: LogIO Unit := do
+: LoggerIO Unit := do
   if (← repo.dirExists) then
     updateGitRepo name repo url rev?
   else
     cloneGitPkg name repo url rev?
 
-structure MaterializedDep where
+public structure MaterializedDep where
   /-- Path to the materialized package relative to the workspace's root directory. -/
   relPkgDir : FilePath
   /--
@@ -91,36 +93,46 @@ structure MaterializedDep where
   manifestEntry : PackageEntry
   deriving Inhabited
 
-@[inline] def MaterializedDep.name (self : MaterializedDep) :=
+namespace MaterializedDep
+
+@[inline] public def name (self : MaterializedDep) :=
   self.manifestEntry.name
 
-@[inline] def MaterializedDep.scope (self : MaterializedDep) :=
+@[inline] public def scope (self : MaterializedDep) :=
   self.manifestEntry.scope
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] def MaterializedDep.manifestFile? (self : MaterializedDep) :=
+@[inline] public def manifestFile? (self : MaterializedDep) :=
   self.manifestEntry.manifestFile?
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
-@[inline] def MaterializedDep.configFile (self : MaterializedDep) :=
+@[inline] public def configFile (self : MaterializedDep) :=
   self.manifestEntry.configFile
 
-def pkgNotIndexed (scope name : String) (rev? : Option String := none) : String :=
-  let (leanRev, tomlRev) :=
-    if let some rev := rev? then
-      (s!" @ {repr rev}", s! "\n    rev = {repr rev}")
-    else ("", "")
+end MaterializedDep
+
+inductive InputVer
+| none
+| git (rev : String)
+| ver (ver : VerRange)
+
+def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=
+  let (leanVer, tomlVer) :=
+    match ver with
+    | .none => ("", "")
+    | .git rev => (s!" @ {repr rev}", s!"\n    rev = {repr rev}")
+    | .ver ver => (s!" @ {repr ver.toString}", s!"\n    version = {repr ver.toString}")
 s!"{scope}/{name}: package not found on Reservoir.
 
   If the package is on GitHub, you can add a Git source. For example:
 
     require ...
-      from git \"https://github.com/{scope}/{name}\"{leanRev}
+      from git \"https://github.com/{scope}/{name}\"{leanVer}
 
   or, if using TOML:
 
     [[require]]
-    git = \"https://github.com/{scope}/{name}\"{tomlRev}
+    git = \"https://github.com/{scope}/{name}\"{tomlVer}
     ...
 "
 
@@ -128,10 +140,10 @@ s!"{scope}/{name}: package not found on Reservoir.
 Materializes a configuration dependency.
 For Git dependencies, updates it to the latest input revision.
 -/
-def Dependency.materialize
+public def Dependency.materialize
   (dep : Dependency) (inherited : Bool)
   (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath)
-: LogIO MaterializedDep := do
+: LoggerIO MaterializedDep := do
   if let some src := dep.src? then
     match src with
     | .path dir =>
@@ -145,28 +157,45 @@ def Dependency.materialize
     if dep.scope.isEmpty then
       error s!"{dep.name}: ill-formed dependency: \
         dependency is missing a source and is missing a scope for Reservoir"
-    let verRev? ← dep.version?.mapM fun ver =>
-      if ver.startsWith "git#" then
-        return ver.drop 4
+    let ver : InputVer ← id do
+      let some ver := dep.version?
+        | return .none
+      if let some ver := ver.dropPrefix? "git#" then
+        return .git ver.toString
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#<rev>\")"
+        match VerRange.parse ver with
+        | .ok ver => return .ver ver
+        | .error e =>  error s!"{dep.name}: invalid dependency version range: {e}"
     let depName := dep.name.toString (escape := false)
     let pkg ←
       match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with
       | .ok (some pkg) => pure pkg
-      | .ok none => error <| pkgNotIndexed dep.scope depName verRev?
-      | .error e =>
-          logError s!"{dep.scope}/{depName}: could not materialize package: \
+      | .ok none => error <| pkgNotIndexed dep.scope depName ver
+      | .error .. =>
+          error s!"{dep.scope}/{depName}: could not materialize package: \
             this may be a transient error or a bug in Lake or Reservoir"
-          throw e
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
     | some (.git _ url githubUrl? defaultBranch? subDir?) =>
-      materializeGit pkg.fullName relPkgDir url
-        (githubUrl?.getD "") (verRev? <|> defaultBranch?) subDir?
+      let rev? ←
+        match ver with
+        | .none => defaultBranch?
+        | .git rev => some rev
+        | .ver ver =>
+          match (← Reservoir.fetchPkgVersions lakeEnv dep.scope depName |>.toLogT) with
+          | .ok vers =>
+              if let some ver := vers.find? (ver.test ·.version) then
+                logInfo s!"{dep.scope}/{depName}: using version `{ver.version}` at revision `{ver.revision}`"
+                pure ver.revision
+              else
+                error s!"{dep.scope}/{depName}: version `{ver}` not found on Reservoir"
+          | .error .. =>
+              error s!"{dep.scope}/{depName}: could not fetch package versions: \
+                this may be a transient error or a bug in Lake or Reservoir"
+      materializeGit pkg.fullName relPkgDir url (githubUrl?.getD "") rev? subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
-  materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LogIO MaterializedDep := do
+  materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LoggerIO MaterializedDep := do
     let repo := GitRepo.mk (wsDir / relPkgDir)
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
     materializeGitRepo name repo gitUrl inputRev?
@@ -181,10 +210,10 @@ where
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
-def PackageEntry.materialize
+public def PackageEntry.materialize
   (manifestEntry : PackageEntry)
   (lakeEnv : Env) (wsDir relPkgsDir : FilePath)
-: LogIO MaterializedDep :=
+: LoggerIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
     return mkDep relPkgDir ""

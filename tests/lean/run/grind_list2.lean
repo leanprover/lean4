@@ -277,7 +277,7 @@ theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
 
 theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
     (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
-  induction l₁ generalizing l₂ with cases l₂ with grind
+  induction l₁ generalizing l₂ with cases l₂ with grind [→ eq_nil_of_append_eq_nil]
 
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by
   induction l₁ generalizing l₂ with cases l₂ with grind
@@ -444,8 +444,6 @@ theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := by grind
 theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   cases l with grind
 
--- FIXME
-attribute [local grind] List.map_inj_left in
 theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 
@@ -455,10 +453,8 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
 
 theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
     map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
-  grind [map_eq_cons_iff]
+  grind [cases List]
 
--- FIXME
-attribute [local grind] List.map_inj_left in
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l with grind
 
@@ -468,9 +464,10 @@ theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
 theorem map_eq_foldr {f : α → β} {l : List α} : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> grind
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
     (l.set i a).map f = (l.map f).set i (f a) := by
-  grind +extAll
+  grind
 
 theorem head_map {f : α → β} {l : List α} (w) :
     (map f l).head w = f (l.head (by grind)) := by
@@ -489,8 +486,8 @@ theorem map_tail {f : α → β} {l : List α} :
 theorem headD_map {f : α → β} {l : List α} {a : α} : (map f l).headD (f a) = f (l.headD a) := by
   cases l with grind
 
-theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
-  grind
+-- theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD (f a) = f (l.getLastD a) := by
+--   grind
 
 theorem map_map {g : β → γ} {f : α → β} {l : List α} :
     map g (map f l) = map (g ∘ f) l := by induction l with grind
@@ -639,16 +636,19 @@ theorem getElem_append_left' {l₁ : List α} {i : Nat} (hi : i < l₁.length) (
 
 theorem singleton_append : [x] ++ l = x :: l := by grind
 
-theorem getLast_concat {a : α} {l : List α} : getLast (l ++ [a]) (by grind) = a := by
+theorem getLast_concat {a : α} {l : List α} :
+    getLast (l ++ [a]) (by grind [→ eq_nil_of_append_eq_nil]) = a := by
   induction l with grind
 
-theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by grind
+theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by grind [→ eq_nil_of_append_eq_nil]
 
-theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by grind
+theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by grind [→ eq_nil_of_append_eq_nil]
 
-theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by grind
+theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by
+  grind [→ eq_nil_of_append_eq_nil]
 
-theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by grind
+theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by
+  grind [→ eq_nil_of_append_eq_nil]
 
 theorem cons_eq_append_iff :
     x :: cs = as ++ bs ↔ (as = [] ∧ bs = x :: cs) ∨ (∃ as', as = x :: as' ∧ cs = as' ++ bs) := by
@@ -670,7 +670,8 @@ theorem head_append {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) :
         head l₁ (by grind) := by grind
 
 theorem head_append_left {l₁ l₂ : List α} (h : l₁ ≠ []) :
-    head (l₁ ++ l₂) (fun h => by grind) = head l₁ h := by grind
+    head (l₁ ++ l₂) (fun h => by grind [→ eq_nil_of_append_eq_nil]) = head l₁ h := by
+  grind
 
 theorem head_append_right {l₁ l₂ : List α} (w : l₁ ++ l₂ ≠ []) (h : l₁ = []) :
     head (l₁ ++ l₂) w = head l₂ (by grind) := by grind
@@ -850,8 +851,9 @@ theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
       l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
   grind [append_eq_replicate_iff]
 
+attribute [local ext, local grind ext] List.ext_getElem in
 theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
-  grind +extAll
+  grind
 
 theorem filter_replicate_of_pos (h : p a) : (replicate n a).filter p = replicate n a := by grind
 
@@ -1027,7 +1029,8 @@ theorem getLast_append {l : List α} (h : l ++ l' ≠ []) :
         l'.getLast (by grind) := by grind
 
 theorem getLast_append_right {l : List α} (h : l' ≠ []) :
-    (l ++ l').getLast (fun h => by grind) = l'.getLast h := by grind
+    (l ++ l').getLast (fun h => by grind [→ eq_nil_of_append_eq_nil]) = l'.getLast h := by
+  grind
 
 theorem getLast_append_left {l : List α} (w : l ++ l' ≠ []) (h : l' = []) :
     (l ++ l').getLast w = l.getLast (by grind) := by grind

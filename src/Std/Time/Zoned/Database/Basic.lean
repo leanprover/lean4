@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.Database.TzIf
+public import Std.Time.Zoned.ZoneRules
+public import Std.Time.Zoned.Database.TzIf
+
+public section
 
 namespace Std
 namespace Time
@@ -77,14 +81,14 @@ Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := do
   let mut times : Array LocalTimeType := #[]
 
-  for i in [0:tz.header.typecnt.toNat] do
+  for i in *...tz.header.typecnt.toNat do
     if let some result := convertLocalTimeType i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 
   let mut transitions := #[]
 
-  for i in [0:tz.transitionTimes.size] do
+  for i in *...tz.transitionTimes.size do
     if let some result := convertTransition times i tz
       then transitions := transitions.push result
       else .error s!"cannot convert transition {i} of the file"

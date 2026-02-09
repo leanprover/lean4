@@ -6,8 +6,11 @@ Authors: Mario Carneiro, Yury G. Kudryashov
 module
 
 prelude
+public import Init.Data.Sum.Basic
 import all Init.Data.Sum.Basic
-import Init.Ext
+public import Init.Ext
+
+public section
 
 /-!
 # Disjoint union of types
@@ -48,10 +51,10 @@ section get
   | inr _, _ => rfl
 
 @[simp, grind =] theorem getLeft?_eq_none_iff {x : α ⊕ β} : x.getLeft? = none ↔ x.isRight := by
-  cases x <;> simp only [getLeft?, isRight, eq_self_iff_true, reduceCtorEq]
+  cases x <;> simp only [getLeft?, isRight, reduceCtorEq]
 
 @[simp, grind =] theorem getRight?_eq_none_iff {x : α ⊕ β} : x.getRight? = none ↔ x.isLeft := by
-  cases x <;> simp only [getRight?, isLeft, eq_self_iff_true, reduceCtorEq]
+  cases x <;> simp only [getRight?, isLeft, reduceCtorEq]
 
 theorem eq_left_getLeft_of_isLeft : ∀ {x : α ⊕ β} (h : x.isLeft), x = inl (x.getLeft h)
   | inl _, _ => rfl

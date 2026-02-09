@@ -3,12 +3,13 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Message
-import Lean.Elab.InfoTree.Types
-import Lean.Data.Lsp.Basic
-import Lean.PrettyPrinter
+public import Lean.Data.Lsp.Basic
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # "Try this" data types
@@ -23,21 +24,6 @@ namespace Lean.Meta.Tactic.TryThis
 open PrettyPrinter
 
 /-! # Code action information -/
-
-/-- A packet of information about a "Try this" suggestion
-that we store in the infotree for the associated code action to retrieve. -/
-structure TryThisInfo : Type where
-  /-- The textual range to be replaced by one of the suggestions. -/
-  range : Lsp.Range
-  /--
-  A list of suggestions for the user to choose from.
-  Each suggestion may optionally come with an override for the code action title.
-  -/
-  suggestionTexts : Array (String × Option String)
-  /-- The prefix to display before the code action for a "Try this" suggestion if no custom code
-  action title is provided. If not provided, `"Try this: "` is used. -/
-  codeActionPrefix? : Option String
-  deriving TypeName
 
 /-! # `Suggestion` data -/
 
@@ -75,10 +61,11 @@ interesting fields:
 * `className`: the CSS classes applied to the link
 * `style`: A `Json` object with additional inline CSS styles such as `color` or `textDecoration`.
 -/
-def SuggestionStyle := Json deriving Inhabited, ToJson
+@[expose] def SuggestionStyle := Json deriving Inhabited, ToJson
 
 /-- Style as an error. By default, decorates the text with an undersquiggle; providing the argument
 `decorated := false` turns this off. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.error (decorated := true) : SuggestionStyle :=
   let style := if decorated then
     json% {
@@ -91,6 +78,7 @@ def SuggestionStyle.error (decorated := true) : SuggestionStyle :=
 
 /-- Style as a warning. By default, decorates the text with an undersquiggle; providing the
 argument `decorated := false` turns this off. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.warning (decorated := true) : SuggestionStyle :=
   if decorated then
     json% {
@@ -101,15 +89,18 @@ def SuggestionStyle.warning (decorated := true) : SuggestionStyle :=
   else json% { className: "gold pointer dim" }
 
 /-- Style as a success. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.success : SuggestionStyle :=
   -- The `.information` CSS class, which the infoview uses on successes.
   json% { className: "information pointer dim" }
 
 /-- Style the same way as a hypothesis appearing in the infoview. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.asHypothesis : SuggestionStyle :=
   json% { className: "goal-hyp pointer dim" }
 
 /-- Style the same way as an inaccessible hypothesis appearing in the infoview. -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.asInaccessible : SuggestionStyle :=
   json% { className: "goal-inaccessible pointer dim" }
 
@@ -118,6 +109,7 @@ green at `1.0`. Values outside the range `[0.0, 1.0]` are clipped to lie within 
 
 With `showValueInHoverText := true` (the default), the value `t` will be included in the `title` of
 the HTML element (which appears on hover). -/
+@[deprecated "`SuggestionStyle` is not used anymore." (since := "2025-08-14")]
 def SuggestionStyle.value (t : Float) (showValueInHoverText := true) : SuggestionStyle :=
   let t := min (max t 0) 1
   json% {
@@ -151,7 +143,8 @@ structure Suggestion where
   Note that this property is used only by the "try this" widget; it is ignored by the inline hint
   widget. -/
   style? : Option SuggestionStyle := none
-  /-- How to represent the suggestion as `MessageData`. This is used only in the info diagnostic.
+  /-- How to represent the suggestion as `MessageData`. This is used only in the text of the
+  widget diagnostic.
   If `none`, we use `suggestion`. Use `toMessageData` to render a `Suggestion` in this manner. -/
   messageData? : Option MessageData := none
   /-- How to construct the text that appears in the lightbulb menu from the suggestion text. If
@@ -160,23 +153,45 @@ structure Suggestion where
   toCodeActionTitle? : Option (String → String) := none
   deriving Inhabited
 
-/- If `messageData?` is specified, we use that; otherwise (by default), we use `toMessageData` of
-the suggestion text. -/
+attribute [deprecated "The `style?` property is not used anymore." (since := "2025-08-14")] Suggestion.style?
+
+/- Use `toMessageData` of the suggestion text. -/
 instance : ToMessageData Suggestion where
   toMessageData s := s.messageData?.getD (toMessageData s.suggestion)
 
 instance : Coe SuggestionText Suggestion where
   coe t := { suggestion := t }
 
+/--
+A packet of information about a "Try this" suggestion
+that we store in the infotree for the associated code action to retrieve.
+-/
+structure TryThisInfo : Type where
+  /-- Suggestion edit as it will be applied to the editor document. -/
+  edit : Lsp.TextEdit
+  /-- Title of the code action that is displayed in the code action selection dialog. -/
+  codeActionTitle : String
+  /--
+  Original suggestion that this `TryThisInfo` was derived from.
+  Stored so that meta-code downstream can extract the suggestions
+  produced by a tactic from the `InfoTree`.
+  -/
+  suggestion : Suggestion
+  deriving TypeName
+
 /-! # Formatting -/
 
-/-- Yields `(indent, column)` given a `FileMap` and a `String.Range`, where `indent` is the number
+/-- Yields `(indent, column)` given a `FileMap` and a `Lean.Syntax.Range`, where `indent` is the number
 of spaces by which the line that first includes `range` is initially indented, and `column` is the
 column `range` starts at in that line. -/
-def getIndentAndColumn (map : FileMap) (range : String.Range) : Nat × Nat :=
-  let start := map.source.findLineStart range.start
-  let body := map.source.findAux (· ≠ ' ') range.start start
-  ((body - start).1, (range.start - start).1)
+def getIndentAndColumn (map : FileMap) (range : Lean.Syntax.Range) : Nat × Nat :=
+  let rangeStart := map.source.pos! range.start
+  let start := findLineStart rangeStart
+  let body := (map.source.slice! start rangeStart).find (fun c => c != ' ') |>.str.offset
+  (start.offset.byteDistance body, start.offset.byteDistance range.start)
+where
+  findLineStart {s : String} (p : s.Pos) : s.Pos :=
+    p.revFind? '\n' |>.map (·.next!) |>.getD s.startPos
 
 /--
 An option allowing the user to customize the ideal input width. Defaults to 100.
@@ -214,55 +229,16 @@ def prettyExtra (s : SuggestionText) (w : Option Nat := none)
 
 end SuggestionText
 
-/-- Converts a `Suggestion` to `Json` in `CoreM`. We need `CoreM` in order to pretty-print syntax.
+def Suggestion.pretty (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
+    CoreM String := do
+  s.suggestion.prettyExtra w indent column
 
-This also returns a `String × Option String` consisting of the pretty-printed text and any custom
-code action title if `toCodeActionTitle?` is provided.
-
-If `w := none`, then `w := getInputWidth (← getOptions)` is used.
--/
-def Suggestion.toJsonAndInfoM (s : Suggestion) (w : Option Nat := none) (indent column : Nat := 0) :
-    CoreM (Json × String × Option String) := do
-  let text ← s.suggestion.prettyExtra w indent column
-  let mut json := [("suggestion", (text : Json))]
-  if let some preInfo := s.preInfo? then json := ("preInfo", preInfo) :: json
-  if let some postInfo := s.postInfo? then json := ("postInfo", postInfo) :: json
-  if let some style := s.style? then json := ("style", toJson style) :: json
-  return (Json.mkObj json, text, s.toCodeActionTitle?.map (· text))
-
-/--
-Represents processed data for a collection of suggestions that can be passed to a widget and pushed
-in an info leaf.
-
-It contains the following data:
-* `suggestions`: tuples of the form `(j, t, p)` where `j` is JSON containing a suggestion and its
-  pre- and post-info, `t` is the text to be inserteed by the suggestion, and `p` is the code action
-  prefix thereof.
-* `info`: the `TryThisInfo` data corresponding to a collection of suggestions
-* `range`: the range at which the suggestion is to be applied.
--/
-structure ProcessedSuggestions where
-  suggestions : Array (Json × String × Option String)
-  info : Elab.Info
-  range : Lsp.Range
-
-/--
-Processes an array of `Suggestion`s into data that can be used to construct a code-action info leaf
-and "try this" widget.
--/
-def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Array Suggestion)
-    (codeActionPrefix? : Option String) : CoreM ProcessedSuggestions := do
+def Suggestion.processEdit (s : Suggestion) (range : Lean.Syntax.Range) : CoreM Lsp.TextEdit := do
   let map ← getFileMap
   -- FIXME: this produces incorrect results when `by` is at the beginning of the line, i.e.
   -- replacing `tac` in `by tac`, because the next line will only be 2 space indented
   -- (less than `tac` which starts at column 3)
   let (indent, column) := getIndentAndColumn map range
-  let suggestions ← suggestions.mapM (·.toJsonAndInfoM (indent := indent) (column := column))
-  let suggestionTexts := suggestions.map (·.2)
-  let ref := Syntax.ofRange <| ref.getRange?.getD range
+  let newText ← s.pretty (indent := indent) (column := column)
   let range := map.utf8RangeToLspRange range
-  let info := .ofCustomInfo {
-    stx := ref
-    value := Dynamic.mk { range, suggestionTexts, codeActionPrefix? : TryThisInfo }
-  }
-  return { info, suggestions, range }
+  return { range, newText }

@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.EnvExtension
+public import Lean.EnvExtension
+
+public section
 
 namespace Lean
 
@@ -32,13 +36,11 @@ def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
 
 builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
 
-@[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
   projectionFnInfoExt.insert env projName { ctorName, numParams, i, fromClass }
 
 namespace Environment
 
-@[export lean_get_projection_info]
 def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
   projectionFnInfoExt.find? env projName
 

@@ -19,10 +19,11 @@ lake update -q
 
 # Build plugins
 lake build
+PKG=user__plugin # mangled
 LIB_DIR=.lake/build/lib
 check_plugin () {
   plugin=$1
-  shlib=$LIB_DIR/${LIB_PREFIX}$plugin.$SHLIB_EXT
+  shlib=$LIB_DIR/${LIB_PREFIX}${PKG}_$plugin.$SHLIB_EXT
   test -f $shlib || {
     echo "$plugin library not found; $LIB_DIR contains:"
     ls $LIB_DIR
@@ -31,8 +32,8 @@ check_plugin () {
 }
 check_plugin UserPlugin
 check_plugin UserEnvPlugin
-PLUGIN=$LIB_DIR/${LIB_PREFIX}UserPlugin.$SHLIB_EXT
-ENV_PLUGIN=$LIB_DIR/${LIB_PREFIX}UserEnvPlugin.$SHLIB_EXT
+PLUGIN=$LIB_DIR/${LIB_PREFIX}${PKG}_UserPlugin.$SHLIB_EXT
+ENV_PLUGIN=$LIB_DIR/${LIB_PREFIX}${PKG}_UserEnvPlugin.$SHLIB_EXT
 
 # Expected test output
 EXPECTED_OUT="Ran builtin initializer"

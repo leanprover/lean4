@@ -9,7 +9,7 @@ partial def formatMap : Node Nat Nat → Format
   keys.size.fold
     (fun i _ fmt =>
       let k := keys[i];
-      let v := vals.get! i;
+      let v := vals[i]!;
       let p := if i > 0 then fmt ++ format "," ++ Format.line else fmt;
       p ++ "c@" ++ Format.paren (format k ++ " => " ++ format v))
     Format.nil
@@ -28,7 +28,7 @@ partial def formatMap : Node Nat Nat → Format
 def main : IO Unit :=
 do
 let a : Array Nat := [1, 2, 3].toArray;
-IO.println (a.indexOf? 2);
+IO.println (a.idxOf? 2);
 let m : Map := PersistentHashMap.empty;
 let m := m.insert 1 1;
 let m := m.insert 33 2;

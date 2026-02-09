@@ -8,19 +8,20 @@ instance: GetElem (Vect n A) Nat A (λ _ i => i < n) where
 
 set_option pp.mvars false
 /--
-error: type mismatch
+error: Type mismatch
   xm[i]
 has type
-  Vect m A : outParam (Type _)
+  Vect m A
 but is expected to have type
-  A : outParam (Type _)
+  A
 ---
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   ih
-after simplification has type
-  i < as.length : Prop
-but is expected to have type
-  ?_ : Type _
+ has type
+  i < as.length
+of sort `Prop` but is expected to have type
+  ?_
+of sort `Type _`
 ---
 error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid

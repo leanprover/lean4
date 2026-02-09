@@ -24,6 +24,7 @@ namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
 static name * g_bool_true    = nullptr;
+static name * g_eager_reduce = nullptr;
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
@@ -154,12 +155,23 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
     return mk_sort(r);
 }
 
+/* Returns `true` if `e` is of the form `eagerReduce _ _` */
+static bool is_eager_reduce(expr const & e) {
+    return is_const(get_app_fn(e), *g_eager_reduce) && get_app_num_args(e) == 2;
+}
+
 expr type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
         expr a_type = infer_type_core(app_arg(e), infer_only);
         expr d_type = binding_domain(f_type);
-        if (!is_def_eq(a_type, d_type)) {
+        if (is_eager_reduce(app_arg(e))) {
+            // If argument is of the form `eagerReduce`, set m_eager_reduction mode
+            flet<bool> scope(m_eager_reduce, true);
+            if (!is_def_eq(a_type, d_type)) {
+                throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
+            }
+        } else if (!is_def_eq(a_type, d_type)) {
             throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
         }
         return instantiate(binding_body(f_type), app_arg(e));
@@ -183,33 +195,15 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
     }
 }
 
-static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
-    if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x) {
-            if (!has_fvar(x)) return false;
-            if (is_fvar(x)) {
-                for (unsigned i = 0; i < n; i++) {
-                    if (fvar_name(fvars[i]) == fvar_name(x)) {
-                        used[i] = true;
-                        return false;
-                    }
-                }
-            }
-            return true;
-        });
-}
-
 expr type_checker::infer_let(expr const & _e, bool infer_only) {
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
     buffer<expr> fvars;
-    buffer<expr> vals;
     expr e = _e;
     while (is_let(e)) {
         expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
         expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
         expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, let_name(e), type, val);
         fvars.push_back(fvar);
-        vals.push_back(val);
         if (!infer_only) {
             ensure_sort_core(infer_type_core(type, infer_only), type);
             expr val_type = infer_type_core(val, infer_only);
@@ -221,21 +215,7 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
     r = cheap_beta_reduce(r); // use `cheap_beta_reduce` (to try) to reduce number of dependencies
-    buffer<bool, 128> used;
-    used.resize(fvars.size(), false);
-    mark_used(fvars.size(), fvars.data(), r, used.data());
-    unsigned i = fvars.size();
-    while (i > 0) {
-        --i;
-        if (used[i])
-            mark_used(i, fvars.data(), vals[i], used.data());
-    }
-    buffer<expr> used_fvars;
-    for (unsigned i = 0; i < fvars.size(); i++) {
-        if (used[i])
-            used_fvars.push_back(fvars[i]);
-    }
-    return m_lctx.mk_pi(used_fvars, r);
+    return m_lctx.mk_pi(fvars, r, true);
 }
 
 expr type_checker::infer_proj(expr const & e, bool infer_only) {
@@ -288,10 +268,9 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
-    if (is_bvar(e))
+    if (has_loose_bvars(e))
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
-    lean_assert(!has_loose_bvars(e));
     check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
@@ -379,7 +358,7 @@ expr type_checker::whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj) {
 /* Auxiliary method for `reduce_proj` */
 optional<expr> type_checker::reduce_proj_core(expr c, unsigned idx) {
     if (is_string_lit(c))
-        c = string_lit_to_constructor(c);
+        c = whnf(string_lit_to_constructor(c));
     buffer<expr> args;
     expr const & mk = get_app_args(c, args);
     if (!is_constant(mk))
@@ -518,11 +497,22 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
 optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
         if (auto d = is_delta(e)) {
-            if (length(const_levels(e)) == d->get_num_lparams()) {
+            levels const & us = const_levels(e);
+            unsigned len = length(us);
+            if (len == d->get_num_lparams()) {
                 if (m_diag) {
                     m_diag->record_unfold(d->get_name());
                 }
-                return some_expr(instantiate_value_lparams(*d, const_levels(e)));
+                if (len > 0) {
+                    auto it = m_st->m_unfold.find(e);
+                    if (it != m_st->m_unfold.end())
+                        return some_expr(it->second);
+                    expr result = instantiate_value_lparams(*d, us);
+                    m_st->m_unfold.insert(mk_pair(e, result));
+                    return some_expr(result);
+                } else {
+                    return some_expr(instantiate_value_lparams(*d, us));
+                }
             }
         }
     }
@@ -987,7 +977,7 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
-        if (!has_fvar(t_n) && !has_fvar(s_n)) {
+        if ((!has_fvar(t_n) && !has_fvar(s_n)) || m_eager_reduce) {
             if (auto t_v = reduce_nat(t_n)) {
                 return to_lbool(is_def_eq_core(*t_v, s_n));
             } else if (auto s_v = reduce_nat(s_n)) {
@@ -1041,7 +1031,7 @@ static expr * g_string_mk = nullptr;
 
 lbool type_checker::try_string_lit_expansion_core(expr const & t, expr const & s) {
     if (is_string_lit(t) && is_app(s) && app_fn(s) == *g_string_mk) {
-        return to_lbool(is_def_eq_core(string_lit_to_constructor(t), s));
+        return to_lbool(is_def_eq_core(whnf(string_lit_to_constructor(t)), s));
     }
     return l_undef;
 }
@@ -1075,7 +1065,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     // we fully reduce `t` and check whether result is `s`.
     // This code path is taken in particular when using the `decide` tactic, which produces
     // proof terms of the form `Eq.refl true : decide p = true`.
-    if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
+    if ((!has_fvar(t) || m_eager_reduce) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
             return true;
         }
@@ -1204,6 +1194,7 @@ void initialize_type_checker() {
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};
     mark_persistent(g_bool_true->raw());
+    g_eager_reduce = new name{"eagerReduce"};
     g_dont_care    = new_persistent_expr_const("dontcare");
     g_nat_zero     = new_persistent_expr_const({"Nat", "zero"});
     g_nat_succ     = new_persistent_expr_const({"Nat", "succ"});
@@ -1221,7 +1212,7 @@ void initialize_type_checker() {
     g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
-    g_string_mk    = new_persistent_expr_const({"String", "mk"});
+    g_string_mk    = new_persistent_expr_const({"String", "ofList"});
     g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
     g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);
@@ -1230,6 +1221,7 @@ void initialize_type_checker() {
 void finalize_type_checker() {
     delete g_kernel_fresh;
     delete g_bool_true;
+    delete g_eager_reduce;
     delete g_dont_care;
     delete g_nat_succ;
     delete g_nat_zero;

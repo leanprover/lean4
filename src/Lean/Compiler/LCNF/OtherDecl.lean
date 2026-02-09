@@ -3,9 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.BaseTypes
+public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.LCNF.ToImpureType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -16,6 +21,6 @@ def getOtherDeclType (declName : Name) (us : List Level := []) : CompilerM Expr 
   match (← getPhase) with
   | .base => getOtherDeclBaseType declName us
   | .mono => getOtherDeclMonoType declName
-  | _ => unreachable! -- TODO
+  | .impure => getOtherDeclImpureType declName
 
 end Lean.Compiler.LCNF

@@ -8,10 +8,15 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Zip
-import Init.Data.Vector.MapIdx
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.ByCases
+import Init.Data.Array.Find
 import Init.Data.Array.Range
+import Init.Data.Vector.MapIdx
+import Init.Data.Vector.Zip
+
+public section
 
 /-!
 # Lemmas about `Vector.range'`, `Vector.range`, and `Vector.zipIdx`
@@ -39,7 +44,7 @@ theorem range'_eq_mk_range' {start size step} :
 
 @[simp, grind =] theorem getElem_range' {start size step i} (h : i < size) :
    (range' start size step)[i] = start + step * i := by
-  simp [range', h]
+  simp [range']
 
 @[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
@@ -58,7 +63,7 @@ theorem range'_zero : range' s 0 step = #v[] := by
 
 @[simp] theorem range'_inj : range' s n = range' s' n ↔ (n = 0 ∨ s = s') := by
   rw [← toArray_inj]
-  simp [List.range'_inj]
+  simp
 
 @[grind =]
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by
@@ -74,11 +79,15 @@ theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
   ext <;> simp <;> omega
 
-@[grind _=_]
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   rw [← toArray_inj]
   simp [Array.range'_append]
+
+grind_pattern range'_append => range' s m step ++ range' (s + step * m) n step
+
+grind_pattern range'_append => range' s (m + n) step where
+  s =/= _ + _ * _ -- This cuts off an infinite chain of instantiations.
 
 @[simp] theorem range'_append_1 {s m n : Nat} :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append (step := 1)

@@ -1,0 +1,54 @@
+{"textDocument": {"uri": "file:///interactiveGoalGoToLoc.lean"},
+ "position": {"line": 14, "character": 2}}
+{"goals":
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "4"}}, {"text": "MyTrue"}]},
+   "mvarId": "[anonymous]",
+   "isRemoved": true,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "MyNat"}]},
+     "names": ["x"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "1"}},
+       {"append":
+        [{"text": "MyEq "},
+         {"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "x"}]},
+         {"text": " "},
+         {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "x"}]}]}]},
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "5"}}]}
+GoToLoc responses for type of x:
+GoToLoc response for MyNat:
+{"kind": "definition", "info": {"p": "0"}}
+[{"targetUri": "file:///interactiveGoalGoToLoc.lean",
+  "targetSelectionRange":
+  {"start": {"line": 1, "character": 10}, "end": {"line": 1, "character": 15}},
+  "targetRange":
+  {"start": {"line": 0, "character": 0}, "end": {"line": 3, "character": 24}}}]
+GoToLoc responses for type of h:
+GoToLoc response for MyEq x x:
+{"kind": "definition", "info": {"p": "1"}}
+[{"targetUri": "file:///interactiveGoalGoToLoc.lean",
+  "targetSelectionRange":
+  {"start": {"line": 9, "character": 10}, "end": {"line": 9, "character": 14}},
+  "targetRange":
+  {"start": {"line": 8, "character": 0}, "end": {"line": 10, "character": 27}}}]
+GoToLoc response for x:
+{"kind": "definition", "info": {"p": "2"}}
+[]
+GoToLoc response for x:
+{"kind": "definition", "info": {"p": "3"}}
+[]
+GoToLoc responses for type of goal:
+GoToLoc response for MyTrue:
+{"kind": "definition", "info": {"p": "4"}}
+[{"targetUri": "file:///interactiveGoalGoToLoc.lean",
+  "targetSelectionRange":
+  {"start": {"line": 6, "character": 10}, "end": {"line": 6, "character": 16}},
+  "targetRange":
+  {"start": {"line": 5, "character": 0}, "end": {"line": 6, "character": 29}}}]

@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Init.Data.ToString
+public import Init.Data.Hashable
+public import Init.Data.ToString
+
+@[expose] public section
 
 namespace Std
 namespace Sat

@@ -1,20 +1,20 @@
 {"textDocument": {"uri": "file:///533.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"label": "F",
+ [{"label": "Foo",
    "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///533.lean"},
-     "position": {"line": 4, "character": 10}},
-    "id": {"fvar": {"id": "_uniq.7"}},
-    "cPos": 0}},
-  {"label": "Foo",
+   "data": ["file:///533.lean", 4, 10, 0, "f_uniq.3"]},
+  {"label": "F",
    "kind": 6,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///533.lean"},
-     "position": {"line": 4, "character": 10}},
-    "id": {"fvar": {"id": "_uniq.3"}},
-    "cPos": 0}}],
+   "data": ["file:///533.lean", 4, 10, 0, "f_uniq.7"]}],
  "isIncomplete": false}
+Resolution of Foo:
+{"label": "Foo",
+ "kind": 6,
+ "detail": "Sort ?u",
+ "data": ["file:///533.lean", 4, 10, 0, "f_uniq.3"]}
+Resolution of F:
+{"label": "F",
+ "kind": 6,
+ "detail": "Sort ?u",
+ "data": ["file:///533.lean", 4, 10, 0, "f_uniq.7"]}

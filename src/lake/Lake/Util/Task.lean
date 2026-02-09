@@ -3,24 +3,27 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Init.Control.Option
+public import Init.Control.Option
+public import Init.Control.Except
 
 namespace Lake
 
-instance : Monad Task where
+public instance : Monad Task where
   map := Task.map
   pure := Task.pure
   bind := Task.bind
 
-abbrev ETask ε := ExceptT ε Task
-abbrev OptionTask := OptionT Task
+public abbrev ETask ε := ExceptT ε Task
+public abbrev OptionTask := OptionT Task
 
-def BaseIOTask := Task
-instance : Monad BaseIOTask := inferInstanceAs <| Monad Task
-instance [Inhabited α] : Inhabited (BaseIOTask α) := inferInstance
+@[expose] public def BaseIOTask := Task
+public instance : Monad BaseIOTask := inferInstanceAs (Monad Task)
+public instance [Inhabited α] : Inhabited (BaseIOTask α) := inferInstance
 
-abbrev EIOTask ε := ExceptT ε BaseIOTask
-abbrev OptionIOTask := OptionT BaseIOTask
+public abbrev EIOTask ε := ExceptT ε BaseIOTask
+public abbrev OptionIOTask := OptionT BaseIOTask
 
-instance : Inhabited (OptionIOTask α) := ⟨failure⟩
+public instance : Inhabited (OptionIOTask α) := ⟨failure⟩

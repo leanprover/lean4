@@ -6,8 +6,14 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Fin.Fold
+public import Init.Data.Fin.Fold
+public import Init.NotationExtra
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
+
+public section
 
 /-!
 # Theorems about `List.ofFn`
@@ -25,7 +31,7 @@ Examples:
  * `List.ofFn (n := 3) toString = ["0", "1", "2"]`
  * `List.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = ["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
+@[expose] def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
 
 /--
 Creates a list wrapped in a monad by applying the monadic function `f : Fin n → m α`
@@ -96,7 +102,12 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
 
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
-  cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
+  cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
+
+@[simp]
+theorem ofFn_getElem {xs : List α} :
+    List.ofFn (fun i : Fin xs.length => xs[i.val]) = xs := by
+  apply ext_getElem <;> simp
 
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
@@ -107,12 +118,18 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+@[simp, grind =]
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (List.ofFn f).map g = List.ofFn (g ∘ f) := by
+  apply List.ext_getElem?
+  simp [List.getElem?_ofFn]
+
 @[grind =] theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
   rw [← getElem_zero (length_ofFn ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
     List.getElem_ofFn]
 
-@[grind =]theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
+@[grind =] theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
   simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
 

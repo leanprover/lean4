@@ -3,12 +3,17 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.ReduceEval
-import Lean.Meta.WHNF
-import Lean.KeyedDeclsAttribute
-import Lean.ParserCompiler.Attribute
-import Lean.Parser.Extension
+public import Lean.Meta.ReduceEval
+public import Lean.Meta.WHNF
+public import Lean.KeyedDeclsAttribute
+public import Lean.ParserCompiler.Attribute
+public import Lean.Parser.Extension
+import Init.Data.Range.Polymorphic.Iterators
+
+public section
 
 /-!
 Gadgets for compiling parser declarations into other programs, such as pretty printers.
@@ -37,8 +42,8 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   let reduceEval? e : MetaM (Option Name) := do
     try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
-  if e matches Expr.lam .. then
-    lambdaLetTelescope e fun _ e => parserNodeKind? e
+  if e matches Expr.lam .. | Expr.letE .. then
+    lambdaLetTelescope (preserveNondepLet := false) e fun _ e => parserNodeKind? e
   else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
     reduceEval? (e.getArg! 0)
   else if e.isAppOfArity ``withAntiquot 2 then
@@ -61,11 +66,11 @@ variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | .lam ..  => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
+  | .lam .. | .letE .. => mapLambdaLetTelescope (preserveNondepLet := false) e fun _ b => compileParserExpr b
   | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn
-    let .const c .. := fn | throwError "call of unknown parser at '{e}'"
+    let .const c .. := fn | throwError "call of unknown parser at `{e}`"
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do
@@ -73,7 +78,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       forallTelescope ty fun params _ => do
         let mut p := mkConst p
         let args  := e.getAppArgs
-        for i in [:Nat.min params.size args.size] do
+        for i in *...(Nat.min params.size args.size) do
           let param := params[i]!
           let arg   := args[i]!
           let paramTy ← inferType param
@@ -91,9 +96,9 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       if resultTy.isConstOf ``Lean.Parser.TrailingParser || resultTy.isConstOf ``Lean.Parser.Parser then do
         -- synthesize a new `[combinatorAttr c]`
         let some value ← pure cinfo.value?
-          | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
+          | throwError "don't know how to generate {ctx.varName} for non-definition `{e}`"
         unless (env.getModuleIdxFor? c).isNone || force do
-          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[run_parser_attribute_hooks]` on its definition instead."
+          throwError "refusing to generate code for imported parser declaration `{c}`; use `@[run_parser_attribute_hooks]` on its definition instead."
         let value ← compileParserExpr <| replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
@@ -103,6 +108,10 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           name := c', levelParams := []
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
+        -- usually `meta` is inferred during compilation for auxiliary definitions, but as
+        -- `ctx.combinatorAttr` may enforce correct use of the modifier, infer now.
+        if isMarkedMeta (← getEnv) c then
+          modifyEnv (markMeta · c')
         addAndCompile decl
         modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then
@@ -120,7 +129,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         -- if this is a generic function, e.g. `AndThen.andthen`, it's easier to just unfold it until we are
         -- back to parser combinators
         let some e' ← unfoldDefinition? e
-          | throwError "don't know how to generate {ctx.varName} for non-parser combinator '{e}'"
+          | throwError "don't know how to generate {ctx.varName} for non-parser combinator `{e}`"
         compileParserExpr e'
 end
 
@@ -137,12 +146,13 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.trailingNode _ _ _ d   => compileEmbeddedParsers d
   | ParserDescr.symbol _               => pure ()
   | ParserDescr.nonReservedSymbol _ _  => pure ()
+  | ParserDescr.unicodeSymbol _ _ _    => pure ()
   | ParserDescr.cat _ _                => pure ()
 
 /-- Precondition: `α` must match `ctx.tyName`. -/
 unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
-    postAdd := fun catName constName builtin => do
+    postAdd := fun catName constName builtin => withoutExporting do  -- needs to look through defs
       let info ← getConstInfo constName
       if info.type.isConstOf ``Lean.ParserDescr || info.type.isConstOf ``Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>

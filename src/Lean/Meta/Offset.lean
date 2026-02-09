@@ -3,13 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Control.Option
-import Lean.Data.LBool
-import Lean.Meta.InferType
+public import Lean.Data.LBool
+public import Lean.Meta.Basic
 import Lean.Meta.NatInstTesters
 import Lean.Util.SafeExponentiation
-
+public section
 namespace Lean.Meta
 
 private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) : OptionT MetaM α := do
@@ -19,6 +19,7 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+open Structural in -- TODO FIX
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/

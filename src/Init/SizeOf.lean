@@ -6,7 +6,10 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
+public import Init.Notation
 import Init.Tactics
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! # SizeOf -/
@@ -82,10 +85,11 @@ deriving instance SizeOf for USize
 deriving instance SizeOf for Char
 deriving instance SizeOf for Option
 deriving instance SizeOf for List
-deriving instance SizeOf for String
-deriving instance SizeOf for String.Pos
-deriving instance SizeOf for Substring
 deriving instance SizeOf for Array
+deriving instance SizeOf for ByteArray
+deriving instance SizeOf for String
+deriving instance SizeOf for String.Pos.Raw
+deriving instance SizeOf for Substring.Raw
 deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
 

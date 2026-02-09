@@ -3,8 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.Task
+public import Init.System.IO
+
+public section
 
 /-!
 This file provides a thin `ServerTask` wrapper over the `Task` API.
@@ -49,6 +54,8 @@ namespace ServerTask
 def pure (x : α) : ServerTask α := Task.pure x
 
 def get (t : ServerTask α) : α := t.task.get
+
+def wait (t : ServerTask α) : BaseIO α := IO.wait t.task
 
 def mapCheap (f : α → β) (t : ServerTask α) : ServerTask β :=
   t.task.map f (sync := true)

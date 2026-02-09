@@ -3,11 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.Declaration
-import Lean.MonadEnv
-import Lean.Elab.InfoTree
+public import Lean.Elab.InfoTree
+
+public section
 
 namespace Lean.Compiler
 
@@ -53,17 +54,16 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
       let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
       let fnDecl ← getConstVal fnName
       unless decl.levelParams.length == fnDecl.levelParams.length do
-        throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"
+        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has {fnDecl.levelParams.length} universe level parameter(s), but `{.ofConstName declName}` has {decl.levelParams.length}"
       let declType := decl.type
       let fnType ← Core.instantiateTypeLevelParams fnDecl (decl.levelParams.map mkLevelParam)
       unless declType == fnType do
-        throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
+        throwError "Invalid `implemented_by` argument `{fnName}`: `{fnName}` has type{indentExpr fnType}\nbut `{.ofConstName declName}` has type{indentExpr declType}"
       if decl.name == fnDecl.name then
-        throwError "invalid 'implemented_by' argument '{fnName}', function cannot be implemented by itself"
+        throwError "Invalid `implemented_by` argument `{fnName}`: Definition cannot be implemented by itself"
       return fnName
 }
 
-@[export lean_get_implemented_by]
 def getImplementedBy? (env : Environment) (declName : Name) : Option Name :=
   implementedByAttr.getParam? env declName
 

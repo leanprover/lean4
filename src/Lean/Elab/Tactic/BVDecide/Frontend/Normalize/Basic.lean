@@ -3,9 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+
+public section
 
 /-!
 This module contains the basic preprocessing pipeline framework for `bv_normalize`.

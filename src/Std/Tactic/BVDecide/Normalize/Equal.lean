@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Bool
-import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Lemmas
+
+@[expose] public section
 
 /-!
 This module contains the equality simplifying part of the `bv_normalize` simp set.
@@ -62,40 +65,32 @@ theorem BitVec.xor_right_inj' (a b c : BitVec w) : (c ^^^ a == b ^^^ c) = (a == 
   rw [Bool.eq_iff_iff, BitVec.xor_comm c]
   simp
 
-@[bv_normalize]
 theorem BitVec.add_left_inj (a b c : BitVec w) : (a + c == b + c) = (a == b) := by
   rw [Bool.eq_iff_iff]
   simp
 
-@[bv_normalize]
 theorem BitVec.add_left_inj' (a b c : BitVec w) : (a + c == c + b) = (a == b) := by
   rw [BitVec.add_comm c b, add_left_inj]
 
-@[bv_normalize]
 theorem BitVec.add_right_inj (a b c : BitVec w) : (c + a == c + b) = (a == b) := by
   rw [Bool.eq_iff_iff]
   simp
 
-@[bv_normalize]
 theorem BitVec.add_right_inj' (a b c : BitVec w) : (c + a == b + c) = (a == b) := by
   rw [BitVec.add_comm b c, add_right_inj]
 
-@[bv_normalize]
 theorem BitVec.add_left_eq_self (a b : BitVec w) : (a + b == b) = (a == 0#w) := by
   rw [Bool.eq_iff_iff]
   simp
 
-@[bv_normalize]
 theorem BitVec.add_right_eq_self (a b : BitVec w) : (a + b == a) = (b == 0#w) := by
   rw [Bool.eq_iff_iff]
   simp
 
-@[bv_normalize]
 theorem BitVec.self_eq_add_right (a b : BitVec w) : (a == a + b) = (b == 0#w) := by
   rw [Bool.eq_iff_iff]
   simp
 
-@[bv_normalize]
 theorem BitVec.self_eq_add_left (a b : BitVec w) : (a == b + a) = (b == 0#w) := by
   rw [Bool.eq_iff_iff]
   simp

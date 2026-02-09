@@ -6,8 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.LinearCombo
+public import Init.Omega.Coeffs
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.ToString.Macro
 import Init.Omega.Int
+import Init.PropLemmas
+import Init.RCases
+
+public section
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
@@ -42,8 +49,11 @@ deriving BEq, DecidableEq, Repr
 
 namespace Constraint
 
+private local instance : Append String where
+  append := String.Internal.append
+
 instance : ToString Constraint where
-  toString := fun
+  toString := private fun
   | ⟨none, none⟩ => "(-∞, ∞)"
   | ⟨none, some y⟩ => s!"(-∞, {y}]"
   | ⟨some x, none⟩ => s!"[{x}, ∞)"
@@ -243,7 +253,7 @@ theorem addEquality_sat (w : c + Coeffs.dot x y = 0) :
     Constraint.sat' { lowerBound := some (-c), upperBound := some (-c) } x y := by
   simp [Constraint.sat', Constraint.sat]
   rw [Int.eq_iff_le_and_ge] at w
-  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonnneg_iff_neg_le', and_comm] at w
+  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonneg_iff_neg_le', and_comm] at w
 
 end Constraint
 

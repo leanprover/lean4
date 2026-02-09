@@ -1,4 +1,11 @@
 repositories:
+  - name: lean4-cli
+    url: https://github.com/leanprover/lean4-cli
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
   - name: batteries
     url: https://github.com/leanprover-community/batteries
     toolchain-tag: true
@@ -21,26 +28,49 @@ repositories:
     branch: master
     dependencies: []
 
-  - name: lean4-cli
-    url: https://github.com/leanprover/lean4-cli
+  - name: plausible
+    url: https://github.com/leanprover-community/plausible
     toolchain-tag: true
     stable-branch: false
     branch: main
     dependencies: []
-
-  - name: doc-gen4
-    url: https://github.com/leanprover/doc-gen4
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: [lean4-cli]
 
   - name: verso
     url: https://github.com/leanprover/verso
     toolchain-tag: true
     stable-branch: false
     branch: main
+    dependencies:
+      - plausible
+
+  - name: import-graph
+    url: https://github.com/leanprover-community/import-graph
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - lean4-cli
+
+  - name: lean4-unicode-basic
+    url: https://github.com/fgdorais/lean4-unicode-basic
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
     dependencies: []
+
+  - name: BibtexQuery
+    url: https://github.com/dupuisf/BibtexQuery
+    toolchain-tag: true
+    stable-branch: false
+    branch: master
+    dependencies: [lean4-unicode-basic]
+
+  - name: doc-gen4
+    url: https://github.com/leanprover/doc-gen4
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: [lean4-cli, BibtexQuery]
 
   - name: reference-manual
     url: https://github.com/leanprover/reference-manual
@@ -65,22 +95,6 @@ repositories:
     dependencies:
       - batteries
 
-  - name: import-graph
-    url: https://github.com/leanprover-community/import-graph
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies:
-      - lean4-cli
-      - batteries
-
-  - name: plausible
-    url: https://github.com/leanprover-community/plausible
-    toolchain-tag: true
-    stable-branch: false
-    branch: main
-    dependencies: []
-
   - name: mathlib4
     url: https://github.com/leanprover-community/mathlib4
     toolchain-tag: true
@@ -97,6 +111,15 @@ repositories:
       - import-graph
       - plausible
 
+  - name: cslib
+    url: https://github.com/leanprover/cslib
+    toolchain-tag: true
+    stable-branch: true
+    branch: main
+    bump-branch: true
+    dependencies:
+      - mathlib4
+
   - name: repl
     url: https://github.com/leanprover-community/repl
     toolchain-tag: true
@@ -104,3 +127,31 @@ repositories:
     branch: master
     dependencies:
       - mathlib4
+
+  - name: verso-web-components
+    url: https://github.com/leanprover/verso-web-components
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - verso
+
+  - name: lean-fro.org
+    url: https://github.com/leanprover/lean-fro.org
+    toolchain-tag: false
+    stable-branch: false
+    branch: master
+    dependencies:
+      - verso-web-components
+
+  - name: comparator
+    url: https://github.com/leanprover/comparator
+    toolchain-tag: true
+    stable-branch: false
+    branch: master
+
+  - name: lean4export
+    url: https://github.com/leanprover/lean4export
+    toolchain-tag: true
+    stable-branch: false
+    branch: master

@@ -13,7 +13,7 @@ Tests of the error message when goal is false.
 -/
 
 /--
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   False
 is false
 -/
@@ -21,7 +21,7 @@ is false
 theorem foo3 : False := by decide
 
 /--
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   False
 is false
 -/
@@ -34,13 +34,13 @@ The kernel sees through irreducible definitions
 @[irreducible] def irred {α : Type} (x : α) : α := x
 
 /--
-error: tactic 'decide' failed for proposition
+error: Tactic `decide` failed for proposition
   irred 3 = 3
-since its 'Decidable' instance
+because its `Decidable` instance
   instDecidableEqNat (irred 3) 3
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances 'instDecidableEqNat' and 'Nat.decEq', reduction got stuck at the 'Decidable' instance
+After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at the `Decidable` instance
   match h : (irred 3).beq 3 with
   | true => isTrue ⋯
   | false => isFalse ⋯
@@ -75,9 +75,10 @@ Reverting free variables.
 -/
 
 /--
-error: expected type must not contain free variables
+error: Expected type must not contain free variables
   x + 1 ≤ 5
-Use the '+revert' option to automatically cleanup and revert free variables.
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
 -/
 #guard_msgs in
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide +kernel

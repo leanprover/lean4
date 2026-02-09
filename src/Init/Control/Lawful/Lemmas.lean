@@ -6,9 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.RCases
+public import Init.Control.Lawful.Basic
+public import Init.Classical
+public import Init.Ext
 import Init.ByCases
+
+public section
 
 -- Mapping by a function with a left inverse is injective.
 theorem map_inj_of_left_inverse [Functor m] [LawfulFunctor m] {f : α → β}

@@ -6,8 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Basic
 import Init.Data.Array.InsertIdx
+import Init.Data.Vector.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # insertIdx
@@ -39,11 +43,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {xs : Vector α n} {h : i ≤ n} :
     (xs.insertIdx i a).eraseIdx i = xs := by
   rcases xs with ⟨xs, rfl⟩
   simp_all [Array.eraseIdx_insertIdx_self]
-
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
-theorem eraseIdx_insertIdx {i : Nat} {xs : Vector α n} {h : i ≤ n} :
-    (xs.insertIdx i a).eraseIdx i = xs := by
-  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {xs : Vector α n}
     (w₁ : i < n) (w₂ : j ≤ n - 1) (h : i ≤ j) :
@@ -98,22 +97,22 @@ theorem getElem_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) 
         else
           xs[k-1] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w]
+  simp [Array.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k] = xs[k] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w, h]
+  simp [Array.getElem_insertIdx, h]
 
 theorem getElem_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i] = x := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w]
+  simp [Array.getElem_insertIdx]
 
 theorem getElem_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat} (w : k ≤ n) (h : k > i) :
     (xs.insertIdx i x)[k] = xs[k - 1] := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_insertIdx, w, h]
+  simp [Array.getElem_insertIdx]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
 @[grind =]
@@ -127,7 +126,7 @@ theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n)
         else
           xs[k-1]? := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem?_insertIdx, h]
+  simp [Array.getElem?_insertIdx]
 
 theorem getElem?_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by

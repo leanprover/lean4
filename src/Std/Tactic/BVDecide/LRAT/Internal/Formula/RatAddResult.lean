@@ -3,8 +3,15 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddSound
+import Init.ByCases
+import Init.Data.Int.OfNat
+import Init.Data.Nat.Linear
+
+@[expose] public section
 
 /-!
 This module contains the implementation of RAT-based clause adding for the default LRAT checker
@@ -38,7 +45,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
   have h0 : InsertUnitInvariant f.assignments hf.2 f.ratUnits f.assignments hsize := by
     intro i
     apply Or.inl
-    simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
+    simp only [Fin.getElem_fin, ne_eq, true_and]
     intro j
     simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
@@ -101,7 +108,7 @@ theorem formula_performRatCheck {n : Nat} (f : DefaultFormula n)
     (performRatCheck f p ratHint).1 = f := by
   simp only [performRatCheck, Bool.or_eq_true, Bool.not_eq_true']
   split
-  · next c _ =>
+  next c _ =>
     split
     · rw [clear_insertRat f hf]
     · let fc := (insertRatUnits f (negate (DefaultClause.delete c p))).1
@@ -150,14 +157,14 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
         · grind
         · split at ratAddSuccess
           · grind
-          · next performRatCheck_fold_success =>
+          next performRatCheck_fold_success =>
             simp only [Bool.not_eq_false] at performRatCheck_fold_success
             let fc := (insertRupUnits f (negate c)).1
             have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by
               rw [size_assignments_insertRupUnits f (negate c)]
               exact f_readyForRatAdd.2.2.1
-            simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
-              restoreAssignments_performRupCheck fc fc_assignments_size, Prod.mk.injEq, and_true] at ratAddSuccess
+            simp only [
+              Prod.mk.injEq, and_true] at ratAddSuccess
             rw [← ratAddSuccess]
             clear f' ratAddSuccess
             let performRupCheck_res := (performRupCheck (insertRupUnits f (negate c)).1 rupHints).1
@@ -171,7 +178,7 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
             simp +zetaDelta only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
               clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, ← insertRupUnits_rw,
-              clear_insertRup f f_readyForRatAdd.2 (negate c), fc, performRupCheck_res]
+              clear_insertRup f f_readyForRatAdd.2 (negate c)]
   · grind
 
 end DefaultFormula

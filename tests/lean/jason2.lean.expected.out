@@ -1,8 +1,8 @@
-jason2.lean:4:30-4:37: error: don't know how to synthesize implicit argument 'x'
+jason2.lean:4:30-4:37: error: don't know how to synthesize implicit argument `x`
   @Foo.foo ?m
 context:
 ⊢ Nat
-jason2.lean:4:20-4:23: error: don't know how to synthesize implicit argument 'x'
+jason2.lean:4:20-4:23: error: don't know how to synthesize implicit argument `x`
   @Foo ?m
 context:
 ⊢ Nat

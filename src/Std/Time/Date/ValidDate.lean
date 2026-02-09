@@ -3,14 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+import all Std.Time.Date.Unit.Month
+import Init.Data.Bool
+
+public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 open Month.Ordinal
 
@@ -20,10 +23,12 @@ set_option linter.all true
 Represents a valid date for a given year, considering whether it is a leap year. Example: `(2, 29)`
 is valid only if `leap` is `true`.
 -/
-def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) }
+@[expose] def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) }
 
 instance : Inhabited (ValidDate l) where
   default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
+
+attribute [local instance] lexOrd
 
 instance : DecidableEq (ValidDate leap) := Subtype.instDecidableEq
 

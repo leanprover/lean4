@@ -20,10 +20,8 @@ def helloProvider : CodeActionProvider := fun params _snap => do
     kind? := "refactor",
   }
   let lazyResult : IO CodeAction := do
-    let v? ← IO.getEnv "PWD"
-    let v := v?.getD "none"
     return { longRunner with
-      edit? := WorkspaceEdit.ofTextEdit vi { range := params.range, newText := v}
+      edit? := WorkspaceEdit.ofTextEdit vi { range := params.range, newText := "lazy result"}
     }
   return #[ca, {eager := longRunner, lazy? := lazyResult}]
 

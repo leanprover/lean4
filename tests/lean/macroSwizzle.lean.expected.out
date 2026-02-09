@@ -1,13 +1,13 @@
-macroSwizzle.lean:4:7-4:23: error: failed to synthesize
+macroSwizzle.lean:4:7-4:23: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   HAdd Bool String ?m
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
-macroSwizzle.lean:6:7-6:10: error: Application type mismatch: In the application
-  Nat.succ "x"
-the argument
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+macroSwizzle.lean:6:7-6:10: error: Application type mismatch: The argument
   "x"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  Nat.succ "x"
 sorry.succ : Nat

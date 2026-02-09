@@ -3,13 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Declaration
-import Lean.Log
-import Lean.AuxRecursor
-import Lean.Compiler.Old
+public import Lean.Elab.Exception
+public import Lean.Log
+public import Lean.AuxRecursor
+public import Lean.Compiler.Old
+
+public section
 
 namespace Lean
 
@@ -82,41 +84,65 @@ def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "unknown constant '{.ofConstName constName}'"
+  | none      => throwUnknownConstant constName
 
 def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
   match (← getEnv).findConstVal? constName with
   | some val => pure val
-  | none     => throwError "unknown constant '{mkConst constName}'"
+  | none     => throwUnknownConstant constName
 
 def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
   match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
   | some val => pure val
-  | none     => throwError "unknown constant '{mkConst constName}'"
+  | none     => throwUnknownConstant constName
+
+def isInductiveCore? (env : Environment) (declName : Name) : Option InductiveVal := do
+  match env.findAsync? declName with
+  | some info@{ kind := .induct, .. } =>
+    match info.toConstantInfo with
+    | .inductInfo val => some val
+    | _ => unreachable!
+  | _ => none
+
+def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveVal) :=
+  return isInductiveCore? (← getEnv) declName
+
+def isDefn? [Monad m] [MonadEnv m] (constName : Name) : m (Option DefinitionVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .defn, .. } => match info.toConstantInfo with
+    | .defnInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
+
+def isCtor? [Monad m] [MonadEnv m] (constName : Name) : m (Option ConstructorVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .ctor, .. } => match info.toConstantInfo with
+    | .ctorInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
+
+def isRec? [Monad m] [MonadEnv m] (constName : Name) : m (Option RecursorVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .recursor, .. } => match info.toConstantInfo with
+    | .recInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.defnInfo v => pure v
-  | _                       => throwError "'{.ofConstName constName}' is not a definition"
+  (← inline <| isDefn? constName).getDM (throwError "`{.ofConstName constName}` is not a definition")
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.inductInfo v => pure v
-  | _                         => throwError "'{.ofConstName constName}' is not a inductive type"
+  (← inline <| isInductive? constName).getDM (throwError "`{.ofConstName constName}` is not an inductive type")
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.ctorInfo v => pure v
-  | _                       => throwError "'{.ofConstName constName}' is not a constructor"
+  (← inline <| isCtor? constName).getDM (throwError "`{.ofConstName constName}` is not a constructor")
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.recInfo v => pure v
-  | _                      => throwError "'{.ofConstName constName}' is not a recursor"
+  (← inline <| isRec? constName).getDM (throwError "`{.ofConstName constName}` is not a recursor")
 
 /--
 Matches if `e` is a constant that is an inductive type with one constructor.
@@ -147,10 +173,18 @@ See also `Lean.matchConstStructure` for a less restrictive version.
         | _ => failK ()
       | _ => failK ()
 
+@[extern "lean_has_compile_error"]
+opaque hasCompileError (env : Environment) (constName : Name) : Bool
+
 unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) (checkMeta := true) : m α := do
+  -- If compilation wasn't successful (meaning it already emitted an error), abort silently
+  if hasCompileError (← getEnv) constName then
+    Elab.throwAbortCommand
   ofExcept <| (← getEnv).evalConst (checkMeta := checkMeta) α (← getOptions) constName
 
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
+  if hasCompileError (← getEnv) constName then
+    Elab.throwAbortCommand
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName
 
 def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do

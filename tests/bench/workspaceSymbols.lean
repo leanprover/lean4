@@ -1,4 +1,6 @@
+module
 import Lean
+meta import Lean.Data.FuzzyMatching
 open Lean Elab
 
 def bench (pattern : String) : TermElabM Unit := do
@@ -10,7 +12,7 @@ def bench (pattern : String) : TermElabM Unit := do
   IO.println s!"{n} matches"
 
 set_option profiler true
-#eval bench "L"
-#eval bench "Lean."
-#eval bench "Lean.Expr"
-#eval bench "Lean.Expr.const"
+#eval! bench "L"
+#eval! bench "Lean."
+#eval! bench "Lean.Expr"
+#eval! bench "Lean.Expr.const"

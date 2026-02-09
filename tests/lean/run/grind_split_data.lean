@@ -1,3 +1,4 @@
+module
 inductive C where
   | a | b | c
 

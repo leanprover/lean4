@@ -6,9 +6,16 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega
+import Init.TacticsExtra
+public import Init.Data.Nat.Dvd
+public import Init.NotationExtra
+import Init.ByCases
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Simproc
+import Init.Omega
+import Init.RCases
+
+public section
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.
@@ -43,15 +50,24 @@ theorem add_mod_eq_sub : (a + b) % c = a % c + b % c - if a % c + b % c < c then
 
 theorem lt_div_iff_mul_lt (h : 0 < k) : x < y / k ↔ x * k < y - (k - 1) := by
   have t := le_div_iff_mul_le h (x := x + 1) (y := y)
-  rw [succ_le, add_one_mul] at t
+  rw [succ_le_iff, add_one_mul] at t
   have s : k = k - 1 + 1 := by omega
   conv at t => rhs; lhs; rhs; rw [s]
-  rw [← Nat.add_assoc, succ_le, add_lt_iff_lt_sub_right] at t
+  rw [← Nat.add_assoc, succ_le_iff, add_lt_iff_lt_sub_right] at t
   exact t
 
 theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := by
   rw [le_iff_lt_add_one, Nat.div_lt_iff_lt_mul h, Nat.add_one_mul]
   omega
+
+theorem le_mul_iff_le_left (hz : 0 < z) :
+    x ≤ y * z ↔ (x + z - 1) / z ≤ y := by
+  rw [Nat.div_le_iff_le_mul hz]
+  omega
+
+theorem le_mul_iff_le_right (hy : 0 < y) :
+    x ≤ y * z ↔ (x + y - 1) / y ≤ z := by
+  rw [← le_mul_iff_le_left hy, Nat.mul_comm]
 
 -- TODO: reprove `div_eq_of_lt_le` in terms of this:
 protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ y * k ≤ x ∧ x ≤ y * k + k - 1 := by
@@ -80,7 +96,7 @@ theorem lt_div_mul_self (h : 0 < k) (w : k ≤ x) : x - k < x / k * k := by
 theorem div_pos (hba : b ≤ a) (hb : 0 < b) : 0 < a / b := by
   cases b
   · contradiction
-  · simp [Nat.pos_iff_ne_zero, div_eq_zero_iff_lt, hba]
+  · simp [Nat.pos_iff_ne_zero, hba]
 
 theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
   (Nat.le_div_iff_mul_le hc).2 <|
@@ -93,6 +109,12 @@ protected theorem div_le_div {a b c d : Nat} (h1 : a ≤ b) (h2 : d ≤ c) (h3 :
 theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
   div_le_div_left (Nat.le_add_left z y) h
+
+theorem div_add_div_le_add_div {x y z : Nat} : x / z + y / z ≤ (x + y) / z := by
+  by_cases hc : z > 0
+  · rw [Nat.le_div_iff_mul_le hc, Nat.add_mul]
+    apply Nat.add_le_add <;> apply Nat.div_mul_le_self
+  · simp_all
 
 theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
     (a + 1) / b = a / b + 1 := by
@@ -224,5 +246,11 @@ theorem mod_eq_mod_iff {x y z : Nat} :
   · rintro ⟨k₁, k₂, h⟩
     replace h := congrArg (· % z) h
     simpa using h
+
+theorem ext_div_mod {n a b : Nat} (h0 : a / n = b / n) (h1 : a % n = b % n) : a = b :=
+  (div_add_mod a n).symm.trans (h0 ▸ h1 ▸ div_add_mod b n)
+
+theorem ext_div_mod_iff (n a b : Nat) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
+  ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_div_mod h0 h1⟩
 
 end Nat

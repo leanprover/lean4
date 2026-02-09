@@ -6,3 +6,4 @@ produced.out
 /lakefile.toml
 /Main.lean
 /Lib/
+/lean-toolchain

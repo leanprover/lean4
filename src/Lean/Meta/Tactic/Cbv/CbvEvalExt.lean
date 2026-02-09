@@ -22,6 +22,10 @@ end Lean.Meta.Sym.Simp
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
+/--
+  Entry of the `CbvEvalExtension`.
+  Consists of the precomputed `Theorem` object and a name of the head function appearing on the left-hand side of the theorem.
+-/
 structure CbvEvalEntry where
   appFn : Name
   thm  : Theorem
@@ -71,8 +75,7 @@ builtin_initialize
   registerBuiltinAttribute {
     ref   := `cbvEvalAttr
     name  := `cbv_eval
-    descr := "Register a theorem as a rewrite rule for CBV evaluation of a given definition. \
-              Usage: @[cbv_eval] theorem ..."
+    descr := "Register a theorem as a rewrite rule for `cbv` evaluation of a given definition."
     applicationTime := AttributeApplicationTime.afterCompilation
     add := fun lemmaName _ kind => do
       let (entry, _) ← MetaM.run (mkCbvTheoremFromConst lemmaName) {}

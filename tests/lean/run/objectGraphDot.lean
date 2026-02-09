@@ -12,14 +12,27 @@ open Lean
 #eval IO.println <| objectGraphToDot <| Std.TreeMap.ofList [(128, "128"), (64, "64"), (32, "32"), (16, "16"), (8, "8"), (4, "4")]
 #eval IO.println <| objectGraphToDot <| Std.HashMap.ofList [(128, "128"), (64, "64"), (32, "32"), (16, "16"), (8, "8"), (4, "4")]
 
+
+
+#eval IO.println <| objectGraphToDot <| Std.HashSet.ofList
+  [1, 2, 4, 8 ,16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 8192 * 2, 8192 * 4, 8192 * 8,
+  8192 * 16, 8192 * 32, 8192 * 64]
+
+
 -- Channel
 #eval show IO _ from do
   let chan ← Std.Channel.new (α := String) (capacity := some 8)
-  discard <| IO.ofExcept <| (← IO.asTask (chan.sync.send "1")).get
-  discard <| IO.ofExcept <| (← IO.asTask (chan.sync.send "2")).get
-  discard <| IO.ofExcept <| (← IO.asTask (chan.sync.recv)).get
-  discard <| IO.ofExcept <| (← IO.asTask (chan.sync.send "3")).get
-  discard <| IO.ofExcept <| (← IO.asTask (chan.sync.send "4")).get
+  discard <| ( IO.asTask (chan.sync.send "1"))
+  discard <| ( IO.asTask (chan.sync.send "2"))
+  discard <| ( IO.asTask (chan.sync.send "3"))
+  discard <| ( IO.asTask (chan.sync.send "4"))
+  discard <| ( IO.asTask (chan.sync.send "5"))
+  discard <| ( IO.asTask (chan.sync.send "6"))
+  discard <| ( IO.asTask (chan.sync.send "7"))
+  discard <| ( IO.asTask (chan.sync.send "8"))
+  discard <| ( IO.asTask (chan.sync.send "9"))
+  discard <| ( IO.asTask (chan.sync.send "10"))
+  IO.sleep 1
   IO.println <| objectGraphToDot <| chan
 
 def A : Nat := 0

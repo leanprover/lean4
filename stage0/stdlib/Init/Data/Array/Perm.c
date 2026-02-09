@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Perm
-// Imports: public import Init.Data.List.Nat.Perm import all Init.Data.Array.Basic public import Init.Data.Array.Lemmas
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.Basic import Init.Data.Array.Lemmas import Init.Data.List.Nat.Perm import Init.Data.List.Nat.TakeDrop import Init.Data.List.Perm import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -266,21 +266,37 @@ _start:
 return lean_box(0);
 }
 }
-lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Perm(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Nat_Perm(builtin);
+res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Perm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6 = _init_l_Array___aux__Init__Data__Array__Perm______macroRules__Array__term___x7e____1___closed__6();

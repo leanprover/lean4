@@ -777,7 +777,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___l
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___lam__0___closed__16;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addDefaultTypeAnalysisLemmas(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___redArg(lean_object*);
-lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_mkContext___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_intToBitVecExt;
 lean_object* l_Lean_Meta_SimpExtension_getTheorems___redArg(lean_object*, lean_object*);
@@ -11486,7 +11486,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; uint8_t x_10; uint8_t x_200; lean_object* x_206; uint8_t x_207; 
+lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_200; lean_object* x_206; uint8_t x_207; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
@@ -11537,9 +11537,9 @@ lean_ctor_set(x_19, 3, x_17);
 lean_ctor_set(x_19, 4, x_18);
 lean_ctor_set(x_19, 5, x_15);
 lean_ctor_set(x_19, 6, x_18);
-lean_ctor_set_uint8(x_19, sizeof(void*)*7, x_8);
-lean_ctor_set_uint8(x_19, sizeof(void*)*7 + 1, x_8);
-lean_ctor_set_uint8(x_19, sizeof(void*)*7 + 2, x_8);
+lean_ctor_set_uint8(x_19, sizeof(void*)*7, x_9);
+lean_ctor_set_uint8(x_19, sizeof(void*)*7 + 1, x_9);
+lean_ctor_set_uint8(x_19, sizeof(void*)*7 + 2, x_9);
 lean_ctor_set_uint8(x_19, sizeof(void*)*7 + 3, x_7);
 x_20 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_21 = lean_st_mk_ref(x_20);
@@ -11658,8 +11658,8 @@ lean_dec(x_45);
 x_48 = lean_unbox(x_41);
 lean_dec(x_41);
 x_7 = x_42;
-x_8 = x_48;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_48;
 x_10 = x_47;
 goto block_38;
 }
@@ -11671,8 +11671,8 @@ lean_dec(x_41);
 x_50 = lean_unbox(x_45);
 lean_dec(x_45);
 x_7 = x_42;
-x_8 = x_49;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_49;
 x_10 = x_50;
 goto block_38;
 }
@@ -12028,8 +12028,8 @@ lean_dec(x_131);
 x_134 = lean_unbox(x_127);
 lean_dec(x_127);
 x_7 = x_128;
-x_8 = x_134;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_134;
 x_10 = x_133;
 goto block_38;
 }
@@ -12041,8 +12041,8 @@ lean_dec(x_127);
 x_136 = lean_unbox(x_131);
 lean_dec(x_131);
 x_7 = x_128;
-x_8 = x_135;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_135;
 x_10 = x_136;
 goto block_38;
 }
@@ -15283,7 +15283,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lam__8___closed__4));
 x_2 = lean_unsigned_to_nat(58u);
-x_3 = lean_unsigned_to_nat(483u);
+x_3 = lean_unsigned_to_nat(484u);
 x_4 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess_spec__5___lam__1___closed__0));
 x_5 = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lam__8___closed__2));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -16138,22 +16138,22 @@ block_23:
 {
 lean_object* x_21; 
 lean_inc(x_17);
-lean_inc_ref(x_13);
-lean_inc(x_16);
 lean_inc_ref(x_15);
-lean_inc(x_12);
+lean_inc(x_14);
+lean_inc_ref(x_12);
+lean_inc(x_13);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess_spec__4_spec__6(x_1, x_2, x_3, x_18, x_20, x_12, x_15, x_16, x_13, x_17);
+x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess_spec__4_spec__6(x_1, x_2, x_3, x_18, x_20, x_13, x_12, x_14, x_15, x_17);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_dec_ref(x_21);
 x_4 = x_19;
 x_5 = x_20;
-x_6 = x_12;
-x_7 = x_15;
-x_8 = x_16;
-x_9 = x_13;
+x_6 = x_13;
+x_7 = x_12;
+x_8 = x_14;
+x_9 = x_15;
 x_10 = x_17;
 goto _start;
 }
@@ -16161,10 +16161,10 @@ else
 {
 lean_dec_ref(x_19);
 lean_dec(x_17);
-lean_dec(x_16);
 lean_dec_ref(x_15);
-lean_dec_ref(x_13);
-lean_dec(x_12);
+lean_dec(x_14);
+lean_dec(x_13);
+lean_dec_ref(x_12);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_21;
@@ -16181,11 +16181,11 @@ lean_inc_ref(x_31);
 x_32 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_32);
 lean_dec_ref(x_4);
-x_12 = x_25;
-x_13 = x_28;
-x_14 = lean_box(0);
-x_15 = x_26;
-x_16 = x_27;
+x_12 = x_26;
+x_13 = x_25;
+x_14 = x_27;
+x_15 = x_28;
+x_16 = lean_box(0);
 x_17 = x_29;
 x_18 = x_31;
 x_19 = x_32;
@@ -16200,11 +16200,11 @@ lean_inc_ref(x_33);
 x_34 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_34);
 lean_dec_ref(x_4);
-x_12 = x_25;
-x_13 = x_28;
-x_14 = lean_box(0);
-x_15 = x_26;
-x_16 = x_27;
+x_12 = x_26;
+x_13 = x_25;
+x_14 = x_27;
+x_15 = x_28;
+x_16 = lean_box(0);
 x_17 = x_29;
 x_18 = x_33;
 x_19 = x_34;
@@ -18224,8 +18224,8 @@ lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 24, x_43);
 lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 25, x_43);
 lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 26, x_16);
 lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 27, x_16);
-lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 28, x_16);
-x_47 = l_Lean_Meta_Simp_mkContext___redArg(x_46, x_34, x_41, x_35, x_38);
+lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 28, x_43);
+x_47 = l_Lean_Meta_Simp_mkContext___redArg(x_46, x_34, x_41, x_35, x_37, x_38);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; 

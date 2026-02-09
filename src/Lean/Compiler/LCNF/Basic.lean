@@ -10,6 +10,7 @@ public import Lean.Meta.Instances
 public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Types
+import Init.Omega
 
 public section
 
@@ -336,6 +337,14 @@ inductive LetValue (pu : Purity) where
   Partial application of a function.
   -/
   | pap (fn : Name) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
+  /--
+  The reset instruction from Counting Immutable Beans. `n` is the amount of object fields stored in
+  the constructor in `var`.
+  -/
+  | reset (n : Nat) (var : FVarId) (h : pu = .impure := by purity_tac)
+  /-- `reuse x in ctor_i ys` instruction in the paper. `updateHeader` is set if the tag in the new
+      ctor differs from the one in the old ctor and thus needs to be updated. -/
+  | reuse (var : FVarId) (i : CtorInfo) (updateHeader : Bool) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
@@ -367,6 +376,26 @@ private unsafe def LetValue.updateFVarImp (e : LetValue pu) (fvarId' : FVarId) (
 
 @[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue pu) (fvarId' : FVarId) (args' : Array (Arg pu)) : LetValue pu
 
+private unsafe def LetValue.updateResetImp (e : LetValue pu) (n' : Nat) (fvarId' : FVarId) : LetValue pu :=
+  match e with
+  | .reset n fvarId _ => if n == n' && fvarId == fvarId' then e else .reset n' fvarId'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateResetImp] opaque LetValue.updateReset! (e : LetValue pu) (n' : Nat) (fvarId' : FVarId) : LetValue pu
+
+private unsafe def LetValue.updateReuseImp (e : LetValue pu) (var' : FVarId) (i' : CtorInfo)
+    (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .reuse var i updateHeader args _ =>
+    if var == var' && ptrEq i i' && updateHeader == updateHeader' && ptrEq args args' then
+      e
+    else
+      .reuse var' i' updateHeader' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateReuseImp] opaque LetValue.updateReuse! (e : LetValue pu)
+    (var' : FVarId) (i' : CtorInfo) (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu
+
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
@@ -374,6 +403,8 @@ private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg 
   | .pap declName args _  => if ptrEq args args' then e else .pap declName args'
   | .fap declName args _  => if ptrEq args args' then e else .fap declName args'
   | .ctor info args _  => if ptrEq args args' then e else .ctor info args'
+  | .reuse var info updateHeader args _ =>
+    if ptrEq args args' then e else .reuse var info updateHeader args'
   | _ => unreachable!
 
 @[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu
@@ -390,6 +421,10 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .oproj i var _ => mkApp2 (.const `oproj []) (ToExpr.toExpr i) (.fvar var)
   | .uproj i var _ => mkApp2 (.const `uproj []) (ToExpr.toExpr i) (.fvar var)
   | .sproj i offset var _ => mkApp3 (.const `sproj []) (ToExpr.toExpr i) (ToExpr.toExpr offset) (.fvar var)
+  | .reset n var _ => mkApp2 (.const `reset []) (ToExpr.toExpr n) (.fvar var)
+  | .reuse var i updateHeader args _ =>
+    mkAppN (.const `reuse []) <|
+      #[.fvar var, .const i.name [], ToExpr.toExpr updateHeader] ++ (args.map Arg.toExpr)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -505,6 +540,14 @@ def CodeDecl.fvarId : CodeDecl pu → FVarId
   | .let decl | .fun decl _ | .jp decl => decl.fvarId
   | .uset var .. | .sset var .. => var
 
+def Code.toCodeDecl! : Code pu → CodeDecl pu
+| .let decl _ => .let decl
+| .fun decl _ _ => .fun decl
+| .jp decl _ => .jp decl
+| .uset var i y _ _ => .uset var i y
+| .sset var i offset ty y _ _ => .sset var i offset ty y
+| _ => unreachable!
+
 def attachCodeDecls (decls : Array (CodeDecl pu)) (code : Code pu) : Code pu :=
   go decls.size code
 where
@@ -531,6 +574,10 @@ mutual
       | .jmp j₁ as₁, .jmp j₂ as₂ => j₁ == j₂ && as₁ == as₂
       | .return r₁, .return r₂ => r₁ == r₂
       | .unreach t₁, .unreach t₂ => t₁ == t₂
+      | .uset v₁ i₁ y₁ k₁ _, .uset v₂ i₂ y₂ k₂ _ =>
+        v₁ == v₂ && i₁ == i₂ && y₁ == y₂ && eqImp k₁ k₂
+      | .sset v₁ i₁ o₁ y₁ ty₁ k₁ _, .sset v₂ i₂ o₂ y₂ ty₂ k₂ _ =>
+        v₁ == v₂ && i₁ == i₂ && o₁ == o₂ && y₁ == y₂ && ty₁ == ty₂ && eqImp k₁ k₂
       | _, _ => false
 
   private unsafe def eqFunDecl (d₁ d₂ : FunDecl pu) : Bool :=
@@ -549,6 +596,7 @@ mutual
     match a₁, a₂ with
     | .default k₁, .default k₂ => eqImp k₁ k₂
     | .alt c₁ ps₁ k₁ _, .alt c₂ ps₂ k₂ _ => c₁ == c₂ && ps₁ == ps₂ && eqImp k₁ k₂
+    | .ctorAlt i₁ k₁ _, .ctorAlt i₂ k₂ _ => i₁ == i₂ && eqImp k₁ k₂
     | _, _ => false
 end
 
@@ -1047,8 +1095,10 @@ private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSe
   match e with
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _  => collectArgs args s
-  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _ => s.insert fvarId
+  | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _
+  | .reset _ fvarId _  => s.insert fvarId
   | .lit .. | .erased => s
+  | .reuse fvarId _ _ args _ => collectArgs args <| s.insert fvarId
 
 private partial def collectParams (ps : Array (Param pu)) (s : FVarIdHashSet) : FVarIdHashSet :=
   ps.foldl (init := s) fun s p => collectType p.type s

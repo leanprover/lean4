@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Diff
-// Imports: public import Init.Data.Array.Subarray.Split public import Init.Data.Slice.Array.Iterator public import Init.Data.Range public import Std.Data.HashMap.Basic import Init.Data.Iterators.Combinators.ULift public import Init.Data.String.Basic
+// Imports: public import Init.Data.Array.Subarray.Split public import Init.Data.Slice.Array.Iterator public import Init.Data.Range public import Std.Data.HashMap.Basic public import Init.Data.String.Basic public import Init.Data.Range.Polymorphic.RangeIterator public import Init.While import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic.Nat import Init.Data.ToString.Macro import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2970,8 +2970,13 @@ lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Array_Iterator(uint8_t builtin);
 lean_object* initialize_Init_Data_Range(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Combinators_ULift(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Diff(uint8_t builtin) {
 lean_object * res;
@@ -2989,10 +2994,25 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Combinators_ULift(builtin);
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_Range_Polymorphic_RangeIterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Diff_instReprAction_repr___closed__6 = _init_l_Lean_Diff_instReprAction_repr___closed__6();

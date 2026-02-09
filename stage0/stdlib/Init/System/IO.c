@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.IO
-// Imports: public import Init.System.IOError public import Init.System.FilePath public import Init.Data.Ord.UInt import Init.Data.String.TakeDrop import Init.Data.String.Search
+// Imports: public import Init.System.IOError public import Init.System.FilePath import Init.Data.String.TakeDrop import Init.Data.String.Search public import Init.Data.Ord.Basic public import Init.Data.String.Basic import Init.Data.List.MapIdx import Init.Data.Ord.UInt import Init.Data.ToString.Macro import Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6019,26 +6019,26 @@ x_16 = lean_uint32_dec_eq(x_14, x_15);
 if (x_16 == 0)
 {
 lean_dec(x_13);
-lean_dec(x_12);
-x_7 = x_11;
+lean_dec(x_11);
+x_7 = x_12;
 goto block_10;
 }
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_string_utf8_byte_size(x_11);
+x_17 = lean_string_utf8_byte_size(x_12);
 lean_inc(x_13);
-lean_inc_ref(x_11);
+lean_inc_ref(x_12);
 x_18 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_18, 0, x_11);
+lean_ctor_set(x_18, 0, x_12);
 lean_ctor_set(x_18, 1, x_13);
 lean_ctor_set(x_18, 2, x_17);
-x_19 = l_String_Slice_Pos_prevn(x_18, x_17, x_12);
+x_19 = l_String_Slice_Pos_prevn(x_18, x_17, x_11);
 lean_dec_ref(x_18);
-x_20 = lean_string_utf8_extract(x_11, x_13, x_19);
+x_20 = lean_string_utf8_extract(x_12, x_13, x_19);
 lean_dec(x_19);
 lean_dec(x_13);
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_7 = x_20;
 goto block_10;
 }
@@ -6089,8 +6089,8 @@ if (lean_obj_tag(x_35) == 0)
 uint32_t x_36; 
 lean_dec_ref(x_34);
 x_36 = 65;
-x_11 = x_32;
-x_12 = x_27;
+x_11 = x_27;
+x_12 = x_32;
 x_13 = x_28;
 x_14 = x_36;
 goto block_21;
@@ -6108,8 +6108,8 @@ if (lean_obj_tag(x_38) == 0)
 {
 uint32_t x_39; 
 x_39 = 65;
-x_11 = x_32;
-x_12 = x_27;
+x_11 = x_27;
+x_12 = x_32;
 x_13 = x_28;
 x_14 = x_39;
 goto block_21;
@@ -6122,8 +6122,8 @@ lean_inc(x_40);
 lean_dec_ref(x_38);
 x_41 = lean_unbox_uint32(x_40);
 lean_dec(x_40);
-x_11 = x_32;
-x_12 = x_27;
+x_11 = x_27;
+x_12 = x_32;
 x_13 = x_28;
 x_14 = x_41;
 goto block_21;
@@ -11456,7 +11456,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__3));
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(185u);
+x_3 = lean_unsigned_to_nat(193u);
 x_4 = ((lean_object*)(l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__2));
 x_5 = ((lean_object*)(l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -11972,9 +11972,14 @@ return x_4;
 }
 lean_object* initialize_Init_System_IOError(uint8_t builtin);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin);
-lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin);
+lean_object* initialize_Init_Data_Ord_UInt(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_IO(uint8_t builtin) {
 lean_object * res;
@@ -11986,13 +11991,28 @@ lean_dec_ref(res);
 res = initialize_Init_System_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Ord_UInt(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_String_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_MapIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Ord_UInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_IO_RealWorld_nonemptyType = _init_l_IO_RealWorld_nonemptyType();

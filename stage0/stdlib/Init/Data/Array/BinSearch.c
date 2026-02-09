@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.BinSearch
-// Imports: public import Init.Data.Int.DivMod.Lemmas
+// Imports: public import Init.Data.Array.Basic import Init.Data.Bool import Init.Omega import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1030,13 +1030,25 @@ x_8 = l_Array_binInsertM___redArg(x_7, x_2, x_5, x_6, x_3, x_4);
 return x_8;
 }
 }
-lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_BinSearch(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
+res = initialize_Init_Data_Array_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

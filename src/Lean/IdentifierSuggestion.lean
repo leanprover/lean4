@@ -6,12 +6,9 @@ Authors: Rob Simmons
 module
 
 prelude
-public import Lean.Attributes
-public import Lean.Exception
-public import Lean.Meta.Hint
 public import Lean.Elab.DeclModifiers
-public import Lean.ResolveName
 import all Lean.Elab.ErrorUtils
+import Init.Omega
 
 namespace Lean
 open Elab.Term

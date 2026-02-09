@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.String.Defs
 public import Init.Grind.ToInt
+public import Init.Data.Order.Classes
+import Init.Omega
 
 public section
 

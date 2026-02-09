@@ -10,6 +10,8 @@ prelude
 public import Lean.Syntax
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.Data.ToString.Macro
+import Init.While
 
 public section
 

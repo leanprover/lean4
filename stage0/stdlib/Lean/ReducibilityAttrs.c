@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ReducibilityAttrs
-// Imports: public import Lean.ScopedEnvExtension import Lean.OriginalConstKind
+// Imports: public import Lean.ScopedEnvExtension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5166,8 +5166,8 @@ lean_ctor_set(x_91, 1, x_90);
 x_92 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_92, 0, x_91);
 lean_ctor_set(x_92, 1, x_3);
-x_93 = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(x_92, x_83, x_85);
-lean_dec_ref(x_83);
+x_93 = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(x_92, x_84, x_85);
+lean_dec_ref(x_84);
 return x_93;
 }
 block_154:
@@ -5192,8 +5192,8 @@ lean_dec_ref(x_102);
 if (lean_obj_tag(x_103) == 1)
 {
 lean_dec_ref(x_103);
-x_83 = x_95;
-x_84 = lean_box(0);
+x_83 = lean_box(0);
+x_84 = x_95;
 x_85 = x_96;
 x_86 = x_100;
 goto block_94;
@@ -5211,8 +5211,8 @@ goto block_82;
 }
 else
 {
-x_83 = x_95;
-x_84 = lean_box(0);
+x_83 = lean_box(0);
+x_84 = x_95;
 x_85 = x_96;
 x_86 = x_100;
 goto block_94;
@@ -6783,16 +6783,12 @@ return x_4;
 }
 }
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin);
-lean_object* initialize_Lean_OriginalConstKind(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_ScopedEnvExtension(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_OriginalConstKind(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedReducibilityStatus_default = _init_l_Lean_instInhabitedReducibilityStatus_default();

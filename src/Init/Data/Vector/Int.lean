@@ -6,9 +6,10 @@ Authors: Kim Morrison, Sebastian Graf, Paul Reichert
 module
 
 prelude
-public import Init.Data.Vector.Lemmas
 public import Init.Data.Vector.Basic
 import Init.Data.Array.Int
+import Init.Data.Int.Lemmas
+import Init.Data.Vector.Lemmas
 
 public section
 

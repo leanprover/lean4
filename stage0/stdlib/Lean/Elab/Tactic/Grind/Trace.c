@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind.Trace
-// Imports: public import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.Grind.Config import Lean.Elab.Tactic.Grind.Param import Init.Grind.Interactive import Lean.Meta.Tactic.TryThis import Lean.Meta.Tactic.Grind.Finish import Lean.Meta.Tactic.Grind.Split import Lean.Meta.Tactic.Grind.CollectParams
+// Imports: public import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.Grind.Config import Lean.Elab.Tactic.Grind.Param import Lean.Meta.Tactic.TryThis import Lean.Meta.Tactic.Grind.Finish import Lean.Meta.Tactic.Grind.CollectParams
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2284,7 +2284,7 @@ lean_closure_set(x_39, 4, x_14);
 lean_closure_set(x_39, 5, x_1);
 lean_closure_set(x_39, 6, x_38);
 lean_closure_set(x_39, 7, x_27);
-x_40 = l_Lean_Elab_Tactic_Grind_withConfigItems___redArg(x_26, x_39, x_36, x_35, x_29, x_32, x_28, x_31, x_33, x_30);
+x_40 = l_Lean_Elab_Tactic_Grind_withConfigItems___redArg(x_26, x_39, x_29, x_35, x_32, x_34, x_36, x_33, x_30, x_31);
 lean_dec(x_26);
 return x_40;
 }
@@ -2325,15 +2325,15 @@ lean_dec(x_53);
 x_58 = l_Lean_Syntax_getArgs(x_57);
 lean_dec(x_57);
 x_27 = x_42;
-x_28 = x_47;
-x_29 = x_45;
-x_30 = x_50;
-x_31 = x_48;
-x_32 = x_46;
-x_33 = x_49;
-x_34 = lean_box(0);
+x_28 = lean_box(0);
+x_29 = x_43;
+x_30 = x_49;
+x_31 = x_50;
+x_32 = x_45;
+x_33 = x_48;
+x_34 = x_46;
 x_35 = x_44;
-x_36 = x_43;
+x_36 = x_47;
 x_37 = x_58;
 goto block_41;
 }
@@ -2344,15 +2344,15 @@ lean_object* x_59;
 lean_dec(x_53);
 x_59 = l___private_Lean_Elab_Tactic_Grind_Trace_0__Lean_Elab_Tactic_Grind_evalFinishTrace___closed__6;
 x_27 = x_42;
-x_28 = x_47;
-x_29 = x_45;
-x_30 = x_50;
-x_31 = x_48;
-x_32 = x_46;
-x_33 = x_49;
-x_34 = lean_box(0);
+x_28 = lean_box(0);
+x_29 = x_43;
+x_30 = x_49;
+x_31 = x_50;
+x_32 = x_45;
+x_33 = x_48;
+x_34 = x_46;
 x_35 = x_44;
-x_36 = x_43;
+x_36 = x_47;
 x_37 = x_59;
 goto block_41;
 }
@@ -2440,7 +2440,7 @@ lean_closure_set(x_82, 4, x_14);
 lean_closure_set(x_82, 5, x_1);
 lean_closure_set(x_82, 6, x_81);
 lean_closure_set(x_82, 7, x_70);
-x_83 = l_Lean_Elab_Tactic_Grind_withConfigItems___redArg(x_69, x_82, x_79, x_78, x_72, x_75, x_71, x_74, x_76, x_73);
+x_83 = l_Lean_Elab_Tactic_Grind_withConfigItems___redArg(x_69, x_82, x_72, x_78, x_75, x_77, x_79, x_76, x_73, x_74);
 lean_dec(x_69);
 return x_83;
 }
@@ -2481,15 +2481,15 @@ lean_dec(x_96);
 x_101 = l_Lean_Syntax_getArgs(x_100);
 lean_dec(x_100);
 x_70 = x_85;
-x_71 = x_90;
-x_72 = x_88;
-x_73 = x_93;
-x_74 = x_91;
-x_75 = x_89;
-x_76 = x_92;
-x_77 = lean_box(0);
+x_71 = lean_box(0);
+x_72 = x_86;
+x_73 = x_92;
+x_74 = x_93;
+x_75 = x_88;
+x_76 = x_91;
+x_77 = x_89;
 x_78 = x_87;
-x_79 = x_86;
+x_79 = x_90;
 x_80 = x_101;
 goto block_84;
 }
@@ -2500,15 +2500,15 @@ lean_object* x_102;
 lean_dec(x_96);
 x_102 = l___private_Lean_Elab_Tactic_Grind_Trace_0__Lean_Elab_Tactic_Grind_evalFinishTrace___closed__6;
 x_70 = x_85;
-x_71 = x_90;
-x_72 = x_88;
-x_73 = x_93;
-x_74 = x_91;
-x_75 = x_89;
-x_76 = x_92;
-x_77 = lean_box(0);
+x_71 = lean_box(0);
+x_72 = x_86;
+x_73 = x_92;
+x_74 = x_93;
+x_75 = x_88;
+x_76 = x_91;
+x_77 = x_89;
 x_78 = x_87;
-x_79 = x_86;
+x_79 = x_90;
 x_80 = x_102;
 goto block_84;
 }
@@ -2574,10 +2574,8 @@ return x_2;
 lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Param(uint8_t builtin);
-lean_object* initialize_Init_Grind_Interactive(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Split(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_CollectParams(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind_Trace(uint8_t builtin) {
@@ -2593,16 +2591,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Grind_Param(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Interactive(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_TryThis(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Finish(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Split(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_CollectParams(builtin);

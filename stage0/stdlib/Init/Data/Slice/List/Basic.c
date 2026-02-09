@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.List.Basic
-// Imports: public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Range.Polymorphic.Nat
+// Imports: public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -937,7 +937,6 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin);
-lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_List_Basic(uint8_t builtin) {
 lean_object * res;
@@ -947,9 +946,6 @@ res = initialize_Init_Data_Slice_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Notation(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

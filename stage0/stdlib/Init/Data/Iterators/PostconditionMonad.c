@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.PostconditionMonad
-// Imports: public import Init.Control.Lawful.Basic public import Init.Data.Subtype.Basic public import Init.PropLemmas public import Init.Control.Lawful.MonadLift.Basic
+// Imports: public import Init.Control.Lawful.Basic public import Init.Control.Lawful.MonadLift.Basic public import Init.Ext public import Init.NotationExtra import Init.Data.Subtype.Basic import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -730,9 +730,11 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin);
-lean_object* initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin) {
 lean_object * res;
@@ -741,13 +743,19 @@ _G_initialized = true;
 res = initialize_Init_Control_Lawful_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Subtype_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

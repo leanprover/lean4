@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Operations
-// Imports: public import Init.Data.Slice.Basic public import Init.Data.Slice.Notation public import Init.Data.Iterators.ToIterator
+// Imports: public import Init.Data.Slice.Basic public import Init.Data.Iterators.ToIterator public import Init.Data.Iterators.Consumers.Loop import Init.Data.Iterators.Consumers.Collect
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -493,8 +493,9 @@ return x_12;
 }
 }
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin) {
 lean_object * res;
@@ -503,10 +504,13 @@ _G_initialized = true;
 res = initialize_Init_Data_Slice_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Slice_Notation(builtin);
+res = initialize_Init_Data_Iterators_ToIterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_ToIterator(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Slice_toArray___redArg___closed__0 = _init_l_Std_Slice_toArray___redArg___closed__0();

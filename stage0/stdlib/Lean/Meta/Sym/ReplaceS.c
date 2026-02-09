@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.ReplaceS
-// Imports: public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.AlphaShareBuilder
+// Imports: public import Lean.Meta.Sym.AlphaShareBuilder import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3972,17 +3972,17 @@ lean_dec_ref(x_3);
 return x_10;
 }
 }
-lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_AlphaShareBuilder(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_ReplaceS(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Meta_Sym_SymM(builtin);
+res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_AlphaShareBuilder(builtin);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visitChild___closed__4 = _init_l___private_Lean_Meta_Sym_ReplaceS_0__Lean_Meta_Sym_visitChild___closed__4();

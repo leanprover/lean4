@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Tactic.SplitIf
 import Lean.ProjFns
+import Lean.Meta.Tactic.Cases
 namespace Lean.Meta
 
 /-!

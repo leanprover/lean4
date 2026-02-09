@@ -284,6 +284,14 @@ private partial def normLetValueImp (s : FVarSubst pu) (e : LetValue pu) (transl
   | .fvar fvarId args => match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateFVar! fvarId' (normArgsImp s args translator)
     | .erased => .erased
+  | .reset n fvarId _ =>
+    match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateReset! n fvarId'
+    | .erased => .erased
+  | .reuse fvarId info updateHeader args _ =>
+    match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateReuse! fvarId' info updateHeader (normArgsImp s args translator)
+    | .erased => .erased
 
 /--
 Interface for monads that have a free substitutions.

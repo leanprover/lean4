@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Ord.Array
-// Imports: public import Init.Data.Ord.Basic import Init.Omega
+// Imports: public import Init.Data.Ord.Basic import Init.Omega import Init.ByCases import Init.Data.Array.Basic import Init.WFTactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -252,6 +252,9 @@ return x_3;
 }
 lean_object* initialize_Init_Data_Ord_Basic(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_WFTactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Ord_Array(uint8_t builtin) {
 lean_object * res;
@@ -261,6 +264,15 @@ res = initialize_Init_Data_Ord_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_WFTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

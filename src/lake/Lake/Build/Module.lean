@@ -10,11 +10,11 @@ public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
-import Lake.Util.IO
 import Lake.Util.Proc
 import Lake.Build.Job.Register
 import Lake.Build.Common
 import Lake.Build.Target
+import Init.Omega
 
 /-! # Module Build Definitions -/
 
@@ -744,6 +744,9 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let srcTrace := leanJob.getTrace
     addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
+    addPureTrace setup.isModule "isModule"
+    addPureTrace mod.name "Module.name"
+    addPureTrace mod.pkg.id? "Package.id?"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let depTrace ← getTrace
@@ -761,7 +764,7 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
       else
         some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
-      if (← mod.pkg.isArtifactCacheEnabled) then
+      if (← mod.pkg.isArtifactCacheWritable) then
         if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
           return arts
         else
@@ -776,9 +779,10 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
             mod.computeArtifacts setup.isModule
       else if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
         mod.computeArtifacts setup.isModule
-      else if let some arts ← fetchArtsFromCache? true then
-        return arts
       else
+        if (← mod.pkg.isArtifactCacheReadable) then
+          if let some arts ← fetchArtsFromCache? true then
+            return arts
         mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs

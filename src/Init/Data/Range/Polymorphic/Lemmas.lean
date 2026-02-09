@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import all Init.Data.Range.Polymorphic.Basic
 import all Init.Data.Range.Polymorphic.RangeIterator
@@ -14,6 +13,14 @@ public import Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Range.Polymorphic.Iterators
 import all Init.Data.Iterators.Consumers.Loop
 import Init.Data.Array.Monadic
+public import Init.Data.List.Control
+public import Init.Data.Order.Lemmas
+import Init.Data.Array.Bootstrap
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.List.Pairwise
+import Init.Data.Nat.Linear
+import Init.Omega
 
 public section
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.InfoUtils
-// Imports: public import Lean.DocString public import Lean.PrettyPrinter meta import Lean.Parser.Term
+// Imports: public import Lean.DocString public import Lean.PrettyPrinter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -579,7 +579,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___redArg___closed__2));
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(66u);
+x_3 = lean_unsigned_to_nat(65u);
 x_4 = ((lean_object*)(l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___redArg___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___redArg___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10116,22 +10116,22 @@ return x_20;
 }
 block_28:
 {
-if (lean_obj_tag(x_23) == 1)
+if (lean_obj_tag(x_22) == 1)
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_23, 0);
+x_26 = lean_ctor_get(x_22, 0);
 lean_inc(x_26);
-lean_dec_ref(x_23);
+lean_dec_ref(x_22);
 x_27 = lean_array_push(x_24, x_26);
-x_9 = x_22;
+x_9 = x_23;
 x_10 = x_27;
 x_11 = lean_box(0);
 goto block_21;
 }
 else
 {
-lean_dec(x_23);
-x_9 = x_22;
+lean_dec(x_22);
+x_9 = x_23;
 x_10 = x_24;
 x_11 = lean_box(0);
 goto block_21;
@@ -10160,8 +10160,8 @@ if (x_35 == 0)
 lean_object* x_36; 
 lean_ctor_set_tag(x_34, 3);
 x_36 = lean_array_push(x_30, x_34);
-x_22 = x_31;
-x_23 = x_29;
+x_22 = x_29;
+x_23 = x_31;
 x_24 = x_36;
 x_25 = lean_box(0);
 goto block_28;
@@ -10175,8 +10175,8 @@ lean_dec(x_34);
 x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_array_push(x_30, x_38);
-x_22 = x_31;
-x_23 = x_29;
+x_22 = x_29;
+x_23 = x_31;
 x_24 = x_39;
 x_25 = lean_box(0);
 goto block_28;
@@ -10185,8 +10185,8 @@ goto block_28;
 else
 {
 lean_dec(x_34);
-x_22 = x_31;
-x_23 = x_29;
+x_22 = x_29;
+x_23 = x_31;
 x_24 = x_30;
 x_25 = lean_box(0);
 goto block_28;
@@ -11745,7 +11745,7 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Elab_InfoTree_termGoalAt_x3f_spec__1___lam__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_8; uint8_t x_9; lean_object* x_10; uint8_t x_11; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_23 = l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___redArg___lam__9___closed__0;
 x_24 = l_List_filterMapTR_go___at___00Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Elab_InfoTree_termGoalAt_x3f_spec__1_spec__1(x_7, x_23);
 lean_inc_ref(x_6);
@@ -11860,18 +11860,18 @@ x_44 = lean_ctor_get(x_5, 0);
 x_45 = lean_ctor_get(x_44, 3);
 if (lean_obj_tag(x_45) == 1)
 {
-x_17 = x_42;
-x_18 = x_43;
-x_19 = x_32;
+x_17 = x_32;
+x_18 = x_42;
+x_19 = x_43;
 x_20 = x_33;
 x_21 = x_33;
 goto block_22;
 }
 else
 {
-x_17 = x_42;
-x_18 = x_43;
-x_19 = x_32;
+x_17 = x_32;
+x_18 = x_42;
+x_19 = x_43;
 x_20 = x_33;
 x_21 = x_32;
 goto block_22;
@@ -11879,9 +11879,9 @@ goto block_22;
 }
 else
 {
-x_17 = x_42;
-x_18 = x_43;
-x_19 = x_32;
+x_17 = x_32;
+x_18 = x_42;
+x_19 = x_43;
 x_20 = x_33;
 x_21 = x_32;
 goto block_22;
@@ -11968,9 +11968,9 @@ block_16:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_alloc_ctor(0, 1, 3);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_8);
-lean_ctor_set_uint8(x_12, sizeof(void*)*1 + 1, x_9);
+lean_ctor_set(x_12, 0, x_8);
+lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_9);
+lean_ctor_set_uint8(x_12, sizeof(void*)*1 + 1, x_10);
 lean_ctor_set_uint8(x_12, sizeof(void*)*1 + 2, x_11);
 x_13 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_13, 0, x_4);
@@ -11987,18 +11987,18 @@ block_22:
 {
 if (lean_obj_tag(x_5) == 2)
 {
-x_8 = x_17;
-x_9 = x_21;
-x_10 = x_18;
+x_8 = x_19;
+x_9 = x_18;
+x_10 = x_21;
 x_11 = x_20;
 goto block_16;
 }
 else
 {
-x_8 = x_17;
-x_9 = x_21;
-x_10 = x_18;
-x_11 = x_19;
+x_8 = x_19;
+x_9 = x_18;
+x_10 = x_21;
+x_11 = x_17;
 goto block_16;
 }
 }
@@ -12146,7 +12146,6 @@ return x_5;
 }
 lean_object* initialize_Lean_DocString(uint8_t builtin);
 lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin);
-lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin) {
 lean_object * res;
@@ -12156,9 +12155,6 @@ res = initialize_Lean_DocString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___redArg___closed__3 = _init_l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___redArg___closed__3();

@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Data.Iterators.Producers.Repeat
 public import Init.Data.Iterators.Lemmas.Combinators.Take
+import Init.Data.Iterators.Lemmas.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Option.Lemmas
 
 @[expose] public section
 

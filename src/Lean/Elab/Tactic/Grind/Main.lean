@@ -7,21 +7,13 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
-public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.EMatchTheoremParam
-import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Param
-import Lean.Meta.Tactic.Grind.Action
-import Lean.Elab.Tactic.Grind.Trace
 import Lean.Meta.Tactic.Grind.Finish
-import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.CollectParams
-import Lean.Elab.MutualDef
-meta import Lean.Meta.Tactic.Grind.Parser
+import Lean.Meta.Tactic.Grind.Parser
 public section
 namespace Lean.Elab.Tactic
 open Meta

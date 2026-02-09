@@ -7,13 +7,17 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.List.BasicAux
 import all Init.Data.List.BasicAux
 public import Init.Data.List.Control
 import all Init.Data.List.Control
 public import Init.BinderPredicates
 import Init.Grind.Annotated
+public import Init.Data.BEq
+public import Init.Data.Option.Instances
+import Init.Data.Bool
+import Init.Data.Option.Lemmas
+import Init.TacticsExtra
 
 grind_annotated "2025-01-24"
 

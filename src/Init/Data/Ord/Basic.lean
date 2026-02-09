@@ -9,6 +9,8 @@ prelude
 import Init.ByCases
 import Init.Ext
 public import Init.PropLemmas
+public import Init.Data.Char.Basic
+import Init.Classical
 
 public section
 
@@ -635,7 +637,7 @@ instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) := fun a b =>
 Constructs an `LE` instance from an `Ord` instance that asserts that the result of `compare`
 satisfies `Ordering.isLE`.
 -/
-@[expose] def leOfOrd [Ord α] : LE α where
+@[expose, instance_reducible] def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 @[inline]
@@ -667,7 +669,7 @@ Inverts the order of an `Ord` instance.
 The result is an `Ord α` instance that returns `Ordering.lt` when `ord` would return `Ordering.gt`
 and that returns `Ordering.gt` when `ord` would return `Ordering.lt`.
 -/
-@[expose] protected def opposite (ord : Ord α) : Ord α where
+@[expose, instance_reducible] protected def opposite (ord : Ord α) : Ord α where
   compare x y := ord.compare y x
 
 /--
@@ -678,7 +680,7 @@ In particular, `ord.on f` compares `x` and `y` by comparing `f x` and `f y` acco
 The function `compareOn` can be used to perform this comparison without constructing an intermediate
 `Ord` instance.
 -/
-@[expose] protected def on (_ : Ord β) (f : α → β) : Ord α where
+@[expose, instance_reducible] protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--
@@ -697,7 +699,7 @@ The function `compareLex` can be used to perform this comparison without constru
 intermediate `Ord` instance. `Ordering.then` can be used to lexicographically combine the results of
 comparisons.
 -/
-@[expose] protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
+@[expose, instance_reducible] protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
 end Ord

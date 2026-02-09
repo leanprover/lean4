@@ -6,14 +6,28 @@ Authors: Mario Carneiro, Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Basic
-public import Init.Data.Array.Mem
-public import Init.Data.Array.DecidableEq
-public import Init.Data.Range.Lemmas
 public import Init.Data.List.ToArray
 import all Init.Data.List.Control
 import all Init.Data.Array.Basic
 import all Init.Data.Array.Bootstrap
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.MinMax
+import Init.ByCases
+import Init.Data.Array.DecidableEq
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Find
+import Init.Data.List.Nat.Basic
+import Init.Data.List.Nat.Modify
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.Zip
+import Init.Data.Nat.Linear
+import Init.Data.Nat.Simproc
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 

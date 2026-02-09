@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
-// Imports: public import Init.Data.Int.Linear public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo import Lean.Meta.Sym.ExprPtr import Lean.Meta.Tactic.Grind.Arith.Util
+// Imports: public import Init.Data.Int.Linear public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2903,8 +2903,6 @@ return x_2;
 lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Sym_ExprPtr(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin) {
 lean_object * res;
@@ -2917,12 +2915,6 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Sym_ExprPtr(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Cutsat_instHashablePoly__lean_hash___closed__0 = _init_l_Lean_Meta_Grind_Arith_Cutsat_instHashablePoly__lean_hash___closed__0();

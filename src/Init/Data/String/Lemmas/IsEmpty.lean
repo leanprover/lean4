@@ -100,6 +100,16 @@ theorem isEmpty_toSlice {s : String} : s.toSlice.isEmpty = s.isEmpty := by
 theorem isEmpty_toSlice_iff {s : String} : s.toSlice.isEmpty ↔ s = "" := by
   simp
 
+theorem Slice.isEmpty_copy {s : Slice} : s.copy.isEmpty = s.isEmpty := by
+  rw [isEmpty_eq_utf8ByteSize_beq_zero, Slice.utf8ByteSize_copy, isEmpty_eq]
+
+@[simp]
+theorem Slice.copy_eq_empty_iff {s : Slice} : s.copy = "" ↔ s.isEmpty := by
+  simp [← Slice.isEmpty_copy]
+
+theorem Slice.copy_ne_empty_iff {s : Slice} : s.copy ≠ "" ↔ s.isEmpty = false := by
+  simp
+
 theorem eq_empty_iff_forall_eq {s : String} : s = "" ↔ ∀ (p q : s.Pos), p = q := by
   rw [← isEmpty_toSlice_iff, Slice.isEmpty_iff_forall_eq]
   exact ⟨fun h p q => by simpa [Pos.toSlice_inj] using h p.toSlice q.toSlice,
@@ -129,5 +139,40 @@ theorem isEmpty_sliceTo {s : String} {p : s.Pos} :
 theorem isEmpty_sliceTo_eq_false_iff {s : String} {p : s.Pos} :
     (s.sliceTo p).isEmpty = false ↔ p ≠ s.startPos :=
   Decidable.not_iff_not.1 (by simp)
+
+@[simp]
+theorem isEmpty_slice {s : String} {p₁ p₂ h} : (s.slice p₁ p₂ h).isEmpty ↔ p₁ = p₂ := by
+  simp [← Slice.startPos_eq_endPos_iff, ← Pos.ofSlice_inj]
+
+@[simp]
+theorem isEmpty_slice_eq_false_iff {s : String} {p₁ p₂ h} :
+    (s.slice p₁ p₂ h).isEmpty = false ↔ p₁ ≠ p₂ := by
+  rw [ne_eq, ← isEmpty_slice (h := h), Bool.not_eq_true]
+
+@[simp]
+theorem Slice.isEmpty_slice {s : Slice} {p₁ p₂ h} : (s.slice p₁ p₂ h).isEmpty ↔ p₁ = p₂ := by
+  simp [← startPos_eq_endPos_iff, ← Pos.ofSlice_inj]
+
+@[simp]
+theorem Slice.isEmpty_slice_eq_false_iff {s : Slice} {p₁ p₂ h} :
+    (s.slice p₁ p₂ h).isEmpty = false ↔ p₁ ≠ p₂ := by
+  rw [ne_eq, ← isEmpty_slice (h := h), Bool.not_eq_true]
+
+@[simp]
+theorem length_eq_zero_iff {s : String} : s.length = 0 ↔ s = "" := by
+  simp [← length_toList]
+
+@[simp]
+theorem toByteArray_eq_empty_iff {s : String} :
+    s.toByteArray = ByteArray.empty ↔ s = "" := by
+  simp [← toByteArray_inj]
+
+theorem Slice.toByteArray_copy_eq_empty_iff {s : Slice} :
+    s.copy.toByteArray = ByteArray.empty ↔ s.isEmpty = true := by
+  simp
+
+theorem Slice.toByteArray_copy_ne_empty_iff {s : Slice} :
+    s.copy.toByteArray ≠ ByteArray.empty ↔ s.isEmpty = false := by
+  simp
 
 end String

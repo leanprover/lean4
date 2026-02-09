@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.ToInt
-// Imports: public import Init.Data.Int.DivMod.Lemmas import Init.LawfulBEqTactics
+// Imports: import Init.LawfulBEqTactics public import Init.Data.Int.DivMod.Basic public meta import Init.Grind.Tactics import Init.ByCases import Init.Data.Int.DivMod.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1184,17 +1184,33 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_ToInt(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_LawfulBEqTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_DivMod_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_instInhabitedIntInterval_default___closed__0 = _init_l_Lean_Grind_instInhabitedIntInterval_default___closed__0();

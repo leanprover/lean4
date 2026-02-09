@@ -8,8 +8,8 @@ module
 prelude
 public import Lean.ToExpr
 public import Lake.Util.Version
-import Lean.Elab.Eval
 import Lake.DSL.Syntax
+import Lean.Meta.Eval
 
 open Lean Elab Term Meta
 

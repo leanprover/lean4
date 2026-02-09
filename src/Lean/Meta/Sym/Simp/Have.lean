@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Lambda
-import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.AbstractS
@@ -15,6 +13,8 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.AppBuilder
 import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
+import Init.Omega
+import Init.While
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -318,12 +318,13 @@ For each application `f a`:
 -/
 def simpBetaApp (e : Expr) (fType : Expr) (fnUnivs argUnivs : Array Level)
     (simpBody : Simproc) : SimpM Result := do
-  return (← go e 0).1
+  let numArgs := argUnivs.size
+  return (← go e (numArgs - 1)).1
 where
   go (e : Expr) (i : Nat) : SimpM (Result × Expr) := do
     match e with
     | .app f a =>
-      let (rf, fType) ← go f (i+1)
+      let (rf, fType) ← go f (i-1)
       let r ← match rf, (← simp a) with
         | .rfl _, .rfl _ =>
           pure .rfl

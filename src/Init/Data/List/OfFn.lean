@@ -7,7 +7,11 @@ module
 
 prelude
 public import Init.Data.Fin.Fold
-public import Init.Data.List.Lemmas
+public import Init.NotationExtra
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
 
 public section
 

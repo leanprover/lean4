@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Server.Requests
-import Lean.DocString.Syntax
-import Init.Data.List.Sort
 
 public section
 

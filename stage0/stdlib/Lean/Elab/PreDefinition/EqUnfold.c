@@ -599,7 +599,7 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_7);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -607,7 +607,7 @@ return x_11;
 }
 else
 {
-return x_8;
+return x_7;
 }
 }
 block_68:
@@ -674,16 +674,16 @@ if (x_62 == 0)
 {
 uint8_t x_63; 
 x_63 = l_Lean_Exception_isRuntime(x_61);
-x_7 = lean_box(0);
-x_8 = x_54;
+x_7 = x_54;
+x_8 = lean_box(0);
 x_9 = x_63;
 goto block_12;
 }
 else
 {
 lean_dec(x_61);
-x_7 = lean_box(0);
-x_8 = x_54;
+x_7 = x_54;
+x_8 = lean_box(0);
 x_9 = x_62;
 goto block_12;
 }
@@ -702,16 +702,16 @@ if (x_66 == 0)
 {
 uint8_t x_67; 
 x_67 = l_Lean_Exception_isRuntime(x_64);
-x_7 = lean_box(0);
-x_8 = x_65;
+x_7 = x_65;
+x_8 = lean_box(0);
 x_9 = x_67;
 goto block_12;
 }
 else
 {
 lean_dec(x_64);
-x_7 = lean_box(0);
-x_8 = x_65;
+x_7 = x_65;
+x_8 = lean_box(0);
 x_9 = x_66;
 goto block_12;
 }
@@ -1422,11 +1422,11 @@ x_39 = l_Lean_MessageData_ofExpr(x_1);
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
-x_41 = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__5___redArg(x_40, x_36, x_37, x_35, x_33);
-lean_dec(x_33);
-lean_dec_ref(x_35);
-lean_dec(x_37);
+x_41 = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__5___redArg(x_40, x_37, x_35, x_36, x_34);
+lean_dec(x_34);
 lean_dec_ref(x_36);
+lean_dec(x_35);
+lean_dec_ref(x_37);
 x_42 = !lean_is_exclusive(x_41);
 if (x_42 == 0)
 {
@@ -1463,11 +1463,11 @@ if (x_59 == 0)
 lean_dec_ref(x_56);
 lean_dec_ref(x_21);
 lean_dec_ref(x_20);
-x_33 = x_49;
-x_34 = lean_box(0);
-x_35 = x_48;
-x_36 = x_46;
-x_37 = x_47;
+x_33 = lean_box(0);
+x_34 = x_49;
+x_35 = x_47;
+x_36 = x_48;
+x_37 = x_46;
 goto block_45;
 }
 else
@@ -1479,11 +1479,11 @@ if (x_60 == 0)
 {
 lean_dec_ref(x_21);
 lean_dec_ref(x_20);
-x_33 = x_49;
-x_34 = lean_box(0);
-x_35 = x_48;
-x_36 = x_46;
-x_37 = x_47;
+x_33 = lean_box(0);
+x_34 = x_49;
+x_35 = x_47;
+x_36 = x_48;
+x_37 = x_46;
 goto block_45;
 }
 else

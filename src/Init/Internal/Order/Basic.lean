@@ -12,6 +12,7 @@ import all Init.Control.Except  -- for `MonoBind` instance
 import all Init.Control.StateRef  -- for `MonoBind` instance
 import all Init.Control.Option  -- for `MonoBind` instance
 import all Init.System.ST  -- for `MonoBind` instance
+import Init.ByCases
 
 public section
 
@@ -48,6 +49,8 @@ class PartialOrder (α : Sort u) where
   rel_trans : ∀ {x y z}, rel x y → rel y z → rel x z
   /-- The “less-or-equal-to” or “approximates” relation is antisymmetric. -/
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
+
+attribute [reducible] PartialOrder.rel
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 

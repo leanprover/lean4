@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Trace
-// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String import Lake.Util.IO public import Init.Data.String.Search public import Init.Data.String.Extra
+// Imports: public import Lean.Data.Json import Init.Data.Nat.Fold import Lake.Util.String public import Init.Data.String.Search public import Init.Data.String.Extra import Init.Data.Option.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -164,7 +164,6 @@ lean_object* l_Lake_lpad(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_hex(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_Hash_hex___boxed(lean_object*);
 lean_object* l_String_Slice_toNat_x3f(lean_object*);
-lean_object* l_inline(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f___boxed(lean_object*);
@@ -1262,7 +1261,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lake_Hash_ofDecimal_x3f(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -1271,40 +1270,38 @@ lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = l_String_Slice_toNat_x3f(x_4);
 lean_dec_ref(x_4);
-x_6 = l_inline(lean_box(0), x_5);
-lean_dec(x_5);
-if (lean_obj_tag(x_6) == 0)
+if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_7; 
-x_7 = lean_box(0);
-return x_7;
-}
-else
-{
-uint8_t x_8; 
-x_8 = !lean_is_exclusive(x_6);
-if (x_8 == 0)
-{
-lean_object* x_9; uint64_t x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_6, 0);
-x_10 = lean_uint64_of_nat(x_9);
-lean_dec(x_9);
-x_11 = lean_box_uint64(x_10);
-lean_ctor_set(x_6, 0, x_11);
+lean_object* x_6; 
+x_6 = lean_box(0);
 return x_6;
 }
 else
 {
-lean_object* x_12; uint64_t x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = lean_ctor_get(x_6, 0);
-lean_inc(x_12);
-lean_dec(x_6);
-x_13 = lean_uint64_of_nat(x_12);
-lean_dec(x_12);
-x_14 = lean_box_uint64(x_13);
-x_15 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-return x_15;
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_5);
+if (x_7 == 0)
+{
+lean_object* x_8; uint64_t x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_5, 0);
+x_9 = lean_uint64_of_nat(x_8);
+lean_dec(x_8);
+x_10 = lean_box_uint64(x_9);
+lean_ctor_set(x_5, 0, x_10);
+return x_5;
+}
+else
+{
+lean_object* x_11; uint64_t x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_ctor_get(x_5, 0);
+lean_inc(x_11);
+lean_dec(x_5);
+x_12 = lean_uint64_of_nat(x_11);
+lean_dec(x_11);
+x_13 = lean_box_uint64(x_12);
+x_14 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_14, 0, x_13);
+return x_14;
 }
 }
 }
@@ -3321,9 +3318,9 @@ return x_7;
 lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* initialize_Lake_Util_String(uint8_t builtin);
-lean_object* initialize_Lake_Util_IO(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Search(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Extra(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Trace(uint8_t builtin) {
 lean_object * res;
@@ -3338,13 +3335,13 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_String(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_IO(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_String_Search(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instReprHash_repr___redArg___closed__7 = _init_l_Lake_instReprHash_repr___redArg___closed__7();

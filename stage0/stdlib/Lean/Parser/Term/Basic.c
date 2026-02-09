@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Term.Basic
-// Imports: public import Lean.Parser.Attr public import Lean.Parser.Level public import Lean.Parser.Term.Doc meta import Lean.Parser.Basic
+// Imports: public import Lean.Parser.Attr public import Lean.Parser.Level public import Lean.Parser.Term.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8052,7 +8052,6 @@ return x_3;
 lean_object* initialize_Lean_Parser_Attr(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Level(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin);
-lean_object* initialize_Lean_Parser_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Term_Basic(uint8_t builtin) {
 lean_object * res;
@@ -8065,9 +8064,6 @@ res = initialize_Lean_Parser_Level(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term_Doc(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l___private_Lean_Parser_Term_Basic_0__Lean_Parser_initFn_00___x40_Lean_Parser_Term_Basic_1563126128____hygCtx___hyg_2_();

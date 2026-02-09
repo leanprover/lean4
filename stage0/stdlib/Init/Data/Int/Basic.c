@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Basic
-// Imports: public import Init.Data.Cast public import Init.Data.Nat.Div.Basic
+// Imports: public import Init.Data.Cast public import Init.Data.Nat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1049,7 +1049,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Cast(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin) {
 lean_object * res;
@@ -1058,7 +1058,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Cast(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div_Basic(builtin);
+res = initialize_Init_Data_Nat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__6 = _init_l_Int___aux__Init__Data__Int__Basic______macroRules__Int__term_x2d_x5b___x2b1_x5d__1___closed__6();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.CasesMatch
-// Imports: public import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Match.MatcherApp import Lean.Meta.Tactic.Grind.MatchCond import Lean.Meta.Tactic.Grind.Simp
+// Imports: public import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Match.MatcherApp import Lean.Meta.Tactic.Cases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -507,7 +507,7 @@ if (x_8 == 0)
 lean_object* x_9; 
 lean_inc(x_2);
 lean_dec_ref(x_1);
-x_9 = l_Lean_Expr_forallE___override(x_2, x_6, x_7, x_5);
+x_9 = l_Lean_Expr_forallE___override(x_2, x_7, x_6, x_5);
 return x_9;
 }
 else
@@ -519,7 +519,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_inc(x_2);
 lean_dec_ref(x_1);
-x_11 = l_Lean_Expr_forallE___override(x_2, x_6, x_7, x_5);
+x_11 = l_Lean_Expr_forallE___override(x_2, x_7, x_6, x_5);
 return x_11;
 }
 else
@@ -540,8 +540,8 @@ x_16 = lean_ptr_addr(x_13);
 x_17 = lean_usize_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {
-x_6 = x_13;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_13;
 x_8 = x_17;
 goto block_12;
 }
@@ -551,8 +551,8 @@ size_t x_18; size_t x_19; uint8_t x_20;
 x_18 = lean_ptr_addr(x_4);
 x_19 = lean_ptr_addr(x_14);
 x_20 = lean_usize_dec_eq(x_18, x_19);
-x_6 = x_13;
-x_7 = x_14;
+x_6 = x_14;
+x_7 = x_13;
 x_8 = x_20;
 goto block_12;
 }
@@ -5262,8 +5262,7 @@ return x_8;
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_MatcherApp(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_MatchCond(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_CasesMatch(uint8_t builtin) {
 lean_object * res;
@@ -5278,10 +5277,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_MatcherApp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_MatchCond(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Simp(builtin);
+res = initialize_Lean_Meta_Tactic_Cases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_CasesMatch_0__Lean_Meta_Grind_casesMatch_mkMotiveAndRefls___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_CasesMatch_0__Lean_Meta_Grind_casesMatch_mkMotiveAndRefls___closed__0();

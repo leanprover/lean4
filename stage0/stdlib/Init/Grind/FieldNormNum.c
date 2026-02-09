@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.FieldNormNum
-// Imports: public import Init.Grind.Ring.Field public import Init.Data.Rat.Basic import Init.Data.Rat.Lemmas
+// Imports: public import Init.Grind.Ring.Field public import Init.Data.Rat.Basic import Init.Data.Rat.Lemmas import Init.ByCases import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -74,6 +74,8 @@ return x_13;
 lean_object* initialize_Init_Grind_Ring_Field(uint8_t builtin);
 lean_object* initialize_Init_Data_Rat_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_FieldNormNum(uint8_t builtin) {
 lean_object * res;
@@ -86,6 +88,12 @@ res = initialize_Init_Data_Rat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Rat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

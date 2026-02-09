@@ -7,9 +7,11 @@ module
 
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Subtype.Basic
-public import Init.PropLemmas
 public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.Subtype.Basic
+import Init.PropLemmas
 
 public section
 

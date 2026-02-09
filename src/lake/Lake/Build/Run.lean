@@ -10,6 +10,7 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Job.Monad
 import Lake.Build.Index
+import Init.Omega
 
 /-! # Build Runner
 
@@ -262,7 +263,7 @@ def Workspace.saveOutputs
   [logger : MonadLog BaseIO] (ws : Workspace)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
 : BaseIO Unit := do
-  unless ws.isRootArtifactCacheEnabled do
+  unless ws.isRootArtifactCacheWritable do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."

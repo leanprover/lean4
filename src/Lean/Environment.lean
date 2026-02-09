@@ -22,6 +22,8 @@ public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -446,7 +448,7 @@ private structure AsyncConst where
   constInfo   : AsyncConstantInfo
   /--
   Reported extension state eventually fulfilled by promise; may be missing for tasks (e.g. kernel
-  checking) that can eagerly guarantee they will not report any state.
+  checking, synchronous decl addition) that can eagerly guarantee they will not report any state.
   -/
   exts?       : Option (Task (Array EnvExtensionState))
   /--
@@ -1364,7 +1366,7 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
     -- common case of confusing `mainEnv` and `asyncEnv`.
     | .async .mainEnv => ctx.mayContain asyncDecl && ctx.declPrefix != asyncDecl
     -- The async env's async context should either be `asyncDecl` itself or `asyncDecl` is a nested
-    -- declaration that is not itself async.
+    -- declaration that is known not to contribute env ext state (e.g. synchronously added decls).
     | .async .asyncEnv => ctx.declPrefix == asyncDecl ||
       (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
     | _ => true

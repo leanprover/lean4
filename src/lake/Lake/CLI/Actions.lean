@@ -11,9 +11,7 @@ import Lake.Build.Run
 import Lake.Build.Actions
 import Lake.Build.Targets
 import Lake.Build.Module
-import Lake.CLI.Build
 import Lake.Util.Proc
-import Init.Data.String.Search
 
 namespace Lake
 open Lean (Name)

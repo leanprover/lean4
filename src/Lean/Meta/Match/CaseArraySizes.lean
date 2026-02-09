@@ -9,9 +9,6 @@ prelude
 public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.CaseValues
-import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Subst
 
 namespace Lean.Meta

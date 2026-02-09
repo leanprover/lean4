@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.DiscrTree.Main
-import Lean.Meta.WHNF
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.Meta.FunInfo
 public section
 namespace Lean
 
@@ -133,7 +134,10 @@ where
     match a with
     -- Atomic
     | .bvar i ..    => return i < b.bvarIdx!
-    | .fvar id ..   => return Name.lt id.name b.fvarId!.name
+    -- We want to ensure that fvars are sorted in declaration order (#12136). This is not
+    -- necessarily the case with `Name.lt` when hierarchical names are used as they are compared
+    -- bottom-up.
+    | .fvar id ..   => return (← id.findDecl?).get!.index < (← b.fvarId!.findDecl?).get!.index
     | .mvar id ..   => return Name.lt id.name b.mvarId!.name
     | .sort u ..    => return Level.normLt u b.sortLevel!
     | .const n ..   => return Name.lt n b.constName! -- We ignore the levels

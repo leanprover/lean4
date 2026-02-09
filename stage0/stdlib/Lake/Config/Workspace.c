@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Workspace
-// Imports: public import Lake.Config.Env public import Lake.Config.LeanExe public import Lake.Config.ExternLib public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig meta import all Lake.Util.OpaqueType
+// Imports: public import Lake.Config.Env public import Lake.Config.LeanExe public import Lake.Config.ExternLib public import Lake.Config.FacetConfig public import Lake.Config.TargetConfig meta import all Lake.Util.OpaqueType import Lake.Util.OpaqueType import Lean.DocString.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4317,7 +4317,7 @@ block_35:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = ((lean_object*)(l_Lake_Workspace_augmentedEnvVars___closed__1));
 x_16 = l_Lake_Workspace_augmentedPath(x_1);
@@ -4329,9 +4329,9 @@ lean_ctor_set(x_19, 0, x_15);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_Lake_Workspace_augmentedEnvVars___closed__2;
 x_21 = lean_array_push(x_20, x_8);
-x_22 = lean_array_push(x_21, x_10);
-x_23 = lean_array_push(x_22, x_9);
-x_24 = lean_array_push(x_23, x_12);
+x_22 = lean_array_push(x_21, x_9);
+x_23 = lean_array_push(x_22, x_11);
+x_24 = lean_array_push(x_23, x_10);
 x_25 = lean_array_push(x_24, x_14);
 x_26 = lean_array_push(x_25, x_19);
 x_27 = l_Array_append___redArg(x_5, x_26);
@@ -4390,10 +4390,10 @@ lean_object* x_53; lean_object* x_54;
 x_53 = l_Lake_Env_leanGithash(x_3);
 x_54 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
-x_9 = x_46;
-x_10 = x_41;
-x_11 = x_52;
-x_12 = x_51;
+x_9 = x_41;
+x_10 = x_51;
+x_11 = x_46;
+x_12 = x_52;
 x_13 = x_54;
 goto block_35;
 }
@@ -4401,10 +4401,10 @@ else
 {
 lean_object* x_55; 
 x_55 = lean_box(0);
-x_9 = x_46;
-x_10 = x_41;
-x_11 = x_52;
-x_12 = x_51;
+x_9 = x_41;
+x_10 = x_51;
+x_11 = x_46;
+x_12 = x_52;
 x_13 = x_55;
 goto block_35;
 }
@@ -4524,6 +4524,8 @@ lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin);
 lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin);
 lean_object* initialize_Lake_Config_TargetConfig(uint8_t builtin);
 lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin);
+lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin);
+lean_object* initialize_Lean_DocString_Syntax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Workspace(uint8_t builtin) {
 lean_object * res;
@@ -4545,6 +4547,12 @@ res = initialize_Lake_Config_TargetConfig(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_OpaqueType(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Util_OpaqueType(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_DocString_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_defaultTargetRoots_spec__0___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_defaultTargetRoots_spec__0___closed__0();

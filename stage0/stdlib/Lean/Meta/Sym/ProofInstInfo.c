@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.ProofInstInfo
-// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.Util import Lean.Meta.Transform import Lean.Meta.Sym.Eta
+// Imports: public import Lean.Meta.Sym.SymM import Lean.Meta.Sym.IsClass import Lean.Meta.Sym.Util import Lean.Meta.Sym.Eta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2656,7 +2656,6 @@ return x_6;
 lean_object* initialize_Lean_Meta_Sym_SymM(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_IsClass(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Util(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Transform(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Eta(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_ProofInstInfo(uint8_t builtin) {
@@ -2670,9 +2669,6 @@ res = initialize_Lean_Meta_Sym_IsClass(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Util(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Transform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Eta(builtin);

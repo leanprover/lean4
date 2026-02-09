@@ -13,12 +13,13 @@ public import Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Array.Iterator
 import all Init.Data.Slice.Operations
 import all Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Lemmas
 import all Init.Data.Range.Polymorphic.Lemmas
-public import Init.Data.Slice.Lemmas
-public import Init.Data.Iterators.Lemmas
 import Init.Data.Slice.List.Lemmas
-import Init.Data.Range.Polymorphic.NatLemmas
+public import Init.Data.List.Control
+public import Init.Data.Nat.MinMax
+public import Init.Data.Slice.Array.Basic
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
 
 open Std Std.Iterators Std.PRange Std.Slice
 
@@ -107,7 +108,7 @@ theorem toList_internalIter {α : Type u} {s : Subarray α} :
 
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
-    simp [SliceSize.size, ToIterator.iter_eq, Iter.toIter_toIterM,
+    simp [SliceSize.size, ToIterator.iter_eq,
       ← Iter.length_toList_eq_length, SubarrayIterator.toList_eq,
       s.internalRepresentation.stop_le_array_size, start, stop, array]
 

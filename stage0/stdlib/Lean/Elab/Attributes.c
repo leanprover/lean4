@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Attributes
-// Imports: public import Lean.Elab.Util public import Lean.Compiler.InitAttr import Lean.Parser.Term
+// Imports: public import Lean.Elab.Util public import Lean.Compiler.InitAttr import Lean.Parser.Term public import Init.Data.Format.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1248,6 +1248,7 @@ return x_15;
 lean_object* initialize_Lean_Elab_Util(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin);
+lean_object* initialize_Init_Data_Format_Macro(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Attributes(uint8_t builtin) {
 lean_object * res;
@@ -1260,6 +1261,9 @@ res = initialize_Lean_Compiler_InitAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Format_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instToFormatAttribute___lam__0___closed__2 = _init_l_Lean_Elab_instToFormatAttribute___lam__0___closed__2();

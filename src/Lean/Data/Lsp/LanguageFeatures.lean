@@ -8,9 +8,9 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
-meta import Lean.Data.Json
 public import Lean.Expr
 public import Init.Data.String.Search
+public import Init.Data.Array.GetLit
 
 public section
 

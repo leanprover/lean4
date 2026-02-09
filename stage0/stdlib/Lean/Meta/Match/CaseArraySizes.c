@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.CaseArraySizes
-// Imports: public import Lean.Meta.Basic public import Lean.Meta.Tactic.FVarSubst import Lean.Meta.Match.CaseValues import Lean.Meta.AppBuilder import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Assert import Lean.Meta.Tactic.Subst
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Tactic.FVarSubst import Lean.Meta.Match.CaseValues import Lean.Meta.Tactic.Subst
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2887,9 +2887,6 @@ return x_15;
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_CaseValues(uint8_t builtin);
-lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_CaseArraySizes(uint8_t builtin) {
@@ -2903,15 +2900,6 @@ res = initialize_Lean_Meta_Tactic_FVarSubst(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_CaseValues(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Util(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assert(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Subst(builtin);

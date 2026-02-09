@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CtorIdxHInj
-// Imports: public import Lean.Meta.Basic import Lean.Meta.Tactic.Refl import Lean.Meta.Tactic.Cases import Lean.Meta.Tactic.Assumption import Lean.Meta.Tactic.Simp.Main import Lean.Meta.SameCtorUtils import Lean.Meta.Constructions.CtorIdx
+// Imports: public import Lean.Meta.Basic import Lean.Meta.Tactic.Refl import Lean.Meta.Constructions.CtorIdx import Lean.Meta.Tactic.Subst
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2803,11 +2803,8 @@ return x_2;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Assumption(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin);
-lean_object* initialize_Lean_Meta_SameCtorUtils(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_CtorIdxHInj(uint8_t builtin) {
 lean_object * res;
@@ -2819,19 +2816,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Cases(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assumption(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_Main(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_SameCtorUtils(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Constructions_CtorIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Subst(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn_00___x40_Lean_Meta_CtorIdxHInj_3745005406____hygCtx___hyg_2_();

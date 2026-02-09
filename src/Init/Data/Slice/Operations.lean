@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Data.Slice.Basic
-public import Init.Data.Slice.Notation
 public import Init.Data.Iterators.ToIterator
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 

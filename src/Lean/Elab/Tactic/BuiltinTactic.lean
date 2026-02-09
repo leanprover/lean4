@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Diagnostics
 public import Lean.Meta.Tactic.Refl
-public import Lean.Elab.Binders
 public import Lean.Elab.Open
 public import Lean.Elab.Eval
 public import Lean.Elab.SetOption
@@ -15,7 +14,6 @@ public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.RenameInaccessibles
-meta import Lean.Parser.Command
 public section
 
 namespace Lean.Elab.Tactic

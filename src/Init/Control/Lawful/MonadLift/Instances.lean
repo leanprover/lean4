@@ -14,8 +14,12 @@ import all Init.Control.StateRef
 public import Init.Control.StateCps
 import all Init.Control.StateCps
 import all Init.Control.Id
-public import Init.Control.Lawful.MonadLift.Lemmas
-public import Init.Control.Lawful.Instances
+public import Init.Control.Lawful.MonadLift.Basic
+public import Init.Control.Option
+public import Init.Control.State
+public import Init.Control.StateRef
+import Init.Control.Lawful.Instances
+import Init.Control.Lawful.MonadLift.Lemmas
 
 public section
 

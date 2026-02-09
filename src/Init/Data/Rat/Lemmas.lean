@@ -8,7 +8,13 @@ prelude
 
 public import Init.Data.Rat.Basic
 public import Init.Data.Int.Gcd
-import Init.Data.Int.Bitwise.Lemmas
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
+import Init.Omega
+import Init.TacticsExtra
 
 @[expose] public section
 
@@ -636,7 +642,8 @@ theorem ofScientific_ofNat_ofNat :
 /-! ### `≤` and `<` -/
 
 @[simp] theorem num_nonneg {q : Rat} : 0 ≤ q.num ↔ 0 ≤ q := by
-  simp +instances [instLE, Rat.blt, imp.swap]
+  show 0 ≤ q.num ↔ q.blt 0 = false
+  simp [Rat.blt, imp.swap]
 
 @[simp]
 theorem num_eq_zero {q : Rat} : q.num = 0 ↔ q = 0 := by

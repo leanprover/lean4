@@ -9,7 +9,7 @@ module
 
 prelude
 public import Init.Data.Cast
-public import Init.Data.Nat.Div.Basic
+public import Init.Data.Nat.Basic
 
 public section
 

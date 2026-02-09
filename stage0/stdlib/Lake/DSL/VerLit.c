@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.VerLit
-// Imports: public import Lean.ToExpr public import Lake.Util.Version import Lean.Elab.Eval import Lake.DSL.Syntax
+// Imports: public import Lean.ToExpr public import Lake.Util.Version import Lake.DSL.Syntax import Lean.Meta.Eval
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1616,8 +1616,8 @@ return x_2;
 }
 lean_object* initialize_Lean_ToExpr(uint8_t builtin);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Eval(uint8_t builtin);
 lean_object* initialize_Lake_DSL_Syntax(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Eval(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_DSL_VerLit(uint8_t builtin) {
 lean_object * res;
@@ -1629,10 +1629,10 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_Version(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Eval(builtin);
+res = initialize_Lake_DSL_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_DSL_Syntax(builtin);
+res = initialize_Lean_Meta_Eval(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_DSL_instToExprSemVerCore___lam__0___closed__4 = _init_l_Lake_DSL_instToExprSemVerCore___lam__0___closed__4();

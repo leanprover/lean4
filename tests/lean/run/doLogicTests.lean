@@ -142,6 +142,8 @@ example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Na
 example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
   post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
 
+set_option backward.whnf.reducibleClassField true
+
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
   throwing_loop
@@ -151,10 +153,8 @@ theorem throwing_loop_spec :
   dsimp +instances only [throwing_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
   mspec
-  mspec
   case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
   case post.success =>
-    mspec
     mspec
     mspec
     simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SPred.down_pure, SPred.entails_nil,
@@ -571,12 +571,11 @@ instance Result.instWP : WP Result (.except Error .pure) where
   | .div => PredTrans.const ⌜False⌝
 
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
-  wp_pure := by intros; ext Q; simp only [wp, ExceptT.run_pure, Id.run_pure,
-    PredTrans.pushExcept_apply, PredTrans.pure_apply]
+  wp_pure _ := by ext Q; simp [wp]
   wp_bind x f := by
-    simp only [wp, ExceptT.run_pure, Id.run_pure, ExceptT.run_throw, bind]
+    dsimp only [wp, bind]
     ext Q
-    cases x <;> simp
+    grind
 
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by

@@ -13,7 +13,6 @@ import Lake.Util.Git
 import Lake.Util.Url
 import Lake.Build.Common
 import Lake.Build.Targets
-import Lake.Build.Topological
 import Lake.Build.Job.Register
 import Lake.Reservoir
 

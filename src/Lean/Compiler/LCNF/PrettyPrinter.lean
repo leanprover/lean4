@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.Compiler.LCNF.Internalize
+import Init.Data.Format.Macro
 
 public section
 
@@ -88,6 +89,9 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .oproj i fvarId _ => return f!"proj[{i}] {← ppFVar fvarId}"
   | .uproj i fvarId _ => return f!"uproj[{i}] {← ppFVar fvarId}"
   | .sproj i offset fvarId _ => return f!"sproj[{i}, {offset}] {← ppFVar fvarId}"
+  | .reset n fvarId _ => return f!"reset[{n}] {← ppFVar fvarId}"
+  | .reuse fvarId info updateHeader args _ =>
+    return f!"reuse" ++ (if updateHeader then f!"!" else f!"") ++ f!" {← ppFVar fvarId} in {info}{← ppArgs args}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""

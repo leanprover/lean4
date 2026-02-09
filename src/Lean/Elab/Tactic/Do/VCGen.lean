@@ -7,14 +7,9 @@ module
 
 prelude
 import Lean.Elab.Tactic.Do.VCGen.Split
-import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Do.ProofMode.Revert
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
 import Lean.Elab.Tactic.Do.LetElim
 import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Induction
 import Lean.Meta.Tactic.TryThis
 
 public import Lean.Elab.Tactic.Do.VCGen.Basic

@@ -81,5 +81,5 @@ def runBenchUsingMeta (sizes : List Nat) : MetaM Unit := do
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-#eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
--- #eval runBenchUsingMeta [1000]
+-- #eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+#eval runBenchUsingMeta [1000]

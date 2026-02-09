@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Do.Switch
-// Imports: public import Init.System.IO public import Lean.Data.Options public import Lean.Elab.Term.TermElabM import Lean.Elab.Do.Basic import Lean.Elab.Do.Legacy meta import Lean.Parser.Do
+// Imports: public import Lean.Elab.Term.TermElabM import Lean.Elab.Do.Basic import Lean.Elab.Do.Legacy
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1322,23 +1322,14 @@ x_2 = l_Lean_Elab_Term_elabTermLiftMethod___regBuiltin_Lean_Elab_Term_elabTermLi
 return x_2;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin);
-lean_object* initialize_Lean_Data_Options(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Do_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Do_Legacy(uint8_t builtin);
-lean_object* initialize_Lean_Parser_Do(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Do_Switch(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Options(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Term_TermElabM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -1346,9 +1337,6 @@ res = initialize_Lean_Elab_Do_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Do_Legacy(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Term_initFn___closed__5_00___x40_Lean_Elab_Do_Switch_2514403911____hygCtx___hyg_4_ = _init_l_Lean_Elab_Term_initFn___closed__5_00___x40_Lean_Elab_Do_Switch_2514403911____hygCtx___hyg_4_();

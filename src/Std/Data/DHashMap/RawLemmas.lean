@@ -9,6 +9,11 @@ prelude
 public import Std.Data.DHashMap.Internal.Raw
 public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Raw
+import Init.ByCases
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 public section
 

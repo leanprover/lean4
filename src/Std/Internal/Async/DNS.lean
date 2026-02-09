@@ -9,6 +9,7 @@ prelude
 public import Std.Time
 public import Std.Internal.UV
 public import Std.Internal.Async.Basic
+public import Init.Data.Function
 
 public section
 

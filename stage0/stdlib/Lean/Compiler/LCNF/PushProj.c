@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.PushProj
-// Imports: public import Lean.Compiler.LCNF.CompilerM public import Lean.Compiler.LCNF.PassManager import Lean.Compiler.LCNF.Internalize
+// Imports: public import Lean.Compiler.LCNF.PassManager import Lean.Compiler.LCNF.Internalize
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -699,12 +699,12 @@ if (x_49 == 0)
 {
 lean_dec_ref(x_43);
 lean_dec_ref(x_42);
-x_16 = lean_box(0);
+x_16 = x_46;
 x_17 = x_44;
 x_18 = x_40;
 x_19 = x_47;
-x_20 = x_46;
-x_21 = x_45;
+x_20 = x_45;
+x_21 = lean_box(0);
 goto block_34;
 }
 else
@@ -728,12 +728,12 @@ else
 {
 lean_dec_ref(x_43);
 lean_dec_ref(x_42);
-x_16 = lean_box(0);
+x_16 = x_46;
 x_17 = x_44;
 x_18 = x_40;
 x_19 = x_47;
-x_20 = x_46;
-x_21 = x_45;
+x_20 = x_45;
+x_21 = lean_box(0);
 goto block_34;
 }
 }
@@ -763,13 +763,13 @@ x_22 = lean_array_get_size(x_2);
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_mk_empty_array_with_capacity(x_22);
 lean_inc(x_19);
-lean_inc_ref(x_20);
-lean_inc(x_21);
+lean_inc_ref(x_16);
+lean_inc(x_20);
 lean_inc_ref(x_17);
 lean_inc(x_14);
 lean_inc(x_18);
 lean_inc_ref(x_3);
-x_25 = l_Array_mapFinIdxM_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__2___redArg(x_3, x_18, x_14, x_2, x_22, x_23, x_24, x_17, x_21, x_20, x_19);
+x_25 = l_Array_mapFinIdxM_map___at___00__private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_Cases_pushProjs_go_spec__2___redArg(x_3, x_18, x_14, x_2, x_22, x_23, x_24, x_17, x_20, x_16, x_19);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -785,19 +785,19 @@ x_1 = x_15;
 x_2 = x_26;
 x_3 = x_29;
 x_6 = x_17;
-x_7 = x_21;
-x_8 = x_20;
+x_7 = x_20;
+x_8 = x_16;
 x_9 = x_19;
 goto _start;
 }
 else
 {
 uint8_t x_31; 
-lean_dec(x_21);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec_ref(x_17);
+lean_dec_ref(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec_ref(x_5);
@@ -2158,7 +2158,6 @@ x_2 = l___private_Lean_Compiler_LCNF_PushProj_0__Lean_Compiler_LCNF_initFn_00___
 return x_2;
 }
 }
-lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_LCNF_Internalize(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2166,9 +2165,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_PushProj(uint8_t builtin)
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PassManager(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

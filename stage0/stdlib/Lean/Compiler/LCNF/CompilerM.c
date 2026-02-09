@@ -284,6 +284,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compil
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateProjImp(uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateArgsImp(uint8_t, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateFVarImp(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateResetImp(uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateReuseImp(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normLetValueImp(uint8_t, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normLetValueImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadFVarSubstOfMonadLift___redArg(lean_object*, lean_object*);
@@ -5307,6 +5309,63 @@ lean_inc_ref(x_41);
 x_11 = x_41;
 goto block_14;
 }
+case 11:
+{
+lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+x_42 = lean_ctor_get(x_3, 0);
+lean_inc(x_42);
+x_43 = lean_ctor_get(x_3, 1);
+lean_inc(x_43);
+x_44 = l_Lean_Compiler_LCNF_normFVarImp___redArg(x_2, x_43, x_4);
+if (lean_obj_tag(x_44) == 0)
+{
+lean_object* x_45; lean_object* x_46; 
+x_45 = lean_ctor_get(x_44, 0);
+lean_inc(x_45);
+lean_dec_ref(x_44);
+x_46 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateResetImp(x_1, x_3, x_42, x_45);
+lean_dec_ref(x_3);
+return x_46;
+}
+else
+{
+lean_object* x_47; 
+lean_dec(x_42);
+lean_dec_ref(x_3);
+x_47 = lean_box(1);
+return x_47;
+}
+}
+case 12:
+{
+lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; lean_object* x_52; 
+x_48 = lean_ctor_get(x_3, 0);
+x_49 = lean_ctor_get(x_3, 1);
+lean_inc_ref(x_49);
+x_50 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
+x_51 = lean_ctor_get(x_3, 2);
+lean_inc(x_48);
+x_52 = l_Lean_Compiler_LCNF_normFVarImp___redArg(x_2, x_48, x_4);
+if (lean_obj_tag(x_52) == 0)
+{
+lean_object* x_53; lean_object* x_54; lean_object* x_55; 
+x_53 = lean_ctor_get(x_52, 0);
+lean_inc(x_53);
+lean_dec_ref(x_52);
+lean_inc_ref(x_51);
+x_54 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normArgsImp(x_1, x_2, x_51, x_4);
+x_55 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateReuseImp(x_1, x_3, x_53, x_49, x_50, x_54);
+return x_55;
+}
+else
+{
+lean_object* x_56; 
+lean_dec_ref(x_49);
+lean_dec_ref(x_3);
+x_56 = lean_box(1);
+return x_56;
+}
+}
 default: 
 {
 return x_3;
@@ -8576,7 +8635,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(681u);
+x_3 = lean_unsigned_to_nat(729u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_normCodeImp___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_normCodeImp___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10538,7 +10597,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__2));
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(174u);
+x_3 = lean_unsigned_to_nat(177u);
 x_4 = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__1));
 x_5 = ((lean_object*)(l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

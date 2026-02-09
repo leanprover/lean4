@@ -9,6 +9,9 @@ prelude
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
 import all Init.Data.UInt.Basic
+public import Init.Data.UInt.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Grind.Ring.ToInt
 
 public section
 
@@ -39,6 +42,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt8) = OfNat.of
     rw [Int.toNat_pow_of_nonneg (by decide)]
     simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
+    try rfl
 
 end UInt8
 
@@ -69,6 +73,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt16) = OfNat.o
     rw [Int.toNat_pow_of_nonneg (by decide)]
     simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
+    try rfl
 
 end UInt16
 
@@ -99,6 +104,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt32) = OfNat.o
     rw [Int.toNat_pow_of_nonneg (by decide)]
     simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
+    try rfl
 
 end UInt32
 
@@ -129,6 +135,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : UInt64) = OfNat.o
     rw [Int.toNat_pow_of_nonneg (by decide)]
     simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
       Nat.mod_mod_of_dvd, instOfNat]
+    try rfl
 
 end UInt64
 
@@ -156,6 +163,7 @@ theorem intCast_ofNat (x : Nat) : (OfNat.ofNat (α := Int) x : USize) = OfNat.of
       rw [Int.toNat_pow_of_nonneg (by decide)]
       simp +instances only [ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat, Fin.ofNat, Int.reduceToNat, Nat.dvd_refl,
         Nat.mod_mod_of_dvd, instOfNat]
+      try rfl
     · obtain _ | _ := System.Platform.numBits_eq <;> simp_all
 
 end USize

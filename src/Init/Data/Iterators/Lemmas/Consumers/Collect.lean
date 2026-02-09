@@ -6,13 +6,17 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Basic
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Access
 import all Init.Data.Iterators.Consumers.Collect
 import all Init.Data.Iterators.Consumers.Total
 import all Init.Data.Iterators.Consumers.Monadic.Total
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Basic
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -21,7 +25,7 @@ open Std.Iterators
 
 @[simp]
 theorem IterM.run_toList_mk' {α : Type u} {β : Type u} [Std.Iterator α Id β] (a : α) :
-    (Std.IterM.mk' (m := Id) a).toList.run = (Std.Iter.mk a).toList := rfl
+    (Std.IterM.mk (m := Id) a).toList.run = (Std.Iter.mk a).toList := rfl
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
@@ -53,6 +57,12 @@ theorem Iter.toList_ensureTermination {α β} [Iterator α Id β] [Finite α Id]
 @[simp]
 theorem Iter.toListRev_ensureTermination_eq_toListRev {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} : it.ensureTermination.toListRev = it.toListRev :=
+  (rfl)
+
+@[simp]
+theorem IterM.toArray_toIter {α β} [Iterator α Id β] [Finite α Id]
+    {it : IterM (α := α) Id β} :
+    it.toIter.toArray = it.toArray.run :=
   (rfl)
 
 @[simp]

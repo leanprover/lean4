@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
+import Init.Data.Nat.Lemmas
 
 @[expose] public section
 
@@ -48,7 +49,7 @@ The non-monadic version of this iterator is `List.iter`.
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
-  .mk { list := l } m α
+  ⟨{ list := l }⟩
 
 namespace Iterators.Types
 
@@ -60,7 +61,7 @@ instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterat
     | .done => it.internalState.list = []
   step it := pure (match it with
         | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (.mk ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield ⟨⟨xs⟩⟩ x, rfl⟩)
 
 private def ListIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where

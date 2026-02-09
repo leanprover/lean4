@@ -8,8 +8,9 @@ module
 prelude
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import Init.Data.Format.Macro
 
 public section
 

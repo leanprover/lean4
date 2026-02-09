@@ -7,13 +7,12 @@ module
 
 prelude
 public import Init.Data.List.MinMaxOn
-import Init.Data.List.MinMaxOn
-public import Init.Data.List.Pairwise
-public import Init.Data.Subtype.Order
-import Init.Data.Order.Lemmas
 import Init.Data.List.Nat.TakeDrop
-import Init.Data.Order.Opposite
-import Init.Data.Nat.Order
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Sublist
+import Init.Data.Nat.Lemmas
+import Init.Omega
 
 public section
 
@@ -702,7 +701,7 @@ protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α 
     (replicate n a).minIdxOn? f = some 0 := by
   simp [List.minIdxOn?_replicate, Nat.ne_zero_of_lt h]
 
-/-! ### maxIdxOn? -/
+/-! # maxIdxOn? -/
 
 protected theorem maxIdxOn?_eq_minIdxOn? {le : LE β} {_ : DecidableLE β} {f : α → β}
     {xs : List α} :

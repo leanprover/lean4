@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Task
-import Init.System.IO
 
 /-!
 # Iterator-based parallelization for Lean's tactic monads.
@@ -85,7 +84,7 @@ private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
         have hlen : 0 < (task :: rest).length := by simp
         let (result, remaining) ← IO.waitAny' (task :: rest) hlen
         pure <| .deflate ⟨
-          .yield (.mk { tasks := remaining } BaseIO α) result,
+          .yield ⟨{ tasks := remaining }⟩ result,
           trivial⟩
 
 end Std.Iterators.Types
@@ -117,7 +116,7 @@ for result in iter do
 ```
 -/
 private def iterTasks {α : Type} (tasks : List (Task α)) : IterM (α := TaskIterator α) BaseIO α :=
-  .mk { tasks } BaseIO α
+  ⟨{ tasks }⟩
 
 end IO
 

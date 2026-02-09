@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Basic
+public import Init.Core
 
 set_option linter.all true
 

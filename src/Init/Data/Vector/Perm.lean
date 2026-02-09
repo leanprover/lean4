@@ -9,7 +9,9 @@ prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Perm
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Basic
+import Init.Data.List.Nat.Perm
+import Init.Data.Vector.Lemmas
 
 public section
 

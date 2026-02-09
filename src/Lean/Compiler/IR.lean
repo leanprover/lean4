@@ -11,9 +11,7 @@ public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
-public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.SimpCase
-public import Lean.Compiler.IR.ResetReuse
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
 public import Lean.Compiler.IR.Borrow
@@ -38,20 +36,10 @@ public section
 
 namespace Lean.IR
 
-register_builtin_option compiler.reuse : Bool := {
-  defValue := true
-  descr    := "heuristically insert reset/reuse instruction pairs"
-}
-
 def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  if compiler.reuse.get (← getOptions) then
-    decls := decls.map (Decl.insertResetReuse (← getEnv))
-    logDecls `reset_reuse decls
-  decls := decls.map Decl.elimDead
-  logDecls `elim_dead decls
   decls := decls.map Decl.simpCase
   logDecls `simp_case decls
   decls := decls.map Decl.normalizeIds
@@ -61,7 +49,7 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
-  if compiler.reuse.get (← getOptions) then
+  if Compiler.LCNF.compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.expandResetReuse
     logDecls `expand_reset_reuse decls
   decls := decls.map Decl.pushProj

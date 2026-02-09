@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.TaggedText
-// Imports: public import Lean.Server.Rpc.Basic
+// Imports: public import Lean.Server.Rpc.Basic import Init.Data.Array.GetLit
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7264,12 +7264,16 @@ return x_3;
 }
 }
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Server_Rpc_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_GetLit(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Widget_instInhabitedTaggedText___closed__0 = _init_l_Lean_Widget_instInhabitedTaggedText___closed__0();

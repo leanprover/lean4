@@ -26,7 +26,7 @@ structure SigmaIterator (γ : Type w) (α : γ → Type w) where
 def SigmaIterator.Monadic.modifyStep {β γ : Type w} {α : γ → Type w} {m : Type w → Type w'}
     [∀ x : γ, Iterator (α := α x) m β]
     (it : IterM (α := SigmaIterator γ α) m β)
-    (step : (IterM.mk it.internalState.inner m β).Step) :
+    (step : (.mk it.internalState.inner : IterM m β).Step) :
     IterStep (IterM (α := SigmaIterator γ α) m β) β :=
   match step.val with
   | .yield it' out =>
@@ -41,7 +41,7 @@ instance SigmaIterator.instIterator {γ : Type w} {α : γ → Type w}
   IsPlausibleStep it step := ∃ step', Monadic.modifyStep it step' = step
   step it :=
     (fun step => .deflate ⟨Monadic.modifyStep it step.inflate, step.inflate, rfl⟩) <$>
-      (IterM.mk it.internalState.inner m β).step
+      (.mk it.internalState.inner : IterM m β).step
 
 private structure SigmaIteratorWF (γ : Type w) (α : γ → Type w) (m : Type w → Type w) (β : Type w) where
   parameter : γ
@@ -54,7 +54,7 @@ private def SigmaIterator.instFinitenessRelation {γ : Type w} {α : γ → Type
     (PSigma.Lex emptyRelation
       (β := fun param : γ => IterM (α := α param) m β)
       (fun _ => InvImage IterM.TerminationMeasures.Finite.Rel IterM.finitelyManySteps))
-    (fun it => ⟨it.internalState.parameter, IterM.mk it.internalState.inner m β⟩)
+    (fun it => ⟨it.internalState.parameter, (.mk it.internalState.inner : IterM m β)⟩)
   wf := by
     apply InvImage.wf
     refine ⟨fun ⟨param, it⟩ => ?_⟩
@@ -84,7 +84,7 @@ private def SigmaIterator.instProductivenessRelation {γ : Type w} {α : γ → 
     (PSigma.Lex emptyRelation
       (β := fun param : γ => IterM (α := α param) m β)
       (fun _ => InvImage IterM.TerminationMeasures.Productive.Rel IterM.finitelyManySkips))
-    (fun it => ⟨it.internalState.parameter, IterM.mk it.internalState.inner m β⟩)
+    (fun it => ⟨it.internalState.parameter, (.mk it.internalState.inner : IterM m β)⟩)
   wf := by
     apply InvImage.wf
     refine ⟨fun ⟨param, it⟩ => ?_⟩
@@ -126,7 +126,7 @@ dependency at the cost of storing the parameter in a structure field at runtime.
 def IterM.sigma {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] {param : γ} (it : IterM (α := α param) m β) :
     IterM (α := Types.SigmaIterator γ α) m β :=
-  IterM.mk ⟨param, it.internalState⟩ m β
+  .mk ⟨param, it.internalState⟩
 
 end Std.Iterators
 

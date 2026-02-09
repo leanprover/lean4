@@ -6,8 +6,12 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 public import Init.Data.Function
+public import Init.Ext
+public import Init.NotationExtra
+import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
 
 public section
 

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Compiler.IR.Format
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Omega
 
 public section
 

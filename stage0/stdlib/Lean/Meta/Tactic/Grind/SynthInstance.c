@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.SynthInstance
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.SynthInstance
+// Imports: public import Lean.Meta.Tactic.Grind.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2131,16 +2131,12 @@ return x_14;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
-lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_SynthInstance(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Types(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_SynthInstance(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__5 = _init_l___private_Lean_Meta_Tactic_Grind_SynthInstance_0__Lean_Meta_Grind_builtinInsts___closed__5();

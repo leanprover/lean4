@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Pure
-// Imports: public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.Do.ProofMode.MGoal import Std.Tactic.Do.Syntax import Lean.Elab.Tactic.Meta import Lean.Elab.Tactic.Do.ProofMode.Basic import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Meta.Tactic.Rfl
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode.MGoal import Lean.Elab.Tactic.Meta import Lean.Elab.Tactic.Do.ProofMode.Basic import Lean.Elab.Tactic.Do.ProofMode.Focus import Lean.Meta.Tactic.Rfl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5999,7 +5999,7 @@ block_15:
 {
 if (x_13 == 0)
 {
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
 x_7 = lean_box(0);
 goto block_10;
 }
@@ -6007,7 +6007,7 @@ else
 {
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 0, x_12);
 return x_14;
 }
 }
@@ -6109,15 +6109,15 @@ if (x_42 == 0)
 uint8_t x_43; 
 lean_inc(x_41);
 x_43 = l_Lean_Exception_isRuntime(x_41);
-x_11 = x_41;
-x_12 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_41;
 x_13 = x_43;
 goto block_15;
 }
 else
 {
-x_11 = x_41;
-x_12 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = x_41;
 x_13 = x_42;
 goto block_15;
 }
@@ -6569,9 +6569,7 @@ x_7 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_pureTrivial(x_1, x_2, x_3, x_4, x_5)
 return x_7;
 }
 }
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(uint8_t builtin);
-lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Meta(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(uint8_t builtin);
@@ -6581,13 +6579,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Pure(uint8_t b
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_MGoal(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Tactic_Do_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Meta(builtin);

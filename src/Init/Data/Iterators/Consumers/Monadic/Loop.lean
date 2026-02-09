@@ -10,6 +10,7 @@ public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.WFExtrinsicFix
 public import Init.Data.Iterators.Consumers.Monadic.Total
+import Init.PropLemmas
 
 set_option linter.missingDocs true
 

@@ -8,9 +8,9 @@ module
 prelude
 public import Init.Data.Slice.Operations
 import all Init.Data.Slice.Operations
-import Init.Data.Iterators.Consumers
 import Init.Data.Iterators.Lemmas.Consumers
 public import Init.Data.List.Control
+public import Init.Data.Iterators.Consumers.Collect
 
 public section
 

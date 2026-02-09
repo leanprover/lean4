@@ -40,9 +40,19 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
   let mut e := e
   let mut mustInline := false
   if let .const ``inline _ #[_, .fvar argFVarId] := e then
-    let some decl ← findLetDecl? argFVarId | return none
-    e := decl.value
     mustInline := true
+    if let some decl ← findFunDecl'? (pu := .pure) argFVarId then
+      e := .fvar decl.fvarId #[]
+    else if let some decl ← findLetDecl? argFVarId then
+      e := decl.value
+      if let .const declName _ _ := e then
+        if (← isCtor? declName).isSome then
+          throwError m!"`inline` applied to constructor '{declName}' is invalid"
+        else if (← getLocalDecl? declName).isNone then
+          throwError m!"`inline` applied to non-local declaration '{declName}' is invalid"
+    else
+      assert! (← findParam? (pu := .pure) argFVarId).isSome
+      throwError m!"`inline` applied to parameters is invalid"
   if let .const declName us args := e then
     unless (← read).config.inlineDefs do
       return none
@@ -101,7 +111,7 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
     }
   else if let .fvar f args := e then
     let some decl ← findFunDecl'? f | return none
-    unless args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
+    unless mustInline || args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless mustInline || (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal

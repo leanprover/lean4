@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Extract
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 public section
 
@@ -302,5 +307,25 @@ theorem ext_getElem {a b : ByteArray} (h₀ : a.size = b.size) (h : ∀ (i : Nat
   rw [ByteArray.ext_iff]
   apply Array.ext (by simpa using h₀)
   simpa [← ByteArray.getElem_eq_getElem_data]
+
+@[simp]
+theorem _root_.List.toByteArray_inj {l l' : List UInt8} : l.toByteArray = l'.toByteArray ↔ l = l' := by
+  simp [ByteArray.ext_iff]
+
+theorem extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
+    (hi : i + len ≤ as.size) (hj : j + len ≤ bs.size) :
+    as.extract i (i + len) = bs.extract j (j + len) ↔ ∀ k, (hk : k < len) → as[i + k] = bs[j + k] := by
+  induction len with
+  | zero => simp
+  | succ len ih =>
+    rw [← Nat.add_assoc, ← Nat.add_assoc, ByteArray.extract_eq_extract_append_extract (i + len) (by omega) (by omega),
+      ByteArray.extract_eq_extract_append_extract (a := bs) (j + len) (by omega) (by omega),
+      ByteArray.append_eq_append_iff_of_size_eq_left (by simp; omega), ih (by omega) (by omega),
+      ByteArray.extract_add_one (by omega), ByteArray.extract_add_one (by omega)]
+    simp only [List.toByteArray_inj, List.cons.injEq, and_true]
+    refine ⟨fun ⟨h, h'⟩ k hk => ?_, fun h => ⟨fun k hk => h k (by omega), h len (by omega)⟩⟩
+    by_cases hk' : k < len
+    · exact h k hk'
+    · exact (by omega : k = len) ▸ h'
 
 end ByteArray

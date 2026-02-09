@@ -11,7 +11,8 @@ public import Lean.Compiler.IR.Boxing
 import Lean.Compiler.IR.RC
 import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.ToImpure
-import Lean.Compiler.LCNF.ToImpureType
+import Init.While
+import Lean.Compiler.LCNF.PhaseExt
 
 public section
 

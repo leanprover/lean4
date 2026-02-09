@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.FuzzyMatching
-// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat public import Init.Data.OfScientific public import Init.Data.Option.Coe public import Init.Data.Range import Init.Data.SInt.Basic import Init.Data.String.Basic import Lean.Server.Completion.CompletionUtils
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Range.Polymorphic.Nat public import Init.Data.OfScientific public import Init.Data.Option.Coe public import Init.Data.Range import Lean.Server.Completion.CompletionUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1847,7 +1847,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__2));
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(126u);
+x_3 = lean_unsigned_to_nat(124u);
 x_4 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__1));
 x_5 = ((lean_object*)(l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_ofInt16_x21___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3737,8 +3737,6 @@ lean_object* initialize_Init_Data_Range_Polymorphic_Nat(uint8_t builtin);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Coe(uint8_t builtin);
 lean_object* initialize_Init_Data_Range(uint8_t builtin);
-lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Server_Completion_CompletionUtils(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_FuzzyMatching(uint8_t builtin) {
@@ -3758,12 +3756,6 @@ res = initialize_Init_Data_Option_Coe(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Range(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_SInt_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Completion_CompletionUtils(builtin);

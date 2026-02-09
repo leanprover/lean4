@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Structure
-// Imports: public import Lean.ProjFns public import Lean.Exception
+// Imports: public import Lean.ProjFns public import Lean.Exception public import Init.While import Init.Data.Range.Polymorphic.Iterators
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3477,7 +3477,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getStructureInfo___closed__2));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(137u);
+x_3 = lean_unsigned_to_nat(139u);
 x_4 = ((lean_object*)(l_Lean_getStructureInfo___closed__1));
 x_5 = ((lean_object*)(l_Lean_getStructureInfo___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3522,7 +3522,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getStructureInfo___closed__2));
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(153u);
+x_3 = lean_unsigned_to_nat(155u);
 x_4 = ((lean_object*)(l_Lean_getStructureCtor___closed__0));
 x_5 = ((lean_object*)(l_Lean_getStructureInfo___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3535,7 +3535,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getStructureCtor___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(152u);
+x_3 = lean_unsigned_to_nat(154u);
 x_4 = ((lean_object*)(l_Lean_getStructureCtor___closed__0));
 x_5 = ((lean_object*)(l_Lean_getStructureInfo___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5311,7 +5311,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_Lean_getStructureCtor___closed__2));
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(373u);
+x_3 = lean_unsigned_to_nat(375u);
 x_4 = ((lean_object*)(l_Lean_getStructureLikeCtor_x3f___closed__0));
 x_5 = ((lean_object*)(l_Lean_getStructureInfo___closed__0));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -6336,25 +6336,25 @@ goto block_29;
 block_51:
 {
 uint8_t x_46; 
-x_46 = lean_nat_dec_lt(x_41, x_45);
+x_46 = lean_nat_dec_lt(x_43, x_45);
 if (x_46 == 0)
 {
 lean_dec(x_45);
 lean_dec_ref(x_44);
-lean_dec_ref(x_43);
+lean_dec(x_43);
 lean_dec_ref(x_42);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_dec(x_10);
 goto block_40;
 }
 else
 {
 size_t x_47; size_t x_48; lean_object* x_49; uint8_t x_50; 
-x_47 = lean_usize_of_nat(x_41);
-lean_dec(x_41);
+x_47 = lean_usize_of_nat(x_43);
+lean_dec(x_43);
 x_48 = lean_usize_of_nat(x_45);
 lean_dec(x_45);
-x_49 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_43, x_42, x_44, x_47, x_48);
+x_49 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_41, x_42, x_44, x_47, x_48);
 x_50 = lean_unbox(x_49);
 lean_dec(x_49);
 if (x_50 == 0)
@@ -6418,18 +6418,18 @@ x_66 = lean_nat_dec_le(x_61, x_65);
 if (x_66 == 0)
 {
 lean_dec(x_61);
-x_41 = x_60;
+x_41 = x_21;
 x_42 = x_64;
-x_43 = x_21;
+x_43 = x_60;
 x_44 = x_59;
 x_45 = x_65;
 goto block_51;
 }
 else
 {
-x_41 = x_60;
+x_41 = x_21;
 x_42 = x_64;
-x_43 = x_21;
+x_43 = x_60;
 x_44 = x_59;
 x_45 = x_61;
 goto block_51;
@@ -7133,34 +7133,34 @@ return x_37;
 block_45:
 {
 lean_object* x_44; 
-x_44 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_42, x_41, x_40, x_39, x_43, lean_box(0), lean_box(0), lean_box(0));
+x_44 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_40, x_42, x_39, x_41, x_43, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_43);
-lean_dec(x_41);
+lean_dec(x_42);
 x_25 = x_44;
 goto block_38;
 }
 block_52:
 {
 uint8_t x_51; 
-x_51 = lean_nat_dec_le(x_50, x_49);
+x_51 = lean_nat_dec_le(x_50, x_46);
 if (x_51 == 0)
 {
-lean_dec(x_49);
+lean_dec(x_46);
 lean_inc(x_50);
-x_39 = x_50;
-x_40 = x_46;
-x_41 = x_47;
-x_42 = x_48;
+x_39 = x_47;
+x_40 = x_48;
+x_41 = x_50;
+x_42 = x_49;
 x_43 = x_50;
 goto block_45;
 }
 else
 {
-x_39 = x_50;
-x_40 = x_46;
-x_41 = x_47;
-x_42 = x_48;
-x_43 = x_49;
+x_39 = x_47;
+x_40 = x_48;
+x_41 = x_50;
+x_42 = x_49;
+x_43 = x_46;
 goto block_45;
 }
 }
@@ -7184,19 +7184,19 @@ if (x_63 == 0)
 {
 lean_dec(x_1);
 lean_inc(x_62);
-x_46 = x_57;
-x_47 = x_58;
+x_46 = x_62;
+x_47 = x_57;
 x_48 = x_60;
-x_49 = x_62;
+x_49 = x_58;
 x_50 = x_62;
 goto block_52;
 }
 else
 {
-x_46 = x_57;
-x_47 = x_58;
+x_46 = x_62;
+x_47 = x_57;
 x_48 = x_60;
-x_49 = x_62;
+x_49 = x_58;
 x_50 = x_1;
 goto block_52;
 }
@@ -7923,6 +7923,8 @@ return x_5;
 }
 lean_object* initialize_Lean_ProjFns(uint8_t builtin);
 lean_object* initialize_Lean_Exception(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Structure(uint8_t builtin) {
 lean_object * res;
@@ -7932,6 +7934,12 @@ res = initialize_Lean_ProjFns(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Exception(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instReprStructureFieldInfo_repr___redArg___closed__7 = _init_l_Lean_instReprStructureFieldInfo_repr___redArg___closed__7();

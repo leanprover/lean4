@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+import Init.Omega
 
 public section
 

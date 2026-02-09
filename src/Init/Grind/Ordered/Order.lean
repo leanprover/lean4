@@ -6,8 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
-public import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+public import Init.Grind.Tactics
+import Init.Data.Order.Lemmas
 
 public section
 

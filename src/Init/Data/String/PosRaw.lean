@@ -6,8 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Bootstrap
 public import Init.Data.ByteArray.Basic
+import Init.Data.Nat.Simproc
 
 /-!
 # Arithmetic of `String.Pos.Raw`

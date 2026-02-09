@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Range
-// Imports: public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Erase
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Ext import Init.ByCases import Init.Data.List.Erase import Init.Data.List.Find import Init.Data.List.Nat.TakeDrop import Init.Data.List.Pairwise import Init.Data.List.Range import Init.Data.List.Zip import Init.Data.Nat.Dvd import Init.Data.Option.Lemmas import Init.Omega import Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -303,17 +303,61 @@ x_1 = l_List_pairwise__lt__range_x27___auto__1___closed__30;
 return x_1;
 }
 }
-lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Erase(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Range(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Zip(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Nat_Range(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Erase(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Range(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Zip(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Dvd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_pairwise__lt__range_x27___auto__1___closed__5 = _init_l_List_pairwise__lt__range_x27___auto__1___closed__5();

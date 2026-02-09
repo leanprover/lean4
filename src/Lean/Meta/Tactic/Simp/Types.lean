@@ -11,7 +11,7 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Lean.Meta.FunInfo
+import Init.Data.Nat.Linear
 public section
 namespace Lean.Meta
 namespace Simp

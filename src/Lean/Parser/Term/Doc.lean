@@ -52,7 +52,7 @@ builtin_initialize recommendedSpellingExt
   }
 
 /-- Adds a recommended spelling to the environment. -/
-def hAddommendedSpelling (env : Environment) (rec : RecommendedSpelling) (names : Array Name) : Environment :=
+def addRecommendedSpelling (env : Environment) (rec : RecommendedSpelling) (names : Array Name) : Environment :=
   let env := recommendedSpellingExt.addEntry env rec
   recommendedSpellingByNameExt.addEntry env (rec, names)
 

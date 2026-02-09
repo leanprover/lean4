@@ -72,7 +72,13 @@ public theorem length_toListRev_eq_size [ToIterator (Slice γ) Id α β]
   rw [Internal.size_eq_length_internalIter, Internal.toListRev_eq_toListRev_internalIter,
     Iter.length_toListRev_eq_length]
 
-theorem foldl_toList [ToIterator (Slice γ) Id α β]
+public theorem foldlM_toList {m} [Monad m] [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β] [LawfulMonad m] [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
+    [Iterators.Finite α Id] {s : Slice γ} {f} :
+    s.toList.foldlM (init := init) f = s.foldlM (m := m) (init := init) f := by
+  simp [Internal.toList_eq_toList_internalIter, Iter.foldlM_toList, foldM_internalIter]
+
+public theorem foldl_toList [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     [Iterators.Finite α Id] {s : Slice γ} :
     s.toList.foldl (init := init) f = s.foldl (init := init) f := by

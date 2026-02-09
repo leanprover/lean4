@@ -140,6 +140,24 @@ public theorem forIn_toArray {α : Type u} {s : Subarray α}
     ForIn.forIn s.toArray init f = ForIn.forIn s init f :=
   Slice.forIn_toArray
 
+public theorem sliceFoldlM_eq_foldlM {m} [Monad m] {α : Type u} {s : Subarray α}
+    {f : β → α → m β} :
+    s.foldlM (init := init) f = Slice.foldlM (s := s) (init := init) f :=
+  (rfl)
+
+public theorem sliceFoldl_eq_foldl {α : Type u} {s : Subarray α} {f : β → α → β} :
+    s.foldl (init := init) f = Slice.foldl (s := s) (init := init) f :=
+  (rfl)
+
+public theorem foldlM_toList {m} [Monad m] {α : Type u} {s : Subarray α} {f}
+    [LawfulMonad m] :
+    s.toList.foldlM (init := init) f = s.foldlM (m := m) (init := init) f := by
+  simp [Std.Slice.foldlM_toList, sliceFoldlM_eq_foldlM]
+
+public theorem foldl_toList {α : Type u} {s : Subarray α} {f} :
+    s.toList.foldl (init := init) f = s.foldl (init := init) f := by
+  simp [Std.Slice.foldl_toList, sliceFoldl_eq_foldl]
+
 end Subarray
 
 public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
@@ -225,7 +243,7 @@ private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start sto
       List.length_take, ge_iff_le, h₁]
     omega
 
-theorem Subarray.toList_eq_drop_take {xs : Subarray α} :
+public theorem Subarray.toList_eq_drop_take {xs : Subarray α} :
     xs.toList = (xs.array.toList.take xs.stop).drop xs.start := by
   rw [Subarray.toList_eq, Array.toList_extract, Std.Internal.List.extract_eq_drop_take']
 
@@ -246,29 +264,29 @@ public theorem Subarray.size_take {xs : Subarray α} :
   simp only [size, stop, take, start]
   omega
 
-theorem Subarray.sliceSize_eq_size {xs : Subarray α} :
+public theorem Subarray.sliceSize_eq_size {xs : Subarray α} :
     Std.Slice.size xs = xs.size := by
   rfl
 
-theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.size} :
+public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.size} :
     xs[i] = xs.array[xs.start + i]'(by simp only [size] at h; have := xs.stop_le_array_size; omega) := by
   rfl
 
-theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
+public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
   simp [getElem_eq_getElem_array, toList_eq_drop_take]
 
-theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
+public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by
   rw [getElem_toList]
 
 @[simp, grind =]
-theorem Subarray.toList_drop {xs : Subarray α} :
+public theorem Subarray.toList_drop {xs : Subarray α} :
     (xs.drop n).toList = xs.toList.drop n := by
   simp [Subarray.toList_eq_drop_take, drop, start, stop, array]
 
 @[simp, grind =]
-theorem Subarray.toList_take {xs : Subarray α} :
+public theorem Subarray.toList_take {xs : Subarray α} :
     (xs.take n).toList = xs.toList.take n := by
   simp [Subarray.toList_eq_drop_take, take, start, stop, array, List.take_drop, List.take_take]
 

@@ -2417,34 +2417,29 @@ theorem extractLsb'_parPreSumLayer {w iter_num: Nat}
   (old_layer : BitVec (old_length * w)) (new_layer : BitVec (iter_num * w))
   (hold : 2 * (iter_num - 1) < old_length)
   (proof_addition : ∀ i (_hi: i < iter_num),
-        new_layer.extractLsb' (i * w) w = old_layer.extractLsb' ((2 * i) * w) w
-                                          + (old_layer.extractLsb' ((2 * i + 1) * w) w)) :
-    let ls := parPreSumLayer old_layer new_layer hold
-    ∀ i (_: i < (old_length + 1)/2),
-      ls.extractLsb' (i * w) w =
-        old_layer.extractLsb' ((2 * i) * w) w
-        + (old_layer.extractLsb' ((2 * i + 1) * w) w) := by
-  simp only
+        new_layer.extractLsb' (i * w) w =
+        old_layer.extractLsb' ((2 * i) * w) w + (old_layer.extractLsb' ((2 * i + 1) * w) w)) :
+    ∀ (i : Nat) (_ : i < (old_length + 1) / 2),
+    extractLsb' (i * w) w (old_layer.parPreSumLayer new_layer hold) =
+      extractLsb' (2 * i * w) w old_layer + extractLsb' ((2 * i + 1) * w) w old_layer:= by
   unfold parPreSumLayer
   split
   · intros i hi
-    rw [extractLsb'_cast]
+    simp only [extractLsb'_cast]
     apply proof_addition
     omega
-  · let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
-    let op2 := old_layer.extractLsb' ((2 * iter_num + 1) * w) w
-    let new_layer' := (op1 + op2) ++ new_layer
+  · generalize hop1 : old_layer.extractLsb' ((2 * iter_num) * w) w = op1
+    generalize hop2 : old_layer.extractLsb' ((2 * iter_num + 1) * w) w = op2
     have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
-    apply extractLsb'_parPreSumLayer old_layer (new_layer'.cast hcast) (by omega)
+    apply extractLsb'_parPreSumLayer
     intros i hi
     by_cases hlt : i < iter_num
-    · simp only [new_layer']
-      rw [extractLsb'_cast, extractLsb'_append_eq_of_add_le]
+    · rw [extractLsb'_cast, extractLsb'_append_eq_of_add_le]
       · apply proof_addition
         exact hlt
       · rw [show i * w + w = i * w + 1 * w by omega, ← Nat.add_mul]
         exact mul_le_mul_right w hlt
-    · rw [extractLsb'_cast, show i = iter_num by omega, extractLsb'_append_eq_left]
+    · rw [extractLsb'_cast, show i = iter_num by omega, extractLsb'_append_eq_left, ← hop1, hop2]
 termination_by old_length - 2 * (iter_num + 1 - 1)
 
 /--
@@ -2498,9 +2493,8 @@ theorem hAddRec_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
   unfold parPreSumTree at hls
   split at hls
   · case _ h =>
-    simp [h] at proof
-    rw [← proof]
-    simp [hAddRec, hls]
+    simp only [h, hAddRec_succ, Nat.zero_mul, BitVec.zero_add, hAddRec_zero] at proof
+    simp only [← proof, hAddRec, Nat.zero_mul, hls, BitVec.zero_add]
     ext k hk; simp
   · case _ h =>
     let new_layer := parPreSumLayer l 0#(0 * w) (by omega)
@@ -2516,25 +2510,17 @@ theorem hAddRec_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
 theorem hAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w) :
     x.hAdd l = x.parPreSum l hl hlt := by
   unfold hAdd
-  simp [show ¬ l = 0 by omega, show ¬ w ≤ l by omega]
+  simp only [show ¬l = 0 by omega, ↓reduceDIte, show ¬w ≤ l by omega, truncate_eq_setWidth,
+    cast_setWidth]
   split
   · case _ hmod =>
-    have hzero : (w - w % l) % l = 0 := by
-      apply Nat.sub_mod_eq_zero_of_mod_eq
-      simp
     unfold parPreSum
-    simp [hmod]
+    simp only [hmod, reduceDIte, truncate_eq_setWidth, cast_setWidth]
     let diff := (l - (w % l))
-    have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
-    have hmodeq : (w + diff) % l = 0 := by
-      simp only [diff]
-      rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
-        show l + w - w % l = l + (w - w % l) by omega]
-      simp [hzero]
     have zext := zeroExtend (w + diff) x;
     let init_length := (w + diff) / l;
     subst diff
-    generalize hgen : setWidth ((w + (l - w % l)) / l * l) x = z
+    generalize hz : setWidth ((w + (l - w % l)) / l * l) x = z
     generalize hgen : z.parPreSumTree (by simp; omega) (by omega) = res
     have proof := hAddRec_parPreSum (l_length := init_length)
                             (k := z.hAddRec (init_length) 0#l)
@@ -2542,18 +2528,17 @@ theorem hAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w) :
                             (proof_length := by simp [init_length]; omega)
                             (proof := by rfl)
                             (hls := by simp [hgen])
-    subst init_length
-    subst res
-    rw [← proof]
-    simp
+    subst init_length res
+    rw [← proof, hAddRec_succ, Nat.zero_mul, BitVec.zero_add, hAddRec_zero]
     ext
-    simp [← getLsbD_eq_getElem]
+    simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', Nat.zero_add, getLsbD_cast,
+      and_eq_right_iff_imp, decide_eq_true_eq]
     omega
   · case _ hmod =>
     unfold parPreSum
-    simp [hmod]
+    simp only [hmod, ↓reduceDIte]
     let hcast : w = w / l * l := by rw [Nat.div_mul_cancel]; omega
-    generalize hgencast : x.cast hcast = xcast
+    generalize hx : x.cast hcast = xcast
     generalize hgen : xcast.parPreSumTree (by simp; omega) (by omega) = res
     have proof := hAddRec_parPreSum (l_length := w / l)
                             (k := xcast.hAddRec (w / l) 0#l)

@@ -1,5 +1,5 @@
 import Lake
 open System Lake DSL
 
-package user_attr
+package cbv_attr
 @[default_target] lean_lib CbvAttr

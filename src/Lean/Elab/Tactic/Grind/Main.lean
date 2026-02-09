@@ -195,26 +195,22 @@ def elabGrindSuggestions
     trace[grind.debug.suggestions] "{added}"
   return params
 
-/-- Add all definitions from the current file. -/
+/-- Add all local definitions. This includes definitions from the current module
+and from transitively `import all`'d modules. -/
 def elabGrindLocals (params : Grind.Params) : MetaM Grind.Params := do
-  let env ← getEnv
-  let mut params := params
-  let mut added : Array Name := #[]
-  for (name, ci) in env.constants.map₂.toList do
-    -- Filter similar to LibrarySuggestions.isDeniedPremise (but inlined to avoid dependency)
-    -- Skip internal details, but allow private names (which are accessible from current module)
-    if name.isInternalDetail && !isPrivateName name then continue
-    if (← isInstanceReducible name) then continue
-    match ci with
-    | .defnInfo _ =>
-      try
-        params ← addEMatchTheorem params (mkIdent name) name (.default false) false (warn := false)
-        added := added.push name
-      catch _ => pure ()
-    | _ => continue
+  let paramsRef ← IO.mkRef params
+  let addedRef ← IO.mkRef (#[] : Array Name)
+  forLocalDefs fun name _ => do
+    try
+      let params ← paramsRef.get
+      let params ← addEMatchTheorem params (mkIdent name) name (.default false) false (warn := false)
+      paramsRef.set params
+      addedRef.modify (·.push name)
+    catch _ => pure ()
+  let added ← addedRef.get
   unless added.isEmpty do
     trace[grind.debug.locals] "{added}"
-  return params
+  paramsRef.get
 
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :

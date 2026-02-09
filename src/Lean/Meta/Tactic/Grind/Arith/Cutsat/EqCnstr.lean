@@ -231,6 +231,7 @@ private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
   let c' ← if let some a ← getIntValue? a then
     pure { p := .add 1 x (.num (-(a/k))), h := .div k none c : EqCnstr }
   else
+    -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
     let div' ← shareCommon (mkIntDiv a (mkIntLit k))
     internalize div' (← getGeneration e)
     let y ← mkVar div'
@@ -246,6 +247,7 @@ private def propagateNonlinearMod (x : Var) : GoalM Bool := do
   let c' ← if let some a ← getIntValue? a then
     pure { p := .add 1 x (.num (-(a%k))), h := .mod k none c : EqCnstr }
   else
+    -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
     let mod' ← shareCommon (mkIntMod a (mkIntLit k))
     internalize mod' (← getGeneration e)
     let y ← mkVar mod'
@@ -566,6 +568,7 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
     We cannot assume terms have been normalized.
     Recall that terms may not be normalized because of dependencies.
     -/
+    -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
     let gen ← getGeneration a
     internalize b' gen
     let ediv ← shareCommon (mkIntDiv a b'); internalize ediv gen

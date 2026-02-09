@@ -317,6 +317,7 @@ where
       let h' ← mkCongrFun h arg
       go rhs' h' (i+1)
     else
+      -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
       let rhs ← preprocessLight rhs
       internalize rhs (← getGeneration e) e
       pushEq e rhs h

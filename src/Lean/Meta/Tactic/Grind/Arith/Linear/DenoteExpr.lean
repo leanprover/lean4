@@ -73,6 +73,7 @@ def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Po
 
 def _root_.Lean.Grind.CommRing.Poly.toIntModuleExpr (p : Grind.CommRing.Poly) (generation := 0) : LinearM Expr := do
   let e ← p.denoteAsIntModuleExpr
+  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
   let e ← preprocessLight e
   internalize e generation (some getIntModuleVirtualParent)
   return e

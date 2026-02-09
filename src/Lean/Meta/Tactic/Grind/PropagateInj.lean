@@ -34,6 +34,7 @@ in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`
 public def mkInjEq (e : Expr) : GoalM Unit := do
   let .app f a := e | return ()
   let some (inv, heq) ← getInvFor? f a | return ()
+  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
   let invApp := mkApp inv e
   internalize invApp (← getGeneration e)
   trace[grind.inj.assert] "{invApp}, {a}"
@@ -53,6 +54,7 @@ builtin_grind_propagator propagateInj ↓Function.Injective := fun e => do
     let f ← if isSameExpr f f' then
       pure f
     else
+      -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
       let f' ← preprocessLight f'
       internalize f' (← getGeneration e)
       pure f'

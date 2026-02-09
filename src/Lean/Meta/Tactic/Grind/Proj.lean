@@ -39,6 +39,7 @@ def propagateProjEq (parent : Expr) : GoalM Unit := do
       shareCommon (mkApp (mkAppN projFn params) ctor)
     else
       shareCommon (mkApp parent.appFn! ctor)
+    -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
     internalize parentNew (← getGeneration parent)
     pure parentNew
   trace_goal[grind.debug.proj] "{parentNew}"

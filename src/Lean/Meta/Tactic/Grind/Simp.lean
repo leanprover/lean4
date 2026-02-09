@@ -100,4 +100,13 @@ def preprocessLight (e : Expr) : GoalM Expr := do
   let e ← instantiateMVars e
   shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← Sym.unfoldReducible e))))))
 
+/--
+Preprocesses `e` using the full grind normalization pipeline and internalizes the result.
+This is the preferred entry point for adding newly constructed terms to the E-graph.
+-/
+def preprocessAndInternalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Simp.Result := do
+  let r ← preprocess e
+  internalize r.expr generation parent?
+  return r
+
 end Lean.Meta.Grind

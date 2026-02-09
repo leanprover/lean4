@@ -147,6 +147,7 @@ where
       let identityType := mkApp3 (mkConst ``Std.LawfulIdentity [u]) α op neutral
       if let some identityInst ← synthInstance? identityType then
         let neutral ← instantiateExprMVars neutral
+        -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
         let neutral ← preprocessLight neutral
         internalize neutral (← getGeneration op)
         pure (some identityInst, some neutral)

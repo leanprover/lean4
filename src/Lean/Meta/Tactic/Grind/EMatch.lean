@@ -518,6 +518,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
 private def preprocessGeneralizedPatternRHS (lhs : Expr) (rhs : Expr) (origin : Origin) (expectedType : Expr) : OptionT (StateT Choice M) Expr := do
   assert! (← alreadyInternalized lhs)
   -- We use `dsimp` here to ensure terms such as `Nat.succ x` are normalized as `x+1`.
+  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
   let rhs ← preprocessLight (← dsimpCore rhs)
   internalize rhs (← getGeneration lhs)
   processNewFacts

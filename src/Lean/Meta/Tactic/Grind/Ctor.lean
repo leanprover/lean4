@@ -18,6 +18,7 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) (generation : Na
   | And left right =>
     propagateInjEqs left (.proj ``And 0 proof) generation
     propagateInjEqs right (.proj ``And 1 proof) generation
+  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
   | Eq _ lhs rhs    =>
     let lhs ← preprocessLight lhs
     let rhs ← preprocessLight rhs

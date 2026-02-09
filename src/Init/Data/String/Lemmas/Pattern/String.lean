@@ -111,6 +111,16 @@ theorem dropPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     have := h (s.sliceFrom pos).copy
     simp [← heq, pos.splits.eq_append] at this
 
+theorem isSome_dropPrefix? {pat s : Slice} : (dropPrefix? pat s).isSome = startsWith pat s := by
+  fun_cases dropPrefix? <;> simp_all
+
+theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
+    LawfulForwardPatternModel pat where
+  dropPrefixOfNonempty?_eq h := rfl
+  startsWith_eq s := isSome_dropPrefix?.symm
+  dropPrefix?_eq_some_iff pos := by
+    simp [ForwardPattern.dropPrefix?, dropPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+
 end ForwardSliceSearcher
 
 

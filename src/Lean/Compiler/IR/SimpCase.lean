@@ -15,12 +15,10 @@ public section
 namespace Lean.IR
 
 def ensureHasDefault (alts : Array Alt) : Array Alt :=
-  if alts.any Alt.isDefault then alts
-  else if alts.size < 2 then alts
+  if alts.any Alt.isDefault then
+    alts
   else
-    let last := alts.back!
-    let alts := alts.pop
-    alts.push (Alt.default last.body)
+    alts.push (Alt.default .unreachable)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := alts[i]!.body

@@ -332,7 +332,7 @@ partial def simp (code : Code .pure) : SimpM (Code .pure) := withIncRecDepth do
               withDiscrCtor discr ctorName ps do
                 return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
-        let alts ← addDefaultAlt alts
+        --let alts ← addDefaultAlt alts
         if let #[alt] := alts then
           match alt with
           | .default k =>

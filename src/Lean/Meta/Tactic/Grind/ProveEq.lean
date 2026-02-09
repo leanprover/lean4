@@ -24,10 +24,8 @@ private def ensureInternalized (e : Expr) : GoalM Expr := do
     `¬ a = []` and `b ≠ []` by congruence closure even when `a` and `b` are in the same
     equivalence class.
     -/
-    -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
-    let e ← preprocessLight (← instantiateMVars e)
-    internalize e 0
-    return e
+    let r ← preprocessAndInternalize (← instantiateMVars e) 0
+    return r.expr
 
 /-!
 `abstractGroundMismatches?` is an auxiliary function for creating auxiliary equality

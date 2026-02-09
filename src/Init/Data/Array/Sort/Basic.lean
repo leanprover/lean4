@@ -8,31 +8,9 @@ module
 prelude
 public import Init.Data.Array.Subarray.Split
 public import Init.Data.Slice.Array
-
--- TODO
-import all Init.Data.Array.Subarray
-import all Init.Data.Array.Subarray.Split
-import Init.Data.Array.Lemmas
--- import Init
+import Init.Omega
 
 public section
-
--- TODO
-@[simp, grind =]
-theorem Subarray.size_drop {xs : Subarray α} {n : Nat} :
-    (xs.drop n).size = xs.size - n := by
-  simp only [size, stop, drop, start]
-  omega
-
-@[grind =, simp]
-theorem Subarray.size_mkSlice_rio {xs : Subarray α} :
-    xs[*...i].size = min i xs.size := by
-  simp [← Subarray.size_toArray]
-
-@[grind =, simp]
-theorem Subarray.size_mkSlice_rci {xs : Subarray α} :
-    xs[i...*].size = xs.size - i := by
-  simp [← Subarray.size_toArray]
 
 private def Array.MergeSort.Internal.merge (xs ys : Array α) (le : α → α → Bool := by exact (· ≤ ·)) :
     Array α :=

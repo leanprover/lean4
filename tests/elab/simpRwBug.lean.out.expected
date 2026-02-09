@@ -1,0 +1,7 @@
+simpRwBug.lean:4:100-4:102: warning: This simp argument is unused:
+  ih
+
+Hint: Omit it from the simp argument list.
+  simp [Nat.add_assoc,̵ ̵i̵h̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

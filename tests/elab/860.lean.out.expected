@@ -1,0 +1,42 @@
+860.lean:26:12-26:20: warning: This simp argument is unused:
+  invImage
+
+Hint: Omit it from the simp argument list.
+  simp [i̵n̵v̵Im̵a̵g̵e̵,̵ ̵I̵nvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+860.lean:26:22-26:30: warning: This simp argument is unused:
+  InvImage
+
+Hint: Omit it from the simp argument list.
+  simp [invImage, I̵n̵v̵I̵m̵a̵g̵e̵,̵ ̵Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+860.lean:26:32-26:40: warning: This simp argument is unused:
+  Prod.lex
+
+Hint: Omit it from the simp argument list.
+  simp [invImage, InvImage, P̵r̵o̵d̵.̵l̵e̵x̵,̵ ̵sizeOfWFRel, measure, Nat.lt_wfRel]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+860.lean:26:42-26:53: warning: This simp argument is unused:
+  sizeOfWFRel
+
+Hint: Omit it from the simp argument list.
+  simp [invImage, InvImage, Prod.lex, s̵i̵z̵e̵O̵f̵W̵F̵R̵e̵l̵,̵ ̵measure, Nat.lt_wfRel]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+860.lean:26:55-26:62: warning: This simp argument is unused:
+  measure
+
+Hint: Omit it from the simp argument list.
+  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, m̵e̵a̵s̵u̵r̵e̵,̵ ̵Nat.lt_wfRel]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+860.lean:26:64-26:76: warning: This simp argument is unused:
+  Nat.lt_wfRel
+
+Hint: Omit it from the simp argument list.
+  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure,̵ ̵N̵a̵t̵.̵l̵t̵_̵w̵f̵R̵e̵l̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

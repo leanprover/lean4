@@ -1,0 +1,6 @@
+casesRec.lean:39:13-39:14: warning: Local variable 'a' resembles constructor 'Ex3.Foo.a' - write '.a' (with a dot) or 'Ex3.Foo.a' to use the constructor.
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`
+casesRec.lean:39:15-39:16: warning: Local variable 'b' resembles constructor 'Ex3.Foo.b' - write '.b' (with a dot) or 'Ex3.Foo.b' to use the constructor.
+
+Note: This linter can be disabled with `set_option linter.constructorNameAsVariable false`

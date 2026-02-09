@@ -1,0 +1,461 @@
+arthur2.lean:379:8-379:28: warning: declaration uses `sorry`
+State.step.match_9.eq_1 : ∀ (motive : State → Sort u_1) (c : Context) (k : Continuation)
+  (h_1 : (c : Context) → (k : Continuation) → motive (State.prog Program.skip c k))
+  (h_2 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.eval e) c k))
+  (h_3 : (p₁ p₂ : Program) → (c : Context) → (k : Continuation) → motive (State.prog (p₁.seq p₂) c k))
+  (h_4 : (n : String) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.decl n p) c k))
+  (h_5 :
+    (e : Expression) →
+      (pT pF : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.fork e pT pF) c k))
+  (h_6 :
+    (e : Expression) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.loop e p) c k))
+  (h_7 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.print e) c k))
+  (h_8 : (l : Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lit l) c k))
+  (h_9 : (l : List Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.list l) c k))
+  (h_10 : (n : String) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.var n) c k))
+  (h_11 : (l : Lambda) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lam l) c k))
+  (h_12 :
+    (e : Expression) →
+      (es : NEList Expression) → (c : Context) → (k : Continuation) → motive (State.expr (e.app es) c k))
+  (h_13 :
+    (o : UnOp) → (e : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.unOp o e) c k))
+  (h_14 :
+    (o : BinOp) →
+      (e₁ e₂ : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.binOp o e₁ e₂) c k))
+  (h_15 : (v : Value) → (c : Context) → motive (State.ret v c Continuation.exit))
+  (h_16 : (v : Value) → (c : Context) → (k : Continuation) → motive (State.ret v c k.print))
+  (h_17 :
+    (a : Value) → (c : Context) → (p : Program) → (k : Continuation) → motive (State.ret a c (Continuation.seq p k)))
+  (h_18 : (v : Value) → (a c : Context) → (k : Continuation) → motive (State.ret v a (Continuation.block c k)))
+  (h_19 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (es : NEList Expression) → (k : Continuation) → motive (State.ret v c (Continuation.app e es k)))
+  (h_20 :
+    (c : Context) →
+      (a : Expression) →
+        (pT a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k)))
+  (h_21 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 pF : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k)))
+  (h_22 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (a a_1 : Program) → (a_2 : Continuation) → motive (State.ret v c (Continuation.fork e a a_1 a_2)))
+  (h_23 :
+    (c : Context) →
+      (e : Expression) →
+        (p : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k)))
+  (h_24 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k)))
+  (h_25 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) → (a : Program) → (a_1 : Continuation) → motive (State.ret v c (Continuation.loop e a a_1)))
+  (h_26 :
+    (v : Value) → (c : Context) → (n : String) → (k : Continuation) → motive (State.ret v c (Continuation.decl n k)))
+  (h_27 :
+    (v : Value) →
+      (c : Context) →
+        (o : UnOp) → (e : Expression) → (k : Continuation) → motive (State.ret v c (Continuation.unOp o e k)))
+  (h_28 :
+    (v₁ : Value) →
+      (c : Context) →
+        (o : BinOp) → (e₂ : Expression) → (k : Continuation) → motive (State.ret v₁ c (Continuation.binOp₁ o e₂ k)))
+  (h_29 :
+    (v₂ : Value) →
+      (c : Context) →
+        (o : BinOp) → (v₁ : Value) → (k : Continuation) → motive (State.ret v₂ c (Continuation.binOp₂ o v₁ k)))
+  (h_30 :
+    (s : State) →
+      (a : ErrorType) → (a_1 : Context) → (a_2 : String) → s = State.error a a_1 a_2 → motive (State.error a a_1 a_2))
+  (h_31 : (s : State) → (a : Value) → (a_1 : Context) → s = State.done a a_1 → motive (State.done a a_1)),
+  (match State.prog Program.skip c k with
+    | State.prog Program.skip c k => h_1 c k
+    | State.prog (Program.eval e) c k => h_2 e c k
+    | State.prog (p₁.seq p₂) c k => h_3 p₁ p₂ c k
+    | State.prog (Program.decl n p) c k => h_4 n p c k
+    | State.prog (Program.fork e pT pF) c k => h_5 e pT pF c k
+    | State.prog (Program.loop e p) c k => h_6 e p c k
+    | State.prog (Program.print e) c k => h_7 e c k
+    | State.expr (Expression.lit l) c k => h_8 l c k
+    | State.expr (Expression.list l) c k => h_9 l c k
+    | State.expr (Expression.var n) c k => h_10 n c k
+    | State.expr (Expression.lam l) c k => h_11 l c k
+    | State.expr (e.app es) c k => h_12 e es c k
+    | State.expr (Expression.unOp o e) c k => h_13 o e c k
+    | State.expr (Expression.binOp o e₁ e₂) c k => h_14 o e₁ e₂ c k
+    | State.ret v c Continuation.exit => h_15 v c
+    | State.ret v c k.print => h_16 v c k
+    | State.ret a c (Continuation.seq p k) => h_17 a c p k
+    | State.ret v a (Continuation.block c k) => h_18 v a c k
+    | State.ret v c (Continuation.app e es k) => h_19 v c e es k
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k) => h_20 c a pT a_1 k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k) => h_21 c a a_1 pF k
+    | State.ret v c (Continuation.fork e a a_1 a_2) => h_22 v c e a a_1 a_2
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k) => h_23 c e p k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k) => h_24 c a a_1 k
+    | State.ret v c (Continuation.loop e a a_1) => h_25 v c e a a_1
+    | State.ret v c (Continuation.decl n k) => h_26 v c n k
+    | State.ret v c (Continuation.unOp o e k) => h_27 v c o e k
+    | State.ret v₁ c (Continuation.binOp₁ o e₂ k) => h_28 v₁ c o e₂ k
+    | State.ret v₂ c (Continuation.binOp₂ o v₁ k) => h_29 v₂ c o v₁ k
+    | s@h:(State.error a a_1 a_2) => h_30 s a a_1 a_2 h
+    | s@h:(State.done a a_1) => h_31 s a a_1 h) =
+    h_1 c k
+State.step.match_9.eq_2 : ∀ (motive : State → Sort u_1) (e : Expression) (c : Context) (k : Continuation)
+  (h_1 : (c : Context) → (k : Continuation) → motive (State.prog Program.skip c k))
+  (h_2 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.eval e) c k))
+  (h_3 : (p₁ p₂ : Program) → (c : Context) → (k : Continuation) → motive (State.prog (p₁.seq p₂) c k))
+  (h_4 : (n : String) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.decl n p) c k))
+  (h_5 :
+    (e : Expression) →
+      (pT pF : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.fork e pT pF) c k))
+  (h_6 :
+    (e : Expression) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.loop e p) c k))
+  (h_7 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.print e) c k))
+  (h_8 : (l : Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lit l) c k))
+  (h_9 : (l : List Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.list l) c k))
+  (h_10 : (n : String) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.var n) c k))
+  (h_11 : (l : Lambda) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lam l) c k))
+  (h_12 :
+    (e : Expression) →
+      (es : NEList Expression) → (c : Context) → (k : Continuation) → motive (State.expr (e.app es) c k))
+  (h_13 :
+    (o : UnOp) → (e : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.unOp o e) c k))
+  (h_14 :
+    (o : BinOp) →
+      (e₁ e₂ : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.binOp o e₁ e₂) c k))
+  (h_15 : (v : Value) → (c : Context) → motive (State.ret v c Continuation.exit))
+  (h_16 : (v : Value) → (c : Context) → (k : Continuation) → motive (State.ret v c k.print))
+  (h_17 :
+    (a : Value) → (c : Context) → (p : Program) → (k : Continuation) → motive (State.ret a c (Continuation.seq p k)))
+  (h_18 : (v : Value) → (a c : Context) → (k : Continuation) → motive (State.ret v a (Continuation.block c k)))
+  (h_19 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (es : NEList Expression) → (k : Continuation) → motive (State.ret v c (Continuation.app e es k)))
+  (h_20 :
+    (c : Context) →
+      (a : Expression) →
+        (pT a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k)))
+  (h_21 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 pF : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k)))
+  (h_22 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (a a_1 : Program) → (a_2 : Continuation) → motive (State.ret v c (Continuation.fork e a a_1 a_2)))
+  (h_23 :
+    (c : Context) →
+      (e : Expression) →
+        (p : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k)))
+  (h_24 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k)))
+  (h_25 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) → (a : Program) → (a_1 : Continuation) → motive (State.ret v c (Continuation.loop e a a_1)))
+  (h_26 :
+    (v : Value) → (c : Context) → (n : String) → (k : Continuation) → motive (State.ret v c (Continuation.decl n k)))
+  (h_27 :
+    (v : Value) →
+      (c : Context) →
+        (o : UnOp) → (e : Expression) → (k : Continuation) → motive (State.ret v c (Continuation.unOp o e k)))
+  (h_28 :
+    (v₁ : Value) →
+      (c : Context) →
+        (o : BinOp) → (e₂ : Expression) → (k : Continuation) → motive (State.ret v₁ c (Continuation.binOp₁ o e₂ k)))
+  (h_29 :
+    (v₂ : Value) →
+      (c : Context) →
+        (o : BinOp) → (v₁ : Value) → (k : Continuation) → motive (State.ret v₂ c (Continuation.binOp₂ o v₁ k)))
+  (h_30 :
+    (s : State) →
+      (a : ErrorType) → (a_1 : Context) → (a_2 : String) → s = State.error a a_1 a_2 → motive (State.error a a_1 a_2))
+  (h_31 : (s : State) → (a : Value) → (a_1 : Context) → s = State.done a a_1 → motive (State.done a a_1)),
+  (match State.prog (Program.eval e) c k with
+    | State.prog Program.skip c k => h_1 c k
+    | State.prog (Program.eval e) c k => h_2 e c k
+    | State.prog (p₁.seq p₂) c k => h_3 p₁ p₂ c k
+    | State.prog (Program.decl n p) c k => h_4 n p c k
+    | State.prog (Program.fork e pT pF) c k => h_5 e pT pF c k
+    | State.prog (Program.loop e p) c k => h_6 e p c k
+    | State.prog (Program.print e) c k => h_7 e c k
+    | State.expr (Expression.lit l) c k => h_8 l c k
+    | State.expr (Expression.list l) c k => h_9 l c k
+    | State.expr (Expression.var n) c k => h_10 n c k
+    | State.expr (Expression.lam l) c k => h_11 l c k
+    | State.expr (e.app es) c k => h_12 e es c k
+    | State.expr (Expression.unOp o e) c k => h_13 o e c k
+    | State.expr (Expression.binOp o e₁ e₂) c k => h_14 o e₁ e₂ c k
+    | State.ret v c Continuation.exit => h_15 v c
+    | State.ret v c k.print => h_16 v c k
+    | State.ret a c (Continuation.seq p k) => h_17 a c p k
+    | State.ret v a (Continuation.block c k) => h_18 v a c k
+    | State.ret v c (Continuation.app e es k) => h_19 v c e es k
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k) => h_20 c a pT a_1 k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k) => h_21 c a a_1 pF k
+    | State.ret v c (Continuation.fork e a a_1 a_2) => h_22 v c e a a_1 a_2
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k) => h_23 c e p k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k) => h_24 c a a_1 k
+    | State.ret v c (Continuation.loop e a a_1) => h_25 v c e a a_1
+    | State.ret v c (Continuation.decl n k) => h_26 v c n k
+    | State.ret v c (Continuation.unOp o e k) => h_27 v c o e k
+    | State.ret v₁ c (Continuation.binOp₁ o e₂ k) => h_28 v₁ c o e₂ k
+    | State.ret v₂ c (Continuation.binOp₂ o v₁ k) => h_29 v₂ c o v₁ k
+    | s@h:(State.error a a_1 a_2) => h_30 s a a_1 a_2 h
+    | s@h:(State.done a a_1) => h_31 s a a_1 h) =
+    h_2 e c k
+State.step.match_9.eq_3 : ∀ (motive : State → Sort u_1) (p₁ p₂ : Program) (c : Context) (k : Continuation)
+  (h_1 : (c : Context) → (k : Continuation) → motive (State.prog Program.skip c k))
+  (h_2 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.eval e) c k))
+  (h_3 : (p₁ p₂ : Program) → (c : Context) → (k : Continuation) → motive (State.prog (p₁.seq p₂) c k))
+  (h_4 : (n : String) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.decl n p) c k))
+  (h_5 :
+    (e : Expression) →
+      (pT pF : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.fork e pT pF) c k))
+  (h_6 :
+    (e : Expression) → (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.loop e p) c k))
+  (h_7 : (e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.print e) c k))
+  (h_8 : (l : Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lit l) c k))
+  (h_9 : (l : List Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.list l) c k))
+  (h_10 : (n : String) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.var n) c k))
+  (h_11 : (l : Lambda) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lam l) c k))
+  (h_12 :
+    (e : Expression) →
+      (es : NEList Expression) → (c : Context) → (k : Continuation) → motive (State.expr (e.app es) c k))
+  (h_13 :
+    (o : UnOp) → (e : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.unOp o e) c k))
+  (h_14 :
+    (o : BinOp) →
+      (e₁ e₂ : Expression) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.binOp o e₁ e₂) c k))
+  (h_15 : (v : Value) → (c : Context) → motive (State.ret v c Continuation.exit))
+  (h_16 : (v : Value) → (c : Context) → (k : Continuation) → motive (State.ret v c k.print))
+  (h_17 :
+    (a : Value) → (c : Context) → (p : Program) → (k : Continuation) → motive (State.ret a c (Continuation.seq p k)))
+  (h_18 : (v : Value) → (a c : Context) → (k : Continuation) → motive (State.ret v a (Continuation.block c k)))
+  (h_19 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (es : NEList Expression) → (k : Continuation) → motive (State.ret v c (Continuation.app e es k)))
+  (h_20 :
+    (c : Context) →
+      (a : Expression) →
+        (pT a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k)))
+  (h_21 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 pF : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k)))
+  (h_22 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) →
+          (a a_1 : Program) → (a_2 : Continuation) → motive (State.ret v c (Continuation.fork e a a_1 a_2)))
+  (h_23 :
+    (c : Context) →
+      (e : Expression) →
+        (p : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k)))
+  (h_24 :
+    (c : Context) →
+      (a : Expression) →
+        (a_1 : Program) →
+          (k : Continuation) → motive (State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k)))
+  (h_25 :
+    (v : Value) →
+      (c : Context) →
+        (e : Expression) → (a : Program) → (a_1 : Continuation) → motive (State.ret v c (Continuation.loop e a a_1)))
+  (h_26 :
+    (v : Value) → (c : Context) → (n : String) → (k : Continuation) → motive (State.ret v c (Continuation.decl n k)))
+  (h_27 :
+    (v : Value) →
+      (c : Context) →
+        (o : UnOp) → (e : Expression) → (k : Continuation) → motive (State.ret v c (Continuation.unOp o e k)))
+  (h_28 :
+    (v₁ : Value) →
+      (c : Context) →
+        (o : BinOp) → (e₂ : Expression) → (k : Continuation) → motive (State.ret v₁ c (Continuation.binOp₁ o e₂ k)))
+  (h_29 :
+    (v₂ : Value) →
+      (c : Context) →
+        (o : BinOp) → (v₁ : Value) → (k : Continuation) → motive (State.ret v₂ c (Continuation.binOp₂ o v₁ k)))
+  (h_30 :
+    (s : State) →
+      (a : ErrorType) → (a_1 : Context) → (a_2 : String) → s = State.error a a_1 a_2 → motive (State.error a a_1 a_2))
+  (h_31 : (s : State) → (a : Value) → (a_1 : Context) → s = State.done a a_1 → motive (State.done a a_1)),
+  (match State.prog (p₁.seq p₂) c k with
+    | State.prog Program.skip c k => h_1 c k
+    | State.prog (Program.eval e) c k => h_2 e c k
+    | State.prog (p₁.seq p₂) c k => h_3 p₁ p₂ c k
+    | State.prog (Program.decl n p) c k => h_4 n p c k
+    | State.prog (Program.fork e pT pF) c k => h_5 e pT pF c k
+    | State.prog (Program.loop e p) c k => h_6 e p c k
+    | State.prog (Program.print e) c k => h_7 e c k
+    | State.expr (Expression.lit l) c k => h_8 l c k
+    | State.expr (Expression.list l) c k => h_9 l c k
+    | State.expr (Expression.var n) c k => h_10 n c k
+    | State.expr (Expression.lam l) c k => h_11 l c k
+    | State.expr (e.app es) c k => h_12 e es c k
+    | State.expr (Expression.unOp o e) c k => h_13 o e c k
+    | State.expr (Expression.binOp o e₁ e₂) c k => h_14 o e₁ e₂ c k
+    | State.ret v c Continuation.exit => h_15 v c
+    | State.ret v c k.print => h_16 v c k
+    | State.ret a c (Continuation.seq p k) => h_17 a c p k
+    | State.ret v a (Continuation.block c k) => h_18 v a c k
+    | State.ret v c (Continuation.app e es k) => h_19 v c e es k
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.fork a pT a_1 k) => h_20 c a pT a_1 k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.fork a a_1 pF k) => h_21 c a a_1 pF k
+    | State.ret v c (Continuation.fork e a a_1 a_2) => h_22 v c e a a_1 a_2
+    | State.ret (Value.lit (Literal.bool true)) c (Continuation.loop e p k) => h_23 c e p k
+    | State.ret (Value.lit (Literal.bool false)) c (Continuation.loop a a_1 k) => h_24 c a a_1 k
+    | State.ret v c (Continuation.loop e a a_1) => h_25 v c e a a_1
+    | State.ret v c (Continuation.decl n k) => h_26 v c n k
+    | State.ret v c (Continuation.unOp o e k) => h_27 v c o e k
+    | State.ret v₁ c (Continuation.binOp₁ o e₂ k) => h_28 v₁ c o e₂ k
+    | State.ret v₂ c (Continuation.binOp₂ o v₁ k) => h_29 v₂ c o v₁ k
+    | s@h:(State.error a a_1 a_2) => h_30 s a a_1 a_2 h
+    | s@h:(State.done a a_1) => h_31 s a a_1 h) =
+    h_3 p₁ p₂ c k
+State.step.match_9.splitter : (motive : State → Sort u_1) →
+  (x : State) →
+    ((c : Context) → (k : Continuation) → motive (State.prog Program.skip c k)) →
+      ((e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.eval e) c k)) →
+        ((p₁ p₂ : Program) → (c : Context) → (k : Continuation) → motive (State.prog (p₁.seq p₂) c k)) →
+          ((n : String) →
+              (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.decl n p) c k)) →
+            ((e : Expression) →
+                (pT pF : Program) →
+                  (c : Context) → (k : Continuation) → motive (State.prog (Program.fork e pT pF) c k)) →
+              ((e : Expression) →
+                  (p : Program) → (c : Context) → (k : Continuation) → motive (State.prog (Program.loop e p) c k)) →
+                ((e : Expression) → (c : Context) → (k : Continuation) → motive (State.prog (Program.print e) c k)) →
+                  ((l : Literal) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.lit l) c k)) →
+                    ((l : List Literal) →
+                        (c : Context) → (k : Continuation) → motive (State.expr (Expression.list l) c k)) →
+                      ((n : String) → (c : Context) → (k : Continuation) → motive (State.expr (Expression.var n) c k)) →
+                        ((l : Lambda) →
+                            (c : Context) → (k : Continuation) → motive (State.expr (Expression.lam l) c k)) →
+                          ((e : Expression) →
+                              (es : NEList Expression) →
+                                (c : Context) → (k : Continuation) → motive (State.expr (e.app es) c k)) →
+                            ((o : UnOp) →
+                                (e : Expression) →
+                                  (c : Context) → (k : Continuation) → motive (State.expr (Expression.unOp o e) c k)) →
+                              ((o : BinOp) →
+                                  (e₁ e₂ : Expression) →
+                                    (c : Context) →
+                                      (k : Continuation) → motive (State.expr (Expression.binOp o e₁ e₂) c k)) →
+                                ((v : Value) → (c : Context) → motive (State.ret v c Continuation.exit)) →
+                                  ((v : Value) → (c : Context) → (k : Continuation) → motive (State.ret v c k.print)) →
+                                    ((a : Value) →
+                                        (c : Context) →
+                                          (p : Program) →
+                                            (k : Continuation) → motive (State.ret a c (Continuation.seq p k))) →
+                                      ((v : Value) →
+                                          (a c : Context) →
+                                            (k : Continuation) → motive (State.ret v a (Continuation.block c k))) →
+                                        ((v : Value) →
+                                            (c : Context) →
+                                              (e : Expression) →
+                                                (es : NEList Expression) →
+                                                  (k : Continuation) →
+                                                    motive (State.ret v c (Continuation.app e es k))) →
+                                          ((c : Context) →
+                                              (a : Expression) →
+                                                (pT a_1 : Program) →
+                                                  (k : Continuation) →
+                                                    motive
+                                                      (State.ret (Value.lit (Literal.bool true)) c
+                                                        (Continuation.fork a pT a_1 k))) →
+                                            ((c : Context) →
+                                                (a : Expression) →
+                                                  (a_1 pF : Program) →
+                                                    (k : Continuation) →
+                                                      motive
+                                                        (State.ret (Value.lit (Literal.bool false)) c
+                                                          (Continuation.fork a a_1 pF k))) →
+                                              ((v : Value) →
+                                                  (c : Context) →
+                                                    (e : Expression) →
+                                                      (a a_1 : Program) →
+                                                        (a_2 : Continuation) →
+                                                          (v = Value.lit (Literal.bool true) → False) →
+                                                            (v = Value.lit (Literal.bool false) → False) →
+                                                              motive (State.ret v c (Continuation.fork e a a_1 a_2))) →
+                                                ((c : Context) →
+                                                    (e : Expression) →
+                                                      (p : Program) →
+                                                        (k : Continuation) →
+                                                          motive
+                                                            (State.ret (Value.lit (Literal.bool true)) c
+                                                              (Continuation.loop e p k))) →
+                                                  ((c : Context) →
+                                                      (a : Expression) →
+                                                        (a_1 : Program) →
+                                                          (k : Continuation) →
+                                                            motive
+                                                              (State.ret (Value.lit (Literal.bool false)) c
+                                                                (Continuation.loop a a_1 k))) →
+                                                    ((v : Value) →
+                                                        (c : Context) →
+                                                          (e : Expression) →
+                                                            (a : Program) →
+                                                              (a_1 : Continuation) →
+                                                                (v = Value.lit (Literal.bool true) → False) →
+                                                                  (v = Value.lit (Literal.bool false) → False) →
+                                                                    motive
+                                                                      (State.ret v c (Continuation.loop e a a_1))) →
+                                                      ((v : Value) →
+                                                          (c : Context) →
+                                                            (n : String) →
+                                                              (k : Continuation) →
+                                                                motive (State.ret v c (Continuation.decl n k))) →
+                                                        ((v : Value) →
+                                                            (c : Context) →
+                                                              (o : UnOp) →
+                                                                (e : Expression) →
+                                                                  (k : Continuation) →
+                                                                    motive (State.ret v c (Continuation.unOp o e k))) →
+                                                          ((v₁ : Value) →
+                                                              (c : Context) →
+                                                                (o : BinOp) →
+                                                                  (e₂ : Expression) →
+                                                                    (k : Continuation) →
+                                                                      motive
+                                                                        (State.ret v₁ c (Continuation.binOp₁ o e₂ k))) →
+                                                            ((v₂ : Value) →
+                                                                (c : Context) →
+                                                                  (o : BinOp) →
+                                                                    (v₁ : Value) →
+                                                                      (k : Continuation) →
+                                                                        motive
+                                                                          (State.ret v₂ c
+                                                                            (Continuation.binOp₂ o v₁ k))) →
+                                                              ((a : ErrorType) →
+                                                                  (a_1 : Context) →
+                                                                    (a_2 : String) → motive (State.error a a_1 a_2)) →
+                                                                ((a : Value) →
+                                                                    (a_1 : Context) → motive (State.done a a_1)) →
+                                                                  motive x

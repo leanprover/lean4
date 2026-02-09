@@ -1,0 +1,14 @@
+lazylistThunk.lean:28:17-28:30: warning: This simp argument is unused:
+  length_toList
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵l̵e̵n̵g̵t̵h̵_̵t̵o̵L̵i̵s̵t̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+lazylistThunk.lean:41:30-41:50: warning: This simp argument is unused:
+  toList_force_none as
+
+Hint: Omit it from the simp argument list.
+  simp [force,̵ ̵t̵o̵L̵i̵s̵t̵_̵f̵o̵r̵c̵e̵_̵n̵o̵n̵e̵ ̵a̵s̵]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

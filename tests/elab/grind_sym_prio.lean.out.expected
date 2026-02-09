@@ -1,0 +1,2 @@
+grind_sym_prio.lean:9:22-9:25: warning: declaration uses `sorry`
+grind_sym_prio.lean:16:21-16:24: warning: declaration uses `sorry`

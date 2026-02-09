@@ -1,0 +1,95 @@
+[Compiler.IR] [result]
+    def IO.print._at_.IO.println._at_.g.spec_0.spec_0 (x_1 : obj) (x_2 : void) : obj :=
+      let x_3 : obj := IO.getStdout ◾;
+      let x_4 : obj := proj[4] x_3;
+      inc x_4;
+      dec x_3;
+      let x_5 : obj := app x_4 x_1 ◾;
+      ret x_5
+    def IO.print._at_.IO.println._at_.g.spec_0.spec_0._boxed (x_1 : obj) (x_2 : tagged) : obj :=
+      let x_3 : obj := IO.print._at_.IO.println._at_.g.spec_0.spec_0 x_1 x_2;
+      ret x_3
+[Compiler.IR] [result]
+    def IO.println._at_.g.spec_0 (x_1 : tobj) (x_2 : void) : obj :=
+      let x_3 : obj := Nat.reprFast x_1;
+      let x_4 : u32 := 10;
+      let x_5 : obj := String.push x_3 x_4;
+      let x_6 : obj := IO.print._at_.IO.println._at_.g.spec_0.spec_0 x_5 ◾;
+      ret x_6
+    def IO.println._at_.g.spec_0._boxed (x_1 : tobj) (x_2 : tagged) : obj :=
+      let x_3 : obj := IO.println._at_.g.spec_0 x_1 x_2;
+      ret x_3
+[Compiler.IR] [result]
+    def List.forM._at_.g.spec_1 (x_1 : tobj) (x_2 : tobj) (x_3 : void) : obj :=
+      case x_1 : tobj of
+      List.nil →
+        let x_4 : tagged := ctor_0[PUnit.unit];
+        let x_5 : obj := ctor_0[Prod.mk] x_4 x_2;
+        let x_6 : obj := ctor_0[EST.Out.ok] x_5;
+        ret x_6
+      List.cons →
+        let x_7 : tobj := proj[0] x_1;
+        inc x_7;
+        let x_8 : tobj := proj[1] x_1;
+        inc x_8;
+        dec x_1;
+        let x_9 : obj := IO.println._at_.g.spec_0 x_7 ◾;
+        case x_9 : obj of
+        EST.Out.ok →
+          dec x_9;
+          let x_10 : obj := List.forM._at_.g.spec_1 x_8 x_2 ◾;
+          ret x_10
+        EST.Out.error →
+          dec x_8;
+          dec x_2;
+          let x_11 : u8 := isShared x_9;
+          case x_11 : u8 of
+          Bool.false →
+            ret x_9
+          Bool.true →
+            let x_12 : tobj := proj[0] x_9;
+            inc x_12;
+            dec x_9;
+            let x_13 : obj := ctor_1[EST.Out.error] x_12;
+            ret x_13
+    def List.forM._at_.g.spec_1._boxed (x_1 : tobj) (x_2 : tobj) (x_3 : tagged) : obj :=
+      let x_4 : obj := List.forM._at_.g.spec_1 x_1 x_2 x_3;
+      ret x_4
+[Compiler.IR] [result]
+    def g (x_1 : tobj) (x_2 : void) : obj :=
+      let x_3 : tagged := 0;
+      let x_4 : obj := List.forM._at_.g.spec_1 x_1 x_3 ◾;
+      case x_4 : obj of
+      EST.Out.ok →
+        let x_5 : u8 := isShared x_4;
+        case x_5 : u8 of
+        Bool.false →
+          let x_6 : tobj := proj[0] x_4;
+          let x_7 : tobj := proj[1] x_6;
+          inc x_7;
+          dec x_6;
+          set x_4[0] := x_7;
+          ret x_4
+        Bool.true →
+          let x_8 : tobj := proj[0] x_4;
+          inc x_8;
+          dec x_4;
+          let x_9 : tobj := proj[1] x_8;
+          inc x_9;
+          dec x_8;
+          let x_10 : obj := ctor_0[EST.Out.ok] x_9;
+          ret x_10
+      EST.Out.error →
+        let x_11 : u8 := isShared x_4;
+        case x_11 : u8 of
+        Bool.false →
+          ret x_4
+        Bool.true →
+          let x_12 : tobj := proj[0] x_4;
+          inc x_12;
+          dec x_4;
+          let x_13 : obj := ctor_1[EST.Out.error] x_12;
+          ret x_13
+    def g._boxed (x_1 : tobj) (x_2 : tagged) : obj :=
+      let x_3 : obj := g x_1 x_2;
+      ret x_3

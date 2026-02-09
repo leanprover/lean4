@@ -1,0 +1,18 @@
+3705.lean:17:9-17:29: warning: declaration uses `sorry`
+3705.lean:17:9-17:29: warning: declaration uses `sorry`
+3705.lean:23:0-23:7: warning: declaration uses `sorry`
+3705.lean:27:54-27:62: warning: This simp argument is unused:
+  mul_comm
+
+Hint: Omit it from the simp argument list.
+  simp (config := { failIfUnchanged := false }) only ̵[̵m̵u̵l̵_̵c̵o̵m̵m̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+3705.lean:30:8-30:11: warning: declaration uses `sorry`
+3705.lean:33:13-33:21: warning: This simp argument is unused:
+  mul_comm
+
+Hint: Omit it from the simp argument list.
+  simp only ̵[̵m̵u̵l̵_̵c̵o̵m̵m̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`

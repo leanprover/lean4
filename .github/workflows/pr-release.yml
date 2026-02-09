@@ -61,8 +61,7 @@ jobs:
         run: |
           git init --bare lean4.git
           git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
-          # we only need to fetch the history; note this flag is sticky
-          git -C lean4.git fetch -n origin --filter=tree:0 master
+          git -C lean4.git fetch -n origin master
           git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
           # Create both the original tag and the SHA-suffixed tag

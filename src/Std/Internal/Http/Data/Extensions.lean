@@ -35,8 +35,10 @@ structure Extensions where
   private mk ::
   /--
   The underlying tree map storing dynamic values keyed by their type name.
+
+  Note: We cannot use `Name.quickCmp` here.
   -/
-  data : DTreeMap Nat (fun x => { y : Dynamic // y.typeName.hash.toNat = x }) := .empty
+  private data : TreeMap Name Dynamic (compare ·.hash.toNat ·.hash.toNat) := .empty
 deriving Inhabited
 
 namespace Extensions
@@ -52,8 +54,8 @@ Retrieves a value of type `α` from the extensions, if present.
 -/
 @[inline]
 def get (x : Extensions) (α : Type) [TypeName α] : Option α := do
-  let dyn ← x.data.get? (TypeName.typeName α).hash.toNat
-  dyn.val.get? α
+  let dyn ← x.data.get? (TypeName.typeName α)
+  dyn.get? α
 
 /--
 Inserts a value into the extensions, keyed by its type name.
@@ -62,20 +64,20 @@ If a value of the same type already exists, it is replaced.
 @[inline]
 def insert (x : Extensions) [TypeName α] (data : α) : Extensions :=
   let dyn := Dynamic.mk data
-  ⟨x.data.insert dyn.typeName.hash.toNat ⟨dyn, by rfl⟩⟩
+  ⟨x.data.insert dyn.typeName dyn⟩
 
 /--
 Removes the value of type `α` from the extensions.
 -/
 @[inline]
 def remove (x : Extensions) (α : Type) [TypeName α] : Extensions :=
-  ⟨x.data.erase (TypeName.typeName α).hash.toNat⟩
+  ⟨x.data.erase (TypeName.typeName α)⟩
 
 /--
 Checks whether the extensions contain a value of type `α`.
 -/
 @[inline]
 def contains (x : Extensions) (α : Type) [TypeName α] : Bool :=
-  x.data.contains (TypeName.typeName α).hash.toNat
+  x.data.contains (TypeName.typeName α)
 
 end Std.Http.Extensions

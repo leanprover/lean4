@@ -232,40 +232,38 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
           · omega
           · rw [← hzcast]
             let zeroExtendTarget : ExtendTarget aig (xc.w + diff) := {w := xc.w, vec := xc.inner}
-            have := denote_blastZeroExtend (target := zeroExtendTarget) (assign := assign)
             have hcast' : xc.w + (l - xc.w % l) = (xc.w + (l - xc.w % l)) / l * l := by
               rw [Nat.div_mul_cancel (n := l)]
               simp [diff] at hmodeq
               omega
-            let zextb := blastZeroExtend aig zeroExtendTarget
             intros j hj
-            let zext0 := (blastZeroExtend aig zeroExtendTarget)
-            let zext1 : zext0.aig.RefVec ((xc.w + (l - xc.w % l)) / l * l) :=
-                      {refs := Vector.cast hcast' zext0.vec.refs, hrefs := by simp [zext0]
-                                                                              intros k hk
-                                                                              have := zext0.vec.hrefs (i := k)
-                                                                              simp [diff, zext0] at this
-                                                                              apply this}
-            have heq : zext1.get j hj =
-                    zext0.vec.get j (by simp [diff]; omega) := by
-              simp [zext0, zext1, zeroExtendTarget]
+            let zext : (blastZeroExtend aig zeroExtendTarget).aig.RefVec ((xc.w + (l - xc.w % l)) / l * l) :=
+                      {refs := Vector.cast hcast' (blastZeroExtend aig zeroExtendTarget).vec.refs,
+                        hrefs := by
+                                  simp only [Vector.getElem_cast]
+                                  intros
+                                  apply (blastZeroExtend aig zeroExtendTarget).vec.hrefs}
+            have heq : zext.get j hj =  (blastZeroExtend aig zeroExtendTarget).vec.get j (by simp [diff]; omega) := by
+              simp only [ zeroExtendTarget, zext]
               congr 2
-              · simp [diff]
+              · simp only [diff]
                 rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
-              · simp [diff]
+              · simp only [diff]
                 rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
               · congr
-                · simp [diff]
+                · simp only [diff]
                   rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
-                · exact
-                  heq_of_eqRec_eq (congrArg (Eq (xc.w + (l - xc.w % l))) (id (Eq.symm hcast')))
-                    rfl
+                · apply heq_of_eqRec_eq
+                  · simp
+                  · simp
+                    omega
               · apply proof_irrel_heq
-              · apply heq_of_eqRec_eq (congrArg (LT.lt j) (id (Eq.symm hcast'))) rfl
-            have := denote_blastZeroExtend (target := zeroExtendTarget) (assign := assign) (idx := j)
-                                            (hidx := by simp [diff]; omega)
+              · apply heq_of_eqRec_eq
+                · simp
+                · simp
+                  omega
             rw [heq]
-            simp only [denote_blastZeroExtend, zext0, zeroExtendTarget]
+            simp only [denote_blastZeroExtend, zeroExtendTarget]
             split
             · simp only [hx, BitVec.getLsbD_cast, ← hzext, BitVec.getLsbD_setWidth,
                 Bool.eq_and_self, decide_eq_true_eq]

@@ -52,7 +52,8 @@ def max' [LE α] [DecidableLE α] (a b : α) : α :=
 Without the `open scoped` command, Lean would not find the required {lit}`DecidableLE α`
 instance for the opposite order.
 -/
-@[implicit_reducible] def LE.opposite (le : LE α) : LE α where
+@[implicit_reducible]
+def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
 theorem LE.opposite_def {le : LE α} :
@@ -89,6 +90,7 @@ example [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsLinearOrder α] {x y : α}
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLT α`
 and {lit}`IsLinearOrder α` instances for the opposite order that are required by {name}`not_le`.
 -/
+@[implicit_reducible]
 def LT.opposite (lt : LT α) : LT α where
   lt a b := b < a
 
@@ -125,6 +127,7 @@ example [LE α] [DecidableLE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] {a 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMax α`
 instance for the opposite order that is required by {name}`max_eq_if`.
 -/
+@[implicit_reducible]
 def Min.oppositeMax (min : Min α) : Max α where
   max a b := Min.min a b
 
@@ -161,6 +164,7 @@ example [LE α] [DecidableLE α] [Max α] [Std.LawfulOrderLeftLeaningMax α] {a 
 Without the `open scoped` command, Lean would not find the {lit}`LawfulOrderLeftLeaningMin α`
 instance for the opposite order that is required by {name}`min_eq_if`.
 -/
+@[implicit_reducible]
 def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b
 

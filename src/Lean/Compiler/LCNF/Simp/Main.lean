@@ -187,7 +187,9 @@ partial def simpCasesOnCtor? (cases : Cases .pure) : SimpM (Option (Code .pure))
     return some ret
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
-    unless (← getType discr).isAppOf cases.typeName do return none
+    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorInfo.getName | return none
+    unless cases.typeName == ctorVal.induct do
+      return none
     let (alt, cases) := cases.extractAlt! ctorInfo.getName
     eraseCode (.cases cases)
     markSimplified

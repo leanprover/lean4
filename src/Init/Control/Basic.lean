@@ -322,6 +322,8 @@ class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w
   -/
   restoreM : {α : Type u} → m (stM α) → n α
 
+attribute [reducible] MonadControl.stM
+
 /--
 A way to lift a computation from one monad to another while providing the lifted computation with a
 means of interpreting computations from the outer monad. This provides a means of lifting
@@ -348,6 +350,8 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
   reverse lift passed to `liftWith`'s parameter.
   -/
   restoreM {α : Type u} : stM α → n α
+
+attribute [reducible] MonadControlT.stM
 
 export MonadControlT (stM liftWith restoreM)
 

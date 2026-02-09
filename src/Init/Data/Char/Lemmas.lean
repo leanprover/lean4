@@ -60,7 +60,7 @@ instance ltTrichotomous : Std.Trichotomous (· < · : Char → Char → Prop) wh
   trichotomous _ _ h₁ h₂ := Char.le_antisymm (by simpa using h₂) (by simpa using h₁)
 
 @[deprecated ltTrichotomous (since := "2025-10-27")]
-def notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
+theorem notLTAntisymm : Std.Antisymm (¬ · < · : Char → Char → Prop) where
   antisymm := Char.ltTrichotomous.trichotomous
 
 instance ltAsymm : Std.Asymm (· < · : Char → Char → Prop) where
@@ -71,7 +71,7 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
 
 -- This instance is useful while setting up instances for `String`.
 @[deprecated ltAsymm (since := "2025-08-01")]
-def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
+theorem notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by

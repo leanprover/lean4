@@ -34,7 +34,7 @@ A `ForIn'` instance for iterators. Its generic membership relation is not easy t
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose, instance_reducible]
 def Iter.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
@@ -52,7 +52,7 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
 /--
 An implementation of `for h : ... in ... do ...` notation for partial iterators.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose, instance_reducible]
 def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
@@ -70,7 +70,7 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
 A `ForIn'` instance for iterators that is guaranteed to terminate after finitely many steps.
 It is not marked as an instance because the membership predicate is difficult to work with.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose, instance_reducible]
 def Iter.Total.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] [Finite α Id] :
     ForIn' n (Iter.Total (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where

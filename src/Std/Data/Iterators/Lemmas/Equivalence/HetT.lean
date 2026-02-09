@@ -27,6 +27,7 @@ class ComputableSmall (α : Type v) where
 class Small (α : Type v) : Prop where
   h : Nonempty (ComputableSmall.{u} α)
 
+@[instance_reducible]
 noncomputable def ComputableSmall.choose (α : Type v) [small : Small.{u} α] : ComputableSmall.{u} α :=
   haveI : Nonempty (ComputableSmall.{u} α) := Small.h
   Classical.ofNonempty (α := ComputableSmall.{u} α)
@@ -92,7 +93,7 @@ instance {α : Type v} {x : α} : Small.{u} (Subtype (· = x)) where
     inflate_deflate := by rintro ⟨_, rfl⟩; rfl
   }⟩
 
-def Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{u} α]
+theorem Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{u} α]
     (h : ∀ b, ∃ a, f a = b) : Small.{u} β where
   h := ⟨{
     Target := Quot (fun a a' : USquash α => f a.inflate = f a'.inflate)

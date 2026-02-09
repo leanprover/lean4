@@ -25,7 +25,7 @@ public def _root_.LE.ofOrd (α : Type u) [Ord α] : LE α where
 /--
 Creates an `DecidableLE α` instance using a well-behaved `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.DecidableLE.ofOrd (α : Type u) [LE α] [Ord α] [LawfulOrderOrd α] :
     DecidableLE α :=
   fun a b => match h : (compare a b).isLE with
@@ -71,7 +71,7 @@ public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrde
 /--
 Creates a `DecidableLT α` instance using a well-behaved `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [LawfulOrderOrd α]
     [LawfulOrderLT α] :
     DecidableLT α :=

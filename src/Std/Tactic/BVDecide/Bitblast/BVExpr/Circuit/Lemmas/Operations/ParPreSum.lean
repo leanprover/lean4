@@ -19,7 +19,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extr
 
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.hAddRec` from
+This module contains the verification of the bitblaster for `BitVec.hAdd` from
 `Impl.Operations.parPreSum`. We prove that the recursive addition of `w`-long words over
 a `len * w`-long bitvector is equal to the addition using a parallel prefix sum circuit of the
 same bitvector.
@@ -90,7 +90,6 @@ theorem denote_blastParPreSumLayer
         · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
         · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
       · case _ hsplit1 =>
-        let bvRes := BitVec.parPreSumLayer old_layer_bv 0#(0 * w) (by omega)
         have bvRes_proof := BitVec.extractLsb'_parPreSumLayer old_layer_bv 0#(0 * w) (by omega) (by omega)
         let lhs_bv := BitVec.extractLsb' (2 * iter_num * w) w old_layer_bv
         let rhs_bv := BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv
@@ -99,11 +98,10 @@ theorem denote_blastParPreSumLayer
           have hksum : idx2 = iter_num * w + k := by omega
           rw [hksum, show iter_num * w + k - iter_num * w = k by omega]
           specialize bvRes_proof (i := iter_num) (by omega)
-          have hlsbd := BitVec.getLsbD_extractLsb' (x := bvRes) (start := iter_num * w) (len := w) (i := k)
+          have hlsbd := BitVec.getLsbD_extractLsb' (x := BitVec.parPreSumLayer old_layer_bv 0#(0 * w) (by omega))
+                                                   (start := iter_num * w) (len := w) (i := k)
           have hlt : k < w := by
-            apply Classical.byContradiction
-            intros hcontra
-            simp [hksum, Nat.add_mul] at hidx2
+            simp only [Nat.add_mul] at hidx2
             omega
           simp only [hlt, decide_true, Bool.true_and] at hlsbd
           simp only [lhs_bv, rhs_bv]
@@ -111,45 +109,33 @@ theorem denote_blastParPreSumLayer
           congr
           exact BitVec.eq_of_toNat_eq (congrArg BitVec.toNat (id (Eq.symm bvRes_proof)))
         · intros idx hidx
-          simp only [BitVec.getLsbD_extractLsb', lhs_bv]
-          have := BitVec.getLsbD_extractLsb' (x := old_layer_bv) (start := 2 * iter_num * w) (len := w) (i := idx)
-          rw [← this]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix]
-          · simp
+          rw [BitVec.getLsbD_extractLsb', ← BitVec.getLsbD_extractLsb', AIG.LawfulVecOperator.denote_mem_prefix]
+          · simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_extractLsb']
             rw [denote_blastExtract]
             split
             · simp [hidx, hold]
             · case _ hh =>
-              simp at hh
+              simp only [Nat.not_lt] at hh
               simp [hh]
-          · exact
-            (((blastExtract aig
-                          { w := old_length * w, vec := old_layer,
-                            start := 2 * iter_num * w }).vec.cast
-                    (blastParPreSumLayer._proof_10 aig iter_num old_layer
-                      (blastParPreSumLayer._proof_9 aig iter_num old_layer))).get
-                idx hidx).hgate
+          · simp only [RefVec.get_cast, Ref.cast_eq]
+            exact ((blastExtract aig
+                        {w := old_length * w, vec := old_layer,
+                          start := 2 * iter_num * w}).vec.get
+                  idx hidx).hgate
         · intros idx1 hidx1
           simp only [rhs_bv]
-          have :
-            ((BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv).getLsbD idx1) =
-            ((decide (idx1 < w) && old_layer_bv.getLsbD ((2 * iter_num + 1) * w + idx1))) := by
+          have : ((BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv).getLsbD idx1) =
+              ((decide (idx1 < w) && old_layer_bv.getLsbD ((2 * iter_num + 1) * w + idx1))) := by
             simp [hidx1]
-          rw [this]
-          have := BitVec.getLsbD_extractLsb' (x := old_layer_bv) (start := (2 * iter_num + 1) * w) (len := w) (i := idx1)
-          rw [← this]
-          rw [denote_blastExtract]
+          rw [this, ← BitVec.getLsbD_extractLsb', denote_blastExtract]
           split
-          · simp
-            rw [AIG.LawfulVecOperator.denote_mem_prefix]
+          · rw [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_extractLsb',
+              AIG.LawfulVecOperator.denote_mem_prefix]
             · simp [hold, hidx1]
-            · (expose_names; exact (old_layer.get ((2 * iter_num + 1) * w + idx1) h).hgate)
+            · apply (old_layer.get ((2 * iter_num + 1) * w + idx1) _).hgate
           · case _ hh =>
-            simp at hh
-            simp
-            have h3 : old_length * w ≤ (2 * iter_num + 1) * w + idx1 := by
-              omega
-            simp [h3]
+            simp only [Nat.not_lt] at hh
+            simp [show old_length * w ≤ (2 * iter_num + 1) * w + idx1 by omega]
   · case _ hgen' =>
     have h : iter_num = (old_length + 1) / 2 := by omega
     subst h
@@ -174,11 +160,7 @@ theorem denote_blastParPreSumTree
   generalize hgen : blastParPreSumTree aig l h = res
   unfold blastParPreSumTree at hgen
   split at hgen
-  · rw [← hgen]
-    simp
-    have hcastZero : 0 = 0 / 2 * w := by omega
-    let bvRes := BitVec.parPreSumLayer l_bv 0#(0 * w) (by omega)
-    rw [denote_blastParPreSumTree (l_length := (l_length + 1) / 2) (l_bv := bvRes)]
+  · rw [← hgen, denote_blastParPreSumTree]
     · conv =>
         rhs
         unfold BitVec.parPreSumTree
@@ -193,19 +175,14 @@ theorem denote_blastParPreSumTree
       · intros idx hidx
         simp at hidx
   · rw [← hgen]
-    simp
-    have hval1 : l_length = 1 := by omega
-    have hcast : l_length * w = w := by simp [hval1]
-    specialize hpar idx (by omega)
-    unfold BitVec.parPreSumTree
-    simp [hval1]
+    simp only [show l_length = 1 by omega, ↓reduceDIte, BitVec.getLsbD_cast, BitVec.parPreSumTree]
+    have hcast : l_length * w = w := by simp [show l_length = 1 by omega]
     have hcasteq: (hcast ▸ l).get idx hidx = l.get idx (by omega) := by
-      congr
-      · simp [hval1]
+      congr 1
+      · simp [show l_length = 1 by omega]
       · exact eqRec_heq hcast l
       · exact heq_of_eqRec_eq (congrArg (LT.lt idx) (id (Eq.symm hcast))) rfl
-    rw [hcasteq]
-    simp [hpar]
+    simp [hcasteq, hpar]
 
 @[simp]
 theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
@@ -247,14 +224,13 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
             rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
               show l + xc.w - xc.w % l = l + (xc.w - xc.w % l) by omega]
             simp [hzero]
-          let zext := x.zeroExtend (xc.w + diff)
+          generalize hzext : x.zeroExtend (xc.w + diff) = zext
           let init_length := (xc.w + diff) / l
-          generalize hzext : zext.cast (m := init_length * l)
+          generalize hzcast : zext.cast (m := init_length * l)
                                 (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)]) = zext'
           apply denote_blastParPreSumTree
           · omega
-          · rw [← hzext]
-            simp [zext]
+          · rw [← hzcast]
             let zeroExtendTarget : ExtendTarget aig (xc.w + diff) := {w := xc.w, vec := xc.inner}
             have := denote_blastZeroExtend (target := zeroExtendTarget) (assign := assign)
             have hcast' : xc.w + (l - xc.w % l) = (xc.w + (l - xc.w % l)) / l * l := by
@@ -291,23 +267,20 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
             rw [heq]
             simp only [denote_blastZeroExtend, zext0, zeroExtendTarget]
             split
-            · simp only [hx]
-              rw [BitVec.getLsbD_setWidth]
-              simp [hj]
-            · rw [BitVec.getLsbD_setWidth]
+            · simp only [hx, BitVec.getLsbD_cast, ← hzext, BitVec.getLsbD_setWidth,
+                Bool.eq_and_self, decide_eq_true_eq]
+              omega
+            · rw [← hzext, BitVec.cast_setWidth, Bool.false_eq, BitVec.getLsbD_setWidth]
               simp [show xc.w ≤ j by omega]
         · rw [← hgen, BitVec.hAdd_eq_parPreSum (hl := by omega) (hlt := by omega)]
-          unfold BitVec.parPreSum
-          simp only [show ¬0 < xc.w % l by omega, reduceDIte, BitVec.getLsbD_cast]
+          simp only [show ¬ 0 < xc.w % l by omega, reduceDIte, BitVec.getLsbD_cast, BitVec.parPreSum]
           have hcast : xc.w = xc.w / l * l := by rw [Nat.div_mul_cancel]; omega
           generalize hxcast : BitVec.cast hcast x = xcast
           apply denote_blastParPreSumTree
           · omega
           · intros idx hidx
-            have : xcast.getLsbD idx = x.getLsbD idx := by
-              rw [← hxcast]
-              simp
-            rw [this, ← hx]
+            have hxcast' : xcast.getLsbD idx = x.getLsbD idx := by simp [← hxcast]
+            rw [hxcast', ← hx]
             · congr 2
             · omega;
 

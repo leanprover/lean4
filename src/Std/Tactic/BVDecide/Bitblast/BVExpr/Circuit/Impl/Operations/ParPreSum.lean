@@ -16,7 +16,7 @@ public import Std.Sat.AIG.If
 @[expose] public section
 
 /-!
-This module contains the implementation of a bitblaster for `BitVec.parPreSum`.
+This module contains the implementation of a bitblaster for `BitVec.hAdd`.
 -/
 
 namespace Std.Tactic.BVDecide

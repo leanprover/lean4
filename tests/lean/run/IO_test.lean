@@ -188,7 +188,9 @@ def testRemoveFile : IO Unit := do
   writeFile fn contents
   let r := {read := true}
   IO.setAccessRights fn ⟨r, r, r⟩
-  IO.FS.removeFile fn
+  assert! (← fn.pathExists)
+  removeFile fn
+  assert! !(← fn.pathExists)
 
 #guard_msgs in
 #eval testRemoveFile

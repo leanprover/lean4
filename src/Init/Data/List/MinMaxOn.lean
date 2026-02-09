@@ -83,7 +83,7 @@ protected def maxOn? [i : LE β] [DecidableLE β] (f : α → β) (l : List α) 
   letI : LE β := i.opposite
   l.minOn? f
 
-/-! ### minOn -/
+/-! # minOn -/
 
 @[simp]
 protected theorem minOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
@@ -252,7 +252,7 @@ protected theorem minOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
     simp only [ne_eq, replicate_eq_nil_iff] at ih
     simp +contextual [List.replicate, List.minOn_cons, ih]
 
-/-! ### maxOn -/
+/-! # maxOn -/
 
 protected theorem maxOn_eq_minOn {le : LE β} {dle : DecidableLE β} {xs : List α} {f : α → β} {h} :
     xs.maxOn f h = (letI := le.opposite; xs.minOn f h) :=
@@ -401,7 +401,7 @@ protected theorem maxOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minOn_replicate (f := f) h
 
-/-! ### minOn? -/
+/-! # minOn? -/
 
 /-- {lit}`List.minOn?` returns {name}`none` when applied to an empty list. -/
 @[simp]
@@ -505,7 +505,7 @@ protected theorem minOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
       (xs.minOn? f).merge (_root_.minOn f) (ys.minOn? f) := by
   by_cases xs = [] <;> by_cases ys = [] <;> simp [*, List.minOn?_eq_if, List.minOn_append]
 
-/-! ### maxOn? -/
+/-! # maxOn? -/
 
 protected theorem maxOn?_eq_minOn? {le : LE β} {dle : DecidableLE β} {xs : List α} {f : α → β} :
     xs.maxOn? f = (letI := le.opposite; xs.minOn? f) :=

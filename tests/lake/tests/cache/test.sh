@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source ../common.sh
+NO_BUILD_CODE=3
 
 ./clean.sh
 
@@ -83,8 +84,19 @@ check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 # Verify that the executable has the right permissions to be run
 test_run exe test
 
-# Verify that fetching from the cache creates a trace file that does not replay
+# Create a test module that can be arbitrarily edited and cached
+# The `Test` module's artifacts are more carefully managed throught this test
 touch Ignored.lean
+test_run -v build +Ignored
+test_cmd rm -f .lake/build/lib/lean/Ignored.trace
+
+# Verify that fetching from the cache can be disabled
+test_cmd rm -f .lake/build/lib/lean/Ignored.trace
+test_status $NO_BUILD_CODE -v -f disabled.toml build +Ignored --no-build
+LAKE_ARTIFACT_CACHE=false test_status $NO_BUILD_CODE -v \
+  -f unset.toml build +Ignored --no-build
+
+# Verify that fetching from the cache creates a trace file that does not replay
 test_out "Fetched Ignored" -v build +Ignored
 test_exp -f .lake/build/lib/lean/Ignored.trace
 test_out "Fetched Ignored" -v build +Ignored

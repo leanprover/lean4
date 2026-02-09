@@ -489,6 +489,8 @@ class HasEquiv (α : Sort u) where
   the notion of equivalence is type-dependent. -/
   Equiv : α → α → Sort v
 
+attribute [reducible] HasEquiv.Equiv
+
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
 recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
@@ -506,6 +508,8 @@ class HasSSubset (α : Type u) where
   /-- Strict subset relation: `a ⊂ b`  -/
   SSubset : α → α → Prop
 export HasSSubset (SSubset)
+
+attribute [reducible] HasSSubset.SSubset
 
 /-- Superset relation: `a ⊇ b`  -/
 abbrev Superset [HasSubset α] (a b : α) := Subset b a

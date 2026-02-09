@@ -37154,7 +37154,7 @@ return x_11;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux_process(uint8_t x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_29; 
+lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_29; 
 x_29 = lean_array_get_size(x_4);
 if (lean_obj_tag(x_2) == 0)
 {
@@ -37218,9 +37218,9 @@ block_28:
 {
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_18, 0, x_14);
+lean_ctor_set(x_18, 0, x_15);
 lean_inc_ref(x_8);
-x_19 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_18, x_17, x_15, x_8, x_9, x_10, x_11);
+x_19 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_18, x_17, x_13, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -37228,7 +37228,7 @@ x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 lean_dec_ref(x_19);
 x_21 = lean_array_push(x_4, x_20);
-x_22 = lean_box(x_13);
+x_22 = lean_box(x_14);
 x_23 = lean_array_push(x_5, x_22);
 x_4 = x_21;
 x_5 = x_23;
@@ -37282,9 +37282,9 @@ lean_dec_ref(x_31);
 x_35 = l_Lean_BinderInfo_isInstImplicit(x_33);
 if (x_35 == 0)
 {
-x_13 = x_33;
-x_14 = x_34;
-x_15 = x_30;
+x_13 = x_30;
+x_14 = x_33;
+x_15 = x_34;
 x_16 = x_32;
 x_17 = x_3;
 goto block_28;
@@ -37293,9 +37293,9 @@ else
 {
 uint8_t x_36; 
 x_36 = 1;
-x_13 = x_33;
-x_14 = x_34;
-x_15 = x_30;
+x_13 = x_30;
+x_14 = x_33;
+x_15 = x_34;
 x_16 = x_32;
 x_17 = x_36;
 goto block_28;

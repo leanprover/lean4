@@ -214,6 +214,7 @@ file(
   GLOB_RECURSE LEANLAKETESTS
   #"${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
 )
 foreach(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")

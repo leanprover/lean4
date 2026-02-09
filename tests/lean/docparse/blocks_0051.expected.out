@@ -1,4 +1,4 @@
-Failure @45 (⟨2, 29⟩): expected '(' or '['
+Failure @45 (⟨2, 29⟩): expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
 Final stack:
   [(Lean.Doc.Syntax.para
     "para{"

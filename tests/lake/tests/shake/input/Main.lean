@@ -1,7 +1,8 @@
 module
 
-public import Lib.A
-public import Lib.B
+public import Lib.A  -- used privately
+public import Lib.B  -- unused
+public import Lib.CSimp  -- used privately via `[csimp]` replacement
 
--- Does not use Lib.B, uses Lib.A privately only
 def myValue : Nat := valueA
+def myCSimpedValue : Nat := valueC

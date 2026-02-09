@@ -9154,8 +9154,8 @@ block_33:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
 x_22 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_internalizePattern_go___closed__3;
-lean_inc_ref(x_21);
-x_23 = l_Lean_collectLevelParams(x_22, x_21);
+lean_inc_ref(x_20);
+x_23 = l_Lean_collectLevelParams(x_22, x_20);
 x_24 = lean_ctor_get(x_23, 2);
 lean_inc_ref(x_24);
 lean_dec_ref(x_23);
@@ -9173,8 +9173,8 @@ lean_object* x_28; lean_object* x_29;
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 lean_dec_ref(x_27);
-x_29 = l_Lean_Expr_instantiateLevelParamsArray(x_21, x_24, x_28);
-lean_dec_ref(x_21);
+x_29 = l_Lean_Expr_instantiateLevelParamsArray(x_20, x_24, x_28);
+lean_dec_ref(x_20);
 x_15 = x_29;
 x_16 = lean_box(0);
 goto block_19;
@@ -9183,7 +9183,7 @@ else
 {
 uint8_t x_30; 
 lean_dec_ref(x_24);
-lean_dec_ref(x_21);
+lean_dec_ref(x_20);
 x_30 = !lean_is_exclusive(x_27);
 if (x_30 == 0)
 {
@@ -9205,19 +9205,19 @@ block_41:
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = lean_box(0);
-lean_inc_ref(x_35);
-x_37 = lean_grind_internalize(x_35, x_1, x_36, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+lean_inc_ref(x_34);
+x_37 = lean_grind_internalize(x_34, x_1, x_36, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_dec_ref(x_37);
-x_15 = x_35;
+x_15 = x_34;
 x_16 = lean_box(0);
 goto block_19;
 }
 else
 {
 uint8_t x_38; 
-lean_dec_ref(x_35);
+lean_dec_ref(x_34);
 x_38 = !lean_is_exclusive(x_37);
 if (x_38 == 0)
 {
@@ -9270,8 +9270,8 @@ if (x_47 == 0)
 {
 if (x_47 == 0)
 {
-x_34 = lean_box(0);
-x_35 = x_46;
+x_34 = x_46;
+x_35 = lean_box(0);
 goto block_41;
 }
 else
@@ -9283,8 +9283,8 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-x_20 = lean_box(0);
-x_21 = x_46;
+x_20 = x_46;
+x_21 = lean_box(0);
 goto block_33;
 }
 }
@@ -9299,14 +9299,14 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-x_20 = lean_box(0);
-x_21 = x_46;
+x_20 = x_46;
+x_21 = lean_box(0);
 goto block_33;
 }
 else
 {
-x_34 = lean_box(0);
-x_35 = x_46;
+x_34 = x_46;
+x_35 = lean_box(0);
 goto block_41;
 }
 }

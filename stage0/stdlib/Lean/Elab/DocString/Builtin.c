@@ -26540,19 +26540,19 @@ x_85 = lean_nat_dec_le(x_19, x_84);
 if (x_85 == 0)
 {
 lean_inc(x_84);
-x_65 = x_84;
+x_65 = lean_box(0);
 x_66 = x_81;
-x_67 = lean_box(0);
-x_68 = x_80;
+x_67 = x_80;
+x_68 = x_84;
 x_69 = x_84;
 goto block_71;
 }
 else
 {
-x_65 = x_84;
+x_65 = lean_box(0);
 x_66 = x_81;
-x_67 = lean_box(0);
-x_68 = x_80;
+x_67 = x_80;
+x_68 = x_84;
 x_69 = x_19;
 goto block_71;
 }
@@ -26724,7 +26724,7 @@ block_64:
 {
 lean_object* x_63; 
 lean_dec(x_59);
-x_63 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Elab_DocString_Builtin_0__Lean_Doc_attr_validateAttr_spec__2___redArg(x_60, x_61, x_62);
+x_63 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Elab_DocString_Builtin_0__Lean_Doc_attr_validateAttr_spec__2___redArg(x_61, x_60, x_62);
 lean_dec(x_62);
 x_40 = lean_box(0);
 x_41 = x_63;
@@ -26733,15 +26733,15 @@ goto block_57;
 block_71:
 {
 uint8_t x_70; 
-x_70 = lean_nat_dec_le(x_69, x_65);
+x_70 = lean_nat_dec_le(x_69, x_68);
 if (x_70 == 0)
 {
-lean_dec(x_65);
+lean_dec(x_68);
 lean_inc(x_69);
 x_58 = lean_box(0);
 x_59 = x_66;
-x_60 = x_68;
-x_61 = x_69;
+x_60 = x_69;
+x_61 = x_67;
 x_62 = x_69;
 goto block_64;
 }
@@ -26749,9 +26749,9 @@ else
 {
 x_58 = lean_box(0);
 x_59 = x_66;
-x_60 = x_68;
-x_61 = x_69;
-x_62 = x_65;
+x_60 = x_69;
+x_61 = x_67;
+x_62 = x_68;
 goto block_64;
 }
 }
@@ -26823,19 +26823,19 @@ x_163 = lean_nat_dec_le(x_97, x_162);
 if (x_163 == 0)
 {
 lean_inc(x_162);
-x_143 = x_162;
+x_143 = lean_box(0);
 x_144 = x_159;
-x_145 = lean_box(0);
-x_146 = x_158;
+x_145 = x_158;
+x_146 = x_162;
 x_147 = x_162;
 goto block_149;
 }
 else
 {
-x_143 = x_162;
+x_143 = lean_box(0);
 x_144 = x_159;
-x_145 = lean_box(0);
-x_146 = x_158;
+x_145 = x_158;
+x_146 = x_162;
 x_147 = x_97;
 goto block_149;
 }
@@ -27010,7 +27010,7 @@ block_142:
 {
 lean_object* x_141; 
 lean_dec(x_137);
-x_141 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Elab_DocString_Builtin_0__Lean_Doc_attr_validateAttr_spec__2___redArg(x_138, x_139, x_140);
+x_141 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Elab_DocString_Builtin_0__Lean_Doc_attr_validateAttr_spec__2___redArg(x_139, x_138, x_140);
 lean_dec(x_140);
 x_118 = lean_box(0);
 x_119 = x_141;
@@ -27019,15 +27019,15 @@ goto block_135;
 block_149:
 {
 uint8_t x_148; 
-x_148 = lean_nat_dec_le(x_147, x_143);
+x_148 = lean_nat_dec_le(x_147, x_146);
 if (x_148 == 0)
 {
-lean_dec(x_143);
+lean_dec(x_146);
 lean_inc(x_147);
 x_136 = lean_box(0);
 x_137 = x_144;
-x_138 = x_146;
-x_139 = x_147;
+x_138 = x_147;
+x_139 = x_145;
 x_140 = x_147;
 goto block_142;
 }
@@ -27035,9 +27035,9 @@ else
 {
 x_136 = lean_box(0);
 x_137 = x_144;
-x_138 = x_146;
-x_139 = x_147;
-x_140 = x_143;
+x_138 = x_147;
+x_139 = x_145;
+x_140 = x_146;
 goto block_142;
 }
 }

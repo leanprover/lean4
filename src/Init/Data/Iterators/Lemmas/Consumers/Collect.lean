@@ -60,6 +60,12 @@ theorem Iter.toListRev_ensureTermination_eq_toListRev {α β} [Iterator α Id β
   (rfl)
 
 @[simp]
+theorem IterM.toArray_toIter {α β} [Iterator α Id β] [Finite α Id]
+    {it : IterM (α := α) Id β} :
+    it.toIter.toArray = it.toArray.run :=
+  (rfl)
+
+@[simp]
 theorem IterM.toList_toIter {α β} [Iterator α Id β] [Finite α Id]
     {it : IterM (α := α) Id β} :
     it.toIter.toList = it.toList.run :=

@@ -171,13 +171,26 @@ public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) :
   getLakeCache >>= (·.getArtifact? descr)
 
 /--
-Returns whether the package the artifact cache is enabled for the package.
+Returns whether the package should store its artifacts in the Lake artifact cache.
 
 If the package has not configured the artifact cache itself through
 {lean}`Package.enableArtifactCache?`, this will default to the workspace configuration.
 -/
-public def Package.isArtifactCacheEnabled [MonadWorkspace m] (self : Package) : m Bool :=
-  (self.enableArtifactCache?.getD ·.enableArtifactCache) <$> getWorkspace
+@[inline] public def Package.isArtifactCacheReadable [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.enableArtifactCache? <|> ·.enableArtifactCache? |>.getD true) <$> getWorkspace
+
+/--
+Returns whether the package should restore its artifacts from the Lake artifact cache.
+
+If the package has not configured the artifact cache itself through
+{lean}`Package.enableArtifactCache?`, this will default to the workspace configuration.
+-/
+@[inline] public def Package.isArtifactCacheWritable [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.enableArtifactCache? <|> ·.enableArtifactCache? |>.getD false) <$> getWorkspace
+
+@[inherit_doc isArtifactCacheWritable, deprecated isArtifactCacheWritable (since := "2026-02-03")]
+public abbrev Package.isArtifactCacheEnabled [MonadWorkspace m] (self : Package) : m Bool :=
+  self.isArtifactCacheWritable
 
 end
 

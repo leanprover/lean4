@@ -172,26 +172,12 @@ private def pushColumn : ParserFn := fun c s =>
 private def guardColumn (p : Nat → Bool) (message : String) : ParserFn := fun c s =>
   if p (c.currentColumn s) then s else s.mkErrorAt message s.pos
 
-private def guardMinColumn (min : Nat) : ParserFn :=
-  guardColumn (· ≥ min) s!"expected column at least {min}"
+private def guardMinColumn (min : Nat) (description : String := s!"expected column at least {min}") : ParserFn :=
+  guardColumn (· ≥ min) description
 
 private def withCurrentColumn (p : Nat → ParserFn) : ParserFn := fun c s =>
   p (c.currentColumn s) c s
 
-private def bol : ParserFn := fun c s =>
-  let position := c.fileMap.toPosition s.pos
-  let col := position |>.column
-  if col == 0 then s else s.mkErrorAt s!"beginning of line at {position}" s.pos
-
-private def bolThen (p : ParserFn) (description : String) : ParserFn := fun c s =>
-  let position := c.fileMap.toPosition s.pos
-  let col := position |>.column
-  if col == 0 then
-    let s := p c s
-    if s.hasError then
-      s.mkErrorAt description s.pos
-    else s
-  else s.mkErrorAt description s.pos
 
 /--
 We can only start a nestable block if we're immediately after a newline followed by a sequence of
@@ -218,7 +204,7 @@ private def onlyBlockOpeners : ParserFn := fun c s =>
     true
 
   if ok then s
-  else s.mkErrorAt s!"beginning of line or sequence of nestable block openers at {position}" s.pos
+  else s.mkErrorAt "beginning of line or sequence of nestable block openers" s.pos
 
 private def nl := satisfyFn (· == '\n') "newline"
 
@@ -357,7 +343,9 @@ public def inlineTextChar : ParserFn := fun c s =>
       let i := s.pos
       if h : c.atEnd i then s.mkEOIError
       else s.next' c i h
-    | '*' | '_' | '\n' | '[' | ']' | '{' | '}' | '`' => s.mkUnexpectedErrorAt s!"'{curr}'" i
+    | '\n' => s.mkUnexpectedErrorAt "unexpected newline" i
+    | '*' | '_' | '[' | ']' | '{' | '}' | '`' =>
+      (s.setPos i).mkUnexpectedError s!"unexpected '{curr}' (use '\\{curr}' to escape)" ["text"]
     | '!' =>
       let s := s.next' c i h
       let i' := s.pos
@@ -455,6 +443,20 @@ public def recoverBlock (p : ParserFn) (final : ParserFn := skipFn) : ParserFn :
   recoverFn p fun _ =>
     ignoreFn skipBlock >> final
 
+-- Like `recoverBlock` but stores recovered errors at the original error position.
+private def recoverBlockAtErrPos (p : ParserFn) : ParserFn := fun c s =>
+  let s := p c s
+  if let some msg := s.errorMsg then
+    let errPos := s.pos
+    let s' := (ignoreFn skipBlock) c {s with errorMsg := none}
+    if s'.hasError then s
+    else {s with
+      pos := s'.pos,
+      errorMsg := none,
+      stxStack := s'.stxStack,
+      recoveredErrors := s.recoveredErrors.push (errPos, s'.stxStack, msg)}
+  else s
+
 private def recoverBlockWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     ignoreFn skipBlock >>
@@ -489,6 +491,35 @@ private def recoverEolWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
     ignoreFn skipToNewline >>
     show ParserFn from
       fun _ s => stxs.foldl (init := s.shrinkStack rctx.initialSize) (·.pushSyntax ·)
+
+-- Like `recoverEol` but stores recovered errors at the original error position
+-- rather than the post-recovery position.
+private def recoverEolAtErrPos (p : ParserFn) : ParserFn := fun c s =>
+  let s := p c s
+  if let some msg := s.errorMsg then
+    let errPos := s.pos
+    let s' := (ignoreFn skipToNewline) c {s with errorMsg := none}
+    if s'.hasError then s
+    else {s with
+      pos := s'.pos,
+      errorMsg := none,
+      stxStack := s'.stxStack,
+      recoveredErrors := s.recoveredErrors.push (errPos, s'.stxStack, msg)}
+  else s
+
+-- Like `recoverEolWith` but stores recovered errors at the original error position
+-- rather than the post-recovery position.
+private def recoverEolWithAtErrPos (stxs : Array Syntax) (p : ParserFn) : ParserFn := fun c s =>
+  let iniSz := s.stxStack.size
+  let s := p c s
+  if let some msg := s.errorMsg then
+    let errPos := s.pos
+    let s' := (ignoreFn skipToNewline) c {s with errorMsg := none}
+    if s'.hasError then s
+    else
+      let s' := stxs.foldl (init := s'.shrinkStack iniSz) (·.pushSyntax ·)
+      {s' with recoveredErrors := s.recoveredErrors.push (errPos, s'.stxStack, msg)}
+  else s
 
 private def recoverSkip (p : ParserFn) : ParserFn :=
   recoverFn p fun _ => skipFn
@@ -561,9 +592,22 @@ private def nameArgWhitespace : (multiline : Option Nat) → ParserFn
 public def args (multiline : Option Nat := none) : ParserFn :=
   sepByFn true arg (nameArgWhitespace multiline)
 
+/--
+Replaces any error from `p` at the initial position with `expected msg`. This ensures that
+each sub-parser of `delimitedInline` contributes a clear expected-token name, and clears
+unhelpful generic "unexpected" messages from inner parsers so that the more informative message
+from `inlineTextChar` survives error merging via `<|>`.
+-/
+private def expectedFn (msg : String) (p : ParserFn) : ParserFn := fun c s =>
+  let iniPos := s.pos
+  let s := p c s
+  if s.hasError && s.pos == iniPos then
+    s.setError { expected := [msg] }
+  else s
+
 /-- Parses a name and zero or more arguments to a role, directive, command, or code block. -/
 public def nameAndArgs (multiline : Option Nat := none) : ParserFn :=
-  nameArgWhitespace multiline >> rawIdentFn (includeWhitespace := false) >>
+  nameArgWhitespace multiline >> expectedFn "identifier" (rawIdentFn (includeWhitespace := false)) >>
   nameArgWhitespace multiline >> args (multiline := multiline)
 
 /--
@@ -607,6 +651,13 @@ def linebreak (ctxt : InlineCtxt) : ParserFn :=
 
 private partial def notInLink (ctxt : InlineCtxt) : ParserFn := fun _ s =>
   if ctxt.inLink then s.mkError "Already in a link" else s
+
+-- Like `satisfyFn (· == '\n')` but with a better error message that mentions what was expected.
+private def newlineOrUnexpected (msg : String) : ParserFn := fun c s =>
+  let i := s.pos
+  if h : c.atEnd i then s.mkEOIError
+  else if c.get' i h == '\n' then s.next' c i h
+  else s.mkUnexpectedError s!"unexpected '{c.get' i h}'" [msg]
 
 mutual
   private partial def emphLike
@@ -748,10 +799,17 @@ mutual
         nodeFn `str (asStringFn (quoted := true) (many1Fn (satisfyEscFn (fun c => c != ']' && c != '\n') "other than ']' or newline"))) >>
         strFn "]")
 
-  private partial def linkTarget := ref <|> url
+  private partial def linkTarget : ParserFn := fun c s =>
+    let s := (ref <|> url) c s
+    if s.hasError then
+      match s.errorMsg with
+      | some e => s.setError { e with
+          expected := ["link target '(url)' or '[ref]' (use '\\[' for a literal '[')"] }
+      | none => s
+    else s
   where
-    notUrlEnd := satisfyEscFn (· ∉ ")\n".toList) "not ')' or newline" >> takeUntilEscFn (· ∈ ")\n".toList)
-    notRefEnd := satisfyEscFn (· ∉ "]\n".toList) "not ']' or newline" >> takeUntilEscFn (· ∈ "]\n".toList)
+    notUrlEnd := expectedFn "URL" (satisfyEscFn (· ∉ ")\n".toList)) >> takeUntilEscFn (· ∈ ")\n".toList)
+    notRefEnd := expectedFn "reference name" (satisfyEscFn (· ∉ "]\n".toList)) >> takeUntilEscFn (· ∈ "]\n".toList)
     ref : ParserFn :=
       nodeFn ``Syntax.ref <|
         (atomicFn <| strFn "[") >>
@@ -775,7 +833,13 @@ mutual
     nodeFn ``role <|
       intro >> (bracketed <|> atomicFn nonBracketed)
   where
-    intro := atomicFn (chFn '{') >> recoverBlock (eatSpaces >> nameAndArgs >> eatSpaces >> chFn '}')
+    intro := atomicFn (chFn '{') >> recoverBlockAtErrPos (eatSpaces >> nameAndArgs >> eatSpaces >>
+      rawFn (fun c s =>
+        let i := s.pos
+        if h : c.atEnd i then s.mkEOIError [closeMsg]
+        else if c.get' i h == '}' then s.next' c i h
+        else (s.setPos i).mkUnexpectedError s!"unexpected '{c.get' i h}'" [closeMsg]) false)
+    closeMsg := "positional argument, named argument, flag, or '}' (use '\\{' for a literal '{')"
     bracketed := atomicFn (chFn '[') >> recoverBlock (manyFn (inline ctxt) >> chFn ']')
     fakeOpen := .atom SourceInfo.none "["
     fakeClose := .atom SourceInfo.none "]"
@@ -788,14 +852,15 @@ mutual
   Parses an inline that is self-delimiting (that is, with well-defined start and stop characters).
   -/
   public partial def delimitedInline (ctxt : InlineCtxt) : ParserFn :=
-    emph ctxt <|> bold ctxt <|> code <|> math <|> role ctxt <|> image <|>
+    expectedFn "'_'" (emph ctxt) <|> expectedFn "'*'" (bold ctxt) <|>
+    expectedFn "'`'" code <|> math <|> expectedFn "'{'" (role ctxt) <|> image <|>
     link ctxt <|> footnote ctxt
 
   /--
   Parses any inline element.
   -/
   public partial def inline (ctxt : InlineCtxt) : ParserFn :=
-    text <|> linebreak ctxt <|> delimitedInline ctxt
+    text <|> expectedFn "newline" (linebreak ctxt) <|> delimitedInline ctxt
 end
 
 /--
@@ -811,20 +876,6 @@ public def metadataContents : Parser :=
 
 def withPercents : ParserFn → ParserFn := fun p =>
   adaptUncacheableContextFn (fun c => {c with tokens := c.tokens.insert "%%%" "%%%"}) p
-
-open Lean.Parser.Term in
-/--
-Parses a metadata block, which contains the contents of a Lean structure initialization but is
-surrounded by `%%%` on each side.
--/
-public def metadataBlock : ParserFn :=
-  nodeFn ``metadata_block <|
-    opener >>
-    withPercents metadataContents.fn >>
-    closer
-where
-  opener := atomicFn (bolThen (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >> eatSpaces >> ignoreFn (chFn '\n')
-  closer := bolThen (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >> eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
 
 /--
 Records that the parser is presently parsing a list.
@@ -852,7 +903,118 @@ public structure BlockCtxt where
   The nested list context, innermost first.
   -/
   inLists : List InList := []
+  /--
+  The position at which the document content starts, used to allow headers on the first line of a
+  docstring (e.g. `/-! # Header -/`). With the default value `⟨1, 0⟩`, the beginning-of-line check
+  is unaffected for normal documents.
+  -/
+  docStartPosition : Position := ⟨1, 0⟩
+  /--
+  The base column of the docstring, which is the least indentation of any non-empty line in it,
+  including the opening and closing delimiters. For indented docstrings (e.g. inside `where`
+  blocks), beginning-of-line checks use this column instead of requiring column 0. With the default
+  value 0, the check is equivalent to `column == 0`.
+  -/
+  baseColumn : Nat := 0
 deriving Inhabited, Repr
+
+/--
+Finds the minimum column of the first non-whitespace character on each non-empty content line
+between `startPos` and `endPos`, returning `init` if no such line exists.
+-/
+private def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
+    (init : Nat) : Nat := Id.run do
+  let mut result := init
+  let mut thisLineCol := 0
+  if h : endPos ≤ text.source.rawEndPos then
+    let endPos := text.source.posGE endPos h
+    if h : startPos ≤ text.source.rawEndPos then
+      let mut i := text.source.posGE startPos h
+      let mut afterNewline := false
+      while h : i ≠ text.source.endPos do
+        let c := i.get h
+        i := i.next h
+        if i > endPos then break
+        if c == '\n' then
+          afterNewline := true
+          thisLineCol := 0
+        else if afterNewline && c != ' ' then
+          result := min result thisLineCol
+          afterNewline := false
+        else thisLineCol:= thisLineCol + 1
+  return result
+
+/--
+Computes the `BlockCtxt` for parsing a docstring that starts at `startPos` in the given file map.
+`endPos` is the position of the `-` in the closing delimiter. When the docstring content starts
+mid-line (e.g. `/-! # Header -/`), the `docStartPosition` is set to the position after any leading
+spaces so that headers on the first line are recognized. For indented docstrings, `baseColumn` is
+computed as the minimum column among the opening delimiter, closing delimiter, and the least-indented
+non-empty content line.
+-/
+public def BlockCtxt.forDocString (text : FileMap)
+    (startPos : String.Pos.Raw) (endPos : String.Pos.Raw) : BlockCtxt :=
+  -- Compute baseColumn from the opening `/--` or `/-!` delimiter, the closing `-/` delimiter,
+  -- and the least-indented non-empty content line.
+  -- `startPos` points to just after `/--`, so subtract 3 to get the column of `/`.
+  -- Both `/--` and `/-!` are 3 ASCII bytes.
+  let openCol := (text.toPosition (startPos.decreaseBy 3)).column
+  let closeCol := (text.toPosition endPos).column
+  let baseColumn := min openCol closeCol
+  -- Scan content lines to find the minimum indentation of any non-empty line.
+  -- We look for non-whitespace characters that appear after a newline and check their column.
+  let baseColumn := minContentIndent text startPos endPos baseColumn
+  let position := text.toPosition startPos
+  if position.column ≤ baseColumn then { baseColumn }
+  else
+    -- Skip leading spaces to find where content actually starts
+    let pos := Id.run do
+      if h : startPos ≤ text.source.rawEndPos then
+        let mut pos := text.source.posGE startPos h
+        while h : pos ≠ text.source.endPos do
+          if pos.get h == ' ' then
+            pos := pos.next h
+          else
+            break
+        return pos.offset
+      else text.source.rawEndPos
+    { docStartPosition := text.toPosition pos, baseColumn }
+
+private def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
+  let pos := c.fileMap.toPosition s.pos
+  if pos.column ≤ ctxt.baseColumn then s
+  else if pos.line == ctxt.docStartPosition.line && pos.column ≤ ctxt.docStartPosition.column then s
+  else s.mkErrorAt s!"beginning of line at {pos}" s.pos
+
+private def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
+  let position := c.fileMap.toPosition s.pos
+  let positionOk :=
+    position.column ≤ ctxt.baseColumn ||
+    (position.line == ctxt.docStartPosition.line && position.column ≤ ctxt.docStartPosition.column)
+  if positionOk then
+    let s := p c s
+    if s.hasError then
+      s.mkErrorAt description s.pos
+    else s
+  else s.mkErrorAt description s.pos
+
+open Lean.Parser.Term in
+/--
+Parses a metadata block, which contains the contents of a Lean structure initialization but is
+surrounded by `%%%` on each side.
+-/
+public def metadataBlock (ctxt : BlockCtxt := {}) : ParserFn :=
+  nodeFn ``metadata_block <|
+    opener >>
+    withPercents metadataContents.fn >>
+    closer
+where
+  opener :=
+    atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >>
+    eatSpaces >> ignoreFn (chFn '\n')
+  closer :=
+    bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)" >>
+    eatSpaces >> ignoreFn (chFn '\n' <|> eoiFn)
 
 /--
 Succeeds when the parser is looking at an ordered list indicator.
@@ -920,6 +1082,7 @@ private def skipUntilDedent (indent : Nat) : ParserFn :=
 private def recoverUnindent (indent : Nat) (p : ParserFn) (finish : ParserFn := skipFn) :
     ParserFn :=
   recoverFn p (fun _ => ignoreFn (skipUntilDedent indent) >> finish)
+
 
 private def blockSep := ignoreFn (manyFn blankLine >> optionalFn endLine)
 
@@ -997,7 +1160,7 @@ mutual
   /-- Parses a paragraph (that is, a sequence of otherwise-undecorated inlines). -/
   public partial def para (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``para <|
-      atomicFn (takeWhileFn (· == ' ') >> notFollowedByFn blockOpener "block opener" >> guardMinColumn ctxt.minIndent) >>
+      atomicFn (takeWhileFn (· == ' ') >> notFollowedByFn blockOpener "block opener" >> guardMinColumn ctxt.minIndent s!"paragraph indented at least {ctxt.minIndent}") >>
       fakeAtomHere "para{" >>
       textLine >>
       fakeAtomHere "}"
@@ -1006,16 +1169,30 @@ mutual
   public partial def header (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``header <|
       guardMinColumn ctxt.minIndent >>
-      atomicFn (bol >>
-        withCurrentColumn fun c =>
-          withInfoSyntaxFn (many1Fn (skipChFn '#')) (fun info => fakeAtom "header(" (info := info)) >>
-          withCurrentColumn fun c' =>
-            skipChFn ' ' >> takeWhileFn (· == ' ') >> lookaheadFn (satisfyFn (· != '\n') "non-newline") >>
-            (show ParserFn from fun _ s => s.pushSyntax <| Syntax.mkNumLit (toString <| c' - c - 1)) >>
-            fakeAtom ")") >>
+      -- Atomic: confirm this is a header by finding # at beginning of line.
+      -- Consumes leading spaces so that errors after this point are not backtracked.
+      atomicFn (bol ctxt >> takeWhileFn (· == ' ') >>
+        lookaheadFn (skipChFn '#')) >>
+      -- Non-backtrackable: the # must be at the base column (or on the first line)
+      checkNonIndented >>
+      withCurrentColumn fun c =>
+        withInfoSyntaxFn (many1Fn (skipChFn '#')) (fun info => fakeAtom "header(" (info := info)) >>
+        withCurrentColumn fun c' =>
+          skipChFn ' ' >> takeWhileFn (· == ' ') >> lookaheadFn (satisfyFn (· != '\n') "non-newline") >>
+          (show ParserFn from fun _ s => s.pushSyntax <| Syntax.mkNumLit (toString <| c' - c - 1)) >>
+          fakeAtom ")" >>
       fakeAtom "{" >>
       textLine (allowNewlines := false) >>
       fakeAtomHere "}"
+  where
+    checkNonIndented : ParserFn := fun c s =>
+      let position := c.fileMap.toPosition s.pos
+      let positionOk :=
+        position.column ≤ ctxt.baseColumn ||
+        (position.line == ctxt.docStartPosition.line &&
+         position.column ≤ ctxt.docStartPosition.column)
+      if positionOk then s
+      else s.mkErrorAt s!"'#' (header) to start at column {ctxt.baseColumn}" s.pos
 
   /--
   Parses a code block. The resulting string literal has already had the fences' leading indentation
@@ -1031,7 +1208,7 @@ mutual
               let fenceWidth := c' - c
               takeWhileFn (· == ' ') >>
               optionalFn nameAndArgs >>
-              asStringFn (satisfyFn (· == '\n') "newline") >>
+              asStringFn (recoverEolAtErrPos (newlineOrUnexpected "positional argument, named argument, flag, or newline")) >>
               nodeFn strLitKind (asStringFn (manyFn (atomicFn blankLine <|> codeFrom c fenceWidth)) (transform := deIndent c) (quoted := true)) >>
               closeFence c fenceWidth
   where
@@ -1054,12 +1231,12 @@ mutual
       out
 
     codeFrom (col width : Nat) :=
-      atomicFn (bol >> takeWhileFn (· == ' ') >> guardMinColumn col >>
+      atomicFn (bol ctxt >> takeWhileFn (· == ' ') >> guardMinColumn col >>
         notFollowedByFn (atLeastFn width (skipChFn '`')) "ending fence") >>
       manyFn (satisfyFn (· != '\n') "non-newline") >> satisfyFn (· == '\n') "newline"
 
     closeFence (col width : Nat) :=
-      bol >> takeWhileFn (· == ' ') >> guardColumn (· == col) s!"column {col}" >>
+      bol ctxt >> takeWhileFn (· == ' ') >> guardColumn (· == col) s!"column {col}" >>
       atomicFn (asStringFn (repFn width (skipChFn '`'))) >>
       notFollowedByFn (skipChFn '`') "extra `" >>
       takeWhileFn (· == ' ') >> (satisfyFn (· == '\n') "newline" <|> eoiFn)
@@ -1073,7 +1250,7 @@ mutual
           asStringFn (atLeastFn 3 (skipChFn ':')) >>
          guardOpenerSize >>
          eatSpaces >>
-         recoverEolWith #[.missing, .node .none nullKind #[]] (nameAndArgs >> satisfyFn (· == '\n') "newline")) >>
+         recoverEolWithAtErrPos #[.missing, .node .none nullKind #[]] (nameAndArgs >> newlineOrUnexpected "positional argument, named argument, flag, or newline")) >>
        fakeAtom "\n" >>
        ignoreFn (manyFn blankLine) >>
         (withFencePos 3 fun ⟨l, col⟩ =>
@@ -1117,7 +1294,7 @@ mutual
 
     closeFence (line width : Nat) :=
       let str := String.ofList (.replicate width ':')
-      bolThen (description := s!"closing '{str}' for directive from line {line}")
+      bolThen ctxt (description := s!"closing '{str}' for directive from line {line}")
         (eatSpaces >>
          asStringFn (strFn str) >> notFollowedByFn (chFn ':') "':'" >>
          eatSpaces >>
@@ -1150,7 +1327,7 @@ mutual
   -/
   public partial def linkRef (c : BlockCtxt) : ParserFn :=
     nodeFn ``link_ref <|
-      atomicFn (ignoreFn (bol >> eatSpaces >> guardMinColumn c.minIndent) >> chFn '[' >> nodeFn strLitKind (asStringFn (quoted := true) (nameStart >> manyFn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
+      atomicFn (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> chFn '[' >> nodeFn strLitKind (asStringFn (quoted := true) (nameStart >> manyFn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
       eatSpaces >>
       nodeFn strLitKind (asStringFn (quoted := true) (takeWhileFn (· != '\n'))) >>
       ignoreFn (satisfyFn (· == '\n') "newline" <|> eoiFn)
@@ -1161,7 +1338,7 @@ mutual
   -/
   public partial def footnoteRef (c : BlockCtxt) : ParserFn :=
     nodeFn ``footnote_ref <|
-      atomicFn (ignoreFn (bol >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >> nodeFn strLitKind (asStringFn (quoted := true) (many1Fn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
+      atomicFn (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >> nodeFn strLitKind (asStringFn (quoted := true) (many1Fn (satisfyEscFn (· != ']') "not ']'"))) >> strFn "]:") >>
       eatSpaces >>
       notFollowedByFn blockOpener "block opener" >> guardMinColumn c.minIndent >> textLine
 
@@ -1169,7 +1346,11 @@ mutual
   Parses a block.
   -/
   public partial def block (c : BlockCtxt) : ParserFn :=
-    block_command c <|> unorderedList c <|> orderedList c <|> definitionList c <|> header c <|> codeBlock c <|> directive c <|> blockquote c <|> linkRef c <|> footnoteRef c <|> para c <|> metadataBlock
+    expectedFn "block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}')" (
+      block_command c <|> unorderedList c <|> orderedList c <|> definitionList c <|>
+      header c <|> codeBlock c <|> directive c <|> blockquote c <|>
+      linkRef c <|> footnoteRef c <|> metadataBlock c) <|>
+    para c
 
   /--
   Parses zero or more blocks.
@@ -1184,7 +1365,7 @@ mutual
   /--
   Parses some number of blank lines followed by zero or more blocks.
   -/
-  public partial def document (blockContext : BlockCtxt := {}) : ParserFn := ignoreFn (manyFn blankLine) >> blocks blockContext
+  public partial def document (blockContext : BlockCtxt := {}) : ParserFn := ignoreFn (takeWhileFn (· == ' ')) >> ignoreFn (manyFn blankLine) >> blocks blockContext
 end
 
 section

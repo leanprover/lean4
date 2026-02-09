@@ -110,7 +110,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = 0;
 return x_5;
 }

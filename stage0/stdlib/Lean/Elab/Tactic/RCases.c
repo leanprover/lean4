@@ -15803,29 +15803,29 @@ if (x_46 == 0)
 lean_object* x_47; 
 lean_dec(x_6);
 x_47 = lean_box(0);
-x_16 = lean_box(0);
-x_17 = x_39;
-x_18 = x_36;
-x_19 = x_41;
-x_20 = x_38;
-x_21 = x_37;
-x_22 = x_44;
-x_23 = x_40;
-x_24 = x_42;
+x_16 = x_36;
+x_17 = x_40;
+x_18 = x_42;
+x_19 = x_44;
+x_20 = x_37;
+x_21 = lean_box(0);
+x_22 = x_38;
+x_23 = x_39;
+x_24 = x_41;
 x_25 = x_47;
 goto block_28;
 }
 else
 {
-x_16 = lean_box(0);
-x_17 = x_39;
-x_18 = x_36;
-x_19 = x_41;
-x_20 = x_38;
-x_21 = x_37;
-x_22 = x_44;
-x_23 = x_40;
-x_24 = x_42;
+x_16 = x_36;
+x_17 = x_40;
+x_18 = x_42;
+x_19 = x_44;
+x_20 = x_37;
+x_21 = lean_box(0);
+x_22 = x_38;
+x_23 = x_39;
+x_24 = x_41;
 x_25 = x_6;
 goto block_28;
 }
@@ -16011,17 +16011,17 @@ return x_100;
 }
 block_28:
 {
-if (lean_obj_tag(x_18) == 0)
+if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_26; 
-x_26 = l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_rintroContinue___redArg(x_1, x_2, x_3, x_25, x_22, x_7, x_4, x_8, x_21, x_20, x_17, x_23, x_19, x_24);
+x_26 = l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_rintroContinue___redArg(x_1, x_2, x_3, x_25, x_19, x_7, x_4, x_8, x_20, x_22, x_23, x_17, x_24, x_18);
 return x_26;
 }
 else
 {
 lean_object* x_27; 
 lean_dec(x_7);
-x_27 = l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_rintroContinue___redArg(x_1, x_2, x_3, x_25, x_22, x_18, x_4, x_8, x_21, x_20, x_17, x_23, x_19, x_24);
+x_27 = l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_rintroContinue___redArg(x_1, x_2, x_3, x_25, x_19, x_16, x_4, x_8, x_20, x_22, x_23, x_17, x_24, x_18);
 return x_27;
 }
 }

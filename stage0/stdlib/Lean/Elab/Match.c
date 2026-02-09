@@ -31652,8 +31652,8 @@ if (x_38 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = lean_box(0);
-x_21 = x_34;
+x_20 = x_34;
+x_21 = lean_box(0);
 x_22 = x_37;
 goto block_24;
 }
@@ -31667,8 +31667,8 @@ if (x_38 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = lean_box(0);
-x_21 = x_34;
+x_20 = x_34;
+x_21 = lean_box(0);
 x_22 = x_37;
 goto block_24;
 }
@@ -31680,8 +31680,8 @@ x_41 = lean_usize_of_nat(x_36);
 x_42 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear_spec__3(x_27, x_31, x_40, x_41, x_37);
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = lean_box(0);
-x_21 = x_34;
+x_20 = x_34;
+x_21 = lean_box(0);
 x_22 = x_42;
 goto block_24;
 }
@@ -31694,8 +31694,8 @@ x_44 = lean_usize_of_nat(x_36);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear_spec__3(x_27, x_31, x_43, x_44, x_37);
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = lean_box(0);
-x_21 = x_34;
+x_20 = x_34;
+x_21 = lean_box(0);
 x_22 = x_45;
 goto block_24;
 }
@@ -31809,7 +31809,7 @@ block_24:
 {
 lean_object* x_23; 
 x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_21);
+lean_ctor_set(x_23, 0, x_20);
 lean_ctor_set(x_23, 1, x_22);
 x_14 = x_23;
 x_15 = lean_box(0);
@@ -31913,8 +31913,8 @@ if (x_38 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = x_34;
-x_21 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_34;
 x_22 = x_37;
 goto block_24;
 }
@@ -31928,8 +31928,8 @@ if (x_38 == 0)
 {
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = x_34;
-x_21 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_34;
 x_22 = x_37;
 goto block_24;
 }
@@ -31941,8 +31941,8 @@ x_41 = lean_usize_of_nat(x_36);
 x_42 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear_spec__3(x_27, x_31, x_40, x_41, x_37);
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = x_34;
-x_21 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_34;
 x_22 = x_42;
 goto block_24;
 }
@@ -31955,8 +31955,8 @@ x_44 = lean_usize_of_nat(x_36);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear_spec__3(x_27, x_31, x_43, x_44, x_37);
 lean_dec(x_31);
 lean_dec(x_27);
-x_20 = x_34;
-x_21 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_34;
 x_22 = x_45;
 goto block_24;
 }
@@ -32069,7 +32069,7 @@ block_24:
 {
 lean_object* x_23; 
 x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_20);
+lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
 x_14 = x_23;
 x_15 = lean_box(0);

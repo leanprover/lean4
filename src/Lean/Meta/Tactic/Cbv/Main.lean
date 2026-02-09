@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Cbv.Opaque
+public import Lean.Meta.Tactic.Cbv.ControlFlow
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Sym
@@ -27,12 +28,6 @@ def skipBinders : Simproc := fun e => do
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn
   thms.rewrite (d := dischargeNone) e
-
-def reduceRecMatcher : Simproc := fun e => do
-  if let some e' ← reduceRecMatcher? e then
-    return .step e' (← Sym.mkEqRefl e')
-  else
-    return .rfl
 
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
@@ -149,7 +144,7 @@ def handleConst : Simproc := fun e => do
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
   >>  isOpaqueApp
-  >>  (tryMatcher >> simpControl)
+  >>  simpControlCbv
     <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=

@@ -22,19 +22,9 @@ def Nat.log (b n : Nat) : Nat :=
       let (q, e) := go (b * b) fuel
       if q < b then (q, 2 * e) else (q / b, 2 * e + 1)
 
+set_option trace.Meta.Tactic true
 
-/--
-warning: The `cbv` tactic is experimental and still under development. Avoid using it in production projects
----
-error: unsolved goals
-case a
-⊢ Decidable.rec (fun h => false) (fun h => true) instDecidableNot = true
--/
-#guard_msgs in
+
 theorem test : ¬∃ k, k ≤ Nat.log 2 15 ∧ 0 < k ∧ 15 = Nat.minFac 15 ^ k := by
   apply of_decide_eq_true
   conv => lhs; cbv
-
-#print test
-
-#print instDecidableNot

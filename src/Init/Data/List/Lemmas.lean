@@ -1839,6 +1839,11 @@ theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + �
   induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
 
 @[simp, grind =]
+theorem sum_singleton [Add α] [Zero α] [Std.LawfulRightIdentity (· + ·) (0 : α)] {x : α} :
+    [x].sum = x := by
+  simp [List.sum_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.Commutative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by

@@ -10,7 +10,7 @@ prelude
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-import Init.Data.List.Sort.Basic
+import Init.Data.Array.Sort.Basic
 public import Lean.Data.Lsp.LanguageFeatures
 import Init.While
 
@@ -97,9 +97,9 @@ def normalizePublishDiagnosticsParams (p : PublishDiagnosticsParams) :
   diagnostics :=
     -- Sort diagnostics by range and message to erase non-determinism in the order of diagnostics
     -- induced by parallelism. This isn't complete, but it will hopefully be plenty for all tests.
-    let sorted := p.diagnostics.toList.mergeSort fun d1 d2 =>
+    let sorted := p.diagnostics.mergeSort fun d1 d2 =>
       compare d1.fullRange d2.fullRange |>.then (compare d1.message d2.message) |>.isLE
-    sorted.toArray
+    sorted
 }
 
 /--

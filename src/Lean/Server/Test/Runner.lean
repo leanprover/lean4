@@ -165,9 +165,8 @@ def normalizeInteractiveDiagnostics (diags : Array InteractiveDiagnostic) :
     Array InteractiveDiagnostic :=
   -- Sort diagnostics by range and message to erase non-determinism in the order of diagnostics
   -- induced by parallelism. This isn't complete, but it will hopefully be plenty for all tests.
-  let sorted := diags.map (·.normalize) |>.toList.mergeSort fun d1 d2 =>
+  diags.map (·.normalize) |>.mergeSort fun d1 d2 =>
     compare d1.fullRange d2.fullRange |>.then (compare d1.message.stripTags d2.message.stripTags) |>.isLE
-  sorted.toArray
 
 structure InfoPopup where
   type : Option (Widget.TaggedText SubexprInfo)

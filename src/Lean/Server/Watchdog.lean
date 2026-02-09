@@ -12,7 +12,7 @@ public import Lean.Data.FuzzyMatching
 public import Lean.Server.Requests
 public import Lean.Server.References
 public import Lean.Server.Completion.CompletionUtils
-public import Init.Data.List.Sort
+public import Init.Data.Array.Sort.Basic
 public import Std.Sync.Channel
 public import Lean.Server.Logging
 
@@ -632,9 +632,9 @@ section ServerM
       for query in params.queries do
         let filterMapIdent decl := matchAgainstQuery? query decl
         let symbols ← refs.definitionsMatching filterMapIdent cancelTk
-        let sorted := symbols.toList.mergeSort fun { ident := m1, .. } { ident := m2, .. } =>
+        let sorted := symbols.mergeSort fun { ident := m1, .. } { ident := m2, .. } =>
           m1.fastCompare m2 == .gt
-        let result : LeanQueriedModule := sorted.take 10 |>.toArray.map fun m => {
+        let result : LeanQueriedModule := (sorted.extract 0 10).map fun m => {
           module := m.mod
           decl := m.ident.decl
           isExactMatch := m.ident.isExactMatch
@@ -1144,7 +1144,7 @@ def handlePrepareModuleHierarchy (p : LeanPrepareModuleHierarchyParams) : Reader
   return some { name := module.toString, uri, data? := none }
 
 def sortModuleImports (imports : Array ModuleImport) : Array ModuleImport :=
-  imports.toList.mergeSort (compare ·.module.toString ·.module.toString == .lt) |>.toArray
+  imports.mergeSort (compare ·.module.toString ·.module.toString == .lt)
 
 def handleModuleHierarchyImports (p : LeanModuleHierarchyImportsParams) : ReaderT ReferenceRequestContext IO (Array LeanImport) := do
   let module := p.module.name.toName
@@ -1185,14 +1185,14 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
       ident1.length < ident2.length
     else
       score1 > score2
-  let symbols := symbols.toList.mergeSort ltSymbol
+  let symbols := symbols.mergeSort ltSymbol
     |>.extract 0 1000
     |>.map fun m => {
       name := m.ident.1
       kind := SymbolKind.constant
       location := { uri := m.modUri, range := m.range }
     }
-  return symbols.toArray
+  return symbols
 
 def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestContext IO (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier

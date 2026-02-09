@@ -162,18 +162,21 @@ def testRemoveDirAll : IO Unit := do
 #eval testRemoveDirAll
 
 def testHardLink : IO Unit := do
-  let fn := "io_test/hardLinkTarget.txt"
+  let fn : System.FilePath := "io_test/hardLinkTarget.txt"
   let contents := "foo"
   writeFile fn contents
-  let linkFn := "io_test/hardLink.txt"
+  let linkFn : System.FilePath := "io_test/hardLink.txt"
   if (← System.FilePath.pathExists linkFn) then
     removeFile linkFn
+  check_eq "1" 1 (← fn.metadata).numLinks
   hardLink fn linkFn
+  check_eq "2" 2 (← fn.metadata).numLinks
+  check_eq "3" 2 (← linkFn.metadata).numLinks
   removeFile fn
   assert! !(← System.FilePath.pathExists fn)
   assert! (← System.FilePath.pathExists linkFn)
   let linkContents ← readFile linkFn
-  check_eq "1" contents linkContents
+  check_eq "4" contents linkContents
 
 #guard_msgs in
 #eval testHardLink

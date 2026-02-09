@@ -1094,28 +1094,20 @@ structure Metadata where
 
 constant metadata : @& FilePath → IO IO.FS.Metadata
 */
-static obj_res timespec_to_obj(timespec const & ts) {
+static obj_res timespec_to_obj(uv_timespec_t const & ts) {
     object * o = alloc_cnstr(0, 1, sizeof(uint32));
     cnstr_set(o, 0, lean_int64_to_int(ts.tv_sec));
     cnstr_set_uint32(o, sizeof(object *), ts.tv_nsec);
     return o;
 }
 
-static obj_res metadata_core(struct stat const & st) {
-    object * mdata = alloc_cnstr(0, 2, sizeof(uint64) + sizeof(uint8));
-#ifdef __APPLE__
-    cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
-    cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
-#elif defined(LEAN_WINDOWS)
-    // TODO: sub-second precision on Windows
-    cnstr_set(mdata, 0, timespec_to_obj(timespec { st.st_atime, 0 }));
-    cnstr_set(mdata, 1, timespec_to_obj(timespec { st.st_mtime, 0 }));
-#else
+static obj_res metadata_core(uv_stat_t const & st) {
+    object * mdata = alloc_cnstr(0, 2, 2 * sizeof(uint64) + sizeof(uint8));
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atim));
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtim));
-#endif
     cnstr_set_uint64(mdata, 2 * sizeof(object *), st.st_size);
-    cnstr_set_uint8(mdata, 2 * sizeof(object *) + sizeof(uint64),
+    cnstr_set_uint64(mdata, 2 * sizeof(object *) + sizeof(uint64), st.st_nlink);
+    cnstr_set_uint8(mdata, 2 * sizeof(object *) + 2 * sizeof(uint64),
                     S_ISDIR(st.st_mode) ? 0 :
                     S_ISREG(st.st_mode) ? 1 :
 #ifndef LEAN_WINDOWS
@@ -1130,11 +1122,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    struct stat st;
-    if (stat(fname, &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+    uv_fs_t req;
+    int ret = uv_fs_stat(NULL, &req, fname, NULL);
+    if (ret < 0) {
+        uv_fs_req_cleanup(&req);
+        return io_result_mk_error(decode_uv_error(ret, filename));
+    } else {
+        object* mdata = metadata_core(req.statbuf);
+        uv_fs_req_cleanup(&req);
+        return mdata;
     }
-    return metadata_core(st);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
@@ -1145,11 +1142,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    struct stat st;
-    if (lstat(string_cstr(filename), &st) != 0) {
-        return io_result_mk_error(decode_io_error(errno, filename));
+    uv_fs_t req;
+    int ret = uv_fs_lstat(NULL, &req, fname, NULL);
+    if (ret < 0) {
+        uv_fs_req_cleanup(&req);
+        return io_result_mk_error(decode_uv_error(ret, filename));
+    } else {
+        object* mdata = metadata_core(req.statbuf);
+        uv_fs_req_cleanup(&req);
+        return mdata;
     }
-    return metadata_core(st);
 #endif
 }
 

@@ -19,10 +19,10 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extr
 
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.popCountAuxRec` from
-`Impl.Operations.popCount`. We prove that the accumulator of the `go` function
-at step`n` represents the portion of the extracted and zero-extended nodes in the AIG constructed for
-a certain bit.
+This module contains the verification of the bitblaster for `BitVec.hAddRec` from
+`Impl.Operations.parPreSum`. We prove that the recursive addition of `w`-long words over
+a `len * w`-long bitvector is equal to the addition using a parallel prefix sum circuit of the
+same bitvector.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -64,60 +64,52 @@ theorem denote_blastParPreSumLayer
   unfold blastParPreSumLayer at hgen
   split at hgen
   · case _ hgen' =>
-    rw [← hgen]
-    rw [denote_blastParPreSumLayer]
+    rw [← hgen, denote_blastParPreSumLayer ]
     · omega
     · omega
     · intros idx hidx
-      rw [AIG.LawfulVecOperator.denote_mem_prefix]
-      · rw [AIG.LawfulVecOperator.denote_mem_prefix]
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix]
-          · rw [AIG.LawfulVecOperator.denote_mem_prefix]
-            · simp [hold]
-            · simp [Ref.hgate]
-          · simp
-            exact (old_layer.get idx hidx).hgate
-        · simp
-          exact (old_layer.get idx hidx).hgate
-      · simp
+      rw [AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix,
+        AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix]
+      · simp [hold]
+      · simp [Ref.hgate]
+      · simp only [RefVec.cast_cast, RefVec.get_cast, Ref.cast_eq]
+        exact (old_layer.get idx hidx).hgate
+      · simp only [RefVec.cast_cast, RefVec.get_cast, Ref.cast_eq]
+        exact (old_layer.get idx hidx).hgate
+      · simp only [RefVec.cast_cast, RefVec.get_cast, Ref.cast_eq]
         apply LawfulVecOperator.lt_size_of_lt_aig_size
         exact (old_layer.get idx hidx).hgate
     · intros idx2 hidx2
-      simp [denote_blastAppend]
+      simp only [RefVec.cast_cast, denote_blastAppend, RefVec.get_cast, Ref.cast_eq]
       split
       · case _ hsplit =>
-        rw [AIG.LawfulVecOperator.denote_mem_prefix]
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix]
-          · rw [AIG.LawfulVecOperator.denote_mem_prefix]
-            · rw [hnew]
-            · simp [Ref.hgate]
-          · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
+        rw [AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix ,
+          AIG.LawfulVecOperator.denote_mem_prefix]
+        · rw [hnew]
+        · simp [Ref.hgate]
+        · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
         · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
       · case _ hsplit1 =>
         let bvRes := BitVec.parPreSumLayer old_layer_bv 0#(0 * w) (by omega)
         have bvRes_proof := BitVec.extractLsb'_parPreSumLayer old_layer_bv 0#(0 * w) (by omega) (by omega)
-        have bvRes_proof' := bvRes_proof (by omega)
         let lhs_bv := BitVec.extractLsb' (2 * iter_num * w) w old_layer_bv
         let rhs_bv := BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv
         rw [denote_blastAdd (rhs := rhs_bv) (lhs := lhs_bv)]
-        · -- have : ∀ k,  (BitVec.extractLsb' (iter_num * w) w bvRes).getLsbD k =
-          let k := idx2 - iter_num * w
+        · let k := idx2 - iter_num * w
           have hksum : idx2 = iter_num * w + k := by omega
-          rw [hksum]
-          rw [show iter_num * w + k - iter_num * w = k by omega]
+          rw [hksum, show iter_num * w + k - iter_num * w = k by omega]
           specialize bvRes_proof (i := iter_num) (by omega)
           have hlsbd := BitVec.getLsbD_extractLsb' (x := bvRes) (start := iter_num * w) (len := w) (i := k)
-          have : k < w := by
+          have hlt : k < w := by
             apply Classical.byContradiction
             intros hcontra
             simp [hksum, Nat.add_mul] at hidx2
             omega
-          simp only [this, decide_true, Bool.true_and] at hlsbd
+          simp only [hlt, decide_true, Bool.true_and] at hlsbd
           simp only [lhs_bv, rhs_bv]
           rw [← hlsbd]
-          exact
-            Bool.not_inj_iff.mp
-              (congrArg not (congrFun (congrArg BitVec.getLsbD (id (Eq.symm bvRes_proof))) k))
+          congr
+          exact BitVec.eq_of_toNat_eq (congrArg BitVec.toNat (id (Eq.symm bvRes_proof)))
         · intros idx hidx
           simp only [BitVec.getLsbD_extractLsb', lhs_bv]
           have := BitVec.getLsbD_extractLsb' (x := old_layer_bv) (start := 2 * iter_num * w) (len := w) (i := idx)

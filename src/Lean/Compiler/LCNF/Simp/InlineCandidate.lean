@@ -58,6 +58,13 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
       return none
     let some ⟨.pure, decl⟩ ← getDecl? declName | return none
     let .code code := decl.value | return none
+    -- It never makes sense to inline back the reduced arity function as the latter is `[inline]`
+    -- and so inlining of the inner function can be done by nested inlining at the call site.
+    if declName == .str (← read).declName "_redArg" then
+      -- ...however if the function is small, then inlining doesn't really hurt and avoids the outer
+      -- function from going over the size threshold(?)
+      if !(← isSmall code) then
+        return none
     let shouldInline : SimpM Bool := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true

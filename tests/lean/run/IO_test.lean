@@ -7,7 +7,7 @@ import Init.Data.ToString
 open IO.FS
 
 #eval liftM (m := IO) do
-  -- when run interactively in the server, this current working directory is `tests`
+  -- when run interactively in the server, the current working directory is `tests`
   -- whereas it is `lean/run` when run via the test suite; this normalizes both to `lean/run`
   if (← System.FilePath.pathExists "lean/run") then
     IO.Process.setCurrentDir "lean/run"

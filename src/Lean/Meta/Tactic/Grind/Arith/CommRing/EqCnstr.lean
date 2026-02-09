@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
@@ -378,10 +379,13 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   modifyCommRing fun s => { s with invSet := s.invSet.insert e }
   let eInv ← pre <| mkApp (← getInvFn) e
   let lhs ← pre <| mkApp2 (← getMulFn) e eInv
-  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
-  internalize lhs gen none
+  let { expr := lhs, proof? := lhsProof?, .. } ← preprocessAndInternalize lhs gen
+  let proof := mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+  let proof ← match lhsProof? with
+    | some hp => mkEqTrans (← mkEqSymm hp) proof
+    | none => pure proof
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs (← getOne) <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+  pushEq lhs (← getOne) proof
 
 private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   -- Rabinowitsch transformation for `b = 0` case
@@ -391,10 +395,13 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   modifyCommRing fun s => { s with invSet := s.invSet.insert a }
   let aInv ← pre <| mkApp (← getInvFn) a
   let lhs ← pre <| mkApp2 (← getMulFn) a aInv
-  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
-  internalize lhs gen none
+  let { expr := lhs, proof? := lhsProof?, .. } ← preprocessAndInternalize lhs gen
+  let proof := mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+  let proof ← match lhsProof? with
+    | some hp => mkEqTrans (← mkEqSymm hp) proof
+    | none => pure proof
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+  pushEq lhs (← getOne) proof
 
 private def processNewDiseqCommRing (a b : Expr) : RingM Unit := do
   trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"

@@ -34,11 +34,13 @@ in `(← get).inj.fns`, asserts `f⁻¹ (f a) = a`
 public def mkInjEq (e : Expr) : GoalM Unit := do
   let .app f a := e | return ()
   let some (inv, heq) ← getInvFor? f a | return ()
-  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
-  let invApp := mkApp inv e
-  internalize invApp (← getGeneration e)
-  trace[grind.inj.assert] "{invApp}, {a}"
-  pushEq invApp a <| mkApp heq a
+  let r ← preprocessAndInternalize (mkApp inv e) (← getGeneration e)
+  let proof := mkApp heq a
+  let proof ← match r.proof? with
+    | some hp => mkEqTrans (← mkEqSymm hp) proof
+    | none => pure proof
+  trace[grind.inj.assert] "{r.expr}, {a}"
+  pushEq r.expr a proof
 
 def initInjFn (us : List Level) (α β : Expr) (f : Expr) (h : Expr) : GoalM Unit := do
   modify fun s => { s with inj.fns := s.inj.fns.insert { expr := f } { us, α, β, h } }
@@ -54,10 +56,8 @@ builtin_grind_propagator propagateInj ↓Function.Injective := fun e => do
     let f ← if isSameExpr f f' then
       pure f
     else
-      -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
-      let f' ← preprocessLight f'
-      internalize f' (← getGeneration e)
-      pure f'
+      let r ← preprocessAndInternalize f' (← getGeneration e)
+      pure r.expr
     initInjFn i.constLevels! α β f (mkOfEqTrueCore e (← mkEqTrueProof e))
 
 end Lean.Meta.Grind

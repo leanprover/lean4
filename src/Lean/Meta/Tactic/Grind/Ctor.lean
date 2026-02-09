@@ -18,19 +18,28 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) (generation : Na
   | And left right =>
     propagateInjEqs left (.proj ``And 0 proof) generation
     propagateInjEqs right (.proj ``And 1 proof) generation
-  -- TODO: investigate using `preprocessAndInternalize` here (see grind simplification sets design).
   | Eq _ lhs rhs    =>
-    let lhs ← preprocessLight lhs
-    let rhs ← preprocessLight rhs
-    internalize lhs generation
-    internalize rhs generation
-    pushEq lhs rhs proof
+    let rl ← preprocessAndInternalize lhs generation
+    let rr ← preprocessAndInternalize rhs generation
+    let proof ← do
+      let proof ← match rl.proof? with
+        | some hp => mkEqTrans (← mkEqSymm hp) proof
+        | none => pure proof
+      match rr.proof? with
+        | some hp => mkEqTrans proof hp
+        | none => pure proof
+    pushEq rl.expr rr.expr proof
   | HEq _ lhs _ rhs =>
-    let lhs ← preprocessLight lhs
-    let rhs ← preprocessLight rhs
-    internalize lhs generation
-    internalize rhs generation
-    pushHEq lhs rhs proof
+    let rl ← preprocessAndInternalize lhs generation
+    let rr ← preprocessAndInternalize rhs generation
+    let proof ← do
+      let proof ← match rl.proof? with
+        | some hp => mkHEqTrans (← mkHEqSymm (← mkHEqOfEq hp)) proof
+        | none => pure proof
+      match rr.proof? with
+        | some hp => mkHEqTrans proof (← mkHEqOfEq hp)
+        | none => pure proof
+    pushHEq rl.expr rr.expr proof
   | _ =>
    reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()

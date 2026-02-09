@@ -121,9 +121,14 @@ theorem Subarray.toList_mergeSort {xs : Subarray α} {le : α → α → Bool} :
     simp +zetaDelta [Array.MergeSort.merge_eq_listMerge, *]
   · simp [List.mergeSort_eq_merge_mkSlice, *]
 
+@[simp, grind =]
+theorem Subarray.mergeSort_eq_mergeSort_toArray {xs : Subarray α} {le : α → α → Bool} :
+    xs.mergeSort le = xs.toArray.mergeSort le := by
+  simp [← Array.toList_inj, toList_mergeSort, Array.mergeSort]
+
 theorem Subarray.mergeSort_toArray {xs : Subarray α} {le : α → α → Bool} :
     xs.toArray.mergeSort le = xs.mergeSort le := by
-  simp [← Array.toList_inj, toList_mergeSort, Array.mergeSort]
+  simp
 
 theorem Array.toList_mergeSort {xs : Array α} {le : α → α → Bool} :
     (xs.mergeSort le).toList = xs.toList.mergeSort le := by
@@ -233,69 +238,3 @@ theorem map_mergeSort {r : α → α → Bool} {s : β → β → Bool} {f : α 
   simpa
 
 end Array
-
-/-!
-# Basic properties of `Subarray.mergeSort`.
-
-* `pairwise_mergeSort`: `mergeSort` produces a sorted subarray.
-* `mergeSort_perm`: `mergeSort` is a permutation of the input subarray.
-* `mergeSort_of_pairwise`: `mergeSort` does not change a sorted subarray.
-* `sublist_mergeSort`: if `c` is a sorted sublist of `l`, then `c` is still a sublist of `mergeSort le l`.
--/
-
-namespace Subarray
-
--- Enable this instance locally so we can write `Pairwise le` instead of `Pairwise (le · ·)` everywhere.
-attribute [local instance] boolRelToRel
-
-@[simp] theorem size_mergeSort {xs : Subarray α} : (xs.mergeSort le).size = xs.size := by
-  simp [← Subarray.mergeSort_toArray]
-
-/--
-The result of `Array.mergeSort` is sorted,
-as long as the comparison function is transitive (`le a b → le b c → le a c`)
-and total in the sense that `le a b || le b a`.
-
-The comparison function need not be irreflexive, i.e. `le a b` and `le b a` is allowed even when `a ≠ b`.
--/
-theorem pairwise_mergeSort
-    (trans : ∀ (a b c : α), le a b → le b c → le a c)
-    (total : ∀ (a b : α), le a b || le b a)
-    {xs : Subarray α} :
-    (xs.mergeSort le).toList.Pairwise (le · ·) := by
-  simpa [← mergeSort_toArray] using Array.pairwise_mergeSort trans total
-
-/--
-If the input array is already sorted, then `mergeSort` does not change the array.
--/
-theorem mergeSort_of_pairwise {le : α → α → Bool} {xs : Subarray α} (_ : xs.toList.Pairwise (le · ·)) :
-    mergeSort xs le = xs.toArray := by
-  simpa [← mergeSort_toArray, List.toArray_eq_iff] using Array.mergeSort_of_pairwise (by simpa)
-
-/--
-Stability of merge sort.
-If `c` is a sorted sublist of `xs.toList`,
-then `c` is still a sublist of `(mergeSort le xs).toList`.
--/
-theorem sublist_mergeSort {le : α → α → Bool}
-    (trans : ∀ (a b c : α), le a b → le b c → le a c)
-    (total : ∀ (a b : α), le a b || le b a)
-    {ys : List α} (_ : ys.Pairwise (le · ·)) (_ : List.Sublist ys xs.toList) :
-    List.Sublist ys (mergeSort xs le).toList := by
-  simpa [← mergeSort_toArray, Array.toList_zipIdx] using
-    Array.sublist_mergeSort trans total ‹_› (by simpa)
-
-/--
-Another statement of stability of merge sort.
-If a pair `[a, b]` is a sublist of `xs.toList` and `le a b`,
-then `[a, b]` is still a sublist of `(mergeSort le xs).toList`.
--/
-theorem pair_sublist_mergeSort
-    (trans : ∀ (a b c : α), le a b → le b c → le a c)
-    (total : ∀ (a b : α), le a b || le b a)
-    (hab : le a b) (h : List.Sublist [a, b] xs.toList) :
-    List.Sublist [a, b] (mergeSort xs le).toList := by
-  simpa [← mergeSort_toArray, Array.toList_zipIdx] using
-    Array.pair_sublist_mergeSort trans total ‹_› (by simpa)
-
-end Subarray

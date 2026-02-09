@@ -13,16 +13,28 @@ import Init.Omega
 
 namespace Lean.Compiler.LCNF
 
+/-!
+This pass provides simplifications for cases statements at the impure level. The LCNF pure
+simplifier must restrict itself when touching `cases` statements as to not destroy information for
+the reset-reuse insertion. However, this pass runs after reset-reuse insertion and can thus be much
+more liberal in its application of cases simplifications.
 
--- TODO: dedup with simp
+In particular we perform:
+- elimination of cases with only 1 reachable arm
+- folding of the most common cases arm into the default arm if possible
+
+Note: Currently the simplifier still contains almost equivalent simplifications to the ones shown
+here. We know that this causes unforseen behavior and do plan on changing it eventually.
+-/
+
+-- TODO: the following functions are duplicated from simp and should be deleted in simp once we
+-- refactor.
 
 /--
-Return the alternative in `alts` whose body appears in most arms,
-and the number of occurrences.
-We use this function to decide whether to create a `.default` case
-or not.
+Return the alternative in `alts` whose body appears in most arms, and the number of occurrences.
+We use this function to decide whether to create a `.default` case or not.
 -/
-private def getMaxOccs (alts : Array (Alt .impure)) : Alt .impure × Nat := Id.run do
+def getMaxOccs (alts : Array (Alt .impure)) : Alt .impure × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getNumOccsOf alts 0
   for h : i in 1...alts.size do
@@ -43,7 +55,7 @@ where
     let mut n := 1
     for h : j in (i+1)...alts.size do
       if Code.alphaEqv alts[j].getCode code then
-        n := n+1
+        n := n + 1
     return n
 
 /--
@@ -70,14 +82,16 @@ def addDefaultAlt (alts : Array (Alt .impure)) : CompilerM (Array (Alt .impure))
           altsNew := altsNew.push alt
       return altsNew.push (.default max.getCode)
 
+/--
+Remove all unreachable cases.
+-/
 def filterUnreachable (alts : Array (Alt .impure)) : Array (Alt .impure) :=
-  alts.filter (fun alt => !alt.getCode matches .unreach ..)
+  alts.filter (!·.getCode matches .unreach ..)
 
 def simplifyCases (c : Cases .impure) : CompilerM (Code .impure) := do
   let alts := filterUnreachable c.alts
   let alts ← addDefaultAlt alts
   if alts.size == 0 then
-    -- TODO: trace this out
     return .unreach c.resultType
   else if h : alts.size = 1 then
     return alts[0].getCode
@@ -87,7 +101,7 @@ def simplifyCases (c : Cases .impure) : CompilerM (Code .impure) := do
 partial def Code.simpCase (code : Code .impure) : CompilerM (Code .impure) := do
   match code with
   | .cases c =>
-    let alts ← c.alts.mapMonoM (fun alt => return alt.updateCode (← alt.getCode.simpCase))
+    let alts ← c.alts.mapMonoM (·.mapCodeM  (·.simpCase))
     simplifyCases (c.updateAlts alts)
   | .jp decl k =>
     let decl ← decl.updateValue (← decl.value.simpCase)

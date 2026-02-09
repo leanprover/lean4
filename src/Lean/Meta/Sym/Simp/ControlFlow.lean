@@ -85,7 +85,7 @@ def simpDIte : Simproc := fun e => do
 /--
 Simplifies a `cond` expression (aka Boolean `if-then-else`).
 -/
-def simpCond : Simproc := fun e => do
+public def simpCond : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 4 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 4) fun e => do

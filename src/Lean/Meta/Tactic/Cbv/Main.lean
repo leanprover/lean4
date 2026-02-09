@@ -29,12 +29,6 @@ def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn
   thms.rewrite (d := dischargeNone) e
 
-def reduceRecMatcher : Simproc := fun e => do
-  if let some e' ← reduceRecMatcher? e then
-    return .step e' (← Sym.mkEqRefl e')
-  else
-    return .rfl
-
 def tryEquations : Simproc := fun e => do
   unless e.isApp do
     return .rfl
@@ -150,7 +144,7 @@ def handleConst : Simproc := fun e => do
 def cbvPre : Simproc :=
       isBuiltinValue <|> isProofTerm <|> skipBinders
   >>  isOpaqueApp
-  >>  (tryMatcher >> simpControl)
+  >>  simpControlCbv
     <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj)
 
 def cbvPost : Simproc :=

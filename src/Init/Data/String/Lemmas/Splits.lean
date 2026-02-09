@@ -469,7 +469,7 @@ theorem Pos.Splits.splits_rotateRight {s : String} {p : s.Pos} {t₁ t₂ t₃ :
     (h : p.Splits t₁ (t₂ ++ t₃)) : h.rotateRight.Splits (t₁ ++ t₂) t₃ := by
   simpa [Pos.Splits.rotateRight] using Slice.Pos.Splits.splits_rotateRight _
 
-@[inline]
+@[inline, inherit_doc Slice.Pos.Splits.rotateLeft]
 def Pos.Splits.rotateLeft {s : String} {p : s.Pos} {t₁ t₂ t₃ : String}
     (h : p.Splits (t₁ ++ t₂) t₃) : s.Pos :=
   String.Pos.ofToSlice (splits_toSlice_iff.2 h).rotateLeft

@@ -1328,10 +1328,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg filename) {
     if (strlen(fname) != lean_string_size(filename) - 1) {
         return mk_embedded_nul_error(filename);
     }
-    if (std::remove(fname) == 0) {
-        return io_result_mk_ok(box(0));
+    uv_fs_t req;
+    int ret = uv_fs_unlink(NULL, &req, fname, NULL);
+    uv_fs_req_cleanup(&req);
+    if (ret < 0) {
+        return io_result_mk_error(decode_uv_error(ret, filename));
     } else {
-        return io_result_mk_error(decode_io_error(errno, filename));
+        return io_result_mk_ok(box(0));
     }
 }
 

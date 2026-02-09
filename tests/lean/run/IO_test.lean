@@ -6,6 +6,12 @@ import Init.Data.ToString
 
 open IO.FS
 
+#eval liftM (m := IO) do
+  -- when run interactively in the server, the current working directory is `tests`
+  -- whereas it is `lean/run` when run via the test suite; this normalizes both to `lean/run`
+  if (← System.FilePath.pathExists "lean/run") then
+    IO.Process.setCurrentDir "lean/run"
+
 #eval createDirAll "io_test"
 
 def check_eq {α} [BEq α] [Repr α] (tag : String) (expected actual : α) : IO Unit :=
@@ -171,3 +177,20 @@ def testHardLink : IO Unit := do
 
 #guard_msgs in
 #eval testHardLink
+
+def testRemoveFile : IO Unit := do
+  -- `removeFile` should remove read-only files
+  -- even on Windows where `std::remove` cannot
+  let fn : System.FilePath := "io_test/readonly.txt"
+  let contents := "foo"
+  if (← fn.pathExists) then
+    removeFile fn
+  writeFile fn contents
+  let r := {read := true}
+  IO.setAccessRights fn ⟨r, r, r⟩
+  assert! (← fn.pathExists)
+  removeFile fn
+  assert! !(← fn.pathExists)
+
+#guard_msgs in
+#eval testRemoveFile

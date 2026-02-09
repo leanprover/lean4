@@ -11,6 +11,8 @@ public import Init.Data.String.Lemmas.Pattern.Basic
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic
 
+public section
+
 namespace String.Slice.Pattern.Char
 
 instance {c : Char} : ForwardPatternModel c where

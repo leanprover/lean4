@@ -891,6 +891,10 @@ theorem Pos.Raw.isValidForSlice_iff_isUTF8FirstByte {s : Slice} {p : Pos.Raw} :
     p.IsValidForSlice s ↔ (p = s.rawEndPos ∨ (∃ (h : p < s.rawEndPos), (s.getUTF8Byte p h).IsUTF8FirstByte)) := by
   simp [← isValid_copy_iff, isValid_iff_isUTF8FirstByte, Slice.getUTF8Byte_copy]
 
+theorem Pos.Raw.isValidForSlice_iff_exists_append {s : Slice} {p : Pos.Raw} :
+    p.IsValidForSlice s ↔ ∃ t₁ t₂, s.copy = t₁ ++ t₂ ∧ p = t₁.rawEndPos := by
+  rw [← isValid_copy_iff, isValid_iff_exists_append]
+
 /-- Efficiently checks whether a position is at a UTF-8 character boundary of the slice `s`. -/
 @[expose]
 def Pos.Raw.isValidForSlice (s : Slice) (p : Pos.Raw) : Bool :=
@@ -1434,7 +1438,7 @@ theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
   (byte_copy _).symm
 
 /-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
-@[inline]
+@[inline, expose]
 def Slice.Pos.ofSliceFrom {s : Slice} {p₀ : s.Pos} (pos : (s.sliceFrom p₀).Pos) : s.Pos where
   offset := pos.offset.offsetBy p₀.offset
   isValidForSlice := Pos.Raw.isValidForSlice_sliceFrom.1 pos.isValidForSlice

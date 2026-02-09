@@ -162,4 +162,17 @@ theorem Slice.isEmpty_slice_eq_false_iff {s : Slice} {p₁ p₂ h} :
 theorem length_eq_zero_iff {s : String} : s.length = 0 ↔ s = "" := by
   simp [← length_toList]
 
+@[simp]
+theorem toByteArray_eq_empty_iff {s : String} :
+    s.toByteArray = ByteArray.empty ↔ s = "" := by
+  simp [← toByteArray_inj]
+
+theorem Slice.toByteArray_copy_eq_empty_iff {s : Slice} :
+    s.copy.toByteArray = ByteArray.empty ↔ s.isEmpty = true := by
+  simp
+
+theorem Slice.toByteArray_copy_ne_empty_iff {s : Slice} :
+    s.copy.toByteArray ≠ ByteArray.empty ↔ s.isEmpty = false := by
+  simp
+
 end String

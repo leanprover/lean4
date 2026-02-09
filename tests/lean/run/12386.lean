@@ -1,3 +1,5 @@
+set_option cbv.warning false
+
 def minFacAux (n : Nat) : Nat → Nat
   | k =>
     if h : n < k * k then n

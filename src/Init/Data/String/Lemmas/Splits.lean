@@ -421,11 +421,6 @@ theorem Pos.Splits.lt_iff_exists_eq_append {s : String} {p₁ p₂ : s.Pos} {t�
     p₁ < p₂ ↔ ∃ t₅, t₅ ≠ "" ∧ t₃ = t₁ ++ t₅ ∧ t₂ = t₅ ++ t₄ := by
   rw [← toSlice_lt, (splits_toSlice_iff.2 h).lt_iff_exists_eq_append (splits_toSlice_iff.2 h')]
 
--- TODO
-theorem Pos.Raw.isValidForSlice_iff_exists_append {s : Slice} {p : Pos.Raw} :
-    p.IsValidForSlice s ↔ ∃ t₁ t₂, s.copy = t₁ ++ t₂ ∧ p = t₁.rawEndPos := by
-  rw [← isValid_copy_iff, isValid_iff_exists_append]
-
 def Slice.Pos.Splits.rotateRight {s : Slice} {p : s.Pos} {t₁ t₂ t₃ : String}
     (h : p.Splits t₁ (t₂ ++ t₃)) : s.Pos :=
   s.pos (p.offset.increaseBy t₂.utf8ByteSize)

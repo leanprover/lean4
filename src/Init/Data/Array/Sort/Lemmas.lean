@@ -9,11 +9,10 @@ prelude
 public import Init.Data.Array.Sort.Basic
 import all Init.Data.Array.Sort.Basic
 import all Init.Data.List.Sort.Basic
-public import Init
 
 -- TODO:
 import all Init.Data.Slice.Array.Lemmas
-public import Init
+import Init.Data.List.Sort.Lemmas
 
 section ToDo
 

@@ -126,6 +126,17 @@ theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < x
   simp only [swap, perm_iff_toList_perm, toList_set]
   apply set_set_perm
 
+theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) {xs ys : Array α}
+    : ∀ _p : xs.Perm ys, xs.toList.Pairwise R ↔ ys.toList.Pairwise R := by
+  simpa only [perm_iff_toList_perm] using List.Perm.pairwise_iff S
+
+grind_pattern Perm.pairwise_iff => xs ~ ys, xs.toList.Pairwise R
+grind_pattern Perm.pairwise_iff => xs ~ ys, ys.toList.Pairwise R
+
+theorem Perm.pairwise {R : α → α → Prop} {xs ys : Array α} (hp : xs ~ ys)
+    (hR : xs.toList.Pairwise R) (hsymm : ∀ {x y}, R x y → R y x) :
+    ys.toList.Pairwise R := (hp.pairwise_iff hsymm).mp hR
+
 namespace Perm
 
 set_option linter.indexVariables false in

@@ -117,7 +117,7 @@ def headers (builder : Builder) (headers : Headers) : Builder :=
   { builder with head := { builder.head with headers } }
 
 /--
-Adds a single header to the request being built
+Adds a single header to the response being built
 -/
 def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }

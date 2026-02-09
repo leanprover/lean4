@@ -2786,6 +2786,12 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp; rfl
 
+@[simp] theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0): (x ++ y) = y.cast (by simp [h]) := by
+  ext i ih
+  subst h
+  simp [← getLsbD_eq_getElem, getLsbD_append]
+  omega
+
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
@@ -6703,12 +6709,8 @@ theorem hAddRec_append {x : BitVec (x_len * w)} {y : BitVec (y_len * w)} :
     x.hAddRec x_len 0#w + y.hAddRec y_len 0#w := by
   induction x_len generalizing y_len
   · case zero =>
-    simp only [Nat.zero_add, hAddRec_zero, BitVec.zero_add]
-    have hy : (x ++ y).cast (m := (0 + y_len) * w) (by simp) = y.cast (by simp) := by
-      ext k hk
-      simp only [Nat.zero_add] at hk
-      simp [← getLsbD_eq_getElem, getLsbD_append, hk]
-    rw [hy]
+    simp only [Nat.zero_add, hAddRec_zero, BitVec.zero_add,
+      append_of_zero_width (x := x) (y := y) (h := by simp)]
     congr
     <;> simp
   · case succ x_len' ih =>
@@ -6760,7 +6762,7 @@ theorem hAddRec_append_extractLsb' {x : BitVec (x_len * w)} (ha : 0 < x_len) :
 -/
 theorem hAddRec_eq_of
     {x : BitVec (x_len * w)} {y : BitVec (y_len * w)}
-    (hadd : ∀ (i : Nat) (_ : i < (y_len + 1) / 2),
+    (hadd : ∀ (i : Nat) (_h : i < (y_len + 1) / 2),
       extractLsb' (i * w) w x =
       extractLsb' (2 * i * w) w y + extractLsb' ((2 * i + 1) * w) w y)
     (hlen : x_len = (y_len + 1) / 2) :
@@ -6773,7 +6775,7 @@ theorem hAddRec_eq_of
     have happ := hAddRec_append_extractLsb' (x_len := x_len' + 1) (x := x) (by omega)
     simp only [Nat.add_one_sub_one, hAddRec_succ, BitVec.zero_add] at happ
     simp only [Nat.add_one_sub_one, BitVec.zero_add, happ]
-    rw [hadd]
+    rw [hadd (_h := by omega)]
     generalize hop1 : extractLsb' (2 * x_len' * w) w y = op1
     generalize hop2 : extractLsb' ((2 * x_len' + 1) * w) w y = op2
     generalize htaila : extractLsb' 0 (x_len' * w) x = taila
@@ -6861,9 +6863,7 @@ theorem hAddRec_eq_of
             rw [show (2 * i + 1) * w + w = (2 * i + 1 + 1) * w by simp [Nat.add_mul]]
             apply Nat.mul_le_mul_right w (by omega))]
         · omega
-      · have h1 : (y_len + 1) / 2 - 1 = 0 := by omega
-        have h2 : y_len - 1 = 0 := by omega
-        have hy : y_len = 1 ∨ y_len = 0 := by omega
+      · have hy : y_len = 1 ∨ y_len = 0 := by omega
         rw [← hop1, ← hop2, ← htaila]
         rcases hy with hy|hy
         · subst hy
@@ -6872,6 +6872,5 @@ theorem hAddRec_eq_of
           simp_all
         · subst hy
           simp at hlen
-    · omega
 
 end BitVec

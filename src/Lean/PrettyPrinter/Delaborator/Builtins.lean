@@ -568,7 +568,14 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     let args := (← getExpr).getAppArgs
     -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
     guard <| args.all Expr.isFVar
-    delabMVarAux decl.mvarIdPending
+    if ← getPPOption getPPMVarsDelayedNonGround then
+      if let some e ← getExprMVarAssignment? decl.mvarIdPending then
+        decl.mvarIdPending.withContext do
+        withTheReader SubExpr (fun cfg => { cfg with expr := e }) delab
+      else
+        delabMVarAux decl.mvarIdPending
+    else
+      delabMVarAux decl.mvarIdPending
 
 private partial def collectStructFields
     (structName : Name) (levels : List Level) (params : Array Expr)

@@ -8,3 +8,4 @@ produced.out
 /Main.lean
 /MainDep.lean
 /Lib/
+/lean-toolchain

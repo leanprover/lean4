@@ -34,10 +34,7 @@ abbrev isValidHeaderChar (c : Char) : Bool :=
 Proposition that asserts all characters in a string are valid for HTTP header values.
 -/
 abbrev IsValidHeaderValue (s : String) : Prop :=
-  let list := s.toList
-
-  list.all isValidHeaderChar
-  ∧ ¬list.isEmpty
+  s.toList.all isValidHeaderChar
 
 
 /--

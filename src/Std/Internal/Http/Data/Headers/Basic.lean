@@ -83,6 +83,7 @@ end ContentLength
 /--
 Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
 -/
+@[expose]
 def TransferEncoding.Validate (codings : Array String) : Bool :=
   if codings.isEmpty || codings.any (· == "") then
     false
@@ -113,11 +114,17 @@ structure TransferEncoding where
   /--
   Valid encodings.
   -/
-  valid : TransferEncoding.Validate codings
+  valid : TransferEncoding.Validate codings = true
 
 deriving Repr
 
 namespace TransferEncoding
+
+/--
+Returns `true` if the transfer encoding ends with chunked.
+-/
+def isChunked (te : TransferEncoding) : Bool :=
+  te.codings.back? == some "chunked"
 
 /--
 Parse a comma-separated list of transfer codings from a header value, validating chunked placement.

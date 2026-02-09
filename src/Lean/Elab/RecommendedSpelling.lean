@@ -24,7 +24,7 @@ open Lean.Parser.Command
       recommendedSpelling := spelling.getString
       additionalInformation? := docs.map (·.getDocString)
     }
-    modifyEnv (hAddommendedSpelling · recommendedSpelling declNames)
+    modifyEnv (addRecommendedSpelling · recommendedSpelling declNames)
   | _ => throwError "Malformed recommended spelling command"
 
 /-- Returns an array containing all recommended spellings. -/

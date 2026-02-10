@@ -3485,6 +3485,16 @@ theorem foldl_eq_foldr_reverse {xs : Array α} {f : β → α → β} {b} :
 theorem foldr_eq_foldl_reverse {xs : Array α} {f : α → β → β} {b} :
     xs.foldr f b = xs.reverse.foldl (fun x y => f y x) b := by simp
 
+theorem foldl_eq_foldr_of_associative {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_foldr_of_associative]
+
+theorem foldr_eq_foldl_of_associative {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_foldl_of_associative]
+
 @[simp] theorem foldr_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : start = as.size) :
     as.foldr (fun a xs => Array.push xs (f a)) bs start 0 = bs ++ (as.map f).reverse := by
   subst w
@@ -4357,10 +4367,8 @@ theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by
   simp [← sum_toList, List.sum_reverse]
 
-theorem sum_eq_foldl [Zero α] [Add α]
-    [Std.Associative (α := α) (· + ·)] [Std.Commutative (α := α) (· + ·)]
-    [Std.LawfulLeftIdentity (· + ·) (0 : α)]
-    {xs : Array α} :
+theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LawfulIdentity (· + ·) (0 : α)] {xs : Array α} :
     xs.sum = xs.foldl (init := 0) (· + ·) := by
   simp [← sum_toList, List.sum_eq_foldl]
 

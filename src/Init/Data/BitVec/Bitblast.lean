@@ -2451,52 +2451,9 @@ def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * 
         )
     ⟨res, proof⟩
 
-theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
-    (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
-    (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by
-  unfold extractAndExtendPopulateAux
-  split
-  · simp
-  · omega
-
-@[simp]
-theorem extractAndExtendPopulateAux_of_length_zero (len : Nat) (x : BitVec 0) :
-    (extractAndExtendPopulateAux 0 len x (0#(0 * len)) (by omega) (by intros; omega)).val = (0#0).cast (by simp) := by
-  simp [extractAndExtendPopulateAux]
-
 /-- We instantiate `extractAndExtendPopulateAux` to extend each bit to `len`. -/
 def extractAndExtendPopulate (len : Nat) (x : BitVec w) : BitVec (w * len) :=
     extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega) (by intros; omega)
-
-@[simp]
-theorem extractAndExtendPopulate_of_length_zero (len : Nat) (x : BitVec 0) :
-    extractAndExtendPopulate len x = (0#0).cast (by simp)  := by
-  simp [extractAndExtendPopulate]
-
-theorem extractLsb'_extractAndExtendPopulate_eq (i len : Nat) (x : BitVec w) :
-    (extractAndExtendPopulate len x).extractLsb' (i * len) len =
-    BitVec.zeroExtend len (BitVec.extractLsb' i 1 x) := by
-  unfold extractAndExtendPopulate
-  let ⟨res, proof⟩ := extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega) (by intros; omega)
-  specialize proof i
-  by_cases hilt : i < w
-  · ext j hj
-    simp [proof]
-  · ext k hk
-    have : w * w ≤ i * w := by refine mul_le_mul_right w (by omega)
-    have : w * w ≤ i * w + k := by omega
-    simp
-    rw [getLsbD_of_ge]
-    · rw [getLsbD_of_ge]
-      · simp
-      · omega
-    · have := Nat.mul_le_mul_right (n := w) (k := len) (m := i) (by omega)
-      omega
-
-theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
-    (extractAndExtendPopulate w x).extractLsb' 0 w = BitVec.zeroExtend w (BitVec.extractLsb' 0 1 x) := by
-  rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
-  simp
 
 /--
   Construct a layer of the parallel-prefix-sum tree by summing two-by-two all the

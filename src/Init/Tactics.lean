@@ -2304,11 +2304,18 @@ This tactic is experimental and its behavior is likely to change in upcoming rel
 syntax (name := cbv) "cbv" : tactic
 
 /--
-`decide_cbv` is a finishing tactic that closes a `Decidable` goal by applying
-`of_decide_eq_true` and discharging the resulting proof obligation via `cbv`
-(call-by-value normalization).
+`decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`
+is a `Decidable` proposition. It proceeds in two steps:
+1. Apply `of_decide_eq_true` to transform the goal into `decide p = true`.
+2. Reduce `decide p` via call-by-value normalization. If the result is
+   definitionally equal to `true`, the goal is closed.
 
-This tactic is experimental and its behavior is likely to change in upcoming releases of Lean.
+`decide_cbv` fails with an error if `decide p` does not reduce to `true`.
+Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
+fails.
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
 -/
 syntax (name := decide_cbv) "decide_cbv" : tactic
 

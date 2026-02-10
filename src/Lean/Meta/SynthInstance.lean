@@ -729,7 +729,7 @@ private def preprocess (type : Expr) : MetaM PreprocessResult :=
     let cacheKeyType ← mkForallFVars xs typeBody
     return { type, cacheKeyType, kind := .mvarsOutputParams }
 
-private def preprocessOutParam (type : Expr) : MetaM Expr :=
+private partial def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     /- **Note**: See similar test at preprocess. -/
     if typeBody.isConst then return type

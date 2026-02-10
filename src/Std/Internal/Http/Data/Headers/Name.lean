@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String
+public import Init.Data.ToString
 public import Std.Internal.Http.Internal
 
 public section

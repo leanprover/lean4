@@ -16,6 +16,7 @@ import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 import Init.Data.List.Pairwise
 import Init.Data.List.Sublist
 import Init.Data.List.TakeDrop
+import Init.Data.Slice.InternalLemmas
 
 namespace Std.DTreeMap.Internal
 
@@ -693,9 +694,8 @@ attribute [instance] RicSlice.instToIterator
 
 public theorem toList_ric {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] (t : Impl α β)
     (ordered : t.Ordered) (bound : α) : t[*...=bound].toList = t.toList.filter (fun e => (compare e.fst bound).isLE) := by
-  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter,
-    Slice.Internal.iter_eq_toIteratorIter, ToIterator.iter, ToIterator.iterM_eq,
-    Iter.toIter_toIterM]
+  simp only [Ric.Sliceable.mkSlice, ← Slice.toList_iter, Slice.iter_eq_toIteratorIter,
+    ToIterator.iter, ToIterator.iterM_eq, Iter.toIter_toIterM]
   rw [RxcIterator.toList_rxcIter, RxcIterator.takeWhile_eq_filter]
   · rw [Zipper.toList_prependMap_eq_append]
     simp [Zipper.toList]

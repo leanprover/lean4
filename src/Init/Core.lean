@@ -509,8 +509,6 @@ class HasSSubset (α : Type u) where
   SSubset : α → α → Prop
 export HasSSubset (SSubset)
 
-attribute [reducible] HasSSubset.SSubset
-
 /-- Superset relation: `a ⊇ b`  -/
 abbrev Superset [HasSubset α] (a b : α) := Subset b a
 

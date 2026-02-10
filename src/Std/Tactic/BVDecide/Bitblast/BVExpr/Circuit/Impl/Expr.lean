@@ -350,7 +350,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .cpop =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property
@@ -371,11 +371,6 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     exact Nat.lt_of_lt_of_le h1 this
   next hi lo inner =>
     rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
-    rw [goCache_decl_eq]
-    have := (goCache aig inner cache).result.property
-    exact Nat.lt_of_lt_of_le h1 this
-  next len inner =>
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastcpop)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
     exact Nat.lt_of_lt_of_le h1 this

@@ -83,7 +83,7 @@ public def compileLeanModule
     try
       proc {
         cmd := leanir.toString
-        args := #[setupFile.toString, setup.name.toString, irFile.toString, cFile.toString]
+        args := #[setupFile.toString, irFile.toString, cFile.toString]
         env := #[
           ("LEAN_PATH", leanPath.toString)
         ]

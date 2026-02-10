@@ -14,6 +14,7 @@ import Lean.Compiler.IR.CompilerM
 
 import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.IR.EmitC
+import Lean.Language.Lean
 
 open Lean
 
@@ -30,23 +31,42 @@ def mkIRData (env : Environment) : IO ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
+def setConfigOption (opts : Options) (arg : String) : IO Options := do
+  if !arg.startsWith "-D" then
+    throw <| .userError s!"invalid trailing argument `{arg}`, expected argument of the form `-Dopt=val`"
+  let arg := arg.drop "-D".length
+  let pos := arg.find '='
+  if h : pos.IsAtEnd then
+    throw <| .userError "invalid -D parameter, argument must contain '='"
+  else
+    let name := arg.sliceTo pos |>.toName
+    let val := arg.sliceFrom (pos.next h) |>.copy
+    if let some decl := (← getOptionDecls).find? name then
+      Language.Lean.setOption opts decl name val
+    else
+      throw <| .userError s!"unknown option '{name}'"
 
 public def main (args : List String) : IO UInt32 := do
-  let [setupFile, mod, irFile, c] := args | do
-    IO.println s!"usage: leanir <setup.json> <module> <output.ir> <output.c>"
+  let setupFile::irFile::c::optArgs := args | do
+    IO.println s!"usage: leanir <setup.json> <module> <output.ir> <output.c> <-Dopt=val>..."
     return 1
 
-  let mod := mod.toName
   let setup ← ModuleSetup.load setupFile
+  let mod := setup.name
+
+  let mut opts := setup.options.toOptions
+  for optArg in optArgs do
+    opts ← setConfigOption opts optArg
+
   initSearchPathInternal
   -- Provide access to private scope of target module but no others; provide all IR
-  let env ← withImporting do
+  let env ← profileitIO "import" opts <| withImporting do
     let imports := #[{ module := mod, importAll := true, isMeta := true }]
     let (_, s) ← importModulesCore (globalLevel := .exported) (arts := setup.importArts) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify mod fun m => if m.module == mod then { m with irPhases := .runtime } else { m with irPhases := .all } }
-    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported)
-      s imports setup.options.toOptions
+    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
   let env := env.setMainModule mod
+
   let is := Lean.Compiler.CSimp.ext.ext.toEnvExtension.getState env
   let newState ← Lean.Compiler.CSimp.ext.ext.addImportedFn is.importedEntries { env := env, opts := {} }
   let env := Lean.Compiler.CSimp.ext.ext.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
@@ -84,15 +104,10 @@ public def main (args : List String) : IO UInt32 := do
   -- Make sure we record the actual IR dependencies, not ourselves
   let env := { env with base.private.header.imports := mod.imports }
   let _ : MonadAlwaysExcept _ CoreM := inferInstance
-  let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := setup.options.toOptions })
+  let res? ← EIO.toBaseIO <| Core.CoreM.run (ctx := { fileName := irFile, fileMap := default, options := opts })
       (s := { env }) try
     let decls := postponedCompileDeclsExt.getModuleEntries (← getEnv) modIdx
     modifyEnv (postponedCompileDeclsExt.setState · (decls.foldl (fun s e => s.insert e.declName e) {}))
-    --dbg_trace (← Compiler.LCNF.getImpureSignature? ``Task.get).isSome
-    --withOptions (Compiler.compiler.checkMeta.set · false) do
-    --withOptions (·.set `trace.Compiler true) do
-    --withOptions (·.set `trace.Compiler.simp.inline true) do
-    --withOptions (·.set `trace.compiler.ir.result true) do
     for decl in decls do
       if !(postponedCompileDeclsExt.getState (← getEnv) |>.contains decl.declName) then
         continue
@@ -127,6 +142,7 @@ public def main (args : List String) : IO UInt32 := do
   let data ← IO.ofExcept <| IR.emitC env env.mainModule
   out.write data.toUTF8
 
+  displayCumulativeProfilingTimes
   return 0
 where doCompile logErrors decls := do
   let state ← Core.saveState

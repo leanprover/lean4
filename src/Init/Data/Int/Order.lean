@@ -306,6 +306,12 @@ protected theorem le_of_neg_le_neg {a b : Int} (h : -b ≤ -a) : a ≤ b :=
   suffices - -a ≤ - -b by simp [Int.neg_neg] at this; assumption
   Int.neg_le_neg h
 
+protected theorem neg_le_iff {x y : Int} : - x ≤ y ↔ - y ≤ x := by
+  rw [← Int.neg_neg y, Int.neg_le_neg_iff, Int.neg_neg y]
+
+protected theorem le_neg_iff {x y : Int} : x ≤ - y ↔ y ≤ - x := by
+  rw [← Int.neg_neg x, Int.neg_le_neg_iff, Int.neg_neg x]
+
 protected theorem neg_nonpos_of_nonneg {a : Int} (h : 0 ≤ a) : -a ≤ 0 := by
   have : -a ≤ -0 := Int.neg_le_neg h
   rwa [Int.neg_zero] at this
@@ -327,6 +333,12 @@ protected theorem neg_lt_neg {a b : Int} (h : a < b) : -b < -a := by
 
 @[simp] protected theorem zero_lt_neg_iff {a : Int} : 0 < -a ↔ a < 0 := by
   rw [← Int.neg_zero, Int.neg_lt_neg_iff, Int.neg_zero]
+
+protected theorem neg_lt_iff {x y : Int} : - x < y ↔ - y < x := by
+  rw [← Int.neg_neg y, Int.neg_lt_neg_iff, Int.neg_neg y]
+
+protected theorem lt_neg_iff {x y : Int} : x < - y ↔ y < - x := by
+  rw [← Int.neg_neg x, Int.neg_lt_neg_iff, Int.neg_neg x]
 
 protected theorem neg_neg_of_pos {a : Int} (h : 0 < a) : -a < 0 :=
   Int.neg_lt_zero_iff.2 h

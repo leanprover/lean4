@@ -26,6 +26,11 @@ namespace Rat
 theorem ext : {p q : Rat} → p.num = q.num → p.den = q.den → p = q
   | ⟨_,_,_,_⟩, ⟨_,_,_,_⟩, rfl, rfl => rfl
 
+theorem ext_iff {p q : Rat} : p = q ↔ p.num = q.num ∧ p.den = q.den := by
+  apply Iff.intro
+  · simp +contextual
+  · exact fun h => ext h.1 h.2
+
 @[simp] theorem mk_den_one {r : Int} :
     ⟨r, 1, Nat.one_ne_zero, (Nat.coprime_one_right _)⟩ = (r : Rat) := rfl
 
@@ -747,6 +752,15 @@ protected theorem le_antisymm {a b : Rat} (hab : a ≤ b) (hba : b ≤ a) : a = 
   have := congrArg (· + b) (Rat.nonneg_antisymm hba hab)
   simpa only [Rat.add_assoc, Rat.neg_add_cancel, Rat.zero_add, Rat.add_zero] using this
 
+protected theorem le_antisymm_iff {a b : Rat} :
+    a = b ↔ a ≤ b ∧ b ≤ a := by
+  apply Iff.intro
+  · simp +contextual [Rat.le_refl]
+  · exact fun h => Rat.le_antisymm h.1 h.2
+
+theorem eq_iff_mul_eq_mul {p q : Rat} : p = q ↔ p.num * q.den = q.num * p.den := by
+  simp [Rat.le_antisymm_iff, Rat.le_iff, ← Int.le_antisymm_iff]
+
 protected theorem le_of_lt {a b : Rat} (ha : a < b) : a ≤ b :=
   Rat.le_total.resolve_left (Rat.not_le.mpr ha)
 
@@ -785,6 +799,48 @@ protected theorem lt_iff_sub_pos (a b : Rat) : a < b ↔ 0 < b - a := by
   · intro h
     simpa [Rat.sub_eq_add_neg, Rat.add_left_comm a, Rat.add_neg_cancel]
       using (Rat.add_le_add_left (c := a)).mpr h
+
+@[simp]
+protected theorem neg_neg (a : Rat) : -(-a) = a := by
+  apply Rat.le_antisymm <;> simp [Rat.le_iff]
+
+@[simp]
+protected theorem neg_le_neg_iff {a b : Rat} : -a ≤ -b ↔ b ≤ a := by
+  simp [Rat.le_iff, Int.neg_mul]
+
+protected theorem neg_le_neg {a b : Rat} (h : a ≤ b) : -b ≤ -a := by
+  simpa
+
+protected theorem neg_le_iff {a b : Rat} : -a ≤ b ↔ -b ≤ a := by
+  rw [← Rat.neg_neg a, Rat.neg_le_neg_iff, Rat.neg_neg a]
+
+protected theorem le_neg_iff {a b : Rat} : a ≤ -b ↔ b ≤ -a := by
+  rw [← Rat.neg_neg a, Rat.neg_le_neg_iff, Rat.neg_neg a]
+
+@[simp]
+protected theorem neg_lt_neg_iff {a b : Rat} : -a < -b ↔ b < a := by
+  simp [Rat.lt_iff, Int.neg_mul]
+
+protected theorem neg_lt_neg {a b : Rat} (h : a < b) : -b < -a := by
+  simpa
+
+protected theorem neg_lt_iff {a b : Rat} : -a < b ↔ -b < a := by
+  rw [← Rat.neg_neg a, Rat.neg_lt_neg_iff, Rat.neg_neg a]
+
+protected theorem lt_neg_iff {a b : Rat} : a < -b ↔ b < -a := by
+  rw [← Rat.neg_neg a, Rat.neg_lt_neg_iff, Rat.neg_neg a]
+
+protected theorem lt_iff_le_not_le {a b : Rat} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  simpa [Rat.le_iff, Rat.lt_iff] using Int.le_of_lt
+
+protected theorem lt_iff_le_and_ne {a b : Rat} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simp [Rat.lt_iff, Rat.le_iff, Rat.eq_iff_mul_eq_mul, Int.lt_iff_le_and_ne]
+
+protected theorem le_iff_lt_or_eq {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [Rat.le_iff, Rat.lt_iff, Rat.eq_iff_mul_eq_mul, Int.le_iff_lt_or_eq]
+
+protected theorem le_iff_eq_or_lt {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [Rat.le_iff_lt_or_eq, or_comm]
 
 protected theorem mul_pos {a b : Rat} (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
   refine Rat.lt_of_le_of_ne (Rat.mul_nonneg (Rat.le_of_lt ha) (Rat.le_of_lt hb)) ?_

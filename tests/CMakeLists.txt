@@ -127,18 +127,6 @@ foreach(T ${LEANINTERPTESTS})
   )
 endforeach(T)
 
-# LEAN TESTS using --trust=0
-file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust0/*.lean")
-foreach(T ${LEANT0TESTS})
-  get_filename_component(T_NAME ${T} NAME)
-  cmake_path(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-  add_test(
-    NAME "${T_PATH}"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
-    COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}"
-  )
-endforeach(T)
-
 # LEAN PACKAGE TESTS
 file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
 foreach(T ${LEANPKGTESTS})

@@ -145,31 +145,6 @@ private def setFailure (machine : Machine dir) (error : H1.Error) : Machine dir 
 private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine dir :=
   { machine with keepAlive := machine.keepAlive ∧ should }
 
--- Helper Functions
-
-private def isChunked (headers : Headers) : Option Bool :=
-  if let some res := headers.get? Header.Name.transferEncoding then
-    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
-    if encodings.isEmpty then
-      none
-    else
-      let chunkedCount := encodings.filter (· == "chunked") |>.size
-      let lastIsChunked := encodings.back? == some "chunked"
-
-      if chunkedCount > 1 then
-        none
-      else if chunkedCount = 1 ∧ ¬lastIsChunked then
-        none
-      else
-        some lastIsChunked
-  else
-    some false
-
-private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get? Header.Name.contentLength, isChunked headers) with
-  | (some cl, some false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
-  | (_, some true) => some Body.Length.chunked
-  | _ => none
 
 private def checkMessageHead (message : Message.Head dir) : Option Body.Length := do
   match dir with
@@ -404,7 +379,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
 
     let machine :=
       if machine.writer.knownSize.isNone then
-        match extractBodyLengthFromHeaders message.headers with
+        match message.getSize false with
         | some size => machine.setKnownSize size
         | none => machine
       else

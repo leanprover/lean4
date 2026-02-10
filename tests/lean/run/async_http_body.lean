@@ -4,58 +4,58 @@ open Std.Internal.IO Async
 open Std.Http
 open Std.Http.Body
 
-/-! ## ChunkStream tests -/
+/-! ## Stream tests -/
 
 -- Test send followed by recv returns the chunk
-def chunkSendRecv : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamSendRecv : Async Unit := do
+  let stream ← Stream.empty
   let chunk := Chunk.ofByteArray "hello".toUTF8
   stream.send chunk
   let result ← stream.recv none
   assert! result.isSome
   assert! result.get!.data == "hello".toUTF8
 
-#eval chunkSendRecv.block
+#eval streamSendRecv.block
 
 -- Test tryRecv on empty stream returns none
-def chunkTryRecvEmpty : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamTryRecvEmpty : Async Unit := do
+  let stream ← Stream.empty
   let result ← stream.tryRecv
   assert! result.isNone
 
-#eval chunkTryRecvEmpty.block
+#eval streamTryRecvEmpty.block
 
 -- Test tryRecv returns data when available
-def chunkTryRecvWithData : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamTryRecvWithData : Async Unit := do
+  let stream ← Stream.empty
   stream.send (Chunk.ofByteArray "data".toUTF8)
   let result ← stream.tryRecv
   assert! result.isSome
   assert! result.get!.data == "data".toUTF8
 
-#eval chunkTryRecvWithData.block
+#eval streamTryRecvWithData.block
 
 -- Test close sets the closed flag
-def chunkClose : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamClose : Async Unit := do
+  let stream ← Stream.empty
   assert! !(← stream.isClosed)
   stream.close
   assert! (← stream.isClosed)
 
-#eval chunkClose.block
+#eval streamClose.block
 
 -- Test recv on closed stream returns none
-def chunkRecvAfterClose : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamRecvAfterClose : Async Unit := do
+  let stream ← Stream.empty
   stream.close
   let result ← stream.recv none
   assert! result.isNone
 
-#eval chunkRecvAfterClose.block
+#eval streamRecvAfterClose.block
 
 -- Test FIFO ordering of multiple chunks
-def chunkMultipleFIFO : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamMultipleFIFO : Async Unit := do
+  let stream ← Stream.empty
   stream.send (Chunk.ofByteArray "one".toUTF8)
   stream.send (Chunk.ofByteArray "two".toUTF8)
   stream.send (Chunk.ofByteArray "three".toUTF8)
@@ -66,11 +66,11 @@ def chunkMultipleFIFO : Async Unit := do
   assert! r2.get!.data == "two".toUTF8
   assert! r3.get!.data == "three".toUTF8
 
-#eval chunkMultipleFIFO.block
+#eval streamMultipleFIFO.block
 
 -- Test for-in iteration collects all chunks until close
-def chunkForIn : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamForIn : Async Unit := do
+  let stream ← Stream.empty
   stream.send (Chunk.ofByteArray "a".toUTF8)
   stream.send (Chunk.ofByteArray "b".toUTF8)
   stream.close
@@ -80,11 +80,11 @@ def chunkForIn : Async Unit := do
     acc := acc ++ chunk.data
   assert! acc == "ab".toUTF8
 
-#eval chunkForIn.block
+#eval streamForIn.block
 
 -- Test chunks preserve extensions
-def chunkExtensions : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamExtensions : Async Unit := do
+  let stream ← Stream.empty
   let chunk := { data := "hello".toUTF8, extensions := #[("key", some "value")] : Chunk }
   stream.send chunk
   let result ← stream.recv none
@@ -92,20 +92,20 @@ def chunkExtensions : Async Unit := do
   assert! result.get!.extensions.size == 1
   assert! result.get!.extensions[0]! == ("key", some "value")
 
-#eval chunkExtensions.block
+#eval streamExtensions.block
 
 -- Test set/get known size
-def chunkKnownSize : Async Unit := do
-  let stream ← ChunkStream.empty
+def streamKnownSize : Async Unit := do
+  let stream ← Stream.empty
   stream.setKnownSize (some (.fixed 100))
   let size ← stream.getKnownSize
   assert! size == some (.fixed 100)
 
-#eval chunkKnownSize.block
+#eval streamKnownSize.block
 
 -- Test capacity: filling up to capacity succeeds via tryRecv check
-def chunkCapacityFull : Async Unit := do
-  let stream ← ChunkStream.emptyWithCapacity (capacity := 3)
+def streamCapacityFull : Async Unit := do
+  let stream ← Stream.emptyWithCapacity (capacity := 3)
   stream.send (Chunk.ofByteArray "a".toUTF8)
   stream.send (Chunk.ofByteArray "b".toUTF8)
   stream.send (Chunk.ofByteArray "c".toUTF8)
@@ -119,11 +119,11 @@ def chunkCapacityFull : Async Unit := do
   assert! r3.get!.data == "c".toUTF8
   assert! r4.isNone
 
-#eval chunkCapacityFull.block
+#eval streamCapacityFull.block
 
 -- Test capacity: send blocks when buffer is full and resumes after recv
-def chunkCapacityBackpressure : Async Unit := do
-  let stream ← ChunkStream.emptyWithCapacity (capacity := 2)
+def streamCapacityBackpressure : Async Unit := do
+  let stream ← Stream.emptyWithCapacity (capacity := 2)
   stream.send (Chunk.ofByteArray "a".toUTF8)
   stream.send (Chunk.ofByteArray "b".toUTF8)
 
@@ -144,11 +144,11 @@ def chunkCapacityBackpressure : Async Unit := do
   assert! r2.get!.data == "b".toUTF8
   assert! r3.get!.data == "c".toUTF8
 
-#eval chunkCapacityBackpressure.block
+#eval streamCapacityBackpressure.block
 
 -- Test capacity 1: only one chunk at a time
-def chunkCapacityOne : Async Unit := do
-  let stream ← ChunkStream.emptyWithCapacity (capacity := 1)
+def streamCapacityOne : Async Unit := do
+  let stream ← Stream.emptyWithCapacity (capacity := 1)
   stream.send (Chunk.ofByteArray "first".toUTF8)
 
   let sendTask ← async (t := AsyncTask) <|
@@ -162,11 +162,11 @@ def chunkCapacityOne : Async Unit := do
   let r2 ← stream.recv none
   assert! r2.get!.data == "second".toUTF8
 
-#eval chunkCapacityOne.block
+#eval streamCapacityOne.block
 
 -- Test close unblocks pending producers
-def chunkCloseUnblocksProducers : Async Unit := do
-  let stream ← ChunkStream.emptyWithCapacity (capacity := 1)
+def streamCloseUnblocksProducers : Async Unit := do
+  let stream ← Stream.emptyWithCapacity (capacity := 1)
   stream.send (Chunk.ofByteArray "fill".toUTF8)
 
   -- This send should block because buffer is full
@@ -181,160 +181,9 @@ def chunkCloseUnblocksProducers : Async Unit := do
 
   await sendTask
 
-#eval chunkCloseUnblocksProducers.block
+#eval streamCloseUnblocksProducers.block
 
-
-/-! ## Full tests -/
-
--- Test ofData followed by recv
-def fullOfData : Async Unit := do
-  let full ← Full.new "hello".toUTF8
-  let result ← full.recv none
-  assert! result.isSome
-  assert! result.get! == "hello".toUTF8
-
-#eval fullOfData.block
-
--- Test data is consumed exactly once
-def fullConsumedOnce : Async Unit := do
-  let full ← Full.new "data".toUTF8
-  let r1 ← full.recv none
-  let r2 ← full.recv none
-  assert! r1.isSome
-  assert! r2.isNone
-
-#eval fullConsumedOnce.block
-
--- Test empty Full returns none immediately
-def fullEmpty : Async Unit := do
-  let full ← Full.empty
-  let result ← full.recv none
-  assert! result.isNone
-
-#eval fullEmpty.block
-
--- Test isClosed transitions after consumption
-def fullClosedAfterConsume : Async Unit := do
-  let full ← Full.new "data".toUTF8
-  assert! !(← full.isClosed)
-  discard <| full.recv none
-  assert! (← full.isClosed)
-
-#eval fullClosedAfterConsume.block
-
--- Test empty Full is already closed
-def fullEmptyIsClosed : Async Unit := do
-  let full ← Full.empty
-  assert! (← full.isClosed)
-
-#eval fullEmptyIsClosed.block
-
--- Test size? returns byte count
-def fullSize : Async Unit := do
-  let full ← Full.new "hello".toUTF8
-  let size ← full.size?
-  assert! size == some (.fixed 5)
-
-#eval fullSize.block
-
--- Test size? returns none after consumption
-def fullSizeAfterConsume : Async Unit := do
-  let full ← Full.new "hello".toUTF8
-  discard <| full.recv none
-  let size ← full.size?
-  assert! size == none
-
-#eval fullSizeAfterConsume.block
-
--- Test send replaces data
-def fullSendReplacesData : Async Unit := do
-  let full ← Full.empty
-  full.send "new data".toUTF8
-  assert! !(← full.isClosed)
-  let result ← full.recv none
-  assert! result.isSome
-  assert! result.get! == "new data".toUTF8
-
-#eval fullSendReplacesData.block
-
--- Test recv? behaves the same as recv
-def fullRecvQuestion : Async Unit := do
-  let full ← Full.new "test".toUTF8
-  let r1 ← full.recv?
-  assert! r1.isSome
-  assert! r1.get! == "test".toUTF8
-  let r2 ← full.recv?
-  assert! r2.isNone
-
-#eval fullRecvQuestion.block
-
--- Test Full from String type
-def fullFromString : Async Unit := do
-  let full ← Full.new (β := String) "hello world"
-  let result ← full.recv none
-  assert! result.isSome
-  assert! result.get! == "hello world".toUTF8
-
-#eval fullFromString.block
-
-/-! ## Body typeclass tests -/
-
--- Test Body instance for ChunkStream
-def bodyChunkStream : Async Unit := do
-  let stream : ChunkStream ← Body.empty
-  Body.send stream (Chunk.ofByteArray "hello".toUTF8)
-  let result ← Body.recv stream none
-  assert! result.isSome
-  assert! result.get!.data == "hello".toUTF8
-  assert! !(← Body.isClosed stream)
-
-#eval bodyChunkStream.block
-
--- Test Body instance for Full
-def bodyFull : Async Unit := do
-  let full ← Full.new "hello".toUTF8
-  let result ← @Body.recv Body.Full Chunk _ full none
-  assert! result.isSome
-  assert! result.get!.data == "hello".toUTF8
-  assert! (← @Body.isClosed Body.Full Chunk _ full)
-
-#eval bodyFull.block
-
-/-! ## Empty body tests -/
-
--- Test Empty body recv returns none
-def emptyRecv : Async Unit := do
-  let empty ← Body.Empty.new
-  let result ← empty.recv none
-  assert! result.isNone
-
-#eval emptyRecv.block
-
--- Test Empty body is always closed
-def emptyIsClosed : Async Unit := do
-  let empty ← Body.Empty.new
-  assert! (← empty.isClosed)
-
-#eval emptyIsClosed.block
-
--- Test Empty body size is 0
-def emptySize : Async Unit := do
-  let empty ← Body.Empty.new
-  let size ← empty.size?
-  assert! size == some (.fixed 0)
-
-#eval emptySize.block
-
--- Test Body instance for Empty
-def bodyEmpty : Async Unit := do
-  let empty : Body.Empty ← Body.empty
-  let result ← @Body.recv Body.Empty Chunk _ empty none
-  assert! result.isNone
-  assert! (← @Body.isClosed Body.Empty Chunk _ empty)
-
-#eval bodyEmpty.block
-
-/-! ## Request.Builder Full body tests -/
+/-! ## Request.Builder body tests -/
 
 -- Test Request.Builder.text sets correct headers
 def requestBuilderText : Async Unit := do
@@ -342,9 +191,9 @@ def requestBuilderText : Async Unit := do
     |>.text "Hello, World!"
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
-  let body ← req.body.recv?
+  let body ← req.body.tryRecv
   assert! body.isSome
-  assert! body.get! == "Hello, World!".toUTF8
+  assert! body.get!.data == "Hello, World!".toUTF8
 
 #eval requestBuilderText.block
 
@@ -353,9 +202,9 @@ def requestBuilderJson : Async Unit := do
   let req ← Request.post (.originForm! "/api")
     |>.json "{\"key\": \"value\"}"
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← req.body.recv?
+  let body ← req.body.tryRecv
   assert! body.isSome
-  assert! body.get! == "{\"key\": \"value\"}".toUTF8
+  assert! body.get!.data == "{\"key\": \"value\"}".toUTF8
 
 #eval requestBuilderJson.block
 
@@ -366,9 +215,9 @@ def requestBuilderBytes : Async Unit := do
     |>.bytes data
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/octet-stream")
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "3")
-  let body ← req.body.recv?
+  let body ← req.body.tryRecv
   assert! body.isSome
-  assert! body.get! == data
+  assert! body.get!.data == data
 
 #eval requestBuilderBytes.block
 
@@ -377,7 +226,7 @@ def requestBuilderHtml : Async Unit := do
   let req ← Request.post (.originForm! "/api")
     |>.html "<html></html>"
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/html; charset=utf-8")
-  let body ← req.body.recv?
+  let body ← req.body.tryRecv
   assert! body.isSome
 
 #eval requestBuilderHtml.block
@@ -386,12 +235,12 @@ def requestBuilderHtml : Async Unit := do
 def requestBuilderNoBody : Async Unit := do
   let req ← Request.get (.originForm! "/api")
     |>.noBody
-  let body ← req.body.recv?
+  let body ← req.body.tryRecv
   assert! body.isNone
 
 #eval requestBuilderNoBody.block
 
-/-! ## Response.Builder Full body tests -/
+/-! ## Response.Builder body tests -/
 
 -- Test Response.Builder.text sets correct headers
 def responseBuilderText : Async Unit := do
@@ -399,9 +248,9 @@ def responseBuilderText : Async Unit := do
     |>.text "Hello, World!"
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
-  let body ← res.body.recv?
+  let body ← res.body.tryRecv
   assert! body.isSome
-  assert! body.get! == "Hello, World!".toUTF8
+  assert! body.get!.data == "Hello, World!".toUTF8
 
 #eval responseBuilderText.block
 
@@ -410,7 +259,7 @@ def responseBuilderJson : Async Unit := do
   let res ← Response.ok
     |>.json "{\"status\": \"ok\"}"
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← res.body.recv?
+  let body ← res.body.tryRecv
   assert! body.isSome
 
 #eval responseBuilderJson.block
@@ -419,7 +268,7 @@ def responseBuilderJson : Async Unit := do
 def responseBuilderNoBody : Async Unit := do
   let res ← Response.ok
     |>.noBody
-  let body ← res.body.recv?
+  let body ← res.body.tryRecv
   assert! body.isNone
 
 #eval responseBuilderNoBody.block

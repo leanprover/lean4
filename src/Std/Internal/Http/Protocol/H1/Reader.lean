@@ -133,14 +133,15 @@ def hasFailed (reader : Reader dir) : Bool :=
 
 /--
 Feeds new data into the reader's input buffer.
-If the current input is exhausted, replaces it; otherwise appends.
+If the current input is exhausted, replaces it; otherwise compacts the buffer
+by discarding already-parsed bytes before appending.
 -/
 @[inline]
 def feed (data : ByteArray) (reader : Reader dir) : Reader dir :=
   { reader with input :=
     if reader.input.atEnd
       then data.iter
-      else { reader.input with array := reader.input.array ++ data } }
+      else (reader.input.array.extract reader.input.pos reader.input.array.size ++ data).iter }
 
 /--
 Replaces the reader's input iterator with a new one.

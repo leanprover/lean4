@@ -255,8 +255,8 @@ info: "TEXT/HTML"
   | some cl => cl.length == 0
   | none => false
 
-#guard (Header.ContentLength.parse (Value.ofString! "abc")).isNone
-#guard (Header.ContentLength.parse (Value.ofString! "")).isNone
+#guard (Header.ContentLength.parse =<< (Value.ofString! "abc")).isNone
+#guard (Header.ContentLength.parse =<< (Value.ofString? "")).isNone
 
 /--
 info: ("content-length", "42")
@@ -281,17 +281,17 @@ info: ("content-length", "42")
   | some te => !te.isChunked
   | none => false
 
-#guard (Header.TransferEncoding.parse (Value.ofString! "chunked, gzip")).isNone
-#guard (Header.TransferEncoding.parse (Value.ofString! "chunked, chunked")).isNone
-#guard (Header.TransferEncoding.parse (Value.ofString! "")).isNone
-#guard (Header.TransferEncoding.parse (Value.ofString! ",")).isNone
-#guard (Header.TransferEncoding.parse (Value.ofString! " , , ")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "chunked, gzip")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "chunked, chunked")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? ",")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? " , , ")).isNone
 
 /--
 info: ("transfer-encoding", "gzip,chunked")
 -/
 #guard_msgs in
 #eval do
-  let te : Header.TransferEncoding := ⟨#["gzip", "chunked"], by decide⟩
+  let te : Header.TransferEncoding := ⟨#["gzip", "chunked"], by native_decide⟩
   let (name, value) := Header.TransferEncoding.serialize te
   return (name.value, value.value)

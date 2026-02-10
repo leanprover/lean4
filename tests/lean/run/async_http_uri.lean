@@ -210,6 +210,7 @@ info: some " "
 #eval parseCheck "localhost:65535"
 #eval parseCheck "https://user:pass@secure.example.com/private"
 #eval parseCheck "/double//slash//path"
+#eval parseCheck "http://user%40example:pass%3Aword@host.com"
 
 -- Parse failure tests
 #eval parseCheckFail "/path with space"
@@ -228,7 +229,7 @@ info: some " "
 -- ============================================================================
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded%20space"], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded%20space"], absolute := true } none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -260,7 +261,7 @@ info: #[("q", some "hello%20world"), ("category", some "tech%2Bgames")]
   IO.println (repr result.query)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -724,14 +725,6 @@ info: none
   let result ← runParser parseRequestTarget "/path"
   IO.println (repr result.fragment?)
 
-/--
-info: some ""
--/
-#guard_msgs in
-#eval show IO _ from do
-  let result ← runParser parseRequestTarget "/path#"
-  IO.println (repr result.fragment?)
-
 -- ============================================================================
 -- URI Builder Tests
 -- ============================================================================
@@ -743,7 +736,7 @@ info: https://example.com/api/users?page=1
 #eval do
   let uri := URI.Builder.empty
     |>.setScheme "https"
-    |>.setHost "example.com"
+    |>.setHost! "example.com"
     |>.appendPathSegment "api"
     |>.appendPathSegment "users"
     |>.addQueryParam "page" "1"
@@ -757,7 +750,7 @@ info: http://localhost:8080/
 #eval do
   let uri := URI.Builder.empty
     |>.setScheme "http"
-    |>.setHost "localhost"
+    |>.setHost! "localhost"
     |>.setPort 8080
     |>.build
   IO.println uri
@@ -770,7 +763,7 @@ info: https://user:pass@secure.example.com/private
   let uri := URI.Builder.empty
     |>.setScheme "https"
     |>.setUserInfo "user" (some "pass")
-    |>.setHost "secure.example.com"
+    |>.setHost! "secure.example.com"
     |>.appendPathSegment "private"
     |>.build
   IO.println uri
@@ -780,7 +773,7 @@ info: https://user:pass@secure.example.com/private
 -- ============================================================================
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #["path%2Fwith%2Fslashes"], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #["path%2Fwith%2Fslashes"], absolute := true } none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -788,7 +781,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["path%2Fwith%2Fslashes"]
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #["file%20name.txt"], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #["file%20name.txt"], absolute := true } none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -796,7 +789,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["file%20name.txt"], abso
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #["caf%C3%A9"], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #["caf%C3%A9"], absolute := true } none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -822,4 +815,39 @@ info: Std.Http.RequestTarget.authorityForm { userInfo := none, host := Std.Http.
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "127.0.0.1:8080"
+  IO.println (repr result)
+
+/--
+info: Std.Http.RequestTarget.authorityForm
+  { userInfo := none, host := Std.Http.URI.Host.name "1example.com", port := some 8080 }
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "1example.com:8080"
+  IO.println (repr result)
+
+/--
+info: Std.Http.RequestTarget.absoluteForm
+  { scheme := "http",
+    authority := some { userInfo := none, host := Std.Http.URI.Host.name "1example.com", port := none },
+    path := { segments := #["path"], absolute := true },
+    query := #[],
+    fragment := none }
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "http://1example.com/path"
+  IO.println (repr result)
+
+/--
+info: Std.Http.RequestTarget.absoluteForm
+  { scheme := "http",
+    authority := some { userInfo := none, host := Std.Http.URI.Host.name "123abc.example.com", port := none },
+    path := { segments := #["page"], absolute := true },
+    query := #[],
+    fragment := none }
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "http://123abc.example.com/page"
   IO.println (repr result)

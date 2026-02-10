@@ -81,6 +81,23 @@ instance : Header ContentLength := ⟨parse, serialize⟩
 end ContentLength
 
 /--
+Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
+-/
+@[expose]
+def TransferEncoding.Validate (codings : Array String) : Bool :=
+  if codings.isEmpty || codings.any (· == "") then
+    false
+  else
+    let chunkedCount := codings.filter (· == "chunked") |>.size
+    let lastIsChunked := codings.back? == some "chunked"
+    if chunkedCount > 1 then
+      false
+    else if chunkedCount == 1 && !lastIsChunked then
+      false
+    else
+      true
+
+/--
 The `Transfer-Encoding` header, representing the list of transfer codings applied to the message body.
 
 Validation rules (RFC 9112 Section 6.1):
@@ -95,9 +112,10 @@ structure TransferEncoding where
   codings : Array String
 
   /--
-  The list is non-empty.
+  Valid encodings.
   -/
-  nonempty : codings.size > 0
+  valid : TransferEncoding.Validate codings = true
+
 deriving Repr
 
 namespace TransferEncoding
@@ -109,34 +127,14 @@ def isChunked (te : TransferEncoding) : Bool :=
   te.codings.back? == some "chunked"
 
 /--
-Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
--/
-private def validate (codings : Array String) : Option (Array String) :=
-  if codings.isEmpty ∨ codings.any (· == "") then
-    none
-  else
-    let chunkedCount := codings.filter (· == "chunked") |>.size
-    let lastIsChunked := codings.back? == some "chunked"
-    if chunkedCount > 1 then
-      none
-    else if chunkedCount == 1 && !lastIsChunked then
-      none
-    else
-      some codings
-
-/--
 Parse a comma-separated list of transfer codings from a header value, validating chunked placement.
 -/
 def parse (v : Value) : Option TransferEncoding :=
-  let codings := v.value.split (· == ',')|>.toArray.map (·.trimAscii.toString.toLower)
-  match TransferEncoding.validate codings with
-  | none =>
+  let codings := v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
+  if h : TransferEncoding.Validate codings then
+    some ⟨codings, h⟩
+  else
     none
-  | some validated =>
-    if h : validated.size > 0 then
-      some ⟨validated, h⟩
-    else
-      none
 
 /--
 Serialize a transfer encoding back to a comma-separated header value.

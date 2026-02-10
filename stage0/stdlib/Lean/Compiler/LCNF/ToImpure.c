@@ -4658,6 +4658,7 @@ lean_object* x_175; lean_object* x_176;
 x_175 = lean_ctor_get(x_174, 0);
 lean_inc(x_175);
 lean_dec_ref(x_174);
+lean_inc(x_170);
 x_176 = l_Lean_Compiler_LCNF_getImpureSignature_x3f___redArg(x_170, x_7);
 if (lean_obj_tag(x_176) == 0)
 {

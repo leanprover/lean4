@@ -2296,6 +2296,13 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation,
+using equations associated with definitions and the matchers.
+This tactic is experimental and its behavior is likely to change in upcoming releases of Lean.
+-/
+syntax (name := cbv) "cbv" : tactic
+
 end Tactic
 
 namespace Attr

@@ -170,7 +170,7 @@ def determineTransferMode (writer : Writer dir) : Body.Length :=
   if let some mode := writer.knownSize then
     mode
   else if writer.userClosedBody then
-    let size := writer.userData.foldl (fun x y => x + y.size) 0
+    let size := writer.userData.foldl (fun x y => x + y.data.size) 0
     .fixed size
   else
     .chunked

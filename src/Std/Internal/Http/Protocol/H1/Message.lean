@@ -73,24 +73,9 @@ def Message.Head.version (m : Message.Head dir) : Version :=
   | .sending => Response.Head.version m
 
 private def isChunked (message : Message.Head dir) : Option Bool :=
-  let headers := message.headers
-
-  if let some res := headers.get? .transferEncoding then
-    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
-    if encodings.isEmpty then
-      none
-    else
-      let chunkedCount := encodings.filter (· == "chunked") |>.size
-      let lastIsChunked := encodings.back? == some "chunked"
-
-      if chunkedCount > 1 then
-        none
-      else if chunkedCount = 1 ∧ ¬lastIsChunked then
-        none
-      else
-        some lastIsChunked
-  else
-    some false
+  match message.headers.get? .transferEncoding with
+  | none => some false
+  | some v => Header.TransferEncoding.parse v |>.map (·.isChunked)
 
 /--
 Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
@@ -109,7 +94,7 @@ Checks whether the message indicates that the connection should be kept alive.
 -/
 @[inline]
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry .connection (.new "close")
+  ¬message.headers.hasEntry .connection (.mk "close")
   ∧ message.version = .v11
 
 instance : Repr (Message.Head dir) :=

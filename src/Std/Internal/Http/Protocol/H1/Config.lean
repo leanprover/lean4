@@ -47,7 +47,7 @@ structure Config where
   /--
   The server name (for sending responses) or user agent (for sending requests)
   -/
-  identityHeader : Option Header.Value := some (.new "LeanServer")
+  identityHeader : Option Header.Value := some (.mk "LeanServer")
 
   /--
   Maximum length of HTTP method token (default: 16 bytes)

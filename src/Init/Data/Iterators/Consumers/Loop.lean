@@ -707,6 +707,9 @@ def Iter.Total.isEmpty {α β : Type w} [Iterator α Id β] [IteratorLoop α Id 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
 
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.length` always terminates after finitely many steps.
+
 **Performance**:
 
 This function's runtime is linear in the number of steps taken by the iterator.
@@ -745,5 +748,34 @@ This function's runtime is linear in the number of steps taken by the iterator.
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
   it.it.length
+
+/--
+Steps through the whole iterator, summing up its elements from left to right.
+
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.sum` always terminates after finitely many steps.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+def Iter.sum [Add β] [Zero β] [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : β :=
+  it.fold (init := 0) (· + ·)
+
+/--
+Steps through the whole iterator, summing up its elements from left to right.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.sum`.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[inline]
+def Iter.Total.sum [Add β] [Zero β] [Iterator α Id β] [IteratorLoop α Id Id] [Finite α Id]
+    (it : Iter.Total (α := α) β) : β :=
+  it.it.sum
 
 end Std

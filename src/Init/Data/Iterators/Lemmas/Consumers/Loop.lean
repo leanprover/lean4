@@ -987,4 +987,12 @@ theorem Iter.isEmpty_toList {α β : Type w} [Iterator α Id β] [IteratorLoop �
   rw [isEmpty_eq_match_step, toList_eq_match_step]
   cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 
+theorem Iter.sum_toList [Add β] [Zero β]
+    [Associative (α := β) (· + ·)] [Commutative (α := β) (· + ·)]
+    [LawfulLeftIdentity (· + ·) (0 : β)]
+    [Iterator α Id β] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] [Iterators.Finite α Id] {it : Iter (α := α) β} :
+    it.toList.sum = it.sum := by
+  simp only [Iter.sum, ← Iter.foldl_toList, List.sum_eq_foldl]
+
 end Std

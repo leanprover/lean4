@@ -191,14 +191,16 @@ def forLocalDefs (f : Name → ConstantInfo → MetaM Unit) : MetaM Unit := do
     | _ => continue
   -- Definitions from `import all`'d modules
   if env.header.isModule then
-    for (name, ci) in env.constants.map₁.toList do
-      let some modIdx := env.getModuleIdxFor? name | continue
-      let some effImport := env.header.modules[modIdx]? | continue
-      unless effImport.importAll do continue
-      if name.isInternalDetail && !isPrivateName name then continue
-      if (← isInstanceReducible name) then continue
-      match ci with
-      | .defnInfo _ => f name ci
-      | _ => continue
+    for effImport in env.header.importAllModules do
+      let some modIdx := env.getModuleIdx? effImport.module | continue
+      let some modData := env.header.moduleData[modIdx]? | continue
+      for i in [:modData.constants.size] do
+        let name := modData.constNames[i]!
+        let ci := modData.constants[i]!
+        if name.isInternalDetail && !isPrivateName name then continue
+        if (← isInstanceReducible name) then continue
+        match ci with
+        | .defnInfo _ => f name ci
+        | _ => continue
 
 end Lean.Meta

@@ -24,7 +24,7 @@ register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
     descr    := "Type check every step of the well-founded definition translation"
   }
 
-/-
+/--
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
 the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
 use by `solveDecreasingGoals` below.
@@ -37,13 +37,16 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   let _mvarId ← mvarId.cleanup
   return mvar
 
+private abbrev RecM (recFnName : Name) :=
+  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap Expr) TermElabM
+
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
-  let e ← loop F e |>.run' {}
+  let e ← loop F e |>.run' {} |>.run' {}
   return e
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       trace[Elab.definition.wf] "replaceRecApp: eta-expanding{indentExpr e}"
       loop F (← etaExpand e)
@@ -54,17 +57,22 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
+  containsRecFn (e : Expr) : RecM recFnName Bool := do
     modifyGet (·.contains e)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+  loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
+    if !(← containsRecFn e) then
+      return e
+    if let some newE := (← getThe (ExprMap Expr)).get? e then
+      return newE
     let e' ← loopGo F e
+    modifyThe (ExprMap Expr) fun map => map.insert e e'
     if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do
@@ -76,9 +84,7 @@ where
           throwError "Type not preserved transforming{indentExpr e}\nto{indentExpr e'}\nType was{indentExpr t1}\nand now is{indentExpr t2}"
     return e'
 
-  loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
-    if !(← containsRecFn e) then
-      return e
+  loopGo (F : Expr) (e : Expr) : RecM recFnName Expr := do
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c (← loop F d) fun x => do

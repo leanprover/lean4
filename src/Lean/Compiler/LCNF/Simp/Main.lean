@@ -332,13 +332,16 @@ partial def simp (code : Code .pure) : SimpM (Code .pure) := withIncRecDepth do
               withDiscrCtor discr ctorName ps do
                 return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
-        let alts ← addDefaultAlt alts
+        --let alts ← addDefaultAlt alts
         if let #[alt] := alts then
           match alt with
-          | .default k => return k
+          | .default k =>
+            markSimplified
+            return k
           | .alt _ params k =>
-            if !(← params.anyM (isUsed ·.fvarId)) then
-              params.forM (eraseParam ·)
+            -- We only do this for ctors with empty parameter sets as to avoid loosing information
+            -- about reuse opportunities.
+            if params.isEmpty then
               markSimplified
               return k
         if alts.all (·.getCode matches .unreach ..) then

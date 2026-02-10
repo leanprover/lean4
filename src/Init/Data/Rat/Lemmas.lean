@@ -377,6 +377,15 @@ protected theorem add_neg_cancel (a : Rat) : a + -a = 0 := by
 protected theorem add_right_cancel {a b : Rat} (c : Rat) (h : a + c = b + c) : a = b := by
   simpa only [Rat.add_assoc, Rat.add_zero, Rat.add_neg_cancel] using congrArg (· + -c) h
 
+protected theorem add_left_cancel (a : Rat) {b c : Rat} (h : a + b = a + c) : b = c := by
+  simp only [Rat.add_comm a] at h
+  exact Rat.add_right_cancel a h
+
+protected theorem neg_add {a b : Rat} : -(a + b) = -a + -b := by
+  apply Rat.add_left_cancel (a := a + b)
+  rw [Rat.add_neg_cancel, Rat.add_comm a, ← Rat.add_assoc, Rat.add_assoc b,
+    Rat.add_neg_cancel, Rat.add_zero, Rat.add_neg_cancel]
+
 theorem sub_def (a b : Rat) :
     a - b = normalize (a.num * b.den - b.num * a.den) (a.den * b.den)
       (Nat.mul_ne_zero a.den_nz b.den_nz) := by
@@ -397,6 +406,15 @@ theorem sub_def' (a b : Rat) : a - b = mkRat (a.num * b.den - b.num * a.den) (a.
 
 protected theorem sub_eq_add_neg (a b : Rat) : a - b = a + -b := by
   simp [add_def, sub_def, Int.neg_mul, Int.sub_eq_add_neg]
+
+protected theorem sub_self {a : Rat} : a - a = 0 := by
+  simp only [Rat.sub_eq_add_neg, Rat.add_neg_cancel]
+
+protected theorem add_sub_cancel {a b : Rat} : a + b - b = a := by
+  simp [Rat.sub_eq_add_neg, Rat.add_assoc, Rat.add_neg_cancel]
+
+protected theorem sub_add_cancel {a b : Rat} : a - b + b = a := by
+  simp [Rat.sub_eq_add_neg, Rat.add_assoc, Rat.neg_add_cancel]
 
 protected theorem neg_sub (a b : Rat) : -(a - b) = b - a := by
   apply Rat.add_right_cancel (a - b)
@@ -778,6 +796,18 @@ protected theorem ne_of_gt {a b : Rat} (ha : a < b) : b ≠ a :=
 protected theorem lt_of_le_of_ne {a b : Rat} (ha : a ≤ b) (hb : a ≠ b) : a < b :=
   Rat.not_le.mp fun h => hb (Rat.le_antisymm ha h)
 
+protected theorem lt_iff_le_not_le {a b : Rat} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  simpa [Rat.le_iff, Rat.lt_iff] using Int.le_of_lt
+
+protected theorem lt_iff_le_and_ne {a b : Rat} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simp [Rat.lt_iff, Rat.le_iff, Rat.eq_iff_mul_eq_mul, Int.lt_iff_le_and_ne]
+
+protected theorem le_iff_lt_or_eq {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [Rat.le_iff, Rat.lt_iff, Rat.eq_iff_mul_eq_mul, Int.le_iff_lt_or_eq]
+
+protected theorem le_iff_eq_or_lt {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [Rat.le_iff_lt_or_eq, or_comm]
+
 protected theorem add_le_add_left {a b c : Rat} : c + a ≤ c + b ↔ a ≤ b := by
   rw [Rat.le_iff_sub_nonneg, Rat.le_iff_sub_nonneg a, ← propext_iff]
   congr 1
@@ -788,6 +818,12 @@ protected theorem add_le_add_left {a b c : Rat} : c + a ≤ c + b ↔ a ≤ b :=
 
 protected theorem add_le_add_right {a b c : Rat} : a + c ≤ b + c ↔ a ≤ b := by
   rw [Rat.add_comm _ c, Rat.add_comm _ c, Rat.add_le_add_left]
+
+protected theorem add_lt_add_left {a b c : Rat} : c + a < c + b ↔ a < b := by
+  simp [Rat.lt_iff_le_not_le, Rat.add_le_add_left]
+
+protected theorem add_lt_add_right {a b c : Rat} : a + c < b + c ↔ a < b := by
+  simp [Rat.lt_iff_le_not_le, Rat.add_le_add_right]
 
 protected theorem lt_iff_sub_pos (a b : Rat) : a < b ↔ 0 < b - a := by
   simp only [← Rat.not_le]
@@ -829,18 +865,6 @@ protected theorem neg_lt_iff {a b : Rat} : -a < b ↔ -b < a := by
 
 protected theorem lt_neg_iff {a b : Rat} : a < -b ↔ b < -a := by
   rw [← Rat.neg_neg a, Rat.neg_lt_neg_iff, Rat.neg_neg a]
-
-protected theorem lt_iff_le_not_le {a b : Rat} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
-  simpa [Rat.le_iff, Rat.lt_iff] using Int.le_of_lt
-
-protected theorem lt_iff_le_and_ne {a b : Rat} : a < b ↔ a ≤ b ∧ a ≠ b := by
-  simp [Rat.lt_iff, Rat.le_iff, Rat.eq_iff_mul_eq_mul, Int.lt_iff_le_and_ne]
-
-protected theorem le_iff_lt_or_eq {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
-  simp [Rat.le_iff, Rat.lt_iff, Rat.eq_iff_mul_eq_mul, Int.le_iff_lt_or_eq]
-
-protected theorem le_iff_eq_or_lt {a b : Rat} : a ≤ b ↔ a < b ∨ a = b := by
-  simp [Rat.le_iff_lt_or_eq, or_comm]
 
 protected theorem mul_pos {a b : Rat} (ha : 0 < a) (hb : 0 < b) : 0 < a * b := by
   refine Rat.lt_of_le_of_ne (Rat.mul_nonneg (Rat.le_of_lt ha) (Rat.le_of_lt hb)) ?_
@@ -1171,6 +1195,50 @@ theorem le_floor_iff {x : Int} {a : Rat} : x ≤ a.floor ↔ (x : Rat) ≤ a := 
 theorem floor_lt_iff {a : Rat} {x : Int} : a.floor < x ↔ a < (x : Rat) := by
   rw [← Decidable.not_iff_not, Int.not_lt, le_floor_iff, Rat.not_lt]
 
+theorem floor_add_le_floor_add_intCast {x : Rat} {y : Int} :
+    x.floor + y ≤ (x + y).floor := by
+  simpa [Rat.le_floor_iff, Rat.add_le_add_right] using Rat.floor_le x
+
+protected theorem add_le_iff_le_sub {a b c : Rat} : a + b ≤ c ↔ a ≤ c - b := by
+  conv => rhs; rw [← Rat.add_le_add_right (c := b)]
+  simp [Rat.sub_add_cancel]
+
+protected theorem le_add_iff_sub_le {a b c : Rat} : a ≤ b + c ↔ a - c ≤ b := by
+  conv => rhs; rw [← Rat.add_le_add_right (c := c)]
+  simp [Rat.sub_add_cancel]
+
+protected theorem lt_sub_right_iff_add_lt {a b c : Rat} : a < c - b ↔ a + b < c := by
+  conv => lhs; rw [← Rat.add_lt_add_right (c := b)]
+  simp [Rat.sub_add_cancel]
+
+protected theorem sub_lt_right_iff_lt_add {a b c : Rat} : a - c < b ↔ a < b + c := by
+  conv => lhs; rw [← Rat.add_lt_add_right (c := c)]
+  simp [Rat.sub_add_cancel]
+
+theorem floor_add_intCast {x : Rat} {y : Int} :
+    (x + y).floor = x.floor + y := by
+  apply Std.le_antisymm
+  · have := floor_add_le_floor_add_intCast (x := x + y) (y := - y)
+    simpa [← Rat.sub_eq_add_neg, Rat.add_sub_cancel, Int.le_add_iff_sub_le]
+  · apply floor_add_le_floor_add_intCast
+
+theorem floor_add_one {x : Rat} :
+    (x + 1).floor = x.floor + 1 := by
+  simpa using floor_add_intCast
+
+theorem floor_sub_one {x : Rat} :
+    (x - 1).floor = x.floor - 1 := by
+  simpa [Rat.sub_eq_add_neg] using floor_add_intCast
+
+theorem lt_floor {x : Rat} :
+    x - 1 < x.floor := by
+  rw [← Rat.floor_lt_iff, Rat.floor_sub_one]
+  simp [Int.sub_lt_iff, Int.lt_add_one_iff]
+
+/-!
+# ceil
+-/
+
 theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   rw [Rat.ceil, Rat.floor]
   simp only [neg_den, neg_num]
@@ -1185,4 +1253,37 @@ theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
 @[simp]
 theorem ceil_intCast (a : Int) : (a : Rat).ceil = a := rfl
 
--- TODO: reproduce the `floor` inequalities above for `ceil`
+theorem ceil_le_iff {x : Rat} {y : Int} :
+    x.ceil ≤ y ↔ x ≤ y := by
+  simp [Rat.ceil_eq_neg_floor_neg, Int.neg_le_iff, Rat.le_floor_iff]
+
+theorem lt_ceil_iff {x : Rat} {y : Int} :
+    y < x.ceil ↔ y < x := by
+  simp [Rat.ceil_eq_neg_floor_neg, Int.lt_neg_iff, Rat.floor_lt_iff]
+
+theorem le_ceil {x : Rat} :
+    x ≤ x.ceil := by
+  simp only [Rat.ceil_eq_neg_floor_neg, Rat.intCast_neg, Rat.le_neg_iff, Rat.floor_le]
+
+theorem ceil_add_intCast_le_ceil_add {x : Rat} {y : Int} :
+    (x + y).ceil ≤ x.ceil + y := by
+  simpa [Rat.ceil_eq_neg_floor_neg, Int.neg_le_iff, Rat.neg_add, Int.neg_add] using
+    floor_add_le_floor_add_intCast
+
+theorem ceil_add_intCast {x : Rat} {y : Int} :
+    (x + y).ceil = x.ceil + y := by
+  simp [Rat.ceil_eq_neg_floor_neg, Rat.neg_add, ← Rat.intCast_neg, floor_add_intCast, Int.neg_add]
+
+theorem ceil_add_one {x : Rat} :
+    (x + 1).ceil = x.ceil + 1 := by
+  simp [Rat.ceil_eq_neg_floor_neg, Rat.neg_add, ← Rat.sub_eq_add_neg, floor_sub_one,
+    Int.sub_eq_add_neg, Int.neg_add]
+
+theorem ceil_sub_one {x : Rat} :
+    (x - 1).ceil = x.ceil - 1 := by
+  simp [Rat.ceil_eq_neg_floor_neg, Rat.sub_eq_add_neg, Rat.neg_add, floor_add_one,
+    Int.neg_add, Int.sub_eq_add_neg]
+
+theorem ceil_lt {x : Rat} :
+    x.ceil < x + 1 := by
+  simpa [Rat.ceil_eq_neg_floor_neg, Rat.neg_lt_iff, Rat.neg_add, Rat.sub_eq_add_neg] using lt_floor

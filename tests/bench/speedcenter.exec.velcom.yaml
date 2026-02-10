@@ -361,96 +361,6 @@
   build_config:
     cmd: ./compile.sh rbmap_library.lean
 - attributes:
-    description: reduceMatch
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean reduceMatch.lean
-- attributes:
-    description: simp_arith1
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean simp_arith1.lean
-- attributes:
-    description: simp_bubblesort_256
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean simp_bubblesort_256.lean
-- attributes:
-    description: simp_local
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean simp_local.lean
-- attributes:
-    description: simp_subexpr
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean simp_subexpr.lean
-- attributes:
-    description: simp_congr
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean --tstack=16384 simp_congr.lean
-- attributes:
-    description: mut_rec_wf
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean mut_rec_wf.lean
-- attributes:
-    description: big_match
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_match.lean
-- attributes:
-    description: big_match_partial
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_match_partial.lean
-- attributes:
-    description: big_match_nat
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_match_nat.lean
-- attributes:
-    description: big_match_nat_split
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_match_nat_split.lean
-- attributes:
-    description: big_beq
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_beq.lean
-- attributes:
-    description: big_beq_rec
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_beq_rec.lean
-- attributes:
-    description: big_deceq
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_deceq.lean
-- attributes:
-    description: big_deceq_rec
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_deceq_rec.lean
-- attributes:
     description: nat_repr
     tags: [other]
   run_config:
@@ -458,24 +368,6 @@
     cmd: ./nat_repr.lean.out 5000
   build_config:
     cmd: ./compile.sh nat_repr.lean
-- attributes:
-    description: big_struct
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_struct.lean
-- attributes:
-    description: big_struct_dep1
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_struct_dep1.lean
-- attributes:
-    description: big_struct_dep
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_struct_dep.lean
 - attributes:
     description: unionfind
     tags: [other]
@@ -485,83 +377,6 @@
   build_config:
     cmd: ./compile.sh unionfind.lean
 - attributes:
-    description: workspaceSymbols
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean workspaceSymbols.lean
-    max_runs: 2
-- attributes:
-    description: charactersIn
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean charactersIn.lean
-    max_runs: 2
-- attributes:
-    description: bv_decide_realworld
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_realworld.lean
-- attributes:
-    description: bv_decide_mul
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_mul.lean
-- attributes:
-    description: bv_decide_mod
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_mod.lean
-    max_runs: 2
-- attributes:
-    description: bv_decide_inequality.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_inequality.lean
-    discarded_runs: 1
-    max_runs: 2
-- attributes:
-    description: bv_decide_large_aig.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_large_aig.lean
-- attributes:
-    description: bv_decide_rewriter.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean bv_decide_rewriter.lean
-- attributes:
-    description: big_do
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_do.lean
-- attributes:
-    description: big_omega.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_omega.lean
-- attributes:
-    description: big_omega.lean MT
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false
-- attributes:
-    description: omega_stress.lean async
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean omega_stress.lean
-- attributes:
     description: channel.lean
     tags: [other]
   run_config:
@@ -570,13 +385,6 @@
     parse_output: true
   build_config:
     cmd: ./compile.sh channel.lean
-- attributes:
-    description: riscv-ast.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean riscv-ast.lean
-    max_runs: 2
 - attributes:
     description: iterators (compiled)
     tags: [other]
@@ -641,57 +449,9 @@
   build_config:
     cmd: ./compile.sh phashmap.lean
 - attributes:
-    description: grind_bitvec2.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ../lean/run/grind_bitvec2.lean
-- attributes:
-    description: grind_list2.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ../lean/run/grind_list2.lean
-- attributes:
-    description: grind_ring_5.lean
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ../lean/run/grind_ring_5.lean
-- attributes:
     description: leanchecker --fresh Init
     tags: [other]
   run_config:
     <<: *time
     cmd: leanchecker --fresh Init
     max_runs: 1
-- attributes:
-    description: cbv tactic (leroy compiler verification course)
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ./cbv/leroy.lean
-- attributes:
-    description: cbv tactic (Eratosthenes' sieve)
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ./cbv/divisors.lean
-- attributes:
-    description: cbv tactic (removing duplicates from the list)
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ./cbv/dedup.lean
-- attributes:
-    description: cbv tactic (evaluating Decidable.decide)
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ./cbv/decide.lean
-- attributes:
-    description: cbv tactic (evaluating List.mergeSort)
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: lean ./cbv/merge_sort.lean

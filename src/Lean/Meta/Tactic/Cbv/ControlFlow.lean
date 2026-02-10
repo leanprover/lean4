@@ -183,6 +183,9 @@ public def simpControlCbv : Simproc := fun e => do
     simpCond e
   else if declName == ``dite then
     simpDIteCbv e
+  else if declName == ``Decidable.rec then
+    -- We force the rewrite in the last argument, so that we can unfold the `Decidable` instance.
+    (simpInterlaced · #[false,false,true,true,true]) >> reduceRecMatcher <| e
   else
     tryMatcher e
 

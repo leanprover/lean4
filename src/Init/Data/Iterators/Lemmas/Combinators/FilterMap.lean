@@ -7,13 +7,17 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Combinators.Take
 public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Access
+import Init.Data.Iterators.Lemmas.Consumers.Access
 public import Init.Data.List.Control
 import Init.Data.Array.Lemmas
 import Init.Data.Bool
 import Init.Data.Iterators.Lemmas.Basic
 import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Lemmas.Combinators.Take
 import Init.Data.Iterators.Lemmas.Consumers.Collect
 import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
@@ -728,7 +732,7 @@ end Fold
 
 section Count
 
-@[simp]
+@[simp, grind =]
 theorem Iter.length_map {α β β' : Type w} [Iterator α Id β]
     [IteratorLoop α Id Id] [Finite α Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} {f : β → β'} :
@@ -1053,5 +1057,23 @@ theorem Iter.all_map {α β β' : Type w}
   · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
+
+@[simp, grind =]
+theorem Iter.atIdxSlow?_map [Iterators.Productive α Id]
+    {it : Iter (α := α) β} {f : β → γ} :
+    (it.map f).atIdxSlow? k = (it.atIdxSlow? k).map f := by
+  induction k, it using atIdxSlow?.induct_unfolding
+  all_goals
+    rw [atIdxSlow?_eq_match, step_map]
+    simp [*]
+
+@[simp, grind =]
+theorem Iter.toList_take_map [Iterators.Productive α Id]
+    {it : Iter (α := α) β} {f : β → γ} :
+    (it.map f |>.take k).toList = (it.take k).toList.map f := by
+  apply List.ext_getElem?
+  simp only [getElem?_toList_eq_atIdxSlow?, atIdxSlow?_take, atIdxSlow?_map, List.getElem?_map]
+  intro i
+  split <;> simp
 
 end Std

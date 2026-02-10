@@ -6,7 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Data.Iterators.Combinators.Take
 public import Std.Data.Iterators.Combinators.TakeWhile
+public import Init.Data.Iterators.Lemmas.Combinators.Take
 public import Std.Data.Iterators.Lemmas.Combinators.Monadic.TakeWhile
 public import Std.Data.Iterators.Lemmas.Consumers
 import Init.Data.List.TakeDrop
@@ -156,5 +158,18 @@ theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).toArray = it.toArray.takeWhile P := by
   rw [← toArray_toList, ← toArray_toList, List.takeWhile_toArray, toList_takeWhile_of_finite]
+
+@[simp, grind =]
+theorem Iter.toList_take_takeWhile {α β} [Iterator α Id β] {P} [Productive α Id]
+    {it : Iter (α := α) β} :
+    (it.takeWhile P |>.take k).toList = (it.take k).toList.takeWhile P := by
+  ext i b
+  have (k' : Nat) (hk : i < k) (hk' : k' ≤ i) : k' < k := Nat.lt_of_le_of_lt hk' hk
+  simp only [getElem?_toList_eq_atIdxSlow?, atIdxSlow?_take, atIdxSlow?_takeWhile,
+    List.getElem?_takeWhile, Option.ite_none_right_eq_some]
+  apply Iff.intro
+  · simp +contextual [this]
+  · intro h
+    simpa +contextual [*] using h.1
 
 end Std

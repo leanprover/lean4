@@ -2297,9 +2297,29 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /--
-`cbv` performs simplification that closely mimics call-by-value evaluation,
-using equations associated with definitions and the matchers.
-This tactic is experimental and its behavior is likely to change in upcoming releases of Lean.
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying pattern-matching equations.
+
+`cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
+two passes:
+1. Reduce `lhs`. If the result is definitionally equal to `rhs`, close the goal.
+2. Otherwise, reduce `rhs`. If the result is now definitionally equal to the
+   reduced `lhs`, close the goal.
+3. If neither check succeeds, generate a new goal `lhs' = rhs'`, where `lhs'`
+   and `rhs'` are the reduced forms of the original sides.
+
+`cbv` is therefore not a terminal tactic in general: it may leave a new
+(simpler) equality goal. For goals that are not equalities, `cbv` currently
+leaves the goal unchanged.
+
+Example (closes the goal completely after reduction):
+```lean
+example : "hello" ++ " " ++ "world" = "hello world" := by cbv
+```
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
 -/
 syntax (name := cbv) "cbv" : tactic
 

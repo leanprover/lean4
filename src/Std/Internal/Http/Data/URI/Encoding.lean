@@ -7,6 +7,11 @@ module
 
 prelude
 import Init.Grind
+import Init.While
+import Init.Data.SInt.Lemmas
+import Init.Data.UInt.Lemmas
+import Init.Data.UInt.Bitwise
+import Init.Data.Array.Lemmas
 public import Init.Data.String
 
 public section

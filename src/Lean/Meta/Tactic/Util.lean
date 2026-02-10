@@ -194,9 +194,9 @@ def forLocalDefs (f : Name → ConstantInfo → MetaM Unit) : MetaM Unit := do
     for effImport in env.header.importAllModules do
       let some modIdx := env.getModuleIdx? effImport.module | continue
       let some modData := env.header.moduleData[modIdx]? | continue
-      for i in [:modData.constants.size] do
+      for h : i in [:modData.constants.size] do
         let name := modData.constNames[i]!
-        let ci := modData.constants[i]!
+        let ci := modData.constants[i]
         if name.isInternalDetail && !isPrivateName name then continue
         if (← isInstanceReducible name) then continue
         match ci with

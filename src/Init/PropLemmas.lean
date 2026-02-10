@@ -443,6 +443,30 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 @[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+@[inline]
+instance exists_prop_decidable {p} (P : p → Prop)
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (Exists P) where
+  decide := if h : p then decide (P h) else false
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (Exists P) from
+      match hP h with
+      | isTrue h2 => ⟨h, h2⟩
+      | isFalse h2 => fun ⟨_, h2'⟩ => h2 h2'
+    | isFalse h => fun ⟨h', _⟩ => h h'
+
+@[inline]
+instance forall_prop_decidable {p} (P : p → Prop)
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) where
+  decide := if h : p then decide (P h) else true
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (∀ h, P h) from
+      match hP h with
+      | isTrue h2 => fun _ => h2
+      | isFalse h2 => fun al => absurd (al h) h2
+    | isFalse h => fun h2 => absurd h2 h
+
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
 @[simp, bool_to_prop] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :

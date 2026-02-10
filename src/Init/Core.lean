@@ -1154,29 +1154,11 @@ variable {p q : Prop}
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
-@[inline]
-instance exists_prop_decidable {p} (P : p → Prop)
-    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (Exists P) where
-  decide := if h : p then decide (P h) else false
-  reflects_decide :=
-    match hp with
-    | isTrue h => show (decide (P h)).Reflects (Exists P) from
-      match hP h with
-      | isTrue h2 => ⟨h, h2⟩
-      | isFalse h2 => fun ⟨_, h2'⟩ => h2 h2'
-    | isFalse h => fun ⟨h', _⟩ => h h'
-
-@[inline]
-instance forall_prop_decidable {p} (P : p → Prop)
-    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) where
-  decide := if h : p then decide (P h) else true
-  reflects_decide :=
-    match hp with
-    | isTrue h => show (decide (P h)).Reflects (∀ h, P h) from
-      match hP h with
-      | isTrue h2 => fun _ => h2
-      | isFalse h2 => fun al => absurd (al h) h2
-    | isFalse h => fun h2 => absurd h2 h
+@[macro_inline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
+  if hp : p then
+    if hq : q then isTrue (fun _ => hq)
+    else isFalse (fun h => absurd (h hp) hq)
+  else isTrue (fun h => absurd h hp)
 
 @[inline]
 instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where

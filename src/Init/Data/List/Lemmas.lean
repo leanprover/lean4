@@ -2712,6 +2712,15 @@ theorem foldr_flatMap {f : α → List β} {g : β → γ → γ} {l : List α} 
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
 
+theorem sum_eq_foldl [Zero α] [Add α]
+    [Std.Associative (α := α) (· + ·)] [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (· + ·) (0 : α)]
+    {xs : List α} :
+    xs.sum = xs.foldl (init := 0) (· + ·) := by
+  conv => lhs; rw [← List.reverse_reverse (as := xs)]
+  rw [List.sum_reverse, List.sum_eq_foldr, List.foldr_reverse]
+  simp only [Std.Commutative.comm]
+
 theorem foldl_eq_foldr_reverse {l : List α} {f : β → α → β} {b : β} :
     l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
 

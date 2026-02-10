@@ -4360,6 +4360,13 @@ theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : Array α) : xs.reverse.sum = xs.sum := by
   simp [← sum_toList, List.sum_reverse]
 
+theorem sum_eq_foldl [Zero α] [Add α]
+    [Std.Associative (α := α) (· + ·)] [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (· + ·) (0 : α)]
+    {xs : Array α} :
+    xs.sum = xs.foldl (init := 0) (· + ·) := by
+  simp [← sum_toList, List.sum_eq_foldl]
+
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}
     (H : ∀ acc a, (F acc a).toList = acc.toList ++ G a) :

@@ -21,30 +21,73 @@ open Std.Sat
 namespace Std.Tactic.BVDecide
 namespace LRAT
 
-open Std.Tactic.BVDecide.LRAT.Internal in
+open Std.Tactic.BVDecide.LRAT.Internal
 /--
 Check whether `lratProof` is a valid LRAT certificate for the unsatisfiability of `cnf`.
 -/
 def check (lratProof : Array IntAction) (cnf : CNF Nat) : Bool :=
   let internalFormula := CNF.convertLRAT cnf
-  let lratProof := lratProof.toList
-  let lratProof := lratProof.map (intActionToDefaultClauseAction _)
-  let lratProof :=
-    lratProof.filterMap
-      (fun actOpt =>
-        match actOpt with
-        | none => none
-        | some (LRAT.Action.addEmpty id rupHints) => some (LRAT.Action.addEmpty id rupHints)
-        | some (LRAT.Action.addRup id c rupHints) => some (LRAT.Action.addRup id c rupHints)
-        | some (LRAT.Action.del ids) => some (LRAT.Action.del ids)
-        | some (LRAT.Action.addRat id c pivot rupHints ratHints) =>
-          if pivot ∈ Clause.toList c then
-            some (LRAT.Action.addRat id c pivot rupHints ratHints)
-          else
-            none
-      )
-  let checkerResult := lratChecker internalFormula lratProof
+  let checkerResult := go internalFormula lratProof 0
   checkerResult = .success
+where
+  go  {n : Nat} (f : DefaultFormula n) (proof : Array IntAction) (idx : Nat) : Result :=
+    if h : idx < proof.size then
+      let step := intActionToDefaultClauseAction n proof[idx]
+      match step with
+      | none => go f proof (idx + 1)
+      | some (.addEmpty _ rupHints) =>
+        let (_, checkSuccess) := Formula.performRupAdd f Clause.empty rupHints
+        if checkSuccess then
+          .success
+        else
+          .rupFailure
+      | some (.addRup _ c rupHints) =>
+        let (f, checkSuccess) := Formula.performRupAdd f c rupHints
+        if checkSuccess then
+          go f proof (idx + 1)
+        else
+          .rupFailure
+      | some (.addRat _ c pivot rupHints ratHints) =>
+        if pivot ∈ Clause.toList c then
+          let (f, checkSuccess) := Formula.performRatAdd f c pivot rupHints ratHints
+          if checkSuccess then
+            go f proof (idx + 1)
+          else
+            .rupFailure
+        else
+          go f proof (idx + 1)
+      | some (.del ids) => go (Formula.delete f ids) proof (idx + 1)
+    else
+      .outOfProof
+
+theorem go_sound (f : DefaultFormula n) (proof : Array IntAction) (idx : Nat)
+    (h1 : Formula.ReadyForRupAdd f) (h2 : Formula.ReadyForRatAdd f) :
+    check.go f proof idx = .success → Unsatisfiable (PosFin n) f := by
+  fun_induction check.go
+  case case1 ih1 => apply ih1 <;> assumption
+  case case2 f _ _ _ _ hints _ f' h3 =>
+    intro _ p pf
+    have f'_def : f' = Formula.insert f Clause.empty := by grind
+    have f_liff_f' : Liff (PosFin n) f (Formula.insert f Clause.empty) := by grind
+    specialize f_liff_f' p
+    rw [f_liff_f', Formula.sat_iff_forall] at pf
+    have empty_in_f' : Clause.empty ∈ Formula.toList (Formula.insert f Clause.empty) := by grind
+    simp only [(· ⊨ ·)] at pf
+    grind [Clause.eval]
+  case case3 => simp
+  case case4 => grind [Unsatisfiable, Liff]
+  case case5 => simp
+  case case6 => grind [Equisat, Clause.limplies_iff_mem]
+  case case7 => simp
+  case case8 ih1 => apply ih1 <;> assumption
+  case case9 ih1 =>
+    intro h3
+    intro p pf
+    specialize ih1 (by grind) (by grind) h3 p
+    apply ih1
+    apply Formula.limplies_delete
+    assumption
+  case case10 => simp
 
 open Std.Tactic.BVDecide.LRAT.Internal in
 /--
@@ -53,33 +96,13 @@ If the `check` functions succeeds on `lratProof` and `cnf` then the `cnf` is uns
 theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
     check lratProof cnf → cnf.Unsat := by
   intro h1
-  unfold check at h1
-  simp only [decide_eq_true_eq] at h1
-  have h2 :=
-    lratCheckerSound
-      _
-      (by apply CNF.convertLRAT_readyForRupAdd)
-      (by apply CNF.convertLRAT_readyForRatAdd)
-      _
-      (by
-        intro action h
-        simp only [List.filterMap_map, List.mem_filterMap, Function.comp_apply] at h
-        rcases h with ⟨WellFormedActions, _, h2⟩
-        split at h2
-        . contradiction
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.some.injEq] at h2
-          simp [← h2, WellFormedAction]
-        . simp only [Option.ite_none_right_eq_some, Option.some.injEq] at h2
-          rcases h2 with ⟨hleft, hright⟩
-          simp [WellFormedAction, hleft, ← hright, Clause.limplies_iff_mem]
-      )
-      h1
   apply CNF.unsat_of_convertLRAT_unsat
-  assumption
+  unfold check at h1
+  simp at h1
+  apply go_sound (proof := lratProof) (idx := 0)
+  · apply CNF.convertLRAT_readyForRupAdd
+  · apply CNF.convertLRAT_readyForRatAdd
+  · assumption
 
 end LRAT
 end Std.Tactic.BVDecide

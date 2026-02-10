@@ -2494,7 +2494,7 @@ theorem foldr_eq_apply_foldl {xs : Vector α n} {f : α → α → α}
 
 theorem foldr_eq_foldl {xs : Vector α n} {f : α → α → α}
     [Std.Associative f] [Std.LawfulIdentity f init] :
-    xs.foldl f init = xs.foldr f init := by
+    xs.foldr f init = xs.foldl f init := by
   simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {xs : Vector α n} {a₁ a₂} :

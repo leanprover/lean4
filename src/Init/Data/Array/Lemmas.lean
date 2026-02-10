@@ -3498,7 +3498,7 @@ theorem foldr_eq_apply_foldl {xs : Array α} {f : α → α → α}
 
 theorem foldr_eq_foldl {xs : Array α} {f : α → α → α}
     [Std.Associative f] [Std.LawfulIdentity f init] :
-    xs.foldl f init = xs.foldr f init := by
+    xs.foldr f init = xs.foldl f init := by
   simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 @[simp] theorem foldr_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : start = as.size) :

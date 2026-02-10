@@ -1029,4 +1029,37 @@ def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Ite
 
 end Count
 
+section Sum
+
+/--
+Steps through the whole iterator, summing up its elements from left to right.
+
+If the iterator is not finite, this function might run forever. The variant
+`it.ensureTermination.sum` always terminates after finitely many steps.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+def IterM.sum [Monad m] [Add β] [Zero β] [Iterator α m β] [IteratorLoop α m m]
+    (it : IterM (α := α) m β) : m β :=
+  it.fold (init := 0) (· + ·)
+
+/--
+Steps through the whole iterator, summing up its elements from left to right.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+finite. If such a proof is not available, consider using `Iter.sum`.
+
+**Performance**:
+
+This function's runtime is linear in the number of steps taken by the iterator.
+-/
+@[inline]
+def IterM.Total.sum [Monad m] [Add β] [Zero β] [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    (it : IterM.Total (α := α) m β) : m β :=
+  it.it.sum
+
+end Sum
+
 end Std

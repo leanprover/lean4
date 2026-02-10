@@ -262,13 +262,14 @@ theorem Iter.atIdxSlow?_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] 
     (it₁.zip it₂).atIdxSlow? n = do return (← it₁.atIdxSlow? n, ← it₂.atIdxSlow? n) := by
   rw [zip_eq_intermediateZip, atIdxSlow?_intermediateZip]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toList_zip_of_finite {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Finite α₂ Id] :
     (it₁.zip it₂).toList = it₁.toList.zip it₂.toList := by
   simp [zip_eq_intermediateZip, Iter.toList_intermediateZip_of_finite]
 
+@[simp low]
 theorem Iter.toList_zip_of_finite_left {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Productive α₂ Id] :
@@ -289,6 +290,7 @@ theorem Iter.toList_zip_of_finite_left {α₁ α₂ β₁ β₂} [Iterator α₁
   · rintro ⟨h₁, h₂, h₃⟩
     simp [h₁, h₃]
 
+@[simp low]
 theorem Iter.toList_zip_of_finite_right {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Productive α₁ Id] [Finite α₂ Id] :
@@ -309,45 +311,49 @@ theorem Iter.toList_zip_of_finite_right {α₁ α₂ β₁ β₂} [Iterator α�
   · rintro ⟨⟨h₁, h₂⟩, h₃⟩
     simp [h₂, h₃]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toListRev_zip_of_finite {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Finite α₂ Id] :
     (it₁.zip it₂).toListRev = (it₁.toList.zip it₂.toList).reverse := by
   simp [toListRev_eq]
 
+@[simp low]
 theorem Iter.toListRev_zip_of_finite_left {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Productive α₂ Id] :
     (it₁.zip it₂).toListRev = (it₁.toList.zip (it₂.take it₁.toList.length).toList).reverse := by
   simp [toListRev_eq, toList_zip_of_finite_left]
 
+@[simp low]
 theorem Iter.toListRev_zip_of_finite_right {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Productive α₁ Id] [Finite α₂ Id] :
     (it₁.zip it₂).toListRev = ((it₁.take it₂.toList.length).toList.zip it₂.toList).reverse := by
   simp [toListRev_eq, toList_zip_of_finite_right]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toArray_zip_of_finite {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Finite α₂ Id] :
     (it₁.zip it₂).toArray = it₁.toArray.zip it₂.toArray := by
   simp [← toArray_toList]
 
+@[simp low]
 theorem Iter.toArray_zip_of_finite_left {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Finite α₁ Id] [Productive α₂ Id]:
     (it₁.zip it₂).toArray = it₁.toArray.zip (it₂.take it₁.toArray.size).toArray := by
   simp [← toArray_toList, toList_zip_of_finite_left]
 
+@[simp low]
 theorem Iter.toArray_zip_of_finite_right {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂}
     [Productive α₁ Id] [Finite α₂ Id] :
     (it₁.zip it₂).toArray = (it₁.take it₂.toArray.size).toArray.zip it₂.toArray := by
   simp [← toArray_toList, toList_zip_of_finite_right]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toList_take_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     [Productive α₁ Id] [Productive α₂ Id]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂} {n : Nat} :
@@ -358,14 +364,14 @@ theorem Iter.toList_take_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁]
   simp only [atIdxSlow?_take, atIdxSlow?_zip, Option.pure_def, Option.bind_eq_bind]
   split <;> rfl
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toListRev_take_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     [Productive α₁ Id] [Productive α₂ Id]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂} {n : Nat} :
     ((it₁.zip it₂).take n).toListRev = ((it₁.take n).toList.zip (it₂.take n).toList).reverse := by
   simp [toListRev_eq]
 
-@[simp]
+@[simp, grind =]
 theorem Iter.toArray_take_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     [Productive α₁ Id] [Productive α₂ Id]
     {it₁ : Iter (α := α₁) β₁} {it₂ : Iter (α := α₂) β₂} {n : Nat} :

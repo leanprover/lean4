@@ -524,7 +524,7 @@ def Iter.size_toArray_eq_size := @size_toArray_eq_length
 @[deprecated Iter.size_toArray_eq_length (since := "2026-01-28")]
 def Iter.size_toArray_eq_count := @size_toArray_eq_length
 
-@[simp]
+@[simp, grind =]
 theorem Iter.length_toList_eq_length {α β : Type w} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {it : Iter (α := α) β} :

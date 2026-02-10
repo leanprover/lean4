@@ -12,6 +12,6 @@ def boo (x : Nat) :=
 @[csimp] theorem foo_eq_boo2 : foo = boo :=
   funext foo_eq_boo1
 
-set_option trace.compiler.ir.init true
+set_option trace.Compiler.toImpure true
 def f (x : Nat) : Nat :=
   foo (foo x)

@@ -132,6 +132,12 @@ partial def infer (decls : Array (Decl .impure)) : CompilerM ParamMap := do
 where
   go : InferM Unit := do
     step
+    trace[Compiler.inferBorrow] m!"{(← get).paramMap.toArray.map (fun (k, v) =>
+      let k :=
+        match k with
+        | .decl n => s!"{n}"
+        | .jp n id => s!"{n} {id.name}"
+      s!"{k}, {v.map Param.borrow}")}"
     if (← get).modified then
       modify fun s => { s with modified := false }
       go
@@ -206,9 +212,9 @@ where
       let arg := args[i]
       let p := ps[i]!
       if let .fvar x := arg then
-        if (← isOwned x) then ownFVar x
+        if (← isOwned x) then ownFVar p.fvarId
 
-  
+
   /-- Mark `args[i]` as owned if it is one of the parameters that are currently in scope.
      We use this action to mark function parameters that are being "packed" inside constructors.
      This is a heuristic, and is not related with the effectiveness of the reset/reuse optimization.
@@ -271,7 +277,7 @@ where
     | .cases cs => cs.alts.forM (·.forCodeM collectCode)
     | .uset _ _ _ k _ | .sset _ _ _ _ _ k _ => collectCode k
     | .return .. | .unreach .. => return ()
-    
+
 
 public def inferBorrow : Pass where
   phase := .impure

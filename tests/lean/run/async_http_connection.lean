@@ -74,21 +74,10 @@ def hasContentLength (req : Request Body.Stream) (length : String) : Bool :=
 
 /-- Check if request uses chunked transfer encoding. -/
 def isChunkedRequest (req : Request Body.Stream) : Bool :=
-  let headers := req.head.headers
-  if let some res := headers.get? (.mk "transfer-encoding") then
-    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
-    if encodings.isEmpty then
-      false
-    else
-      let chunkedCount := encodings.filter (· == "chunked") |>.size
-      let lastIsChunked := encodings.back? == some "chunked"
-
-      if chunkedCount > 1 then
-        false
-      else if chunkedCount = 1 ∧ ¬lastIsChunked then
-        false
-      else
-        lastIsChunked
+  if let some te := req.head.headers.get? (.mk "transfer-encoding") then
+    match Header.TransferEncoding.parse te with
+    | some te => te.isChunked
+    | none => false
   else
     false
 
@@ -401,7 +390,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
   request :=
     Request.new
     |>.method .get
-    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 2000 'a')] true) none none)
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 2000 'a')] true) none)
     |>.header! "Host" "api.example.com"
     |>.header! "Connection" "close"
     |>.body #[]
@@ -418,7 +407,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
   request :=
     Request.new
     |>.method .get
-    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 200 'a')] true) none none)
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 200 'a')] true) none)
     |>.header! "Host" (String.ofList (List.replicate 8230 'a'))
     |>.header! "Connection" "close"
     |>.body #[]

@@ -436,9 +436,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       exact hinv
     · rw [← hres]
       simp only [eval_un, BVUnOp.eval_cpop, BitVec.cpop]
-      rw [denote_blastCpop]
-      sorry
-      sorry
       sorry
   next h =>
     subst h

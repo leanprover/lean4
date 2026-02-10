@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.FreeVars
+import Init.Omega
 
 public section
 

@@ -127,30 +127,30 @@ Sets the `data?` field of every `CompletionItem` in `completionList` using `para
 `completionItem/resolve` requests can be routed to the correct file worker even for
 `CompletionItem`s produced by the import completion.
 -/
-def addCompletionItemData (mod : Name) (pos : Lsp.Position) (completionList : CompletionList)
+def addCompletionItemData (uri : DocumentUri) (pos : Lsp.Position) (completionList : CompletionList)
     : CompletionList :=
-  let data := { mod, pos : Lean.Lsp.ResolvableCompletionItemData }
+  let data := { uri, pos : Lean.Lsp.ResolvableCompletionItemData }
   { completionList with items := completionList.items.map fun item =>
     { item with data? := some <| toJson data } }
 
-def find (mod : Name) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (availableImports : AvailableImports) : CompletionList :=
+def find (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header) (availableImports : AvailableImports) : CompletionList :=
   let availableImports := availableImports.toImportTrie
   let completionPos := text.lspPosToUtf8Pos pos
   if isImportNameCompletionRequest headerStx completionPos then
     let allAvailableImportNameCompletions := availableImports.toArray.map ({ label := toString · })
-    addCompletionItemData mod pos { isIncomplete := false, items := allAvailableImportNameCompletions }
+    addCompletionItemData uri pos { isIncomplete := false, items := allAvailableImportNameCompletions }
   else if isImportCmdCompletionRequest headerStx completionPos then
     let allAvailableFullImportCompletions := availableImports.toArray.map ({ label := s!"import {·}" })
-    addCompletionItemData mod pos { isIncomplete := false, items := allAvailableFullImportCompletions }
+    addCompletionItemData uri pos { isIncomplete := false, items := allAvailableFullImportCompletions }
   else
     let completionNames : Array Name := computePartialImportCompletions headerStx completionPos availableImports
     let completions : Array CompletionItem := completionNames.map ({ label := toString · })
-    addCompletionItemData mod pos { isIncomplete := false, items := completions }
+    addCompletionItemData uri pos { isIncomplete := false, items := completions }
 
-def computeCompletions (mod : Name) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header)
+def computeCompletions (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap) (headerStx : TSyntax ``Parser.Module.header)
     : IO CompletionList := do
   let availableImports ← collectAvailableImports
-  let completionList := find mod pos text headerStx availableImports
-  return addCompletionItemData mod pos completionList
+  let completionList := find uri pos text headerStx availableImports
+  return addCompletionItemData uri pos completionList
 
 end ImportCompletion

@@ -8,9 +8,9 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
-meta import Lean.Data.Json
 public import Lean.Expr
 public import Init.Data.String.Search
+public import Init.Data.Array.GetLit
 
 public section
 
@@ -122,7 +122,7 @@ instance : FromJson CompletionIdentifier where
     | _ => .error "Expected string in `FromJson` instance of `CompletionIdentifier`."
 
 structure ResolvableCompletionItemData where
-  mod   : Name
+  uri   : DocumentUri
   pos   : Position
   /-- Position of the completion info that this completion item was created from. -/
   cPos? : Option Nat := none
@@ -132,7 +132,7 @@ structure ResolvableCompletionItemData where
 instance : ToJson ResolvableCompletionItemData where
   toJson d := Id.run do
     let mut arr : Array Json := #[
-      toJson d.mod,
+      toJson d.uri,
       d.pos.line,
       d.pos.character,
     ]
@@ -147,7 +147,7 @@ instance : FromJson ResolvableCompletionItemData where
     | .arr elems => do
       if elems.size < 3 then
         .error "Expected array of size 3 in `FromJson` instance of `ResolvableCompletionItemData"
-      let mod : Name ← fromJson? elems[0]!
+      let uri : DocumentUri ← fromJson? elems[0]!
       let line : Nat ← fromJson? elems[1]!
       let character : Nat ← fromJson? elems[2]!
       let mut cPos? : Option Nat := none
@@ -162,7 +162,7 @@ instance : FromJson ResolvableCompletionItemData where
         id? := some id
       let pos := { line, character }
       return {
-        mod
+        uri
         pos
         cPos?
         id?

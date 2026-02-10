@@ -4,7 +4,7 @@
  [{"label": "x",
    "kind": 5,
    "data":
-   ["«external:file:///completionPrivateTypes.lean»",
+   ["file:///completionPrivateTypes.lean",
     3,
     26,
     1,
@@ -15,7 +15,7 @@ Resolution of x:
  "kind": 5,
  "detail": "Foo → Nat",
  "data":
- ["«external:file:///completionPrivateTypes.lean»",
+ ["file:///completionPrivateTypes.lean",
   3,
   26,
   1,

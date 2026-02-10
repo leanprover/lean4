@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Normalize.BitVec
-// Imports: public import Init.Data.BitVec.Bitblast public import Init.Data.AC public import Std.Tactic.BVDecide.Normalize.Bool public import Std.Tactic.BVDecide.Normalize.Canonicalize public import Init.Data.SInt.Basic
+// Imports: public import Init.Data.BitVec.Bitblast public import Init.Data.AC public import Std.Tactic.BVDecide.Normalize.Bool public import Std.Tactic.BVDecide.Normalize.Canonicalize public import Init.Data.SInt.Basic import Init.ByCases import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,8 @@ lean_object* initialize_Init_Data_AC(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Normalize_Bool(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(uint8_t builtin);
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Normalize_BitVec(uint8_t builtin) {
 lean_object * res;
@@ -36,6 +38,12 @@ res = initialize_Std_Tactic_BVDecide_Normalize_Canonicalize(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_SInt_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

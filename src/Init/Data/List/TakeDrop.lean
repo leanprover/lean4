@@ -7,7 +7,13 @@ module
 
 prelude
 import all Init.Data.List.Basic
-public import Init.Data.List.Lemmas
+public import Init.BinderPredicates
+public import Init.Ext
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Div.Basic
+import Init.Data.Option.Lemmas
 
 public section
 

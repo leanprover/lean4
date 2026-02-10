@@ -9,9 +9,9 @@ prelude
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
 import Lake.Util.String
-import Lake.Util.IO
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
+import Init.Data.Option.Coe
 
 /-! # Lake Traces
 
@@ -109,7 +109,8 @@ public def nil : Hash :=
 
 public instance : NilTrace Hash := ⟨nil⟩
 
-@[inline] public def ofNat (n : Nat) :=
+/-- Constructs a hash with with the value `n`. This is not equivalent to the hash of `n`. -/
+@[inline] public def ofNat (n : Nat) : Hash :=
   mk n.toUInt64
 
 /-- Parse a hash from a JSON number. -/
@@ -142,12 +143,14 @@ public def ofHex? (s : String) : Option Hash :=
 public def hex (self : Hash) : String :=
   lpad (String.ofList <| Nat.toDigits 16 self.val.toNat) '0' 16
 
+/-- Parse a hash from a string of decimal digits. -/
 public def ofDecimal? (s : String) : Option Hash :=
-  (inline s.toNat?).map ofNat
+  s.toNat?.map ofNat
 
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s
 
+/-- Laod a hash from a `.hash` file. -/
 public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
   ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
@@ -161,18 +164,25 @@ public instance : MixTrace Hash := ⟨mix⟩
 
 public instance : ToString Hash := ⟨Hash.toString⟩
 
-@[inline] public def ofString (str : String) :=
-  mix nil <| mk <| hash str -- same as Name.mkSimple
+/-- Hash of a value using its `Hashable` instance. -/
+@[inline] public def ofHashable [Hashable α] (a : α) : Hash :=
+  mix nil <| mk <| hash a -- same as Name.mkSimple
+
+/-- Hash of a string (without line-ending normalization). -/
+@[inline] public def ofString (str : String) : Hash :=
+  ofHashable str
 
 /-- Hash of a line-ending normalized string. -/
-@[inline] public def ofText (str : String) :=
+@[inline] public def ofText (str : String) : Hash :=
   ofString str.crlfToLf
 
+/-- Hash of a sequence of bytes. -/
 @[inline] public def ofByteArray (bytes : ByteArray) : Hash :=
-  ⟨hash bytes⟩
+  ofHashable bytes
 
-@[inline] public def ofBool (b : Bool) :=
-  mk (hash b)
+@[inline, deprecated ofHashable (since := "2026-02-06")]
+public def ofBool (b : Bool) : Hash  :=
+  ofHashable b
 
 @[inline] public protected def toJson (self : Hash) : Json :=
   toJson self.hex
@@ -208,8 +218,7 @@ public instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.co
 @[inline] public def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
   liftM <| ComputeHash.computeHash a
 
-public instance : ComputeHash Bool Id := ⟨Hash.ofBool⟩
-public instance : ComputeHash String Id := ⟨Hash.ofString⟩
+public instance [Hashable α] : ComputeHash α Id := ⟨Hash.ofHashable⟩
 
 /--
 Compute the hash of a binary file.

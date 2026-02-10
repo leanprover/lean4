@@ -6,6 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.Grind
+import Init.Data.Int.OfNat
 public import Std.Data.HashMap
 
 public section
@@ -133,7 +135,7 @@ Inserts a key with an array of values.
 @[inline]
 def insertMany (map : MultiMap α β) (key : α) (values : Array β) (h : values.size > 0) : MultiMap α β :=
   let data := map.data.alter key fun
-    | some existingValues => some ⟨existingValues.val ++ values, by simp; omega⟩
+    | some existingValues => some ⟨existingValues.val ++ values, by simp; grind⟩
     | none => some ⟨values, h⟩
   { data }
 

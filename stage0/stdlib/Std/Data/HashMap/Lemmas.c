@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.Lemmas
-// Imports: public import Std.Data.DHashMap.Lemmas public import Std.Data.HashMap.AdditionalOperations import all Std.Data.DHashMap.Basic
+// Imports: public import Std.Data.DHashMap.Lemmas public import Std.Data.HashMap.AdditionalOperations import all Std.Data.DHashMap.Basic import Init.Data.List.Pairwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,8 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -67,6 +67,7 @@ return x_5;
 lean_object* initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -79,6 +80,9 @@ res = initialize_Std_Data_HashMap_AdditionalOperations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Pairwise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

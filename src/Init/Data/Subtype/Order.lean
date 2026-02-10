@@ -6,9 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Lemmas
-import Init.Data.Order.Factories
-import Init.Data.Subtype.Basic
+public import Init.Data.Order.Classes
+import Init.Data.Order.Lemmas
+import Init.Ext
 
 namespace Subtype
 open Std

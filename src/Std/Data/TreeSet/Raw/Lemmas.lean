@@ -11,6 +11,7 @@ import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.Basic
 public import Init.Data.List.BasicAux
 public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.Classes
 
 @[expose] public section
 

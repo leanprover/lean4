@@ -6,14 +6,29 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import all Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.List.Control
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Monadic.Basic
+import Init.Omega
 
 public section
 
 namespace Std
 open Std.Iterators
+
+theorem IterM.DefaultConsumers.forIn_eq {α β : Type w} {m : Type w → Type w'}
+    {n : Type x → Type x'} [Monad n] [Iterator α m β]
+    {lift : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ}
+    {plausible_forInStep : β → γ → ForInStep γ → Prop} {it : IterM (α := α) m β} {init : γ}
+    {f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))} :
+    letI : IteratorLoop α m n := .defaultImplementation
+    IteratorLoop.forIn lift γ plausible_forInStep it init f =
+      IterM.DefaultConsumers.forIn' lift γ plausible_forInStep it init _ (fun _ => id) f := rfl
 
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β] {n : Type x → Type x'} [Monad n] [LawfulMonad n]
@@ -94,10 +109,11 @@ theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m
     letI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
     ForIn'.forIn' (α := β) (m := n) it init f = IterM.DefaultConsumers.forIn' (n := n)
         (fun _ _ f x => monadLift x >>= f) γ (fun _ _ _ => True) it init _ (fun _ => id) (return ⟨← f · · ·, trivial⟩) := by
-  simp only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
+  simp +instances only [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn']
   have : f = (Subtype.val <$> (⟨·, trivial⟩) <$> f · · ·) := by simp
   rw [this, hl.lawful (fun _ _ f x => monadLift x >>= f) (wf := IteratorLoop.wellFounded_of_finite)]
-  simp [IteratorLoop.defaultImplementation]
+  simp +instances [IteratorLoop.defaultImplementation]
+  try rfl
 
 theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
@@ -122,7 +138,7 @@ theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m 
   subst_eqs
   simp only [← funext_iff] at h
   rw [← h]
-  rfl
+  try rfl
 
 @[congr] theorem IterM.forIn_congr {α β : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Monad m]
@@ -467,27 +483,33 @@ theorem IterM.drain_eq_map_toArray {α β : Type w} {m : Type w → Type w'} [It
     it.drain = (fun _ => .unit) <$> it.toList := by
   simp [IterM.drain_eq_map_toList]
 
-theorem IterM.count_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+theorem IterM.length_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    it.count = it.fold (init := .up 0) (fun acc _ => .up <| acc.down + 1) :=
+    it.length = it.fold (init := .up 0) (fun acc _ => .up <| acc.down + 1) :=
   (rfl)
 
-theorem IterM.count_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+@[deprecated IterM.length_eq_fold (since := "2026-01-28")]
+def IterM.count_eq_fold := @IterM.length_eq_fold
+
+theorem IterM.length_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    it.count = ForIn.forIn it (.up 0) (fun _ acc => return .yield (.up (acc.down + 1))) :=
+    it.length = ForIn.forIn it (.up 0) (fun _ acc => return .yield (.up (acc.down + 1))) :=
   (rfl)
 
-theorem IterM.count_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
+@[deprecated IterM.length_eq_forIn (since := "2026-01-28")]
+def IterM.count_eq_forIn := @IterM.length_eq_forIn
+
+theorem IterM.length_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    it.count = (do
+    it.length = (do
       match (← it.step).inflate.val with
-      | .yield it' _ => return .up ((← it'.count).down + 1)
-      | .skip it' => return .up (← it'.count).down
+      | .yield it' _ => return .up ((← it'.length).down + 1)
+      | .skip it' => return .up (← it'.length).down
       | .done => return .up 0) := by
-  simp only [count_eq_fold]
+  simp only [length_eq_fold]
   have (acc : Nat) (it' : IterM (α := α) m β) :
       it'.fold (init := ULift.up acc) (fun acc _ => .up (acc.down + 1)) =
         (ULift.up <| ·.down + acc) <$>
@@ -503,33 +525,45 @@ theorem IterM.count_eq_match_step {α β : Type w} {m : Type w → Type w'} [Ite
   · simp
   · simp
 
+@[deprecated IterM.length_eq_match_step (since := "2026-01-28")]
+def IterM.count_eq_match_step := @IterM.length_eq_match_step
+
 @[simp]
-theorem IterM.up_size_toArray_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+theorem IterM.up_size_toArray_eq_length {α β : Type w} [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    (.up <| ·.size) <$> it.toArray = it.count := by
-  rw [toArray_eq_fold, count_eq_fold, ← fold_hom]
+    (.up <| ·.size) <$> it.toArray = it.length := by
+  rw [toArray_eq_fold, length_eq_fold, ← fold_hom]
   · simp only [List.size_toArray, List.length_nil]; rfl
   · simp
 
+@[deprecated IterM.up_size_toArray_eq_length (since := "2026-01-28")]
+def IterM.up_size_toArray_eq_count := @IterM.up_size_toArray_eq_length
+
 @[simp]
-theorem IterM.up_length_toList_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+theorem IterM.up_length_toList_eq_length {α β : Type w} [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    (.up <| ·.length) <$> it.toList = it.count := by
-  rw [toList_eq_fold, count_eq_fold, ← fold_hom]
+    (.up <| ·.length) <$> it.toList = it.length := by
+  rw [toList_eq_fold, length_eq_fold, ← fold_hom]
   · simp only [List.length_nil]; rfl
   · simp
 
+@[deprecated IterM.up_length_toList_eq_length (since := "2026-01-28")]
+def IterM.up_length_toList_eq_count := @IterM.up_length_toList_eq_length
+
 @[simp]
-theorem IterM.up_length_toListRev_eq_count {α β : Type w} [Iterator α m β] [Finite α m]
+theorem IterM.up_length_toListRev_eq_length {α β : Type w} [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} :
-    (.up <| ·.length) <$> it.toListRev = it.count := by
-  simp only [toListRev_eq, Functor.map_map, List.length_reverse, up_length_toList_eq_count]
+    (.up <| ·.length) <$> it.toListRev = it.length := by
+  simp only [toListRev_eq, Functor.map_map, List.length_reverse, up_length_toList_eq_length]
+
+@[deprecated IterM.up_length_toListRev_eq_length (since := "2026-01-28")]
+def IterM.up_length_toListRev_eq_count := @IterM.up_length_toListRev_eq_length
 
 theorem IterM.anyM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] [Monad m] [LawfulMonad m] [IteratorLoop α m m] [LawfulIteratorLoop α m m]
@@ -731,7 +765,7 @@ theorem IterM.findSomeM?_eq_match_step {α β γ : Type w} {m : Type w → Type 
   · simp
 
 theorem IterM.findSome?_eq_findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α m β] [IteratorLoop α m m] [Finite α m]
+    [Iterator α m β] [IteratorLoop α m m]
     {it : IterM (α := α) m β} {f : β → Option γ} :
     it.findSome? f = it.findSomeM? (pure <| f ·) :=
   (rfl)
@@ -831,5 +865,45 @@ theorem IterM.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
     · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
+
+theorem IterM.first?_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Productive α m]
+    [LawfulIteratorLoop α m m] {it : IterM (α := α) m β} :
+    it.first? = (do
+      match (← it.step).inflate.val with
+      | .yield _ out => return (some out)
+      | .skip it' => it'.first?
+      | .done => return none) := by
+  simp only [first?]
+  have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
+    (P := fun b g s => s = ForInStep.done (some b)) (by simp)
+  simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
+  rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
+  simp only [flip, pure_bind]
+  congr
+  ext s
+  split <;> try (simp [*]; done)
+  simp only [DefaultConsumers.forIn_eq, *]
+  exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
+
+theorem IterM.isEmpty_eq_match_step {α β : Type w} {m : Type w → Type w'} [Monad m]
+    [Iterator α m β] [IteratorLoop α m m] [LawfulMonad m] [Productive α m]
+    [LawfulIteratorLoop α m m] {it : IterM (α := α) m β} :
+    it.isEmpty = (do
+      match (← it.step).inflate.val with
+      | .yield _ _ => return .up false
+      | .skip it' => it'.isEmpty
+      | .done => return .up true) := by
+  simp only [isEmpty]
+  have := IteratorLoop.wellFounded_of_productive (α := α) (β := β) (m := m)
+    (P := fun _ _ s => s = ForInStep.done (ULift.up false)) (by simp)
+  simp only [LawfulIteratorLoop.lawful _ _ _ _ _ this]
+  rw [IterM.DefaultConsumers.forIn_eq, IterM.DefaultConsumers.forIn'_eq_match_step _ this]
+  simp only [flip, pure_bind]
+  congr
+  ext s
+  split <;> try (simp [*]; done)
+  simp only [DefaultConsumers.forIn_eq, *]
+  exact IterM.DefaultConsumers.forIn'_eq_forIn' _ this (by simp)
 
 end Std

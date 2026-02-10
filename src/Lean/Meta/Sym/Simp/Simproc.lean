@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Result
 namespace Lean.Meta.Sym.Simp
 
@@ -18,5 +17,14 @@ public abbrev Simproc.andThen (f g : Simproc) : Simproc := fun e₁ => do
 
 public instance : AndThen Simproc where
   andThen f g := Simproc.andThen f (g ())
+
+public abbrev Simproc.orElse (f g : Simproc) : Simproc := fun e₁ => do
+  let r ← f e₁
+  match r with
+  | .step _ _ _ | .rfl true  => return r
+  | .rfl false => g e₁
+
+public instance : OrElse Simproc where
+  orElse f g := Simproc.orElse f (g ())
 
 end Lean.Meta.Sym.Simp

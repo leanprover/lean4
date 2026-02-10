@@ -265,31 +265,6 @@ section FileWorker
 end FileWorker
 
 section ServerM
-  structure FileWorkerMap where
-    fileWorkers : Std.TreeMap DocumentUri FileWorker := {}
-    uriByMod    : Std.TreeMap Name DocumentUri Name.quickCmp := {}
-
-  def FileWorkerMap.getUri? (m : FileWorkerMap) (id : FileIdent) : Option DocumentUri :=
-    match id with
-    | .uri uri => uri
-    | .mod mod => m.uriByMod.get? mod
-
-  def FileWorkerMap.insert (m : FileWorkerMap) (uri : DocumentUri) (fw : FileWorker) :
-      FileWorkerMap where
-    fileWorkers := m.fileWorkers.insert uri fw
-    uriByMod    := m.uriByMod.insert fw.doc.mod uri
-
-  def FileWorkerMap.erase (m : FileWorkerMap) (uri : DocumentUri) : FileWorkerMap := Id.run do
-    let some fw := m.fileWorkers.get? uri
-      | return m
-    return {
-      fileWorkers := m.fileWorkers.erase uri
-      uriByMod := m.uriByMod.erase fw.doc.mod
-    }
-
-  def FileWorkerMap.get? (m : FileWorkerMap) (uri : DocumentUri) : Option FileWorker := do
-    m.fileWorkers.get? uri
-
   abbrev ImportMap := Std.TreeMap DocumentUri (Std.TreeSet DocumentUri)
 
   /-- Global import data for all open files managed by this watchdog. -/
@@ -414,7 +389,7 @@ section ServerM
     logData           : LogData
     /-- Command line arguments. -/
     args              : List String
-    fileWorkersRef    : IO.Ref FileWorkerMap
+    fileWorkersRef    : IO.Ref (Std.TreeMap DocumentUri FileWorker)
     /-- We store these to pass them to workers. -/
     initParams        : InitializeParams
     workerPath        : System.FilePath
@@ -464,15 +439,10 @@ section ServerM
       let rd ← rd.modifyReferencesM (m := IO) f
       set rd
 
-  def getFileWorkerUri? (id : FileIdent) : ServerM (Option DocumentUri) :=
-    return (← (← read).fileWorkersRef.get).getUri? id
-
   def getFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).get? uri
 
-  def fileWorkerExists (id : FileIdent) : ServerM Bool := do
-    let some uri ← getFileWorkerUri? id
-      | return false
+  def fileWorkerExists (uri : DocumentUri) : ServerM Bool := do
     return (← getFileWorker? uri).isSome
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
@@ -528,15 +498,10 @@ section ServerM
     let r? ← eraseGetPendingRequest uri id
     return r?.isSome
 
-  def handleILeanHeaderInfo (fw : FileWorker) (params : LeanILeanHeaderInfoParams) : ServerM Unit := do
-    let module := fw.doc.mod
-    let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerImports module uri params.version params.directImports)
-
   def handleILeanHeaderSetupInfo (fw : FileWorker) (params : LeanILeanHeaderSetupInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
     let uri := fw.doc.uri
-    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.isSetupFailure)
+    modifyReferencesIO (·.updateWorkerSetupInfo module uri params.version params.directImports params.isSetupFailure)
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let module := fw.doc.mod
@@ -854,9 +819,6 @@ section ServerM
               let globalID ← (← read).serverRequestData.modifyGet
                 (·.trackOutboundRequest fw.doc.uri id)
               writeMessage (Message.request globalID method params?)
-        | .notification "$/lean/ileanHeaderInfo" =>
-          if let .ok params := parseNotificationParams? LeanILeanHeaderInfoParams msg then
-            handleILeanHeaderInfo fw params
         | .notification "$/lean/ileanHeaderSetupInfo" =>
           if let .ok params := parseNotificationParams? LeanILeanHeaderSetupInfoParams msg then
             handleILeanHeaderSetupInfo fw params
@@ -949,11 +911,9 @@ section ServerM
       pure ()
 
   def tryWriteMessage
-      (id : FileIdent)
+      (uri : DocumentUri)
       (msg : JsonRpc.Message)
       : ServerM Unit := do
-    let some uri ← getFileWorkerUri? id
-      | return
     let some fw ← getFileWorker? uri
       | return
     if let some req := JsonRpc.Request.ofMessage? msg then
@@ -986,7 +946,7 @@ section ServerM
       staleDependency := staleDependency
       : LeanStaleDependencyParams
     }
-    tryWriteMessage (.uri uri) notification
+    tryWriteMessage uri notification
 end ServerM
 
 section RequestHandling
@@ -1294,7 +1254,7 @@ section NotificationHandling
     }
     updateFileWorkers { fw with doc := newDoc }
     let notification := Notification.mk "textDocument/didChange" p
-    tryWriteMessage (.uri doc.uri) notification
+    tryWriteMessage doc.uri notification
 
   /--
   When a file is saved, notifies all file workers for files that depend on this file that this
@@ -1307,7 +1267,7 @@ section NotificationHandling
     let importData  ← s.importData.get
     let dependents := importData.importedBy.getD p.textDocument.uri ∅
 
-    for ⟨uri, _⟩ in fws.fileWorkers do
+    for ⟨uri, _⟩ in fws do
       if ! dependents.contains uri then
         continue
       notifyAboutStaleDependency uri p.textDocument.uri
@@ -1349,7 +1309,7 @@ section NotificationHandling
     let ctx ← read
     let some uri ← ctx.requestData.getUri? p.id
       | return
-    tryWriteMessage (.uri uri) (Notification.mk "$/cancelRequest" p)
+    tryWriteMessage uri (Notification.mk "$/cancelRequest" p)
 
   def forwardNotification {α : Type} [ToJson α] [FileSource α] (method : String) (params : α)
       : ServerM Unit :=
@@ -1387,7 +1347,7 @@ section MessageHandling
   def handleReferenceRequest α β [FromJson α] [ToJson β] (id : RequestID) (params : Json)
       (handler : α → ReaderT ReferenceRequestContext IO β) : ServerM Unit := do
     let ctx ← read
-    let fileWorkerMods := (← ctx.fileWorkersRef.get).fileWorkers.map fun _ fw => fw.doc.mod
+    let fileWorkerMods := (← ctx.fileWorkersRef.get).map fun _ fw => fw.doc.mod
     let references ← getReferences
     let _ ← ServerTask.IO.asTask <| ReaderT.run (ρ := ServerContext) (r := ctx) do
       try
@@ -1498,7 +1458,7 @@ section MessageHandling
   def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
     let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
       | return
-    tryWriteMessage (.uri translation.sourceUri) (Response.mk translation.localID result)
+    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
 
   def handleResponseError
       (id      : RequestID)
@@ -1508,15 +1468,15 @@ section MessageHandling
       : ServerM Unit := do
     let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
       | return
-    tryWriteMessage (.uri translation.sourceUri) (ResponseError.mk translation.localID code message data?)
+    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
 end MessageHandling
 
 section MainLoop
   def shutdown : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
-    for ⟨uri, _⟩ in fileWorkers.fileWorkers do
+    for ⟨uri, _⟩ in fileWorkers do
       try terminateFileWorker uri catch _ => pure ()
-    for ⟨_, fw⟩ in fileWorkers.fileWorkers do
+    for ⟨_, fw⟩ in fileWorkers do
       -- TODO: Wait for process group to finish instead
       try let _ ← fw.killProcAndWait catch _ => pure ()
 
@@ -1540,7 +1500,7 @@ section MainLoop
     let st ← read
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
-    for (_, fw) in workers.fileWorkers do
+    for (_, fw) in workers do
       let some commTask := fw.commTask?
         | continue
       if (← getWorkerState fw) matches WorkerState.crashed then
@@ -1765,7 +1725,7 @@ def initAndRunWatchdog (args : List String) (i o : FS.Stream) : IO Unit := do
     pendingWaitForILeanRequests := #[]
   }
   startLoadingReferences referenceData
-  let fileWorkersRef ← IO.mkRef ({} : FileWorkerMap)
+  let fileWorkersRef ← IO.mkRef ({} : Std.TreeMap DocumentUri FileWorker)
   let serverRequestData ← IO.mkRef {
     pendingServerRequests := Std.TreeMap.empty
     freshServerRequestID  := 0

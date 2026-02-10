@@ -7,8 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.BEq
-public import Init.Data.List.Nat.BEq
+public import Init.Data.Array.Basic
+public import Init.Data.Nat.Lemmas
+import Init.ByCases
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
+import Init.Data.List.Nat.BEq
+import Init.RCases
 
 public section
 

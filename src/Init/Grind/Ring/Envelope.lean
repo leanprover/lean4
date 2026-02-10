@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Grind.Ordered.Ring
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Omega
+import Init.RCases
 
 @[expose] public section
 
@@ -244,6 +245,7 @@ theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
     · have : i = 0 := by omega
       simp [this]
 
+@[instance_reducible]
 def ofSemiring : Ring (Q α) := {
   nsmul := ⟨nsmul⟩
   zsmul := ⟨zsmul⟩
@@ -392,7 +394,7 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfSemiring.Q α) 
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [Semiring.add_comm]; exact le_refl (a₁ + a₂)
+    simp [Semiring.add_comm]
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b
@@ -504,6 +506,7 @@ theorem mul_comm (a b : OfSemiring.Q α) : OfSemiring.mul a b = OfSemiring.mul b
   obtain ⟨⟨b₁, b₂⟩⟩ := b
   apply Quot.sound; refine ⟨0, ?_⟩; simp; ac_rfl
 
+@[instance_reducible]
 def ofCommSemiring : CommRing (OfSemiring.Q α) :=
   { OfSemiring.ofSemiring with
     mul_comm := mul_comm }

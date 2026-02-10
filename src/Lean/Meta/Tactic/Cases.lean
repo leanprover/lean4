@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Acyclic
 public import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Constructions.SparseCasesOn
 import Lean.Meta.Constructions.CtorIdx
+import Init.Omega
 
 public section
 

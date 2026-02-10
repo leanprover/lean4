@@ -1,4 +1,4 @@
-Failure @55 (⟨3, 0⟩): '{'; expected '![', '$$', '$', '[' or '[^'
+Failure @55 (⟨3, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
 Final stack:
   (Lean.Doc.Syntax.para
    "para{"

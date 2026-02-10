@@ -11,6 +11,9 @@ public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+public import Init.WF
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 

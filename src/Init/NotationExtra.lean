@@ -9,8 +9,8 @@ module
 
 prelude
 public import Init.Conv
-public import Init.Meta
-public import Init.While
+public import Init.GetElem
+import Init.Meta.Defs
 
 public section
 

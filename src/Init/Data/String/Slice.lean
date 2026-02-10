@@ -10,7 +10,13 @@ public import Init.Data.String.Pattern
 public import Init.Data.Ord.Basic
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.String.ToSlice
-public import Init.Data.String.Termination
+public import Init.Data.String.Subslice
+public import Init.Data.String.Iter
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Option.Lemmas
+import Init.Data.String.Termination
+import Init.Omega
 
 set_option doc.verso true
 
@@ -47,18 +53,6 @@ instance : HAppend String String.Slice String where
 open Pattern
 
 /--
-Checks whether a slice is empty.
-
-Empty slices have {name}`utf8ByteSize` {lean}`0`.
-
-Examples:
- * {lean}`"".toSlice.isEmpty = true`
- * {lean}`" ".toSlice.isEmpty = false`
--/
-@[inline]
-def isEmpty (s : Slice) : Bool := s.utf8ByteSize == 0
-
-/--
 Checks whether {name}`s1` and {name}`s2` represent the same string, even if they are slices of
 different base strings or different slices within the same string.
 
@@ -66,7 +60,7 @@ The implementation is an efficient equivalent of {lean}`s1.copy == s2.copy`
 -/
 def beq (s1 s2 : Slice) : Bool :=
   if h : s1.utf8ByteSize = s2.utf8ByteSize then
-    have h1 := by simp [h, String.Pos.Raw.le_iff]
+    have h1 := by simp
     have h2 := by simp [h, String.Pos.Raw.le_iff]
     Internal.memcmpSlice s1 s2 s1.startPos.offset s2.startPos.offset s1.rawEndPos h1 h2
   else
@@ -74,6 +68,13 @@ def beq (s1 s2 : Slice) : Bool :=
 
 instance : BEq Slice where
   beq := beq
+
+@[inherit_doc Slice.copy]
+def toString (s : Slice) : String :=
+  s.copy
+
+instance : ToString String.Slice where
+  toString := toString
 
 @[extern "lean_slice_hash"]
 opaque hash (s : @& Slice) : UInt64
@@ -131,7 +132,7 @@ variable {pat : ρ} [ToForwardSearcher pat σ]
 
 inductive PlausibleStep
 
-instance : Std.Iterator (SplitIterator pat s) Id Slice where
+instance : Std.Iterator (SplitIterator pat s) Id s.Subslice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -145,7 +146,7 @@ instance : Std.Iterator (SplitIterator pat s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.slice! currPos startPos
+        let slice := s.subslice! currPos startPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -155,7 +156,7 @@ instance : Std.Iterator (SplitIterator pat s) Id Slice where
         pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
-        let slice := s.sliceFrom currPos
+        let slice := s.subsliceFrom currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
@@ -199,15 +200,35 @@ multiple subslices in a row match the pattern, the resulting list will contain e
 This function is generic over all currently supported patterns.
 
 Examples:
- * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.split ' ').toList == ["coffee".toSlice, "tea".toSlice, "water".toSlice]`
- * {lean}`("coffee tea water".toSlice.split " tea ").toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("ababababa".toSlice.split "aba").toList == ["coffee".toSlice, "water".toSlice]`
- * {lean}`("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]`
+ * {lean}`("coffee tea water".toSlice.splitToSubslice Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
+ * {lean}`("coffee tea water".toSlice.splitToSubslice ' ').toStringList == ["coffee", "tea", "water"]`
+ * {lean}`("coffee tea water".toSlice.splitToSubslice " tea ").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.splitToSubslice "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("baaab".toSlice.splitToSubslice "aa").toStringList == ["b", "ab"]`
 -/
 @[specialize pat]
-def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Std.Iter (α := SplitIterator pat s) Slice :=
+def splitToSubslice (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitIterator pat s) s.Subslice :=
   { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
+
+/--
+Splits a slice at each subslice that matches the pattern {name}`pat`.
+
+The subslices that matched the pattern are not included in any of the resulting subslices. If
+multiple subslices in a row match the pattern, the resulting list will contain empty strings.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.split Char.isWhitespace).toStringList == ["coffee", "tea", "water"]`
+ * {lean}`("coffee tea water".toSlice.split ' ').toStringList == ["coffee", "tea", "water"]`
+ * {lean}`("coffee tea water".toSlice.split " tea ").toStringList == ["coffee", "water"]`
+ * {lean}`("ababababa".toSlice.split "aba").toStringList == ["coffee", "water"]`
+ * {lean}`("baaab".toSlice.split "aa").toStringList == ["b", "ab"]`
+-/
+@[inline]
+def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :=
+  (s.splitToSubslice pat |>.map Subslice.toSlice : Std.Iter Slice)
 
 inductive SplitInclusiveIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
@@ -905,9 +926,9 @@ Examples:
 def chars (s : Slice) :=
   Std.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
-@[deprecated "There is no constant-time length function on slices. Use `s.positions.count` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
+@[deprecated "There is no constant-time length function on slices. Use `s.positions.length` instead, or `isEmpty` if you only need to know whether the slice is empty." (since := "2025-11-20")]
 def length (s : Slice) : Nat :=
-  s.positions.count
+  s.positions.length
 
 structure RevPosIterator (s : Slice) where
   currPos : s.Pos
@@ -1409,13 +1430,6 @@ where go (acc : String) (s : Slice) : List Slice → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
 
-@[inherit_doc Slice.copy]
-def toString (s : Slice) : String :=
-  s.copy
-
-instance : ToString String.Slice where
-  toString := toString
-
 /--
 Converts a string to the Lean compiler's representation of names. The resulting name is
 hierarchical, and the string is split at the dots ({lean}`'.'`).
@@ -1430,16 +1444,3 @@ instance : Std.ToFormat String.Slice where
   format s := Std.ToFormat.format s.copy
 
 end String.Slice
-
-/-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
-@[inline]
-def Std.Iter.toStringList {α : Type} [Std.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id]
-    (i : Std.Iter (α := α) String.Slice) : List String :=
-  i.map String.Slice.copy |>.toList
-
-/-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
-def Std.Iter.toStringArray {α : Type} [Std.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id]
-    (i : Std.Iter (α := α) String.Slice) : Array String :=
-  i.map String.Slice.copy |>.toArray

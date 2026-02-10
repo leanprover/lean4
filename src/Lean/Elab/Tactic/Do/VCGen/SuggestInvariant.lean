@@ -9,10 +9,9 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Util.OccursCheck
-import Lean.PrettyPrinter.Delaborator
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Std.Tactic.Do -- Needed for use of `mleave` in quote
+import Init.Data.Array.Mem
 
 namespace Lean.Elab.Tactic.Do
 
@@ -209,8 +208,8 @@ def SuccessPoint.clause (p : SuccessPoint) : Expr :=
 
 /-- The last syntactic element of a `FailureCond`. -/
 inductive ExceptCondsDefault where
-  /-- `()`. This means we can suggest `post⟨...⟩`. -/
-  | unit
+  /-- `PUnit.unit`. This means we can suggest `post⟨...⟩`. -/
+  | punit
   /-- `ExceptConds.false`. This means we can suggest `⇓ _ => _`. -/
   | false
   /-- `ExceptConds.true`. This means we can suggest `⇓? _ => _`. -/
@@ -229,7 +228,7 @@ When the default is not defeq to `ExceptConds.false`, we use it as the default.
 -/
 structure FailureCondHints where
   points : Array Expr := #[]
-  default : ExceptCondsDefault := .unit
+  default : ExceptCondsDefault := .punit
 
 /-- Look at how `inv` is used in the `vcs` and collect hints about how `inv` should be instantiated.
 In case it succeeds, there will be
@@ -293,8 +292,8 @@ def collectInvariantHints (vcs : Array MVarId) (inv : MVarId) (xs : Expr) (letMu
         -- Just overwrite the existing entry. Computing a join here is overkill for the few cases
         -- where this is going to be used.
         failureConds := { failureConds with points := points }
-        if conds.isConstOf ``Unit.unit then
-          failureConds := { failureConds with default := .unit }
+        if conds.isConstOf ``PUnit.unit then
+          failureConds := { failureConds with default := .punit }
         else if conds.isAppOfArity ``ExceptConds.false 1 then
           failureConds := { failureConds with default := .false }
         else if conds.isAppOfArity ``ExceptConds.true 1 then
@@ -402,8 +401,8 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
   -- 2. However, on early return we want to suggest something using `Invariant.withEarlyReturn`.
   -- 3. When there are non-`False` failure conditions, we cannot suggest `⇓ ⟨xs, letMuts⟩ => ...`.
   --    We might be able to suggest `⇓? ⟨xs, letMuts⟩ => ...` (`True` failure condition),
-  --    or `post⟨...⟩` (more than 0 failure handlers, but ending in `()`), and fall back to
-  --    `by exact ⟨...⟩` (not ending in `()`).
+  --    or `post⟨...⟩` (more than 0 failure handlers, but ending in `PUnit.unit`), and fall back to
+  --    `by exact ⟨...⟩` (not ending in `PUnit.unit`).
   -- 4. Similarly for the `onExcept` argument of `Invariant.withEarlyReturn`.
   -- Hence the spaghetti code.
   --
@@ -429,7 +428,7 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
       -- Now the configuration mess.
       if failureConds.points.isEmpty then
         match failureConds.default with
-        | .false | .unit =>
+        | .false | .punit =>
           `(Invariant.withEarlyReturn (onReturn := fun r letMuts => $onReturn) (onContinue := fun xs letMuts => $onContinue))
         -- we handle the following two cases here rather than through
         -- `postCondWithMultipleConditions` below because that would insert a superfluous `by exact _`.
@@ -469,7 +468,7 @@ where
   postCondWithMultipleConditions (handlers : Array Term) (default : ExceptCondsDefault) : MetaM Term := do
     let handlers := Syntax.TSepArray.ofElems (sep := ",") handlers
     match default with
-    | .unit => `(post⟨$handlers,*⟩)
+    | .punit => `(post⟨$handlers,*⟩)
     -- See the comment in `post⟨_⟩` syntax for why we emit `by exact` here.
     | .false => `(by exact ⟨$handlers,*, ExceptConds.false⟩)
     | .true => `(by exact ⟨$handlers,*, ExceptConds.true⟩)

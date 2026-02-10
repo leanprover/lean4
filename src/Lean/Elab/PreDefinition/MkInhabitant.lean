@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.PrettyPrinter
+import Init.Omega
 
 public section
 namespace Lean.Elab

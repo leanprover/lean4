@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util public import Lean.Meta.Tactic.Grind.Arith.Types public import Lean.Meta.Tactic.Grind.Arith.Main public import Lean.Meta.Tactic.Grind.Arith.CommRing public import Lean.Meta.Tactic.Grind.Arith.Linear public import Lean.Meta.Tactic.Grind.Arith.Cutsat public import Lean.Meta.Tactic.Grind.Arith.Simproc public import Lean.Meta.Tactic.Grind.Arith.Propagate
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util public import Lean.Meta.Tactic.Grind.Arith.Types public import Lean.Meta.Tactic.Grind.Arith.Main public import Lean.Meta.Tactic.Grind.Arith.CommRing public import Lean.Meta.Tactic.Grind.Arith.Linear public import Lean.Meta.Tactic.Grind.Arith.Cutsat public import Lean.Meta.Tactic.Grind.Arith.Simproc public import Lean.Meta.Tactic.Grind.Arith.Propagate public import Lean.Meta.Tactic.Grind.Arith.Model
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Linear(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Simproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Propagate(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Model(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith(uint8_t builtin) {
 lean_object * res;
@@ -48,6 +49,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Propagate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Model(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

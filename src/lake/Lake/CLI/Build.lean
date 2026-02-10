@@ -8,12 +8,11 @@ module
 prelude
 public import Lake.CLI.Error
 public import Lake.Config.Workspace
-import Lake.Config.Monad
 import Lake.Build.Infos
 import Lake.Build.Job.Monad
 public import Lake.Build.Job.Register
 import Lake.Util.IO
-import Init.Data.String.Search
+import Init.Data.Iterators.Consumers
 
 open System Lean
 
@@ -68,15 +67,13 @@ public def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError P
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
-open Module in
 def resolveModuleTarget
   (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
     return mkBuildSpec mod.leanArts
   else
-    let facet := Module.facetKind ++ facet
-    if let some config := ws.findModuleFacetConfig? facet then do
+    if let some config := ws.findModuleFacetConfig? (Module.facetKind ++ facet) then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
     else
       throw <| CliError.unknownFacet "module" facet
@@ -105,39 +102,6 @@ def resolveConfigDeclTarget
     else
       throw <| CliError.unknownFacet decl.kind.toString facet
 
-/-- **For internal use only.** -/
-public def resolveLibTarget
-  (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
-: Except CliError (Array BuildSpec) :=
-  if facet.isAnonymous then
-    lib.defaultFacets.mapM (resolveFacet ·)
-  else
-    Array.singleton <$> resolveFacet (LeanLib.facetKind ++ facet)
-where
-  resolveFacet facet :=
-    if let some config := ws.findLibraryFacetConfig? facet then do
-      return mkConfigBuildSpec (lib.facetCore config.name) config.toFacetConfig rfl
-    else
-      throw <| CliError.unknownFacet "library" facet
-
-def resolveExeTarget
-  (exe : LeanExe) (facet : Name)
-: Except CliError BuildSpec :=
-  if facet.isAnonymous || facet == `exe then
-    return mkBuildSpec exe.exe
-  else
-    throw <| CliError.unknownFacet "executable" facet
-
-def resolveExternLibTarget
-  (lib : ExternLib) (facet : Name)
-: Except CliError BuildSpec :=
-  if facet.isAnonymous || facet = `static then
-    return mkBuildSpec lib.static
-  else if facet = `shared then
-    return mkBuildSpec lib.shared
-  else
-    throw <| CliError.unknownFacet "external library" facet
-
 def resolveTargetInPackage
   (ws : Workspace) (pkg : Package) (target facet : Name)
 : Except CliError (Array BuildSpec) := do
@@ -159,8 +123,7 @@ def resolvePackageTarget
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else
-    let facet := Package.facetKind ++ facet
-    if let some config := ws.findPackageFacetConfig? facet then do
+    if let some config := ws.findPackageFacetConfig? (Package.facetKind ++ facet) then do
       return #[mkConfigBuildSpec (pkg.facetCore config.name) config.toFacetConfig rfl]
     else
       throw <| CliError.unknownFacet "package" facet

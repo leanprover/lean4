@@ -7,6 +7,8 @@ module
 
 prelude
 import Init.Grind
+import Init.Data.Int.OfNat
+import Init.Data.UInt.Lemmas
 public import Init.Data.String
 
 @[expose]

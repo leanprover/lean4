@@ -8,7 +8,9 @@ Additional `Task` definitions.
 module
 
 prelude
-public import Init.System.Promise
+public import Init.Core
+import Init.Data.List.Basic
+import Init.Data.Nat.Bitwise.Basic
 
 public section
 

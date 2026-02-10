@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize.BitVec
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Init.ByCases
 
 public section
 

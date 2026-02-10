@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Match.Basic
 public import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Eqns

@@ -7,9 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
-import Init.Data.Int.Gcd
 import Lean.Meta.Sym.LitValues
-import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -344,10 +342,10 @@ abbrev evalBinPred (toValue? : Expr → Option α) (trueThm falseThm : Expr) (op
   let some va := toValue? a | return .rfl
   let some vb := toValue? b | return .rfl
   if op va vb then
-    let e ← share <| mkConst ``True
+    let e ← getTrueExpr
     return .step e (mkApp3 trueThm a b eagerReflBoolTrue) (done := true)
   else
-    let e ← share <| mkConst ``False
+    let e ← getFalseExpr
     return .step e (mkApp3 falseThm a b eagerReflBoolFalse) (done := true)
 
 def evalBitVecPred (n : Expr) (trueThm falseThm : Expr) (op : {n : Nat} → BitVec n → BitVec n → Bool) (a b : Expr) : SimpM Result := do
@@ -355,10 +353,10 @@ def evalBitVecPred (n : Expr) (trueThm falseThm : Expr) (op : {n : Nat} → BitV
   let some vb := getBitVecValue? b | return .rfl
   if h : va.n = vb.n then
     if op va.val (h ▸ vb.val) then
-      let e ← share <| mkConst ``True
+      let e ← getTrueExpr
       return .step e (mkApp4 trueThm n a b eagerReflBoolTrue) (done := true)
     else
-      let e ← share <| mkConst ``False
+      let e ← getFalseExpr
       return .step e (mkApp4 falseThm n a b eagerReflBoolFalse) (done := true)
   else
     return .rfl
@@ -368,10 +366,10 @@ def evalFinPred (n : Expr) (trueThm falseThm : Expr) (op : {n : Nat} → Fin n �
   let some vb := getFinValue? b | return .rfl
   if h : va.n = vb.n then
     if op va.val (h ▸ vb.val) then
-      let e ← share <| mkConst ``True
+      let e ← getTrueExpr
       return .step e (mkApp4 trueThm n a b eagerReflBoolTrue) (done := true)
     else
-      let e ← share <| mkConst ``False
+      let e ← getFalseExpr
       return .step e (mkApp4 falseThm n a b eagerReflBoolFalse) (done := true)
   else
     return .rfl
@@ -418,7 +416,7 @@ def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
 
 def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   if isSameExpr a b then do
-    let e ← share <| mkConst ``True
+    let e ← getTrueExpr
     let u ← getLevel α
     return .step e (mkApp2 (mkConst ``eq_self [u]) α a) (done := true)
   else match_expr α with
@@ -512,8 +510,8 @@ def evalNot (a : Expr) : SimpM Result :=
   **Note**: We added `evalNot` because some abbreviations expanded into `Not`s.
   -/
   match_expr a with
-  | True => return .step (← mkConstS ``False) (mkConst ``Sym.not_true_eq) (done := true)
-  | False => return .step (← mkConstS ``True) (mkConst ``Sym.not_false_eq) (done := true)
+  | True => return .step (← getFalseExpr) (mkConst ``Sym.not_true_eq) (done := true)
+  | False => return .step (← getTrueExpr) (mkConst ``Sym.not_false_eq) (done := true)
   | _ => return .rfl
 
 public structure EvalStepConfig where

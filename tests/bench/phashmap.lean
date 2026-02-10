@@ -33,7 +33,7 @@ instance [Pure m] : Std.Iterator RandomIterator m UInt64 where
 
 def mkMapWithCap (seed : UInt64) (size : Nat) : Lean.PersistentHashMap UInt64 UInt64 := Id.run do
   let mut map := Lean.PersistentHashMap.empty
-  for val in iterRand seed |>.take size |>.allowNontermination do
+  for val in iterRand seed |>.take size do
     map := map.insert val val
   return map
 
@@ -54,7 +54,7 @@ def benchContainsHit (seed : UInt64) (size : Nat) : IO Float := do
   timeNanos checks do
     let mut todo := checks
     while todo != 0 do
-      for val in iterRand seed |>.take size |>.allowNontermination do
+      for val in iterRand seed |>.take size do
         if !map.contains val then
           throw <| .userError "Fail"
       todo := todo - size
@@ -69,7 +69,7 @@ def benchContainsMiss (seed : UInt64) (size : Nat) : IO Float := do
   timeNanos checks do
     let mut todo := checks
     while todo != 0 do
-      for val in iter |>.take size |>.allowNontermination do
+      for val in iter |>.take size do
         if map.contains val then
           throw <| .userError "Fail"
       todo := todo - size
@@ -101,7 +101,7 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Float := do
     let mut todo := checks
     let mut map := map
     while todo != 0 do
-      for val in iterRand seed |>.take size |>.allowNontermination do
+      for val in iterRand seed |>.take size do
         map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
@@ -116,7 +116,7 @@ def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
     let mut todo := checks
     while todo != 0 do
       let mut map : Lean.PersistentHashMap _ _ := {}
-      for val in iterRand seed |>.take size |>.allowNontermination do
+      for val in iterRand seed |>.take size do
         map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
@@ -133,7 +133,7 @@ def benchInsertMissEmptyShared (seed : UInt64) (size : Nat) : IO Float := do
     while todo != 0 do
       let mut map : Lean.PersistentHashMap _ _ := {}
       let mut maps := Array.emptyWithCapacity size
-      for val in iterRand seed |>.take size |>.allowNontermination do
+      for val in iterRand seed |>.take size do
         map := map.insert val val
         if map.isEmpty then
           throw <| .userError "Fail"
@@ -154,7 +154,7 @@ def benchEraseInsert (seed : UInt64) (size : Nat) : IO Float := do
     let mut map := map
     let mut todo := checks
     while todo != 0 do
-      for (eraseVal, newVal) in eraseIter.zip newIter |>.take size |>.allowNontermination do
+      for (eraseVal, newVal) in eraseIter.zip newIter |>.take size do
         map := map.erase eraseVal |>.insert newVal newVal
         if map.isEmpty then
           throw <| .userError "Fail"

@@ -6,8 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Omega
 public import Init.Data.Range.Polymorphic.BitVec
+public import Init.Data.UInt
+import Init.ByCases
+import Init.Data.BitVec.Lemmas
+import Init.Data.Option.Lemmas
 
 public section
 

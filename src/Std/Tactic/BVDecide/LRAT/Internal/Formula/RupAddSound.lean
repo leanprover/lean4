@@ -7,6 +7,11 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RupAddResult
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Int.OfNat
+import Init.Data.Nat.Linear
+import Init.Data.Nat.Simproc
 
 @[expose] public section
 

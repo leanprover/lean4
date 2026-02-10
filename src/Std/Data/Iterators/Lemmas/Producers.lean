@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.Iterators.Lemmas.Producers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Array
+public import Std.Data.Iterators.Lemmas.Producers.Vector
 public import Std.Data.Iterators.Lemmas.Producers.Empty
 public import Std.Data.Iterators.Lemmas.Producers.Repeat
 public import Std.Data.Iterators.Lemmas.Producers.Range

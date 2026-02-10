@@ -6,12 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
-import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.CongrInfo
+import Init.Omega
 namespace Lean.Meta.Sym.Simp
 open Internal
 
@@ -224,7 +223,7 @@ position. However, the type is only meaningful (non-`default`) when `Result` is
 `.step`, since we only need types for constructing congruence proofs. This avoids
 unnecessary type inference when no rewriting occurs.
 -/
-def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
+public def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if numArgs ≤ prefixSize then
     -- Nothing to be done
@@ -274,7 +273,7 @@ Uses `rewritable[i]` to determine whether argument `i` should be simplified.
 For rewritable arguments, calls `simp` and uses `congrFun'`, `congrArg`, and `congr`; for fixed arguments,
 uses `congrFun` to propagate changes from earlier arguments.
 -/
-def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
+public def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then
     -- Nothing to be done

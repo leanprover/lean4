@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Nat.Linear
+import Init.Omega
 
 public section
 

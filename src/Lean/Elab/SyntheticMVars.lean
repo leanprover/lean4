@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Util.NumObjs
 public import Lean.Util.ForEachExpr
 public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
@@ -573,7 +572,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length

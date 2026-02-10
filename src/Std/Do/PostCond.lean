@@ -330,7 +330,7 @@ abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=
 
 @[inherit_doc PostCond]
 scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
-  `(by exact ⟨$handlers,*, ()⟩)
+  `(by exact ⟨$handlers,*, PUnit.unit⟩)
   -- NB: Postponement through by exact is the entire point of this macro
   -- until https://github.com/leanprover/lean4/pull/8074 lands
 

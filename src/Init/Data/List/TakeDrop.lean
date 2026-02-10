@@ -96,7 +96,8 @@ theorem getElem?_take_of_lt {l : List α} {i j : Nat} (h : i < j) : (l.take j)[i
 
 theorem getElem?_take_of_succ {l : List α} {i : Nat} : (l.take (i + 1))[i]? = l[i]? := by simp
 
-@[simp] theorem drop_drop {i : Nat} : ∀ {j} {l : List α}, drop i (drop j l) = drop (j + i) l
+@[simp, grind =]
+theorem drop_drop {i : Nat} : ∀ {j} {l : List α}, drop i (drop j l) = drop (j + i) l
   | j, [] => by simp
   | 0, l => by simp
   | j + 1, a :: l =>
@@ -108,6 +109,7 @@ theorem getElem?_take_of_succ {l : List α} {i : Nat} : (l.take (i + 1))[i]? = l
 theorem drop_add_one_eq_tail_drop {l : List α} : l.drop (i + 1) = (l.drop i).tail := by
   rw [← drop_drop, drop_one]
 
+@[grind =]
 theorem take_drop : ∀ {i j : Nat} {l : List α}, take i (drop j l) = drop j (take (j + i) l)
   | _, 0, _ => by simp
   | _, _, [] => by simp

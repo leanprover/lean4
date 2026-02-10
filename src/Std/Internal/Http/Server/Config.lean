@@ -69,7 +69,7 @@ structure Config where
   /--
   The server name.
   -/
-  serverName : Option Header.Value := some (.new "LeanHTTP/1.1")
+  serverName : Option Header.Value := some (.mk "LeanHTTP/1.1")
 
   /--
   Maximum length of HTTP method token (default: 16 bytes)

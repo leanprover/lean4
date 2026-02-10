@@ -121,8 +121,7 @@ and TCP connections, and returns a `Server` structure that can be used to cancel
 -/
 def serve
     (addr : Net.SocketAddress)
-    [Body t Chunk]
-    (onRequest : Request Body.ChunkStream → ContextAsync (Response t))
+    (onRequest : Request Body.Stream → ContextAsync (Response Body.Stream))
     (onError : IO.Error → Async Unit)
     (config : Config := {}) (backlog : UInt32 := 128) : Async Server := do
 
@@ -141,7 +140,12 @@ def serve
         ]
 
         match result with
-        | some client => ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest onError config))
+        | some client =>
+          let extensions : Extensions := match (← EIO.toBaseIO client.getPeerName) with
+            | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
+            | .error _ => Extensions.empty
+
+          ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest onError config extensions))
         | none => break
 
   background (runServer httpServer.context)

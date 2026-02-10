@@ -31,6 +31,16 @@ possibly multiple requests.
 set_option linter.all true
 
 /--
+Represents the remote address of a client connection.
+-/
+public structure RemoteAddr where
+  /--
+  The socket address of the remote client.
+  -/
+  addr : Net.SocketAddress
+deriving TypeName
+
+/--
 A single HTTP connection.
 -/
 public structure Connection (α : Type) where
@@ -44,6 +54,11 @@ public structure Connection (α : Type) where
   -/
   machine : H1.Machine .receiving
 
+  /--
+  Extensions to attach to each request (e.g., remote address).
+  -/
+  extensions : Extensions := .empty
+
 namespace Connection
 
 
@@ -54,15 +69,15 @@ deriving instance Repr for Error
 deriving instance Repr for ByteArray
 deriving instance Repr for Chunk
 
-private inductive Recv (t : Type)
+private inductive Recv
   | bytes (x : Option ByteArray)
   | channel (x : Option Chunk)
-  | response (x : (Except Error (Response t)))
+  | response (x : (Except Error (Response Body.Stream)))
   | timeout
   | shutdown
   | close
 
-private instance : Repr (Recv t) where
+private instance : Repr Recv where
   reprPrec
     | .bytes b  => reprPrec ("bytes", b)
     | .channel b => reprPrec ("channel", b)
@@ -71,18 +86,17 @@ private instance : Repr (Recv t) where
     | .shutdown => reprPrec "shutdown"
     | .close => reprPrec "close"
 
-private def receiveWithTimeout {α t}
+private def receiveWithTimeout {α}
     [Transport α]
-    [Body t Chunk]
     (socket : Option α)
     (expect : UInt64)
-    (ch : Option t)
-    (response : Option (Std.Channel (Except Error (Response t))))
+    (ch : Option Body.Stream)
+    (response : Option (Std.Channel (Except Error (Response Body.Stream))))
     (timeoutMs : Millisecond.Offset)
     (keepAliveTimeoutMs : Option Millisecond.Offset)
-    (connectionContext : CancellationContext) : Async (Recv t) := do
+    (connectionContext : CancellationContext) : Async Recv := do
 
-  let mut baseSelectables : Array (Selectable (Recv t)) := #[
+  let mut baseSelectables : Array (Selectable Recv) := #[
     .case connectionContext.doneSelector (fun _ => do
       let reason ← connectionContext.getCancellationReason
       match reason with
@@ -101,7 +115,7 @@ private def receiveWithTimeout {α t}
         baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
 
   if let some ch := ch then
-    baseSelectables := baseSelectables.push (.case (Body.recvSelector ch) (Recv.channel · |> pure))
+    baseSelectables := baseSelectables.push (.case ch.recvSelector (Recv.channel · |> pure))
 
   if let some response := response then
     baseSelectables := baseSelectables.push (.case response.recvSelector (Recv.response · |> pure))
@@ -110,15 +124,14 @@ private def receiveWithTimeout {α t}
 
 private def processNeedMoreData
     [Transport α]
-    [Body t Chunk]
     (config : Config)
     (socket : Option α)
     (expect : Option Nat)
-    (response : Option (Std.Channel (Except Error (Response t))))
-    (channel : Option t)
+    (response : Option (Std.Channel (Except Error (Response Body.Stream))))
+    (channel : Option Body.Stream)
     (timeout : Millisecond.Offset)
     (keepAliveTimeout : Option Millisecond.Offset)
-    (connectionContext : CancellationContext) : Async (Recv t) := do
+    (connectionContext : CancellationContext) : Async Recv := do
   try
     let expectedBytes := expect
       |>.getD config.defaultPayloadBytes
@@ -141,22 +154,21 @@ private def handleError (machine : H1.Machine .receiving) (status : Status) (wai
 
 private def handle
     [Transport α]
-    [Body t Chunk]
     (connection : Connection α)
     (config : Config)
     (connectionContext : CancellationContext)
     (onError : Error → Async Unit)
-    (handler : Request Body.ChunkStream → ContextAsync (Response t)) : Async Unit := do
+    (handler : Request Body.Stream → ContextAsync (Response Body.Stream)) : Async Unit := do
 
   let mut machine := connection.machine
   let socket := connection.socket
 
-  let mut requestStream ← Body.ChunkStream.emptyWithCapacity
+  let mut requestStream ← Body.Stream.emptyWithCapacity
   let mut keepAliveTimeout := some config.keepAliveTimeout.val
   let mut currentTimeout := config.keepAliveTimeout.val
 
   let mut response ← Std.Channel.new
-  let mut respStream : Option t := none
+  let mut respStream : Option Body.Stream := none
   let mut requiresData := false
   let mut needBody := false
 
@@ -191,14 +203,14 @@ private def handle
         if let some length := head.getSize true then
           requestStream.setKnownSize (some length)
 
-        let newResponse := handler { head, body := requestStream } connectionContext
+        let newResponse := handler { head, body := requestStream, extensions := connection.extensions } connectionContext
         let task ← newResponse.asTask
 
         BaseIO.chainTask task fun x => discard <| response.send x
 
       | .gotData final ext data =>
         try
-          Body.send requestStream { data := data.toByteArray, extensions := ext }
+          requestStream.send { data := data.toByteArray, extensions := ext }
 
           if final then
             requestStream.close
@@ -207,11 +219,11 @@ private def handle
           pure ()
 
       | .next => do
-        requestStream ← Body.ChunkStream.emptyWithCapacity
+        requestStream ← Body.Stream.emptyWithCapacity
         response ← Std.Channel.new
 
         if let some res := respStream then
-          if ¬ (← Body.isClosed res) then Body.close res
+          if ¬ (← res.isClosed) then res.close
 
         respStream := none
 
@@ -248,7 +260,7 @@ private def handle
         machine := machine.userClosedBody
 
         if let some res := respStream then
-          if ¬(←  Body.isClosed res) then Body.close res
+          if ¬(← res.isClosed) then res.close
 
         respStream := none
 
@@ -276,7 +288,7 @@ private def handle
         machine := machine.send res.head
         waitingResponse := false
 
-        let size ← Body.size? res.body
+        let size ← res.body.getKnownSize
         machine := machine.setKnownSize (size.getD .chunked)
         respStream := some res.body
 
@@ -284,8 +296,8 @@ private def handle
     requestStream.close
 
   if let some res := respStream then
-    if ¬(← Body.isClosed res) then
-      Body.close res
+    if ¬(← res.isClosed) then
+      res.close
 
 end Connection
 
@@ -309,9 +321,9 @@ while true do
 ```
 -/
 def serveConnection
-    [Transport t] (client : t) [Body u Chunk] (onRequest : Request Body.ChunkStream → ContextAsync (Response u))
-    (onError : Error → Async Unit) (config : Config) : ContextAsync Unit := do
-  Connection.mk client { config := config.toH1Config }
+    [Transport t] (client : t) (onRequest : Request Body.Stream → ContextAsync (Response Body.Stream))
+    (onError : Error → Async Unit) (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
+  (Connection.mk client { config := config.toH1Config } extensions)
   |>.handle config (← ContextAsync.getContext) onError onRequest
 
 end Std.Http.Server

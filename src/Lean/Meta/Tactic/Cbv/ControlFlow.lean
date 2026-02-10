@@ -174,8 +174,10 @@ def tryMatcher : Simproc := fun e => do
       <|> reduceRecMatcher
         <| e
 
+/-
+  Precondition: `e` is an application
+-/
 public def simpControlCbv : Simproc := fun e => do
-  if !e.isApp then return .rfl
   let .const declName _ := e.getAppFn | return .rfl
   if declName == ``ite then
     simpIteCbv e

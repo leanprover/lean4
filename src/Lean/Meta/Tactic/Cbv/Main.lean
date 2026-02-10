@@ -23,9 +23,6 @@ public register_builtin_option cbv.warning : Bool := {
   descr    := "disable `cbv` usage warning"
 }
 
-def skipBinders : Simproc := fun e => do
-  return .rfl (e.isLambda || e.isForall)
-
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do
   let thms ← getMatchTheorems appFn
   thms.rewrite (d := dischargeNone) e
@@ -56,8 +53,11 @@ def tryMatcher : Simproc := fun e => do
       <|> reduceRecMatcher
         <| e
 
-def handleConstApp : Simproc :=
-  tryEquations <|> tryUnfold
+def handleConstApp : Simproc := fun e => do
+  if (← isCbvOpaque e.getAppFn.constName!) then
+    return .rfl (done := true)
+  else
+    tryEquations <|> tryUnfold <| e
 
 def betaReduce : Simproc := fun e => do
   -- TODO: Improve term sharing
@@ -79,17 +79,6 @@ def handleApp : Simproc := fun e => do
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
   | _ => return .rfl
-
-def isOpaqueApp : Simproc := fun e => do
-  let some fnName := e.getAppFn.constName? | return .rfl
-  let hasTheorems := (← getCbvEvalLemmas fnName).isSome
-  if hasTheorems then
-    let res ← (simpAppArgs >> tryCbvTheorems) e
-    match res with
-    | .rfl false => return .rfl
-    | _ => return res
-  else
-    return .rfl (← isCbvOpaque fnName)
 
 def isOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
@@ -138,17 +127,18 @@ def handleProj : Simproc := fun e => do
 def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl
     let fn := e.getAppFn
-    unless fn.isLambda || fn.isConst do
-      let res ← simp fn
-      match res with
-      | .rfl _ => return res
-      | .step e' proof _ =>
-        let newType ← Sym.inferType e'
-        let congrArgFun := Lean.mkLambda `x .default newType (mkAppN (.bvar 0) e.getAppArgs)
-        let newValue ← mkAppNS e' e.getAppArgs
-        let newProof ← mkCongrArg congrArgFun proof
-        return .step newValue newProof
-    return .rfl
+    if fn.isLambda || fn.isConst then
+      return .rfl
+    else
+    let res ← simp fn
+    match (← simp fn) with
+    | .rfl _ => return res
+    | .step e' proof _ =>
+      let newType ← Sym.inferType e'
+      let congrArgFun := Lean.mkLambda `x .default newType (mkAppN (.bvar 0) e.getAppArgs)
+      let newValue ← mkAppNS e' e.getAppArgs
+      let newProof ← mkCongrArg congrArgFun proof
+      return .step newValue newProof
 
 def handleConst : Simproc := fun e => do
   let .const n _ := e | return .rfl
@@ -162,16 +152,24 @@ def handleConst : Simproc := fun e => do
   let some thm ← getUnfoldTheorem n | return .rfl
   Theorem.rewrite thm e
 
-def cbvPre : Simproc :=
-      isBuiltinValue <|> isProofTerm <|> skipBinders
-  >>  isOpaqueApp
-  >>  simpControlCbv
-    <|> ((isOpaqueConst >> handleConst) <|> simplifyAppFn <|> handleProj) <|> zetaReduce
+def cbvPreStep : Simproc := fun e => do
+  match e with
+  | .lit .. => foldLit e
+  | .proj .. => handleProj e
+  | .const .. => isOpaqueConst >> handleConst <| e
+  | .app .. => simpControlCbv <|> simplifyAppFn <| e
+  | .letE .. =>
+    if e.letNondep! then
+      let betaAppResult ← toBetaApp e
+      return .step (betaAppResult.e) (betaAppResult.h)
+    else
+      zetaReduce e
+  | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
+  | _ => return .rfl
 
-def cbvPost : Simproc :=
-      evalGround
-  >>  (handleApp <|> zetaReduce)
-  >>  foldLit
+def cbvPre : Simproc := isBuiltinValue <|> isProofTerm <|> cbvPreStep
+
+def cbvPost : Simproc := evalGround <|> handleApp
 
 public def cbvEntry (e : Expr) : MetaM Result := do
   trace[Meta.Tactic.cbv] "Called cbv tactic to simplify {e}"

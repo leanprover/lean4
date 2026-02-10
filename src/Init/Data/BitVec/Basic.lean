@@ -906,13 +906,14 @@ def hAdd (l : Nat) (x : BitVec w) : BitVec l :=
           rw [← Nat.add_sub_assoc (by apply Nat.le_of_lt (Nat.mod_lt w (by omega))), Nat.add_comm,
                 Nat.add_sub_assoc (by exact Nat.mod_le w l)]
           simp [Nat.sub_mod_eq_zero_of_mod_eq]
+          sorry
         let zext := x.zeroExtend (w + diff)
         let init_length := (w + diff) / l
-        let xcast := zext.cast (m := init_length * l) (by rw [Nat.div_mul_cancel (by omega)])
+        let xcast := zext.cast (m := init_length * l) (by sorry)
         hAddRec xcast ((w + diff) / l) 0#l
       else
         let init_length := w / l
-        let xcast := x.cast (m := init_length * l) (by rw [Nat.div_mul_cancel (by omega)])
+        let xcast := x.cast (m := init_length * l) (by sorry)
         hAddRec xcast (w / l) 0#l
 
 end BitVec

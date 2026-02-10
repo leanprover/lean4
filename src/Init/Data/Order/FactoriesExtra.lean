@@ -88,7 +88,7 @@ grind_pattern compare_eq_gt => compare a b, Ordering.gt where
   guard compare a b = .gt
 
 grind_pattern compare_ne_eq => compare a b, Ordering.eq where
-  guard compare a b = .gt
+  guard compare a b ≠ .eq
 
 /--
 Creates a `DecidableLT α` instance using a well-behaved `Ord α` instance.

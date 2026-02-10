@@ -105,6 +105,10 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
     {f : β → α → m β} {init : β} {xs : Vector α n} :
     xs.toArray.foldlM f init = xs.foldlM f init := rfl
 
+@[simp, grind =] theorem foldrM_toArray [Monad m]
+    {f : α → β → m β} {init : β} {xs : Vector α n} :
+    xs.toArray.foldrM f init = xs.foldrM f init := rfl
+
 @[simp, grind =] theorem foldl_toArray (f : β → α → β) {init : β} {xs : Vector α n} :
     xs.toArray.foldl f init = xs.foldl f init := rfl
 
@@ -531,6 +535,15 @@ theorem toArray_toList {xs : Vector α n} : xs.toList.toArray = xs.toArray := rf
 @[simp, grind =] theorem foldl_toList (f : β → α → β) {init : β} {xs : Vector α n} :
     xs.toList.foldl f init = xs.foldl f init :=
   List.foldl_eq_foldlM .. ▸ foldlM_toList ..
+
+@[simp, grind =] theorem foldrM_toList [Monad m]
+    {f : α → β → m β} {init : β} {xs : Vector α n} :
+    xs.toList.foldrM f init = xs.foldrM f init := by
+  rw [← foldrM_toArray, ← toArray_toList, List.foldrM_toArray]
+
+@[simp, grind =] theorem foldr_toList (f : α → β → β) {init : β} {xs : Vector α n} :
+    xs.toList.foldr f init = xs.foldr f init :=
+  List.foldr_eq_foldrM .. ▸ foldrM_toList ..
 
 @[simp, grind =] theorem toList_mk : (Vector.mk xs h).toList = xs.toList := rfl
 
@@ -2469,6 +2482,16 @@ theorem foldl_eq_foldr_reverse {xs : Vector α n} {f : β → α → β} {b} :
 theorem foldr_eq_foldl_reverse {xs : Vector α n} {f : α → β → β} {b} :
     xs.foldr f b = xs.reverse.foldl (fun x y => f y x) b := by simp
 
+theorem foldl_eq_foldr_of_associative {xs : Vector α n} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulRightIdentity f init] :
+    xs.foldl f x = f x (xs.foldr f init) := by
+  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_foldr_of_associative]
+
+theorem foldr_eq_foldl_of_associative {xs : Vector α n} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulLeftIdentity f init] :
+    xs.foldr f x = f (xs.foldl f init) x := by
+  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_foldl_of_associative]
+
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {xs : Vector α n} {a₁ a₂} :
     xs.foldl op (op a₁ a₂) = op a₁ (xs.foldl op a₂) := by
   rcases xs with ⟨xs, rfl⟩
@@ -3103,8 +3126,7 @@ theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
   simp [← sum_toList, List.sum_reverse]
 
 theorem sum_eq_foldl [Zero α] [Add α]
-    [Std.Associative (α := α) (· + ·)] [Std.Commutative (α := α) (· + ·)]
-    [Std.LawfulLeftIdentity (· + ·) (0 : α)]
+    [Std.Associative (α := α) (· + ·)] [Std.LawfulIdentity (· + ·) (0 : α)]
     {xs : Vector α n} :
     xs.sum = xs.foldl (b := 0) (· + ·) := by
   simp [← sum_toList, List.sum_eq_foldl]

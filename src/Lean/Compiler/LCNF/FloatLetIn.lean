@@ -119,51 +119,44 @@ up to this point, with respect to `cs`. The initial decisions are:
 -/
 def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decision) := do
   let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
-  let owned : Std.HashSet FVarId := ∅
-  (map, _) ← (← read).decls.foldlM (init := (map, owned)) fun (acc, owned) val => do
+  let env ← getEnv
+  let blocked : Bool := false
+  (map, _) ← (← read).decls.foldlM (init := (map, blocked)) fun (acc, blocked) val => do
     if let .let decl := val then
       if (← ignore? decl) then
-        return (acc.insert decl.fvarId .dont, owned)
-    let (dont, owned) := (visitDecl (← getEnv) val).run owned
-    if dont then
-      return (acc.insert val.fvarId .dont, owned)
+        return (acc.insert decl.fvarId .dont, blocked)
+    if blocked then
+      if declHasDeps val then
+        return (acc.insert val.fvarId .dont, blocked)
+      else
+        return (acc.insert val.fvarId .unknown, blocked)
     else
-      return (acc.insert val.fvarId .unknown, owned)
-
+      let blocked := declBlocking env val
+      return (acc.insert val.fvarId .unknown, blocked)
   if map.contains cs.discr then
     map := map.insert cs.discr .dont
   (_, map) ← goCases cs |>.run map
   return map
 where
-  visitDecl (env : Environment) (value : CodeDecl .pure) : StateM (Std.HashSet FVarId) Bool := do
+  declBlocking (env : Environment) (value : CodeDecl .pure) : Bool :=
     match value with
-    | .let decl => visitLetValue env decl.value
-    | _ => return false -- will need to investigate whether that can be a problem
+    | .let decl => letValueBlocking env decl.value
+    | _ => false -- will need to investigate whether that can be a problem
 
-  visitLetValue (env : Environment) (value : LetValue .pure) : StateM (Std.HashSet FVarId) Bool := do
+  letValueBlocking (env : Environment) (value : LetValue .pure) : Bool :=
     match value with
-    | .proj _ _ x => visitArg (.fvar x) true
-    | .const nm _ args =>
-      let decl? := IR.findEnvDecl env nm
-      match decl? with
-      | none => args.foldlM (fun b arg => visitArg arg false <||> pure b) false
-      | some decl =>
-        let mut res := false
-        for h : i in *...args.size do
-          if ← visitArg args[i] (decl.params[i]?.any (·.borrow)) then
-            res := true
-        return res
-    | .fvar x args =>
-      args.foldlM (fun b arg => visitArg arg false <||> pure b)
-        (← visitArg (.fvar x) false)
-    | .erased | .lit _ => return false
+    | .const nm _ _ => !isPureBorrowed env nm
+    | .fvar _ args => args.size > 0
+    | .proj _ _ _ | .erased | .lit _ => false
 
-  visitArg (var : Arg .pure) (borrowed : Bool) : StateM (Std.HashSet FVarId) Bool := do
-    let .fvar v := var | return false
-    let res := (← get).contains v
-    unless borrowed do
-      modify (·.insert v)
-    return res
+  isPureBorrowed (env : Environment) (nm : Name) : Bool :=
+    if let some decl := IR.findEnvDecl env nm then
+      decl.params.all (fun param => ¬param.ty.isVoid ∧ (param.ty.isPossibleRef → param.borrow))
+    else
+      false
+
+  declHasDeps (value : CodeDecl .pure) : Bool :=
+    Option.isSome <| forFVarM (fun _ => none) value
 
   goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
     if let some decision := (← get)[var]? then

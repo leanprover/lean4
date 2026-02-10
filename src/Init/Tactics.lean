@@ -2303,6 +2303,15 @@ This tactic is experimental and its behavior is likely to change in upcoming rel
 -/
 syntax (name := cbv) "cbv" : tactic
 
+/--
+`decide_cbv` is a finishing tactic that closes a `Decidable` goal by applying
+`of_decide_eq_true` and discharging the resulting proof obligation via `cbv`
+(call-by-value normalization).
+
+This tactic is experimental and its behavior is likely to change in upcoming releases of Lean.
+-/
+syntax (name := decide_cbv) "decide_cbv" : tactic
+
 end Tactic
 
 namespace Attr

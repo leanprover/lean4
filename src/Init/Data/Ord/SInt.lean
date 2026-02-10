@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.Order.Ord
-public import Init.Data.SInt.Lemmas
+public import Init.Data.SInt.Basic
+import Init.Data.SInt.Lemmas
 
 public section
 

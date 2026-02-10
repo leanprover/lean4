@@ -8,8 +8,9 @@ module
 prelude
 public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
-public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import Init.Data.Format.Macro
 
 public section
 
@@ -115,10 +116,10 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- safety: cast to erased type
   let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <| sortDecls irDecls
 
-  -- see `regularInitAttr.filterExport`
-  let initDecls : Array (Name × Name) := regularInitAttr.ext.getState env
-      |>.2.foldl (fun a n p => a.push (n, p)) #[]
-      |>.qsort (fun a b => Name.quickLt a.1 b.1)
+  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
+  -- .ir is actually loaded, and private ones iff visible.
+  let initDecls : Array (Name × Name) :=
+    regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env) .private
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 
@@ -186,7 +187,7 @@ def getDecl (n : Name) : CompilerM Decl := do
 def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
   return declMapExt.getState (← getEnv) |>.find? n
 
-/-- Returns the list of IR declarations in declaration order. -/
+/-- Returns the list of IR declarations in reverse declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
 

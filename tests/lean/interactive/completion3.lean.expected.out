@@ -3,110 +3,110 @@
 {"items":
  [{"label": "x",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.x"]},
+   "data": ["file:///completion3.lean", 7, 9, 1, "cS.x"]},
   {"label": "b",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.b"]},
+   "data": ["file:///completion3.lean", 7, 9, 1, "cS.b"]},
   {"label": "y",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.y"]}],
+   "data": ["file:///completion3.lean", 7, 9, 1, "cS.y"]}],
  "isIncomplete": false}
 Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.x"]}
+ "data": ["file:///completion3.lean", 7, 9, 1, "cS.x"]}
 Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.b"]}
+ "data": ["file:///completion3.lean", 7, 9, 1, "cS.b"]}
 Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///completion3.lean»", 7, 9, 1, "cS.y"]}
+ "data": ["file:///completion3.lean", 7, 9, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 12, "character": 5}}
 {"items":
  [{"label": "x",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.x"]},
+   "data": ["file:///completion3.lean", 12, 5, 1, "cS.x"]},
   {"label": "b",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.b"]},
+   "data": ["file:///completion3.lean", 12, 5, 1, "cS.b"]},
   {"label": "y",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.y"]}],
+   "data": ["file:///completion3.lean", 12, 5, 1, "cS.y"]}],
  "isIncomplete": false}
 Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.x"]}
+ "data": ["file:///completion3.lean", 12, 5, 1, "cS.x"]}
 Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.b"]}
+ "data": ["file:///completion3.lean", 12, 5, 1, "cS.b"]}
 Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///completion3.lean»", 12, 5, 1, "cS.y"]}
+ "data": ["file:///completion3.lean", 12, 5, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 16, "character": 5}}
 {"items":
  [{"label": "x",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.x"]},
+   "data": ["file:///completion3.lean", 16, 5, 1, "cS.x"]},
   {"label": "b",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.b"]},
+   "data": ["file:///completion3.lean", 16, 5, 1, "cS.b"]},
   {"label": "y",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.y"]}],
+   "data": ["file:///completion3.lean", 16, 5, 1, "cS.y"]}],
  "isIncomplete": false}
 Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.x"]}
+ "data": ["file:///completion3.lean", 16, 5, 1, "cS.x"]}
 Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.b"]}
+ "data": ["file:///completion3.lean", 16, 5, 1, "cS.b"]}
 Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///completion3.lean»", 16, 5, 1, "cS.y"]}
+ "data": ["file:///completion3.lean", 16, 5, 1, "cS.y"]}
 {"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 20, "character": 5}}
 {"items":
  [{"label": "x",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.x"]},
+   "data": ["file:///completion3.lean", 20, 5, 1, "cS.x"]},
   {"label": "b",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.b"]},
+   "data": ["file:///completion3.lean", 20, 5, 1, "cS.b"]},
   {"label": "y",
    "kind": 5,
-   "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.y"]}],
+   "data": ["file:///completion3.lean", 20, 5, 1, "cS.y"]}],
  "isIncomplete": false}
 Resolution of x:
 {"label": "x",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.x"]}
+ "data": ["file:///completion3.lean", 20, 5, 1, "cS.x"]}
 Resolution of b:
 {"label": "b",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.b"]}
+ "data": ["file:///completion3.lean", 20, 5, 1, "cS.b"]}
 Resolution of y:
 {"label": "y",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///completion3.lean»", 20, 5, 1, "cS.y"]}
+ "data": ["file:///completion3.lean", 20, 5, 1, "cS.y"]}

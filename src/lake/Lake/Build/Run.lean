@@ -10,6 +10,7 @@ public import Lake.Config.Workspace
 import Lake.Config.Monad
 import Lake.Build.Job.Monad
 import Lake.Build.Index
+import Init.Omega
 
 /-! # Build Runner
 
@@ -120,11 +121,10 @@ private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {log, action, wantsRebuild, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
+  if wantsRebuild then
+    modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
-    modify fun s => {s with
-      failures := s.failures.push caption
-      wantsRebuild := s.wantsRebuild || wantsRebuild
-    }
+    modify fun s => {s with failures := s.failures.push caption}
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -263,7 +263,7 @@ def Workspace.saveOutputs
   [logger : MonadLog BaseIO] (ws : Workspace)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
 : BaseIO Unit := do
-  unless ws.isRootArtifactCacheEnabled do
+  unless ws.isRootArtifactCacheWritable do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."
@@ -335,10 +335,14 @@ def Workspace.finalizeBuild
   reportResult cfg ctx.out result
   if let some outputsFile := cfg.outputsFile? then
     ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
-  if cfg.noBuild && result.wantsRebuild then
-    IO.Process.exit noBuildCode.toUInt8
-  else
-    IO.ofExcept result.out
+  match result.out with
+  | .ok a =>
+    return a
+  | .error e =>
+    if cfg.noBuild && result.wantsRebuild then
+      IO.Process.exit noBuildCode.toUInt8
+    else
+      throw (IO.userError e)
 
 /--
 Run a build function in the Workspace's context using the provided configuration.

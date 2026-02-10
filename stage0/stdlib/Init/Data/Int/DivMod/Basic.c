@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.DivMod.Basic
-// Imports: public import Init.Data.Int.Basic
+// Imports: public import Init.Data.Int.Basic import Init.Data.Nat.Div.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,49 +13,51 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_int_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object*);
-LEAN_EXPORT lean_object* l_Int_instDiv;
-static lean_object* l_Int_bmod___closed__1;
-LEAN_EXPORT lean_object* l_Int_divExact___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_instMod___closed__0;
-lean_object* lean_int_emod(lean_object*, lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ediv___boxed(lean_object*, lean_object*);
+lean_object* lean_int_emod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_emod___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Int_instDiv___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_ediv___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_instDiv___closed__0 = (const lean_object*)&l_Int_instDiv___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_instDiv = (const lean_object*)&l_Int_instDiv___closed__0_value;
+static const lean_closure_object l_Int_instMod___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_emod___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_instMod___closed__0 = (const lean_object*)&l_Int_instMod___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_instMod = (const lean_object*)&l_Int_instMod___closed__0_value;
 lean_object* lean_int_div_exact(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_fdiv(lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_fmod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_tmod___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_fdiv___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_divExact___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_bmod___boxed(lean_object*, lean_object*);
-static lean_object* l_Int_fdiv___closed__0;
 LEAN_EXPORT lean_object* l_Int_tdiv___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_bmod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_int_sub(lean_object*, lean_object*);
-lean_object* l_Int_subNatNat(lean_object*, lean_object*);
-static lean_object* l_Int_instDiv___closed__0;
+lean_object* lean_int_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_tmod___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Int_fdiv___closed__0;
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+lean_object* lean_int_neg_succ_of_nat(lean_object*);
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_fmod___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instMod;
-LEAN_EXPORT lean_object* l_Int_emod___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_bdiv(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_int_neg_succ_of_nat(lean_object*);
-static lean_object* l_Int_bmod___closed__0;
-lean_object* lean_int_add(lean_object*, lean_object*);
-lean_object* lean_int_ediv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_fdiv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_fdiv___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+lean_object* l_Int_subNatNat(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_fmod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_fmod___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Int_bmod_spec__0(lean_object*);
+static lean_object* l_Int_bmod___closed__0;
+static lean_object* l_Int_bmod___closed__1;
+lean_object* lean_int_add(lean_object*, lean_object*);
+lean_object* lean_int_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_bmod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_bmod___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_bdiv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bdiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ediv___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -75,38 +77,6 @@ x_3 = lean_int_emod(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Int_instDiv___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_ediv___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instDiv() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instDiv___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instMod___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_emod___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instMod() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instMod___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Int_divExact___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -719,6 +689,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin) {
 lean_object * res;
@@ -727,14 +698,9 @@ _G_initialized = true;
 res = initialize_Init_Data_Int_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_instDiv___closed__0 = _init_l_Int_instDiv___closed__0();
-lean_mark_persistent(l_Int_instDiv___closed__0);
-l_Int_instDiv = _init_l_Int_instDiv();
-lean_mark_persistent(l_Int_instDiv);
-l_Int_instMod___closed__0 = _init_l_Int_instMod___closed__0();
-lean_mark_persistent(l_Int_instMod___closed__0);
-l_Int_instMod = _init_l_Int_instMod();
-lean_mark_persistent(l_Int_instMod);
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Int_fdiv___closed__0 = _init_l_Int_fdiv___closed__0();
 lean_mark_persistent(l_Int_fdiv___closed__0);
 l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_Int_DivMod_Basic_0__Int_fdiv_match__1_splitter___redArg___closed__0();

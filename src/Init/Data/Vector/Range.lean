@@ -8,8 +8,13 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Zip
-public import Init.Data.Vector.MapIdx
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.ByCases
+import Init.Data.Array.Find
+import Init.Data.Array.Range
+import Init.Data.Vector.MapIdx
+import Init.Data.Vector.Zip
 
 public section
 

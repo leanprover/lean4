@@ -8,10 +8,10 @@ module
 prelude
 public import Lean.Data.Json
 public import Lake.Util.Date
-import Init.Data.String.Slice
 import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search
+import Init.Omega
 
 /-! # Version
 

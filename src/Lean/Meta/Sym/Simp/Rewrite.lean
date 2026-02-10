@@ -5,14 +5,13 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
 public import Lean.Meta.Sym.Simp.App
 public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InstantiateMVarsS
-import Lean.Meta.Sym.Simp.DiscrTree
+import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym.Simp
 open Grind
 

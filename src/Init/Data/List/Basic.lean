@@ -7,7 +7,10 @@ module
 
 prelude
 public import Init.Data.List.Notation
-public import Init.Data.Nat.Div.Basic
+public import Init.Data.Zero
+public import Init.Grind.Tactics
+public import Init.SimpLemmas
+import Init.Data.Nat.Basic
 
 public section
 
@@ -503,7 +506,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[specialize] def filterMap (f : α → Option β) : List α → List β
+noncomputable def filterMap (f : α → Option β) : List α → List β
   | []   => []
   | a::as =>
     match f a with
@@ -733,12 +736,6 @@ Examples:
 -/
 @[simp, grind =]
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
-
-/-! ### reduceOption -/
-
-/-- Drop `none`s from a list, and replace each remaining `some a` with `a`. -/
-@[inline] def reduceOption {α} : List (Option α) → List α :=
-  List.filterMap id
 
 /-! ## List membership
 
@@ -2017,6 +2014,7 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 
 @[simp, grind =] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+theorem sum_eq_foldr [Add α] [Zero α] {l : List α} : l.sum = l.foldr (· + ·) 0 := rfl
 
 /-! ### range -/
 

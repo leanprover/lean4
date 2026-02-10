@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WF
-// Imports: public import Init.BinderNameHint public import Init.Data.Nat.Basic
+// Imports: public import Init.BinderNameHint public import Init.Grind.Tactics import Init.Data.Nat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,50 +13,51 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_wrap___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_wfParam___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_invImage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_eager(lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_WellFounded_Nat_fix_go___redArg___closed__0;
-LEAN_EXPORT lean_object* l_PSigma_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lt__wfRel;
-lean_object* l_Nat_recCompiled___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_measure(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_wfParam___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_sizeOfWFRel(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_rprod(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_PSigma_lex(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_eager___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_wfParam(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_wfParam___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_wrap___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_wrap(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_wrap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
+LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_invImage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lt__wfRel;
+LEAN_EXPORT lean_object* l_measure(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_sizeOfWFRel(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_rprod(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_lex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelation(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_wrap___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_eager(lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_eager___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_WellFounded_Nat_fix_go___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_WellFounded_Nat_fix_go___redArg___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_WellFounded_Nat_fix_go___redArg___closed__0 = (const lean_object*)&l_WellFounded_Nat_fix_go___redArg___closed__0_value;
+lean_object* l_Nat_recCompiled___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_wrap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_wrap(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_Nat_fix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_wfParam___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_wfParam___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_wfParam(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_wfParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_wrap___redArg(lean_object* x_1) {
 _start:
 {
@@ -357,19 +358,11 @@ lean_dec(x_2);
 return x_6;
 }
 }
-static lean_object* _init_l_WellFounded_Nat_fix_go___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_WellFounded_Nat_fix_go___redArg___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_WellFounded_Nat_fix_go___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = l_WellFounded_Nat_fix_go___redArg___closed__0;
+x_4 = ((lean_object*)(l_WellFounded_Nat_fix_go___redArg___closed__0));
 x_5 = lean_alloc_closure((void*)(l_WellFounded_Nat_fix_go___redArg___lam__2___boxed), 5, 1);
 lean_closure_set(x_5, 0, x_1);
 x_6 = l_Nat_recCompiled___redArg(x_4, x_5, x_2);
@@ -459,6 +452,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init_BinderNameHint(uint8_t builtin);
+lean_object* initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_WF(uint8_t builtin) {
@@ -468,13 +462,14 @@ _G_initialized = true;
 res = initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Grind_Tactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_lt__wfRel = _init_l_Nat_lt__wfRel();
 lean_mark_persistent(l_Nat_lt__wfRel);
-l_WellFounded_Nat_fix_go___redArg___closed__0 = _init_l_WellFounded_Nat_fix_go___redArg___closed__0();
-lean_mark_persistent(l_WellFounded_Nat_fix_go___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

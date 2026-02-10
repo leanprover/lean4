@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Async.DNS
-// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic
+// Imports: public import Std.Time public import Std.Internal.UV public import Std.Internal.Async.Basic public import Init.Data.Function
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,35 +13,43 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_dns_get_name(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1(lean_object*, lean_object*);
-static lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4;
-lean_object* l_Except_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_promise_result_opt(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
-static lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1;
-static lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1;
-static lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2;
-lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Function_uncurry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3;
-static lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0___boxed(lean_object*, lean_object*);
+lean_object* lean_io_promise_result_opt(lean_object*);
+lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 44, .m_capacity = 44, .m_length = 43, .m_data = "the promise linked to the Async was dropped"};
+static const lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0_value;
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1_value;
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1___boxed, .m_arity = 3, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2_value;
 lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_DNS_getNameInfo___lam__0, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0_value;
+lean_object* l_Function_uncurry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*4, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Function_uncurry, .m_arity = 5, .m_num_fixed = 4, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1_value;
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2_value;
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2___boxed, .m_arity = 3, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3_value;
+lean_object* l_Except_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*4, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Except_map, .m_arity = 5, .m_num_fixed = 4, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1_value)} };
+static const lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4 = (const lean_object*)&l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4_value;
+lean_object* lean_uv_dns_get_name(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -157,34 +165,6 @@ x_4 = l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("the promise linked to the Async was dropped", 43, 43);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__0___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_DNS_getAddrInfo___lam__1___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -231,7 +211,7 @@ return x_12;
 block_23:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2;
+x_15 = ((lean_object*)(l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2));
 x_16 = lean_uv_dns_get_info(x_1, x_2, x_14);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -424,65 +404,11 @@ x_4 = l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_DNS_getNameInfo___lam__0), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Function_uncurry), 5, 4);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, lean_box(0));
-lean_closure_set(x_2, 2, lean_box(0));
-lean_closure_set(x_2, 3, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_DNS_getNameInfo___lam__1___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2;
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_DNS_getNameInfo___lam__2___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Except_map), 5, 4);
-lean_closure_set(x_2, 0, lean_box(0));
-lean_closure_set(x_2, 1, lean_box(0));
-lean_closure_set(x_2, 2, lean_box(0));
-lean_closure_set(x_2, 3, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_40; 
-x_7 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3;
+x_7 = ((lean_object*)(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3));
 x_40 = lean_uv_dns_get_name(x_1);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -651,7 +577,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_ctor_get(x_14, 0);
-x_33 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4;
+x_33 = ((lean_object*)(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4));
 x_34 = lean_task_map(x_33, x_32, x_12, x_13);
 lean_ctor_set(x_14, 0, x_34);
 return x_14;
@@ -662,7 +588,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_35 = lean_ctor_get(x_14, 0);
 lean_inc(x_35);
 lean_dec(x_14);
-x_36 = l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4;
+x_36 = ((lean_object*)(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4));
 x_37 = lean_task_map(x_36, x_35, x_12, x_13);
 x_38 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -684,6 +610,7 @@ return x_3;
 lean_object* initialize_Std_Time(uint8_t builtin);
 lean_object* initialize_Std_Internal_UV(uint8_t builtin);
 lean_object* initialize_Std_Internal_Async_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Function(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Async_DNS(uint8_t builtin) {
 lean_object * res;
@@ -698,22 +625,9 @@ lean_dec_ref(res);
 res = initialize_Std_Internal_Async_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0 = _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__0);
-l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1 = _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__1);
-l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2 = _init_l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getAddrInfo___closed__2);
-l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0 = _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__0);
-l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1 = _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__1);
-l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2 = _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__2);
-l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3 = _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__3);
-l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4 = _init_l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4();
-lean_mark_persistent(l_Std_Internal_IO_Async_DNS_getNameInfo___closed__4);
+res = initialize_Init_Data_Function(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

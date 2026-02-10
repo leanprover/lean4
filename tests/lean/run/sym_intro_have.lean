@@ -23,6 +23,6 @@ run_meta SymM.run do
   let mvarId ← unfoldTarget mvarId ``f
   let mvarId ← mvarId.liftLets
   logInfo mvarId
-  let (_, mvarId) ← intro mvarId `y
+  let .goal _ mvarId ← intros mvarId #[`y] | failure
   logInfo mvarId
   return ()

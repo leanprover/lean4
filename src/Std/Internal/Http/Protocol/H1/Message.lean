@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.Data.Array
 public import Std.Internal.Http.Data
 
 public section

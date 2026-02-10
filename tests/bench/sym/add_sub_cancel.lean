@@ -299,7 +299,7 @@ partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
   -- `processMVar` ensures the input goal becomes a `Sym` compatible goal.
   let mvarId ← preprocessMVar mvarId
   -- `intro m l`
-  let (_, mvarId) ← Sym.introN mvarId 2
+  let .goal _ mvarId ← Sym.introN mvarId 2 | failure
   -- `simp only [generated_cmd, repeated_cmds]`
   let .goal mvarId ← Sym.simpGoal mvarId unfoldMethods | failure
   -- `apply Exec.seq_cps`
@@ -307,7 +307,7 @@ partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
   -- `apply Exec.input`
   let .goals [mvarId] ← inputRule.apply mvarId | failure
   -- `intro v`
-  let (_, mvarId) ← Sym.introN mvarId 1
+  let .goal _ mvarId ← Sym.introN mvarId 1 | failure
   -- ## Loop
   -- We simulate the `repeat` block using a tail-recursive function `loop`
   let rec loop (mvarId : MVarId) : SymM MVarId := do
@@ -326,7 +326,7 @@ partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
     if simpEagerly then
       -- The following step is not in the `MetaM` version, but it helps performance
       -- `simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add, Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq]`
-      let .goal mvarId ← Sym.trySimpGoal mvarId simpMethods | failure
+      let .goal mvarId ← Sym.simpGoalIgnoringNoProgress mvarId simpMethods | failure
       loop mvarId
     else
       loop mvarId
@@ -383,11 +383,11 @@ partial def solveReusingCache (mvarId : MVarId) : SymM Unit := do
     ``and_self, ``exists_eq_True, ``Word.add_sub_cancel]
   -- ## Initialize
   let mvarId ← preprocessMVar mvarId
-  let (_, mvarId) ← Sym.introN mvarId 2
+  let .goal _ mvarId ← Sym.introN mvarId 2 | failure
   let .goal mvarId ← Sym.simpGoal mvarId unfoldMethods | failure
   let .goals [mvarId] ← exec_cpsRule.apply mvarId | failure
   let .goals [mvarId] ← inputRule.apply mvarId | failure
-  let (_, mvarId) ← Sym.introN mvarId 1
+  let .goal _ mvarId ← Sym.introN mvarId 1 | failure
   -- ## Loop
   let rec loop (mvarId : MVarId) (simpState : Sym.Simp.State) : SymM MVarId := do
     let .goals [mvarId] ← exec_cpsRule.apply mvarId | return mvarId

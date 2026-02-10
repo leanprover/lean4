@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Zero
-// Imports: public import Init.Core
+// Imports: public import Init.Tactics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,32 +13,32 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_One_ofOfNat1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Zero_ofOfNat0___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_One_ofOfNat1___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_One_toOfNat1___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Zero_ofOfNat0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_nsmulRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_npowRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Zero_ofOfNat0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_One_toOfNat1___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_npowRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_nsmulRec___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_nsmulRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Zero_toOfNat0___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_nsmulRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_npowRec___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_One_toOfNat1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Zero_toOfNat0___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Zero_toOfNat0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Zero_toOfNat0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Zero_ofOfNat0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Zero_ofOfNat0___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Zero_ofOfNat0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Zero_ofOfNat0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_One_toOfNat1___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_One_toOfNat1___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_One_toOfNat1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_One_toOfNat1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_One_ofOfNat1___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_One_ofOfNat1___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_One_ofOfNat1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_One_ofOfNat1___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_npowRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Zero_toOfNat0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_One_ofOfNat1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Zero_toOfNat0___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_One_ofOfNat1___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Zero_ofOfNat0___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_npowRec___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_npowRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_npowRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_nsmulRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_nsmulRec___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_nsmulRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_nsmulRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Zero_toOfNat0___redArg(lean_object* x_1) {
 _start:
 {
@@ -277,13 +277,13 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* initialize_Init_Core(uint8_t builtin);
+lean_object* initialize_Init_Tactics(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Zero(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin);
+res = initialize_Init_Tactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

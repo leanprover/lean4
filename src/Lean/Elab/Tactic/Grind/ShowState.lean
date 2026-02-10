@@ -5,11 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Elab.Tactic.Grind.Basic
 public import Lean.Elab.Tactic.Grind.Filter
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
-import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Split
 namespace Lean.Elab.Tactic.Grind
 open Meta

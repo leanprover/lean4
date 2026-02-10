@@ -7,12 +7,12 @@ Authors: Joachim Breitner
 module
 prelude
 public import Lean.Meta.Basic
-import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Constructions.SparseCasesOn
 import Lean.Meta.Constructions.SparseCasesOnEq
 import Lean.Meta.HasNotBit
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Replace
 
 namespace Lean.Meta
 

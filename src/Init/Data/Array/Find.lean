@@ -6,9 +6,22 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Find
+import Init.Data.List.Nat.Sum
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Range
+public import Init.Data.Array.Attach
+public import Init.Data.Option.BasicAux
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.MapIdx
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Count
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Nat.Find
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 
@@ -114,7 +127,7 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
   simp only [List.findSome?_toArray, List.findSome?_map, Function.comp_def, List.getElem?_toArray,
     List.findSome?_isSome_iff, isSome_getElem?]
   simp only [flatten_toArray_map_toArray, List.size_toArray, List.length_flatten,
-    Nat.sum_pos_iff_exists_pos, List.mem_map] at h
+    List.sum_pos_iff_exists_pos_nat, List.mem_map] at h
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
   exact ⟨xs, m, by simpa using h⟩
 
@@ -673,6 +686,39 @@ theorem isNone_findFinIdx? {xs : Array α} {p : α → Bool} :
   rw [findFinIdx?_congr List.unattach_toArray]
   simp only [Option.map_map, Function.comp_def, Fin.cast_cast]
   simp [Array.size]
+
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  cases xs
+  simp [List.find?_eq_map_findFinIdx?_getElem]
+  rfl
+
+theorem find?_eq_bind_findIdx?_getElem? {xs : Array α} {p : α → Bool} :
+    xs.find? p = (xs.findIdx? p).bind (xs[·]?) := by
+  cases xs
+  simp [List.find?_eq_bind_findIdx?_getElem?]
+
+theorem find?_eq_getElem?_findIdx {xs : Array α} {p : α → Bool} :
+    xs.find? p = xs[xs.findIdx p]? := by
+  cases xs
+  simp [List.find?_eq_getElem?_findIdx]
+
+theorem findIdx?_eq_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx? p = (xs.find? p).bind (xs.idxOf? ·) := by
+  cases xs
+  simp [List.findIdx?_eq_bind_find?_idxOf?]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  cases xs
+  simp [List.findFinIdx?_eq_bind_find?_finIdxOf?]
+
+theorem findIdx_eq_getD_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
+    xs.findIdx p = ((xs.find? p).bind (xs.idxOf? ·)).getD xs.size := by
+  cases xs
+  simp [List.findIdx_eq_getD_bind_find?_idxOf?]
 
 /-! ### idxOf
 

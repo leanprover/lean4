@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+import Init.While
 public import Init.Data.String
 public import Std.Internal.Parsec
 public import Std.Internal.Parsec.ByteArray

@@ -7,14 +7,12 @@ module
 
 prelude
 public import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.EqnsUtils
-import Lean.Meta.ArgsPacker.Basic
 import Init.Internal.Order.Basic
-import Lean.Elab.Tactic.Conv
+import Lean.Meta.Tactic.Delta
+import Lean.Meta.Tactic.Refl
 
 namespace Lean.Elab.PartialFixpoint
 open Meta
-open Eqns
 
 public structure EqnInfo where
   declName    : Name

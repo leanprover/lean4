@@ -12,6 +12,7 @@ open Std.Do
 
 set_option grind.warning false
 set_option mvcgen.warning false
+set_option warn.sorry false
 
 namespace Code
 
@@ -141,19 +142,19 @@ example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Na
 example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
   post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
 
+set_option backward.whnf.reducibleClassField true
+
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
   throwing_loop
   ⦃post⟨fun _ _ => ⌜False⌝,
         fun e s => ⌜e = 42 ∧ s = 4⌝⟩⦄ := by
   mintro hs
-  dsimp only [throwing_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
-  mspec
+  dsimp +instances only [throwing_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
   mspec
   case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
   case post.success =>
-    mspec
     mspec
     mspec
     simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SPred.down_pure, SPred.entails_nil,
@@ -481,7 +482,7 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen <;> simp_all
 
 theorem test_sum :
@@ -557,8 +558,11 @@ instance : Monad Result where
   | .fail e => .fail e
   | .div => .div
 
-instance : LawfulMonad Result := by
-  apply LawfulMonad.mk' <;> (simp only [instMonadResult]; grind)
+instance : LawfulMonad Result :=
+  LawfulMonad.mk' _
+    (by dsimp only [Functor.map]; grind)
+    (by dsimp only [bind]; grind)
+    (by dsimp only [bind]; grind)
 
 instance Result.instWP : WP Result (.except Error .pure) where
   wp x := match x with
@@ -567,16 +571,16 @@ instance Result.instWP : WP Result (.except Error .pure) where
   | .div => PredTrans.const ⌜False⌝
 
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
-  wp_pure := by intros; ext Q; simp [wp, PredTrans.pure, pure, Except.pure, Id.run]
+  wp_pure _ := by ext Q; simp [wp]
   wp_bind x f := by
-    simp only [instWP, bind]
+    dsimp only [wp, bind]
     ext Q
-    cases x <;> simp [PredTrans.bind, PredTrans.const]
+    grind
 
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
     intro hspec
-    simp only [instWP] at hspec
+    simp only [wp] at hspec
     split at hspec <;> simp_all
 
 /-- Kinds of unsigned integers -/
@@ -912,28 +916,26 @@ example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop),
 variable {m} [Monad m]
 open Std Std.Iterators
 
--- TODO: enable after stage0 update, such that MPL priorities work
--- theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
---     Triple (m := m) (do
---       let mut sum : Nat := 0
---       for n in xs.iter do
---         sum := sum + n
---       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
---   mvcgen
---   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
---   all_goals grind
+theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in xs.iter do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+  all_goals grind
 
--- TODO: enable after stage0 update, such that MPL priorities work
--- theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
---     [WPMonad m ps] :
---     Triple (m := m) (do
---       let mut sum : Nat := 0
---       for n in (xs.iterM Id).map (· + 1) do
---         sum := sum + n
---       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
---   mvcgen
---   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
---   all_goals grind
+theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+    [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in (xs.iterM Id).map (· + 1) do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  all_goals grind
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :

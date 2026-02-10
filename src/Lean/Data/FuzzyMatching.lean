@@ -16,8 +16,6 @@ public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.OfScientific
 public import Init.Data.Option.Coe
 public import Init.Data.Range
-import Init.Data.SInt.Basic
-import Init.Data.String.Basic
 import Lean.Server.Completion.CompletionUtils
 
 public section

@@ -8,9 +8,8 @@ prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.Constructions.CtorIdx
-import Lean.Meta.AppBuilder
 import Lean.Meta.HasNotBit
-import Lean.Meta.WHNF
+import Lean.Meta.Transform
 /-!  See `mkSparseCasesOn` below.  -/
 
 namespace Lean.Meta

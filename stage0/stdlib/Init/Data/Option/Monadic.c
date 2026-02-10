@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Option.Monadic
-// Imports: import all Init.Data.Option.Instances public import Init.Data.Option.Attach
+// Imports: import all Init.Data.Option.Instances public import Init.Control.Lawful public import Init.Data.Option.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instDecidableEq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instDecidableEq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instForIn_x27InferInstanceMembershipOfMonad_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instDecidableEq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instForIn_x27InferInstanceMembershipOfMonad_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Monadic_0__Option_instDecidableEq_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -82,7 +82,8 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_Option_Instances(uint8_t builtin);
-lean_object* initialize_Init_Data_Option_Attach(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Option_Monadic(uint8_t builtin) {
 lean_object * res;
@@ -91,7 +92,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Option_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Option_Attach(builtin);
+res = initialize_Init_Control_Lawful(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

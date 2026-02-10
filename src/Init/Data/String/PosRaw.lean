@@ -6,8 +6,8 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Bootstrap
 public import Init.Data.ByteArray.Basic
+import Init.Data.Nat.Simproc
 
 /-!
 # Arithmetic of `String.Pos.Raw`
@@ -144,8 +144,11 @@ theorem Pos.Raw.offsetBy_assoc {p q r : Pos.Raw} :
 
 @[simp]
 theorem Pos.Raw.offsetBy_zero_left {p : Pos.Raw} : (0 : Pos.Raw).offsetBy p = p := by
-  ext
-  simp
+  simp [Pos.Raw.ext_iff]
+
+@[simp]
+theorem Pos.Raw.offsetBy_zero {p : Pos.Raw} : p.offsetBy 0 = p := by
+  simp [Pos.Raw.ext_iff]
 
 /--
 Decreases `p` by `offset`. This is not an `HSub` instance because it should be a relatively
@@ -175,6 +178,14 @@ theorem Pos.Raw.unoffsetBy_offsetBy {p q : Pos.Raw} : (p.offsetBy q).unoffsetBy 
   simp
 
 @[simp]
+theorem Pos.Raw.unoffsetBy_zero {p : Pos.Raw} : p.unoffsetBy 0 = p := by
+  simp [Pos.Raw.ext_iff]
+
+@[simp]
+theorem Pos.Raw.unoffsetBy_le_self {p q : Pos.Raw} : p.unoffsetBy q ≤ p := by
+  simp [Pos.Raw.le_iff]
+
+@[simp]
 theorem Pos.Raw.eq_zero_iff {p : Pos.Raw} : p = 0 ↔ p.byteIdx = 0 :=
   Pos.Raw.ext_iff
 
@@ -195,6 +206,10 @@ def Pos.Raw.increaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
 theorem Pos.Raw.byteIdx_increaseBy {p : Pos.Raw} {n : Nat} :
     (p.increaseBy n).byteIdx = p.byteIdx + n := (rfl)
 
+@[simp]
+theorem Pos.Raw.increaseBy_zero {p : Pos.Raw} : p.increaseBy 0 = p := by
+  simp [Pos.Raw.ext_iff]
+
 /--
 Move the position `p` back by `n` bytes. This is not an `HSub` instance because it should be a
 relatively rare operation, so we use a name to make accidental use less likely. To remove the size
@@ -212,6 +227,10 @@ def Pos.Raw.decreaseBy (p : Pos.Raw) (n : Nat) : Pos.Raw where
 theorem Pos.Raw.byteIdx_decreaseBy {p : Pos.Raw} {n : Nat} :
     (p.decreaseBy n).byteIdx = p.byteIdx - n := (rfl)
 
+@[simp]
+theorem Pos.Raw.decreaseBy_zero {p : Pos.Raw} : p.decreaseBy 0 = p := by
+  simp [Pos.Raw.ext_iff]
+
 theorem Pos.Raw.increaseBy_charUtf8Size {p : Pos.Raw} {c : Char} :
     p.increaseBy c.utf8Size = p + c := by
   simp [Pos.Raw.ext_iff]
@@ -224,6 +243,10 @@ def Pos.Raw.inc (p : Pos.Raw) : Pos.Raw :=
 @[simp]
 theorem Pos.Raw.byteIdx_inc {p : Pos.Raw} : p.inc.byteIdx = p.byteIdx + 1 := (rfl)
 
+@[simp]
+theorem Pos.Raw.inc_unoffsetBy_inc {p q : Pos.Raw} : p.inc.unoffsetBy q.inc = p.unoffsetBy q := by
+  simp [Pos.Raw.ext_iff]
+
 /-- Decreases the byte offset of the position by `1`. Not to be confused with `Pos.prev`. -/
 @[inline, expose]
 def Pos.Raw.dec (p : Pos.Raw) : Pos.Raw :=
@@ -235,11 +258,16 @@ theorem Pos.Raw.byteIdx_dec {p : Pos.Raw} : p.dec.byteIdx = p.byteIdx - 1 := (rf
 @[simp]
 theorem Pos.Raw.le_refl {p : Pos.Raw} : p ≤ p := by simp [le_iff]
 
+@[simp]
 theorem Pos.Raw.lt_inc {p : Pos.Raw} : p < p.inc := by simp [lt_iff]
 
 theorem Pos.Raw.le_of_lt {p q : Pos.Raw} : p < q → p ≤ q := by simpa [lt_iff, le_iff] using Nat.le_of_lt
 
+@[simp]
 theorem Pos.Raw.inc_le {p q : Pos.Raw} : p.inc ≤ q ↔ p < q := by simpa [lt_iff, le_iff] using Nat.succ_le_iff
+
+@[simp]
+theorem Pos.Raw.lt_inc_iff {p q : Pos.Raw} : p < q.inc ↔ p ≤ q := by simpa [lt_iff, le_iff] using Nat.lt_add_one_iff
 
 theorem Pos.Raw.lt_of_le_of_lt {a b c : Pos.Raw} : a ≤ b → b < c → a < c := by
   simpa [le_iff, lt_iff] using Nat.lt_of_le_of_lt

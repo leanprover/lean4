@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.TransparencyMode
-// Imports: public import Init.Data.UInt.Basic
+// Imports: public import Init.Data.UInt.Basic public import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,12 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
-static lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
+static const lean_closure_object l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_TransparencyMode_hash___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0 = (const lean_object*)&l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_TransparencyMode_instHashable__lean = (const lean_object*)&l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0_value;
 LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t x_1) {
 _start:
 {
@@ -64,22 +65,6 @@ x_2 = lean_unbox(x_1);
 x_3 = l_Lean_Meta_TransparencyMode_hash(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_hash___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_TransparencyMode_instHashable__lean() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
@@ -229,6 +214,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin);
+lean_object* initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_TransparencyMode(uint8_t builtin) {
 lean_object * res;
@@ -237,10 +223,9 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0 = _init_l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_instHashable__lean___closed__0);
-l_Lean_Meta_TransparencyMode_instHashable__lean = _init_l_Lean_Meta_TransparencyMode_instHashable__lean();
-lean_mark_persistent(l_Lean_Meta_TransparencyMode_instHashable__lean);
+res = initialize_Init_MetaTypes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

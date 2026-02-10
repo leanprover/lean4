@@ -10,6 +10,11 @@ public import Std.Data.DHashMap.Internal.RawLemmas
 import all Std.Data.DHashMap.Basic
 public import Std.Data.DHashMap.AdditionalOperations
 import all Std.Data.DHashMap.AdditionalOperations
+import Init.ByCases
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.List.Pairwise
+import Init.Data.Prod
 
 public section
 
@@ -4535,6 +4540,7 @@ end Const
 end Equiv
 
 /-- Internal implementation detail of the hash map. -/
+@[instance_reducible]
 def isSetoid (α β) [BEq α] [Hashable α] : Setoid (DHashMap α β) where
   r := Equiv
   iseqv := {

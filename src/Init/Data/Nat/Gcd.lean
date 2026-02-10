@@ -6,9 +6,11 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Dvd
 public import Init.NotationExtra
-public import Init.RCases
+public import Init.Data.Nat.Div.Basic
+import Init.Data.Nat.Dvd
+import Init.RCases
+import Init.WFTactics
 
 public section
 

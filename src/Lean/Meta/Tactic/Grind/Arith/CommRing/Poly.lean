@@ -6,6 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ring.CommSolver
+import Init.Data.Nat.Gcd
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Linear
+import Init.WFTactics
 public section
 namespace Lean.Grind.CommRing
 

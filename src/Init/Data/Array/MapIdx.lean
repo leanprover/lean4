@@ -7,9 +7,9 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.OfFn
 public import Init.Data.List.MapIdx
 import all Init.Data.List.MapIdx
+import Init.Data.Array.OfFn
 
 public section
 

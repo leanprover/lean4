@@ -42,8 +42,8 @@ structure Config where
   -/
   inlineDefs := true
   /--
-  If `simpCtor` is `true`, then constructor applications with a matching discriminant are replaced
-  with a reference to the discriminant.
+  If `simpCtor` is `true`, then scalar constructor applications with a matching discriminant are
+  replaced with a reference to the discriminant.
   -/
   simpCtor := true
   deriving Inhabited

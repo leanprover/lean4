@@ -61,6 +61,7 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   | some { value := .const declName _ args, .. } =>
     let some (.ctorInfo val) := (← getEnv).find? declName |
       -- always consider scalar constructors like `true` / `false`
+      -- we don't consider non-scalar constructors here because touching them can break reuse
       let some c@(.ctor _ #[]) := (← read).discrCtorMap.get? fvarId | return none
       return some c
     return some <| .ctor val args

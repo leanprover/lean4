@@ -17,6 +17,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ParPreSum
 import Init.Data.Nat.Linear
 import Init.Omega
 

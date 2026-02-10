@@ -25,11 +25,10 @@ namespace Std.Tactic.BVDecide
 
 open Std.Sat
 
+variable [Hashable α] [DecidableEq α]
 
 namespace BVExpr
 namespace bitblast
-
-variable [Hashable α] [DecidableEq α]
 
 structure ParPreSumTarget (aig : AIG α) (len : Nat) where
   {w : Nat}
@@ -156,7 +155,6 @@ theorem blastParPreSumTree_decl_eq (aig : AIG α)
         apply blastParPreSumLayer_le_size
   · simp [← hres]
 
-
 /-- We first extend all the single bits in the input BitVec w to have width `w`, then compute
 the parallel prefix sum given these bits.-/
 def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l) :
@@ -175,7 +173,7 @@ def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l) :
       /- zero-extend to the closest multiple of `l` -/
       have hzero : (w - w % l) % l = 0 := by
         apply Nat.sub_mod_eq_zero_of_mod_eq
-        simp
+        rw [Nat.mod_mod]
       let diff := (l - (w % l))
       have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
       have hmodeq : (w + diff) % l = 0 := by
@@ -188,15 +186,27 @@ def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l) :
       let aig := res.aig
       let vec := res.vec
       let init_length := (w + diff) / l
+      have hcast : w + diff = init_length * l := by
+        simp only [init_length]
+        apply Eq.symm
+        apply (Nat.dvd_iff_div_mul_eq (w + diff) l ).mp
+        apply (Nat.mod_eq_sub_iff ?_ ?_).mp
+        <;> omega
       let castVec : AIG.RefVec aig (init_length * l) :=
-                      {refs := vec.refs.cast (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)]),
+                      {refs := vec.refs.cast hcast,
                         hrefs := by simp [aig, vec.hrefs]}
       blastParPreSumTree aig (l_length := init_length) (by simp [init_length]; omega) (l := castVec)
     else
       /- cast and build parPreSum directly -/
       let init_length := w / l
+      have hcast : x.w = init_length * l := by
+        simp only [init_length]
+        apply Eq.symm
+        apply (Nat.dvd_iff_div_mul_eq w l ).mp
+        refine Int.ofNat_dvd.mp ?_
+        omega
       let castVec : AIG.RefVec aig (init_length * l) :=
-                      {refs := x.inner.refs.cast (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)]),
+                      {refs := x.inner.refs.cast hcast,
                         hrefs := by simp [x.inner.hrefs]}
       blastParPreSumTree aig (l_length := init_length) (by simp [init_length]; omega) (l := castVec)
 

@@ -55,9 +55,24 @@ structure UserInfo where
 deriving Inhabited, Repr
 
 /--
-A domain name represented as a lowercase-normalized string.
+Checks if a character is valid for use in a domain name.
+Valid characters are ASCII alphanumeric, hyphens, and dots.
 -/
-abbrev DomainName := { s : String // IsLowerCase s }
+def isValidDomainNameChar (c : Char) : Bool :=
+  c.isAlphanum || c == '-' || c == '.'
+
+/--
+Proposition that asserts all characters in a string are valid domain name characters.
+-/
+abbrev IsValidDomainName (s : String) : Prop :=
+  s.toList.all isValidDomainNameChar
+
+/--
+A domain name represented as a validated, lowercase-normalized string.
+Only ASCII alphanumeric characters, hyphens, and dots are allowed.
+Internationalized domain names must be converted to punycode before use.
+-/
+abbrev DomainName := { s : String // IsLowerCase s ∧ IsValidDomainName s }
 
 /--
 Host component of a URI, supporting domain names and IP addresses.
@@ -129,8 +144,8 @@ instance : ToString Authority where
   toString auth :=
     let userPart := match auth.userInfo with
       | none => ""
-      | some ⟨name, some pass⟩ => s!"{toString name}:{toString pass}@"
-      | some ⟨name, none⟩ => s!"{toString name}@"
+      | some ⟨name, some pass⟩ => s!"{toString (EncodedString.encode name)}:{toString (EncodedString.encode pass)}@"
+      | some ⟨name, none⟩ => s!"{toString (EncodedString.encode name)}@"
     let hostPart := toString auth.host
     let portPart := match auth.port with
       | none => ""
@@ -495,11 +510,28 @@ def setUserInfo (b : Builder) (username : String) (password : Option String := n
   }
 
 /--
-Sets the host as a domain name.
-The domain name will be automatically percent-encoded.
+Sets the host as a domain name, returning `none` if the name contains invalid characters.
+The domain name will be automatically lowercased.
+Only ASCII alphanumeric characters, hyphens, and dots are allowed.
+Internationalized domain names must be converted to punycode before use.
 -/
-def setHost (b : Builder) (name : String) : Builder :=
-  { b with host := some (Host.name ⟨name.toLower, IsLowerCase.isLowerCase_toLower⟩) }
+def setHost? (b : Builder) (name : String) : Option Builder :=
+  let lower := name.toLower
+  if h : IsValidDomainName lower then
+    some { b with host := some (Host.name ⟨lower, IsLowerCase.isLowerCase_toLower, h⟩) }
+  else
+    none
+
+/--
+Sets the host as a domain name, panicking if the name contains invalid characters.
+The domain name will be automatically lowercased.
+Only ASCII alphanumeric characters, hyphens, and dots are allowed.
+Internationalized domain names must be converted to punycode before use.
+-/
+def setHost! (b : Builder) (name : String) : Builder :=
+  match b.setHost? name with
+  | some b => b
+  | none   => panic! s!"invalid domain name: {name.quote}"
 
 /--
 Sets the host as an IPv4 address.
@@ -651,7 +683,7 @@ inductive RequestTarget where
   and optional fragment.
   Example: `/path/to/resource?key=value#section`
   -/
-  | originForm (path : URI.Path) (query : Option URI.Query) (fragment : Option String)
+  | originForm (path : URI.Path) (query : Option URI.Query)
 
   /--
   Absolute-form request target containing a complete URI. Used when making requests through a proxy.
@@ -679,7 +711,7 @@ Extracts the path component from a request target, if available.
 Returns an empty relative path for targets without a path.
 -/
 def path : RequestTarget → URI.Path
-  | .originForm p _ _ => p
+  | .originForm p _ => p
   | .absoluteForm u => u.path
   | _ => { segments := #[], absolute := false }
 
@@ -688,7 +720,7 @@ Extracts the query component from a request target, if available.
 Returns an empty array for targets without a query.
 -/
 def query : RequestTarget → URI.Query
-  | .originForm _ q _ => q.getD URI.Query.empty
+  | .originForm _ q => q.getD URI.Query.empty
   | .absoluteForm u => u.query
   | _ => URI.Query.empty
 
@@ -704,7 +736,7 @@ def authority? : RequestTarget → Option URI.Authority
 Extracts the fragment component from a request target, if available.
 -/
 def fragment? : RequestTarget → Option String
-  | .originForm _ _ frag => frag
+  | .originForm _ _ => none
   | .absoluteForm u => u.fragment
   | _ => none
 
@@ -717,11 +749,10 @@ def uri? : RequestTarget → Option URI
 
 instance : ToString RequestTarget where
   toString
-    | .originForm path query frag =>
+    | .originForm path query =>
         let pathStr := toString path
         let queryStr := query.map toString |>.getD ""
-        let frag := frag.map (fun f => "#" ++ toString (URI.EncodedString.encode f)) |>.getD ""
-        s!"{pathStr}{queryStr}{frag}"
+        s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth
     | .asteriskForm => "*"

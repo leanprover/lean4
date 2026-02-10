@@ -68,10 +68,12 @@ Writes a `ChunkedBuffer` to the `ChunkedBuffer`.
 -/
 @[inline]
 def append (buffer : ChunkedBuffer) (data : ChunkedBuffer) : ChunkedBuffer :=
+  -- Queue.enqueueAll prepends to eList, so reverse to maintain FIFO order
   { data := buffer.data.enqueueAll data.data.toArray.toList.reverse, size := buffer.size + data.size }
 
 /--
-Writes a `Char` to the `ChunkedBuffer`.
+Writes a `Char` to the `ChunkedBuffer`. Only the low byte is written (`Char.toUInt8`),
+so this is only correct for ASCII characters.
 -/
 @[inline]
 def writeChar (buffer : ChunkedBuffer) (data : Char) : ChunkedBuffer :=
@@ -88,13 +90,12 @@ def writeString (buffer : ChunkedBuffer) (data : String) : ChunkedBuffer :=
 Turn the combined structure into a single contiguous ByteArray.
 -/
 @[inline]
-def toByteArray (c : ChunkedBuffer) : ByteArray :=
-  let c := c.data.toArray
-
-  if h : 1 = c.size then
-    c[0]'(Nat.le_of_eq h)
+def toByteArray (cb : ChunkedBuffer) : ByteArray :=
+  let arr := cb.data.toArray
+  if h : 1 = arr.size then
+    arr[0]'(Nat.le_of_eq h)
   else
-    c.foldl (· ++ ·) (.emptyWithCapacity c.size)
+    arr.foldl (· ++ ·) (.emptyWithCapacity cb.size)
 
 /--
 Build from a ByteArray directly.

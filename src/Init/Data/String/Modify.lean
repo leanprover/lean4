@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.String.Basic
 public import Init.Data.String.Termination
 import Init.Data.ByteArray.Lemmas
 import Init.Data.Char.Lemmas

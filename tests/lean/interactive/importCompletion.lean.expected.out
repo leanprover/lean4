@@ -1,22 +1,15 @@
 {"textDocument": {"uri": "file:///importCompletion.lean"},
  "position": {"line": 0, "character": 23}}
 {"items":
- [{"label": "Test.Cancel",
-   "data": ["«external:file:///importCompletion.lean»", 0, 23]},
-  {"label": "Test.Runner",
-   "data": ["«external:file:///importCompletion.lean»", 0, 23]},
-  {"label": "Test",
-   "data": ["«external:file:///importCompletion.lean»", 0, 23]},
-  {"label": "Test.Refs",
-   "data": ["«external:file:///importCompletion.lean»", 0, 23]}],
+ [{"label": "Test.Cancel", "data": ["file:///importCompletion.lean", 0, 23]},
+  {"label": "Test.Runner", "data": ["file:///importCompletion.lean", 0, 23]},
+  {"label": "Test", "data": ["file:///importCompletion.lean", 0, 23]},
+  {"label": "Test.Refs", "data": ["file:///importCompletion.lean", 0, 23]}],
  "isIncomplete": false}
 {"textDocument": {"uri": "file:///importCompletion.lean"},
  "position": {"line": 2, "character": 24}}
 {"items":
- [{"label": "Runner",
-   "data": ["«external:file:///importCompletion.lean»", 2, 24]},
-  {"label": "Cancel",
-   "data": ["«external:file:///importCompletion.lean»", 2, 24]},
-  {"label": "Refs",
-   "data": ["«external:file:///importCompletion.lean»", 2, 24]}],
+ [{"label": "Runner", "data": ["file:///importCompletion.lean", 2, 24]},
+  {"label": "Cancel", "data": ["file:///importCompletion.lean", 2, 24]},
+  {"label": "Refs", "data": ["file:///importCompletion.lean", 2, 24]}],
  "isIncomplete": false}

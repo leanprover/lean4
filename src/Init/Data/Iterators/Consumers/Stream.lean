@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Stream
-public import Init.Data.Iterators.Consumers.Access
+public import Init.Data.Iterators.Consumers.Monadic.Access
 
 set_option linter.missingDocs true
 

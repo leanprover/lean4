@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.RArray
-// Imports: public import Init.PropLemmas
+// Imports: public import Init.GetElem import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,35 +13,36 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_size___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_size(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_leaf_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_getImpl(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_size___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instGetElemRArrayNatTrue___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_branch_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_branch_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_size___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_leaf_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_leaf_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_leaf_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_branch_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_branch_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_getImpl(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_getImpl___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_RArray_0__Lean_RArray_getImpl_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Lean_instGetElemRArrayNatTrue___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instGetElemRArrayNatTrue___lam__0___boxed, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_instGetElemRArrayNatTrue___closed__0 = (const lean_object*)&l_Lean_instGetElemRArrayNatTrue___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_size___redArg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_size___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_size(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RArray_size___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ctorIdx___redArg(lean_object* x_1) {
 _start:
 {
@@ -311,19 +312,11 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_instGetElemRArrayNatTrue___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instGetElemRArrayNatTrue___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instGetElemRArrayNatTrue(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_instGetElemRArrayNatTrue___closed__0;
+x_2 = ((lean_object*)(l_Lean_instGetElemRArrayNatTrue___closed__0));
 return x_2;
 }
 }
@@ -376,17 +369,19 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
+lean_object* initialize_Init_GetElem(uint8_t builtin);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_RArray(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_GetElem(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_PropLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instGetElemRArrayNatTrue___closed__0 = _init_l_Lean_instGetElemRArrayNatTrue___closed__0();
-lean_mark_persistent(l_Lean_instGetElemRArrayNatTrue___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

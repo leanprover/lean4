@@ -20,7 +20,9 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
+    # Run even if CI fails, as long as build artifacts are available
+    # The "Verify release artifacts exist" step will fail if necessary artifacts are missing
+    if: github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
         uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
@@ -40,6 +42,19 @@ jobs:
           path: artifacts
           name: build-.*
           name_is_regexp: true
+
+      # Verify artifacts were downloaded before any side effects (tag creation, release deletion).
+      - name: Verify release artifacts exist
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
+          shopt -s nullglob
+          files=(artifacts/*/*)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::No artifacts found matching artifacts/*/*"
+            exit 1
+          fi
+          echo "Found ${#files[@]} artifacts to upload:"
+          printf '%s\n' "${files[@]}"
 
       - name: Push tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -62,42 +77,44 @@ jobs:
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
-      - name: Delete existing release if present
+      - name: Delete existing releases if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          # Try to delete any existing release for the current PR (just the version without the SHA suffix).
+          # Delete any existing releases for this PR.
+          # The short format release is always recreated with the latest commit.
+          # The SHA-suffixed release should be unique per commit, but delete just in case.
           gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} -y || true
+          gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }} -y || true
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+      # We use `gh release create` instead of `softprops/action-gh-release` because
+      # the latter enumerates all releases to check for existing ones, which fails
+      # when the repository has more than 10000 releases (GitHub API pagination limit).
+      # Upstream fix: https://github.com/softprops/action-gh-release/pull/725
       - name: Release (short format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
-        with:
-          name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}
-          # There are coredumps files here as well, but all in deeper subdirectories.
-          files: artifacts/*/*
-          fail_on_unmatched_files: true
-          draft: false
-          tag_name: pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          repository: ${{ github.repository_owner }}/lean4-pr-releases
+        run: |
+          # There are coredump files in deeper subdirectories; artifacts/*/* gets the release archives.
+          gh release create \
+            --repo ${{ github.repository_owner }}/lean4-pr-releases \
+            --title "Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}" \
+            --notes "" \
+            pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} \
+            artifacts/*/*
         env:
-          # The token used here must have `workflow` privileges.
-          GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
 
       - name: Release (SHA-suffixed format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
-        with:
-          name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }} (${{ steps.workflow-info.outputs.sourceHeadSha }})
-          # There are coredumps files here as well, but all in deeper subdirectories.
-          files: artifacts/*/*
-          fail_on_unmatched_files: true
-          draft: false
-          tag_name: pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}
-          repository: ${{ github.repository_owner }}/lean4-pr-releases
+        run: |
+          gh release create \
+            --repo ${{ github.repository_owner }}/lean4-pr-releases \
+            --title "Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }} (${{ steps.workflow-info.outputs.sourceHeadSha }})" \
+            --notes "" \
+            pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }} \
+            artifacts/*/*
         env:
-          # The token used here must have `workflow` privileges.
-          GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
 
       - name: Report release status (short format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -153,6 +170,18 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: dcarbone/install-jq-action@v3.2.0
 
+      # Generate a token for posting comments to Lean PRs about mathlib compatibility.
+      # This app is in the leanprover org and installed on leanprover/lean4.
+      - name: Generate GitHub App token for Lean PR comments
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: mathlib-comment-token
+        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        with:
+          app-id: ${{ secrets.MATHLIB_LEAN_PR_TESTING_APP_ID }}
+          private-key: ${{ secrets.MATHLIB_LEAN_PR_TESTING_PRIVATE_KEY }}
+          owner: leanprover
+          repositories: lean4
+
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD for Mathlib/Batteries
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -187,8 +216,9 @@ jobs:
 
           if [[ -n "$MESSAGE" ]]; then
             # Check if force-mathlib-ci label is present
+            # Use GITHUB_TOKEN for read-only label fetch (MATHLIB4_COMMENT_BOT is only for posting comments)
             LABELS="$(curl --retry 3 --location --silent \
-                          -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
+                          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                           -H "Accept: application/vnd.github.v3+json" \
                           "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/labels" \
                           | jq -r '.[].name')"
@@ -209,10 +239,10 @@ jobs:
 
             # Use GitHub API to check if a comment already exists
             existing_comment="$(curl --retry 3 --location --silent \
-                                    -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
+                                    -H "Authorization: token ${{ steps.mathlib-comment-token.outputs.token }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
-                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-bot"))')"
+                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "mathlib-lean-pr-testing[bot]"))')"
             existing_comment_id="$(echo "$existing_comment" | jq -r .id)"
             existing_comment_body="$(echo "$existing_comment" | jq -r .body)"
 
@@ -222,14 +252,14 @@ jobs:
               echo "Posting message to the comments: $MESSAGE"
 
               # Append new result to the existing comment or post a new comment
-              # It's essential we use the MATHLIB4_COMMENT_BOT token here, so that Mathlib CI can subsequently edit the comment.
+              # Use the mathlib-lean-pr-testing app token so Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
                 INTRO="Mathlib CI status ([docs](https://leanprover-community.github.io/contribute/tags_and_branches.html)):"
                 # Post new comment with a bullet point
                 echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X POST \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
+                  -H "Authorization: token ${{ steps.mathlib-comment-token.outputs.token }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body":($intro + "\n" + $val)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
@@ -238,7 +268,7 @@ jobs:
                 echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X PATCH \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
+                  -H "Authorization: token ${{ steps.mathlib-comment-token.outputs.token }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
@@ -379,6 +409,18 @@ jobs:
       # We next automatically create a Batteries branch using this toolchain.
       # Batteries doesn't itself have a mechanism to report results of CI from this branch back to Lean
       # Instead this is taken care of by Mathlib CI, which will fail if Batteries fails.
+
+      # Generate a token from the mathlib-nightly-testing GitHub App for cross-org access
+      - name: Generate GitHub App token for leanprover-community repos
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
+        id: mathlib-app-token
+        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        with:
+          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
+          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
+          owner: leanprover-community
+          repositories: batteries,mathlib4-nightly-testing
+
       - name: Cleanup workspace
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
@@ -390,7 +432,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: leanprover-community/batteries
-          token: ${{ secrets.MATHLIB4_BOT }}
+          token: ${{ steps.mathlib-app-token.outputs.token }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
           filter: tree:0
@@ -450,7 +492,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: leanprover-community/mathlib4-nightly-testing
-          token: ${{ secrets.MATHLIB4_BOT }}
+          token: ${{ steps.mathlib-app-token.outputs.token }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
           filter: tree:0

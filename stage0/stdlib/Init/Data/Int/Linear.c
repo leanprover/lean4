@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Linear
-// Imports: public import Init.Data.Int.LemmasAux public import Init.Data.Int.Cooper import all Init.Data.Int.Gcd public import Init.Data.AC import all Init.Data.AC import Init.LawfulBEqTactics
+// Imports: import all Init.Data.Int.Gcd import all Init.Data.AC import Init.LawfulBEqTactics public import Init.Data.Bool public import Init.Data.Int.Gcd public import Init.Data.RArray import Init.Data.Int.Cooper import Init.Data.Int.LemmasAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,161 +13,163 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_denote___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_not__le__of__le__cert___boxed(lean_object*, lean_object*);
-uint8_t l_Nat_blt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulL_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_instBEqExpr_beq(lean_object*, lean_object*);
-lean_object* l_Int_gcd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_divAll___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_instBEqExpr_beq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_tail___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_getConst___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_addConst___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_casesOnAdd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorIdx(lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatDiseq(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_neg_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_leadCoeff(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatDvd___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_addConst(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_le__of__le__cert(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_toPoly_x27_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_abs___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatEq(lean_object*);
-lean_object* lean_int_emod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_num_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatLe(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_coeff_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_Linear_instInhabitedExpr_default___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_Linear_instBEqPoly___closed__0;
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_coeff(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_insert(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidEq___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_Linear_Expr_toPoly_x27___closed__1;
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_add_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_coeff___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_casesOnNum___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_toPoly_x27_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_num_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Var_denote(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatEq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_casesOnNum(lean_object*, lean_object*);
-static lean_object* l_Int_Linear_Expr_toPoly_x27___closed__0;
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatEq___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_instInhabitedExpr;
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul_x27(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_divCoeffs(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_emod__le__cert___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_leadCoeff_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_var_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatEq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_sub_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd(lean_object*, lean_object*);
-static lean_object* l_Int_Linear_instBEqExpr___closed__0;
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_add_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_emod__le__cert(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_instBEqPoly_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidLe___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_sub_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_dvd__solve__elim__cert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_instBEqPoly;
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_neg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_divCoeffs___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_divAll(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatLe___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_le__of__le__cert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_hugeFuel;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_dvd__solve__elim__cert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_cdiv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_append(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isValidLe(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_norm(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_denote(lean_object*, lean_object*);
-lean_object* lean_int_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_instBEqExpr;
-LEAN_EXPORT lean_object* l_Int_Linear_cmod(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_combine(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_getConst(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim___redArg(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27_go(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_tail(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_gcdCoeffs_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_int_mul(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_var_elim___redArg(lean_object*, lean_object*);
-static lean_object* l_Int_Linear_instInhabitedExpr_default___closed__0;
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_norm(lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatDvd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_instBEqPoly_beq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_leadCoeff_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulL_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_abs(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_cmod___boxed(lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27(lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isValidEq(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_instBEqPoly_beq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_coeff_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_le__of__le__cert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_div___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_casesOnAdd___boxed(lean_object*, lean_object*);
-lean_object* lean_int_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_combine_x27(lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_div(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_not__le__of__le__cert(lean_object*, lean_object*);
-lean_object* lean_int_ediv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulR_elim___redArg(lean_object*, lean_object*);
-lean_object* lean_int_neg(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_leadCoeff___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_gcdCoeffs_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulR_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_instBEqPoly_beq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_cdiv___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul_x27___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Var_denote___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27_go___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_num_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_var_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_var_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_add_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Expr_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_le__of__le__cert___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatDiseq___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_sub_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_sub_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_neg_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_neg_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulL_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulL_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulR_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_mulR_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Int_Linear_instInhabitedExpr_default___closed__0;
+static lean_object* l_Int_Linear_instInhabitedExpr_default___closed__1;
 LEAN_EXPORT lean_object* l_Int_Linear_instInhabitedExpr_default;
+LEAN_EXPORT lean_object* l_Int_Linear_instInhabitedExpr;
+LEAN_EXPORT uint8_t l_Int_Linear_instBEqExpr_beq(lean_object*, lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_instBEqExpr_beq___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Int_Linear_instBEqExpr___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_Linear_instBEqExpr_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_Linear_instBEqExpr___closed__0 = (const lean_object*)&l_Int_Linear_instBEqExpr___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_Linear_instBEqExpr = (const lean_object*)&l_Int_Linear_instBEqExpr___closed__0_value;
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote(lean_object*, lean_object*);
+lean_object* lean_int_add(lean_object*, lean_object*);
+lean_object* lean_int_sub(lean_object*, lean_object*);
+lean_object* lean_int_neg(lean_object*);
+lean_object* lean_int_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorIdx(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_num_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_num_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_add_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_add_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_instBEqPoly_beq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_instBEqPoly_beq___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Int_Linear_instBEqPoly___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_Linear_instBEqPoly_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Int_Linear_instBEqPoly___closed__0 = (const lean_object*)&l_Int_Linear_instBEqPoly___closed__0_value;
+LEAN_EXPORT const lean_object* l_Int_Linear_instBEqPoly = (const lean_object*)&l_Int_Linear_instBEqPoly___closed__0_value;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_instBEqPoly_beq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_instBEqPoly_beq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_denote(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_denote___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_addConst(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_addConst___boxed(lean_object*, lean_object*);
+uint8_t l_Nat_blt(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_insert(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_norm(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_append(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_combine_x27(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_hugeFuel;
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_combine(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27_go(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27_go___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Int_Linear_Expr_toPoly_x27___closed__0;
+static lean_object* l_Int_Linear_Expr_toPoly_x27___closed__1;
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_toPoly_x27___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Expr_norm(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Expr_norm___boxed(lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_cdiv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_cdiv___boxed(lean_object*, lean_object*);
+lean_object* lean_int_emod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_cmod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_cmod___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_getConst(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_getConst___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_div___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_divAll(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_divAll___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_divCoeffs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_divCoeffs___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul_x27(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul_x27___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_combine_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_toPoly_x27_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_toPoly_x27_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatEq(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatEq___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isValidEq(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidEq___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatEq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatEq_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatLe(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatLe___boxed(lean_object*);
+uint8_t lean_int_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isValidLe(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidLe___boxed(lean_object*);
+lean_object* l_Int_gcd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_gcdCoeffs_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_gcdCoeffs_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatDvd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatDvd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_dvd__solve__elim__cert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_dvd__solve__elim__cert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_leadCoeff(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_leadCoeff___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_coeff(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_coeff___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_coeff_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_coeff_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_abs(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_abs___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_isUnsatDiseq(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatDiseq___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_tail(lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_tail___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_leadCoeff_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_leadCoeff_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_casesOnAdd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_casesOnAdd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_Poly_casesOnNum(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_Poly_casesOnNum___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_emod__le__cert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_emod__le__cert___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_le__of__le__cert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_le__of__le__cert___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_le__of__le__cert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_le__of__le__cert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Linear_not__le__of__le__cert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_not__le__of__le__cert___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Var_denote(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -663,22 +665,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Int_Linear_instBEqExpr___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_Linear_instBEqExpr_beq___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Linear_instBEqExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_Linear_instBEqExpr___closed__0;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -935,22 +921,6 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_Int_Linear_instBEqPoly___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_Linear_instBEqPoly_beq___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_Linear_instBEqPoly() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_Linear_instBEqPoly___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_instBEqPoly_beq_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -3580,33 +3550,41 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
-lean_object* initialize_Init_Data_Int_Cooper(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin);
 lean_object* initialize_Init_Data_AC(uint8_t builtin);
-lean_object* initialize_Init_Data_AC(uint8_t builtin);
 lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin);
+lean_object* initialize_Init_Data_RArray(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Cooper(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_LemmasAux(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Cooper(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Int_Gcd(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin);
+res = initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_LawfulBEqTactics(builtin);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Gcd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_RArray(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Cooper(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_Linear_instInhabitedExpr_default___closed__0 = _init_l_Int_Linear_instInhabitedExpr_default___closed__0();
@@ -3617,14 +3595,6 @@ l_Int_Linear_instInhabitedExpr_default = _init_l_Int_Linear_instInhabitedExpr_de
 lean_mark_persistent(l_Int_Linear_instInhabitedExpr_default);
 l_Int_Linear_instInhabitedExpr = _init_l_Int_Linear_instInhabitedExpr();
 lean_mark_persistent(l_Int_Linear_instInhabitedExpr);
-l_Int_Linear_instBEqExpr___closed__0 = _init_l_Int_Linear_instBEqExpr___closed__0();
-lean_mark_persistent(l_Int_Linear_instBEqExpr___closed__0);
-l_Int_Linear_instBEqExpr = _init_l_Int_Linear_instBEqExpr();
-lean_mark_persistent(l_Int_Linear_instBEqExpr);
-l_Int_Linear_instBEqPoly___closed__0 = _init_l_Int_Linear_instBEqPoly___closed__0();
-lean_mark_persistent(l_Int_Linear_instBEqPoly___closed__0);
-l_Int_Linear_instBEqPoly = _init_l_Int_Linear_instBEqPoly();
-lean_mark_persistent(l_Int_Linear_instBEqPoly);
 l_Int_Linear_hugeFuel = _init_l_Int_Linear_hugeFuel();
 lean_mark_persistent(l_Int_Linear_hugeFuel);
 l_Int_Linear_Expr_toPoly_x27___closed__0 = _init_l_Int_Linear_Expr_toPoly_x27___closed__0();

@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.Sym.Simp.Lambda
-import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.AbstractS
@@ -15,6 +13,8 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.AppBuilder
 import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
+import Init.Omega
+import Init.While
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -84,7 +84,7 @@ We produce:
 
 where each `xᵢ'` has type `deps_type → Tᵢ` and `b'` contains applications `xᵢ' (deps)`.
 -/
-structure ToBetaAppResult where
+public structure ToBetaAppResult where
   /-- Type of the input `have`-expression. -/
   α : Expr
   /-- The universe level of `α`. -/
@@ -147,7 +147,7 @@ For each `have xᵢ := vᵢ` where `vᵢ` depends on `xᵢ₁, ..., xᵢₖ` (ak
 
 The proof is `rfl` since the transformation is definitionally equal.
 -/
-def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
+public def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
   go haveExpr #[] #[] #[] #[] #[] #[] {}
 where
   /--
@@ -316,13 +316,15 @@ For each application `f a`:
 - If only `a` changed: use `congrArg : a = a' → f a = f a'`
 - If neither changed: return `.rfl`
 -/
-def simpBetaApp (e : Expr) (fType : Expr) (fnUnivs argUnivs : Array Level) : SimpM Result := do
-  return (← go e 0).1
+def simpBetaApp (e : Expr) (fType : Expr) (fnUnivs argUnivs : Array Level)
+    (simpBody : Simproc) : SimpM Result := do
+  let numArgs := argUnivs.size
+  return (← go e (numArgs - 1)).1
 where
   go (e : Expr) (i : Nat) : SimpM (Result × Expr) := do
     match e with
     | .app f a =>
-      let (rf, fType) ← go f (i+1)
+      let (rf, fType) ← go f (i-1)
       let r ← match rf, (← simp a) with
         | .rfl _, .rfl _ =>
           pure .rfl
@@ -339,7 +341,7 @@ where
           let h := mkApp6 (← mkCongrPrefix ``congr fType i) f f' a a' hf ha
           pure <| .step e' h
       return (r, fType.bindingBody!)
-    | .lam .. => return (← simpLambda e, fType)
+    | .lam .. => return (← simpBody e, fType)
     | _ => unreachable!
 
   mkCongrPrefix (declName : Name) (fType : Expr) (i : Nat) : SymM Expr := do
@@ -375,12 +377,12 @@ e₃ = e₄    (by rfl, definitional equality from toHave)
 e₁ = e₄    (by transitivity)
 ```
 -/
-def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
+def simpHaveCore (e : Expr) (simpBody : Simproc) : SimpM SimpHaveResult := do
   let e₁ := e
   let r ← toBetaApp e₁
   let e₂ := r.e
   let { fnUnivs, argUnivs } ← getUnivs r.fType
-  match (← simpBetaApp e₂ r.fType fnUnivs argUnivs) with
+  match (← simpBetaApp e₂ r.fType fnUnivs argUnivs simpBody) with
   | .rfl _ => return { result := .rfl, α := r.α, u := r.u }
   | .step e₃ h _ =>
     let h₁ := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ r.h h
@@ -397,8 +399,8 @@ Simplify a `have`-telescope.
 This is the main entry point for `have`-telescope simplification in `Sym.simp`.
 See module documentation for the algorithm overview.
 -/
-public def simpHave (e : Expr) : SimpM Result := do
-  return (← simpHaveCore e).result
+public def simpHave (e : Expr) (simpBody : Simproc) : SimpM Result := do
+  return (← simpHaveCore e simpBody).result
 
 /--
 Simplify a `have`-telescope and eliminate unused bindings.
@@ -406,8 +408,8 @@ Simplify a `have`-telescope and eliminate unused bindings.
 This combines simplification with dead variable elimination in a single pass,
 avoiding quadratic behavior from multiple passes.
 -/
-public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
-  let r ← simpHaveCore e₁
+public def simpHaveAndZetaUnused (e₁ : Expr) (simpBody : Simproc) : SimpM Result := do
+  let r ← simpHaveCore e₁ simpBody
   match r.result with
   | .rfl _ =>
     let e₂ ← zetaUnused e₁
@@ -425,7 +427,7 @@ public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
         (mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃)
       return .step e₃ h
 
-public def simpLet (e : Expr) : SimpM Result := do
+public def simpLet' (simpBody : Simproc) (e : Expr) : SimpM Result := do
   if !e.letNondep! then
     /-
     **Note**: We don't do anything if it is a dependent `let`.
@@ -433,6 +435,9 @@ public def simpLet (e : Expr) : SimpM Result := do
     -/
     return .rfl
   else
-    simpHaveAndZetaUnused e
+    simpHaveAndZetaUnused e simpBody
+
+public def simpLet : Simproc :=
+  simpLet' simpLambda
 
 end Lean.Meta.Sym.Simp

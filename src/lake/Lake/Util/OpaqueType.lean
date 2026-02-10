@@ -6,8 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Prelude
 public meta import Lake.Util.Binder
+public import Init.Notation
+import Lake.Util.Binder
 
 /-!
 This module provides utilities for defining simple opaque types

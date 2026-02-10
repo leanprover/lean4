@@ -7,7 +7,6 @@ module
 prelude
 public import Init.Grind.Ring.Basic
 public import Lean.Meta.SynthInstance
-public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith
 

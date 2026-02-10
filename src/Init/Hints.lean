@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.NotationExtra
+public import Init.Grind.Tactics
+import Init.NotationExtra
 
 public section
 
@@ -14,3 +15,12 @@ public section
    `TransparencyMode.reducible` -/
 unif_hint (p : Prop) where
   |- Not p =?= p → False
+
+unif_hint (n : Nat) where
+  ⊢ n - 0 =?= n
+
+unif_hint (n : Nat) where
+  ⊢ n + 0 =?= n
+
+unif_hint (n : Nat) where
+  ⊢ n * 0 =?= 0

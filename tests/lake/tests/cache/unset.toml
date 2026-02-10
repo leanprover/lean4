@@ -2,3 +2,6 @@ name = "test"
 
 [[lean_lib]]
 name = "Test"
+
+[[lean_lib]]
+name = "Ignored"

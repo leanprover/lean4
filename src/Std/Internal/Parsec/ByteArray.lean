@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Init.Data.String.Basic
 public import Std.Data.ByteSlice
+import Init.Omega
 
 public section
 

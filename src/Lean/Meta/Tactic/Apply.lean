@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.PrettyPrinter
 import Lean.Meta.AppBuilder
+import Init.Omega
 
 public section
 

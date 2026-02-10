@@ -7,10 +7,8 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
-import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
@@ -27,16 +25,16 @@ def simpIte : Simproc := fun e => do
     let_expr f@ite α c _ a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
-      if c.isTrue then
+      if (← isTrueExpr c) then
         return .step a <| mkApp3 (mkConst ``ite_true f.constLevels!) α a b
-      else if c.isFalse then
+      else if (← isFalseExpr  c) then
         return .step b <| mkApp3 (mkConst ``ite_false f.constLevels!) α a b
       else
         return .rfl (done := true)
     | .step c' h _ =>
-      if c'.isTrue then
+      if (← isTrueExpr c') then
         return .step a <| mkApp (e.replaceFn ``ite_cond_eq_true) h
-      else if c'.isFalse then
+      else if (← isFalseExpr c') then
         return .step b <| mkApp (e.replaceFn ``ite_cond_eq_false) h
       else
         let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
@@ -56,20 +54,20 @@ def simpDIte : Simproc := fun e => do
     let_expr f@dite α c _ a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
-      if c.isTrue then
+      if (← isTrueExpr c) then
         let a' ← share <| a.betaRev #[mkConst ``True.intro]
         return .step a' <| mkApp3 (mkConst ``dite_true f.constLevels!) α a b
-      else if c.isFalse then
+      else if (← isFalseExpr c) then
         let b' ← share <| b.betaRev #[mkConst ``not_false]
         return .step b' <| mkApp3 (mkConst ``dite_false f.constLevels!) α a b
       else
         return .rfl (done := true)
     | .step c' h _ =>
-      if c'.isTrue then
+      if (← isTrueExpr c') then
         let h' ← shareCommon <| mkOfEqTrueCore c h
         let a ← share <| a.betaRev #[h']
         return .step a <| mkApp (e.replaceFn ``dite_cond_eq_true) h
-      else if c'.isFalse then
+      else if (← isFalseExpr c') then
         let h' ← shareCommon <| mkOfEqFalseCore c h
         let b ← share <| b.betaRev #[h']
         return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h
@@ -87,23 +85,23 @@ def simpDIte : Simproc := fun e => do
 /--
 Simplifies a `cond` expression (aka Boolean `if-then-else`).
 -/
-def simpCond : Simproc := fun e => do
+public def simpCond : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 4 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 4) fun e => do
     let_expr f@cond α c a b := e | return .rfl
     match (← simp c) with
     | .rfl _ =>
-      if c.isConstOf ``true then
+      if isSameExpr c (← getBoolTrueExpr) then
         return .step a <| mkApp3 (mkConst ``cond_true f.constLevels!) α a b
-      else if c.isConstOf ``false then
+      else if isSameExpr c (← getBoolFalseExpr) then
         return .step b <| mkApp3 (mkConst ``cond_false f.constLevels!) α a b
       else
         return .rfl (done := true)
     | .step c' h _ =>
-      if c'.isConstOf ``true then
+      if isSameExpr c' (← getBoolTrueExpr) then
         return .step a <| mkApp (e.replaceFn ``Sym.cond_cond_eq_true) h
-      else if c'.isConstOf ``false then
+      else if isSameExpr c' (← getBoolFalseExpr) then
         return .step b <| mkApp (e.replaceFn ``Sym.cond_cond_eq_false) h
       else
         let e' := e.getBoundedAppFn 3

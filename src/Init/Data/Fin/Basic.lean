@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Basic
+import Init.Data.Nat.Div.Basic
 
 public section
 

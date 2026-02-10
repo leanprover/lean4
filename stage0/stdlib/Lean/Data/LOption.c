@@ -13,42 +13,46 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption(lean_object*);
-static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__2;
-LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_some_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg(lean_object*);
-static lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__3;
-LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_some_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_none_elim___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_none_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LOption_toOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_none_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_some_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_instBEqLOption_beq(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object*, lean_object*);
+static const lean_string_object l_Lean_instToStringLOption___redArg___lam__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "none"};
+static const lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__0 = (const lean_object*)&l_Lean_instToStringLOption___redArg___lam__0___closed__0_value;
+static const lean_string_object l_Lean_instToStringLOption___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "(some "};
+static const lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__1 = (const lean_object*)&l_Lean_instToStringLOption___redArg___lam__0___closed__1_value;
+static const lean_string_object l_Lean_instToStringLOption___redArg___lam__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ")"};
+static const lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__2 = (const lean_object*)&l_Lean_instToStringLOption___redArg___lam__0___closed__2_value;
+static const lean_string_object l_Lean_instToStringLOption___redArg___lam__0___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "undef"};
+static const lean_object* l_Lean_instToStringLOption___redArg___lam__0___closed__3 = (const lean_object*)&l_Lean_instToStringLOption___redArg___lam__0___closed__3_value;
+lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LOption_toOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_toLOption___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Option_toLOption(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_toLOptionM___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_toLOptionM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object* x_1) {
 _start:
 {
@@ -312,38 +316,6 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instToStringLOption___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("none", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instToStringLOption___redArg___lam__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(some ", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instToStringLOption___redArg___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(")", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instToStringLOption___redArg___lam__0___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("undef", 5, 5);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -352,7 +324,7 @@ case 0:
 {
 lean_object* x_3; 
 lean_dec_ref(x_1);
-x_3 = l_Lean_instToStringLOption___redArg___lam__0___closed__0;
+x_3 = ((lean_object*)(l_Lean_instToStringLOption___redArg___lam__0___closed__0));
 return x_3;
 }
 case 1:
@@ -361,11 +333,11 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec_ref(x_2);
-x_5 = l_Lean_instToStringLOption___redArg___lam__0___closed__1;
+x_5 = ((lean_object*)(l_Lean_instToStringLOption___redArg___lam__0___closed__1));
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_string_append(x_5, x_6);
 lean_dec_ref(x_6);
-x_8 = l_Lean_instToStringLOption___redArg___lam__0___closed__2;
+x_8 = ((lean_object*)(l_Lean_instToStringLOption___redArg___lam__0___closed__2));
 x_9 = lean_string_append(x_7, x_8);
 return x_9;
 }
@@ -373,7 +345,7 @@ default:
 {
 lean_object* x_10; 
 lean_dec_ref(x_1);
-x_10 = l_Lean_instToStringLOption___redArg___lam__0___closed__3;
+x_10 = ((lean_object*)(l_Lean_instToStringLOption___redArg___lam__0___closed__3));
 return x_10;
 }
 }
@@ -528,14 +500,6 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instToStringLOption___redArg___lam__0___closed__0 = _init_l_Lean_instToStringLOption___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_instToStringLOption___redArg___lam__0___closed__0);
-l_Lean_instToStringLOption___redArg___lam__0___closed__1 = _init_l_Lean_instToStringLOption___redArg___lam__0___closed__1();
-lean_mark_persistent(l_Lean_instToStringLOption___redArg___lam__0___closed__1);
-l_Lean_instToStringLOption___redArg___lam__0___closed__2 = _init_l_Lean_instToStringLOption___redArg___lam__0___closed__2();
-lean_mark_persistent(l_Lean_instToStringLOption___redArg___lam__0___closed__2);
-l_Lean_instToStringLOption___redArg___lam__0___closed__3 = _init_l_Lean_instToStringLOption___redArg___lam__0___closed__3();
-lean_mark_persistent(l_Lean_instToStringLOption___redArg___lam__0___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

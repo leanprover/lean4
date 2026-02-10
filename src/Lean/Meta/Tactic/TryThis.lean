@@ -6,12 +6,9 @@ Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 module
 
 prelude
-public import Lean.Elab.Tactic.Basic
 import Lean.Server.CodeActions
-import Lean.Widget.UserWidget
 import Lean.Meta.Tactic.ExposeNames
-meta import Lean.Meta.Hint
-public import Lean.Meta.Hint
+public import Lean.Widget.UserWidget
 
 public section
 

@@ -29,7 +29,6 @@ theorem MyInt.natCast_eq (n : Nat) : (n : MyInt) = formalDiff n 0 := rfl
 theorem MyInt.natCast_inj (n m : Nat) :
   (n : MyInt) = (m : MyInt) ↔ n = m := by
   rw [natCast_eq, natCast_eq, eq]
-  grind
 
 example (n m : Nat) : (n : MyInt) = (m : MyInt) ↔ n = m := by
   grind [MyInt.natCast_eq, MyInt.eq]

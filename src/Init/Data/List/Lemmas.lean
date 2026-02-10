@@ -7,13 +7,17 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Init.Data.List.BasicAux
 import all Init.Data.List.BasicAux
 public import Init.Data.List.Control
 import all Init.Data.List.Control
 public import Init.BinderPredicates
 import Init.Grind.Annotated
+public import Init.Data.BEq
+public import Init.Data.Option.Instances
+import Init.Data.Bool
+import Init.Data.Option.Lemmas
+import Init.TacticsExtra
 
 grind_annotated "2025-01-24"
 
@@ -482,25 +486,28 @@ theorem mem_iff_getElem {a} {l : List α} : a ∈ l ↔ ∃ (i : Nat) (h : i < l
 theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ i : Nat, l[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem {P : α → Prop} {l : List α} :
+    (∃ x ∈ l, P x) ↔ ∃ (i : Nat), ∃ hi, P (l[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · rintro ⟨_, ⟨i, hi, rfl⟩, hP⟩
+    exact ⟨i, hi, hP⟩
+  · rintro ⟨i, hi, hP⟩
+    exact ⟨_, ⟨i, hi, rfl⟩, hP⟩
+
+theorem forall_mem_iff_forall_getElem {P : α → Prop} {l : List α} :
+    (∀ x ∈ l, P x) ↔ ∀ (i : Nat) hi, P (l[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · intro h i hi
+    exact h l[i] ⟨i, hi, rfl⟩
+  · rintro h _ ⟨i, hi, rfl⟩
+    exact h i hi
+
+@[deprecated forall_mem_iff_forall_getElem (since := "2026-01-29")]
 theorem forall_getElem {l : List α} {p : α → Prop} :
-    (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a := by
-  induction l with
-  | nil => simp
-  | cons a l ih =>
-    simp only [length_cons, mem_cons, forall_eq_or_imp]
-    constructor
-    · intro w
-      constructor
-      · exact w 0 (by simp)
-      · apply ih.1
-        intro n h
-        simpa using w (n+1) (Nat.add_lt_add_right h 1)
-    · rintro ⟨h, w⟩
-      rintro (_ | n) h
-      · simpa
-      · apply w
-        simp only [getElem_cons_succ]
-        exact getElem_mem (lt_of_succ_lt_succ h)
+    (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a :=
+  forall_mem_iff_forall_getElem.symm
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {l : List α} :
     elem a l = l.contains a := by
@@ -760,7 +767,7 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
     constructor
     intro a
     suffices ([a] == [a]) = true by
-      simpa only [List.instBEq, List.beq, Bool.and_true]
+      simpa only [BEq.beq, List.beq, Bool.and_true]
     simp
   · intro h
     infer_instance
@@ -773,7 +780,7 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
     intro a b h
     apply singleton_inj.1
     apply eq_of_beq
-    simp only [List.instBEq, List.beq]
+    simp only [BEq.beq, List.beq]
     simpa
   · intro h
     infer_instance
@@ -1827,12 +1834,17 @@ theorem append_eq_map_iff {f : α → β} :
   rw [eq_comm, map_eq_append_iff]
 
 @[simp, grind =]
-theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
-  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
+theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    [Std.Associative (α := α) (· + ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
 
 @[simp, grind =]
-theorem sum_reverse_nat (xs : List Nat) : xs.reverse.sum = xs.sum := by
-  induction xs <;> simp_all [Nat.add_comm]
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by
+  induction xs <;>
+    simp_all [sum_append, Std.Commutative.comm (α := α) _ 0,
+      Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
 
 /-! ### concat
 
@@ -2362,9 +2374,6 @@ theorem replicateRecOn {α : Type _} {p : List α → Prop} (l : List α)
     subst w
     exact hi _ _ _ _ h hn (replicateRecOn (b :: l') h0 hr hi)
 termination_by l.length
-
-@[simp] theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by
-  induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
 
 /-! ### reverse -/
 

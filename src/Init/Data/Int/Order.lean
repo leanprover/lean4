@@ -6,10 +6,11 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Int.Lemmas
-public import Init.ByCases
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Int.Lemmas
 
 public section
 
@@ -1446,5 +1447,13 @@ instance instIsLinearOrder : IsLinearOrder Int := by
 instance : LawfulOrderLT Int where
   lt_iff := by
     simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance : LawfulOrderLeftLeaningMin Int where
+  min_eq_left _ _ := Int.min_eq_left
+  min_eq_right _ _ h := Int.min_eq_right (le_of_lt (not_le.1 h))
+
+instance : LawfulOrderLeftLeaningMax Int where
+  max_eq_left _ _ := Int.max_eq_left
+  max_eq_right _ _ h := Int.max_eq_right (le_of_lt (not_le.1 h))
 
 end Int

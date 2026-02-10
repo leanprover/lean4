@@ -6,7 +6,16 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Sublist
+import Init.Grind.Util  -- shake: keep (`@[grind]` dependency)
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
+import Init.Data.Option.Lemmas
+import Init.TacticsExtra
 
 public section
 
@@ -96,6 +105,18 @@ theorem countP_le_length : countP p l ≤ l.length := by
 
 @[simp] theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
   simp only [countP_eq_length_filter, length_eq_zero_iff, filter_eq_nil_iff]
+
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.List.countP_eq_zero_of_forall {xs : List α} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.List.not_of_countP_eq_zero_of_mem {xs : List α} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.List.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
 
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, length_filter_eq_length_iff]

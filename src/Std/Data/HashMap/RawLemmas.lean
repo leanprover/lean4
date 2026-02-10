@@ -9,6 +9,7 @@ prelude
 public import Std.Data.DHashMap.RawLemmas
 public import Std.Data.HashMap.Raw
 import all Std.Data.DHashMap.Raw
+import Init.Data.List.Pairwise
 
 @[expose] public section
 

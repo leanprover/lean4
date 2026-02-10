@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.Lemmas
-// Imports: public import Init.Control.Lawful.Basic public import Init.ByCases
+// Imports: public import Init.Control.Lawful.Basic public import Init.Classical public import Init.Ext import Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,8 @@
 extern "C" {
 #endif
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
+lean_object* initialize_Init_Classical(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_Lemmas(uint8_t builtin) {
@@ -21,6 +23,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Control_Lawful_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Classical(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);

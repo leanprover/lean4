@@ -16,8 +16,11 @@ public import Init.Data.List.Find
 public import Init.Data.List.Impl
 public import Init.Data.List.Lemmas
 public import Init.Data.List.MinMax
+public import Init.Data.List.MinMaxIdx
+public import Init.Data.List.MinMaxOn
 public import Init.Data.List.Monadic
 public import Init.Data.List.Nat
+public import Init.Data.List.Int
 public import Init.Data.List.Notation
 public import Init.Data.List.Pairwise
 public import Init.Data.List.Sublist
@@ -31,3 +34,4 @@ public import Init.Data.List.MapIdx
 public import Init.Data.List.OfFn
 public import Init.Data.List.FinRange
 public import Init.Data.List.Lex
+public import Init.Data.List.Range

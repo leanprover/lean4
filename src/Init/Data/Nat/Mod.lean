@@ -6,7 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega
+public import Init.Grind.Tactics
+import Init.Data.Nat.Dvd
+import Init.Omega
+import Init.RCases
 
 public section
 

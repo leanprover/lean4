@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Rewrite

@@ -6,8 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Consumers.Partial
+public import Init.Data.Iterators.Consumers.Total
 
 set_option linter.missingDocs true
 
@@ -631,6 +632,79 @@ def Iter.Total.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id
   it.it.find? f
 
 /--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+`it.ensureTermination.first?` always terminates after finitely many steps.
+
+Examples:
+* `[7, 6].iter.first? = some 7`
+* `[].iter.first? = none`
+-/
+@[inline]
+def Iter.first? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Option β :=
+  it.toIterM.first?.run
+
+/--
+Returns the first output of the iterator, or `none` if no such output is found.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. The elements in `it` are examined in order of
+iteration.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `Iter.first?`.
+
+Examples:
+* `[7, 6].iter.first? = some 7`
+* `[].iter.first? = none`
+-/
+@[inline]
+def Iter.Total.first? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id] [Productive α Id]
+    (it : Iter.Total (α := α) β) : Option β :=
+  it.it.first?
+
+/--
+Returns `true` if the iterator yields no values.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+If the iterator is not productive, this function might run forever. The variant
+`it.ensureTermination.isEmpty` always terminates after finitely many steps.
+
+Examples:
+* `[].iter.isEmpty = true`
+* `[1].iter.isEmpty = false`
+-/
+@[inline]
+def Iter.isEmpty {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+    (it : Iter (α := α) β) : Bool :=
+  it.toIterM.isEmpty.run.down
+
+/--
+Returns `true` if the iterator yields no values.
+
+`O(|it|)` since the iterator may skip an unknown number of times before returning a result.
+Short-circuits upon encountering the first result. Only the first element of `it` is examined.
+
+This variant terminates after finitely many steps and requires a proof that the iterator is
+productive. If such a proof is not available, consider using `Iter.isEmpty`.
+
+Examples:
+* `[].iter.isEmpty = true`
+* `[1].iter.isEmpty = false`
+-/
+@[inline]
+def Iter.Total.isEmpty {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id] [Productive α Id]
+    (it : Iter.Total (α := α) β) : Bool :=
+  it.it.isEmpty
+
+/--
 Steps through the whole iterator, counting the number of outputs emitted.
 
 **Performance**:
@@ -638,9 +712,15 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, expose]
-def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
+def Iter.length {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
-  it.toIterM.count.run.down
+  it.toIterM.length.run.down
+
+@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2026-01-28"), expose]
+def Iter.count := @Iter.length
+
+@[inline, inherit_doc Iter.length, deprecated Iter.length (since := "2025-10-29"), expose]
+def Iter.size := @Iter.length
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -649,22 +729,10 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
-def Iter.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter (α := α) β) : Nat :=
-   it.count
-
-/--
-Steps through the whole iterator, counting the number of outputs emitted.
-
-**Performance**:
-
-This function's runtime is linear in the number of steps taken by the iterator.
--/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-12-04")]
+@[always_inline, inline, expose, deprecated Iter.length (since := "2025-12-04")]
 def Iter.Partial.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.toIterM.count.run.down
+  it.it.toIterM.length.run.down
 
 /--
 Steps through the whole iterator, counting the number of outputs emitted.
@@ -673,9 +741,9 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose, deprecated Iter.count (since := "2025-10-29")]
+@[always_inline, inline, expose, deprecated Iter.length (since := "2025-10-29")]
 def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) : Nat :=
-  it.it.count
+  it.it.length
 
 end Std

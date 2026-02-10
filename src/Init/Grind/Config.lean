@@ -213,6 +213,11 @@ structure Config where
   reducible declarations are always unfolded in those contexts.
   -/
   reducible := true
+  /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
   deriving Inhabited, BEq
 
 /--

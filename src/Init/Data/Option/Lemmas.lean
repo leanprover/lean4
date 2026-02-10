@@ -9,9 +9,12 @@ prelude
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.BEq
-public import Init.Classical
 public import Init.Ext
+public import Init.Data.Option.BasicAux
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
 
 public section
 
@@ -882,6 +885,10 @@ theorem get!_or {o o' : Option α} [Inhabited α] : (o.or o').get! = o.getD o'.g
 theorem guard_or_guard : (guard p a).or (guard q a) = guard (fun x => p x || q x) a := by
   simp only [guard]
   split <;> simp_all
+
+theorem any_or_of_any_left {o₁ o₂ : Option α} {f : α → Bool} (h : o₁.any f) :
+    (o₁.or o₂).any f := by
+  cases o₁ <;> simp_all
 
 /-! ### `orElse` -/
 

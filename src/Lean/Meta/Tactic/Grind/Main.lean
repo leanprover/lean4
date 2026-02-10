@@ -12,22 +12,17 @@ import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Rewrite
-import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
-import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
-import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
@@ -107,13 +102,6 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
 open Sym
 
 def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
-  let falseExpr  ← share <| mkConst ``False
-  let trueExpr   ← share <| mkConst ``True
-  let bfalseExpr ← share <| mkConst ``Bool.false
-  let btrueExpr  ← share <| mkConst ``Bool.true
-  let natZExpr   ← share <| mkNatLit 0
-  let ordEqExpr  ← share <| mkConst ``Ordering.eq
-  let intExpr    ← share <| Int.mkType
   /- **Note**: Consider using `Sym.simp` in the future. -/
   let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
@@ -124,9 +112,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, simp, extensions, symPrios
-      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
-      debug }
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -155,7 +141,7 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
 /-- Returns a new goal for the given metavariable. -/
-public def mkGoal (mvarId : MVarId) : GrindM Goal := do
+public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -288,7 +274,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  let goal ← mkGoal mvarId
+  let goal ← mkGoalCore mvarId
   if config.revert then
     return goal
   else

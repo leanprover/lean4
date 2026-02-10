@@ -11,9 +11,9 @@ public import Lean.Meta.Tactic.Simp.Types
 import Lean.Elab.PreDefinition.EqnsUtils
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Refl
+import Init.Simproc
 
 /-!
 This module is responsible for proving the unfolding equation for functions defined

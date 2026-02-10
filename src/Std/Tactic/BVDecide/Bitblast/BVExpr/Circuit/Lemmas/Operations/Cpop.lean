@@ -313,7 +313,7 @@ theorem denote_blastCpop
         ⟦(blastCpop aig xc).aig, (blastCpop aig xc).vec.get idx hidx, assign⟧
           = (BitVec.cpop x).getLsbD idx := by
     generalize hgen : blastCpop aig xc = res
-    rw [BitVec.cpopRec_eq_cpop]
+    rw [BitVec.cpop_eq_cpopRec]
     unfold blastCpop at hgen
     split at hgen
     · case _ h1 =>

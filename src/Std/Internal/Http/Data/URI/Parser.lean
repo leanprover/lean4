@@ -178,18 +178,27 @@ private def parseIPv4 : Parser Net.IPv4Addr := do
   return ipv4Str
 
 -- host = IP-literal / IPv4address / reg-name
+-- Note: RFC 1123 allows domain labels to start with digits, so we must try IPv4
+-- first and fall back to reg-name parsing if it fails.
 private def parseHost : Parser URI.Host := do
   if (← peekWhen? (· == '['.toUInt8)).isSome then
     return .ipv6 (← parseIPv6)
-  else if (← peekWhen? isDigit).isSome then
-    return .ipv4 (← parseIPv4)
   else
-    let isHostName x := isUnreserved x ∨ x = '%'.toUInt8 ∨ isSubDelims x
+    if (← peekWhen? isDigit).isSome then
+      if let some ipv4 ← tryOpt parseIPv4 then
+        return .ipv4 ipv4
 
-    let some str := URI.EncodedString.ofByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray >>= URI.EncodedString.decode
+    -- It needs to be a legal DNS label, so it differs from reg-name.
+    let isHostName x := isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8
+
+    let some str := String.fromUTF8? (← takeWhileUpTo1 isHostName 1024).toByteArray
       | fail s!"invalid host"
 
-    return .name ⟨str.toLower, .isLowerCase_toLower⟩
+    let lower := str.toLower
+    if h : URI.IsValidDomainName lower then
+      return .name ⟨lower, .isLowerCase_toLower, h⟩
+    else
+      fail s!"invalid domain name: {str}"
 
 -- authority = [ userinfo "@" ] host [ ":" port ]
 private def parseAuthority : Parser URI.Authority := do
@@ -351,12 +360,8 @@ where
     if ← peekIs (· == '/'.toUInt8) then
       let path ← parsePath true true
       let query ← optional (skipByte '?'.toUInt8 *> parseQuery)
-      let frag ← optional do
-        let some result := (← (skipByteChar '#' *> parseFragment)) |>.decode
-          | fail "invalid fragment parse encoding"
-        return result
 
-      return .originForm path query frag
+      return .originForm path query
     else
       fail "not origin"
 

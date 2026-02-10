@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 

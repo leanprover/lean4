@@ -7,10 +7,14 @@ module
 
 prelude
 public import Init.Data.Iterators.Combinators.Monadic.FilterMap
-public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 import all Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Control.Lawful.MonadAttach.Lemmas
 import Init.Data.Array.Monadic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.List.Control
+import Init.Data.Bool
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
+import Init.Data.Iterators.Lemmas.Monadic.Basic
 
 public section
 
@@ -389,7 +393,7 @@ private theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostconditi
       (it.filterMapWithPostcondition (n := o) fg).toList := by
   induction it using IterM.inductSteps with | step it ihy ihs
   letI : MonadLift n o := ⟨monadLift⟩
-  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
+  haveI : LawfulMonadLift n o := ⟨by simp +instances [this], by simp +instances [this]⟩
   rw [toList_eq_match_step, toList_eq_match_step, step_filterMapWithPostcondition,
     bind_assoc, step_filterMapWithPostcondition, step_filterMapWithPostcondition]
   simp only [bind_assoc, liftM_bind]
@@ -1620,17 +1624,20 @@ end Fold
 section Count
 
 @[simp]
-theorem IterM.count_map {α β β' : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
+theorem IterM.length_map {α β β' : Type w} {m : Type w → Type w'} [Iterator α m β] [Monad m]
     [IteratorLoop α m m] [Finite α m] [LawfulMonad m] [LawfulIteratorLoop α m m]
     {it : IterM (α := α) m β} {f : β → β'} :
-    (it.map f).count = it.count := by
+    (it.map f).length = it.length := by
   induction it using IterM.inductSteps with | step it ihy ihs
-  rw [count_eq_match_step, count_eq_match_step, step_map, bind_assoc]
+  rw [length_eq_match_step, length_eq_match_step, step_map, bind_assoc]
   apply bind_congr; intro step
   cases step.inflate using PlausibleIterStep.casesOn
   · simp [ihy ‹_›]
   · simp [ihs ‹_›]
   · simp
+
+@[deprecated IterM.length_map (since := "2026-01-28")]
+def IterM.count_map := @IterM.length_map
 
 end Count
 

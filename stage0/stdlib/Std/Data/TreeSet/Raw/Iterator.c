@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Raw.Iterator
-// Imports: public import Std.Data.TreeSet.Raw.Basic public import Std.Data.TreeMap.Raw.Iterator public import Std.Data.DTreeMap.Raw.Lemmas
+// Imports: public import Std.Data.TreeSet.Raw.Basic public import Std.Data.TreeMap.Raw.Iterator public import Std.Data.DTreeMap.Raw.Lemmas import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___redArg___boxed(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_iter___redArg(lean_object* x_1) {
 _start:
 {
@@ -56,6 +56,7 @@ return x_4;
 lean_object* initialize_Std_Data_TreeSet_Raw_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Raw_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Raw_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Raw_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -68,6 +69,9 @@ res = initialize_Std_Data_TreeMap_Raw_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Raw_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Command
-import Lean.ExtraModUses
 
 public section
 

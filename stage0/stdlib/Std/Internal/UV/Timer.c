@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_reset___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl;
+lean_object* lean_uv_timer_mk(uint64_t, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_mk___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_timer_next(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_next___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_mk___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_uv_timer_cancel(lean_object*);
-lean_object* lean_uv_timer_stop(lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl;
 lean_object* lean_uv_timer_reset(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_reset___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_timer_stop(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_stop___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_timer_cancel(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Timer_cancel___boxed(lean_object*, lean_object*);
-lean_object* lean_uv_timer_mk(uint64_t, uint8_t);
 static lean_object* _init_l___private_Std_Internal_UV_Timer_0__Std_Internal_UV_TimerImpl() {
 _start:
 {

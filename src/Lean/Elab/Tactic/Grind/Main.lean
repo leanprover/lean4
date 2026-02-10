@@ -7,21 +7,13 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
-public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.EMatchTheoremParam
-import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Param
-import Lean.Meta.Tactic.Grind.Action
-import Lean.Elab.Tactic.Grind.Trace
 import Lean.Meta.Tactic.Grind.Finish
-import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.CollectParams
-import Lean.Elab.MutualDef
-meta import Lean.Meta.Tactic.Grind.Parser
+import Lean.Meta.Tactic.Grind.Parser
 public section
 namespace Lean.Elab.Tactic
 open Meta
@@ -212,7 +204,7 @@ def elabGrindLocals (params : Grind.Params) : MetaM Grind.Params := do
     -- Filter similar to LibrarySuggestions.isDeniedPremise (but inlined to avoid dependency)
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← Meta.isInstance name) then continue
+    if (← isInstanceReducible name) then continue
     match ci with
     | .defnInfo _ =>
       try
@@ -230,7 +222,11 @@ def mkGrindParams
   let params ← if only then Grind.mkOnlyParams config else Grind.mkDefaultParams config
   let mut params ← elabGrindParams params ps (lax := config.lax) (only := only)
   if config.suggestions then
-    params ← elabGrindSuggestions params (← LibrarySuggestions.select mvarId { caller := some "grind" })
+    let lsConfig : LibrarySuggestions.Config := { caller := some "grind" }
+    let lsConfig := match config.maxSuggestions with
+      | some n => { lsConfig with maxSuggestions := n }
+      | none => lsConfig
+    params ← elabGrindSuggestions params (← LibrarySuggestions.select mvarId lsConfig)
   if config.locals then
     params ← elabGrindLocals params
   trace[grind.debug.inj] "{params.extensions[0]!.inj.getOrigins.map (·.pp)}"
@@ -348,15 +344,28 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let paramStxs := if let some params := params? then params.getElems else #[]
   -- Extract term parameters (non-ident params) to include in the suggestion.
   -- These are not tracked via E-matching, so we conservatively include them all.
-  -- Ident params resolve to global declarations and are tracked via E-matching.
+  -- Plain ident params that resolve to global declarations are tracked via E-matching.
+  -- But idents with local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs`
+  -- is a local variable) must be preserved because they produce anchors that need
+  -- the original term to be loaded during replay.
   -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
-  let termParamStxs : Array Grind.TParam := paramStxs.filter fun p =>
+  let termParamStxs : Array Grind.TParam ← paramStxs.filterM fun p => do
     match p with
-    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $_:ident) => false
-    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $_:ident) => false
-    | `(Parser.Tactic.grindParam| - $_:ident) => false
-    | `(Parser.Tactic.grindParam| #$_:hexnum) => false
-    | _ => true
+    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
+      -- Check if this ident resolves to local variable dot notation
+      -- If so, keep it because it's not a simple global declaration
+      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+        return true
+      else
+        return false
+    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
+      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+        return true
+      else
+        return false
+    | `(Parser.Tactic.grindParam| - $_:ident) => return false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
+    | _ => return true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config mvarId fun mvarId' => do

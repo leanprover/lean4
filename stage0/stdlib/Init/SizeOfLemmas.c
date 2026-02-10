@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.SizeOfLemmas
-// Imports: import all Init.Data.Char.Basic import all Init.SizeOf public import Init.Data.Nat.Linear
+// Imports: import all Init.Data.Char.Basic import all Init.SizeOf public import Init.Data.Char.Basic import Init.Data.Nat.Linear meta import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,9 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_SizeOf(uint8_t builtin);
+lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_SizeOfLemmas(uint8_t builtin) {
 lean_object * res;
@@ -27,7 +29,13 @@ lean_dec_ref(res);
 res = initialize_Init_SizeOf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Char_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Linear(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_MetaTypes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

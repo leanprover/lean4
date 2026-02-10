@@ -7,7 +7,18 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Find
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Bool
+import Init.Data.List.Find
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
 
 public section
 

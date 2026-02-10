@@ -6,7 +6,16 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.BitVec
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Pow
+import Init.Data.Nat.Div.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Mod
+import Init.Data.Option.Lemmas
+import Init.Data.Range.Polymorphic.BitVec
+import Init.Omega
 
 /-!
 # Ranges on signed bit vectors
@@ -311,7 +320,7 @@ scoped instance instRxiLawfulHasSize : Rxi.LawfulHasSize (BitVec n) where
     generalize rotate lo = lo
     generalize rotate lo' = lo'
     simp only [succ?_rotate, Option.map_eq_map, Option.map_eq_some_iff, rotate_inj, exists_eq_right,
-      instRxiHasSize, rotate_rotate]
+      Rxi.HasSize.size, rotate_rotate]
     letI := BitVec.instRxiHasSize (n := n)
     exact Rxi.size_eq_succ_of_succ?_eq_some lo lo'
 

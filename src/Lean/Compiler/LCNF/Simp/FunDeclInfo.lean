@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.Simp.Basic
+import Init.Data.Format.Macro
 
 public section
 
@@ -94,27 +95,27 @@ If `mustInline := true`, then all local function declarations occurring in
 `code` are tagged as `.mustInline`.
 Recall that we use `.mustInline` for local function declarations occurring in type class instances.
 -/
-partial def FunDeclInfoMap.update (s : FunDeclInfoMap) (code : Code) (mustInline := false) : CompilerM FunDeclInfoMap := do
+partial def FunDeclInfoMap.update (s : FunDeclInfoMap) (code : Code .pure) (mustInline := false) : CompilerM FunDeclInfoMap := do
   let (_, s) ← go code |>.run s
   return s
 where
-  addArgOcc (arg : Arg) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addArgOcc (arg : Arg .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match arg with
     | .fvar fvarId =>
-      let some funDecl ← findFunDecl'? fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.addHo funDecl.fvarId
     | .erased .. | .type .. => return ()
 
-  addLetValueOccs (e : LetValue) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addLetValueOccs (e : LetValue .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match e with
     | .erased | .lit .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
     | .fvar fvarId args =>
-      let some funDecl ← findFunDecl'? fvarId | return ()
+      let some funDecl ← findFunDecl'? (pu := .pure) fvarId | return ()
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
 
-  go (code : Code) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  go (code : Code .pure) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match code with
     | .let decl k =>
       addLetValueOccs decl.value
@@ -126,7 +127,7 @@ where
     | .jp decl k => go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .jmp fvarId args =>
-      let funDecl ← getFunDecl fvarId
+      let funDecl ← getFunDecl (pu := .pure) fvarId
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
     | .return .. | .unreach .. => return ()

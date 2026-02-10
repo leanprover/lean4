@@ -25,3 +25,7 @@ Note: A public declaration `f` exists but is imported privately; consider adding
 /-! `initialize` should be run even if imported IR-only. -/
 
 public def publicDefOfPrivatelyInitialized := initialized
+
+/-! #12198: `local simp` should be accepted on privately imported theorem -/
+
+attribute [local simp] t

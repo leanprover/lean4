@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Http.Data.Extensions
 public import Std.Internal.Http.Data.Method
 public import Std.Internal.Http.Data.Version
 public import Std.Internal.Http.Data.Headers
@@ -62,6 +63,11 @@ structure Request (t : Type) where
   The request body content of type t
   -/
   body : t
+
+  /--
+  Optional dynamic metadata attached to the request.
+  -/
+  extensions : Extensions := .empty
 deriving Inhabited
 
 /--
@@ -72,6 +78,11 @@ structure Request.Builder where
   The head of the request
   -/
   head : Head := {}
+
+  /--
+  Optional dynamic metadata attached to the request.
+  -/
+  extensions : Extensions := .empty
 
 namespace Request
 
@@ -164,10 +175,16 @@ def headerOpt (builder : Builder) (key : Header.Name) (value : Option Header.Val
   | none => builder
 
 /--
+Inserts a typed extension value into the request being built.
+-/
+def extension (builder : Builder) [TypeName α] (data : α) : Builder :=
+  { builder with extensions := builder.extensions.insert data }
+
+/--
 Builds and returns the final HTTP Request with the specified body
 -/
 def body (builder : Builder) (body : t) : Request t :=
-  { head := builder.head, body := body }
+  { head := builder.head, body := body, extensions := builder.extensions }
 
 end Builder
 

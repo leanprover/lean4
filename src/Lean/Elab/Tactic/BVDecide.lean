@@ -57,8 +57,8 @@ There are also some options to influence the behavior of `bv_decide` and friends
 8. Chain all the proofs so far to demonstrate that the original goal holds.
 
 ## Axioms
-`bv_decide` makes use of proof by reflection and `ofReduceBool`, thus adding the Lean compiler to
-the trusted code base.
+`bv_decide` makes use of proof by reflection and adds the result of the compiled check as an axoim,
+thus adding the Lean compiler to the trusted code base.
 
 
 ## Adding a new primitive

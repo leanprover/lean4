@@ -169,7 +169,7 @@ def isEmpty (headers : Headers) : Bool :=
   headers.map.isEmpty
 
 /--
-Merges two headers, with the second taking precedence for duplicate keys.
+Merges two headers, accumulating values for duplicate keys from both.
 -/
 def merge (headers1 headers2 : Headers) : Headers :=
   { map := headers1.map ∪ headers2.map }

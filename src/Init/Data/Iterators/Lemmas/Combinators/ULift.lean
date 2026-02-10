@@ -8,9 +8,12 @@ module
 prelude
 public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Iterators.Combinators.ULift
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
-public import Init.Data.Iterators.Lemmas.Consumers.Collect
-public import Init.Data.Iterators.Lemmas.Consumers.Loop
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.ULift
+import Init.Data.Iterators.Lemmas.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 
@@ -57,11 +60,14 @@ theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
   simp [-toArray_toList]
 
 @[simp]
-theorem Iter.count_uLift [Iterator α Id β] {it : Iter (α := α) β}
+theorem Iter.length_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] :
-    it.uLift.count = it.count := by
-  simp only [monadLift, uLift_eq_toIter_uLift_toIterM, count_eq_count_toIterM, toIterM_toIter]
-  rw [IterM.count_uLift]
+    it.uLift.length = it.length := by
+  simp only [monadLift, uLift_eq_toIter_uLift_toIterM, length_eq_length_toIterM, toIterM_toIter]
+  rw [IterM.length_uLift]
   simp [monadLift]
+
+@[deprecated Iter.length_uLift (since := "2026-01-28")]
+def Iter.count_uLift := @Iter.length_uLift
 
 end Std

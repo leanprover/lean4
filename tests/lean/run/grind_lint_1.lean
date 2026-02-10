@@ -59,9 +59,12 @@ info: Try this to display the actual theorem instances:
 #grind_lint inspect Array.range_succ Array.range'_succ
 
 -- These go slightly over 20, but seem reasonable.
+#grind_lint skip Array.back_singleton
 #grind_lint skip Array.count_singleton
 #grind_lint skip Array.foldl_empty
 #grind_lint skip Array.foldr_empty
+#grind_lint skip Array.getElem_zero_filter
+#grind_lint skip Array.getElem_zero_filterMap
 
 #guard_msgs in
 #grind_lint check (min := 20) in Array
@@ -104,12 +107,15 @@ info: instantiating `Array.findIdx_empty` triggers 20 additional `grind` theorem
 ---
 info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` theorem instantiations
 ---
+info: instantiating `Array.getElem_eraseIdx` triggers 17 additional `grind` theorem instantiations
+---
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
   #grind_lint inspect Array.back?_empty
   #grind_lint inspect Array.count_empty
   #grind_lint inspect Array.findIdx_empty
   #grind_lint inspect Array.findIdx_singleton
+  #grind_lint inspect Array.getElem_eraseIdx
 -/
 #guard_msgs in
 #grind_lint check (min := 15) in Array

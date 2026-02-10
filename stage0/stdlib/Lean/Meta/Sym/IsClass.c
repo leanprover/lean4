@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t lean_is_class(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_IsClass_0__Lean_Meta_Sym_isClass_x3f_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_isClass_x3f(lean_object*, lean_object*);
-uint8_t lean_is_class(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_IsClass_0__Lean_Meta_Sym_isClass_x3f_go(lean_object* x_1, lean_object* x_2) {
 _start:
 {

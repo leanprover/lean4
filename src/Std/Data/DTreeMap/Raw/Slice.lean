@@ -6,7 +6,6 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Ordered
 public import Std.Data.DTreeMap.Internal.Zipper
 public import Std.Data.DTreeMap.Raw.Basic
 

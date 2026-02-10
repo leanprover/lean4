@@ -6,10 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Extension
-import Init.Grind.Util
-import Lean.Util.ForEachExpr
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Sym.Util
 public section

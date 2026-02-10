@@ -7,11 +7,9 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
-import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 open Internal

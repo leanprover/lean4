@@ -7,8 +7,17 @@ Authors: Kim Morrison, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Nat.Range
 public import Init.Data.Option.Attach
+public import Init.Data.List.OfFn
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.TakeDrop
+import Init.Data.Prod
+import Init.Data.Subtype.Basic
+import Init.Omega
 
 public section
 

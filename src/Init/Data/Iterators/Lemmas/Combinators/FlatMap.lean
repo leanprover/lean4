@@ -9,8 +9,12 @@ prelude
 import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 public import Init.Data.Iterators.Combinators.FlatMap
 import all Init.Data.Iterators.Combinators.FlatMap
-public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap
-import Init.Control.Lawful.MonadAttach.Lemmas
+public import Init.Data.Iterators.Combinators.FilterMap
+public import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap
+import Init.Data.List.Monadic
+import Init.Data.Option.Lemmas
 
 namespace Std
 open Std.Internal Std.Iterators

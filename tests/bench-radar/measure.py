@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# Wrap around a command with perf and rusage to measure some metrics. Output the
-# results either on stdout or to a file, according to the radar bench script
-# specification.
-
 import argparse
 import json
 import os
@@ -29,11 +25,6 @@ class RusageMetric:
     unit: str | None = None
 
 
-PERF_UNITS = {
-    "msec": 1e-3,
-    "ns": 1e-9,
-}
-
 PERF_METRICS = {
     "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
     "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
@@ -41,9 +32,16 @@ PERF_METRICS = {
     "cycles": PerfMetric("cycles"),
 }
 
-RUSAGE_METRICS = {
-    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="b"),  # KiB on linux
+PERF_UNITS = {
+    "msec": 1e-3,
+    "ns": 1e-9,
 }
+
+RUSAGE_METRICS = {
+    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="B"),  # KiB on linux
+}
+
+ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS}
 
 
 def measure_perf(cmd: list[str], events: list[str]) -> dict[str, tuple[float, str]]:
@@ -125,26 +123,44 @@ def measure(cmd: list[str], metrics: list[str]) -> list[Result]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--topic", action="append", default=[])
-    parser.add_argument("-m", "--metric", action="append", default=[])
-    parser.add_argument("-o", "--output", type=Path)
-    parser.add_argument("cmd", nargs="*")
+    parser = argparse.ArgumentParser(
+        description="Measure resource usage of a command using perf and rusage."
+    )
+    parser.add_argument(
+        "-t",
+        "--topic",
+        action="append",
+        default=[],
+        help="topic prefix for the metrics",
+    )
+    parser.add_argument(
+        "-m",
+        "--metric",
+        action="append",
+        default=[],
+        help=f"metrics to measure. Can be specified multiple times. Available metrics: {', '.join(sorted(ALL_METRICS))}",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=Path() / "measurements.jsonl",
+    )
+    parser.add_argument(
+        "cmd",
+        nargs="*",
+        help="command to measure the resource usage of",
+    )
     args = parser.parse_args()
 
     topics: list[str] = args.topic
     metrics: list[str] = args.metric
-    output: Path | None = args.output
+    output: Path = args.output
     cmd: list[str] = args.cmd
 
     results = measure(cmd, metrics)
 
-    if output:
-        with open(output, "a+") as f:
-            for result in results:
-                for topic in topics:
-                    f.write(f"{result.fmt(topic)}\n")
-    else:
+    with open(output, "a") as f:
         for result in results:
             for topic in topics:
-                print(f"radar::measurement={result.fmt(topic)}")
+                f.write(f"{result.fmt(topic)}\n")

@@ -1,4 +1,4 @@
-set_option trace.compiler.ir.reset_reuse true
+set_option trace.Compiler.resetReuse true
 
 def f : Nat × Nat → Nat × Nat
   | (a, b) => (b, a)

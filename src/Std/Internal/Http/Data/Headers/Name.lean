@@ -27,9 +27,9 @@ open Internal
 /--
 Checks if a character is valid for use in an HTTP header name.
 -/
+@[expose]
 def isValidHeaderNameChar (c : Char) : Bool :=
-  c ≥'!' &&  c ≤ '~' && c != '"' && c != '(' && c != ')' && c != ',' && c != ';' &&
-  c != '[' && c != ']' && c != '{' && c != '}'
+  c.toNat < 128 && Nat.testBit 0x57ffffffc7fffffe03ff6cfa00000000 c.toNat
 
 /--
 Proposition that asserts all characters in a string are valid and that it is non-empty for HTTP header names.
@@ -50,12 +50,12 @@ structure Name where
   /--
   The proof that it's a valid header name
   -/
-  validHeaderName : IsValidHeaderName value
+  validHeaderName : IsValidHeaderName value := by decide
 
   /--
   The proof that we stored the header name in normal form
   -/
-  normalForm : IsLowerCase value
+  normalForm : IsLowerCase value := by decide
 deriving Repr, DecidableEq, BEq
 
 namespace Name
@@ -65,14 +65,6 @@ instance : Hashable Name where
 
 instance : Inhabited Name where
   default := ⟨"_", by decide, by decide⟩
-
-/--
-Creates a new `Name` from a string with an optional proof of validity. If no proof is provided, it
-attempts to prove validity automatically.
--/
-@[expose]
-def new (s : String) (h : IsValidHeaderName s := by decide) (h₁ : IsLowerCase s := by decide) : Name :=
-  ⟨s, h, h₁⟩
 
 /--
 Attempts to create a `Name` from a `String`, returning `none` if the string contains invalid
@@ -99,7 +91,10 @@ def ofString! (s : String) : Name :=
     panic! s!"invalid header name: {s.quote}"
 
 /--
-Converts the header name to canonical HTTP title case (e.g., "Content-Type").
+Converts the header name to title case (e.g., "Content-Type").
+
+Note: some well-known headers have unconventional casing (e.g., "WWW-Authenticate"),
+but since HTTP header names are case-insensitive, this always uses simple capitalization.
 -/
 @[inline]
 def toCanonical (name : Name) : String :=
@@ -121,46 +116,46 @@ instance : ToString Name where
 /--
 Standard Content-Type header name
 -/
-def contentType : Header.Name := .new "content-type"
+def contentType : Header.Name := .mk "content-type"
 
 /--
 Standard Content-Length header name
 -/
-def contentLength : Header.Name := .new "content-length"
+def contentLength : Header.Name := .mk "content-length"
 
 /--
 Standard Host header name
 -/
-def host : Header.Name := .new "host"
+def host : Header.Name := .mk "host"
 
 /--
 Standard Authorization header name
 -/
-def authorization : Header.Name := .new "authorization"
+def authorization : Header.Name := .mk "authorization"
 
 /--
 Standard User-Agent header name
 -/
-def userAgent : Header.Name := .new "user-agent"
+def userAgent : Header.Name := .mk "user-agent"
 
 /--
 Standard Accept header name
 -/
-def accept : Header.Name := .new "accept"
+def accept : Header.Name := .mk "accept"
 
 /--
 Standard Connection header name
 -/
-def connection : Header.Name := .new "connection"
+def connection : Header.Name := .mk "connection"
 
 /--
 Standard Transfer-Encoding header name
 -/
-def transferEncoding : Header.Name := .new "transfer-encoding"
+def transferEncoding : Header.Name := .mk "transfer-encoding"
 
 /--
 Standard Server header name
 -/
-def server : Header.Name := .new "server"
+def server : Header.Name := .mk "server"
 
 end Std.Http.Header.Name

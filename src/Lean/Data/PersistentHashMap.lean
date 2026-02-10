@@ -8,7 +8,10 @@ module
 prelude
 public import Init.Data.Array.BasicAux
 public import Init.Data.UInt.Basic
-import Init.Data.String.Basic
+public import Init.Control.Except
+public import Init.Data.Array.Basic
+import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 public section
 

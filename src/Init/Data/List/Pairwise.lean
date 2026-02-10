@@ -7,6 +7,11 @@ module
 
 prelude
 public import Init.Data.List.Attach
+import Init.ByCases
+import Init.Data.List.Count
+import Init.Data.List.Sublist
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
 
 public section
 

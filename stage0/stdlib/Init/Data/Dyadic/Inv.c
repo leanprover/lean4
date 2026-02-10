@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Dyadic.Inv
-// Imports: import Init.Data.Dyadic.Round import Init.Grind.Ordered.Ring
+// Imports: public import Init.Data.Dyadic.Basic import Init.Data.Rat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Rat_toDyadic(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec___boxed(lean_object*, lean_object*);
-lean_object* l_Rat_inv(lean_object*);
 lean_object* l_Dyadic_toRat(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Rat_inv(lean_object*);
+lean_object* l_Rat_toDyadic(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -35,26 +35,26 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Dyadic_invAtPrec___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l___private_Init_Data_Dyadic_Inv_0__Dyadic_invAtPrec(x_1, x_2);
+x_3 = l_Dyadic_invAtPrec(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Dyadic_Round(uint8_t builtin);
-lean_object* initialize_Init_Grind_Ordered_Ring(uint8_t builtin);
+lean_object* initialize_Init_Data_Dyadic_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Rat_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Dyadic_Inv(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Dyadic_Round(builtin);
+res = initialize_Init_Data_Dyadic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_Ordered_Ring(builtin);
+res = initialize_Init_Data_Rat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

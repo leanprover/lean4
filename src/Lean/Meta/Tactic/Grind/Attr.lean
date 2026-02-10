@@ -231,8 +231,11 @@ abbrev ExtensionMap := Std.HashMap Name Extension
 
 builtin_initialize extensionMapRef : IO.Ref ExtensionMap ← IO.mkRef {}
 
-def getExtension? (attrName : Name) : IO (Option Extension) :=
-  return (← extensionMapRef.get)[attrName]?
+def getExtension? (attrName : Name) : CoreM (Option Extension) := do
+  let ext? := (← extensionMapRef.get)[attrName]?
+  if let some ext := ext? then
+    recordExtraModUseFromDecl (isMeta := true) ext.ext.name
+  return ext?
 
 def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Extension := do
   let ext ← mkExtension ref

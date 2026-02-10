@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Parser.Term.Basic
-meta import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Doc
 import Lean.DocString.Parser
 public import Lean.DocString.Formatter
@@ -29,9 +28,10 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let endPos := c.prev (c.prev commentEndPos)
     let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
-    let s := Doc.Parser.document {} c' (s.setPos startPos)
+    let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos endPos
+    let s := Doc.Parser.document blockCtxt c' (s.setPos startPos)
     let s :=
-      if !s.allErrors.isEmpty then
+      if !s.allErrors.isEmpty || !c'.atEnd s.pos then
         -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
         -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
         -- consideration. So, at this stage, we push an indication of the failure, and then later,

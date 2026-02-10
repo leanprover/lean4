@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Attach
-// Imports: import all Init.Data.List.Lemmas public import Init.Data.List.Count public import Init.Data.Subtype.Basic
+// Imports: import all Init.Data.List.Lemmas public import Init.Data.List.Lemmas import Init.Data.List.Count import Init.Data.Subtype.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,35 +13,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_List_unattach(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_attach___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_pmap___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_pmap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___redArg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_attach___redArg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_findSome_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_unattach___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_attach___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_pmapImpl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_pmap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_pmapImpl___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_pmap___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_reverse___redArg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_attachWithImpl___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_attach(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_findSome_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_attach___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_pmapImpl___redArg___lam__0(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_pmapImpl___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_pmapImpl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_pmap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filterMap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_unattach___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_List_unattach(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00List_unattach_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_findSome_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_findSome_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_pmap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -400,6 +400,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Count(uint8_t builtin);
 lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -407,6 +408,9 @@ LEAN_EXPORT lean_object* initialize_Init_Data_List_Attach(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_List_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

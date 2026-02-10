@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Char.Basic
-// Imports: public import Init.Data.UInt.BasicAux
+// Imports: public import Init.Data.UInt.BasicAux import Init.Data.Nat.Div.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,42 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
-uint8_t lean_uint32_to_uint8(uint32_t);
-LEAN_EXPORT uint32_t l_Char_ofUInt8(uint8_t);
+LEAN_EXPORT lean_object* l_Char_instLT;
+LEAN_EXPORT lean_object* l_Char_instLE;
+uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_instDecidableLt___boxed(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
+uint8_t lean_uint32_to_uint8(uint32_t);
+LEAN_EXPORT uint8_t l_Char_toUInt8(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toUInt8___boxed(lean_object*);
 uint32_t lean_uint8_to_uint32(uint8_t);
+LEAN_EXPORT uint32_t l_Char_ofUInt8(uint8_t);
+LEAN_EXPORT lean_object* l_Char_ofUInt8___boxed(lean_object*);
+LEAN_EXPORT uint32_t l_Char_instInhabited;
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
+LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
+LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
-LEAN_EXPORT lean_object* l_Char_toUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
-LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t, uint32_t);
-LEAN_EXPORT uint32_t l_Char_toLower(uint32_t);
-LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
-LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
-LEAN_EXPORT uint32_t l_Char_toUpper(uint32_t);
-uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
-LEAN_EXPORT uint8_t l_Char_toUInt8(uint32_t);
-LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
-LEAN_EXPORT uint32_t l_Char_instInhabited;
-LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_ofUInt8___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_instLE;
 LEAN_EXPORT uint8_t l_Char_isDigit(uint32_t);
-LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Char_instDecidableLt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
-uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
-uint32_t lean_uint32_add(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_instLT;
-LEAN_EXPORT lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
+uint32_t lean_uint32_add(uint32_t, uint32_t);
+LEAN_EXPORT uint32_t l_Char_toLower(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
+LEAN_EXPORT uint32_t l_Char_toUpper(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
 static lean_object* _init_l_Char_instLT() {
 _start:
 {
@@ -531,12 +531,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Char_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_UInt_BasicAux(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Char_instLT = _init_l_Char_instLT();

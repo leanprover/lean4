@@ -25,10 +25,10 @@ such as: a `cases` with many but only one alternative is not reachable.
 It is only used to avoid the creation of auxiliary join points, and does not need
 to be precise.
 -/
-private partial def oneExitPointQuick (c : Code) : Bool :=
+private partial def oneExitPointQuick (c : Code .pure) : Bool :=
   go c
 where
-  go (c : Code) : Bool :=
+  go (c : Code .pure) : Bool :=
     match c with
     | .let _ k | .fun _ k => go k
     -- Approximation, the cases may have many unreachable alternatives, and only reachable.
@@ -41,7 +41,7 @@ where
 Create a new local function declaration when `info.args.size < info.params.size`.
 We use this function to inline/specialize a partial application of a local function.
 -/
-def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
+def specializePartialApp (info : InlineCandidateInfo) : SimpM (FunDecl .pure) := do
   let mut subst := {}
   for param in info.params, arg in info.args do
     subst := subst.insert param.fvarId arg
@@ -58,7 +58,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
 /--
 Try to inline a join point.
 -/
-partial def inlineJp? (fvarId : FVarId) (args : Array Arg) : SimpM (Option Code) := do
+partial def inlineJp? (fvarId : FVarId) (args : Array (Arg .pure)) : SimpM (Option (Code .pure)) := do
   /- Remark: we don't need to use `findFunDecl'?` here. -/
   let some decl ← findFunDecl? fvarId | return none
   unless (← shouldInlineLocal decl) do return none
@@ -71,13 +71,13 @@ partial applications of functions that take local instances as arguments.
 This kind of function is inlined or specialized, and we create new
 simplification opportunities by eta-expanding them.
 -/
-def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
+def etaPolyApp? (letDecl : LetDecl .pure) : OptionT SimpM (FunDecl .pure) := do
   guard <| (← read).config.etaPoly
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| (← hasLocalInst info.type)
-  guard <| !(← Meta.isInstance declName)
-  let some decl ← getDecl? declName | failure
+  guard <| !(← isInstanceReducible declName)
+  let some ⟨.pure, decl⟩ ← getDecl? declName | failure
   guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type
   let auxDecl ← mkAuxLetDecl (.const declName us (args ++ params.map (.fvar ·.fvarId)))
@@ -89,14 +89,14 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
 /--
 Similar to `Code.isReturnOf`, but taking the current substitution into account.
 -/
-def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
+def isReturnOf (c : Code .pure) (fvarId : FVarId) : SimpM Bool := do
   match c with
   | .return fvarId' => match (← normFVar fvarId') with
     | .fvar fvarId'' => return fvarId'' == fvarId
     | .erased => return false
   | _ => return false
 
-def elimVar? (value : LetValue) : SimpM (Option FVarId) := do
+def elimVar? (value : LetValue .pure) : SimpM (Option FVarId) := do
   let .fvar fvarId #[] := value | return none
   return fvarId
 
@@ -117,7 +117,7 @@ of exit points by simplified the inlined code, and then connecting the result to
 continuation `k`. However, this optimization is only possible if we simplify the
 inlined code **before** we attach it to the continuation.
 -/
-partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
+partial def inlineApp? (letDecl : LetDecl .pure) (k : Code .pure) : SimpM (Option (Code .pure)) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
   withInlining letDecl.value info.recursive do
@@ -135,7 +135,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       simp code
     else
       let code ← simp code
-      let simpK (result : FVarId) : SimpM Code := do
+      let simpK (result : FVarId) : SimpM (Code .pure) := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
           let decl ← mkAuxLetDecl (.fvar result info.args[info.arity...*])
@@ -151,7 +151,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
           markUsedFVar fvarId'
           simpK fvarId'
       else
-        let expectedType ← inferAppType info.fType info.args[*...info.arity]
+        let expectedType ← inferAppType info.fType (info.args[*...info.arity]).toArray
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
@@ -171,7 +171,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
 /--
 Simplify the given local function declaration.
 -/
-partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
+partial def simpFunDecl (decl : FunDecl .pure) : SimpM (FunDecl .pure) := do
   let type ← normExpr decl.type
   let params ← normParams decl.params
   let value ← simp decl.value
@@ -180,11 +180,16 @@ partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
 /--
 Try to simplify `cases` of `constructor`
 -/
-partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
+partial def simpCasesOnCtor? (cases : Cases .pure) : SimpM (Option (Code .pure)) := do
   match (← normFVar cases.discr) with
-  | .erased => mkReturnErased
+  | .erased =>
+    let ret ← mkReturnErased
+    return some ret
   | .fvar discr =>
     let some ctorInfo ← findCtor? discr | return none
+    let some (.ctorInfo ctorVal) := (← getEnv).find? ctorInfo.getName | return none
+    unless cases.typeName == ctorVal.induct do
+      return none
     let (alt, cases) := cases.extractAlt! ctorInfo.getName
     eraseCode (.cases cases)
     markSimplified
@@ -210,7 +215,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
 /--
 Simplify `code`
 -/
-partial def simp (code : Code) : SimpM Code := withIncRecDepth do
+partial def simp (code : Code .pure) : SimpM (Code .pure) := withIncRecDepth do
   incVisited
   match code with
   | .let decl k =>
@@ -225,7 +230,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     -- and `FVarId` rather than `Arg`, and the substitution will end up
     -- creating a new erased let decl in that case.
     if decl.type.isErased && decl.value != .erased then
-      addSubst decl.fvarId .erased
+      addSubst decl.fvarId (.erased : Arg .pure)
       eraseLetDecl decl
       simp k
     else if let some decls ← ConstantFold.foldConstants decl then

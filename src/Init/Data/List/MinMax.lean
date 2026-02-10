@@ -6,9 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
+public import Init.Data.List.Attach
+import Init.Data.Bool
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.Option.Lemmas
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -29,7 +34,11 @@ open Nat
 
 /-! ### min? -/
 
-@[simp] theorem min?_nil [Min α] : ([] : List α).min? = none := rfl
+@[simp, grind =] theorem min?_nil [Min α] : ([] : List α).min? = none := rfl
+
+@[simp, grind =]
+public theorem min?_singleton [Min α] {x : α} : [x].min? = some x :=
+  (rfl)
 
 -- We don't put `@[simp]` on `min?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
@@ -39,15 +48,20 @@ theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = some (foldl min x 
     (x :: xs).min? = some (xs.min?.elim x (min x)) := by
   cases xs <;> simp [min?_cons', foldl_assoc]
 
-@[simp] theorem min?_eq_none_iff {xs : List α} [Min α] : xs.min? = none ↔ xs = [] := by
+@[simp, grind =] theorem min?_eq_none_iff {xs : List α} [Min α] : xs.min? = none ↔ xs = [] := by
   cases xs <;> simp [min?]
 
+@[simp, grind =]
+public theorem isSome_min?_iff [Min α] {xs : List α} : xs.min?.isSome ↔ xs ≠ [] := by
+  cases xs <;> simp [min?]
+
+@[grind .]
 theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
   cases l <;> simp_all [min?_cons']
 
-theorem isSome_min?_of_ne_nil [Min α] : {l : List α} → (hl : l ≠ []) → l.min?.isSome
-  | x::xs, h => by simp [min?_cons']
+theorem isSome_min?_of_ne_nil [Min α] {l : List α} (hl : l ≠ []) : l.min?.isSome := by
+  rwa [isSome_min?_iff]
 
 theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
     (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
@@ -143,7 +157,8 @@ theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n :
   | zero => rfl
   | succ n ih => cases n <;> simp_all [replicate_succ, min?_cons', Std.IdempotentOp.idempotent]
 
-@[simp] theorem min?_replicate_of_pos [Min α] [MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
+@[simp, grind =]
+theorem min?_replicate_of_pos [Min α] [MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).min? = some a := by
   simp [min?_replicate, Nat.ne_of_gt h]
 
@@ -160,6 +175,11 @@ theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Asso
 
 /-! ### min -/
 
+@[simp, grind =]
+theorem min_singleton [Min α] {x : α} :
+    [x].min (cons_ne_nil _ _) = x := by
+  (rfl)
+
 theorem min?_eq_some_min [Min α] : {l : List α} → (hl : l ≠ []) →
     l.min? = some (l.min hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
@@ -168,15 +188,22 @@ theorem min_eq_get_min? [Min α] : (l : List α) → (hl : l ≠ []) →
     l.min hl = l.min?.get (isSome_min?_of_ne_nil hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
 
+@[simp, grind =]
+theorem get_min? [Min α] {l : List α} {h : l.min?.isSome} :
+    l.min?.get h = l.min (isSome_min?_iff.mp h) := by
+  simp [min?_eq_some_min (isSome_min?_iff.mp h)]
+
 theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => min a b = a)) : l.min hl = l.head hl := by
   apply Option.some.inj
   rw [← min?_eq_some_min, ← head?_eq_some_head]
   exact min?_eq_head? h
 
+@[grind .]
 theorem min_mem [Min α] [MinEqOr α] {l : List α} (hl : l ≠ []) : l.min hl ∈ l :=
   min?_mem (min?_eq_some_min hl)
 
+@[grind .]
 theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMin α]
     {l : List α} {a : α} (ha : a ∈ l) :
     l.min (ne_nil_of_mem ha) ≤ a :=
@@ -190,7 +217,7 @@ theorem min_eq_iff [Min α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrde
     l.min hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → a ≤ b := by
   simpa [min?_eq_some_min hl] using (min?_eq_some_iff (xs := l))
 
-@[simp] theorem min_replicate [Min α] [MinEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
+@[simp, grind =] theorem min_replicate [Min α] [MinEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
     (replicate n a).min h = a := by
   have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)
   simpa [min?_eq_some_min h] using (min?_replicate_of_pos (a := a) n_pos)
@@ -202,7 +229,11 @@ theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → α)] [S
 
 /-! ### max? -/
 
-@[simp] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
+@[simp, grind =] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
+
+@[simp, grind =]
+public theorem max?_singleton [Max α] {x : α} : [x].max? = some x :=
+  (rfl)
 
 -- We don't put `@[simp]` on `max?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
@@ -212,15 +243,20 @@ theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = some (foldl max x 
     (x :: xs).max? = some (xs.max?.elim x (max x)) := by
   cases xs <;> simp [max?_cons', foldl_assoc]
 
-@[simp] theorem max?_eq_none_iff {xs : List α} [Max α] : xs.max? = none ↔ xs = [] := by
+@[simp, grind =] theorem max?_eq_none_iff {xs : List α} [Max α] : xs.max? = none ↔ xs = [] := by
   cases xs <;> simp [max?]
 
+@[simp, grind =]
+public theorem isSome_max?_iff [Max α] {xs : List α} : xs.max?.isSome ↔ xs ≠ [] := by
+  cases xs <;> simp [max?]
+
+@[grind .]
 theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
     l.max?.isSome := by
   cases l <;> simp_all [max?_cons']
 
-theorem isSome_max?_of_ne_nil [Max α] : {l : List α} → (hl : l ≠ []) → l.max?.isSome
-  | x::xs, h => by simp [max?_cons']
+theorem isSome_max?_of_ne_nil [Max α] {l : List α} (hl : l ≠ []) : l.max?.isSome := by
+  rwa [isSome_max?_iff]
 
 theorem max?_eq_head? {α : Type u} [Max α] {l : List α}
     (h : l.Pairwise (fun a b => max a b = a)) : l.max? = l.head? := by
@@ -329,7 +365,8 @@ theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n :
   | zero => rfl
   | succ n ih => cases n <;> simp_all [replicate_succ, max?_cons', Std.IdempotentOp.idempotent]
 
-@[simp] theorem max?_replicate_of_pos [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : 0 < n) :
+@[simp, grind =]
+theorem max?_replicate_of_pos [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).max? = some a := by
   simp [max?_replicate, Nat.ne_of_gt h]
 
@@ -346,6 +383,11 @@ theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Asso
 
 /-! ### max -/
 
+@[simp, grind =]
+theorem max_singleton [Max α] {x : α} :
+    [x].max (cons_ne_nil _ _) = x := by
+  (rfl)
+
 theorem max?_eq_some_max [Max α] : {l : List α} → (hl : l ≠ []) →
     l.max? = some (l.max hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
@@ -354,12 +396,18 @@ theorem max_eq_get_max? [Max α] : (l : List α) → (hl : l ≠ []) →
     l.max hl = l.max?.get (isSome_max?_of_ne_nil hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
 
+@[simp, grind =]
+theorem get_max? [Max α] {l : List α} {h : l.max?.isSome} :
+    l.max?.get h = l.max (isSome_max?_iff.mp h) := by
+  simp [max?_eq_some_max (isSome_max?_iff.mp h)]
+
 theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by
   apply Option.some.inj
   rw [← max?_eq_some_max, ← head?_eq_some_head]
   exact max?_eq_head? h
 
+@[grind .]
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=
   max?_mem (max?_eq_some_max hl)
 
@@ -371,12 +419,13 @@ theorem max_eq_iff [Max α] [LE α] {l : List α} [IsLinearOrder α] [LawfulOrde
     l.max hl = a ↔ a ∈ l ∧ ∀ b, b ∈ l → b ≤ a := by
   simpa [max?_eq_some_max hl] using (max?_eq_some_iff (xs := l))
 
+@[grind .]
 theorem le_max_of_mem [Max α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMax α]
     {l : List α} {a : α} (ha : a ∈ l) :
     a ≤ l.max (List.ne_nil_of_mem ha) :=
   (max?_eq_some_iff.mp (max?_eq_some_max (List.ne_nil_of_mem ha))).right a ha
 
-@[simp] theorem max_replicate [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
+@[simp, grind =] theorem max_replicate [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : replicate n a ≠ []) :
     (replicate n a).max h = a := by
   have n_pos : 0 < n := Nat.pos_of_ne_zero (fun hn => by simp [hn] at h)
   simpa [max?_eq_some_max h] using (max?_replicate_of_pos (a := a) n_pos)

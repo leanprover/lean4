@@ -8,7 +8,6 @@ The identity Monad.
 module
 
 prelude
-public import Init.Core
 public import Init.Control.MonadAttach
 
 public section

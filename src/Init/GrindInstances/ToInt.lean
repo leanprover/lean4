@@ -7,8 +7,14 @@ module
 
 prelude
 import all Init.Grind.ToInt
-public import Init.Grind.Ring.ToInt
-public import Init.Data.SInt.Lemmas
+public import Init.Data.SInt.Basic
+public import Init.Grind.ToInt
+import Init.Data.BitVec.Bootstrap
+import Init.Data.Int.LemmasAux
+import Init.Data.Int.Pow
+import Init.Data.SInt.Lemmas
+import Init.Data.UInt.Lemmas
+import Init.System.Platform
 
 public section
 
@@ -58,7 +64,7 @@ instance : ToInt.LT Int .ii where
 
 instance : ToInt Nat (.ci 0) where
   toInt := Nat.cast
-  toInt_inj x y := Int.ofNat_inj.mp
+  toInt_inj x y := private Int.ofNat_inj.mp
   toInt_mem := by simp
 
 @[simp] theorem toInt_nat (x : Nat) : ToInt.toInt x = (x : Int) := rfl
@@ -105,7 +111,7 @@ instance : ToInt.LT Nat (.ci 0) where
 
 instance : ToInt (Fin n) (.co 0 n) where
   toInt x := x.val
-  toInt_inj x y w := Fin.eq_of_val_eq (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private Fin.eq_of_val_eq (Int.ofNat_inj.mp w)
   toInt_mem := by simp
 
 @[simp, grind =] theorem toInt_fin (x : Fin n) : ToInt.toInt x = (x.val : Int) := rfl
@@ -145,7 +151,7 @@ instance : ToInt.LT (Fin n) (.co 0 n) where
 
 instance : ToInt UInt8 (.uint 8) where
   toInt x := (x.toNat : Int)
-  toInt_inj x y w := UInt8.toNat_inj.mp (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private UInt8.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by simpa using Int.lt_toNat.mp (UInt8.toNat_lt x)
 
 @[simp] theorem toInt_uint8 (x : UInt8) : ToInt.toInt x = (x.toNat : Int) := rfl
@@ -179,7 +185,7 @@ instance : ToInt.LT UInt8 (.uint 8) where
 
 instance : ToInt UInt16 (.uint 16) where
   toInt x := (x.toNat : Int)
-  toInt_inj x y w := UInt16.toNat_inj.mp (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private UInt16.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by simpa using Int.lt_toNat.mp (UInt16.toNat_lt x)
 
 @[simp] theorem toInt_uint16 (x : UInt16) : ToInt.toInt x = (x.toNat : Int) := rfl
@@ -213,7 +219,7 @@ instance : ToInt.LT UInt16 (.uint 16) where
 
 instance : ToInt UInt32 (.uint 32) where
   toInt x := (x.toNat : Int)
-  toInt_inj x y w := UInt32.toNat_inj.mp (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private UInt32.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by simpa using Int.lt_toNat.mp (UInt32.toNat_lt x)
 
 @[simp] theorem toInt_uint32 (x : UInt32) : ToInt.toInt x = (x.toNat : Int) := rfl
@@ -247,7 +253,7 @@ instance : ToInt.LT UInt32 (.uint 32) where
 
 instance : ToInt UInt64 (.uint 64) where
   toInt x := (x.toNat : Int)
-  toInt_inj x y w := UInt64.toNat_inj.mp (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private UInt64.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by simpa using Int.lt_toNat.mp (UInt64.toNat_lt x)
 
 @[simp] theorem toInt_uint64 (x : UInt64) : ToInt.toInt x = (x.toNat : Int) := rfl
@@ -281,7 +287,7 @@ instance : ToInt.LT UInt64 (.uint 64) where
 
 instance : ToInt USize (.uint System.Platform.numBits) where
   toInt x := (x.toNat : Int)
-  toInt_inj x y w := USize.toNat_inj.mp (Int.ofNat_inj.mp w)
+  toInt_inj x y w := private USize.toNat_inj.mp (Int.ofNat_inj.mp w)
   toInt_mem x := by
     simp only [IntInterval.mem_co, Int.natCast_nonneg, true_and]
     rw [show (2 : Int) ^ System.Platform.numBits = (2 ^ System.Platform.numBits : Nat) by simp,
@@ -321,7 +327,7 @@ instance : ToInt.LT USize (.uint System.Platform.numBits) where
 
 instance : ToInt Int8 (.sint 8) where
   toInt x := x.toInt
-  toInt_inj x y w := Int8.toInt_inj.mp w
+  toInt_inj x y w := private Int8.toInt_inj.mp w
   toInt_mem x := by simp; exact ⟨Int8.le_toInt x, Int8.toInt_lt x⟩
 
 @[simp] theorem toInt_int8 (x : Int8) : ToInt.toInt x = (x.toInt : Int) := rfl
@@ -362,7 +368,7 @@ instance : ToInt.LT Int8 (.sint 8) where
 
 instance : ToInt Int16 (.sint 16) where
   toInt x := x.toInt
-  toInt_inj x y w := Int16.toInt_inj.mp w
+  toInt_inj x y w := private Int16.toInt_inj.mp w
   toInt_mem x := by simp; exact ⟨Int16.le_toInt x, Int16.toInt_lt x⟩
 
 @[simp] theorem toInt_int16 (x : Int16) : ToInt.toInt x = (x.toInt : Int) := rfl
@@ -400,7 +406,7 @@ instance : ToInt.LT Int16 (.sint 16) where
 
 instance : ToInt Int32 (.sint 32) where
   toInt x := x.toInt
-  toInt_inj x y w := Int32.toInt_inj.mp w
+  toInt_inj x y w := private Int32.toInt_inj.mp w
   toInt_mem x := by simp; exact ⟨Int32.le_toInt x, Int32.toInt_lt x⟩
 
 @[simp] theorem toInt_int32 (x : Int32) : ToInt.toInt x = (x.toInt : Int) := rfl
@@ -438,7 +444,7 @@ instance : ToInt.LT Int32 (.sint 32) where
 
 instance : ToInt Int64 (.sint 64) where
   toInt x := x.toInt
-  toInt_inj x y w := Int64.toInt_inj.mp w
+  toInt_inj x y w := private Int64.toInt_inj.mp w
   toInt_mem x := by simp; exact ⟨Int64.le_toInt x, Int64.toInt_lt x⟩
 
 @[simp] theorem toInt_int64 (x : Int64) : ToInt.toInt x = (x.toInt : Int) := rfl
@@ -477,7 +483,7 @@ instance : ToInt.LT Int64 (.sint 64) where
 instance : ToInt (BitVec v) (.uint v) where
   toInt x := (x.toNat : Int)
   toInt_inj x y w :=
-    BitVec.eq_of_toNat_eq (Int.ofNat_inj.mp w)
+    private BitVec.eq_of_toNat_eq (Int.ofNat_inj.mp w)
   toInt_mem x := by simpa using Int.ofNat_lt.mpr (BitVec.isLt x)
 
 @[simp] theorem toInt_bitVec (x : BitVec v) : ToInt.toInt x = (x.toNat : Int) := rfl
@@ -511,7 +517,7 @@ instance : ToInt.LT (BitVec v) (.uint v) where
 
 instance : ToInt ISize (.sint System.Platform.numBits) where
   toInt x := x.toInt
-  toInt_inj x y w := ISize.toInt_inj.mp w
+  toInt_inj x y w := private ISize.toInt_inj.mp w
   toInt_mem x := by simp; exact ⟨ISize.two_pow_numBits_le_toInt x, ISize.toInt_lt_two_pow_numBits x⟩
 
 @[simp] theorem toInt_isize (x : ISize) : ToInt.toInt x = x.toInt := rfl

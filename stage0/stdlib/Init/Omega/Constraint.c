@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.Constraint
-// Imports: public import Init.Omega.LinearCombo public import Init.Omega.Int
+// Imports: public import Init.Omega.Coeffs import Init.Data.Int.Lemmas import Init.Data.Int.Order import Init.Data.ToString.Macro import Init.Omega.Int import Init.PropLemmas import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,156 +13,191 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__5;
-lean_object* l_String_Internal_append___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
-static lean_object* l_Lean_Omega_Constraint_instToString___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combo(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__3;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__16;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___private__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_isImpossible___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0(lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_LowerBound_sat___boxed(lean_object*, lean_object*);
-static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2;
-static lean_object* l_Lean_Omega_Constraint_combine___closed__0;
-static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0;
-LEAN_EXPORT uint8_t l_Lean_Omega_LowerBound_sat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__coeffs(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_normalize(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_tidyCoeffs(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_combine___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_sat_x27___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_exact(lean_object*);
-lean_object* l_Option_merge___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_isExact___boxed(lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__12;
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Omega_bmod__coeffs_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_flip(lean_object*);
-lean_object* lean_string_length(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_positivize_x3f___closed__0;
-LEAN_EXPORT uint8_t l_Lean_Omega_instBEqConstraint_beq(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__0;
-static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__11;
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint;
-static lean_object* l_Lean_Omega_Constraint_impossible___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat(lean_object*, lean_object*);
-lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate___lam__0(lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_sdiv(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instBEqConstraint___closed__0;
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Omega_instReprConstraint_repr_spec__1(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__4;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Omega_instBEqConstraint_beq___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_positivize_x3f(lean_object*);
-lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_UpperBound_sat___boxed(lean_object*, lean_object*);
-uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Int_repr(lean_object*);
-lean_object* l_Lean_Omega_IntList_leading(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_tidyConstraint(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__15;
-LEAN_EXPORT lean_object* l_Lean_Omega_tidy_x3f(lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Omega_instBEqConstraint;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_div(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__7;
-lean_object* l_Int_bmod(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqConstraint(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0(lean_object*, lean_object*);
-lean_object* lean_int_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_isImpossible_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__coeffs___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_sat___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__9;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__10;
-lean_object* lean_int_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1___boxed(lean_object*, lean_object*);
-lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_impossible;
-static lean_object* l_Lean_Omega_Constraint_impossible___closed__0;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__2;
-lean_object* l_Int_neg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_isImpossible_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale(lean_object*, lean_object*);
-lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___private__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_tidy(lean_object*);
-lean_object* l_List_reverse___redArg(lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_scale___closed__0;
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_neg___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__1;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__13;
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__9;
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_map(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_trivial;
-LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqConstraint_decEq(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint___closed__0;
-LEAN_EXPORT lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint_decEq___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__4;
-lean_object* lean_int_add(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat_x27(lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isExact(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString;
-static lean_object* l_Lean_Omega_Constraint_impossible___closed__3;
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__5;
-lean_object* lean_int_ediv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_normalize_x3f(lean_object*);
-lean_object* lean_int_neg(lean_object*);
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__14;
-lean_object* lean_nat_add(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__8;
-static lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__6;
-static lean_object* l_Lean_Omega_Constraint_impossible___closed__2;
-static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__8;
-LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
-lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_LowerBound_sat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_LowerBound_sat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_UpperBound_sat(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_Constraint_trivial___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Omega_UpperBound_sat___boxed(lean_object*, lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_instBEqConstraint_beq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_instBEqConstraint_beq___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Omega_instBEqConstraint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_instBEqConstraint_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_instBEqConstraint___closed__0 = (const lean_object*)&l_Lean_Omega_instBEqConstraint___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Omega_instBEqConstraint = (const lean_object*)&l_Lean_Omega_instBEqConstraint___closed__0_value;
+lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
+uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqConstraint_decEq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint_decEq___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqConstraint(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint___boxed(lean_object*, lean_object*);
+static const lean_string_object l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "none"};
+static const lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0 = (const lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0_value;
+static const lean_ctor_object l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0_value)}};
+static const lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1 = (const lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1_value;
+static const lean_string_object l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "some "};
+static const lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2 = (const lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2_value;
+static const lean_ctor_object l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2_value)}};
+static const lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3 = (const lean_object*)&l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3_value;
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
+lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+lean_object* l_Int_repr(lean_object*);
+LEAN_EXPORT lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_Omega_instReprConstraint_repr_spec__1(lean_object*);
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "{ "};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__0 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__0_value;
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "lowerBound"};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__1 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__1_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__1_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__2 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__2_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__2_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__3 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__3_value;
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = " := "};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__4 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__4_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__4_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__5 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__5_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 5}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__3_value),((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__5_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__6 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__6_value;
+static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__7;
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = ","};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__8 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__8_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__8_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__9 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__9_value;
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "upperBound"};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__10 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__10_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__10_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__11 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__11_value;
+static const lean_string_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = " }"};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__12 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__12_value;
+lean_object* lean_string_length(lean_object*);
+static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__13;
+static lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__14;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__15_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__0_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__15 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__15_value;
+static const lean_ctor_object l_Lean_Omega_instReprConstraint_repr___redArg___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__12_value)}};
+static const lean_object* l_Lean_Omega_instReprConstraint_repr___redArg___closed__16 = (const lean_object*)&l_Lean_Omega_instReprConstraint_repr___redArg___closed__16_value;
+LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Omega_instReprConstraint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_instReprConstraint_repr___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_instReprConstraint___closed__0 = (const lean_object*)&l_Lean_Omega_instReprConstraint___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Omega_instReprConstraint = (const lean_object*)&l_Lean_Omega_instReprConstraint___closed__0_value;
+lean_object* l_String_Internal_append___boxed(lean_object*, lean_object*);
+static const lean_closure_object l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_Internal_append___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0 = (const lean_object*)&l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString = (const lean_object*)&l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "]"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__0 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__0_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 7, .m_data = "(-∞, ∞)"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__1 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__1_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 5, .m_data = "(-∞, "};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__2 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__2_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "-"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__3 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__3_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "["};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__4 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__4_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 4, .m_data = ", ∞)"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__5 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__5_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__6_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = ", "};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__6 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__6_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__7_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "{"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__7 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__7_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "}"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__8 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__8_value;
+static const lean_string_object l_Lean_Omega_Constraint_instToString___private__1___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 1, .m_data = "∅"};
+static const lean_object* l_Lean_Omega_Constraint_instToString___private__1___closed__9 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___private__1___closed__9_value;
+lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
+lean_object* l_Nat_reprFast(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___private__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___private__1___boxed(lean_object*);
+static const lean_closure_object l_Lean_Omega_Constraint_instToString___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_Constraint_instToString___private__1___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_Constraint_instToString___closed__0 = (const lean_object*)&l_Lean_Omega_Constraint_instToString___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Omega_Constraint_instToString = (const lean_object*)&l_Lean_Omega_Constraint_instToString___closed__0_value;
+LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_sat___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_map(lean_object*, lean_object*);
+lean_object* lean_int_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_translate(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_flip(lean_object*);
+lean_object* l_Int_neg___boxed(lean_object*);
+static const lean_closure_object l_Lean_Omega_Constraint_neg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Int_neg___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_Constraint_neg___closed__0 = (const lean_object*)&l_Lean_Omega_Constraint_neg___closed__0_value;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object*);
+static const lean_ctor_object l_Lean_Omega_Constraint_trivial___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Omega_Constraint_trivial___closed__0 = (const lean_object*)&l_Lean_Omega_Constraint_trivial___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Omega_Constraint_trivial = (const lean_object*)&l_Lean_Omega_Constraint_trivial___closed__0_value;
+static lean_object* l_Lean_Omega_Constraint_impossible___closed__0;
+static lean_object* l_Lean_Omega_Constraint_impossible___closed__1;
+static lean_object* l_Lean_Omega_Constraint_impossible___closed__2;
+static lean_object* l_Lean_Omega_Constraint_impossible___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_impossible;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_exact(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_isImpossible___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_isExact(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_isExact___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_isImpossible_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_isImpossible_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale___lam__0___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Omega_Constraint_scale___closed__0;
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_scale(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combo(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lam__1___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_Lean_Omega_Constraint_combine___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_Constraint_combine___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_Constraint_combine___closed__0 = (const lean_object*)&l_Lean_Omega_Constraint_combine___closed__0_value;
+static const lean_closure_object l_Lean_Omega_Constraint_combine___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_Constraint_combine___lam__1___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lean_Omega_Constraint_combine___closed__1 = (const lean_object*)&l_Lean_Omega_Constraint_combine___closed__1_value;
+lean_object* l_Option_merge___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
+lean_object* lean_int_neg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_div(lean_object*, lean_object*);
+lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat_x27(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_sat_x27___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Omega_IntList_sdiv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_normalize_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_normalize(lean_object*);
+static lean_object* l_Lean_Omega_positivize_x3f___closed__0;
+lean_object* l_Lean_Omega_IntList_leading(lean_object*);
+lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_positivize_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_tidy_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_tidy(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_tidyConstraint(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_tidyCoeffs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Int_bmod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_int_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Omega_bmod__coeffs_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__coeffs(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_bmod__coeffs___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_LowerBound_sat(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -301,22 +336,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Omega_instBEqConstraint___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_instBEqConstraint_beq___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instBEqConstraint() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Omega_instBEqConstraint___closed__0;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqConstraint_decEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -375,42 +394,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("none", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("some ", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4() {
 _start:
 {
@@ -426,7 +409,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1;
+x_3 = ((lean_object*)(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1));
 return x_3;
 }
 else
@@ -437,7 +420,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_11; uint8_t x_12; 
 x_5 = lean_ctor_get(x_1, 0);
-x_6 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3;
+x_6 = ((lean_object*)(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3));
 x_11 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_12 = lean_int_dec_lt(x_5, x_11);
 if (x_12 == 0)
@@ -478,7 +461,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_23; uint
 x_17 = lean_ctor_get(x_1, 0);
 lean_inc(x_17);
 lean_dec(x_1);
-x_18 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3;
+x_18 = ((lean_object*)(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3));
 x_23 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_24 = lean_int_dec_lt(x_17, x_23);
 if (x_24 == 0)
@@ -533,74 +516,6 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lowerBound", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__1;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__2;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" := ", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__4;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__5;
-x_2 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__3;
-x_3 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__7() {
 _start:
 {
@@ -610,55 +525,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(",", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__8;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__10() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("upperBound", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__11() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__10;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__12() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__0;
+x_1 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__0));
 x_2 = lean_string_length(x_1);
 return x_2;
 }
@@ -672,26 +543,6 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__0;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__12;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_instReprConstraint_repr___redArg(lean_object* x_1) {
 _start:
 {
@@ -702,8 +553,8 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
-x_5 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__5;
-x_6 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__6;
+x_5 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__5));
+x_6 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__6));
 x_7 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__7;
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0(x_3, x_8);
@@ -717,7 +568,7 @@ lean_ctor_set_uint8(x_11, sizeof(void*)*1, x_10);
 x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__9;
+x_13 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__9));
 x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -725,7 +576,7 @@ x_15 = lean_box(1);
 x_16 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__11;
+x_17 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__11));
 x_18 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
@@ -743,11 +594,11 @@ x_23 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_23, 0, x_19);
 lean_ctor_set(x_23, 1, x_22);
 x_24 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__14;
-x_25 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__15;
+x_25 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__15));
 x_26 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_23);
-x_27 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__16;
+x_27 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__16));
 x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
@@ -767,8 +618,8 @@ x_32 = lean_ctor_get(x_1, 1);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_1);
-x_33 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__5;
-x_34 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__6;
+x_33 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__5));
+x_34 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__6));
 x_35 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__7;
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0(x_31, x_36);
@@ -782,7 +633,7 @@ lean_ctor_set_uint8(x_40, sizeof(void*)*1, x_39);
 x_41 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_41, 0, x_34);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__9;
+x_42 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__9));
 x_43 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
@@ -790,7 +641,7 @@ x_44 = lean_box(1);
 x_45 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
-x_46 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__11;
+x_46 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__11));
 x_47 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
@@ -808,11 +659,11 @@ x_52 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_52, 0, x_48);
 lean_ctor_set(x_52, 1, x_51);
 x_53 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__14;
-x_54 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__15;
+x_54 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__15));
 x_55 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_55, 0, x_54);
 lean_ctor_set(x_55, 1, x_52);
-x_56 = l_Lean_Omega_instReprConstraint_repr___redArg___closed__16;
+x_56 = ((lean_object*)(l_Lean_Omega_instReprConstraint_repr___redArg___closed__16));
 x_57 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);
@@ -843,118 +694,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_instReprConstraint___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_instReprConstraint_repr___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_instReprConstraint() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Omega_instReprConstraint___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Internal_append___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("]", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(-∞, ∞)", 11, 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(-∞, ", 7, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("-", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("[", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", ∞)", 6, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", ", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("}", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___private__1___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("∅", 3, 1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___private__1(lean_object* x_1) {
 _start:
 {
@@ -967,14 +706,14 @@ x_9 = lean_ctor_get(x_1, 1);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
-x_10 = l_Lean_Omega_Constraint_instToString___private__1___closed__1;
+x_10 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__1));
 return x_10;
 }
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_18; uint8_t x_19; 
 x_11 = lean_ctor_get(x_9, 0);
-x_12 = l_Lean_Omega_Constraint_instToString___private__1___closed__2;
+x_12 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__2));
 x_18 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_19 = lean_int_dec_lt(x_11, x_18);
 if (x_19 == 0)
@@ -992,7 +731,7 @@ x_22 = lean_nat_abs(x_11);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_sub(x_22, x_23);
 lean_dec(x_22);
-x_25 = l_Lean_Omega_Constraint_instToString___private__1___closed__3;
+x_25 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__3));
 x_26 = lean_nat_add(x_24, x_23);
 lean_dec(x_24);
 x_27 = l_Nat_reprFast(x_26);
@@ -1006,7 +745,7 @@ block_17:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_string_append(x_12, x_13);
 lean_dec_ref(x_13);
-x_15 = l_Lean_Omega_Constraint_instToString___private__1___closed__0;
+x_15 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__0));
 x_16 = lean_string_append(x_14, x_15);
 return x_16;
 }
@@ -1020,7 +759,7 @@ if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_37; uint8_t x_38; 
 x_30 = lean_ctor_get(x_8, 0);
-x_31 = l_Lean_Omega_Constraint_instToString___private__1___closed__4;
+x_31 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__4));
 x_37 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_38 = lean_int_dec_lt(x_30, x_37);
 if (x_38 == 0)
@@ -1038,7 +777,7 @@ x_41 = lean_nat_abs(x_30);
 x_42 = lean_unsigned_to_nat(1u);
 x_43 = lean_nat_sub(x_41, x_42);
 lean_dec(x_41);
-x_44 = l_Lean_Omega_Constraint_instToString___private__1___closed__3;
+x_44 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__3));
 x_45 = lean_nat_add(x_43, x_42);
 lean_dec(x_43);
 x_46 = l_Nat_reprFast(x_45);
@@ -1052,7 +791,7 @@ block_36:
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_33 = lean_string_append(x_31, x_32);
 lean_dec_ref(x_32);
-x_34 = l_Lean_Omega_Constraint_instToString___private__1___closed__5;
+x_34 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__5));
 x_35 = lean_string_append(x_33, x_34);
 return x_35;
 }
@@ -1070,7 +809,7 @@ x_51 = lean_int_dec_eq(x_48, x_49);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_69; uint8_t x_70; 
-x_52 = l_Lean_Omega_Constraint_instToString___private__1___closed__4;
+x_52 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__4));
 x_69 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_70 = lean_int_dec_lt(x_48, x_69);
 if (x_70 == 0)
@@ -1088,7 +827,7 @@ x_73 = lean_nat_abs(x_48);
 x_74 = lean_unsigned_to_nat(1u);
 x_75 = lean_nat_sub(x_73, x_74);
 lean_dec(x_73);
-x_76 = l_Lean_Omega_Constraint_instToString___private__1___closed__3;
+x_76 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__3));
 x_77 = lean_nat_add(x_75, x_74);
 lean_dec(x_75);
 x_78 = l_Nat_reprFast(x_77);
@@ -1102,7 +841,7 @@ block_68:
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 
 x_54 = lean_string_append(x_52, x_53);
 lean_dec_ref(x_53);
-x_55 = l_Lean_Omega_Constraint_instToString___private__1___closed__6;
+x_55 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__6));
 x_56 = lean_string_append(x_54, x_55);
 x_57 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_58 = lean_int_dec_lt(x_49, x_57);
@@ -1122,7 +861,7 @@ x_61 = lean_nat_abs(x_49);
 x_62 = lean_unsigned_to_nat(1u);
 x_63 = lean_nat_sub(x_61, x_62);
 lean_dec(x_61);
-x_64 = l_Lean_Omega_Constraint_instToString___private__1___closed__3;
+x_64 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__3));
 x_65 = lean_nat_add(x_63, x_62);
 lean_dec(x_63);
 x_66 = l_Nat_reprFast(x_65);
@@ -1137,7 +876,7 @@ goto block_7;
 else
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_86; uint8_t x_87; 
-x_80 = l_Lean_Omega_Constraint_instToString___private__1___closed__7;
+x_80 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__7));
 x_86 = l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4;
 x_87 = lean_int_dec_lt(x_48, x_86);
 if (x_87 == 0)
@@ -1155,7 +894,7 @@ x_90 = lean_nat_abs(x_48);
 x_91 = lean_unsigned_to_nat(1u);
 x_92 = lean_nat_sub(x_90, x_91);
 lean_dec(x_90);
-x_93 = l_Lean_Omega_Constraint_instToString___private__1___closed__3;
+x_93 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__3));
 x_94 = lean_nat_add(x_92, x_91);
 lean_dec(x_92);
 x_95 = l_Nat_reprFast(x_94);
@@ -1169,7 +908,7 @@ block_85:
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 x_82 = lean_string_append(x_80, x_81);
 lean_dec_ref(x_81);
-x_83 = l_Lean_Omega_Constraint_instToString___private__1___closed__8;
+x_83 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__8));
 x_84 = lean_string_append(x_82, x_83);
 return x_84;
 }
@@ -1178,7 +917,7 @@ return x_84;
 else
 {
 lean_object* x_97; 
-x_97 = l_Lean_Omega_Constraint_instToString___private__1___closed__9;
+x_97 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__9));
 return x_97;
 }
 }
@@ -1188,7 +927,7 @@ block_7:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_string_append(x_2, x_3);
 lean_dec_ref(x_3);
-x_5 = l_Lean_Omega_Constraint_instToString___private__1___closed__0;
+x_5 = ((lean_object*)(l_Lean_Omega_Constraint_instToString___private__1___closed__0));
 x_6 = lean_string_append(x_4, x_5);
 return x_6;
 }
@@ -1201,22 +940,6 @@ lean_object* x_2;
 x_2 = l_Lean_Omega_Constraint_instToString___private__1(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_instToString___private__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_instToString() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Omega_Constraint_instToString___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat(lean_object* x_1, lean_object* x_2) {
@@ -1443,41 +1166,14 @@ return x_7;
 }
 }
 }
-static lean_object* _init_l_Lean_Omega_Constraint_neg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Omega_Constraint_neg___closed__0;
+x_2 = ((lean_object*)(l_Lean_Omega_Constraint_neg___closed__0));
 x_3 = l_Lean_Omega_Constraint_flip(x_1);
 x_4 = l_Lean_Omega_Constraint_map(x_3, x_2);
 return x_4;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_trivial___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_trivial() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Omega_Constraint_trivial___closed__0;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Omega_Constraint_impossible___closed__0() {
@@ -2032,22 +1728,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_Constraint_combine___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_combine___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_Constraint_combine___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_Constraint_combine___lam__1___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2063,8 +1743,8 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-x_8 = l_Lean_Omega_Constraint_combine___closed__0;
-x_9 = l_Lean_Omega_Constraint_combine___closed__1;
+x_8 = ((lean_object*)(l_Lean_Omega_Constraint_combine___closed__0));
+x_9 = ((lean_object*)(l_Lean_Omega_Constraint_combine___closed__1));
 x_10 = l_Option_merge___redArg(x_8, x_3, x_6);
 x_11 = l_Option_merge___redArg(x_9, x_4, x_7);
 lean_ctor_set(x_2, 1, x_11);
@@ -2079,8 +1759,8 @@ x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
-x_14 = l_Lean_Omega_Constraint_combine___closed__0;
-x_15 = l_Lean_Omega_Constraint_combine___closed__1;
+x_14 = ((lean_object*)(l_Lean_Omega_Constraint_combine___closed__0));
+x_15 = ((lean_object*)(l_Lean_Omega_Constraint_combine___closed__1));
 x_16 = l_Option_merge___redArg(x_14, x_3, x_12);
 x_17 = l_Option_merge___redArg(x_15, x_4, x_13);
 x_18 = lean_alloc_ctor(0, 2, 0);
@@ -2362,7 +2042,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
-x_19 = l_Lean_Omega_Constraint_trivial;
+x_19 = ((lean_object*)(l_Lean_Omega_Constraint_trivial));
 lean_ctor_set(x_1, 0, x_19);
 x_20 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_20, 0, x_1);
@@ -2432,7 +2112,7 @@ return x_38;
 else
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_39 = l_Lean_Omega_Constraint_trivial;
+x_39 = ((lean_object*)(l_Lean_Omega_Constraint_trivial));
 x_40 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_22);
@@ -2708,7 +2388,7 @@ lean_dec(x_8);
 x_10 = lean_int_sub(x_6, x_9);
 lean_dec(x_9);
 lean_dec(x_6);
-x_11 = l_instNatCastInt___lam__0(x_1);
+x_11 = lean_nat_to_int(x_1);
 x_12 = lean_int_ediv(x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -2789,105 +2469,47 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init_Omega_LinearCombo(uint8_t builtin);
+lean_object* initialize_Init_Omega_Coeffs(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin);
 lean_object* initialize_Init_Omega_Int(uint8_t builtin);
+lean_object* initialize_Init_PropLemmas(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Omega_Constraint(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Omega_LinearCombo(builtin);
+res = initialize_Init_Omega_Coeffs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega_Int(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Omega_instBEqConstraint___closed__0 = _init_l_Lean_Omega_instBEqConstraint___closed__0();
-lean_mark_persistent(l_Lean_Omega_instBEqConstraint___closed__0);
-l_Lean_Omega_instBEqConstraint = _init_l_Lean_Omega_instBEqConstraint();
-lean_mark_persistent(l_Lean_Omega_instBEqConstraint);
-l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0 = _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0();
-lean_mark_persistent(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__0);
-l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1 = _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1();
-lean_mark_persistent(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__1);
-l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2 = _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2();
-lean_mark_persistent(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__2);
-l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3 = _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3();
-lean_mark_persistent(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__3);
+res = initialize_Init_PropLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4 = _init_l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4();
 lean_mark_persistent(l_Option_repr___at___00Lean_Omega_instReprConstraint_repr_spec__0___closed__4);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__0 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__0();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__0);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__1 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__1();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__1);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__2 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__2();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__2);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__3 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__3();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__3);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__4 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__4();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__4);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__5 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__5();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__5);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__6 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__6();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__6);
 l_Lean_Omega_instReprConstraint_repr___redArg___closed__7 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__7();
 lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__7);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__8 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__8();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__8);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__9 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__9();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__9);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__10 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__10();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__10);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__11 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__11();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__11);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__12 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__12();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__12);
 l_Lean_Omega_instReprConstraint_repr___redArg___closed__13 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__13();
 lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__13);
 l_Lean_Omega_instReprConstraint_repr___redArg___closed__14 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__14();
 lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__14);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__15 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__15();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__15);
-l_Lean_Omega_instReprConstraint_repr___redArg___closed__16 = _init_l_Lean_Omega_instReprConstraint_repr___redArg___closed__16();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint_repr___redArg___closed__16);
-l_Lean_Omega_instReprConstraint___closed__0 = _init_l_Lean_Omega_instReprConstraint___closed__0();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint___closed__0);
-l_Lean_Omega_instReprConstraint = _init_l_Lean_Omega_instReprConstraint();
-lean_mark_persistent(l_Lean_Omega_instReprConstraint);
-l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0 = _init_l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0();
-lean_mark_persistent(l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString___closed__0);
-l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString = _init_l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString();
-lean_mark_persistent(l___private_Init_Omega_Constraint_0__Lean_Omega_Constraint_instAppendString);
-l_Lean_Omega_Constraint_instToString___private__1___closed__0 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__0();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__0);
-l_Lean_Omega_Constraint_instToString___private__1___closed__1 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__1();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__1);
-l_Lean_Omega_Constraint_instToString___private__1___closed__2 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__2();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__2);
-l_Lean_Omega_Constraint_instToString___private__1___closed__3 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__3();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__3);
-l_Lean_Omega_Constraint_instToString___private__1___closed__4 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__4();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__4);
-l_Lean_Omega_Constraint_instToString___private__1___closed__5 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__5();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__5);
-l_Lean_Omega_Constraint_instToString___private__1___closed__6 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__6();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__6);
-l_Lean_Omega_Constraint_instToString___private__1___closed__7 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__7();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__7);
-l_Lean_Omega_Constraint_instToString___private__1___closed__8 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__8();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__8);
-l_Lean_Omega_Constraint_instToString___private__1___closed__9 = _init_l_Lean_Omega_Constraint_instToString___private__1___closed__9();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___private__1___closed__9);
-l_Lean_Omega_Constraint_instToString___closed__0 = _init_l_Lean_Omega_Constraint_instToString___closed__0();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString___closed__0);
-l_Lean_Omega_Constraint_instToString = _init_l_Lean_Omega_Constraint_instToString();
-lean_mark_persistent(l_Lean_Omega_Constraint_instToString);
-l_Lean_Omega_Constraint_neg___closed__0 = _init_l_Lean_Omega_Constraint_neg___closed__0();
-lean_mark_persistent(l_Lean_Omega_Constraint_neg___closed__0);
-l_Lean_Omega_Constraint_trivial___closed__0 = _init_l_Lean_Omega_Constraint_trivial___closed__0();
-lean_mark_persistent(l_Lean_Omega_Constraint_trivial___closed__0);
-l_Lean_Omega_Constraint_trivial = _init_l_Lean_Omega_Constraint_trivial();
-lean_mark_persistent(l_Lean_Omega_Constraint_trivial);
 l_Lean_Omega_Constraint_impossible___closed__0 = _init_l_Lean_Omega_Constraint_impossible___closed__0();
 lean_mark_persistent(l_Lean_Omega_Constraint_impossible___closed__0);
 l_Lean_Omega_Constraint_impossible___closed__1 = _init_l_Lean_Omega_Constraint_impossible___closed__1();
@@ -2900,10 +2522,6 @@ l_Lean_Omega_Constraint_impossible = _init_l_Lean_Omega_Constraint_impossible();
 lean_mark_persistent(l_Lean_Omega_Constraint_impossible);
 l_Lean_Omega_Constraint_scale___closed__0 = _init_l_Lean_Omega_Constraint_scale___closed__0();
 lean_mark_persistent(l_Lean_Omega_Constraint_scale___closed__0);
-l_Lean_Omega_Constraint_combine___closed__0 = _init_l_Lean_Omega_Constraint_combine___closed__0();
-lean_mark_persistent(l_Lean_Omega_Constraint_combine___closed__0);
-l_Lean_Omega_Constraint_combine___closed__1 = _init_l_Lean_Omega_Constraint_combine___closed__1();
-lean_mark_persistent(l_Lean_Omega_Constraint_combine___closed__1);
 l_Lean_Omega_positivize_x3f___closed__0 = _init_l_Lean_Omega_positivize_x3f___closed__0();
 lean_mark_persistent(l_Lean_Omega_positivize_x3f___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

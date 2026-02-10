@@ -3,18 +3,18 @@
 {"items":
  [{"label": "true",
    "kind": 4,
-   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]},
+   "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.true"]},
   {"label": "truth",
    "kind": 4,
-   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}],
+   "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.truth"]}],
  "isIncomplete": false}
 Resolution of true:
 {"label": "true",
  "kind": 4,
  "detail": "Boo",
- "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]}
+ "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.true"]}
 Resolution of truth:
 {"label": "truth",
  "kind": 4,
  "detail": "Boo",
- "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}
+ "data": ["file:///dotIdCompletion.lean", 4, 5, 0, "cBoo.truth"]}

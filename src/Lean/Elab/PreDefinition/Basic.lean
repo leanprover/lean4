@@ -176,7 +176,9 @@ def addPreDefInfo (preDef : PreDefinition) : TermElabM Unit := do
     addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
 
 
-private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit :=
+private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (compile : Bool)
+    (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false)
+    (isRecursive := false) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let preDef ← letToHaveType preDef
@@ -210,6 +212,7 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
       | DefKind.def | DefKind.example => mkDefDecl
       | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
+    if isRecursive then markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
@@ -229,11 +232,15 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     addPreDefInfo preDef
 
 
-def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (all : List Name := [preDef.declName]) (cleanupValue := false) : TermElabM Unit := do
-  addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue)
+def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition)
+    (all : List Name := [preDef.declName]) (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
 
-def addNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) (cleanupValue := false) : TermElabM Unit := do
-  addNonRecAux docCtx preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue)
+def addNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition)
+    (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true)
+    (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
+  addNonRecAux docCtx preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
+    (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module

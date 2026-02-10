@@ -36,6 +36,7 @@ Proposition that asserts all characters in a string are valid for HTTP header va
 abbrev IsValidHeaderValue (s : String) : Prop :=
   s.toList.all isValidHeaderChar
 
+
 /--
 A validated HTTP header value that ensures all characters conform to HTTP standards.
 -/
@@ -48,24 +49,16 @@ structure Value where
   /--
   The proof that it's a valid header value
   -/
-  validHeaderValue : IsValidHeaderValue value
+  validHeaderValue : IsValidHeaderValue value := by decide
 deriving BEq, DecidableEq, Repr
 
 instance : Hashable Value where
   hash := Hashable.hash ∘ Value.value
 
 instance : Inhabited Value where
-  default := ⟨"", by decide⟩
+  default := ⟨"_", by decide⟩
 
 namespace Value
-
-/--
-Creates a new `Value` from a string with an optional proof of validity. If no proof is provided,
-it attempts to prove validity automatically.
--/
-@[expose]
-def new (s : String) (h  : IsValidHeaderValue s := by decide) : Value :=
-  ⟨s, h⟩
 
 /--
 Attempts to create a `Value` from a `String`, returning `none` if the string contains invalid characters
@@ -73,7 +66,7 @@ for HTTP header values.
 -/
 @[expose]
 def ofString? (s : String) : Option Value :=
-  if h : s.toList.all isValidHeaderChar then
+  if h : IsValidHeaderValue s then
     some ⟨s, h⟩
   else
     none
@@ -84,7 +77,7 @@ characters for HTTP header values.
 -/
 @[expose]
 def ofString! (s : String) : Value :=
-  if h : s.toList.all isValidHeaderChar then
+  if h : IsValidHeaderValue s then
     ⟨s, h⟩
   else
     panic! s!"invalid header value: {s.quote}"
@@ -102,11 +95,11 @@ instance : ToString Value where
 /--
 Standard close header value
 -/
-def close : Header.Value := .new "close"
+def close : Header.Value := .mk "close"
 
 /--
 Standard chunked header value
 -/
-def chunked : Header.Value := .new "chunked"
+def chunked : Header.Value := .mk "chunked"
 
 end Std.Http.Header.Value

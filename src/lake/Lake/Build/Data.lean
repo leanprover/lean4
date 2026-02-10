@@ -13,6 +13,7 @@ public import Lake.Config.Kinds
 public meta import Lake.Config.Kinds
 public meta import Lake.Util.Name
 import all Lake.Config.Kinds
+import Lake.Util.Name
 
 open Lean
 
@@ -50,7 +51,7 @@ public class OptDataKind (α : Type u) where
 
 namespace OptDataKind
 
-@[instance low]
+@[instance_reducible, instance low]
 public def anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous_iff_eq_anonymous] at h
@@ -154,7 +155,6 @@ public instance [h : FamilyDef CustomOut (p, t) α] : FamilyDef (CustomData p) t
 /-! ## Build Data                                                             -/
 --------------------------------------------------------------------------------
 
-set_option linter.deprecated false in
 /--
 A mapping between a build key and its associated build data in the store.
 It is a simple type function composed of the separate open type families for
@@ -178,7 +178,6 @@ public instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.packageModule p m) α where
   fam_eq := by unfold BuildData; simp
 
-set_option linter.deprecated false in
 public instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.module k) α where
   fam_eq := by unfold BuildData; simp

@@ -48,7 +48,7 @@ Panics if the string is not a valid origin-form request target.
 @[inline]
 def originForm! (path : String) : RequestTarget :=
   match parse? path with
-  | some (.originForm p q f) => .originForm p q f
+  | some (.originForm p q) => .originForm p q
   | _ => panic! s!"invalid origin-form request target: {path}"
 
 end RequestTarget

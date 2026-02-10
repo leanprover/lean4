@@ -359,7 +359,7 @@ theorem neg_normalize (n d z) : -normalize n d z = normalize (-n) d z := by
   rfl
 
 theorem neg_mkRat (n d) : -mkRat n d = mkRat (-n) d := by
-  if z : d = 0 then simp [z]; rfl else simp [← normalize_eq_mkRat z, neg_normalize]
+  if z : d = 0 then simp [z]; else simp [← normalize_eq_mkRat z, neg_normalize]
 
 @[simp]
 theorem neg_divInt (n d) : -(n /. d) = -n /. d := by
@@ -1200,15 +1200,21 @@ protected theorem add_le_iff_le_sub {a b c : Rat} : a + b ≤ c ↔ a ≤ c - b 
   conv => rhs; rw [← Rat.add_le_add_right (c := b)]
   simp [Rat.sub_add_cancel]
 
+protected theorem le_sub_iff {a b c : Rat} : a ≤ c - b ↔ a + b ≤ c :=
+  Rat.add_le_iff_le_sub.symm
+
 protected theorem le_add_iff_sub_le {a b c : Rat} : a ≤ b + c ↔ a - c ≤ b := by
   conv => rhs; rw [← Rat.add_le_add_right (c := c)]
   simp [Rat.sub_add_cancel]
+
+protected theorem sub_right_le_iff_le_add {a b c : Rat} : a - c ≤ b ↔ a ≤ b + c :=
+  Rat.le_add_iff_sub_le.symm
 
 protected theorem lt_sub_right_iff_add_lt {a b c : Rat} : a < c - b ↔ a + b < c := by
   conv => lhs; rw [← Rat.add_lt_add_right (c := b)]
   simp [Rat.sub_add_cancel]
 
-protected theorem sub_lt_right_iff_lt_add {a b c : Rat} : a - c < b ↔ a < b + c := by
+protected theorem sub_lt_iff {a b c : Rat} : a - c < b ↔ a < b + c := by
   conv => lhs; rw [← Rat.add_lt_add_right (c := c)]
   simp [Rat.sub_add_cancel]
 

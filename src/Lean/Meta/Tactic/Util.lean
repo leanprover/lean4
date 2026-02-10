@@ -184,11 +184,7 @@ def forLocalDefs (f : Name → ConstantInfo → MetaM Unit) : MetaM Unit := do
   let env ← getEnv
   -- Current module definitions
   for (name, ci) in env.constants.map₂.toList do
-    if name.isInternalDetail && !isPrivateName name then continue
-    if (← isInstanceReducible name) then continue
-    match ci with
-    | .defnInfo _ => f name ci
-    | _ => continue
+    processConst name ci
   -- Definitions from `import all`'d modules
   if env.header.isModule then
     for effImport in env.header.importAllModules do
@@ -197,10 +193,13 @@ def forLocalDefs (f : Name → ConstantInfo → MetaM Unit) : MetaM Unit := do
       for h : i in [:modData.constants.size] do
         let name := modData.constNames[i]!
         let ci := modData.constants[i]
-        if name.isInternalDetail && !isPrivateName name then continue
-        if (← isInstanceReducible name) then continue
-        match ci with
-        | .defnInfo _ => f name ci
-        | _ => continue
+        processConst name ci
+where
+  processConst (name : Name) (ci : ConstantInfo) : MetaM Unit := do
+    if name.isInternalDetail && !isPrivateName name then return
+    if (← isInstanceReducible name) then return
+    match ci with
+    | .defnInfo _ => f name ci
+    | _ => return
 
 end Lean.Meta

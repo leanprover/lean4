@@ -5184,6 +5184,7 @@ theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = t
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]
 
+
 /--
 The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,
 when `k` is less than the bitwidth `w`.
@@ -5328,6 +5329,27 @@ theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w�
 @[grind =]
 theorem append_assoc' {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
     (x₁ ++ (x₂ ++ x₃)) = ((x₁ ++ x₂) ++ x₃).cast (by omega) := by simp [append_assoc]
+
+/--
+appending 'tz' trailing zeroes to the truncated 'x' is equal to
+multiplying 'x' by 2^tz.
+-/
+theorem extractLsb'_append_zero_eq_mul_shiftLeft {n : Nat}
+    (x : BitVec n) (tz : Nat) (htz : tz ≤ n) :
+    ((x.extractLsb' 0 (n - tz) ++ (0#tz)).cast (by omega))
+      = x * (1#n <<< tz) := by
+  ext i
+  simp only [BitVec.getElem_cast]
+  rw [BitVec.getElem_append]
+  have : 1#n <<< tz = BitVec.twoPow _ tz := by
+    ext i
+    simp only [BitVec.getElem_shiftLeft, BitVec.getElem_one, BitVec.getElem_twoPow]
+    by_cases hi : i < tz <;> simp [hi] <;> omega
+  rw [this, ← BitVec.shiftLeft_eq_mul_twoPow, BitVec.getElem_shiftLeft]
+  by_cases hi : i < tz
+  · simp [hi]
+  · simp [hi]
+    rw [BitVec.getLsbD_eq_getElem]
 
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by

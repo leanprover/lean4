@@ -32,13 +32,14 @@ use by `solveDecreasingGoals` below.
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   -- We store the current Ref in the MVar as a RecApp annotation around the type
   let ref ← getRef
-  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
+  let ty := mkRecAppWithSyntax decreasingProp ref
+  let mvar ← mkFreshExprSyntheticOpaqueMVar ty
   let mvarId := mvar.mvarId!
   let _mvarId ← mvarId.cleanup
   return mvar
 
 private abbrev RecM (recFnName : Name) :=
-  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap Expr) TermElabM
+  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap (Expr × FVarId)) TermElabM
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
@@ -69,10 +70,17 @@ where
   loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if !(← containsRecFn e) then
       return e
-    if let some newE := (← getThe (ExprMap Expr)).get? e then
-      return newE
+    if let some (newE, lastFVar) := (← getThe (ExprMap _)).get? e then
+      -- make sure the local contexts are compatible
+      if (← getLCtx).contains lastFVar then
+        return newE
     let e' ← loopGo F e
-    modifyThe (ExprMap Expr) fun map => map.insert e e'
+    -- we only ever extend the local context in this procedure
+    -- so it should suffice to check the last fvar
+    -- (note that we assume here that the local context is not empty)
+    let lctx ← getLCtx
+    let lastFVar := lctx.decls[lctx.size - 1]!.get!.fvarId
+    modifyThe (ExprMap _) fun map => map.insert e (e', lastFVar)
     if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do

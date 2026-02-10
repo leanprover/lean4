@@ -211,3 +211,16 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+/-! `+locals` should NOT include definitions from regular imports (only `import all`). -/
+
+-- `f` is defined in Module.Basic as `def f := 1`, not exposed
+-- Without `import all`, `simp +locals` should NOT be able to unfold it
+example : f = 1 := by
+  fail_if_success simp +locals
+  native_decide
+
+-- Same for `grind +locals`
+example : f = 1 := by
+  fail_if_success grind +locals
+  native_decide

@@ -178,4 +178,28 @@ register_builtin_option tactic.skipAssignedInstances : Bool := {
   descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
 }
 
+/-- Iterate over definitions considered "local" for tactics like `simp +locals` and `grind +locals`.
+This includes definitions from the current module and from transitively `import all`'d modules. -/
+def forLocalDefs (f : Name → ConstantInfo → MetaM Unit) : MetaM Unit := do
+  let env ← getEnv
+  -- Current module definitions
+  for (name, ci) in env.constants.map₂.toList do
+    processConst name ci
+  -- Definitions from `import all`'d modules
+  if env.header.isModule then
+    for effImport in env.header.importAllModules do
+      let some modIdx := env.getModuleIdx? effImport.module | continue
+      let some modData := env.header.moduleData[modIdx]? | continue
+      for h : i in [:modData.constants.size] do
+        let name := modData.constNames[i]!
+        let ci := modData.constants[i]
+        processConst name ci
+where
+  processConst (name : Name) (ci : ConstantInfo) : MetaM Unit := do
+    if name.isInternalDetail && !isPrivateName name then return
+    if (← isInstanceReducible name) then return
+    match ci with
+    | .defnInfo _ => f name ci
+    | _ => return
+
 end Lean.Meta

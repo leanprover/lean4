@@ -166,3 +166,12 @@ error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is
 attribute [local grind] func in
 theorem stmt1 : func ctx op = ctx := by
   grind
+
+/-! `+locals` should include definitions from `import all`'d modules. -/
+
+-- `f` is defined in Module.Basic as `def f := 1`, not exposed
+-- With `import all`, `simp +locals` should be able to unfold it
+example : f = 1 := by simp +locals
+
+-- Same for `grind +locals`
+example : f = 1 := by grind +locals

@@ -416,27 +416,20 @@ structure MkSimpContextResult where
   /-- The elaborated simp arguments with syntax -/
   simpArgs         : Array (Syntax × ElabSimpArgResult) := #[]
 
-/-- Add all definitions from the current file to unfold. -/
+/-- Add all local definitions to unfold. This includes definitions from the current module
+and from transitively `import all`'d modules. -/
 def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems := do
-  let env ← getEnv
-  let mut thms := thms
-  for (name, ci) in env.constants.map₂.toList do
-    -- Skip internal details, but allow private names (which are accessible from current module)
-    if name.isInternalDetail && !isPrivateName name then continue
-    if (← isInstanceReducible name) then continue
-    match ci with
-    | .defnInfo _ =>
-      -- Definitions are added to unfold
-      try
-        if kind == .dsimp then
-          thms := thms.addDeclToUnfoldCore name
-        else
-          let entries ← mkSimpEntryOfDeclToUnfold name
-          for entry in entries do
-            thms := thms.addSimpEntry entry
-      catch _ => pure () -- Skip definitions that can't be added
-    | _ => continue
-  return thms
+  let thmsRef ← IO.mkRef thms
+  forLocalDefs fun name _ => do
+    try
+      if kind == .dsimp then
+        thmsRef.modify (·.addDeclToUnfoldCore name)
+      else
+        let entries ← mkSimpEntryOfDeclToUnfold name
+        for entry in entries do
+          thmsRef.modify (·.addSimpEntry entry)
+    catch _ => pure () -- Skip definitions that can't be added
+  thmsRef.get
 
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.

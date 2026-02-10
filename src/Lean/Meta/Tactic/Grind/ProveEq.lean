@@ -14,17 +14,25 @@ If `e` has not been internalized yet, instantiate metavariables, unfold reducibl
 and internalize the result.
 
 This is an auxiliary function used at `proveEq?` and `proveHEq?`.
+
+We deliberately use `preprocessLight` here rather than the full `preprocessAndInternalize`.
+Full preprocessing runs simp, which can normalize terms into forms that break congruence closure.
+For example, `i < (a :: l).length` becomes `i + 1 ≤ (a :: l).length`, making it impossible to
+prove equality with `0 < (a :: l).length` (which becomes `1 ≤ (a :: l).length`) by congruence
+when `i` and `0` are in the same equivalence class.
 -/
-private def ensureInternalized (e : Expr) : GoalM Simp.Result := do
+private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then
-    return { expr := e }
+    return e
   else
     /-
     It is important to expand reducible declarations. Otherwise, we cannot prove
     `¬ a = []` and `b ≠ []` by congruence closure even when `a` and `b` are in the same
     equivalence class.
     -/
-    preprocessAndInternalize (← instantiateMVars e) 0
+    let e ← preprocessLight (← instantiateMVars e)
+    internalize e 0
+    return e
 
 /-!
 `abstractGroundMismatches?` is an auxiliary function for creating auxiliary equality
@@ -115,11 +123,11 @@ where
   goCore (lhs rhs : Expr) : AbstractM Expr := do
     if (← inBinder) then
       if !lhs.hasLooseBVars && !rhs.hasLooseBVars then
-        let rl ← ensureInternalized lhs
-        let rr ← ensureInternalized rhs
+        let lhs ← ensureInternalized lhs
+        let rhs ← ensureInternalized rhs
         processNewFacts
-        if (← isEqv rl.expr rr.expr) then
-        if (← hasSameType rl.expr rr.expr) then
+        if (← isEqv lhs rhs) then
+        if (← hasSameType lhs rhs) then
         let varType ← inferType lhs
         let varIdx := (← get).varTypes.size + (← read).offset
         modify fun s => { s with
@@ -191,32 +199,24 @@ def proveEq? (lhs rhs : Expr) (abstract : Bool := false) : GoalM (Option Expr) :
     However, if we apply the normalizer, we obtain `i+1 ≤ (a :: l).length` and `1 ≤ (a :: l).length`, and
     the equality cannot be detected by congruence closure anymore.
     -/
-    let rl ← ensureInternalized lhs
-    let rr ← ensureInternalized rhs
+    let lhs ← ensureInternalized lhs
+    let rhs ← ensureInternalized rhs
     processNewFacts
-    if (← isEqv rl.expr rr.expr) then
-      return some (← composeEqProof rl rr)
+    if (← isEqv lhs rhs) then
+      return some (← mkEqProof lhs rhs)
     else if abstract then
       tryAbstract lhs rhs
     else
       return none
 where
-  /-- Compose preprocessing proofs with the E-graph equality proof. -/
-  composeEqProof (rl rr : Simp.Result) : GoalM Expr := do
-    let mut proof ← mkEqProof rl.expr rr.expr
-    if let some hp := rl.proof? then
-      proof ← mkEqTrans hp proof
-    if let some hp := rr.proof? then
-      proof ← mkEqTrans proof (← mkEqSymm hp)
-    return proof
   tryAbstract (lhs₀ rhs₀ : Expr) : GoalM (Option Expr) := do
     let some (lhs, rhs) ← abstractGroundMismatches? lhs₀ rhs₀ | return none
     trace[grind.debug.proveEq] "abstract: ({lhs}) = ({rhs})"
-    let rl ← ensureInternalized lhs
-    let rr ← ensureInternalized rhs
+    let lhs ← ensureInternalized lhs
+    let rhs ← ensureInternalized rhs
     processNewFacts
-    if (← isEqv rl.expr rr.expr) then
-      return some (← composeEqProof rl rr)
+    if (← isEqv lhs rhs) then
+      return some (← mkEqProof lhs rhs)
     else
       return none
 
@@ -229,15 +229,10 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
       return none
   else withoutModifyingState do
     -- See comment at `proveEq?`
-    let rl ← ensureInternalized lhs
-    let rr ← ensureInternalized rhs
+    let lhs ← ensureInternalized lhs
+    let rhs ← ensureInternalized rhs
     processNewFacts
-    unless (← isEqv rl.expr rr.expr) do return none
-    let mut proof ← mkHEqProof rl.expr rr.expr
-    if let some hp := rl.proof? then
-      proof ← mkHEqTrans (← mkHEqOfEq hp) proof
-    if let some hp := rr.proof? then
-      proof ← mkHEqTrans proof (← mkHEqSymm (← mkHEqOfEq hp))
-    return proof
+    unless (← isEqv lhs rhs) do return none
+    mkHEqProof lhs rhs
 
 end Lean.Meta.Grind

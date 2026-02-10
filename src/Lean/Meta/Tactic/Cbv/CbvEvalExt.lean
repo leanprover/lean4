@@ -13,9 +13,7 @@ public import Lean.Meta.Sym.Simp.Theorems
 public section
 namespace Lean.Meta.Sym.Simp
 
-def Theorem.declName (thm : Theorem) : Name := thm.expr.getAppFn.constName!
-
-def Theorem.isPrivate (thm : Theorem) : Bool := isPrivateName thm.declName
+def Theorem.declName (thm : Theorem) : Option Name := thm.expr.getAppFn.constName?
 
 end Lean.Meta.Sym.Simp
 
@@ -61,15 +59,14 @@ builtin_initialize cbvEvalExt : CbvEvalExtension ←
     initial  := {}
     addEntry := CbvEvalState.addEntry
     exportEntry? := fun level entry => do
-      guard (level == .private || !entry.thm.isPrivate)
+      let theoremName ← entry.thm.declName
+      guard (level == .private || !isPrivateName theoremName)
       return entry
   }
 
 def getCbvEvalLemmas (target : Name) : CoreM (Option Theorems) := do
   let s := cbvEvalExt.getState (← getEnv)
   return (s.lemmas.find? target)
-
-syntax (name := Parser.Attr.cbvEval) "cbv_eval" : attr
 
 builtin_initialize
   registerBuiltinAttribute {

@@ -3486,15 +3486,20 @@ theorem foldl_eq_foldr_reverse {xs : Array α} {f : β → α → β} {b} :
 theorem foldr_eq_foldl_reverse {xs : Array α} {f : α → β → β} {b} :
     xs.foldr f b = xs.reverse.foldl (fun x y => f y x) b := by simp
 
-theorem foldl_eq_foldr_of_associative {xs : Array α} {f : α → α → α}
+theorem foldl_eq_apply_foldr {xs : Array α} {f : α → α → α}
     [Std.Associative f] [Std.LawfulRightIdentity f init] :
     xs.foldl f x = f x (xs.foldr f init) := by
-  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_foldr_of_associative]
+  simp [← foldl_toList, ← foldr_toList, List.foldl_eq_apply_foldr]
 
-theorem foldr_eq_foldl_of_associative {xs : Array α} {f : α → α → α}
+theorem foldr_eq_apply_foldl {xs : Array α} {f : α → α → α}
     [Std.Associative f] [Std.LawfulLeftIdentity f init] :
     xs.foldr f x = f (xs.foldl f init) x := by
-  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_foldl_of_associative]
+  simp [← foldl_toList, ← foldr_toList, List.foldr_eq_apply_foldl]
+
+theorem foldr_eq_foldl {xs : Array α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldl f init = xs.foldr f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 @[simp] theorem foldr_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : start = as.size) :
     as.foldr (fun a xs => Array.push xs (f a)) bs start 0 = bs ++ (as.map f).reverse := by

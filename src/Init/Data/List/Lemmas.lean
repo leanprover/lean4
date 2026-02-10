@@ -2732,25 +2732,30 @@ theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
     simp only [foldr_cons, ha.assoc]
     rw [foldr_assoc]
 
-theorem foldl_eq_foldr_of_associative {xs : List α} {f : α → α → α}
+theorem foldl_eq_apply_foldr {xs : List α} {f : α → α → α}
     [Std.Associative f] [Std.LawfulRightIdentity f init] :
     xs.foldl f x = f x (xs.foldr f init) := by
   induction xs generalizing x
   · simp [Std.LawfulRightIdentity.right_id]
   · simp [foldl_assoc, *]
 
-theorem foldr_eq_foldl_of_associative {xs : List α} {f : α → α → α}
+theorem foldr_eq_apply_foldl {xs : List α} {f : α → α → α}
     [Std.Associative f] [Std.LawfulLeftIdentity f init] :
     xs.foldr f x = f (xs.foldl f init) x := by
   have : Std.Associative (fun x y => f y x) := ⟨by simp [Std.Associative.assoc]⟩
   have : Std.RightIdentity (fun x y => f y x) init := ⟨⟩
   have : Std.LawfulRightIdentity (fun x y => f y x) init := ⟨by simp [Std.LawfulLeftIdentity.left_id]⟩
-  rw [← List.reverse_reverse (as := xs), foldr_reverse, foldl_eq_foldr_of_associative, foldl_reverse]
+  rw [← List.reverse_reverse (as := xs), foldr_reverse, foldl_eq_apply_foldr, foldl_reverse]
+
+theorem foldr_eq_foldl {xs : List α} {f : α → α → α}
+    [Std.Associative f] [Std.LawfulIdentity f init] :
+    xs.foldl f init = xs.foldr f init := by
+  simp [foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulIdentity (· + ·) (0 : α)] {xs : List α} :
     xs.sum = xs.foldl (init := 0) (· + ·) := by
-  simp [sum_eq_foldr, foldl_eq_foldr_of_associative, Std.LawfulLeftIdentity.left_id]
+  simp [sum_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}

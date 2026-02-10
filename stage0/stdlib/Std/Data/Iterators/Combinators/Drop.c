@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iter_drop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_drop___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_drop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_drop___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

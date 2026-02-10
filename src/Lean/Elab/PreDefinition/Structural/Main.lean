@@ -127,7 +127,6 @@ def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
     let stx ← termMeasure.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
-
 def structuralRecursion
     (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDefinition)
     (termMeasure?s : Array (Option TerminationMeasure)) :
@@ -142,7 +141,7 @@ def structuralRecursion
     prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
+      addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList) (isRecursive := true)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   addAndCompilePartialRec docCtx preDefs
   for preDef in preDefs, recArgPos in recArgPoss do
@@ -157,7 +156,6 @@ def structuralRecursion
         -/
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
     addSmartUnfoldingDef docCtx preDef recArgPos
-    markAsRecursive preDef.declName
   for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs
     enableRealizationsForConst preDef.declName

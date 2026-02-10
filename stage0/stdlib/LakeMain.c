@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint32_t l_Lake_cli(lean_object*);
 LEAN_EXPORT lean_object* _lean_main(lean_object*);
 LEAN_EXPORT lean_object* l_main___boxed(lean_object*, lean_object*);
-uint32_t l_Lake_cli(lean_object*);
 LEAN_EXPORT lean_object* _lean_main(lean_object* x_1) {
 _start:
 {

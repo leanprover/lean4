@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.Envelope
-// Imports: public import Init.Grind.Ordered.Module public import Init.Data.AC import all Init.Data.AC
+// Imports: public import Init.Grind.Ordered.Module import all Init.Data.AC import Init.Omega import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,40 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_liftOn_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_liftOn_u2082___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Grind_Module_Envelope_0__Lean_Grind_IntModule_OfNatModule_r_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_sub___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_add___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ(lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_Envelope_0__Lean_Grind_IntModule_OfNatModule_r_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zero(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_nsmul(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule(lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zero___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_add(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Grind_Module_Envelope_0__Lean_Grind_IntModule_OfNatModule_r_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_sub(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_mk___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_liftOn_u2082___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_liftOn_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_Q_liftOn_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_nsmul___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_nsmul(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___closed__0;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zsmul___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_sub___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_sub(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_add___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_add(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_neg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zero___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_zero(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_Envelope_0__Lean_Grind_IntModule_OfNatModule_r_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -620,7 +620,8 @@ return x_6;
 }
 lean_object* initialize_Init_Grind_Ordered_Module(uint8_t builtin);
 lean_object* initialize_Init_Data_AC(uint8_t builtin);
-lean_object* initialize_Init_Data_AC(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Module_Envelope(uint8_t builtin) {
 lean_object * res;
@@ -632,7 +633,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_AC(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___closed__0 = _init_l_Lean_Grind_IntModule_OfNatModule_zsmul___redArg___closed__0();

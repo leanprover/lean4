@@ -6,7 +6,9 @@ Authors: Joe Hendrix
 module
 
 prelude
-public import Init.PropLemmas
+public import Init.Data.Fin.Basic
+import Init.PropLemmas
+import Init.WFTactics
 
 public section
 

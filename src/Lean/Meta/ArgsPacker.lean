@@ -10,6 +10,8 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.PProdN
 public import Lean.Meta.ArgsPacker.Basic
+import Init.Omega
+import Init.While
 
 public section
 

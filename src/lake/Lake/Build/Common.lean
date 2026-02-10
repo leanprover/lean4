@@ -10,7 +10,6 @@ public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
 public import Lake.Util.JsonObject
 public import Lake.Util.IO
-import Lake.Build.Target.Fetch
 public import Lake.Build.Actions
 
 /-! # Common Build Tools
@@ -498,7 +497,7 @@ in either the saved trace file or in the cached input-to-content mapping.
   (inputHash : Hash) (savedTrace : SavedTrace)
   (cache : Cache) (pkg : Package)
 : JobM (Option α) := do
-  let updateCache ← pkg.isArtifactCacheEnabled
+  let updateCache ← pkg.isArtifactCacheWritable
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     match (← resolveOutputs? out) with
     | .ok arts =>
@@ -578,7 +577,7 @@ public def buildArtifactUnlessUpToDate
       else
         return some art
     let art ← id do
-      if (← pkg.isArtifactCacheEnabled) then
+      if (← pkg.isArtifactCacheWritable) then
         let restore := restore || pkg.restoreAllArtifacts
         if let some art ← fetchArt? restore then
           return art
@@ -594,9 +593,10 @@ public def buildArtifactUnlessUpToDate
             computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then
         computeArtifact file ext text
-      else if let some art ← fetchArt? (restore := true) then
-        return art
       else
+        if (← pkg.isArtifactCacheReadable) then
+          if let some art ← fetchArt? (restore := true) then
+            return art
         doBuild depTrace traceFile
     if let some outputsRef := pkg.outputsRef? then
       outputsRef.insert inputHash art.descr

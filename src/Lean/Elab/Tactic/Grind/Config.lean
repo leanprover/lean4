@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-meta import Lean.Elab.Tactic.ConfigSetter
+import Lean.Elab.Tactic.ConfigSetter
 public section
 namespace Lean.Elab.Tactic.Grind
 

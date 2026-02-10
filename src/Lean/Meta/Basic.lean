@@ -12,6 +12,7 @@ public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -241,6 +242,8 @@ structure ParamInfo where
     This information affects the generation of congruence theorems.
   -/
   isDecInst      : Bool       := false
+  /-- `isInstance` is true if the parameter type is a class instance. -/
+  isInstance     : Bool       := false
   /--
     `higherOrderOutParam` is true if this parameter is a higher-order output parameter
     of local instance.

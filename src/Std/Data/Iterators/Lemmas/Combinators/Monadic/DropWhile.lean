@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.Iterators.Combinators.Monadic.DropWhile
 public import Init.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Bool
 
 @[expose] public section
 

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.GlobalInstances
+public import Lean.Meta.Basic
 public section
 namespace Lean.Meta
 
@@ -15,9 +15,10 @@ private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool :
   | .all  => return true
   | .default => return !(← isIrreducible info.name)
   | m =>
-    if (← isReducible info.name) then
+    let status ← getReducibilityStatus info.name
+    if status == .reducible then
       return true
-    else if m == .instances && isGlobalInstance (← getEnv) info.name then
+    else if m == .instances && status == .instanceReducible then
       return true
     else
       return false

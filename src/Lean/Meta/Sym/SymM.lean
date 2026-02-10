@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Sym.AlphaShareCommon
 public import Lean.Meta.CongrTheorems
 public section
@@ -83,7 +82,21 @@ inductive CongrInfo where
     -/
     congrTheorem (thm : CongrTheorem)
 
-/-- Mutable state for the symbolic simulator framework. -/
+/-- Pre-shared expressions for commonly used terms. -/
+structure SharedExprs where
+  trueExpr   : Expr
+  falseExpr  : Expr
+  natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
+  ordEqExpr  : Expr
+  intExpr    : Expr
+
+/-- Readonly context for the symbolic computation framework. -/
+structure Context where
+  sharedExprs : SharedExprs
+
+/-- Mutable state for the symbolic computation framework. -/
 structure State where
   /-- `ShareCommon` (aka `Hash-consing`) state. -/
   share : AlphaShareCommon.State := {}
@@ -120,11 +133,49 @@ structure State where
   congrInfo : PHashMap ExprPtr CongrInfo := {}
   debug : Bool := false
 
-abbrev SymM := StateRefT State MetaM
+abbrev SymM := ReaderT Context <| StateRefT State MetaM
+
+private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
+  let falseExpr  ← shareCommonAlphaInc <| mkConst ``False
+  let trueExpr   ← shareCommonAlphaInc  <| mkConst ``True
+  let bfalseExpr ← shareCommonAlphaInc  <| mkConst ``Bool.false
+  let btrueExpr  ← shareCommonAlphaInc  <| mkConst ``Bool.true
+  let natZExpr   ← shareCommonAlphaInc  <| mkNatLit 0
+  let ordEqExpr  ← shareCommonAlphaInc  <| mkConst ``Ordering.eq
+  let intExpr    ← shareCommonAlphaInc  <| Int.mkType
+  return { falseExpr, trueExpr, bfalseExpr, btrueExpr, natZExpr, ordEqExpr, intExpr }
 
 def SymM.run (x : SymM α) : MetaM α := do
+  let (sharedExprs, share) := mkSharedExprs |>.run {}
   let debug := sym.debug.get (← getOptions)
-  x |>.run' { debug }
+  x { sharedExprs } |>.run' { debug, share }
+
+/-- Returns maximally shared commonly used terms -/
+def getSharedExprs : SymM SharedExprs :=
+  return (← read).sharedExprs
+
+/-- Returns the internalized `True` constant.  -/
+def getTrueExpr : SymM Expr := return (← getSharedExprs).trueExpr
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : SymM Bool := return isSameExpr e (← getTrueExpr)
+/-- Returns the internalized `False` constant.  -/
+def getFalseExpr : SymM Expr := return (← getSharedExprs).falseExpr
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getFalseExpr)
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : SymM Expr := return (← getSharedExprs).btrueExpr
+/-- Returns `true` if `e` is the internalized `Bool.true` expression.  -/
+def isBoolTrueExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolTrueExpr)
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : SymM Expr := return (← getSharedExprs).bfalseExpr
+/-- Returns `true` if `e` is the internalized `Bool.false` expression.  -/
+def isBoolFalseExpr (e : Expr) : SymM Bool := return isSameExpr e (← getBoolFalseExpr)
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : SymM Expr := return (← getSharedExprs).natZExpr
+/-- Returns the internalized `Ordering.eq`.  -/
+def getOrderingEqExpr : SymM Expr := return (← getSharedExprs).ordEqExpr
+/-- Returns the internalized `Int`.  -/
+def getIntExpr : SymM Expr := return (← getSharedExprs).intExpr
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have

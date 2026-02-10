@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Config
-// Imports: public import Lake.Config.Env public import Lake.Load.Manifest public import Lake.Util.FilePath
+// Imports: public import Lake.Config.Env public import Lake.Load.Manifest
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* x_1) {
 _start:
 {
@@ -30,7 +30,6 @@ return x_4;
 }
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
 lean_object* initialize_Lake_Load_Manifest(uint8_t builtin);
-lean_object* initialize_Lake_Util_FilePath(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Load_Config(uint8_t builtin) {
 lean_object * res;
@@ -40,9 +39,6 @@ res = initialize_Lake_Config_Env(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Load_Manifest(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lake_Util_FilePath(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

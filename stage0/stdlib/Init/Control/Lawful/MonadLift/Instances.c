@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.MonadLift.Instances
-// Imports: import all Init.Control.Option import all Init.Control.Except public import Init.Control.ExceptCps import all Init.Control.ExceptCps import all Init.Control.StateRef public import Init.Control.StateCps import all Init.Control.StateCps import all Init.Control.Id public import Init.Control.Lawful.MonadLift.Lemmas public import Init.Control.Lawful.Instances
+// Imports: import all Init.Control.Option import all Init.Control.Except public import Init.Control.ExceptCps import all Init.Control.ExceptCps import all Init.Control.StateRef public import Init.Control.StateCps import all Init.Control.StateCps import all Init.Control.Id public import Init.Control.Lawful.MonadLift.Basic public import Init.Control.Option public import Init.Control.State public import Init.Control.StateRef import Init.Control.Lawful.Instances import Init.Control.Lawful.MonadLift.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__Except_map_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__OptionT_bind_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__OptionT_bind_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__Except_map_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__Except_map_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__ExceptT_bindCont_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__ExceptT_bindCont_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__OptionT_bind_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__Except_map_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_MonadLift_Instances_0__OptionT_bind_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -124,8 +124,12 @@ lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
 lean_object* initialize_Init_Control_StateCps(uint8_t builtin);
 lean_object* initialize_Init_Control_StateCps(uint8_t builtin);
 lean_object* initialize_Init_Control_Id(uint8_t builtin);
-lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_MonadLift_Basic(uint8_t builtin);
+lean_object* initialize_Init_Control_Option(uint8_t builtin);
+lean_object* initialize_Init_Control_State(uint8_t builtin);
+lean_object* initialize_Init_Control_StateRef(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_MonadLift_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_MonadLift_Instances(uint8_t builtin) {
 lean_object * res;
@@ -155,10 +159,22 @@ lean_dec_ref(res);
 res = initialize_Init_Control_Id(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin);
+res = initialize_Init_Control_Lawful_MonadLift_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Option(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_State(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_StateRef(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Lawful_Instances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_MonadLift_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

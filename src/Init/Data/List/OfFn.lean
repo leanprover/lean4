@@ -7,7 +7,11 @@ module
 
 prelude
 public import Init.Data.Fin.Fold
-public import Init.Data.List.Lemmas
+public import Init.NotationExtra
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Data.Option.Lemmas
 
 public section
 
@@ -100,6 +104,11 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
   cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
 
+@[simp]
+theorem ofFn_getElem {xs : List α} :
+    List.ofFn (fun i : Fin xs.length => xs[i.val]) = xs := by
+  apply ext_getElem <;> simp
+
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
@@ -108,6 +117,12 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
     exact ⟨⟨i, by simpa using h⟩, by simp⟩
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
+
+@[simp, grind =]
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (List.ofFn f).map g = List.ofFn (g ∘ f) := by
+  apply List.ext_getElem?
+  simp [List.getElem?_ofFn]
 
 @[grind =] theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by

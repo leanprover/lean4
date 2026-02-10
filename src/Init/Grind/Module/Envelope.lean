@@ -7,8 +7,9 @@ module
 
 prelude
 public import Init.Grind.Ordered.Module
-public import Init.Data.AC
 import all Init.Data.AC
+import Init.Omega
+import Init.RCases
 
 public section
 
@@ -203,6 +204,7 @@ theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul 
   induction a using Q.ind with | _ a
   rcases a with ⟨a₁, a₂⟩; simp; omega
 
+@[instance_reducible]
 def ofNatModule : IntModule (Q α) := {
   nsmul := ⟨nsmul⟩,
   zsmul := ⟨zsmul⟩,
@@ -304,7 +306,7 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfNatModule.Q α)
     obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [AddCommMonoid.add_comm]; exact le_refl (a₁ + a₂)
+    simp [AddCommMonoid.add_comm]
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind with | _ a
     induction b using Q.ind with | _ b

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Init.Omega
 
 public section
 

@@ -7,11 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
-import Lean.ProjFns
-import Lean.Meta.WHNF
-import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Sym.Util
+public import Init.Grind.Config
+import Init.Grind.Util
+import Lean.Structure
 public section
 namespace Lean.Meta.Grind
 /--

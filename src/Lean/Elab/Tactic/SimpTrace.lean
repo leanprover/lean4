@@ -59,7 +59,11 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       if let some a := args then a.getElems else #[]
     if config.suggestions then
       -- Get premise suggestions from the premise selector
-      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal) { caller := some "simp" }
+      let lsConfig : LibrarySuggestions.Config := { caller := some "simp" }
+      let lsConfig := match config.maxSuggestions with
+        | some n => { lsConfig with maxSuggestions := n }
+        | none => lsConfig
+      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal) lsConfig
       -- Convert suggestions to simp argument syntax and add them to the args
       -- If a name is ambiguous, we add ALL interpretations
       for sugg in suggestions do
@@ -98,7 +102,11 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       if let some a := args then a.getElems else #[]
     if config.suggestions then
       -- Get premise suggestions from the premise selector
-      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal) { caller := some "simp_all" }
+      let lsConfig : LibrarySuggestions.Config := { caller := some "simp_all" }
+      let lsConfig := match config.maxSuggestions with
+        | some n => { lsConfig with maxSuggestions := n }
+        | none => lsConfig
+      let suggestions ← Lean.LibrarySuggestions.select (← getMainGoal) lsConfig
       -- Convert suggestions to simp argument syntax and add them to the args
       -- If a name is ambiguous, we add ALL interpretations
       for sugg in suggestions do

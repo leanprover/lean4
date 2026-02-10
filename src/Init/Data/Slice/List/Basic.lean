@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Slice.Basic
 public import Init.Data.Slice.Notation
-public import Init.Data.Range.Polymorphic.Nat
 
 set_option linter.missingDocs true
 

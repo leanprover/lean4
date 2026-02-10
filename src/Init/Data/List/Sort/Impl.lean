@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.List.Sort.Basic
-public import Init.Data.List.Sort.Lemmas
+public import Init.Data.List.Sort.Basic
+import Init.Data.List.Sort.Lemmas
+import Init.Data.Nat.Linear
 
 public section
 

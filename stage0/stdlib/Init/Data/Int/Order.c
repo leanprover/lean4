@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Order
-// Imports: public import Init.Data.Int.Lemmas public import Init.ByCases public import Init.Data.Order.Factories import Init.Data.Order.Lemmas
+// Imports: import Init.Data.Order.Lemmas public import Init.Data.Order.Classes public import Init.NotationExtra import Init.ByCases import Init.Data.Int.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,35 +13,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg___closed__0;
-static lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instTransLtLe;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg___closed__0;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-LEAN_EXPORT lean_object* l_Int_instTransLeLt;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instTransLt;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instTransLe;
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instTransLtLe;
+LEAN_EXPORT lean_object* l_Int_instTransLeLt;
+LEAN_EXPORT lean_object* l_Int_instTransLt;
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg___closed__0;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+lean_object* lean_nat_abs(lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_add_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_neg_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_toNat_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg___closed__0;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Order_0__Int_sign_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Int_instTransLe() {
 _start:
 {
@@ -373,25 +373,29 @@ lean_dec(x_2);
 return x_6;
 }
 }
-lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_ByCases(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin);
+lean_object* initialize_Init_NotationExtra(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Order(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int_Lemmas(builtin);
+res = initialize_Init_Data_Order_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Classes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Factories(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
+res = initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_instTransLe = _init_l_Int_instTransLe();

@@ -13,24 +13,19 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
-import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.ExposeNames
-import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
-import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.Tactic.Grind.Param
-import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
 def showStateAt (ref : Syntax) (filter? : Option (TSyntax `grind_filter)) : GrindTacticM Unit := do

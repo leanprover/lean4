@@ -9,7 +9,6 @@ prelude
 public import Lean.Parser.Attr
 public import Lean.Parser.Level
 public import Lean.Parser.Term.Doc
-meta import Lean.Parser.Basic
 
 /-!
 This module contains the bare minimum of term syntax that's required to get documentation syntax to

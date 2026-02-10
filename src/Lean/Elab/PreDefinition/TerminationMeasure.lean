@@ -8,6 +8,7 @@ module
 prelude
 
 public import Lean.Elab.Binders
+import Init.Omega
 
 public section
 

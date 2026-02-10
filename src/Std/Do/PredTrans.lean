@@ -60,18 +60,38 @@ The type of predicate transformers for a given `ps : PostShape` and return type 
 predicate transformer `x : PredTrans ps α` is a function that takes a postcondition `Q : PostCond α
 ps` and returns a precondition `x.apply Q : Assertion ps`.
  -/
-@[ext]
 structure PredTrans (ps : PostShape) (α : Type u) : Type u where
-  /-- Apply the predicate transformer to a postcondition. -/
-  apply : PostCond α ps → Assertion ps
-  /-- The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
-  So the stronger the postcondition, the stronger the resulting precondition. -/
-  conjunctive : PredTrans.Conjunctive apply
+  /-- The function implementing the predicate transformer. -/
+  trans : PostCond α ps → Assertion ps
+  /--
+  The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
+  So the stronger the postcondition, the stronger the resulting precondition.
+  -/
+  conjunctiveRaw : PredTrans.Conjunctive trans
 
 namespace PredTrans
 
+/--
+Apply the predicate transformer to a postcondition.
+-/
+-- This definition is intentionally a semi-reducible wrapper over the `trans` structure field.
+-- This improves kernel reduction performance because the kernel is less eager to unfold a `def`.
+def apply (t : PredTrans ps α) (Q : PostCond α ps) : Assertion ps := t.trans Q
+
+/--
+The predicate transformer is conjunctive: `t (Q₁ ∧ₚ Q₂) ⊣⊢ₛ t Q₁ ∧ t Q₂`.
+So the stronger the postcondition, the stronger the resulting precondition.
+-/
+theorem conjunctive (t : PredTrans ps α) : Conjunctive t.apply :=
+  t.conjunctiveRaw
+
 theorem mono (t : PredTrans ps α) : Monotonic t.apply :=
   Conjunctive.mono t.apply t.conjunctive
+
+@[ext]
+theorem ext {t₁ t₂ : PredTrans ps α} (h : ∀ Q, t₁.apply Q = t₂.apply Q) : t₁ = t₂ := by
+  cases t₁; cases t₂; congr
+  funext Q; exact h Q
 
 /--
 Given a fixed postcondition, the *stronger* predicate transformer will yield a *weaker*
@@ -86,14 +106,14 @@ The identity predicate transformer that transforms the postcondition's assertion
 value into an assertion about `a`.
 -/
 def pure (a : α) : PredTrans ps α :=
-  { apply := fun Q => Q.1 a, conjunctive := by intro _ _; simp }
+  { trans := fun Q => Q.1 a, conjunctiveRaw := by intro _ _; simp }
 
 /--
 Sequences two predicate transformers by composing them.
 -/
 def bind (x : PredTrans ps α) (f : α → PredTrans ps β) : PredTrans ps β :=
-  { apply := fun Q => x.apply (fun a => (f a).apply Q, Q.2),
-    conjunctive := by
+  { trans := fun Q => x.apply (fun a => (f a).apply Q, Q.2),
+    conjunctiveRaw := by
       intro Q₁ Q₂
       apply SPred.bientails.of_eq
       dsimp
@@ -105,44 +125,46 @@ def bind (x : PredTrans ps α) (f : α → PredTrans ps β) : PredTrans ps β :=
 The predicate transformer that always returns the same precondition `P`; `(const P).apply Q = P`.
 -/
 def const (P : Assertion ps) : PredTrans ps α :=
-  { apply := fun Q => P, conjunctive := by intro _ _; simp [SPred.and_self.to_eq] }
+  { trans := fun Q => P, conjunctiveRaw := by intro _ _; simp [SPred.and_self.to_eq] }
 
 instance : Monad (PredTrans ps) where
   pure := pure
   bind := bind
 
-@[simp]
-theorem pure_apply (a : α) (Q : PostCond α ps) :
-  (PredTrans.pure a : PredTrans ps α).apply Q = Q.1 a := by rfl
-
-@[simp]
-theorem Pure_pure_apply (a : α) (Q : PostCond α ps) :
+@[simp, grind =]
+theorem apply_Pure_pure (a : α) (Q : PostCond α ps) :
   (Pure.pure a : PredTrans ps α).apply Q = Q.1 a := by rfl
 
-@[simp]
-theorem map_apply (f : α → β) (x : PredTrans ps α) (Q : PostCond β ps) :
+@[simp, grind =]
+theorem apply_pure (a : α) (Q : PostCond α ps) :
+  (PredTrans.pure a).apply Q = Q.1 a := by rfl
+
+@[simp, grind =]
+theorem apply_Functor_map (f : α → β) (x : PredTrans ps α) (Q : PostCond β ps) :
   (f <$> x).apply Q = x.apply (fun a => Q.1 (f a), Q.2) := by rfl
 
-@[simp]
-theorem bind_apply (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
+@[simp, grind =]
+theorem apply_bind (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
+  (PredTrans.bind x f).apply Q = x.apply (fun a => (f a).apply Q, Q.2) := by rfl
+
+@[simp, grind =]
+theorem apply_Bind_bind (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostCond β ps) :
   (x >>= f).apply Q = x.apply (fun a => (f a).apply Q, Q.2) := by rfl
 
 @[simp]
-theorem seq_apply (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : PostCond β ps) :
+theorem apply_Seq_seq (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : PostCond β ps) :
   (f <*> x).apply Q = f.apply (fun g => x.apply (fun a => Q.1 (g a), Q.2), Q.2) := by rfl
 
-@[simp]
-theorem const_apply (p : Assertion ps) (Q : PostCond α ps) :
+@[simp, grind =]
+theorem apply_const (p : Assertion ps) (Q : PostCond α ps) :
   (PredTrans.const p : PredTrans ps α).apply Q = p := by rfl
 
 theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
   (h : x ≤ y) : x >>= f ≤ y >>= f := by intro Q; exact (h (_, Q.2))
 
-instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
-  LawfulMonad.mk' (PredTrans ps)
-    (id_map := by simp +unfoldPartialApp [Functor.map, bind, pure])
-    (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure])
-    (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind])
+instance instLawfulMonad : LawfulMonad (PredTrans ps) := by
+  apply LawfulMonad.mk' _
+  all_goals (intros; ext Q; simp)
 
 /--
 Adds the ability to make assertions about a state of type `σ` to a predicate transformer with
@@ -154,12 +176,12 @@ states, by interpreting them as states.
 -/
 -- Think: modifyGetM
 def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α where
-  apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2)
-  conjunctive := by
+  trans := fun Q s => (x.run s).apply (fun (a, s) => Q.1 a s, Q.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     ext s
-    dsimp only [SPred.and_cons, ExceptConds.and]
+    dsimp only [SPred.and_cons, ExceptConds.and, StateT.run]
     rw [← ((x s).conjunctive _ _).to_eq]
 
 /--
@@ -171,8 +193,8 @@ This can be used for all kinds of exception-like effects, such as early terminat
 them as exceptions.
 -/
 def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α where
-  apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
-  conjunctive := by
+  trans Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp
@@ -188,8 +210,8 @@ interpreting `OptionT (PredTrans ps) α` into `PredTrans (.except PUnit ps) α`,
 `Option` as being equivalent to `Except PUnit`.
 -/
 def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans (.except PUnit ps) α where
-  apply Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
-  conjunctive := by
+  trans Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
+  conjunctiveRaw := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp
@@ -198,20 +220,22 @@ def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans
     ext x
     cases x <;> simp
 
-@[simp]
-theorem pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
+@[simp, grind =]
+theorem apply_pushArg {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
   (pushArg f).apply Q = fun s => (f s).apply (fun ⟨a, s⟩ => Q.1 a s, Q.2) := rfl
 
-@[simp]
-theorem pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
+@[simp, grind =]
+theorem apply_pushExcept {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
   (pushExcept x).apply Q = x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
 
-@[simp]
-theorem pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
+@[simp, grind =]
+theorem apply_pushOption {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
   (pushOption x).apply Q = x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
 
-theorem dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
+@[simp]
+theorem apply_dite {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
   (if h : c then t h else e h).apply Q = if h : c then (t h).apply Q else (e h).apply Q := by split <;> rfl
 
-theorem ite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
+@[simp]
+theorem apply_ite {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
   (if c then t else e).apply Q = if c then t.apply Q else e.apply Q := by split <;> rfl

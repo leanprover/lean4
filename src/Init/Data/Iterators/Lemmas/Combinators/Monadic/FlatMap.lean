@@ -10,6 +10,10 @@ import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 
 public import Init.Data.Iterators.Combinators.Monadic.FlatMap
 import all Init.Data.Iterators.Combinators.Monadic.FlatMap
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+import Init.Data.Array.Lemmas
+import Init.Data.Iterators.Lemmas.Consumers.Monadic
+import Init.Data.Iterators.Lemmas.Monadic.Basic
 
 namespace Std
 open Std.Internal Std.Iterators
@@ -32,7 +36,7 @@ theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} 
   cases it₂
   all_goals
   · apply bind_congr; intro step
-    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter, IterM.mk]
+    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter]
 
 namespace Iterators.Types
 

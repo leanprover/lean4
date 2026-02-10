@@ -265,26 +265,26 @@ def ident : Parser Name := do
   return xs.foldl .str $ .mkSimple head
 
 def patchUri (s : String) : IO String := do
+  let patterns := #["/src/Init/", "/src/Lean/", "/src/Std/", "/tests/lean/interactive/"]
   let some path := System.Uri.fileUriToPath? s
     | return s
-  let path ←
-    try
-      IO.FS.realPath path
-    catch _ =>
-      return s
-  let c := path.components.toArray
-  if let some srcIdx := c.findIdx? (· == "src") then
-    if ! c[srcIdx + 1]?.any (fun dir => dir == "Init" || dir == "Lean" || dir == "Std") then
-      return s
-    let c := c.drop <| srcIdx
-    let path := System.mkFilePath c.toList
-    return System.Uri.pathToUri path
-  if let some testIdx := c.findIdx? (· == "tests") then
-    let c := c.drop <| testIdx
-    let path := System.mkFilePath c.toList
-    return System.Uri.pathToUri path
-  else
+  let path ← try
+    IO.FS.realPath path
+  catch _ =>
     return s
+  let path := String.intercalate "/" path.components |>.toSlice
+  let matchPositions := patterns.filterMap fun p =>
+    String.Slice.Pattern.ToForwardSearcher.toSearcher p path
+      |>.filterMap (fun | .matched startPos _ => some startPos | .rejected .. => none)
+      |>.toArray.back?
+  let deepestMatchPos := matchPositions.foldr (init := path.startPos) fun matchPos deepestMatchPos =>
+    if matchPos > deepestMatchPos then
+      matchPos
+    else
+      deepestMatchPos
+  let path := path.sliceFrom deepestMatchPos
+  let path := System.FilePath.mk path.toString |>.normalize
+  return System.Uri.pathToUri path
 
 partial def patchUris : Json → IO Json
   | .null =>

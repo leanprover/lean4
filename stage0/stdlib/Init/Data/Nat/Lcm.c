@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lcm
-// Imports: public import Init.Data.Nat.Lemmas
+// Imports: public import Init.Data.Nat.Gcd import Init.Data.Nat.Dvd import Init.Data.Nat.Lemmas import Init.RCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_nat_gcd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lcm(lean_object*, lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* lean_nat_gcd(lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lcm(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lcm___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lcm(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -40,13 +40,25 @@ lean_dec(x_1);
 return x_3;
 }
 }
+lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_RCases(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Lcm(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Nat_Gcd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Dvd(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

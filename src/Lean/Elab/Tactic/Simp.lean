@@ -88,9 +88,9 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 -/
 def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
-  | .simp    => elabSimpConfigCore optConfig
-  | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
-  | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
+    | .simp    => elabSimpConfigCore optConfig
+    | .simpAll => pure (← elabSimpConfigCtxCore optConfig).toConfig
+    | .dsimp   => pure { (← elabDSimpConfigCore optConfig) with }
 
 inductive ResolveSimpIdResult where
   | none
@@ -423,7 +423,7 @@ def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems 
   for (name, ci) in env.constants.map₂.toList do
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← Meta.isInstance name) then continue
+    if (← isInstanceReducible name) then continue
     match ci with
     | .defnInfo _ =>
       -- Definitions are added to unfold

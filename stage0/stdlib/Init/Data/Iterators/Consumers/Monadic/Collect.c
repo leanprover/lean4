@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers.Monadic.Collect
-// Imports: public import Init.Data.Iterators.Consumers.Monadic.Partial public import Init.Data.Iterators.Consumers.Monadic.Total public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction public import Init.WFExtrinsicFix
+// Imports: public import Init.Data.Iterators.Consumers.Monadic.Partial public import Init.Data.Iterators.Consumers.Monadic.Total public import Init.WFExtrinsicFix public import Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,39 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Partial_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toList___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Partial_toArray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Total_toList___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toList___redArg___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Total_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Total_toArray___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Total_toListRev___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toArray_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Std_IterM_toArray___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Std_IterM_toArray___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Partial_toArray___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Partial_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Total_toArray___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Total_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toListRev___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Partial_toListRev___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_IterM_toArray___redArg___closed__0;
-lean_object* lean_array_to_list(lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Partial_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Total_toListRev___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Total_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toArray___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toArray_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_toList___redArg___lam__0(lean_object*);
+static const lean_closure_object l_Std_IterM_toList___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_IterM_toList___redArg___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_IterM_toList___redArg___closed__0 = (const lean_object*)&l_Std_IterM_toList___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_IterM_toList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toListRev_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toListRev___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Partial_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_IterM_toList___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_IterM_Partial_toList___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Partial_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Total_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Partial_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Total_toList___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Total_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_toArray_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -513,14 +514,6 @@ x_2 = lean_array_to_list(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_IterM_toList___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_IterM_toList___redArg___lam__0), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_IterM_toList___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -538,7 +531,7 @@ lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec_ref(x_5);
-x_9 = l_Std_IterM_toList___redArg___closed__0;
+x_9 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
@@ -566,7 +559,7 @@ lean_dec_ref(x_7);
 x_11 = lean_ctor_get(x_8, 0);
 lean_inc(x_11);
 lean_dec_ref(x_8);
-x_12 = l_Std_IterM_toList___redArg___closed__0;
+x_12 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_13 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_5);
@@ -594,7 +587,7 @@ lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec_ref(x_5);
-x_9 = l_Std_IterM_toList___redArg___closed__0;
+x_9 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
@@ -622,7 +615,7 @@ lean_dec_ref(x_7);
 x_11 = lean_ctor_get(x_8, 0);
 lean_inc(x_11);
 lean_dec_ref(x_8);
-x_12 = l_Std_IterM_toList___redArg___closed__0;
+x_12 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_13 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_13, 0, x_10);
 lean_closure_set(x_13, 1, x_5);
@@ -650,7 +643,7 @@ lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec_ref(x_5);
-x_9 = l_Std_IterM_toList___redArg___closed__0;
+x_9 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_10 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_2);
@@ -678,7 +671,7 @@ lean_dec_ref(x_8);
 x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
 lean_dec_ref(x_9);
-x_13 = l_Std_IterM_toList___redArg___closed__0;
+x_13 = ((lean_object*)(l_Std_IterM_toList___redArg___closed__0));
 x_14 = lean_alloc_closure((void*)(l_Std_IterM_toArray_go___redArg___lam__1), 6, 3);
 lean_closure_set(x_14, 0, x_11);
 lean_closure_set(x_14, 1, x_5);
@@ -691,8 +684,8 @@ return x_17;
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Partial(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Total(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(uint8_t builtin);
 lean_object* initialize_Init_WFExtrinsicFix(uint8_t builtin);
+lean_object* initialize_Init_Ext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin) {
 lean_object * res;
@@ -704,16 +697,14 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Total(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_LawfulMonadLiftFunction(builtin);
+res = initialize_Init_WFExtrinsicFix(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_WFExtrinsicFix(builtin);
+res = initialize_Init_Ext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_IterM_toArray___redArg___closed__0 = _init_l_Std_IterM_toArray___redArg___closed__0();
 lean_mark_persistent(l_Std_IterM_toArray___redArg___closed__0);
-l_Std_IterM_toList___redArg___closed__0 = _init_l_Std_IterM_toList___redArg___closed__0();
-lean_mark_persistent(l_Std_IterM_toList___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

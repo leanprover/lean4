@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Classical
+public meta import Init.Grind.Tactics
+public import Init.Grind.Tactics
+import Init.SimpLemmas
 
 public section
 

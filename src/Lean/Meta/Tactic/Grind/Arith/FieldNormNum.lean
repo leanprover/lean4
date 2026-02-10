@@ -7,8 +7,6 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Grind.SynthInstance
-import Lean.Util.SafeExponentiation
-import Lean.Meta.AppBuilder
 import Init.Grind.FieldNormNum
 namespace Lean.Meta.Grind.Arith
 namespace FieldNormNum

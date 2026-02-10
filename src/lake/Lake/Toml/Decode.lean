@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.FilePath
 public import Lake.Toml.Data
+import Init.Data.ToString.Macro
 
 open Lean
 

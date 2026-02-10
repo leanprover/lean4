@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-import Init.Data.Array.Basic
 public import Init.Data.String.TakeDrop
-import Init.Data.String.Slice
 public import Init.Data.String.Search
 
 namespace Lake

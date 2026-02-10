@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.String.Basic
+public import Init.Data.String.PosRaw
+public import Init.Data.UInt.Basic
 
 public section
 universe u

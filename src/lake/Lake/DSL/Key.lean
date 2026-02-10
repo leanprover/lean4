@@ -6,7 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-import Lake.Build.Key
+import Lake.Build.Key  -- shake: keep (builtin macro output dependency)
 import Lake.DSL.Syntax
 import Lake.Util.Name
 
@@ -39,8 +39,7 @@ def expandModuleTargetKeyLit : Macro := fun stx => do
     | Macro.throwUnsupported
   withRef tk do
   let modLit := Name.quoteFrom mod mod.getId
-  let pkgLit := Name.quoteFrom tk Name.anonymous
-  let tgt ← `(BuildKey.packageModule $pkgLit $modLit)
+  let tgt ← `(BuildKey.module $modLit)
   let key ← expandFacets tgt facets
   `(PartialBuildKey.mk $key)
 

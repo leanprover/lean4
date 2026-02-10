@@ -207,7 +207,8 @@ inductive Lex (r : α → α → Prop) : (as : List α) → (bs : List α) → P
 
 
 instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRel r] :
-    (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂)
+    (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂) := go
+where go
   | [], [] => isFalse nofun
   | [], _::_ => isTrue Lex.nil
   | _::_, [] => isFalse nofun
@@ -216,7 +217,7 @@ instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRe
     | isTrue h₁ => isTrue (Lex.rel h₁)
     | isFalse h₁ =>
       if h₂ : a = b then
-        match decidableLex r as bs with
+        match go as bs with
         | isTrue h₃ => isTrue (h₂ ▸ Lex.cons h₃)
         | isFalse h₃ => isFalse (fun h => match h with
           | Lex.rel h₁' => absurd h₁' h₁
@@ -863,22 +864,24 @@ theorem mem_append_right {b : α} (as : List α) {bs : List α} : b ∈ bs → b
   | cons => apply Mem.tail; assumption
 
 instance decidableBEx (p : α → Prop) [DecidablePred p] :
-    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x)
+    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x) := go
+where go
   | [] => isFalse nofun
   | x :: xs =>
     if h₁ : p x then isTrue ⟨x, .head .., h₁⟩ else
-      match decidableBEx p xs with
+      match go xs with
       | isTrue h₂ => isTrue <| let ⟨y, hm, hp⟩ := h₂; ⟨y, .tail _ hm, hp⟩
       | isFalse h₂ => isFalse fun
         | ⟨y, .tail _ h, hp⟩ => h₂ ⟨y, h, hp⟩
         | ⟨_, .head .., hp⟩ => h₁ hp
 
 instance decidableBAll (p : α → Prop) [DecidablePred p] :
-    ∀ l : List α, Decidable (∀ x, x ∈ l → p x)
+    ∀ l : List α, Decidable (∀ x, x ∈ l → p x) := go
+where go
   | [] => isTrue nofun
   | x :: xs =>
     if h₁ : p x then
-      match decidableBAll p xs with
+      match go xs with
       | isTrue h₂ => isTrue fun
         | y, .tail _ h => h₂ y h
         | _, .head .. => h₁
@@ -1341,10 +1344,11 @@ variable {R}
   ⟨fun | .cons h₁ h₂ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => h₂.cons h₁⟩
 
 instance instDecidablePairwise [DecidableRel R] :
-    (l : List α) → Decidable (Pairwise R l)
+    (l : List α) → Decidable (Pairwise R l) := go
+where go
   | [] => isTrue .nil
   | hd :: tl =>
-    match instDecidablePairwise tl with
+    match go tl with
     | isTrue ht =>
       match decidableBAll (R hd) tl with
       | isFalse hf => isFalse fun hf' => hf (pairwise_cons.1 hf').1

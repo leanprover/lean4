@@ -1,12 +1,14 @@
-inductive Vector' (α : Type u) : Nat → Type u
-  | nil  : Vector' α 0
-  | cons : α → Vector' α n → Vector' α (n + 1)
+/-! `instance` cannot be used recursively. -/
 
-def test [Monad m] (xs : Vector' α a) : m Unit :=
-  match xs with
-  | Vector'.nil => return ()
-  | Vector'.cons _ xs => test xs
-termination_by sizeOf xs
+/--
+@ +2:2...3
+error: Invalid recursive use of `instance`
+
+Hint: Consider using a separate `def` to define the implementation of this instance.
+-/
+#guard_msgs (positions := true) in
+instance i : Repr Nat :=
+  i
 
 /--
 error: cannot use `instance` in `mutual` block

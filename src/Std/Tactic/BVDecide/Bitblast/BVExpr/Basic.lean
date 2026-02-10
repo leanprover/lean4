@@ -266,7 +266,8 @@ namespace BVExpr
 instance : Hashable (BVExpr w) where
   hash expr := expr.hashCode _
 
-instance decEq : DecidableEq (BVExpr w) := fun l r =>
+instance decEq : DecidableEq (BVExpr w) := go
+where go {w : Nat} : DecidableEq (BVExpr w) := fun l r =>
   withPtrEqDecEq l r fun _ =>
     if h : hash l ≠ hash r then
       .isFalse (ne_of_apply_ne hash h)
@@ -288,7 +289,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .extract (w := rw) rstart _ rexpr  =>
           if h1 : lw = rw ∧ lstart = rstart then
-            match decEq (h1.left ▸ lexpr) rexpr with
+            match go (h1.left ▸ lexpr) rexpr with
             | .isTrue h2 => .isTrue (by cases h1.left; simp_all)
             | .isFalse h2 => .isFalse (by cases h1.left; simp_all)
           else
@@ -299,7 +300,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .bin rlhs rop rrhs =>
           if h1 : lop = rop then
-            match decEq llhs rlhs, decEq lrhs rrhs with
+            match go llhs rlhs, go lrhs rrhs with
             | .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
             | .isFalse h2, _ => .isFalse (by simp [h2])
             | _, .isFalse h3 => .isFalse (by simp [h3])
@@ -311,7 +312,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .un rop rexpr =>
           if h1 : lop = rop then
-            match decEq lexpr rexpr with
+            match go lexpr rexpr with
             | .isTrue h2 => .isTrue (by simp [h1, h2])
             | .isFalse h2 => .isFalse (by simp [h2])
           else
@@ -322,7 +323,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .append (l := rl) (r := rr) rlhs rrhs rh =>
           if h1 : ll = rl ∧ lr = rr then
-            match decEq (h1.left ▸ llhs) rlhs, decEq (h1.right ▸ lrhs) rrhs with
+            match go (h1.left ▸ llhs) rlhs, go (h1.right ▸ lrhs) rrhs with
             | .isTrue h2, .isTrue h3 => .isTrue (by cases h1.left; cases h1.right; simp [h2, h3])
             | .isFalse h2, _ => .isFalse (by cases h1.left; cases h1.right; simp [h2])
             | _, .isFalse h3 => .isFalse (by cases h1.left; cases h1.right; simp [h3])
@@ -334,7 +335,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .replicate (w := rw) rn rexpr rh =>
           if h1 : ln = rn ∧ lw = rw then
-            match decEq (h1.right ▸ lexpr) rexpr with
+            match go (h1.right ▸ lexpr) rexpr with
             | .isTrue h2 => .isTrue (by cases h1.left; cases h1.right; simp [h2])
             | .isFalse h2 => .isFalse (by cases h1.left; cases h1.right; simp [h2])
           else
@@ -346,7 +347,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .shiftLeft (n := rw) rlhs rrhs =>
           if h1 : lw = rw then
-            match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+            match go llhs rlhs, go (h1 ▸ lrhs) rrhs with
             | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
             | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
             | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])
@@ -358,7 +359,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .shiftRight (n := rw) rlhs rrhs =>
           if h1 : lw = rw then
-            match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+            match go llhs rlhs, go (h1 ▸ lrhs) rrhs with
             | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
             | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
             | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])
@@ -370,7 +371,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         match r with
         | .arithShiftRight (n := rw) rlhs rrhs =>
           if h1 : lw = rw then
-            match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+            match go llhs rlhs, go (h1 ▸ lrhs) rrhs with
             | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
             | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
             | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])

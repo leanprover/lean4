@@ -167,6 +167,8 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- NOTE: `[instance_reducible]` is added conditionally in `elabMutualDef`
   let attrStx         ← `(attr| instance $(quote prio):num)
   let modifiers       := modifiers.addAttr { kind := attrKind, name := `instance, stx := attrStx }
+  if modifiers.recKind matches .nonrec then
+    logWarning "Unnecessary use of `nonrec`, instances are always non-recursive."
   let (binders, type) := expandDeclSig stx[4]
   let declId ← match stx[3].getOptional? with
     | some declId =>

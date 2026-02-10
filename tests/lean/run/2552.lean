@@ -9,15 +9,16 @@ by cases hab
 section succeeds_using_match
 
 local instance decidableBallLT :
-  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
-| 0, _, _ => isTrue fun _ => (by cases ·)
-| (n+1), P, H =>
-  match decidableBallLT n (P · <| Nat.le_succ_of_le ·) with
-  | isFalse h => isFalse (h fun _ _ => · _ _)
-  | isTrue h =>
-    match H n Nat.le.refl with
-    | isFalse p => isFalse (p <| · _ _)
-    | isTrue p => isTrue fun _ h' => (Nat.le_of_lt_succ h').lt_or_eq_dec.elim (h _) (· ▸ p)
+  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h) := @go
+where go : ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
+  | 0, _, _ => isTrue fun _ => (by cases ·)
+  | (n+1), P, H =>
+    match go n (P · <| Nat.le_succ_of_le ·) with
+    | isFalse h => isFalse (h fun _ _ => · _ _)
+    | isTrue h =>
+      match H n Nat.le.refl with
+      | isFalse p => isFalse (p <| · _ _)
+      | isTrue p => isTrue fun _ h' => (Nat.le_of_lt_succ h').lt_or_eq_dec.elim (h _) (· ▸ p)
 
 set_option maxHeartbeats 5000
 example : ∀ a, a < 9 → ∀ b, b < 9 → ∀ c, c < 9 → a ^ 2 + b ^ 2 + c ^ 2 ≠ 7 := by decide
@@ -28,10 +29,11 @@ section fails_with_timeout
 
 -- we change `match decidableBallLT` to `by cases decidableBallLT' ... exact`:
 local instance decidableBallLT' :
-  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
+  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h) := @go
+where go : ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
 | 0, _, _ => isTrue fun _ => (by cases ·)
 | (n+1), P, H => by
-  cases decidableBallLT' n (P · <| Nat.le_succ_of_le ·) with
+  cases go n (P · <| Nat.le_succ_of_le ·) with
   | isFalse h => exact isFalse (h fun _ _ => · _ _)
   | isTrue h =>
     exact match H n Nat.le.refl with

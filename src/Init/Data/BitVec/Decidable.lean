@@ -66,10 +66,11 @@ Note, however, that for large numerals the decision procedure may be very slow,
 and you should use `bv_decide` if possible.
 -/
 instance instDecidableForallBitVec :
-    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∀ v, P v)
+    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∀ v, P v) := go
+where go : ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∀ v, P v)
   | 0, _, _ => inferInstance
   | n + 1, _, _ =>
-    have := instDecidableForallBitVec n
+    have := go n
     inferInstance
 
 /--

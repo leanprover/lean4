@@ -1752,10 +1752,11 @@ grind_pattern shiftLeft_add => (m <<< n) <<< k where
 /-! ### Decidability of predicates -/
 
 instance decidableBallLT :
-  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
+  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h) := @go
+where go : ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
 | 0, _, _ => isTrue fun _ => (by cases ·)
 | n + 1, P, H =>
-  match decidableBallLT n (P · <| lt_succ_of_lt ·) with
+  match go n (P · <| lt_succ_of_lt ·) with
   | isFalse h => isFalse (h fun _ _ => · _ _)
   | isTrue h =>
     match H n Nat.le.refl with
@@ -1770,10 +1771,11 @@ instance decidableBallLE (n : Nat) (P : ∀ k, k ≤ n → Prop) [∀ n h, Decid
   decidable_of_iff (∀ (k) (h : k < succ n), P k (le_of_lt_succ h))
     ⟨fun m k h => m k (lt_succ_of_le h), fun m k _ => m k _⟩
 
-instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
+instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m := go
+where go
   | 0 => isFalse (by simp only [not_lt_zero, false_and, exists_const, not_false_eq_true])
   | n + 1 =>
-    @decidable_of_decidable_of_iff _ _ (@instDecidableOr _ _ (decidableExistsLT (p := p) n) (h n))
+    @decidable_of_decidable_of_iff _ _ (@instDecidableOr _ _ (go n) (h n))
       (by simp only [Nat.lt_succ_iff_lt_or_eq, or_and_right, exists_or, exists_eq_left])
 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
@@ -1782,6 +1784,8 @@ instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Na
 
 /-- Dependent version of `decidableExistsLT`. -/
 instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m < k, p m h) := go
+where go {k : Nat} {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
     Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
   match k, p, I with
   | 0, _, _ => isFalse (by simp)
@@ -1790,7 +1794,7 @@ instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Dec
         fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
           by obtain rfl := (by omega : m = k); exact .inr w⟩
       (@instDecidableOr _ _
-        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
+        (go (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
         inferInstance)
 
 /-- Dependent version of `decidableExistsLE`. -/

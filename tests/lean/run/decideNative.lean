@@ -25,13 +25,13 @@ elab "collect_stdout " t:tactic : tactic => do
 
 def P (n : Nat) := ∃ k, n = 2 * k
 
-instance instP : DecidablePred P :=
-  fun
+instance instP : DecidablePred P := go
+where go
   | 0 => isTrue ⟨0, rfl⟩
   | 1 => isFalse (by intro ⟨k, h⟩; omega)
   | n + 2 =>
     dbg_trace "step";
-    match instP n with
+    match go n with
     | isTrue h => isTrue (by have ⟨k, h⟩ := h; exact ⟨k + 1, by omega⟩)
     | isFalse h => isFalse (by intro ⟨k, h'⟩; apply h; exists k - 1; omega)
 

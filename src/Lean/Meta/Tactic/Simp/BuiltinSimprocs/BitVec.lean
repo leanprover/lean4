@@ -303,6 +303,13 @@ builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e =>
   let some len ← Nat.fromExpr? len | return .continue
   return .done <| (← toExpr' (v.value.extractLsb' start len))
 
+/-- Simplification procedure for `hAdd` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reducehAdd (hAdd _ _) := fun e => do
+  let_expr hAdd _ len v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some len ← Nat.fromExpr? len | return .continue
+  return .done <| (← toExpr' (v.value.hAdd len))
+
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let_expr replicate _ i v ← e | return .continue

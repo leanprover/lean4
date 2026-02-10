@@ -17,6 +17,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ParPreSum
 import Init.Data.Nat.Linear
 import Init.Omega
 
@@ -260,6 +261,14 @@ where
         dsimp only at heaig
         exact heaig
       ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastExtract) ..)⟩
+    | .parPreSum len expr =>
+      let ⟨⟨⟨eaig, evec⟩, heaig⟩, cache⟩ := goCache aig expr cache
+      let res := bitblast.blastParPreSum eaig ⟨len, evec⟩
+      have := by
+        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastParPreSum)
+        dsimp only at heaig
+        exact heaig
+      ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastParPreSum) ..)⟩
     | .shiftLeft lhs rhs =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -364,6 +373,11 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
     exact Nat.lt_of_lt_of_le h1 this
   next hi lo inner =>
     rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
+    rw [goCache_decl_eq]
+    have := (goCache aig inner cache).result.property
+    exact Nat.lt_of_lt_of_le h1 this
+  next len inner =>
+    rw [AIG.LawfulVecOperator.decl_eq (f := blastParPreSum)]
     rw [goCache_decl_eq]
     have := (goCache aig inner cache).result.property
     exact Nat.lt_of_lt_of_le h1 this

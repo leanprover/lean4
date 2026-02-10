@@ -885,4 +885,35 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 @[suggest_for BitVec.popcount BitVec.popcnt]
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
+/-- Recursive addition of `l` elements with length `w` in a flattened bitvec,
+  starting from the `rem`-th element. -/
+def hAddRec (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
+  match rem with
+  | 0 => acc
+  | n + 1 => x.hAddRec n (acc + x.extractLsb' (n * w) w)
+
+/-- Add `l`-long portions of a `w`-long bitvector. -/
+def hAdd (l : Nat) (x : BitVec w) : BitVec l :=
+  if hl0 : l = 0 then 0#l
+  else
+    if hle : w ≤ l then
+      x.zeroExtend l
+    else
+      if hmod : 0 < w % l  then
+        let diff := l - (w % l)
+        have hmodeq : (w + diff) % l = 0 := by
+          simp only [diff]
+          rw [← Nat.add_sub_assoc (by apply Nat.le_of_lt (Nat.mod_lt w (by omega))), Nat.add_comm,
+                Nat.add_sub_assoc (by exact Nat.mod_le w l)]
+          simp [Nat.sub_mod_eq_zero_of_mod_eq]
+          sorry
+        let zext := x.zeroExtend (w + diff)
+        let init_length := (w + diff) / l
+        let xcast := zext.cast (m := init_length * l) (by sorry)
+        hAddRec xcast ((w + diff) / l) 0#l
+      else
+        let init_length := w / l
+        let xcast := x.cast (m := init_length * l) (by sorry)
+        hAddRec xcast (w / l) 0#l
+
 end BitVec

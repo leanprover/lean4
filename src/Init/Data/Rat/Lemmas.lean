@@ -26,11 +26,6 @@ namespace Rat
 theorem ext : {p q : Rat} → p.num = q.num → p.den = q.den → p = q
   | ⟨_,_,_,_⟩, ⟨_,_,_,_⟩, rfl, rfl => rfl
 
-theorem ext_iff {p q : Rat} : p = q ↔ p.num = q.num ∧ p.den = q.den := by
-  apply Iff.intro
-  · simp +contextual
-  · exact fun h => ext h.1 h.2
-
 @[simp] theorem mk_den_one {r : Int} :
     ⟨r, 1, Nat.one_ne_zero, (Nat.coprime_one_right _)⟩ = (r : Rat) := rfl
 
@@ -1294,6 +1289,12 @@ theorem ceil_lt {x : Rat} :
 # abs
 -/
 
+@[simp, grind =]
+theorem Rat.abs_zero :
+    (0 : Rat).abs = 0 := by
+  simp [Rat.abs]
+
+@[simp]
 theorem Rat.abs_nonneg {x : Rat} :
     0 ≤ x.abs := by
   simp only [Rat.abs]
@@ -1314,19 +1315,51 @@ theorem Rat.abs_of_nonpos {x : Rat} (h : x ≤ 0) :
   · simp [show x = 0 from Rat.le_antisymm ‹_› ‹_›]
   · rfl
 
-theorem Rat.abs_sub_comm {x y : Rat} :
-    (x - y).abs = (y - x).abs := by
+@[simp, grind =]
+theorem Rat.abs_neg {x : Rat} :
+    (-x).abs = x.abs := by
   simp only [Rat.abs]
   split <;> split
-  · have : x = y := Rat.le_antisymm (Rat.le_iff_sub_nonneg _ _ |>.mpr ‹_›) (Rat.le_iff_sub_nonneg _ _ |>.mpr ‹_›)
-    simp [this]
-  · simp [Rat.neg_sub]
-  · simp [Rat.neg_sub]
-  · have : y < x := Rat.not_le.mp (by rwa [Rat.le_iff_sub_nonneg])
-    have : ¬ y ≤ x := (by rwa [Rat.le_iff_sub_nonneg])
+  · rw [Rat.le_neg_iff, Rat.neg_zero] at *
+    simp [show x = 0 from Rat.le_antisymm ‹_› ‹_›]
+  · simp
+  · simp
+  · have : x < 0 := Rat.not_le.mp ‹_›
+    rw [Rat.le_neg_iff, Rat.neg_zero] at *
+    have : ¬ x ≤ 0 := ‹_›
     apply this.elim
     apply Rat.le_of_lt
     assumption
+
+theorem Rat.abs_sub_comm {x y : Rat} :
+    (x - y).abs = (y - x).abs := by
+  rw [← Rat.neg_sub, Rat.abs_neg]
+
+@[simp]
+theorem Rat.abs_eq_zero_iff {x : Rat} :
+    x.abs = 0 ↔ x = 0 := by
+  simp only [Rat.abs]
+  split
+  · rfl
+  · apply Iff.intro
+    · intro h
+      rw [← Rat.neg_neg (a := x), h, Rat.neg_zero]
+    · simp +contextual
+
+theorem Rat.abs_pos_iff {x : Rat} :
+    0 < x.abs ↔ x ≠ 0 := by
+  apply Iff.intro
+  · intro hpos
+    by_cases h : 0 ≤ x
+    · rw [Rat.abs_of_nonneg h] at hpos
+      exact Rat.ne_of_gt hpos
+    · exact Rat.ne_of_lt (Rat.not_le.mp h)
+  · intro hne
+    simp only [ne_eq] at hne
+    rw [← Rat.abs_eq_zero_iff] at hne
+    apply Rat.lt_of_le_of_ne
+    · apply Rat.abs_nonneg
+    · exact .symm hne
 
 /-!
 # instances

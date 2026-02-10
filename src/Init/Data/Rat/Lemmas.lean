@@ -39,6 +39,8 @@ theorem ext_iff {p q : Rat} : p = q ↔ p.num = q.num ∧ p.den = q.den := by
 @[simp] theorem one_num : (1 : Rat).num = 1 := rfl
 @[simp] theorem one_den : (1 : Rat).den = 1 := rfl
 
+@[simp] theorem neg_zero : -(0 : Rat) = 0 := rfl
+
 @[simp] theorem maybeNormalize_eq {num den g} (dvd_num dvd_den den_nz reduced) :
     maybeNormalize num den g dvd_num dvd_den den_nz reduced =
     { num := num.divExact g dvd_num, den := den / g, den_nz, reduced } := by
@@ -1287,3 +1289,51 @@ theorem ceil_sub_one {x : Rat} :
 theorem ceil_lt {x : Rat} :
     x.ceil < x + 1 := by
   simpa [Rat.ceil_eq_neg_floor_neg, Rat.neg_lt_iff, Rat.neg_add, Rat.sub_eq_add_neg] using lt_floor
+
+/-!
+# abs
+-/
+
+theorem Rat.abs_nonneg {x : Rat} :
+    0 ≤ x.abs := by
+  simp only [Rat.abs]
+  split <;> rename_i hle
+  · assumption
+  · apply Rat.le_of_lt
+    simp only [Rat.not_le] at hle
+    rwa [Rat.lt_neg_iff, Rat.neg_zero]
+
+theorem Rat.abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
+    x.abs = x := by
+  rw [Rat.abs, if_pos h]
+
+theorem Rat.abs_of_nonpos {x : Rat} (h : x ≤ 0) :
+    x.abs = - x := by
+  rw [Rat.abs]
+  split
+  · simp [show x = 0 from Rat.le_antisymm ‹_› ‹_›]
+  · rfl
+
+theorem Rat.abs_sub_comm {x y : Rat} :
+    (x - y).abs = (y - x).abs := by
+  simp only [Rat.abs]
+  split <;> split
+  · have : x = y := Rat.le_antisymm (Rat.le_iff_sub_nonneg _ _ |>.mpr ‹_›) (Rat.le_iff_sub_nonneg _ _ |>.mpr ‹_›)
+    simp [this]
+  · simp [Rat.neg_sub]
+  · simp [Rat.neg_sub]
+  · have : y < x := Rat.not_le.mp (by rwa [Rat.le_iff_sub_nonneg])
+    have : ¬ y ≤ x := (by rwa [Rat.le_iff_sub_nonneg])
+    apply this.elim
+    apply Rat.le_of_lt
+    assumption
+
+/-!
+# instances
+-/
+
+instance Rat.instAssociativeHAdd : Std.Associative (α := Rat) (· + ·) := ⟨Rat.add_assoc⟩
+instance Rat.instCommutativeHAdd : Std.Commutative (α := Rat) (· + ·) := ⟨Rat.add_comm⟩
+instance : Std.LawfulIdentity (· + ·) (0 : Rat) where
+  left_id := Rat.zero_add
+  right_id := Rat.add_zero

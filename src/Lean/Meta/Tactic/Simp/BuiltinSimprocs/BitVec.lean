@@ -166,6 +166,8 @@ builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getL
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 /-- Simplification procedure for `clz` (count leading zeros) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceClz (clz _) := reduceUnary ``BitVec.clz 2 BitVec.clz
+/-- Simplification procedure for `cpop` (population count) on `BitVec`. -/
+builtin_dsimproc [simp, seval] reduceCpop (cpop _) := reduceUnary ``BitVec.cpop 2 BitVec.cpop
 
 /-- Simplification procedure for `getElem`  on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
@@ -302,13 +304,6 @@ builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e =>
   let some start ← Nat.fromExpr? start | return .continue
   let some len ← Nat.fromExpr? len | return .continue
   return .done <| (← toExpr' (v.value.extractLsb' start len))
-
-/-- Simplification procedure for `hAdd` on `BitVec`s. -/
-builtin_dsimproc [simp, seval] reducehAdd (hAdd _ _) := fun e => do
-  let_expr hAdd _ len v ← e | return .continue
-  let some v ← fromExpr? v | return .continue
-  let some len ← Nat.fromExpr? len | return .continue
-  return .done <| (← toExpr' (v.value.hAdd len))
 
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do

@@ -44,6 +44,7 @@ instance : ToExpr BVUnOp where
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
     | .reverse => mkConst ``BVUnOp.reverse
     | .clz => mkConst ``BVUnOp.clz
+    | .cpop => mkConst ``BVUnOp.cpop
   toTypeExpr := mkConst ``BVUnOp
 
 instance : ToExpr (BVExpr w) where
@@ -71,8 +72,6 @@ where
     mkApp4 (mkConst ``BVExpr.shiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
   | .arithShiftRight (m := m) (n := n) lhs rhs =>
     mkApp4 (mkConst ``BVExpr.arithShiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
-  | .parPreSum (w := w) l expr =>
-    mkApp3 (mkConst ``BVExpr.parPreSum) (toExpr w) (toExpr l) (go expr)
 
 instance : ToExpr BVBinPred where
   toExpr x :=

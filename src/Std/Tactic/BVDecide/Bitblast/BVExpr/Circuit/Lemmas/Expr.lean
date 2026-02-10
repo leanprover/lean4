@@ -17,7 +17,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ParPreSum
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Cpop
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Init.ByCases
 import Init.Data.Nat.Linear
@@ -471,7 +471,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · symm
       apply BitVec.getLsbD_of_ge
       omega
-  · rw [← hres, eval_parPreSum, denote_blastParPreSum]
+  · rw [← hres, eval_cpop, denote_blastcpop]
     intro idx hidx
     rw [goCache_denote_eq]
     exact hinv

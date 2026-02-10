@@ -192,25 +192,8 @@ where
       unaryReflection innerExpr .reverse ``Std.Tactic.BVDecide.Reflect.BitVec.reverse_congr origExpr
     | BitVec.clz _ innerExpr =>
       unaryReflection innerExpr .clz ``Std.Tactic.BVDecide.Reflect.BitVec.clz_congr origExpr
-    | BitVec.hAdd _ lenExpr innerExpr =>
-      let some len ← getNatValue? lenExpr | return none
-      let some inner ← goOrAtom innerExpr | return none
-      let bvExpr := .parPreSum len inner.bvExpr
-      let expr := mkApp3 (mkConst ``BVExpr.parPreSum)
-        (toExpr inner.width)
-        lenExpr
-        inner.expr
-      let proof := do
-        let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let some innerProof ← inner.evalsAtAtoms | return none
-        let out :=  mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.parPreSum_congr)
-          lenExpr
-          (toExpr inner.width)
-          innerExpr
-          innerEval
-          innerProof
-        return out
-      return some ⟨len, bvExpr, origExpr, proof, expr⟩
+    | BitVec.cpop _ innerExpr =>
+      unaryReflection innerExpr .cpop ``Std.Tactic.BVDecide.Reflect.BitVec.cpop_congr origExpr
     | _ => return none
 
   /--

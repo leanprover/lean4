@@ -149,6 +149,10 @@ inductive BVUnOp where
   Count leading zeros.
   -/
   | clz
+  /--
+  Population count
+  -/
+  | cpop
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -160,6 +164,7 @@ def toString : BVUnOp → String
   | arithShiftRightConst n => s!">>a {n}"
   | reverse => "rev"
   | clz => "clz"
+  | cpop => "cpop"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -173,6 +178,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
   | reverse =>  BitVec.reverse
   | clz => BitVec.clz
+  | cpop => BitVec.cpop
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -191,6 +197,8 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
 @[simp] theorem eval_reverse : eval .reverse = (BitVec.reverse : BitVec w → BitVec w) := by rfl
 
 @[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
+
+@[simp] theorem eval_cpop : eval .cpop = (BitVec.cpop : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 
@@ -238,10 +246,6 @@ inductive BVExpr : Nat → Type where
   shift right arithmetically by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | arithShiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
-  /-
-  Parallel prefix sum with `l`-long words of a flattened BitVec expression.
-  -/
-  | parPreSum (l : Nat) (expr : BVExpr w) : BVExpr l
 with
   @[computed_field]
   hashCode : (w : Nat) → BVExpr w → UInt64
@@ -263,8 +267,6 @@ with
       mixHash 31 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
     | w, .arithShiftRight lhs rhs =>
       mixHash 37 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
-    | w, .parPreSum _ expr =>
-      mixHash 41 <| mixHash (hash w) (hashCode _ expr)
 
 
 namespace BVExpr
@@ -283,13 +285,13 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
         | .var ridx =>
           if h : lidx = ridx then .isTrue (by simp [h]) else .isFalse (by simp [h])
         | .const .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .const lval =>
         match r with
         | .const rval =>
           if h : lval = rval then .isTrue (by simp [h]) else .isFalse (by simp [h])
         | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .extract (w := lw) lstart _ lexpr =>
         match r with
         | .extract (w := rw) rstart _ rexpr  =>
@@ -300,18 +302,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp_all)
         | .var .. | .const .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
-      | .parPreSum (w := lw) _ lexpr =>
-        match r with
-        | .parPreSum (w := rw) _ rexpr  =>
-          if h1 : lw = rw then
-            match decEq (h1 ▸ lexpr) rexpr with
-            | .isTrue h2 => .isTrue (by cases h1; simp_all)
-            | .isFalse h2 => .isFalse (by cases h1; simp_all)
-          else
-            .isFalse (by simp_all)
-        | .var .. | .const .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .extract .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .bin llhs lop lrhs =>
         match r with
         | .bin rlhs rop rrhs =>
@@ -323,7 +314,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .un lop lexpr =>
         match r with
         | .un rop rexpr =>
@@ -334,7 +325,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .append .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .append (l := ll) (r := lr) llhs lrhs lh =>
         match r with
         | .append (l := rl) (r := rr) rlhs rrhs rh =>
@@ -346,7 +337,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp; omega)
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .replicate .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .replicate (w := lw) ln lexpr lh =>
         match r with
         | .replicate (w := rw) rn rexpr rh =>
@@ -357,7 +348,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp; omega)
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .shiftLeft ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .shiftLeft (n := lw) llhs lrhs =>
         match r with
         | .shiftLeft (n := rw) rlhs rrhs =>
@@ -369,7 +360,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
-        | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
       | .shiftRight (n := lw) llhs lrhs =>
         match r with
         | .shiftRight (n := rw) rlhs rrhs =>
@@ -381,7 +372,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
-        |.shiftLeft .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+        |.shiftLeft .. | .arithShiftRight .. => .isFalse (by simp)
       | .arithShiftRight (n := lw) llhs lrhs =>
         match r with
         | .arithShiftRight (n := rw) rlhs rrhs =>
@@ -393,7 +384,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           else
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
-        | .shiftRight .. | .shiftLeft .. | .parPreSum .. => .isFalse (by simp)
+        | .shiftRight .. | .shiftLeft .. => .isFalse (by simp)
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
@@ -406,8 +397,6 @@ def toString : BVExpr w → String
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
-  | .parPreSum l expr => s!"parPreSum {l} {expr.toString}"
-
 
 instance : ToString (BVExpr w) := ⟨toString⟩
 
@@ -452,7 +441,6 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
-  | .parPreSum l expr => BitVec.hAdd l (eval assign expr)
 
 @[simp]
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
@@ -468,10 +456,6 @@ theorem eval_const : eval assign (.const val) = val := by rfl
 
 @[simp]
 theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb' start len (eval assign expr) := by
-  rfl
-
-@[simp]
-theorem eval_parPreSum : eval assign (.parPreSum len expr) = BitVec.hAdd len (eval assign expr) := by
   rfl
 
 @[simp]

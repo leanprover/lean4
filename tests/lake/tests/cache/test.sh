@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source ../common.sh
+NO_BUILD_CODE=3
 
 ./clean.sh
 
@@ -83,8 +84,19 @@ check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)
 # Verify that the executable has the right permissions to be run
 test_run exe test
 
-# Verify that fetching from the cache creates a trace file that does not replay
+# Create a test module that can be arbitrarily edited and cached
+# The `Test` module's artifacts are more carefully managed throught this test
 touch Ignored.lean
+test_run -v build +Ignored
+test_cmd rm -f .lake/build/lib/lean/Ignored.trace
+
+# Verify that fetching from the cache can be disabled
+test_cmd rm -f .lake/build/lib/lean/Ignored.trace
+test_status $NO_BUILD_CODE -v -f disabled.toml build +Ignored --no-build
+LAKE_ARTIFACT_CACHE=false test_status $NO_BUILD_CODE -v \
+  -f unset.toml build +Ignored --no-build
+
+# Verify that fetching from the cache creates a trace file that does not replay
 test_out "Fetched Ignored" -v build +Ignored
 test_exp -f .lake/build/lib/lean/Ignored.trace
 test_out "Fetched Ignored" -v build +Ignored
@@ -131,7 +143,8 @@ test_exp -f "$cache_art" # artifact should be re-cached
 
 # Verify that upstream cache mappings are restored
 test_out "Replayed Test:c.o" build Test:static -v --no-build
-check_diff <(ls .lake/backup-outputs) <(ls "$CACHE_DIR/outputs")
+ls .lake/backup-outputs > .lake/backup-outputs.txt
+check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 
 # Verify that things work properly if the local artifact is removed
 test_cmd rm "$local_art"
@@ -150,11 +163,22 @@ test_run -v build +Test.Imported --no-build --wfail
 test_run -v build +Test
 
 # Test producing an output mappings file
+test_lines() {
+  expected=$1; file=$2
+  actual=$(wc -l < $file)
+  echo "? wc -l $file ($actual) = $expected"
+  if test $actual = $expected; then
+    return 0
+  else
+    cat "$file"
+    return 1
+  fi
+}
 test_run build Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
-test_cmd_eq 3 wc -l < .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
-test_cmd_eq 6 wc -l < .lake/outputs.jsonl
+test_lines 6 .lake/outputs.jsonl
 
 # Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup

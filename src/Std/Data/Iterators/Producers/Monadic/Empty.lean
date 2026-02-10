@@ -34,7 +34,7 @@ Returns an iterator that terminates immediately.
 -/
 @[always_inline, inline]
 def IterM.empty (m : Type w → Type w') (β : Type w) :=
-  IterM.mk (Iterators.Types.Empty.mk (m := m) (β := β)) m β
+  (⟨Iterators.Types.Empty.mk (m := m) (β := β)⟩ : IterM m β)
 
 namespace Iterators.Types
 

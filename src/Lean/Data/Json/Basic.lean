@@ -14,7 +14,8 @@ public import Std.Data.TreeMap.Raw.Basic
 public import Init.Data.Ord.String
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic.Nat
-import Init.Data.String.TakeDrop
+import Init.Data.String.Substring
+import Init.Data.ToString.Macro
 
 public section
 

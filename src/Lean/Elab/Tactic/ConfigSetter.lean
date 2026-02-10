@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Command
-public import Lean.Elab.Term
-meta import Lean.Elab.Command
-public import Lean.Data.KVMap
+public meta import Lean.Elab.Command
 public section
 namespace Lean.Elab
 open Command Meta

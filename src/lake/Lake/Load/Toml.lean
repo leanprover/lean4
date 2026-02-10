@@ -6,13 +6,16 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Config.Package
 public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
-meta import Lake.Config.Package
+import Init.Omega
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.PackageConfig
 
 open Lean Parser
 open System (FilePath)
@@ -134,14 +137,14 @@ public protected def LeanOption.decodeToml (v : Value) : EDecodeM LeanOption := 
 public instance : DecodeToml LeanOption := ⟨LeanOption.decodeToml⟩
 
 public protected def BuildType.decodeToml (v : Value) : EDecodeM BuildType := do
-  match inline <| BuildType.ofString? (← v.decodeString) with
+  match BuildType.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'debug', 'relWithDebInfo', 'minSizeRel', 'release'"
 
 public instance : DecodeToml BuildType := ⟨(BuildType.decodeToml ·)⟩
 
 public protected def Backend.decodeToml (v : Value) : EDecodeM Backend := do
-  match inline <| Backend.ofString? (← v.decodeString) with
+  match Backend.ofString? (← v.decodeString) with
   | some v => return v
   | none => throwDecodeErrorAt v.ref "expected one of 'c', 'llvm', or 'default'"
 

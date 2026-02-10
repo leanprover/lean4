@@ -7,9 +7,17 @@ module
 
 prelude
 public import Init.Data.Nat.Coprime
-public import Init.Data.Hashable
 public import Init.Data.OfScientific
-import Init.Data.Int.Bitwise
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+import Init.Data.Hashable
+import Init.Data.Int.DivMod.Bootstrap
+import Init.Data.Int.DivMod.Lemmas
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
 
 @[expose] public section
 

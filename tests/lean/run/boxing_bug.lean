@@ -1,3 +1,4 @@
+@[instance_reducible]
 def myCast : NatCast UInt8 where
   natCast := UInt8.ofNat
 
@@ -29,4 +30,3 @@ set_option trace.compiler.ir.result true in
 attribute [local instance] myCast UInt8.intCast in
 instance : Semiring UInt8 where
   nsmul := ⟨(· * ·)⟩
-

@@ -38,11 +38,11 @@ example : Option.guard (· ≤ 7) 3 = some 3 := by grind?
 
 /--
 info: Try these:
-  [apply] grind only [= Option.mem_bind_iff, #99bb]
+  [apply] grind only [= Option.mem_bind_iff, #8b09]
   [apply] grind only [= Option.mem_bind_iff]
   [apply] grind =>
     instantiate only [= Option.mem_bind_iff]
-    instantiate only [#99bb]
+    instantiate only [#8b09]
 -/
 #guard_msgs in
 example {x : β} {o : Option α} {f : α → Option β} (h : a ∈ o) (h' : x ∈ f a) : x ∈ o.bind f := by grind?

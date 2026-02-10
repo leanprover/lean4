@@ -56,10 +56,10 @@ partial def runLakeSetupFile
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩
 
-/-- Categorizes possible outcomes of running `lake setup-file`. -/
-inductive FileSetupResultKind where
+/-- Result of running `lake setup-file`. -/
+inductive FileSetupResult where
   /-- File configuration loaded and dependencies updated successfully. -/
-  | success
+  | success (setup : ModuleSetup)
   /-- No Lake project found, no setup was done. -/
   | noLakefile
   /-- Imports must be rebuilt but `--no-build` was specified. -/
@@ -67,43 +67,16 @@ inductive FileSetupResultKind where
   /-- Other error during Lake invocation. -/
   | error (msg : String)
 
-/-- Result of running `lake setup-file`. -/
-structure FileSetupResult where
-  /-- Kind of outcome. -/
-  kind        : FileSetupResultKind
-  /-- Configuration from a successful setup, or else the default. -/
-  setup       : ModuleSetup
-
-def FileSetupResult.ofSuccess (setup : ModuleSetup) : IO FileSetupResult := do return {
-  kind          := FileSetupResultKind.success
-  setup
-}
-
-def FileSetupResult.ofNoLakefile (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
-  kind          := FileSetupResultKind.noLakefile
-  setup         := {name := m.mod, isModule := header.isModule}
-}
-
-def FileSetupResult.ofImportsOutOfDate (m : DocumentMeta) (header : ModuleHeader) : IO FileSetupResult := do return {
-  kind          := FileSetupResultKind.importsOutOfDate
-  setup         := {name := m.mod, isModule := header.isModule}
-}
-
-def FileSetupResult.ofError (m : DocumentMeta) (header : ModuleHeader) (msg : String) : IO FileSetupResult := do return {
-  kind          := FileSetupResultKind.error msg
-  setup         := {name := m.mod, isModule := header.isModule}
-}
-
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for
 source files and the options for the file. -/
 partial def setupFile (m : DocumentMeta) (header : ModuleHeader) (handleStderr : String → IO Unit) : IO FileSetupResult := do
   let some filePath := System.Uri.fileUriToPath? m.uri
-    | return ← FileSetupResult.ofNoLakefile m header -- untitled files have no lakefile
+    | return FileSetupResult.noLakefile -- untitled files have no lakefile
 
   let lakePath ← determineLakePath
   if !(← System.FilePath.pathExists lakePath) then
-    return ← FileSetupResult.ofNoLakefile m header
+    return FileSetupResult.noLakefile
 
   let result ← runLakeSetupFile m lakePath filePath header handleStderr
 
@@ -112,12 +85,12 @@ partial def setupFile (m : DocumentMeta) (header : ModuleHeader) (handleStderr :
   match result.exitCode with
   | 0 =>
     let Except.ok (setup : ModuleSetup) := Json.parse result.stdout >>= fromJson?
-      | return ← FileSetupResult.ofError m header s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
+      | return FileSetupResult.error s!"Invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
     setup.dynlibs.forM loadDynlib
-    FileSetupResult.ofSuccess setup
+    return FileSetupResult.success setup
   | 2 => -- exit code for lake reporting that there is no lakefile
-    FileSetupResult.ofNoLakefile m header
+    return FileSetupResult.noLakefile
   | 3 => -- exit code for `--no-build`
-    FileSetupResult.ofImportsOutOfDate m header
+    return FileSetupResult.importsOutOfDate
   | _ =>
-    FileSetupResult.ofError m header s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
+    return FileSetupResult.error s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"

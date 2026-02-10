@@ -137,6 +137,11 @@ structure Config where
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
@@ -304,10 +309,20 @@ structure Config where
   -/
   suggestions : Bool := false
   /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
+  /--
   If `locals` is `true`, `simp` will unfold all definitions from the current file.
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
+  /--
+  If `instances` is `true`, `simp` will visit instance arguments.
+  If option `backward.dsimp.instances` is `true`, it overrides this field.
+  -/
+  instances : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -374,7 +389,7 @@ structure ExtractLetsConfig where
   /-- If true (default: false), eliminate unused lets rather than extract them. -/
   usedOnly : Bool := false
   /-- If true (default: true), reuse local declarations that have syntactically equal values.
-  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  Note that even when false, the caching strategy for `extract_lets` may result in fewer extracted let bindings than expected. -/
   merge : Bool := true
   /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
   useContext : Bool := true

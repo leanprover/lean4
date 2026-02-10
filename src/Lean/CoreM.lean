@@ -9,6 +9,7 @@ prelude
 public import Lean.Util.RecDepth
 public import Lean.ResolveName
 public import Lean.Language.Basic
+import Init.While
 
 public section
 

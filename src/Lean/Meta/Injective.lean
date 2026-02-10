@@ -7,10 +7,11 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.SameCtorUtils
+import Init.Omega
+import Lean.Meta.Tactic.Injection
+import Lean.Meta.Tactic.Simp.Attr
 public section
 namespace Lean.Meta
 
@@ -139,13 +140,14 @@ private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
       return acc.push e
   go e (← inferType e) #[]
 
-private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
+private def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
     let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
-      | throwError "unexpected number of subgoals when proving injective theorem for constructor `{ctorName}`"
-    let (h, mvarId₁) ← mvarId₁.intro1
-    solveEqOfCtorEq ctorName mvarId₁ h
+      | throwError "unexpected number of subgoals when proving injective theorem for constructor `{ctorVal.name}`"
+    let injPrf := mkConst (mkInjectiveTheoremNameFor ctorVal.name) (ctorVal.levelParams.map mkLevelParam)
+    let injPrf := mkAppN injPrf xs
+    mvarId₁.assign injPrf
     let mut mvarId₂ := mvarId₂
     while true do
       let t ← mvarId₂.getType
@@ -156,9 +158,8 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
             | throwError "unexpected number of goals after applying `Lean.and_imp`"
         mvarId₂ := mvarId₂'
       | _ => pure ()
-      let (h, mvarId₂') ← mvarId₂.intro1
-      (_, mvarId₂) ← substEq mvarId₂' h
-    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
+      (_, mvarId₂) ← introSubstEq mvarId₂
+    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorVal.name)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
@@ -167,7 +168,7 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveEqTheoremType? ctorVal
     | return ()
   trace[Meta.injective] "type: {type}"
-  let value ← mkInjectiveEqTheoremValue ctorVal.name type
+  let value ← mkInjectiveEqTheoremValue ctorVal type
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams

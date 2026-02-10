@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.NoncomputableAttr
+public import Lean.Compiler.LCNF.MonoTypes
+import Init.While
 
 public section
 
@@ -16,44 +18,26 @@ namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where
   typeParams : FVarIdHashSet := {}
-  noncomputableVars : Std.HashMap FVarId Name := {}
 
 abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
 
-def Param.toMono (param : Param) : ToMonoM Param := do
+def Param.toMono (param : Param .pure) : ToMonoM (Param .pure) := do
   if isTypeFormerType param.type then
     modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def throwNoncomputableError {α : Type} (declName : Name) : ToMonoM α :=
-  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
-
-def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
-  if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwNoncomputableError declName
-
-def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
-  if let some declName := (← get).noncomputableVars.get? fvarId then
-    modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
-
 @[inline]
-def argToMonoBase (check : FVarId → ToMonoM Unit) (arg : Arg) : ToMonoM Arg := do
+def argToMono (arg : Arg .pure) : ToMonoM (Arg .pure) := do
   match arg with
   | .erased | .type .. => return .erased
   | .fvar fvarId =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      check fvarId
       return arg
 
-def argToMono (arg : Arg) : ToMonoM Arg := argToMonoBase checkFVarUse arg
-
-def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg) : ToMonoM Arg :=
-  argToMonoBase (checkFVarUseDeferred resultFVar) arg
-
-def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
-    : ToMonoM (Array Arg) := do
+def argsToMonoWithFnType (args : Array (Arg .pure)) (type : Expr)
+    : ToMonoM (Array (Arg .pure)) := do
   let mut remainingType : Option Expr := some type
   let mut result := Array.emptyWithCapacity args.size
   for arg in args do
@@ -62,15 +46,15 @@ def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
       if d.isErased then
         pure .erased
       else
-        argToMonoDeferredCheck resultFVar arg
+        argToMono arg
     else
       remainingType := none
-      argToMonoDeferredCheck resultFVar arg
+      argToMono arg
     result := result.push monoArg
   return result
 
-def argsToMonoRedArg (resultFVar : FVarId) (args : Array Arg) (params : Array Param)
-    (redArgs : Array Arg) : ToMonoM (Array Arg) := do
+def argsToMonoRedArg (args : Array (Arg .pure)) (params : Array (Param .pure))
+    (redArgs : Array (Arg .pure)) : ToMonoM (Array (Arg .pure)) := do
   let mut result := #[]
   let mut argIdx := 0
   for redArg in redArgs do
@@ -78,23 +62,23 @@ def argsToMonoRedArg (resultFVar : FVarId) (args : Array Arg) (params : Array Pa
     | .fvar fvarId =>
       while params[argIdx]!.fvarId != fvarId do
         argIdx := argIdx + 1
-      let arg ← argToMonoDeferredCheck resultFVar args[argIdx]!
+      let arg ← argToMono args[argIdx]!
       argIdx := argIdx + 1
       result := result.push arg
     | .erased | .type _ => pure ()
   for arg in args[params.size...*] do
-    let arg ← argToMonoDeferredCheck resultFVar arg
+    let arg ← argToMono arg
     result := result.push arg
   return result
 
-def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
-    : ToMonoM LetValue := do
-  let argsNewParams : Array Arg := .replicate ctorInfo.numParams .erased
-  let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM (argToMonoDeferredCheck resultFVar)
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array (Arg .pure))
+    : ToMonoM (LetValue .pure) := do
+  let argsNewParams : Array (Arg .pure) := .replicate ctorInfo.numParams .erased
+  let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM argToMono
   let argsNew := argsNewParams ++ argsNewFields
   return .const ctorInfo.name [] argsNew
 
-partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetValue := do
+partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := do
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
@@ -111,7 +95,7 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
     else if declName == ``Quot.lcInv then
       match args[2]! with
       | .fvar fvarId =>
-        let mut extraArgs : Array Arg := .emptyWithCapacity (args.size - 3)
+        let mut extraArgs : Array (Arg .pure) := .emptyWithCapacity (args.size - 3)
         for i in 3...args.size do
           let arg ← argToMono args[i]!
           extraArgs := extraArgs.push arg
@@ -125,52 +109,47 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       unreachable!
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       if let some info ← hasTrivialStructure? ctorInfo.induct then
-        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono resultFVar
+        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono
       else
-        ctorAppToMono resultFVar ctorInfo args
+        ctorAppToMono ctorInfo args
     else
       let env ← getEnv
-      if isNoncomputable env declName && !(isExtern env declName) then
-        modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
       if let some monoDecl ← getMonoDecl? declName then
         if args.size >= monoDecl.params.size then
           if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
                              (.return retFVar)) := monoDecl.value then
             let redArgDeclName := declName ++ `_redArg
             if callName == redArgDeclName && retFVar == resultFVar then
-              let args ← argsToMonoRedArg resultFVar args monoDecl.params callArgs
+              let args ← argsToMonoRedArg args monoDecl.params callArgs
               return .const redArgDeclName [] args
-        let args ← argsToMonoWithFnType resultFVar args monoDecl.type
+        let args ← argsToMonoWithFnType args monoDecl.type
         return .const declName [] args
       else
-        let args ← args.mapM (argToMonoDeferredCheck resultFVar)
+        let args ← args.mapM argToMono
         return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
     else
-      checkFVarUseDeferred resultFVar fvarId
-      return .fvar fvarId (← args.mapM (argToMonoDeferredCheck resultFVar))
-  | .proj structName fieldIdx baseFVar =>
-    if (← get).typeParams.contains baseFVar then
+      return .fvar fvarId (← args.mapM argToMono)
+  | .proj structName fieldIdx fvarId =>
+    if (← get).typeParams.contains fvarId then
       return .erased
-    else
-      checkFVarUseDeferred resultFVar baseFVar
-      if let some info ← hasTrivialStructure? structName then
-        if info.fieldIdx == fieldIdx then
-          return .fvar baseFVar #[]
-        else
-          return .erased
+    else if let some info ← hasTrivialStructure? structName then
+      if info.fieldIdx == fieldIdx then
+        return .fvar fvarId #[]
       else
-        return e
+        return .erased
+    else
+      return e
 
-def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
+def LetDecl.toMono (decl : LetDecl .pure) : ToMonoM (LetDecl .pure) := do
   let type ← toMonoType decl.type
-  let value ← decl.value.toMono decl.fvarId
+  let value ← decl.value.toMono
   decl.update type value
 
 def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
-    (oldFields : Array Param) : ToMonoM (Array Param) := do
+    (oldFields : Array (Param .pure)) : ToMonoM (Array (Param .pure)) := do
   let mut type := ctorType
   for _ in *...numParams do
     match type with
@@ -189,14 +168,14 @@ def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFi
 
 mutual
 
-partial def FunDecl.toMono (decl : FunDecl) : ToMonoM FunDecl := do
+partial def FunDecl.toMono (decl : FunDecl .pure) : ToMonoM (FunDecl .pure) := do
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
 
 /-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code := do
+partial def decToMono (c : Cases .pure) (_ : c.typeName == ``Decidable) : ToMonoM (Code .pure) := do
   let resultType ← toMonoType c.resultType
   let alts ← c.alts.mapM fun alt => do
     match alt with
@@ -208,7 +187,7 @@ partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code
   return .cases ⟨``Bool, resultType, c.discr, alts⟩
 
 /-- Eliminate `cases` for `Nat`. -/
-partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code := do
+partial def casesNatToMono (c: Cases .pure) (_ : c.typeName == ``Nat) : ToMonoM (Code .pure) := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
   let zeroDecl ← mkLetDecl `zero natType (.lit (.nat 0))
@@ -229,7 +208,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
   return .let zeroDecl (.let isZeroDecl (.cases ⟨``Bool, resultType, isZeroDecl.fvarId, alts⟩))
 
 /-- Eliminate `cases` for `Int`. -/
-partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code := do
+partial def casesIntToMono (c: Cases .pure) (_ : c.typeName == ``Int) : ToMonoM (Code .pure) := do
   let resultType ← toMonoType c.resultType
   let natType := mkConst ``Nat
   let zeroNatDecl ← mkLetDecl `natZero natType (.lit (.nat 0))
@@ -254,7 +233,8 @@ partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code :
   return .let zeroNatDecl (.let zeroIntDecl (.let isNegDecl (.cases ⟨``Bool, resultType, isNegDecl.fvarId, alts⟩)))
 
 /-- Eliminate `cases` for `UInt` types. -/
-partial def casesUIntToMono (c : Cases) (uintName : Name) (_ : c.typeName == uintName) : ToMonoM Code := do
+partial def casesUIntToMono (c : Cases .pure) (uintName : Name) (_ : c.typeName == uintName) :
+    ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -265,7 +245,7 @@ partial def casesUIntToMono (c : Cases) (uintName : Name) (_ : c.typeName == uin
   return .let decl k
 
 /-- Eliminate `cases` for `Array. -/
-partial def casesArrayToMono (c : Cases) (_ : c.typeName == ``Array) : ToMonoM Code := do
+partial def casesArrayToMono (c : Cases .pure) (_ : c.typeName == ``Array) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -276,7 +256,8 @@ partial def casesArrayToMono (c : Cases) (_ : c.typeName == ``Array) : ToMonoM C
   return .let decl k
 
 /-- Eliminate `cases` for `ByteArray. -/
-partial def casesByteArrayToMono (c : Cases) (_ : c.typeName == ``ByteArray) : ToMonoM Code := do
+partial def casesByteArrayToMono (c : Cases .pure) (_ : c.typeName == ``ByteArray) :
+    ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -287,7 +268,8 @@ partial def casesByteArrayToMono (c : Cases) (_ : c.typeName == ``ByteArray) : T
   return .let decl k
 
 /-- Eliminate `cases` for `FloatArray. -/
-partial def casesFloatArrayToMono (c : Cases) (_ : c.typeName == ``FloatArray) : ToMonoM Code := do
+partial def casesFloatArrayToMono (c : Cases .pure) (_ : c.typeName == ``FloatArray) :
+    ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -298,7 +280,7 @@ partial def casesFloatArrayToMono (c : Cases) (_ : c.typeName == ``FloatArray) :
   return .let decl k
 
 /-- Eliminate `cases` for `String. -/
-partial def casesStringToMono (c : Cases) (_ : c.typeName == ``String) : ToMonoM Code := do
+partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -309,7 +291,7 @@ partial def casesStringToMono (c : Cases) (_ : c.typeName == ``String) : ToMonoM
   return .let decl k
 
 /-- Eliminate `cases` for `Thunk. -/
-partial def casesThunkToMono (c : Cases) (_ : c.typeName == ``Thunk) : ToMonoM Code := do
+partial def casesThunkToMono (c : Cases .pure) (_ : c.typeName == ``Thunk) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -329,7 +311,7 @@ partial def casesThunkToMono (c : Cases) (_ : c.typeName == ``Thunk) : ToMonoM C
   return .fun decl k
 
 /-- Eliminate `cases` for `Task. -/
-partial def casesTaskToMono (c : Cases) (_ : c.typeName == ``Task) : ToMonoM Code := do
+partial def casesTaskToMono (c : Cases .pure) (_ : c.typeName == ``Task) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
@@ -340,7 +322,7 @@ partial def casesTaskToMono (c : Cases) (_ : c.typeName == ``Task) : ToMonoM Cod
   return .let decl k
 
 /-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
-partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMonoM Code := do
+partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases .pure) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt ctorName ps k := c.alts[0]! | unreachable!
   assert! ctorName == info.ctorName
@@ -353,7 +335,7 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMo
   let k ← k.toMono
   return .let decl k
 
-partial def Code.toMono (code : Code) : ToMonoM Code := do
+partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   match code with
   | .let decl k =>
     match decl.value with
@@ -367,11 +349,8 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
-  | .return fvarId =>
-    checkFVarUse fvarId
-    return code
+  | .return .. => return code
   | .cases c =>
-    checkFVarUse c.discr
     if h : c.typeName == ``Decidable then
       decToMono c h
     else if h : c.typeName == ``Nat then
@@ -428,10 +407,10 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
 
 end
 
-def Decl.toMono (decl : Decl) : CompilerM Decl := do
+def Decl.toMono (decl : Decl .pure) : CompilerM (Decl .pure) := do
   go |>.run' {}
 where
-  go : ToMonoM Decl := do
+  go : ToMonoM (Decl .pure) := do
     let type ← toMonoType decl.type
     let params ← decl.params.mapM (·.toMono)
     let value ← decl.value.mapCodeM (·.toMono)

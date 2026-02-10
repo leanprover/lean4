@@ -12,6 +12,7 @@ import all Init.Control.Except  -- for `MonoBind` instance
 import all Init.Control.StateRef  -- for `MonoBind` instance
 import all Init.Control.Option  -- for `MonoBind` instance
 import all Init.System.ST  -- for `MonoBind` instance
+import Init.ByCases
 
 public section
 
@@ -49,6 +50,8 @@ class PartialOrder (α : Sort u) where
   /-- The “less-or-equal-to” or “approximates” relation is antisymmetric. -/
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
+attribute [reducible] PartialOrder.rel
+
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
 section PartialOrder
@@ -62,9 +65,9 @@ A chain is a totally ordered set (representing a set as a predicate).
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
+@[expose] def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
-def is_sup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
+@[expose] def is_sup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
   ∀ x, s ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
 theorem is_sup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}

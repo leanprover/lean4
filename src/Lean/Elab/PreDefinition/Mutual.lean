@@ -34,10 +34,14 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+        (isRecursive := true)
     else
       withEnableInfoTree false do
         addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
-      preDefsNonrec.forM (addNonRec docCtx · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
+          (isRecursive := true)
+      preDefsNonrec.forM fun preDefNonRec =>
+        addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := declNames)
+          (cacheProofs := cacheProofs) (isRecursive := true)
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:
@@ -53,8 +57,6 @@ def cleanPreDef (preDef : PreDefinition) (cacheProofs := true) : MetaM PreDefini
 Assign final attributes to the definitions. Assumes the EqnInfos to be already present.
 -/
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
-  for preDef in preDefs do
-    markAsRecursive preDef.declName
   for preDef in preDefs.reverse do
     -- must happen before `generateEagerEqns`
     -- must happen in reverse order so that constants realized as part of the first decl

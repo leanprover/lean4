@@ -13,4 +13,36 @@
        {"start": {"line": 5, "character": 2},
         "end": {"line": 5, "character": 97}},
        "newText":
-       "simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h"}]}]}}]
+       "simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h"}]}]},
+  "data":
+  {"providerResultIndex": 0,
+   "providerName":
+   "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+   "params":
+   {"textDocument": {"uri": "file:///builtinCodeactions.lean"},
+    "range":
+    {"start": {"line": 5, "character": 4}, "end": {"line": 5, "character": 4}},
+    "context": {"diagnostics": []}}}}]
+Resolution of Try this: simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h:
+{"title":
+ "Try this: simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///builtinCodeactions.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 5, "character": 2},
+       "end": {"line": 5, "character": 97}},
+      "newText":
+      "simp only [AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,\n    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] at h"}]}]},
+ "data":
+ {"providerResultIndex": 0,
+  "providerName":
+  "_private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisProvider",
+  "params":
+  {"textDocument": {"uri": "file:///builtinCodeactions.lean"},
+   "range":
+   {"start": {"line": 5, "character": 4}, "end": {"line": 5, "character": 4}},
+   "context": {"diagnostics": []}}}}

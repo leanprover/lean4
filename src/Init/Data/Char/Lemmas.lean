@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-public import Init.Data.UInt.Lemmas
+public import Init.Data.Char.Basic
+public import Init.Ext
+import Init.Data.UInt.Lemmas
 
 public section
 
@@ -48,6 +50,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 

@@ -8,6 +8,11 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
 public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Int.OfNat
+import Init.Data.List.Pairwise
+import Init.Data.Nat.Linear
 
 @[expose] public section
 

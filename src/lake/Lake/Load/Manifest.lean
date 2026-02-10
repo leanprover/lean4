@@ -6,13 +6,12 @@ Authors: Mac Malone, Gabriel Ebner
 module
 
 prelude
-public import Lean.Data.Json
 public import Lake.Util.Version
 public import Lake.Config.Defaults
-import Lake.Util.Name
 import Lake.Util.Error
 public import Lake.Util.FilePath
 import Lake.Util.JsonObject
+import Init.Data.Option.Coe
 
 open System Lean
 

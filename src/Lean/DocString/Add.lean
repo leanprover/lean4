@@ -10,7 +10,6 @@ prelude
 import Lean.Elab.DocString
 public import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
-import Std.Data.HashMap
 
 public section
 
@@ -81,10 +80,17 @@ def parseVersoDocString
     currNamespace := (← getCurrNamespace),
     openDecls := (← getOpenDecls)
   }
+  let blockCtxt := .forDocString text startPos endPos
   let s := mkParserState text.source |>.setPos startPos
   -- TODO parse one block at a time for error recovery purposes
-  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
+  let s := (Doc.Parser.document blockCtxt).run ictx pmctx (getTokenTable env) s
 
+  -- If document succeeded but didn't consume everything, try parsing a block at the stopped
+  -- position to get the actual error message (document uses sepByFn which swallows errors).
+  let s :=
+    if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+      (Doc.Parser.block {}).run ictx pmctx (getTokenTable env) (mkParserState text.source |>.setPos s.pos)
+    else s
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do
       logMessage {
@@ -94,9 +100,77 @@ def parseVersoDocString
         data := err.toString
       }
     return none
+  if !ictx.atEnd s.pos then
+    -- Fallback: block parse also didn't produce an error
+    logMessage {
+      fileName := (← getFileName),
+      pos := text.toPosition s.pos,
+      data := s!"unexpected '{ictx.get s.pos}'"
+    }
+    return none
   return some s.stxStack.back
 
 
+
+open Lean.Parser Command in
+/--
+Reports parse errors from a Verso docstring parse failure.
+
+When Verso docstring parsing fails at parse time, a `parseFailure` node is created containing the
+raw text, because emitting an error at that stage could lead to unwanted parser backtracking. This
+function reports the actual error messages with proper source positions.
+-/
+def reportVersoParseFailure
+    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [MonadResolveName m]
+    (parseFailure : Syntax) : m Unit := do
+  let some rawAtom := parseFailure[0]?
+    | return  -- malformed node, nothing to report
+  let some startPos := rawAtom.getPos? (canonicalOnly := true)
+    | return
+  let some endPos := rawAtom.getTailPos? (canonicalOnly := true)
+    | return
+
+  let text ← getFileMap
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+  have endPos_valid : endPos ≤ text.source.rawEndPos := by
+    unfold endPos; split <;> simp [*]
+
+  let env ← getEnv
+  let ictx : InputContext :=
+    .mk text.source (← getFileName) (fileMap := text)
+      (endPos := endPos) (endPos_valid := endPos_valid)
+  let pmctx : ParserModuleContext := {
+    env,
+    options := ← getOptions,
+    currNamespace := ← getCurrNamespace,
+    openDecls := ← getOpenDecls
+  }
+  let blockCtxt := Doc.Parser.BlockCtxt.forDocString text startPos endPos
+  let s := mkParserState text.source |>.setPos startPos
+  let s := (Doc.Parser.document blockCtxt).run ictx pmctx (getTokenTable env) s
+
+  -- If document succeeded but didn't consume everything, try parsing a block at the stopped
+  -- position to get the actual error message (document uses sepByFn which swallows errors).
+  let s :=
+    if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+      (Doc.Parser.block {}).run ictx pmctx (getTokenTable env) (mkParserState text.source |>.setPos s.pos)
+    else s
+  for (pos, _, err) in s.allErrors do
+    logMessage {
+      fileName := ← getFileName,
+      pos := text.toPosition pos,
+      data := err.toString,
+      severity := .error
+    }
+  if s.allErrors.isEmpty && !ictx.atEnd s.pos then
+    -- Fallback: block parse also didn't produce an error
+    logMessage {
+      fileName := ← getFileName,
+      pos := text.toPosition s.pos,
+      data := s!"unexpected '{ictx.get s.pos}'",
+      severity := .error
+    }
 
 open Lean.Doc in
 open Lean.Parser.Command in

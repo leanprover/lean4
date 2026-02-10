@@ -30,30 +30,30 @@ test_run build Test.CrossPackageImportAll
 # Tests importing of a module's private segment
 # should not not be imported by a plain `import` in a module
 test_run build Test.Module.Import
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/Import.setup.json
+test_cmd_fails grep -F "TModule.olean.private" .lake/build/ir/Test/Module/Import.setup.json
 test_run build Test.Module.PublicImport
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PublicImport.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/PublicImport.setup.json
 # should be imported by an `import all` in a module
 test_run build Test.Module.ImportAll
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportAll.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportAll.setup.json
 # including promoted imports
 test_run build Test.Module.PromoteImport
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PromoteImport.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteImport.setup.json
 test_run build Test.Module.PromoteTransImport
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
 # should be imported by a non-module
 test_run build Test.NonModule.Import
-test_cmd grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json
 # should not be imported by a module transitive import of a private `import all`
 test_run build Test.Module.ImportImportAll
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportImportAll.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportImportAll.setup.json
 # should not be imported by an `import all` of a private module `import`
 test_run build Test.Module.ImportAllImport
-test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test/Module/ImportAllImport.setup.json
+test_cmd_fails grep -F "Module.olean.private" .lake/build/ir/Test/Module/ImportAllImport.setup.json
 
 # Tests that the transitive module import of a private import does not include its artifacts
 test_run build Test.Module.ImportImport
-test_cmd_fails grep -F "Test/Generated/Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
+test_cmd_fails grep -F "Module.olean" .lake/build/ir/Test/Module/ImportImport.setup.json
 
 # Build all tests before making an edit
 test_run build

@@ -8,8 +8,10 @@ module
 prelude
 public import Lake.Util.Date
 import Lake.Util.String
-import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.Iterators.Consumers.Loop
+import Init.Data.ToString.Macro
 
 /-!
 # TOML Date-Time
@@ -69,7 +71,7 @@ public def ofString? (t : String) : Option Time := do
     match s.split '.' |>.toList with
     | [s,f] =>
       let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
-      return {time with fracExponent := f.positions.count-1, fracMantissa := ← f.toNat?}
+      return {time with fracExponent := f.positions.length-1, fracMantissa := ← f.toNat?}
     | [s] =>
       ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
     | _ => none

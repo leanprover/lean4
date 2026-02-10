@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_mk___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl;
 lean_object* lean_uv_signal_mk(uint32_t, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_mk___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_signal_next(lean_object*);
-lean_object* lean_uv_signal_cancel(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_next___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_signal_stop(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_stop___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_next___boxed(lean_object*, lean_object*);
+lean_object* lean_uv_signal_cancel(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Signal_cancel___boxed(lean_object*, lean_object*);
 static lean_object* _init_l___private_Std_Internal_UV_Signal_0__Std_Internal_UV_SignalImpl() {
 _start:
 {

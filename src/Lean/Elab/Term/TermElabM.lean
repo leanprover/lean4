@@ -10,7 +10,6 @@ public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
 public import Lean.Elab.Attributes
-public import Lean.Elab.Config
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.DeclarationRange
@@ -167,6 +166,11 @@ structure LetRecToLift where
   val            : Expr
   mvarId         : MVarId
   termination    : TerminationHints
+  /-- The binders syntax for the declaration, used for docstring elaboration. -/
+  binders        : Syntax := .missing
+  /-- The docstring, if present, and whether it's Verso. Docstring processing is deferred until the
+  declaration is added to the environment (needed for Verso docstrings to work). -/
+  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment × Bool) := none
   deriving Inhabited
 
 /--
@@ -1019,8 +1023,8 @@ private def applyAttributesCore
       withRef attr.stx do withLogging do
       let env ← getEnv
       match getAttributeImpl env attr.name with
-      | Except.error errMsg => throwError errMsg
-      | Except.ok attrImpl  =>
+      | .error errMsg => throwError errMsg
+      | .ok attrImpl  =>
         let runAttr := attrImpl.add declName attr.stx attr.kind
         let runAttr := do
           -- not truly an elaborator, but a sensible target for go-to-definition

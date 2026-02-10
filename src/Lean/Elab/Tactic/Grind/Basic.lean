@@ -7,15 +7,15 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Grind.Main
-import Lean.CoreM
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.PP
+import Init.Omega
 public section
 namespace Lean.Elab.Tactic.Grind
 open Meta
 
 structure Context extends Tactic.Context where
   ctx     : Meta.Grind.Context
+  sctx    : Meta.Sym.Context
   methods : Grind.Methods
   params  : Grind.Params
 
@@ -289,7 +289,7 @@ open Grind
 def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ctx ← read
   let s ← get
-  let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run ((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) s.symState
+  let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run (((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) ctx.sctx) s.symState
   modify fun s => { s with grindState, symState }
   return a
 
@@ -358,12 +358,13 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
   let eval (goal : Goal) (stx : TSyntax `grind) : GrindM (List Goal) := do
     let methods ← getMethods
     let grindCtx ← readThe Meta.Grind.Context
+    let symCtx ← readThe Meta.Sym.Context
     let grindState ← get
     let symState ← getThe Sym.State
     -- **Note**: we discard changes to `Term.State`
     let (subgoals, grindState', symState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
       let (_, s) ← GrindTacticM.run
-            (ctx := { recover := false, methods, ctx := grindCtx, params, elaborator })
+            (ctx := { recover := false, methods, ctx := grindCtx, sctx := symCtx, params, elaborator })
             (s := { grindState, symState, goals := [goal] }) do
         evalGrindTactic stx.raw
         pruneSolvedGoals
@@ -383,7 +384,7 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
   Reconsider the option `useSorry`.
   -/
   let params' := { params with config.useSorry := false }
-  let (methods, ctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
+  let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
       let a : Action := Action.intros 0 >> Action.assertAll
       let goals ← match (← a.run goal) with
         | .closed _ => pure []
@@ -392,10 +393,11 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
       let ctx ← readThe Meta.Grind.Context
       /- Restore original config -/
       let ctx := { ctx with config := params.config }
+      let sctx ← readThe Meta.Sym.Context
       let grindState ← get
       let symState ← getThe Sym.State
-      return (methods, ctx, { grindState, symState, goals })
+      return (methods, ctx, sctx, { grindState, symState, goals })
   let tctx ← read
-  k { tctx with methods, ctx, params } |>.run state
+  k { tctx with methods, ctx, sctx, params } |>.run state
 
 end Lean.Elab.Tactic.Grind

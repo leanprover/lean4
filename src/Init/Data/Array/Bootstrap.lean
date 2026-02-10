@@ -7,8 +7,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 import all Init.Data.Array.Basic
+public import Init.Data.List.Control
+import Init.Data.List.Lemmas
+import Init.Data.List.TakeDrop
 
 public section
 

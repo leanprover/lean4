@@ -18,6 +18,9 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+import Init.ByCases
+import Init.Data.Nat.Linear
+import Init.Omega
 
 @[expose] public section
 
@@ -158,7 +161,7 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
     apply (goCache aig expr cache).result.property
 
 set_option maxHeartbeats 400000
-
+set_option backward.dsimp.instances true in -- **TODO**: Try to remove it.
 mutual
 
 

@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 module
 prelude
-public import Init.Tactics
+public import Init.Notation
 
 public section
 namespace Lean.Parser.Command

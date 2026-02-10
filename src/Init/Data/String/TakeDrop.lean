@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.String.Slice
 public import Init.Data.String.Substring
 
 set_option doc.verso true

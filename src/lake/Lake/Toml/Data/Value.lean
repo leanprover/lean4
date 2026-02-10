@@ -12,6 +12,8 @@ public import Lake.Toml.Data.DateTime
 import Lake.Util.String
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
+public import Init.Data.String.Defs
+import Init.Data.ToString.Macro
 
 /-!
 # TOML Value

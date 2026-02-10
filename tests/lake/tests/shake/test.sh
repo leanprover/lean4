@@ -21,6 +21,7 @@ match_pat 'remove.*Lib.B' produced.out
 cp -r input/* .
 test_run build
 test_run shake --fix Main
+test_run build
 
-# Verify Main.lean matches expected (Lib.B import removed)
+# Verify Main.lean matches expected
 check_diff expected/Main.lean Main.lean

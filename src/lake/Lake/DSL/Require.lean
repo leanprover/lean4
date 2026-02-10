@@ -8,8 +8,6 @@ module
 prelude
 public import Lake.DSL.Syntax
 import Lake.Config.Dependency
-import Lake.DSL.Extensions
-import Lake.DSL.DeclUtil
 
 open Lean Parser Command
 

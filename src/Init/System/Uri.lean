@@ -10,6 +10,9 @@ public import Init.System.FilePath
 import Init.Data.String.TakeDrop
 import Init.Data.String.Modify
 import Init.Data.String.Search
+import Init.Omega
+import Init.System.Platform
+import Init.While
 
 public section
 
@@ -110,11 +113,13 @@ def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
   else
     let mut p := (unescapeUri uri).drop "file://".length |>.copy
     p := p.dropWhile (λ c => c != '/') |>.copy -- drop the hostname.
-    -- On Windows, the path "/c:/temp" needs to become "C:/temp"
-    if System.Platform.isWindows && p.length >= 2 &&
-        p.front == '/' && (String.Pos.Raw.get p ⟨1⟩).isAlpha && String.Pos.Raw.get p ⟨2⟩ == ':' then
-      -- see also `pathToUri`
-      p := String.Pos.Raw.modify (p.drop 1).copy 0 .toUpper
+    if System.Platform.isWindows then
+      -- On Windows, the path "/c:/temp" needs to become "C:/temp"
+      if p.length >= 2 &&
+          p.front == '/' && (String.Pos.Raw.get p ⟨1⟩).isAlpha && String.Pos.Raw.get p ⟨2⟩ == ':' then
+        -- see also `pathToUri`
+        p := String.Pos.Raw.modify (p.drop 1).copy 0 .toUpper
+      p := p.map (fun c => if c == '/' then '\\' else c)
     some p
 
 end Uri

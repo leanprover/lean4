@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.HasNotBit
-// Imports: public import Lean.Meta.Basic import Lean.Util.Recognizers import Lean.Meta.MatchUtil
+// Imports: public import Lean.Meta.Basic import Lean.Meta.MatchUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,75 +13,99 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_panic___at___00refutableHasNotBit_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__11;
-static lean_object* l_mkHasNotBitProof___closed__14;
-static lean_object* l_mkHasNotBitProof___closed__2;
-static lean_object* l_refutableHasNotBit_x3f___closed__1;
-lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__18;
-lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00mkHasNotBit_spec__0(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_mkHasNotBitProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isApp(lean_object*);
-LEAN_EXPORT lean_object* l_isHasNotBit_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___00refutableHasNotBit_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__5;
-lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
-LEAN_EXPORT lean_object* l_refutableHasNotBit_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__10;
-static lean_object* l_mkHasNotBit___closed__3;
-lean_object* l_Lean_Level_ofNat(lean_object*);
-lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__4;
-static lean_object* l_mkHasNotBit___closed__1;
-LEAN_EXPORT lean_object* l_panic___at___00mkHasNotBitProof_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__1;
-static lean_object* l_mkHasNotBit___closed__2;
-static lean_object* l_refutableHasNotBit_x3f___closed__3;
-static lean_object* l_mkHasNotBitProof___closed__9;
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00mkHasNotBit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__8;
-static lean_object* l_mkHasNotBit___closed__0;
-static lean_object* l_mkHasNotBitProof___closed__3;
-static lean_object* l_mkHasNotBitProof___closed__19;
-LEAN_EXPORT lean_object* l_mkHasNotBitProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_panic___at___00mkHasNotBitProof_spec__0___closed__0;
-LEAN_EXPORT lean_object* l_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_matchNe_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_refutableHasNotBit_x3f___closed__4;
-static lean_object* l_mkHasNotBitProof___closed__7;
-lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
-lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__12;
-static lean_object* l_mkHasNotBitProof___closed__15;
-lean_object* l_Lean_mkRawNatLit(lean_object*);
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__16;
-uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* lean_nat_shiftl(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___00mkHasNotBitProof_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_refutableHasNotBit_x3f___closed__2;
-extern lean_object* l_Lean_reflBoolTrue;
-static lean_object* l_mkHasNotBitProof___closed__17;
-LEAN_EXPORT lean_object* l_mkHasNotBit(lean_object*, lean_object*);
-size_t lean_usize_add(size_t, size_t);
-static lean_object* l_refutableHasNotBit_x3f___closed__0;
-lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_hasFVar(lean_object*);
-lean_object* lean_array_uget(lean_object*, size_t);
-size_t lean_array_size(lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__6;
-static lean_object* l_mkHasNotBitProof___closed__0;
-lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_mkHasNotBit___boxed(lean_object*, lean_object*);
-static lean_object* l_mkHasNotBitProof___closed__13;
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_nat_shiftl(lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
+size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00mkHasNotBit_spec__0(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00mkHasNotBit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_mkHasNotBit___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 4, .m_capacity = 4, .m_length = 3, .m_data = "Nat"};
+static const lean_object* l_mkHasNotBit___closed__0 = (const lean_object*)&l_mkHasNotBit___closed__0_value;
+static const lean_string_object l_mkHasNotBit___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "hasNotBit"};
+static const lean_object* l_mkHasNotBit___closed__1 = (const lean_object*)&l_mkHasNotBit___closed__1_value;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static const lean_ctor_object l_mkHasNotBit___closed__2_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBit___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
+static const lean_ctor_object l_mkHasNotBit___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_mkHasNotBit___closed__2_value_aux_0),((lean_object*)&l_mkHasNotBit___closed__1_value),LEAN_SCALAR_PTR_LITERAL(117, 117, 142, 139, 222, 16, 37, 88)}};
+static const lean_object* l_mkHasNotBit___closed__2 = (const lean_object*)&l_mkHasNotBit___closed__2_value;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
+static lean_object* l_mkHasNotBit___closed__3;
+size_t lean_array_size(lean_object*);
+lean_object* l_Lean_mkRawNatLit(lean_object*);
+lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_mkHasNotBit(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_mkHasNotBit___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_panic___at___00mkHasNotBitProof_spec__0___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_instInhabitedMetaM___lam__0___boxed, .m_arity = 5, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_panic___at___00mkHasNotBitProof_spec__0___closed__0 = (const lean_object*)&l_panic___at___00mkHasNotBitProof_spec__0___closed__0_value;
+lean_object* lean_panic_fn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00mkHasNotBitProof_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00mkHasNotBitProof_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_mkHasNotBitProof___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "ne_of_beq_eq_false"};
+static const lean_object* l_mkHasNotBitProof___closed__0 = (const lean_object*)&l_mkHasNotBitProof___closed__0_value;
+static const lean_ctor_object l_mkHasNotBitProof___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBit___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
+static const lean_ctor_object l_mkHasNotBitProof___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_mkHasNotBitProof___closed__1_value_aux_0),((lean_object*)&l_mkHasNotBitProof___closed__0_value),LEAN_SCALAR_PTR_LITERAL(152, 213, 144, 137, 140, 238, 73, 24)}};
+static const lean_object* l_mkHasNotBitProof___closed__1 = (const lean_object*)&l_mkHasNotBitProof___closed__1_value;
+static lean_object* l_mkHasNotBitProof___closed__2;
+static const lean_string_object l_mkHasNotBitProof___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "Eq"};
+static const lean_object* l_mkHasNotBitProof___closed__3 = (const lean_object*)&l_mkHasNotBitProof___closed__3_value;
+static const lean_string_object l_mkHasNotBitProof___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "refl"};
+static const lean_object* l_mkHasNotBitProof___closed__4 = (const lean_object*)&l_mkHasNotBitProof___closed__4_value;
+static const lean_ctor_object l_mkHasNotBitProof___closed__5_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBitProof___closed__3_value),LEAN_SCALAR_PTR_LITERAL(143, 37, 101, 248, 9, 246, 191, 223)}};
+static const lean_ctor_object l_mkHasNotBitProof___closed__5_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_mkHasNotBitProof___closed__5_value_aux_0),((lean_object*)&l_mkHasNotBitProof___closed__4_value),LEAN_SCALAR_PTR_LITERAL(72, 6, 107, 181, 0, 125, 21, 187)}};
+static const lean_object* l_mkHasNotBitProof___closed__5 = (const lean_object*)&l_mkHasNotBitProof___closed__5_value;
+lean_object* l_Lean_Level_ofNat(lean_object*);
+static lean_object* l_mkHasNotBitProof___closed__6;
+static lean_object* l_mkHasNotBitProof___closed__7;
+static lean_object* l_mkHasNotBitProof___closed__8;
+static const lean_string_object l_mkHasNotBitProof___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Bool"};
+static const lean_object* l_mkHasNotBitProof___closed__9 = (const lean_object*)&l_mkHasNotBitProof___closed__9_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_mkHasNotBitProof___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBitProof___closed__9_value),LEAN_SCALAR_PTR_LITERAL(250, 44, 198, 216, 184, 195, 199, 178)}};
+static const lean_object* l_mkHasNotBitProof___closed__10 = (const lean_object*)&l_mkHasNotBitProof___closed__10_value;
+static lean_object* l_mkHasNotBitProof___closed__11;
+static const lean_string_object l_mkHasNotBitProof___closed__12_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "false"};
+static const lean_object* l_mkHasNotBitProof___closed__12 = (const lean_object*)&l_mkHasNotBitProof___closed__12_value;
+static const lean_ctor_object l_mkHasNotBitProof___closed__13_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBitProof___closed__9_value),LEAN_SCALAR_PTR_LITERAL(250, 44, 198, 216, 184, 195, 199, 178)}};
+static const lean_ctor_object l_mkHasNotBitProof___closed__13_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_mkHasNotBitProof___closed__13_value_aux_0),((lean_object*)&l_mkHasNotBitProof___closed__12_value),LEAN_SCALAR_PTR_LITERAL(117, 151, 161, 190, 111, 237, 188, 218)}};
+static const lean_object* l_mkHasNotBitProof___closed__13 = (const lean_object*)&l_mkHasNotBitProof___closed__13_value;
+static lean_object* l_mkHasNotBitProof___closed__14;
+static lean_object* l_mkHasNotBitProof___closed__15;
+static const lean_string_object l_mkHasNotBitProof___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Lean.Meta.HasNotBit"};
+static const lean_object* l_mkHasNotBitProof___closed__16 = (const lean_object*)&l_mkHasNotBitProof___closed__16_value;
+static const lean_string_object l_mkHasNotBitProof___closed__17_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 17, .m_capacity = 17, .m_length = 16, .m_data = "mkHasNotBitProof"};
+static const lean_object* l_mkHasNotBitProof___closed__17 = (const lean_object*)&l_mkHasNotBitProof___closed__17_value;
+static const lean_string_object l_mkHasNotBitProof___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "unreachable code has been reached"};
+static const lean_object* l_mkHasNotBitProof___closed__18 = (const lean_object*)&l_mkHasNotBitProof___closed__18_value;
+lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_mkHasNotBitProof___closed__19;
+lean_object* l_Lean_Meta_matchNe_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_mkHasNotBitProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_mkHasNotBitProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
+uint8_t l_Lean_Expr_isApp(lean_object*);
+lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
+uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_isHasNotBit_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00refutableHasNotBit_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00refutableHasNotBit_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_refutableHasNotBit_x3f___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 18, .m_capacity = 18, .m_length = 17, .m_data = "eq_of_beq_eq_true"};
+static const lean_object* l_refutableHasNotBit_x3f___closed__0 = (const lean_object*)&l_refutableHasNotBit_x3f___closed__0_value;
+static const lean_ctor_object l_refutableHasNotBit_x3f___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_mkHasNotBit___closed__0_value),LEAN_SCALAR_PTR_LITERAL(155, 221, 223, 104, 58, 13, 204, 158)}};
+static const lean_ctor_object l_refutableHasNotBit_x3f___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_refutableHasNotBit_x3f___closed__1_value_aux_0),((lean_object*)&l_refutableHasNotBit_x3f___closed__0_value),LEAN_SCALAR_PTR_LITERAL(167, 61, 33, 216, 114, 139, 90, 184)}};
+static const lean_object* l_refutableHasNotBit_x3f___closed__1 = (const lean_object*)&l_refutableHasNotBit_x3f___closed__1_value;
+static lean_object* l_refutableHasNotBit_x3f___closed__2;
+static const lean_string_object l_refutableHasNotBit_x3f___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "refutableHasNotBit\?"};
+static const lean_object* l_refutableHasNotBit_x3f___closed__3 = (const lean_object*)&l_refutableHasNotBit_x3f___closed__3_value;
+static lean_object* l_refutableHasNotBit_x3f___closed__4;
+lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*);
+lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasFVar(lean_object*);
+lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_reflBoolTrue;
+LEAN_EXPORT lean_object* l_refutableHasNotBit_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_refutableHasNotBit_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00mkHasNotBit_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -122,38 +146,12 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_mkHasNotBit___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBit___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hasNotBit", 9, 9);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBit___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_mkHasNotBit___closed__1;
-x_2 = l_mkHasNotBit___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_mkHasNotBit___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_mkHasNotBit___closed__2;
+x_2 = ((lean_object*)(l_mkHasNotBit___closed__2));
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -181,19 +179,11 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_panic___at___00mkHasNotBitProof_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instInhabitedMetaM___lam__0___boxed), 5, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_panic___at___00mkHasNotBitProof_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_panic___at___00mkHasNotBitProof_spec__0___closed__0;
+x_7 = ((lean_object*)(l_panic___at___00mkHasNotBitProof_spec__0___closed__0));
 x_8 = lean_panic_fn(x_7, x_1);
 x_9 = lean_apply_5(x_8, x_2, x_3, x_4, x_5, lean_box(0));
 return x_9;
@@ -207,57 +197,13 @@ x_7 = l_panic___at___00mkHasNotBitProof_spec__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_mkHasNotBitProof___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ne_of_beq_eq_false", 18, 18);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_mkHasNotBitProof___closed__0;
-x_2 = l_mkHasNotBit___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_mkHasNotBitProof___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_mkHasNotBitProof___closed__1;
+x_2 = ((lean_object*)(l_mkHasNotBitProof___closed__1));
 x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Eq", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("refl", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_mkHasNotBitProof___closed__4;
-x_2 = l_mkHasNotBitProof___closed__3;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
@@ -287,26 +233,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_mkHasNotBitProof___closed__7;
-x_2 = l_mkHasNotBitProof___closed__5;
+x_2 = ((lean_object*)(l_mkHasNotBitProof___closed__5));
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Bool", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_mkHasNotBitProof___closed__9;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_mkHasNotBitProof___closed__11() {
@@ -314,26 +243,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_mkHasNotBitProof___closed__10;
+x_2 = ((lean_object*)(l_mkHasNotBitProof___closed__10));
 x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__12() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("false", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_mkHasNotBitProof___closed__12;
-x_2 = l_mkHasNotBitProof___closed__9;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
@@ -342,7 +253,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_mkHasNotBitProof___closed__13;
+x_2 = ((lean_object*)(l_mkHasNotBitProof___closed__13));
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -358,39 +269,15 @@ x_4 = l_Lean_mkAppB(x_3, x_2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_mkHasNotBitProof___closed__16() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.HasNotBit", 19, 19);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__17() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("mkHasNotBitProof", 16, 16);
-return x_1;
-}
-}
-static lean_object* _init_l_mkHasNotBitProof___closed__18() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
-return x_1;
-}
-}
 static lean_object* _init_l_mkHasNotBitProof___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_mkHasNotBitProof___closed__18;
+x_1 = ((lean_object*)(l_mkHasNotBitProof___closed__18));
 x_2 = lean_unsigned_to_nat(57u);
-x_3 = lean_unsigned_to_nat(34u);
-x_4 = l_mkHasNotBitProof___closed__17;
-x_5 = l_mkHasNotBitProof___closed__16;
+x_3 = lean_unsigned_to_nat(33u);
+x_4 = ((lean_object*)(l_mkHasNotBitProof___closed__17));
+x_5 = ((lean_object*)(l_mkHasNotBitProof___closed__16));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -554,7 +441,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_9 = l_Lean_Expr_appFnCleanup___redArg(x_6);
-x_10 = l_mkHasNotBit___closed__2;
+x_10 = ((lean_object*)(l_mkHasNotBit___closed__2));
 x_11 = l_Lean_Expr_isConstOf(x_9, x_10);
 lean_dec_ref(x_9);
 if (x_11 == 0)
@@ -579,7 +466,7 @@ LEAN_EXPORT lean_object* l_panic___at___00refutableHasNotBit_x3f_spec__0(lean_ob
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_panic___at___00mkHasNotBitProof_spec__0___closed__0;
+x_7 = ((lean_object*)(l_panic___at___00mkHasNotBitProof_spec__0___closed__0));
 x_8 = lean_panic_fn(x_7, x_1);
 x_9 = lean_apply_5(x_8, x_2, x_3, x_4, x_5, lean_box(0));
 return x_9;
@@ -593,51 +480,25 @@ x_7 = l_panic___at___00refutableHasNotBit_x3f_spec__0(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
-static lean_object* _init_l_refutableHasNotBit_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("eq_of_beq_eq_true", 17, 17);
-return x_1;
-}
-}
-static lean_object* _init_l_refutableHasNotBit_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_refutableHasNotBit_x3f___closed__0;
-x_2 = l_mkHasNotBit___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_refutableHasNotBit_x3f___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_refutableHasNotBit_x3f___closed__1;
+x_2 = ((lean_object*)(l_refutableHasNotBit_x3f___closed__1));
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_refutableHasNotBit_x3f___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("refutableHasNotBit\?", 19, 19);
-return x_1;
 }
 }
 static lean_object* _init_l_refutableHasNotBit_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_mkHasNotBitProof___closed__18;
+x_1 = ((lean_object*)(l_mkHasNotBitProof___closed__18));
 x_2 = lean_unsigned_to_nat(84u);
-x_3 = lean_unsigned_to_nat(54u);
-x_4 = l_refutableHasNotBit_x3f___closed__3;
-x_5 = l_mkHasNotBitProof___closed__16;
+x_3 = lean_unsigned_to_nat(53u);
+x_4 = ((lean_object*)(l_refutableHasNotBit_x3f___closed__3));
+x_5 = ((lean_object*)(l_mkHasNotBitProof___closed__16));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -693,7 +554,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21;
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_18);
 x_19 = l_Lean_Expr_appFnCleanup___redArg(x_16);
-x_20 = l_mkHasNotBit___closed__2;
+x_20 = ((lean_object*)(l_mkHasNotBit___closed__2));
 x_21 = l_Lean_Expr_isConstOf(x_19, x_20);
 lean_dec_ref(x_19);
 if (x_21 == 0)
@@ -1223,7 +1084,6 @@ return x_7;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin);
 lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_HasNotBit(uint8_t builtin) {
@@ -1233,70 +1093,29 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Recognizers(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_MatchUtil(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_mkHasNotBit___closed__0 = _init_l_mkHasNotBit___closed__0();
-lean_mark_persistent(l_mkHasNotBit___closed__0);
-l_mkHasNotBit___closed__1 = _init_l_mkHasNotBit___closed__1();
-lean_mark_persistent(l_mkHasNotBit___closed__1);
-l_mkHasNotBit___closed__2 = _init_l_mkHasNotBit___closed__2();
-lean_mark_persistent(l_mkHasNotBit___closed__2);
 l_mkHasNotBit___closed__3 = _init_l_mkHasNotBit___closed__3();
 lean_mark_persistent(l_mkHasNotBit___closed__3);
-l_panic___at___00mkHasNotBitProof_spec__0___closed__0 = _init_l_panic___at___00mkHasNotBitProof_spec__0___closed__0();
-lean_mark_persistent(l_panic___at___00mkHasNotBitProof_spec__0___closed__0);
-l_mkHasNotBitProof___closed__0 = _init_l_mkHasNotBitProof___closed__0();
-lean_mark_persistent(l_mkHasNotBitProof___closed__0);
-l_mkHasNotBitProof___closed__1 = _init_l_mkHasNotBitProof___closed__1();
-lean_mark_persistent(l_mkHasNotBitProof___closed__1);
 l_mkHasNotBitProof___closed__2 = _init_l_mkHasNotBitProof___closed__2();
 lean_mark_persistent(l_mkHasNotBitProof___closed__2);
-l_mkHasNotBitProof___closed__3 = _init_l_mkHasNotBitProof___closed__3();
-lean_mark_persistent(l_mkHasNotBitProof___closed__3);
-l_mkHasNotBitProof___closed__4 = _init_l_mkHasNotBitProof___closed__4();
-lean_mark_persistent(l_mkHasNotBitProof___closed__4);
-l_mkHasNotBitProof___closed__5 = _init_l_mkHasNotBitProof___closed__5();
-lean_mark_persistent(l_mkHasNotBitProof___closed__5);
 l_mkHasNotBitProof___closed__6 = _init_l_mkHasNotBitProof___closed__6();
 lean_mark_persistent(l_mkHasNotBitProof___closed__6);
 l_mkHasNotBitProof___closed__7 = _init_l_mkHasNotBitProof___closed__7();
 lean_mark_persistent(l_mkHasNotBitProof___closed__7);
 l_mkHasNotBitProof___closed__8 = _init_l_mkHasNotBitProof___closed__8();
 lean_mark_persistent(l_mkHasNotBitProof___closed__8);
-l_mkHasNotBitProof___closed__9 = _init_l_mkHasNotBitProof___closed__9();
-lean_mark_persistent(l_mkHasNotBitProof___closed__9);
-l_mkHasNotBitProof___closed__10 = _init_l_mkHasNotBitProof___closed__10();
-lean_mark_persistent(l_mkHasNotBitProof___closed__10);
 l_mkHasNotBitProof___closed__11 = _init_l_mkHasNotBitProof___closed__11();
 lean_mark_persistent(l_mkHasNotBitProof___closed__11);
-l_mkHasNotBitProof___closed__12 = _init_l_mkHasNotBitProof___closed__12();
-lean_mark_persistent(l_mkHasNotBitProof___closed__12);
-l_mkHasNotBitProof___closed__13 = _init_l_mkHasNotBitProof___closed__13();
-lean_mark_persistent(l_mkHasNotBitProof___closed__13);
 l_mkHasNotBitProof___closed__14 = _init_l_mkHasNotBitProof___closed__14();
 lean_mark_persistent(l_mkHasNotBitProof___closed__14);
 l_mkHasNotBitProof___closed__15 = _init_l_mkHasNotBitProof___closed__15();
 lean_mark_persistent(l_mkHasNotBitProof___closed__15);
-l_mkHasNotBitProof___closed__16 = _init_l_mkHasNotBitProof___closed__16();
-lean_mark_persistent(l_mkHasNotBitProof___closed__16);
-l_mkHasNotBitProof___closed__17 = _init_l_mkHasNotBitProof___closed__17();
-lean_mark_persistent(l_mkHasNotBitProof___closed__17);
-l_mkHasNotBitProof___closed__18 = _init_l_mkHasNotBitProof___closed__18();
-lean_mark_persistent(l_mkHasNotBitProof___closed__18);
 l_mkHasNotBitProof___closed__19 = _init_l_mkHasNotBitProof___closed__19();
 lean_mark_persistent(l_mkHasNotBitProof___closed__19);
-l_refutableHasNotBit_x3f___closed__0 = _init_l_refutableHasNotBit_x3f___closed__0();
-lean_mark_persistent(l_refutableHasNotBit_x3f___closed__0);
-l_refutableHasNotBit_x3f___closed__1 = _init_l_refutableHasNotBit_x3f___closed__1();
-lean_mark_persistent(l_refutableHasNotBit_x3f___closed__1);
 l_refutableHasNotBit_x3f___closed__2 = _init_l_refutableHasNotBit_x3f___closed__2();
 lean_mark_persistent(l_refutableHasNotBit_x3f___closed__2);
-l_refutableHasNotBit_x3f___closed__3 = _init_l_refutableHasNotBit_x3f___closed__3();
-lean_mark_persistent(l_refutableHasNotBit_x3f___closed__3);
 l_refutableHasNotBit_x3f___closed__4 = _init_l_refutableHasNotBit_x3f___closed__4();
 lean_mark_persistent(l_refutableHasNotBit_x3f___closed__4);
 return lean_io_result_mk_ok(lean_box(0));

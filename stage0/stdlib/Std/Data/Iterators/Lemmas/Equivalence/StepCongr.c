@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_IterStep_bundledQuotient(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_QuotStep_bundledQuotient(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_QuotStep_bundledQuotient___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterStep_bundledQuotient___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterStep_bundledQuotient(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterStep_bundledQuotient___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_QuotStep_bundledQuotient___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_QuotStep_bundledQuotient(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_QuotStep_bundledQuotient___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterStep_bundledQuotient___redArg(lean_object* x_1, lean_object* x_2) {
 _start:

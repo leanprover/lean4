@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.BuiltinNotation
 public import Std.Do.Triple.Basic
-import Std.Do.SPred.Notation.Basic
 
 public section
 

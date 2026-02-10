@@ -13,48 +13,63 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_addDeclarationRanges___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_DeclarationRange_ofStringPositions(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationSelectionRef(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getKind(lean_object*);
-static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0;
-uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isIdent(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2;
-uint8_t l_Lean_Syntax_isNone(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__1;
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1;
-lean_object* l_Lean_Name_mkStr1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lean_Elab_getDeclarationSelectionRef___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Lean"};
+static const lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__0 = (const lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__0_value;
+static const lean_string_object l_Lean_Elab_getDeclarationSelectionRef___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "Parser"};
+static const lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__1 = (const lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__1_value;
+static const lean_string_object l_Lean_Elab_getDeclarationSelectionRef___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "Command"};
+static const lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__2 = (const lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__2_value;
+static const lean_string_object l_Lean_Elab_getDeclarationSelectionRef___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 9, .m_capacity = 9, .m_length = 8, .m_data = "instance"};
+static const lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__3 = (const lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__3_value;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__0;
+static const lean_ctor_object l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_0),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__1_value),LEAN_SCALAR_PTR_LITERAL(103, 136, 125, 166, 167, 98, 71, 111)}};
+static const lean_ctor_object l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_1),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__2_value),LEAN_SCALAR_PTR_LITERAL(214, 208, 105, 11, 221, 56, 173, 240)}};
+static const lean_ctor_object l_Lean_Elab_getDeclarationSelectionRef___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__4_value_aux_2),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__3_value),LEAN_SCALAR_PTR_LITERAL(37, 156, 84, 218, 244, 57, 142, 153)}};
+static const lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__4 = (const lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__4_value;
+lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isIdent(lean_object*);
+uint8_t l_Lean_Syntax_isNone(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationSelectionRef(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_addDeclarationRanges___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0;
+static const lean_string_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "null"};
+static const lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1 = (const lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1_value;
+lean_object* l_Lean_Name_mkStr1(lean_object*);
+static const lean_ctor_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1_value),LEAN_SCALAR_PTR_LITERAL(24, 58, 49, 223, 146, 207, 197, 136)}};
+static const lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2 = (const lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2_value;
+lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "example"};
+static const lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0 = (const lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0_value;
+static const lean_ctor_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__0_value),LEAN_SCALAR_PTR_LITERAL(70, 193, 83, 126, 233, 67, 208, 165)}};
+static const lean_ctor_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_0),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__1_value),LEAN_SCALAR_PTR_LITERAL(103, 136, 125, 166, 167, 98, 71, 111)}};
+static const lean_ctor_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_2 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_1),((lean_object*)&l_Lean_Elab_getDeclarationSelectionRef___closed__2_value),LEAN_SCALAR_PTR_LITERAL(214, 208, 105, 11, 221, 56, 173, 240)}};
+static const lean_ctor_object l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value_aux_2),((lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0_value),LEAN_SCALAR_PTR_LITERAL(108, 28, 224, 32, 144, 38, 51, 230)}};
+static const lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1 = (const lean_object*)&l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1_value;
+lean_object* l_Lean_Syntax_getKind(lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -141,55 +156,11 @@ lean_dec(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Parser", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Command", 7, 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("instance", 8, 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_getDeclarationSelectionRef___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_getDeclarationSelectionRef___closed__3;
-x_2 = l_Lean_Elab_getDeclarationSelectionRef___closed__2;
-x_3 = l_Lean_Elab_getDeclarationSelectionRef___closed__1;
-x_4 = l_Lean_Elab_getDeclarationSelectionRef___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationSelectionRef(lean_object* x_1) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_Elab_getDeclarationSelectionRef___closed__4;
+x_5 = ((lean_object*)(l_Lean_Elab_getDeclarationSelectionRef___closed__4));
 lean_inc(x_1);
 x_6 = l_Lean_Syntax_isOfKind(x_1, x_5);
 if (x_6 == 0)
@@ -418,23 +389,6 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("null", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -443,7 +397,7 @@ x_8 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0;
 x_9 = lean_array_push(x_8, x_1);
 lean_inc(x_2);
 x_10 = lean_array_push(x_9, x_2);
-x_11 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2;
+x_11 = ((lean_object*)(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2));
 x_12 = lean_box(2);
 x_13 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -455,33 +409,13 @@ lean_dec_ref(x_13);
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("example", 7, 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0;
-x_2 = l_Lean_Elab_getDeclarationSelectionRef___closed__2;
-x_3 = l_Lean_Elab_getDeclarationSelectionRef___closed__1;
-x_4 = l_Lean_Elab_getDeclarationSelectionRef___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 lean_inc(x_6);
 x_7 = l_Lean_Syntax_getKind(x_6);
-x_8 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1;
+x_8 = ((lean_object*)(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1));
 x_9 = lean_name_eq(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)
@@ -541,26 +475,8 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_getDeclarationSelectionRef___closed__0 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__0();
-lean_mark_persistent(l_Lean_Elab_getDeclarationSelectionRef___closed__0);
-l_Lean_Elab_getDeclarationSelectionRef___closed__1 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__1();
-lean_mark_persistent(l_Lean_Elab_getDeclarationSelectionRef___closed__1);
-l_Lean_Elab_getDeclarationSelectionRef___closed__2 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__2();
-lean_mark_persistent(l_Lean_Elab_getDeclarationSelectionRef___closed__2);
-l_Lean_Elab_getDeclarationSelectionRef___closed__3 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__3();
-lean_mark_persistent(l_Lean_Elab_getDeclarationSelectionRef___closed__3);
-l_Lean_Elab_getDeclarationSelectionRef___closed__4 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__4();
-lean_mark_persistent(l_Lean_Elab_getDeclarationSelectionRef___closed__4);
 l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__0);
-l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__1);
-l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0___closed__2);
-l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0();
-lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__0);
-l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1 = _init_l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1();
-lean_mark_persistent(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

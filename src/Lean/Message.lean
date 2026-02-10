@@ -12,6 +12,8 @@ public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
 import Init.Data.String.Search
+import Init.Data.Format.Macro
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 

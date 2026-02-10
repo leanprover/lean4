@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Expr
-public import Lean.Data.PersistentHashMap
 public import Lean.Meta.Tactic.Grind.Theorems
 public section
 namespace Lean.Meta.Grind

@@ -9,6 +9,7 @@ prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Attach
+import Init.ByCases
 
 public section
 

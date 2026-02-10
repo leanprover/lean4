@@ -9,6 +9,10 @@ prelude
 import all Init.Data.Zero
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
+public import Init.Data.Fin.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.MinMax
 
 public section
 

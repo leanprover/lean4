@@ -7,6 +7,8 @@ module
 prelude
 public import Init.Grind.Ring.Envelope
 public import Init.Grind.Ring.CommSolver
+import Init.Data.Int.LemmasAux
+import Init.Omega
 @[expose] public section
 namespace Lean.Grind
 namespace CommRing

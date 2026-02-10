@@ -29,7 +29,7 @@ private def filterDuplicateCompletionItems
   return r
 
 partial def find?
-    (mod      : Name)
+    (uri      : DocumentUri)
     (pos      : Lsp.Position)
     (fileMap  : FileMap)
     (hoverPos : String.Pos.Raw)
@@ -45,21 +45,21 @@ partial def find?
       let completions : Array ScoredCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>
-          idCompletion mod pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
+          idCompletion uri pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
         | .dot info .. =>
-          dotCompletion mod pos completionInfoPos i.ctx info
+          dotCompletion uri pos completionInfoPos i.ctx info
         | .dotId _ id lctx expectedType? =>
-          dotIdCompletion mod pos completionInfoPos i.ctx lctx id expectedType?
+          dotIdCompletion uri pos completionInfoPos i.ctx lctx id expectedType?
         | .fieldId _ id lctx structName =>
-          fieldIdCompletion mod pos completionInfoPos i.ctx lctx id structName
+          fieldIdCompletion uri pos completionInfoPos i.ctx lctx id structName
         | .option stx =>
-          optionCompletion mod pos completionInfoPos i.ctx stx caps
+          optionCompletion uri pos completionInfoPos i.ctx stx caps
         | .errorName _ partialId =>
-          errorNameCompletion mod pos completionInfoPos i.ctx partialId caps
+          errorNameCompletion uri pos completionInfoPos i.ctx partialId caps
         | .endSection _ id? danglingDot scopeNames =>
-          endSectionCompletion mod pos completionInfoPos id? danglingDot scopeNames
+          endSectionCompletion uri pos completionInfoPos id? danglingDot scopeNames
         | .tactic .. =>
-          tacticCompletion mod pos completionInfoPos i.ctx
+          tacticCompletion uri pos completionInfoPos i.ctx
         | _ =>
           pure #[]
       allCompletions := allCompletions ++ completions

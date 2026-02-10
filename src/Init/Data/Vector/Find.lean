@@ -8,7 +8,13 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Range
+public import Init.Data.Vector.Attach
+import Init.Data.Array.Find
+import Init.Data.Bool
+import Init.Data.Fin.Lemmas
+import Init.Data.List.Find
+import Init.Data.List.Impl
+import Init.Data.Subtype.Basic
 
 public section
 
@@ -340,5 +346,17 @@ theorem isNone_findFinIdx? {xs : Vector α n} {p : α → Bool} :
     xs.findFinIdx? f = xs.unattach.findFinIdx? g := by
   rcases xs with ⟨xs, rfl⟩
   simp [hf, Function.comp_def]
+
+/-! ### find? and findFinIdx? -/
+
+theorem find?_eq_map_findFinIdx?_getElem {xs : Vector α n} {p : α → Bool} :
+    xs.find? p = (xs.findFinIdx? p).map (xs[·]) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.find?_eq_map_findFinIdx?_getElem]
+
+theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Vector α n} {p : α → Bool} :
+    xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.findFinIdx?_eq_bind_find?_finIdxOf?]
 
 end Vector

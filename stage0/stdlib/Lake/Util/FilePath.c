@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.FilePath
-// Imports: public import Lean.Data.Json import Init.Data.String.TakeDrop import Init.Data.String.Modify
+// Imports: public import Lean.Data.Json import Init.Data.String.TakeDrop import Init.Data.String.Modify import Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,59 +13,63 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_String_Slice_toString(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_relPathFrom___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
+lean_object* l_Char_utf8Size(uint32_t);
+LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+extern uint8_t l_System_Platform_isWindows;
+LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToJsonFilePath__lake___lam__0(lean_object*);
+static const lean_closure_object l_Lake_instToJsonFilePath__lake___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_instToJsonFilePath__lake___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instToJsonFilePath__lake___closed__0 = (const lean_object*)&l_Lake_instToJsonFilePath__lake___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_instToJsonFilePath__lake = (const lean_object*)&l_Lake_instToJsonFilePath__lake___closed__0_value;
+static const lean_string_object l_Lake_joinRelative___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "."};
+static const lean_object* l_Lake_joinRelative___closed__0 = (const lean_object*)&l_Lake_joinRelative___closed__0_value;
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
-lean_object* l_System_FilePath_normalize(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instToJsonFilePath__lake;
+LEAN_EXPORT lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
+static const lean_closure_object l_Lake_instDivFilePath__lake___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lake_joinRelative, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Lake_instDivFilePath__lake___closed__0 = (const lean_object*)&l_Lake_instDivFilePath__lake___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_instDivFilePath__lake = (const lean_object*)&l_Lake_instDivFilePath__lake___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lake_instHDivFilePathString__lake = (const lean_object*)&l_Lake_instDivFilePath__lake___closed__0_value;
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+extern uint32_t l_System_FilePath_pathSeparator;
+LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_string_object l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
+static const lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0 = (const lean_object*)&l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0_value;
+lean_object* lean_string_push(lean_object*, uint32_t);
+static lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1;
+static lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__2;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_dropSuffix___at___00Lake_modOfFilePath_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropSuffix___at___00Lake_modOfFilePath_spec__0___boxed(lean_object*, lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__1(lean_object*, lean_object*);
-lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake;
-uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0(lean_object*, lean_object*);
-lean_object* l_System_FilePath_components(lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-static lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1;
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_instToJsonFilePath__lake___closed__0;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___boxed(lean_object*, lean_object*);
-extern uint32_t l_System_FilePath_pathSeparator;
-lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg(lean_object*);
-static lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Lake_instToJsonFilePath__lake___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_relPathFrom___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* l_String_Slice_toString(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__1(lean_object*, lean_object*);
+lean_object* l_System_FilePath_normalize(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+lean_object* l_System_FilePath_components(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_modOfFilePath(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_mkRelPathString(lean_object*);
-lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
-uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
-static lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__2;
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instDivFilePath__lake;
-static lean_object* l_Lake_joinRelative___closed__0;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Char_utf8Size(uint32_t);
-LEAN_EXPORT lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-static lean_object* l_Lake_instDivFilePath__lake___closed__0;
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0(lean_object*, lean_object*, lean_object*);
-extern uint8_t l_System_Platform_isWindows;
+LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_relPathFrom_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -285,35 +289,11 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instToJsonFilePath__lake___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instToJsonFilePath__lake___lam__0), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instToJsonFilePath__lake() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instToJsonFilePath__lake___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_joinRelative___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".", 1, 1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_joinRelative(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lake_joinRelative___closed__0;
+x_3 = ((lean_object*)(l_Lake_joinRelative___closed__0));
 x_4 = lean_string_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
@@ -336,30 +316,6 @@ else
 lean_dec_ref(x_2);
 return x_1;
 }
-}
-}
-static lean_object* _init_l_Lake_instDivFilePath__lake___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_joinRelative), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instDivFilePath__lake() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instDivFilePath__lake___closed__0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instHDivFilePathString__lake() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instDivFilePath__lake___closed__0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -423,20 +379,12 @@ lean_dec_ref(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_System_FilePath_pathSeparator;
-x_2 = l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0;
+x_2 = ((lean_object*)(l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0));
 x_3 = lean_string_push(x_2, x_1);
 return x_3;
 }
@@ -610,6 +558,7 @@ return x_3;
 lean_object* initialize_Lean_Data_Json(uint8_t builtin);
 lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_System_Platform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_FilePath(uint8_t builtin) {
 lean_object * res;
@@ -624,20 +573,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instToJsonFilePath__lake___closed__0 = _init_l_Lake_instToJsonFilePath__lake___closed__0();
-lean_mark_persistent(l_Lake_instToJsonFilePath__lake___closed__0);
-l_Lake_instToJsonFilePath__lake = _init_l_Lake_instToJsonFilePath__lake();
-lean_mark_persistent(l_Lake_instToJsonFilePath__lake);
-l_Lake_joinRelative___closed__0 = _init_l_Lake_joinRelative___closed__0();
-lean_mark_persistent(l_Lake_joinRelative___closed__0);
-l_Lake_instDivFilePath__lake___closed__0 = _init_l_Lake_instDivFilePath__lake___closed__0();
-lean_mark_persistent(l_Lake_instDivFilePath__lake___closed__0);
-l_Lake_instDivFilePath__lake = _init_l_Lake_instDivFilePath__lake();
-lean_mark_persistent(l_Lake_instDivFilePath__lake);
-l_Lake_instHDivFilePathString__lake = _init_l_Lake_instHDivFilePathString__lake();
-lean_mark_persistent(l_Lake_instHDivFilePathString__lake);
-l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0 = _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0();
-lean_mark_persistent(l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__0);
+res = initialize_Init_System_Platform(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1 = _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1();
 lean_mark_persistent(l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__1);
 l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__2 = _init_l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0___redArg___closed__2();

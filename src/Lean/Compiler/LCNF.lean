@@ -30,7 +30,6 @@ public import Lean.Compiler.LCNF.ReduceJpArity
 public import Lean.Compiler.LCNF.Simp
 public import Lean.Compiler.LCNF.Specialize
 public import Lean.Compiler.LCNF.SpecInfo
-public import Lean.Compiler.LCNF.Testing
 public import Lean.Compiler.LCNF.ToDecl
 public import Lean.Compiler.LCNF.ToExpr
 public import Lean.Compiler.LCNF.ToLCNF

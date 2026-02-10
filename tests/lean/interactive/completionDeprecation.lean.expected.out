@@ -5,72 +5,40 @@
    "label": "foo4",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo4"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo4"]},
   {"tags": [1],
    "label": "foo8",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo8"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo8"]},
   {"tags": [1],
    "label": "foo5",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo5"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo5"]},
   {"tags": [1],
    "label": "foo7",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo7"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo7"]},
   {"label": "foo1",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo1"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo1"]},
   {"tags": [1],
    "label": "foo6",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo6"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo6"]},
   {"tags": [1],
    "label": "foo3",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo3"]},
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo3"]},
   {"label": "foo2",
    "kind": 3,
    "data":
-   ["«external:file:///completionDeprecation.lean»",
-    25,
-    28,
-    0,
-    "cSomeStructure.foo2"]}],
+   ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo2"]}],
  "isIncomplete": false}
 Resolution of foo4:
 {"tags": [1],
@@ -82,11 +50,7 @@ Resolution of foo4:
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo4"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo4"]}
 Resolution of foo8:
 {"tags": [1],
  "label": "foo8",
@@ -97,11 +61,7 @@ Resolution of foo8:
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo8"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo8"]}
 Resolution of foo5:
 {"tags": [1],
  "label": "foo5",
@@ -112,11 +72,7 @@ Resolution of foo5:
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo5"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo5"]}
 Resolution of foo7:
 {"tags": [1],
  "label": "foo7",
@@ -127,21 +83,13 @@ Resolution of foo7:
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo7"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo7"]}
 Resolution of foo1:
 {"label": "foo1",
  "kind": 3,
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo1"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo1"]}
 Resolution of foo6:
 {"tags": [1],
  "label": "foo6",
@@ -152,11 +100,7 @@ Resolution of foo6:
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo6"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo6"]}
 Resolution of foo3:
 {"tags": [1],
  "label": "foo3",
@@ -165,19 +109,11 @@ Resolution of foo3:
  {"value": "`SomeStructure.foo3` has been deprecated.", "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo3"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo3"]}
 Resolution of foo2:
 {"label": "foo2",
  "kind": 3,
  "documentation": {"value": "A docstring. ", "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
- ["«external:file:///completionDeprecation.lean»",
-  25,
-  28,
-  0,
-  "cSomeStructure.foo2"]}
+ ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo2"]}

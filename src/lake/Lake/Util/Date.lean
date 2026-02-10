@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Ord.Basic
 import Lake.Util.String
 import Init.Data.String.Search
+import Init.Data.Iterators.Consumers.Collect
+import Init.Data.ToString.Macro
 
 /-!
 #  Date

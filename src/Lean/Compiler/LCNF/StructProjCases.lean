@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.MonoTypes
 
 public section
 
@@ -20,7 +21,7 @@ def findStructCtorInfo? (typeName : Name) : CoreM (Option ConstructorVal) := do
   return ctorInfo
 
 def mkFieldParamsForCtorType (ctorType : Expr) (numParams : Nat) (numFields : Nat) :
-    CompilerM (Array Param) := do
+    CompilerM (Array (Param .pure)) := do
   let mut type ← Meta.MetaM.run' <| toLCNFType ctorType
   type ← toMonoType type
   for _ in *...numParams do
@@ -52,7 +53,7 @@ def remapFVar (fvarId : FVarId) : M FVarId := do
 
 mutual
 
-partial def visitCode (code : Code) : M Code := do
+partial def visitCode (code : Code .pure) : M (Code .pure) := do
   match code with
   | .let decl k =>
     match decl.value with
@@ -105,7 +106,7 @@ partial def visitCode (code : Code) : M Code := do
   | .return fvarId => return code.updateReturn! (← remapFVar fvarId)
   | .unreach .. => return code
 
-partial def visitLetValue (v : LetValue) : M LetValue := do
+partial def visitLetValue (v : LetValue .pure) : M (LetValue .pure) := do
   match v with
   | .const _ _ args =>
     return v.updateArgs! (← args.mapM visitArg)
@@ -115,24 +116,24 @@ partial def visitLetValue (v : LetValue) : M LetValue := do
   -- Projections should be handled directly by `visitCode`.
   | .proj .. => unreachable!
 
-partial def visitAlt (alt : Alt) : M Alt := do
+partial def visitAlt (alt : Alt .pure) : M (Alt .pure) := do
   return alt.updateCode (← visitCode alt.getCode)
 
-partial def visitArg (arg : Arg) : M Arg :=
+partial def visitArg (arg : Arg .pure) : M (Arg .pure) :=
   match arg with
   | .fvar fvarId => return arg.updateFVar! (← remapFVar fvarId)
   | .type _ | .erased => return arg
 
 end
 
-def visitDecl (decl : Decl) : M Decl := do
+def visitDecl (decl : Decl .pure) : M (Decl .pure) := do
   let value ← decl.value.mapCodeM (visitCode ·)
   return { decl with value }
 
 end StructProjCases
 
 def structProjCases : Pass :=
-  .mkPerDeclaration `structProjCases (StructProjCases.visitDecl · |>.run) .mono
+  .mkPerDeclaration `structProjCases .mono (StructProjCases.visitDecl · |>.run)
 
 builtin_initialize registerTraceClass `Compiler.structProjCases (inherited := true)
 

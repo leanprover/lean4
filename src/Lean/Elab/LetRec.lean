@@ -20,10 +20,12 @@ structure LetRecDeclView where
   declName      : Name
   parentName?   : Option Name
   binderIds     : Array Syntax
+  binders       : Syntax -- binder syntax for docstring elaboration
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
   termination   : TerminationHints
+  docString?    : Option (TSyntax ``Parser.Command.docComment × Bool) := none
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -32,8 +34,9 @@ structure LetRecView where
 /-  group ("let " >> nonReservedSymbol "rec ") >> sepBy1 (group (optional «attributes» >> letDecl)) ", " >> "; " >> termParser -/
 private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
   let mut decls : Array LetRecDeclView := #[]
+  let isVerso := doc.verso.get (← getOptions)
   for attrDeclStx in letRec[1][0].getSepArgs do
-    let docStr? := attrDeclStx[0].getOptional?.map TSyntax.mk
+    let docStr? := attrDeclStx[0].getOptional?.map (TSyntax.mk ·, isVerso)
     let attrOptStx := attrDeclStx[1]
     let attrs ← if attrOptStx.isNone then pure #[] else elabDeclAttrs attrOptStx[0]
     let decl := attrDeclStx[2][0]
@@ -45,16 +48,21 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         throwErrorAt declId "'let rec' expressions must be named"
       let shortDeclName := declId.getId
       let parentName? ← getDeclName?
-      let declName := parentName?.getD Name.anonymous ++ shortDeclName
+      let mut declName := parentName?.getD Name.anonymous ++ shortDeclName
+      let env ← getEnv
+      if env.header.isModule && !env.isExporting then
+        declName := mkPrivateName env declName
       if decls.any fun decl => decl.declName == declName then
         withRef declId do
           throwError "`{.ofConstName declName}` has already been declared"
-      let binders := decl[1]
+      let binderStx := decl[1]
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
-      addDocString' declName binders docStr?
+      -- Docstring processing is deferred until the declaration is added to the environment.
+      -- This is necessary for Verso docstrings to work correctly, as they may reference the
+      -- declaration being defined.
       addDeclarationRangesFromSyntax declName decl declId
-      let binders := binders.getArgs
+      let binders := binderStx.getArgs
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do
           let type ← elabType typeStx
@@ -70,7 +78,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       let termination ← elabTerminationHints ⟨attrDeclStx[3]⟩
       decls := decls.push {
         ref := declId, attrs, shortDeclName, declName, parentName?,
-        binderIds, type, mvar, valStx, termination
+        binderIds, binders := binderStx, type, mvar, valStx, termination, docString? := docStr?
       }
     else
       throwUnsupportedSyntax
@@ -111,15 +119,12 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
     let termination := view.termination.rememberExtraParams view.binderIds.size value
-    let env ← getEnv
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!
       attrs          := view.attrs
       shortDeclName  := view.shortDeclName
-      declName       :=
-        if env.isExporting || !env.header.isModule then view.declName
-        else mkPrivateName env view.declName
+      declName       := view.declName
       parentName?    := view.parentName?
       lctx
       localInstances
@@ -127,6 +132,8 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
       val            := value
       mvarId         := view.mvar.mvarId!
       termination
+      binders        := view.binders
+      docString?     := view.docString?
     }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 

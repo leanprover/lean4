@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Subarray.Split
-// Imports: public import Init.Data.Array.Subarray import all Init.Data.Array.Subarray public import Init.Omega
+// Imports: public import Init.Data.Array.Subarray import all Init.Data.Array.Subarray import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Subarray_drop___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_drop___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_drop___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_split___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subarray_take___redArg___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_drop(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_drop___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_take___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_split(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Subarray_split___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_drop___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {

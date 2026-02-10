@@ -12,7 +12,7 @@ public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.RawDef
-meta import Std.Data.DHashMap.Basic
+public meta import Std.Data.DHashMap.Basic
 
 public section
 

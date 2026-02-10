@@ -9,6 +9,7 @@ prelude
 public import Std.Data.HashMap.Iterator
 public import Std.Data.HashSet.Basic
 public import Std.Data.HashSet.Raw
+import Init.Data.Iterators.Combinators.FilterMap
 
 /-!
 # Iterators on `HashSet` and `HashSet.Raw`

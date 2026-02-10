@@ -12,6 +12,7 @@ public import Init.Data.Array.InsertionSort
 public import Lean.Meta.Instances
 public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
+import Init.While
 
 public section
 

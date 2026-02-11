@@ -377,10 +377,11 @@ OPTIONS:
 Downloads artifacts for packages in the workspace from a remote cache service.
 The cache service used can be configured via the environment variables:
 
+  LAKE_CACHE_SERVICE            identifier recorded in ouptuts
   LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
   LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
 
-If neither of these are set, Lake will use Reservoir.
+If neither endpoint is set, Lake will use Reservoir.
 
 If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
 Lake will download artifacts for the root package. Otherwise, it will use

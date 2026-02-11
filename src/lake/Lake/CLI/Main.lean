@@ -63,6 +63,7 @@ public structure LakeOptions where
   offline : Bool := false
   outputsFile? : Option FilePath := none
   forceDownload : Bool := false
+  service? : Option String := none
   scope? : Option String := none
   /-- Was `scope?` set with `--repo` (and not `--scope`)? -/
   repoScope : Bool := false
@@ -248,6 +249,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+| "--service" => do
+  let service ← takeOptArg "--service" "service name"
+  modifyThe LakeOptions ({· with service? := some service})
 | "--scope" => do
   let scope ← takeOptArg "--scope" "cache scope"
   modifyThe LakeOptions ({· with scope? := some scope, repoScope := false})
@@ -396,7 +400,7 @@ protected def get : CliM PUnit := do
       | error "to use `cache get` with a mappings file, `--scope` or `--repo` must be set"
     let service : CacheService :=
       if let some artifactEndpoint := ws.lakeEnv.cacheArtifactEndpoint? then
-        .downloadArtsService artifactEndpoint
+        .downloadArtsService artifactEndpoint ws.lakeEnv.cacheService?
       else
         .reservoirService ws.lakeEnv.reservoirApiUrl
     let map ← CacheMap.load file
@@ -407,7 +411,7 @@ protected def get : CliM PUnit := do
     let service : CacheService ← id do
       match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
       | some artifactEndpoint, some revisionEndpoint =>
-        return .downloadService artifactEndpoint revisionEndpoint
+        return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
       | none, none =>
         return .reservoirService ws.lakeEnv.reservoirApiUrl
       | some artifactEndpoint, none =>
@@ -531,7 +535,7 @@ protected def add : CliM PUnit := do
     | _ => pure ws.root
   let scope := pkg.cacheScope
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap scope map
+  ws.lakeCache.writeMap scope map opts.service?
 
 protected def help : CliM PUnit := do
   IO.println <| helpCache <| ← takeArgD ""

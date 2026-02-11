@@ -61,6 +61,14 @@ theorem Slice.Pos.ne_startPos_of_lt {s : Slice} {p q : s.Pos} : p < q → q ≠ 
   simp at h
 
 @[simp]
+theorem Slice.Pos.le_next {s : Slice} {p : s.Pos} {h} : p ≤ p.next h :=
+  Std.le_of_lt (by simp)
+
+@[simp]
+theorem Pos.le_next {s : String} {p : s.Pos} {h} : p ≤ p.next h :=
+  Std.le_of_lt (by simp)
+
+@[simp]
 theorem Slice.Pos.next_ne_startPos {s : Slice} {p : s.Pos} {h} :
     p.next h ≠ s.startPos :=
   ne_startPos_of_lt lt_next

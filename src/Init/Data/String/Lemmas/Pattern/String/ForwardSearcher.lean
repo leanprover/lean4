@@ -24,9 +24,11 @@ verifying that our implementation of KMP string search in `Init.Data.String.Patt
 correct.
 -/
 
-namespace String.Slice.Pattern
+namespace String.Slice.Pattern.Model
 
 namespace ForwardSliceSearcher
+
+open Pattern.ForwardSliceSearcher
 
 /-- Predicate asserting that `pat[0...needlePos] = s[stackPos - needlePos...stackPos]`. -/
 structure PartialMatch (pat s : ByteArray) (needlePos stackPos : Nat) : Prop where
@@ -560,4 +562,4 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
 
 end ForwardSliceSearcher
 
-end String.Slice.Pattern
+end String.Slice.Pattern.Model

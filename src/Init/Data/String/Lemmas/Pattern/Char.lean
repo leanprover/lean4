@@ -13,7 +13,7 @@ import Init.Data.String.Lemmas.Basic
 
 public section
 
-namespace String.Slice.Pattern.Char
+namespace String.Slice.Pattern.Model.Char
 
 instance {c : Char} : ForwardPatternModel c where
   Matches s := s = String.singleton c
@@ -25,7 +25,7 @@ instance {c : Char} : NoPrefixForwardPatternModel c :=
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ s.startPos.get h = c := by
-  simp only [Pattern.isMatch_iff, ForwardPatternModel.Matches]
+  simp only [Model.isMatch_iff, ForwardPatternModel.Matches]
   rw [sliceTo_copy_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
@@ -46,4 +46,4 @@ instance {c : Char} : LawfulForwardPatternModel c where
 instance {c : Char} : LawfulToForwardSearcherModel c :=
   .defaultImplementation
 
-end String.Slice.Pattern.Char
+end String.Slice.Pattern.Model.Char

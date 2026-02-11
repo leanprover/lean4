@@ -706,11 +706,11 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev Invariant.withEarlyReturn
+abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
-    Invariant xs (MProd (Option γ) β) ps :=
+    Invariant xs (Prod (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),

@@ -105,7 +105,7 @@ info: theorem f_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat → P
 -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.induct_unfolding
 
-/-- info: @[defeq] theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
+/-- info: theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
 #guard_msgs in #print sig f_exp_wfrec.eq_1
 
 /--

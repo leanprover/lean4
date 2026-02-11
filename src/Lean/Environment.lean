@@ -133,6 +133,7 @@ structure ModuleData where
   -/
   constNames      : Array Name
   constants       : Array ConstantInfo
+  constNames_eq   : constNames = constants.map (·.name) := by exact Array.map_empty.symm
   /--
   Extra entries for the `const2ModIdx` map in the `Environment` object.
   The code generator creates auxiliary declarations that are not in the
@@ -140,7 +141,19 @@ structure ModuleData where
   -/
   extraConstNames : Array Name
   entries         : Array (Name × Array EnvExtensionEntry)
-  deriving Inhabited
+
+attribute [simp, grind =] ModuleData.constNames_eq
+
+instance : Inhabited ModuleData where
+  default := {
+    isModule := default
+    imports := default
+    constNames := #[]
+    constants := #[]
+    constNames_eq := Array.map_empty.symm
+    extraConstNames := default
+    entries := default
+  }
 
 /-- Phases for which some IR is available for execution. -/
 inductive IRPhases where
@@ -1808,7 +1821,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := getIRExtraConstNames env level
-    constNames, constants, entries
+    constNames, constants, constNames_eq := rfl, entries
   }
 
 @[extern "lean_ir_export_entries"]
@@ -1820,6 +1833,7 @@ private def mkIRData (env : Environment) : ModuleData :=
     entries := exportIREntries env
     constants := default
     constNames := default
+    constNames_eq := Array.map_empty.symm
     -- make sure to include all names in case only `.ir` is loaded
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }

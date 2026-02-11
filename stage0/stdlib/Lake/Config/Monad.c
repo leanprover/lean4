@@ -1718,7 +1718,7 @@ LEAN_EXPORT uint8_t l_Lake_getNoCache___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*17);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
 return x_2;
 }
 }
@@ -1769,7 +1769,7 @@ LEAN_EXPORT uint8_t l_Lake_getTryCache___redArg___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*17);
+x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
 if (x_2 == 0)
 {
 uint8_t x_3; 
@@ -1873,7 +1873,7 @@ LEAN_EXPORT lean_object* l_Lake_getElanToolchain___redArg___lam__0(lean_object* 
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 16);
+x_2 = lean_ctor_get(x_1, 17);
 lean_inc_ref(x_2);
 return x_2;
 }

@@ -5949,17 +5949,17 @@ if (lean_is_scalar(x_54)) {
  x_59 = x_54;
  lean_ctor_set_tag(x_59, 5);
 }
-lean_ctor_set(x_59, 0, x_57);
+lean_ctor_set(x_59, 0, x_55);
 lean_ctor_set(x_59, 1, x_58);
 x_60 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_55);
+lean_ctor_set(x_60, 1, x_56);
 x_61 = l_Array_Array_repr___redArg(x_7, x_53);
 x_62 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_62, 0, x_60);
 lean_ctor_set(x_62, 1, x_61);
 x_63 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_63, 0, x_56);
+lean_ctor_set(x_63, 0, x_57);
 lean_ctor_set(x_63, 1, x_62);
 x_64 = 0;
 x_65 = lean_alloc_ctor(6, 1, 1);
@@ -5982,9 +5982,9 @@ x_73 = l_Int_repr(x_52);
 lean_dec(x_52);
 x_74 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_74, 0, x_73);
-x_55 = x_69;
-x_56 = x_68;
-x_57 = x_70;
+x_55 = x_70;
+x_56 = x_69;
+x_57 = x_68;
 x_58 = x_74;
 goto block_67;
 }
@@ -5997,9 +5997,9 @@ lean_dec(x_52);
 x_77 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_77, 0, x_76);
 x_78 = l_Repr_addAppParen(x_77, x_75);
-x_55 = x_69;
-x_56 = x_68;
-x_57 = x_70;
+x_55 = x_70;
+x_56 = x_69;
+x_57 = x_68;
 x_58 = x_78;
 goto block_67;
 }

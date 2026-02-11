@@ -2313,16 +2313,16 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_23);
-x_8 = x_22;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_22;
 x_10 = x_25;
 goto block_17;
 }
 else
 {
 lean_dec(x_23);
-x_8 = x_22;
-x_9 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_22;
 x_10 = x_24;
 goto block_17;
 }
@@ -2342,7 +2342,7 @@ block_17:
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_9);
 x_11 = l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1;
 x_12 = l_Lean_MessageData_ofName(x_7);
 x_13 = lean_alloc_ctor(7, 2, 0);
@@ -2360,7 +2360,7 @@ else
 {
 lean_dec(x_7);
 lean_dec_ref(x_3);
-return x_8;
+return x_9;
 }
 }
 }

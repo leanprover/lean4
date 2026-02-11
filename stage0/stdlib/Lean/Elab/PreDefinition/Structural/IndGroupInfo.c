@@ -3158,16 +3158,16 @@ x_37 = lean_array_get_size(x_35);
 x_38 = lean_nat_dec_le(x_36, x_22);
 if (x_38 == 0)
 {
-x_7 = x_35;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_35;
 x_9 = x_36;
 x_10 = x_37;
 goto block_16;
 }
 else
 {
-x_7 = x_35;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_35;
 x_9 = x_22;
 x_10 = x_37;
 goto block_16;
@@ -3232,7 +3232,7 @@ return x_65;
 block_16:
 {
 lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = l_Array_toSubarray___redArg(x_7, x_9, x_10);
+x_11 = l_Array_toSubarray___redArg(x_8, x_9, x_10);
 x_12 = l_Subarray_toArray___redArg(x_11);
 x_13 = lean_array_size(x_12);
 x_14 = 0;

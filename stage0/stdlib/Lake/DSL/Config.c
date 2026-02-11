@@ -1539,7 +1539,7 @@ block_32:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_19 = ((lean_object*)(l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___closed__3));
-x_20 = l_Nat_reprFast(x_14);
+x_20 = l_Nat_reprFast(x_17);
 x_21 = lean_box(2);
 x_22 = l_Lean_Syntax_mkNumLit(x_20, x_21);
 x_23 = l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___closed__4;
@@ -1555,7 +1555,7 @@ lean_closure_set(x_30, 0, x_26);
 lean_closure_set(x_30, 1, x_2);
 lean_closure_set(x_30, 2, x_28);
 lean_closure_set(x_30, 3, x_29);
-x_31 = l_Lean_Elab_Term_withMacroExpansion___at___00__private_Lake_DSL_Config_0__Lake_DSL_elabNameConst_spec__0___redArg(x_1, x_26, x_30, x_10, x_11, x_12, x_13, x_17, x_16);
+x_31 = l_Lean_Elab_Term_withMacroExpansion___at___00__private_Lake_DSL_Config_0__Lake_DSL_elabNameConst_spec__0___redArg(x_1, x_26, x_30, x_12, x_14, x_11, x_13, x_10, x_16);
 return x_31;
 }
 block_53:
@@ -1575,14 +1575,14 @@ x_48 = lean_ctor_get(x_46, 0);
 lean_inc(x_48);
 lean_dec(x_46);
 x_49 = l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___closed__8;
-x_10 = x_37;
-x_11 = x_38;
-x_12 = x_39;
+x_10 = x_41;
+x_11 = x_39;
+x_12 = x_37;
 x_13 = x_40;
-x_14 = x_48;
+x_14 = x_38;
 x_15 = lean_box(0);
 x_16 = x_42;
-x_17 = x_41;
+x_17 = x_48;
 x_18 = x_49;
 goto block_32;
 }
@@ -1595,14 +1595,14 @@ lean_dec(x_46);
 x_51 = 0;
 lean_inc(x_1);
 x_52 = l_Lake_Name_quoteFrom(x_1, x_47, x_51);
-x_10 = x_37;
-x_11 = x_38;
-x_12 = x_39;
+x_10 = x_41;
+x_11 = x_39;
+x_12 = x_37;
 x_13 = x_40;
-x_14 = x_50;
+x_14 = x_38;
 x_15 = lean_box(0);
 x_16 = x_42;
-x_17 = x_41;
+x_17 = x_50;
 x_18 = x_52;
 goto block_32;
 }

@@ -831,9 +831,8 @@ trace: [Elab.do] have x := 1;
             forIn [4, 5, 6] x_1 fun j __s_1 =>
                 let x_2 := __s_1;
                 have __do_jp := fun __r x_3 =>
-                  have __do_jp := fun __r_1 x_4 =>
-                    if j > 6 then pure (ForInStep.done x_4) else pure (ForInStep.yield x_4);
-                  if j < 3 then pure (ForInStep.yield x_3) else __do_jp PUnit.unit x_3;
+                  have __do_jp := fun __r_1 => if j > 6 then pure (ForInStep.done x_3) else pure (ForInStep.yield x_3);
+                  if j < 3 then pure (ForInStep.yield x_3) else __do_jp PUnit.unit;
                 if j < 5 then
                   have x := x_2 + j;
                   __do_jp PUnit.unit x
@@ -877,13 +876,13 @@ info: (have x := 42;
         let x := __s.fst;
         let z := __s.snd;
         have x := x + i;
-        have __do_jp := fun __r x y z =>
+        have __do_jp := fun __r z =>
           have z := z + i;
           pure (ForInStep.yield (x, z));
         if x > 10 then
           have z := z + i;
-          __do_jp PUnit.unit x y z
-        else __do_jp PUnit.unit x y z
+          __do_jp PUnit.unit z
+        else __do_jp PUnit.unit z
   let x : Nat := __s.fst
   let z : Nat := __s.snd
   pure (x + y + z)).run : Nat
@@ -915,23 +914,23 @@ info: (have w := 23;
         let __s_1 := __s.snd;
         let y := __s_1.fst;
         let z := __s_1.snd;
-        have __do_jp := fun __r w x y z =>
-          have __do_jp := fun __r w x y z =>
-            have __do_jp := fun __r w x y z =>
+        have __do_jp := fun __r y =>
+          have __do_jp := fun __r z =>
+            have __do_jp := fun __r x =>
               have x := x + i;
               pure (ForInStep.yield (x, y, z));
             if x > 10 then
               have x := x + 3;
               pure (ForInStep.yield (x, y, z))
-            else __do_jp PUnit.unit w x y z;
+            else __do_jp PUnit.unit x;
           if x = 3 then
             have z := z + i;
-            __do_jp PUnit.unit w x y z
-          else __do_jp PUnit.unit w x y z;
+            __do_jp PUnit.unit z
+          else __do_jp PUnit.unit z;
         if x < 20 then
           have y := y - 2;
           pure (ForInStep.done (x, y, z))
-        else __do_jp PUnit.unit w x y z
+        else __do_jp PUnit.unit y
   let x : Nat := __s.fst
   let __s : Nat × Nat := __s.snd
   let y : Nat := __s.fst
@@ -984,41 +983,41 @@ trace: [Compiler.saveBase] size: 20
       | List.nil =>
         return x.2
       | List.cons head.6 tail.7 =>
-        jp _jp.8 x y z : Nat × Nat × Nat :=
-          let _x.9 := 10;
-          let _x.10 := Nat.decLt _x.9 x;
-          cases _x.10 : Nat × Nat × Nat
-          | Decidable.isFalse x.11 =>
-            let _x.12 := Nat.add x head.6;
-            let _x.13 := @Prod.mk _ _ y z;
-            let _x.14 := @Prod.mk _ _ _x.12 _x.13;
-            let _x.15 := List.forIn'.loop._at_.Do._example.spec_0 as tail.7 _x.14 ◾;
-            return _x.15
-          | Decidable.isTrue x.16 =>
-            let _x.17 := Nat.add x _x.4;
-            let _x.18 := @Prod.mk _ _ y z;
-            let _x.19 := @Prod.mk _ _ _x.17 _x.18;
-            let _x.20 := List.forIn'.loop._at_.Do._example.spec_0 as tail.7 _x.19 ◾;
-            return _x.20;
-        let _x.21 := x.2 # 0;
-        let _x.22 := x.2 # 1;
-        let _x.23 := _x.22 # 0;
-        let _x.24 := _x.22 # 1;
-        let _x.25 := 20;
-        let _x.26 := Nat.decLt _x.21 _x.25;
-        cases _x.26 : Nat × Nat × Nat
-        | Decidable.isFalse x.27 =>
-          let _x.28 := instDecidableEqNat _x.21 _x.4;
-          cases _x.28 : Nat × Nat × Nat
+        let _x.8 := x.2 # 0;
+        let _x.9 := x.2 # 1;
+        let _x.10 := _x.9 # 0;
+        jp _jp.11 z : Nat × Nat × Nat :=
+          let _x.12 := 10;
+          let _x.13 := Nat.decLt _x.12 _x.8;
+          cases _x.13 : Nat × Nat × Nat
+          | Decidable.isFalse x.14 =>
+            let _x.15 := Nat.add _x.8 head.6;
+            let _x.16 := @Prod.mk _ _ _x.10 z;
+            let _x.17 := @Prod.mk _ _ _x.15 _x.16;
+            let _x.18 := List.forIn'.loop._at_.Do._example.spec_0 as tail.7 _x.17 ◾;
+            return _x.18
+          | Decidable.isTrue x.19 =>
+            let _x.20 := Nat.add _x.8 _x.4;
+            let _x.21 := @Prod.mk _ _ _x.10 z;
+            let _x.22 := @Prod.mk _ _ _x.20 _x.21;
+            let _x.23 := List.forIn'.loop._at_.Do._example.spec_0 as tail.7 _x.22 ◾;
+            return _x.23;
+        let _x.24 := _x.9 # 1;
+        let _x.25 := instDecidableEqNat _x.8 _x.4;
+        let _x.26 := 20;
+        let _x.27 := Nat.decLt _x.8 _x.26;
+        cases _x.27 : Nat × Nat × Nat
+        | Decidable.isFalse x.28 =>
+          cases _x.25 : Nat × Nat × Nat
           | Decidable.isFalse x.29 =>
-            goto _jp.8 _x.21 _x.23 _x.24
+            goto _jp.11 _x.24
           | Decidable.isTrue x.30 =>
             let _x.31 := Nat.add _x.24 head.6;
-            goto _jp.8 _x.21 _x.23 _x.31
+            goto _jp.11 _x.31
         | Decidable.isTrue x.32 =>
-          let _x.33 := Nat.sub _x.23 _x.5;
+          let _x.33 := Nat.sub _x.10 _x.5;
           let _x.34 := @Prod.mk _ _ _x.33 _x.24;
-          let _x.35 := @Prod.mk _ _ _x.21 _x.34;
+          let _x.35 := @Prod.mk _ _ _x.8 _x.34;
           return _x.35
 -/
 #guard_msgs in
@@ -1042,23 +1041,23 @@ trace: [Elab.do] have x := 42;
     let __s ←
       forIn [1, 2, 3] x fun i __s =>
           let x_1 := __s;
-          have __do_jp := fun __r x_2 y_1 =>
-            have __do_jp := fun __r_1 x_3 y_2 =>
-              have __do_jp := fun __r_2 x_4 y_3 =>
+          have __do_jp := fun __r x_2 =>
+            have __do_jp := fun __r_1 x_3 =>
+              have __do_jp := fun __r_2 x_4 =>
                 have x := x_4 + i;
                 pure (ForInStep.yield x);
               if x_3 < 20 then
                 have x := x_3 - 2;
                 pure (ForInStep.done x)
-              else __do_jp PUnit.unit x_3 y_2;
+              else __do_jp PUnit.unit x_3;
             if x_2 > 10 then
               have x := x_2 + 3;
               pure (ForInStep.yield x)
-            else __do_jp PUnit.unit x_2 y_1;
+            else __do_jp PUnit.unit x_2;
           if x_1 = 3 then
             have x := x_1 + 1;
-            __do_jp PUnit.unit x y
-          else __do_jp PUnit.unit x_1 y
+            __do_jp PUnit.unit x
+          else __do_jp PUnit.unit x_1
     let x_1 : ?m.184 := __s
     pure (x_1 + x_1 + x_1 + x_1)
 -/
@@ -1136,20 +1135,20 @@ trace: [Elab.do] have x := 42;
     let __s ←
       forIn [1, 2, 3] (none, x) fun i __s =>
           let x_1 := __s.snd;
-          have __do_jp := fun __r x_2 =>
-            have __do_jp := fun __r_1 x_3 =>
-              have __do_jp := fun __r_2 x_4 =>
-                have x := x_4 + i;
+          have __do_jp := fun __r =>
+            have __do_jp := fun __r_1 x_2 =>
+              have __do_jp := fun __r_2 x_3 =>
+                have x := x_3 + i;
                 pure (ForInStep.yield (none, x));
-              if x_3 < 20 then
-                have x := x_3 * 2;
+              if x_2 < 20 then
+                have x := x_2 * 2;
                 pure (ForInStep.done (none, x))
-              else __do_jp PUnit.unit x_3;
-            if x_2 > 10 then
-              have x := x_2 + 3;
+              else __do_jp PUnit.unit x_2;
+            if x_1 > 10 then
+              have x := x_1 + 3;
               pure (ForInStep.yield (none, x))
-            else __do_jp PUnit.unit x_2;
-          if x_1 = 3 then pure (ForInStep.done (some x_1, x_1)) else __do_jp PUnit.unit x_1
+            else __do_jp PUnit.unit x_1;
+          if x_1 = 3 then pure (ForInStep.done (some x_1, x_1)) else __do_jp PUnit.unit
     let __r : Option ?m.182 := __s.fst
     let x_1 : ?m.182 := __s.snd
     match __r with
@@ -1408,7 +1407,7 @@ info: (have x := 42;
   let __s ←
     forIn [1, 2, 3] (none, x) fun i __s =>
         let x := __s.snd;
-        have __do_jp := fun __r x =>
+        have __do_jp := fun __r =>
           have __do_jp := fun __r x =>
             have __do_jp := fun __r x =>
               have x := x + i;
@@ -1421,7 +1420,7 @@ info: (have x := 42;
             have x := x + 3;
             pure (ForInStep.yield (none, x))
           else __do_jp PUnit.unit x;
-        if x = 3 then pure (ForInStep.done (some x, x)) else __do_jp PUnit.unit x
+        if x = 3 then pure (ForInStep.done (some x, x)) else __do_jp PUnit.unit
   let __r : Option Nat := __s.fst
   let x : Nat := __s.snd
   match __r with
@@ -1453,7 +1452,7 @@ info: (have x := 42;
   let __s ←
     forIn [1, 2, 3] (none, x) fun i __s =>
         let x := __s.snd;
-        have __do_jp := fun __r x =>
+        have __do_jp := fun __r =>
           have __do_jp := fun __r x =>
             have __do_jp := fun __r x =>
               have x := x + i;
@@ -1466,7 +1465,7 @@ info: (have x := 42;
             have x := x + 3;
             pure (ForInStep.yield (none, x))
           else __do_jp PUnit.unit x;
-        if x = 3 then pure (ForInStep.done (some x, x)) else __do_jp PUnit.unit x
+        if x = 3 then pure (ForInStep.done (some x, x)) else __do_jp PUnit.unit
   let __r : Option Nat := __s.fst
   let x : Nat := __s.snd
   match __r with
@@ -2297,20 +2296,20 @@ trace: [Elab.do] have x := 42;
     let __s ←
       forIn [1, 2, 3] (none, x) fun i __s =>
           let x_1 := __s.snd;
-          have __do_jp := fun __r x_2 =>
-            have __do_jp := fun __r_1 x_3 =>
-              have __do_jp := fun __r_2 x_4 =>
-                have x := x_4 + i;
+          have __do_jp := fun __r =>
+            have __do_jp := fun __r_1 x_2 =>
+              have __do_jp := fun __r_2 x_3 =>
+                have x := x_3 + i;
                 pure (ForInStep.yield (none, x));
-              if x_3 < 20 then
-                have x := x_3 * 2;
+              if x_2 < 20 then
+                have x := x_2 * 2;
                 pure (ForInStep.done (none, x))
-              else __do_jp PUnit.unit x_3;
-            if x_2 > 10 then
-              have x := x_2 + 3;
+              else __do_jp PUnit.unit x_2;
+            if x_1 > 10 then
+              have x := x_1 + 3;
               pure (ForInStep.yield (none, x))
-            else __do_jp PUnit.unit x_2;
-          if x_1 = 3 then pure (ForInStep.done (some x_1, x_1)) else __do_jp PUnit.unit x_1
+            else __do_jp PUnit.unit x_1;
+          if x_1 = 3 then pure (ForInStep.done (some x_1, x_1)) else __do_jp PUnit.unit
     let __r : Option ?m.182 := __s.fst
     let x_1 : ?m.182 := __s.snd
     match __r with

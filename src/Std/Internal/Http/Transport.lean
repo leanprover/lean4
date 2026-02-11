@@ -42,6 +42,11 @@ class Transport (α : Type) where
   -/
   recvSelector : α → UInt64 → Selector (Option ByteArray)
 
+  /--
+  Close the transport connection. This is a no-op for socket-based transports.
+  -/
+  close : α → IO Unit := fun _ => pure ()
+
 instance : Transport Socket.Client where
   recv client expect := client.recv? expect
   sendAll client data := client.sendAll data
@@ -216,16 +221,24 @@ def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option Byt
       | some chunk => result := result ++ chunk
     return some result
 
+/--
+Close the mock server, closing the client to server direction.
+-/
+def close (server : Mock.Server) : IO Unit := do
+  server.shared.clientToServer.close
+
 end Mock.Server
 
 instance : Transport Mock.Client where
   recv client expect := Mock.recvJoined (Mock.Client.getRecvChan client) (some expect)
   sendAll client data := Mock.sendAll (Mock.Client.getSendChan client) data
   recvSelector client _ := Mock.recvSelector (Mock.Client.getRecvChan client)
+  close client := client.close
 
 instance : Transport Mock.Server where
   recv server expect := Mock.recvJoined (Mock.Server.getRecvChan server) (some expect)
   sendAll server data := Mock.sendAll (Mock.Server.getSendChan server) data
   recvSelector server _ := Mock.recvSelector (Mock.Server.getRecvChan server)
+  close server := server.close
 
 end Std.Http

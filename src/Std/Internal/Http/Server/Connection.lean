@@ -40,6 +40,9 @@ public structure RemoteAddr where
   addr : Net.SocketAddress
 deriving TypeName
 
+instance : ToString RemoteAddr where
+  toString addr := toString addr.addr.ipAddr ++ ":" ++ toString addr.addr.port
+
 /--
 A single HTTP connection.
 -/
@@ -60,7 +63,6 @@ public structure Connection (α : Type) where
   extensions : Extensions := .empty
 
 namespace Connection
-
 
 instance : Repr (Response t) where
   reprPrec t := reprPrec t.head
@@ -298,6 +300,8 @@ private def handle
   if let some res := respStream then
     if ¬(← res.isClosed) then
       res.close
+
+  Transport.close socket
 
 end Connection
 

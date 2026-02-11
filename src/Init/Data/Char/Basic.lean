@@ -168,6 +168,8 @@ def toUpper (c : Char) : Char :=
   else
     c
 where finally
+  -- This expression is a ground non-value; generalize for better
+  -- control on where it is evaluated.
   generalize hx : 'A'.val - 'a'.val = x
   have h₁ : 2^32 ≤ c.val.toNat + x.toNat :=
     @Nat.add_le_add 'a'.val.toNat _ (2^32 - 'a'.val.toNat) _ h.1 (by rw [← hx]; decide)

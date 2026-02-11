@@ -21,14 +21,14 @@ open Std.Internal Std.Iterators
 theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     {it₁ : IterM (α := α) m (IterM (α := α₂) m β)} {it₂ : Option (IterM (α := α₂) m β)} :
-  (it₁.flattenAfter it₂).step = (do
+  (it₁.flattenAfter it₂).step = (
     match it₂ with
-    | none =>
+    | none => do
       match (← it₁.step).inflate with
       | .yield it₁' it₂' h => return .deflate (.skip (it₁'.flattenAfter (some it₂')) (.outerYield h))
       | .skip it₁' h => return .deflate (.skip (it₁'.flattenAfter none) (.outerSkip h))
       | .done h => return .deflate (.done (.outerDone h))
-    | some it₂ =>
+    | some it₂ => do
       match (← it₂.step).inflate with
       | .yield it₂' out h => return .deflate (.yield (it₁.flattenAfter (some it₂')) out (.innerYield h))
       | .skip it₂' h => return .deflate (.skip (it₁.flattenAfter (some it₂')) (.innerSkip h))
@@ -130,16 +130,16 @@ public theorem IterM.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Typ
     {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] {f : β → m (IterM (α := α₂) m γ)} {it₁ : IterM (α := α) m β}
     {it₂ : Option (IterM (α := α₂) m γ)} :
-  (it₁.flatMapAfterM f it₂).step = (do
+  (it₁.flatMapAfterM f it₂).step = (
     match it₂ with
-    | none =>
+    | none => do
       match (← it₁.step).inflate with
       | .yield it₁' b h =>
         let fx ← MonadAttach.attach (f b)
         return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (.outerYield_flatMapM h fx.property))
       | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (.outerSkip_flatMapM h))
       | .done h => return .deflate (.done (.outerDone_flatMapM h))
-    | some it₂ =>
+    | some it₂ => do
       match (← it₂.step).inflate with
       | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (.innerYield_flatMapM h))
       | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (.innerSkip_flatMapM h))
@@ -171,15 +171,15 @@ public theorem IterM.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
 public theorem IterM.step_flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] [Iterator α₂ m γ]
     {f : β → IterM (α := α₂) m γ} {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
-  (it₁.flatMapAfter f it₂).step = (do
+  (it₁.flatMapAfter f it₂).step = (
     match it₂ with
-    | none =>
+    | none => do
       match (← it₁.step).inflate with
       | .yield it₁' b h =>
         return .deflate (.skip (it₁'.flatMapAfter f (some (f b))) (.outerYield_flatMap h))
       | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfter f none) (.outerSkip_flatMap h))
       | .done h => return .deflate (.done (.outerDone_flatMap h))
-    | some it₂ =>
+    | some it₂ => do
       match (← it₂.step).inflate with
       | .yield it₂' out h => return .deflate (.yield (it₁.flatMapAfter f (some it₂')) out (.innerYield_flatMap h))
       | .skip it₂' h => return .deflate (.skip (it₁.flatMapAfter f (some it₂')) (.innerSkip_flatMap h))

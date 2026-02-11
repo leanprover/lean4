@@ -52,14 +52,17 @@ ${LEAN_EXTRA_LAKEFILE_TOML}
 [[lean_lib]]
 name = "Init"
 defaultFacets = ["static", "static.export"]
+leanOptions = { backward.do.legacy = false }
 
 [[lean_lib]]
 name = "Std"
 defaultFacets = ["static", "static.export"]
+leanOptions = { backward.do.legacy = false }
 
 [[lean_lib]]
 name = "Lean"
 defaultFacets = ["static", "static.export"]
+leanOptions = { backward.do.legacy = false }
 globs = [
   # Library root
   "Lean",
@@ -75,11 +78,13 @@ srcDir = "lake"
 # Build Lake and all its submodules (which may not be imported elsewhere)
 globs = ["Lake.*"]
 defaultFacets = ["static", "static.export"]
+leanOptions = { backward.do.legacy = false }
 
 [[lean_lib]]
 name = "LakeMain"
 srcDir = "lake"
 defaultFacets = ["static.export"]
+leanOptions = { backward.do.legacy = false }
 
 [[lean_lib]]
 name = "Leanc"

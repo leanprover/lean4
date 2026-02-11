@@ -157,7 +157,7 @@ where
     while !isDone ctx do
       let ((name, _), ctx') := getNextParam ctx
       ctx := ctx'
-      if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
+      if let some idx := ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
         ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
                           usedNames := ctx.usedNames.insert name }
     if h : !ctx.namedArgs.isEmpty then

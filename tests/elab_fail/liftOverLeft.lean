@@ -1,3 +1,4 @@
+set_option backward.do.legacy false
 def foo1 : IO Unit := do
   let f (x : IO.Ref Nat) : IO Nat :=
     pure ((← x.get) + 1)

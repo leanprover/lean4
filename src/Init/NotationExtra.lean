@@ -24,10 +24,10 @@ syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unb
 
 open TSyntax.Compat in
 meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
-  let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
+  let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) :=
     match i with
     | 0   => pure acc
-    | i + 1 =>
+    | i + 1 => do
       let ident := idents[i][0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
@@ -38,10 +38,10 @@ meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) 
   loop idents.size (by simp) body
 
 meta def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
-  let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
+  let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) :=
     match i with
     | 0   => pure acc
-    | i+1 =>
+    | i+1 => do
       let idents := binders[i][1].getArgs
       let type   := binders[i][3]
       loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)

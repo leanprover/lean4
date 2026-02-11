@@ -1,5 +1,6 @@
 import Lean.Hygiene
 import Lean.Exception
+set_option backward.do.legacy false
 open Lean
 
 def bar : StateT Nat Unhygienic Syntax.Term := do modify (· + 1); `("hi")

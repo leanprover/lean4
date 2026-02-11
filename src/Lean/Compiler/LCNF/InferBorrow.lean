@@ -15,6 +15,33 @@ import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.PhaseExt
 
+/-!
+This pass is responsible for inferring borrow annotations to the parameters of functions and join
+points. When a parameter is marked as borrowed, the caller can be sure that the function will not
+decrement the reference count of the parameter. Thus, if the value is still used after the call, the
+caller does not need to `inc` it before calling in order to ensure that it stays alive.
+
+The inference is done with a data flow analysis which initially assumes all arguments are passed as
+borrowed and subsequently refines this by marking parameters as owned as required and propagating
+the information throughout the program. The analysis has two reasons for marking a parameter as owned.
+Some parameters need to be owned for correctness, while others are heuristically marked as owned to
+reduce reference counting pressure inside of the function.
+
+The correctness ones are the following:
+- We preserve tail calls to recursive functions and join points by ensuring we never have to insert
+  a `dec` after a tail call. This is done by marking parameters of tail-called functions/jps as owned
+  if a respective argument at a call site is owned.
+- We ensure that values which are subject to reset-reuse are owned so their reference count
+  accurately reflects the real amount of references.
+
+For performance we:
+- propagate through annotations of functions that we call. That is if we call another function `f`
+  which has an owned parameter we ensure that the argument we are passing is owned as well. In
+  particular when `f` is partially applied we ensure that all arguments are owned.
+- When passing a parameter into a constructor we ensure it is passed as owned so we do not have
+  to `inc` before calling the constructor.
+-/
+
 namespace Lean.Compiler.LCNF
 
 open ImpureType

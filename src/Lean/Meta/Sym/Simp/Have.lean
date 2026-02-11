@@ -84,7 +84,7 @@ We produce:
 
 where each `xᵢ'` has type `deps_type → Tᵢ` and `b'` contains applications `xᵢ' (deps)`.
 -/
-structure ToBetaAppResult where
+public structure ToBetaAppResult where
   /-- Type of the input `have`-expression. -/
   α : Expr
   /-- The universe level of `α`. -/
@@ -147,7 +147,7 @@ For each `have xᵢ := vᵢ` where `vᵢ` depends on `xᵢ₁, ..., xᵢₖ` (ak
 
 The proof is `rfl` since the transformation is definitionally equal.
 -/
-def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
+public def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
   go haveExpr #[] #[] #[] #[] #[] #[] {}
 where
   /--

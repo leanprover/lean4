@@ -296,6 +296,10 @@ protected abbrev Pos.Raw.min (p₁ p₂ : Pos.Raw) : Pos.Raw :=
 def Pos.Raw.Internal.minImpl (p₁ p₂ : Pos.Raw) : Pos.Raw :=
   Pos.Raw.min p₁ p₂
 
+theorem Pos.Raw.unoffsetBy_lt_unoffsetBy_of_le_of_lt {p₁ p₂ p₃ : Pos.Raw} :
+    p₁ < p₂ → p₁ < p₃ → p₂.unoffsetBy p₃ < p₂.unoffsetBy p₁ := by
+  simpa [Pos.Raw.lt_iff] using Nat.sub_lt_sub_left
+
 namespace Pos.Raw
 
 theorem byteIdx_mk (n : Nat) : byteIdx ⟨n⟩ = n := rfl

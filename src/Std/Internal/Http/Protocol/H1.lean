@@ -148,7 +148,9 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 
 private def checkMessageHead (message : Message.Head dir) : Option Body.Length := do
   match dir with
-  | .receiving => guard (message.headers.get? Header.Name.host |>.isSome)
+  | .receiving => do
+    let headers ← message.headers.getAll? Header.Name.host
+    guard (headers.size = 1)
   | .sending => pure ()
 
   if let .receiving := dir then

@@ -369,21 +369,19 @@ instance : ForIn ContextAsync Stream Chunk where
   forIn := Std.Http.Body.Stream.forIn'
 
 /--
-Reads all remaining chunks from the stream and returns their concatenated data as a `ByteArray`.
-Blocks until the stream is closed.
+Reads all remaining chunks from the stream and returns the concatenated data decoded as type `α`
+using `FromByteArray`. Blocks until the stream is closed. Throws an `IO.Error` if the conversion
+fails.
 -/
-partial def readAll (stream : Stream) : ContextAsync ByteArray := do
+partial def readAllAs [FromByteArray α] (stream : Stream) : ContextAsync α := do
   let mut result := ByteArray.empty
+
   for chunk in stream do
     result := result ++ chunk.data
-  return result
 
-/--
-Reads all remaining chunks from the stream and returns their concatenated data as a `String`.
-Blocks until the stream is closed. The data is interpreted as UTF-8.
--/
-partial def readAllString (stream : Stream) : ContextAsync String := do
-  return String.fromUTF8! (← stream.readAll)
+  match FromByteArray.fromByteArray (α := α) result with
+  | .ok a => return a
+  | .error msg => throw (.userError msg)
 
 end Std.Http.Body.Stream
 

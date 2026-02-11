@@ -16,23 +16,9 @@ namespace Lake
 public def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
-/--
-Remove the file at `path`.
-Also removes read-only files on Windows, unlike `IO.FS.removeFile`.
--/
-def removeFile (path : FilePath) : IO Unit := do
-  try IO.FS.removeFile path catch
-    | e@(.permissionDenied ..) =>
-      if Platform.isWindows then
-        let rw := {read := true, write := true}
-        IO.setAccessRights path ⟨rw, rw, rw⟩
-        IO.FS.removeFile path
-      else throw e
-    | e => throw e
-
 /-- Remove the file at `path` if it exists. -/
 public def removeFileIfExists (path : FilePath) : IO Unit := do
-  try removeFile path catch
+  try IO.FS.removeFile path catch
     | .noFileOrDirectory .. => pure ()
     | e => throw e
 

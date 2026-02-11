@@ -61,8 +61,10 @@ test_run build test:exe Test:static Test:shared \
 test_cached() {
   target="$1"; shift
   art="$($LAKE query $target)"
-  echo "${1:-?} artifact cached: $target -> $art"
+  hardlinks="$(stat_ch "$art")"
+  echo "${1:-?} artifact cached (links: $hardlinks): $target -> $art"
   test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
+  test $hardlinks -gt 1 # check that the cached artifact is hard linked
 }
 test_cached test:exe !
 test_cached Test:static !

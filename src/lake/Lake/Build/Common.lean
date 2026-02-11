@@ -454,8 +454,11 @@ public def Cache.saveArtifact
     let descr := artifactWithExt hash ext
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
-    IO.FS.writeFile cacheFile normalized
+    -- make the local file unwritable where possible to discourage users from
+    -- writing to such paths as this can corrupt the cache if the file was hard linked
     let r := {read := true, write := false, execution := false}
+    IO.setAccessRights file ⟨r, r, r⟩
+    IO.FS.writeFile cacheFile normalized
     IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
@@ -467,15 +470,19 @@ public def Cache.saveArtifact
     let descr := artifactWithExt hash ext
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
-    IO.FS.writeBinFile cacheFile contents
+    -- make the local file unwritable where possible to discourage users from
+    -- writing to such paths as this can corrupt the cache if the file is hard linked
     let r := {read := true, write := false, execution := exe}
-    IO.setAccessRights cacheFile ⟨r, r, r⟩
+    IO.setAccessRights file ⟨r, r, r⟩
+    if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
+      IO.FS.writeBinFile cacheFile contents
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
     let path := if useLocalFile then file else cacheFile
     return {descr, name := file.toString, path, mtime}
 
-@[inline,  inherit_doc Cache.saveArtifact]
+@[inline, inherit_doc Cache.saveArtifact]
 public def cacheArtifact
   [MonadWorkspace m] [MonadLiftT IO m] [Monad m]
   (file : FilePath) (ext := "art") (text exe useLocalFile := false)

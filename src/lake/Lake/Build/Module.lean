@@ -630,7 +630,7 @@ instance
   [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
 : ResolveOutputs m ModuleOutputArtifacts := ⟨resolveModuleOutputs?⟩
 
-/-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
+/-- Save module build artifacts to the local Lake cache. -/
 private def Module.cacheOutputArtifacts
   (mod : Module)  (isModule : Bool) (useLocalFile : Bool)
 : JobM ModuleOutputArtifacts := do
@@ -645,6 +645,7 @@ private def Module.cacheOutputArtifacts
   }
 where
   @[inline] cache file ext := do
+    -- `text` is always `false` because Lean produces LF-only `.ir` and `.c`
     cacheArtifact file ext (useLocalFile := useLocalFile)
   @[inline] cacheIf? c art ext := do
     if c then return some (← cache art ext) else return none

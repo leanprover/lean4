@@ -437,6 +437,14 @@ theorem isLE_compareOfLessAndEq
     · exact Or.inr <| antisymm hle hge
     · exact Or.inl <| not_le.mp hge
 
+theorem isGE_compareOfLessAndEq
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
+    (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
+    (compareOfLessAndEq x y).isGE ↔ y ≤ x := by
+  rw [compareOfLessAndEq_eq_swap antisymm total not_le, Ordering.isGE_swap,
+    isLE_compareOfLessAndEq antisymm not_le total]
+
 end Lemmas
 
 /--

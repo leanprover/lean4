@@ -69,6 +69,27 @@ public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrde
   rw [LawfulOrderBEq.beq_iff_le_and_ge, ← isLE_compare, ← isGE_compare]
   cases compare a b <;> simp
 
+public theorem compare_ne_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
+    {a b : α} :
+    compare a b ≠ .eq ↔ ¬ a == b := by
+  simp [compare_eq_eq]
+
+public theorem compare_ne_eq_iff_ne {α : Type u} [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b ≠ .eq ↔ a ≠ b := by
+  simp
+
+grind_pattern compare_eq_lt => compare a b, Ordering.lt where
+  guard compare a b = .lt
+
+grind_pattern compare_eq_eq => compare a b, Ordering.eq where
+  guard compare a b = .eq
+
+grind_pattern compare_eq_gt => compare a b, Ordering.gt where
+  guard compare a b = .gt
+
+grind_pattern compare_ne_eq => compare a b, Ordering.eq where
+  guard compare a b ≠ .eq
+
 /--
 Creates a `DecidableLT α` instance using a well-behaved `Ord α` instance.
 -/

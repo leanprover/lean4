@@ -159,12 +159,6 @@ partial def infer (decls : Array (Decl .impure)) : CompilerM ParamMap := do
 where
   go : InferM Unit := do
     step
-    trace[Compiler.inferBorrow] m!"{(← get).paramMap.toArray.map (fun (k, v) =>
-      let k :=
-        match k with
-        | .decl n => s!"{n}"
-        | .jp n id => s!"{n} {id.name}"
-      s!"{k}, {v.map Param.borrow}")}"
     if (← get).modified then
       modify fun s => { s with modified := false }
       go

@@ -130,9 +130,18 @@ theorem denote_blastextractAndExtend
       · rw [dite_cond_eq_false (by simp [hidx'])]
         rw [denote_blastExtractAndExtend (xc := xc) (x := x)]
         · simp at hidx'
-          sorry
-          -- rw [BitVec.getLsbD_extractAndExtend_of_le_of_lt (hlt := hidx) (hle := hidx') (_hcurr := by omega)]
-          -- omega
+          rw [BitVec.getLsbD_extractAndExtend (by omega)]
+          simp only
+          congr
+          · rw [← @Nat.div_eq_sub_mod_div]
+            refine Eq.symm (Nat.div_eq_of_lt_le ?_ ?_)
+            · rw [Nat.mul_comm]; omega
+            · rw [Nat.mul_comm]; omega
+          · rw [Nat.mod_def]
+            suffices hs : currIdx = idx / w by simp [hs]
+            refine Eq.symm (Nat.div_eq_of_lt_le ?_ ?_)
+            · rw [Nat.mul_comm]; omega
+            · rw [Nat.mul_comm]; omega
         · intros j hj
           apply hx
     · intros i hi

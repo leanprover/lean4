@@ -793,7 +793,7 @@ protected theorem ne_of_gt {a b : Rat} (ha : a < b) : b ≠ a :=
 protected theorem lt_of_le_of_ne {a b : Rat} (ha : a ≤ b) (hb : a ≠ b) : a < b :=
   Rat.not_le.mp fun h => hb (Rat.le_antisymm ha h)
 
-protected theorem lt_iff_le_not_le {a b : Rat} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+protected theorem lt_iff_le_and_not_ge {a b : Rat} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
   simpa [Rat.le_iff, Rat.lt_iff] using Int.le_of_lt
 
 protected theorem lt_iff_le_and_ne {a b : Rat} : a < b ↔ a ≤ b ∧ a ≠ b := by
@@ -817,10 +817,10 @@ protected theorem add_le_add_right {a b c : Rat} : a + c ≤ b + c ↔ a ≤ b :
   rw [Rat.add_comm _ c, Rat.add_comm _ c, Rat.add_le_add_left]
 
 protected theorem add_lt_add_left {a b c : Rat} : c + a < c + b ↔ a < b := by
-  simp [Rat.lt_iff_le_not_le, Rat.add_le_add_left]
+  simp [Rat.lt_iff_le_and_not_ge, Rat.add_le_add_left]
 
 protected theorem add_lt_add_right {a b c : Rat} : a + c < b + c ↔ a < b := by
-  simp [Rat.lt_iff_le_not_le, Rat.add_le_add_right]
+  simp [Rat.lt_iff_le_and_not_ge, Rat.add_le_add_right]
 
 protected theorem lt_iff_sub_pos (a b : Rat) : a < b ↔ 0 < b - a := by
   simp only [← Rat.not_le]
@@ -1315,7 +1315,7 @@ theorem Rat.abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
   rw [Rat.abs, if_pos h]
 
 theorem Rat.abs_of_nonpos {x : Rat} (h : x ≤ 0) :
-    x.abs = - x := by
+    x.abs = -x := by
   rw [Rat.abs]
   split
   · simp [show x = 0 from Rat.le_antisymm ‹_› ‹_›]

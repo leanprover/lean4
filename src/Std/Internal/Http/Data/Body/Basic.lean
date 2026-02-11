@@ -38,4 +38,24 @@ instance : ToByteArray ByteArray where
 instance : ToByteArray String where
   toByteArray := String.toUTF8
 
+/--
+Typeclass for types that can be decoded from a `ByteArray`. The conversion may fail with an error
+message if the bytes are not valid for the target type.
+-/
+class FromByteArray (α : Type) where
+
+  /--
+  Attempts to decode a `ByteArray` into the target type, returning an error message on failure.
+  -/
+  fromByteArray : ByteArray → Except String α
+
+instance : FromByteArray ByteArray where
+  fromByteArray := .ok
+
+instance : FromByteArray String where
+  fromByteArray bs :=
+    match String.fromUTF8? bs with
+    | some s => .ok s
+    | none => .error "invalid UTF-8 encoding"
+
 end Std.Http.Body

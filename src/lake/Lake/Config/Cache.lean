@@ -212,7 +212,7 @@ public structure Cache where
   deriving Inhabited
 
 /-- The current version of the output file format. -/
-def CacheOutput.schemaVersion : String := "2026-01-22"
+def CacheOutput.schemaVersion : String := "2026-02-10"
 
 structure CacheOutput where
   service? : Option String := none
@@ -238,12 +238,8 @@ protected def fromJson? (json : Json) : Except String CacheOutput := do
       let service? ← obj.get? "service"
       let data ← obj.get "data"
       return {service?, data}
-    else
-      -- old format: just the data
-      return {data := json}
-  else
-    -- old format: just the data
-    return {data := json}
+  -- old format: just the data
+  return {data := json}
 
 instance : FromJson CacheOutput := ⟨CacheOutput.fromJson?⟩
 
@@ -304,8 +300,8 @@ def writeOutputsCore
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
-  let out:= {service?, data := outputs : CacheOutput}
-  IO.FS.writeFile file (toJson out).compress
+  let out := {service?, data := outputs : CacheOutput}
+  IO.FS.writeFile file (toJson out).pretty
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs

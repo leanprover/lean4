@@ -120,6 +120,11 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       let res := .rejected pos (pos.next h)
       pure (.deflate ⟨.yield ⟨.emptyBefore (pos.next h)⟩ res, by simp⟩)
     | .proper needle table htable stackPos needlePos hn =>
+      -- The code that follows is verified in `Init.Data.String.lemmas.Pattern.String.KMP`. There it
+      -- is shown that all of the `pos!` invocations do not panic and that the code correctly
+      -- searches the stack for the needle.
+      --
+      -- To make the code easier to follow, we document the invariants already here.
       -- **Invariant 1:** we have already covered everything up until `stackPos - needlePos` (exclusive),
       -- with matches and rejections.
       -- **Invariant 2:** `stackPos - needlePos` is a valid position
@@ -181,7 +186,9 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                   simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂ hnp
                   omega⟩⟩)
             else
+              -- Safety: by invariant 2
               let oldBasePos := s.pos! (stackPos.unoffsetBy needlePos)
+              -- Safety : by invariant 2 and the definition of the prefix table
               let newBasePos := s.pos! (stackPos.unoffsetBy ⟨newNeedlePos⟩)
               let res := .rejected oldBasePos newBasePos
               -- Invariants still satisfied by definition of the prefix table
@@ -203,6 +210,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       else
         if stackPos.unoffsetBy needlePos < s.rawEndPos then
           let basePos := stackPos.unoffsetBy needlePos
+          -- Safety: by invariant 2
           let res := .rejected (s.pos! basePos) s.endPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩)
         else

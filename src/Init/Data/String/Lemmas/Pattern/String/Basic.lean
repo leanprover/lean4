@@ -106,8 +106,10 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
       simp only [Pos.Raw.byteIdx_increaseBy, size_toByteArray, utf8ByteSize_copy,
         ByteArray.size_extract, gt_iff_lt] at this ⊢ hj
       omega
-  · suffices s.copy.toByteArray.extract pos.offset.byteIdx (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
-      have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1 (this ▸ pat.copy.isValidUTF8)).resolve_left ?_).2
+  · suffices s.copy.toByteArray.extract pos.offset.byteIdx
+        (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
+      have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1
+        (this ▸ pat.copy.isValidUTF8)).resolve_left ?_).2
       · exact ⟨by simpa using h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
       · simp [Pos.Raw.le_iff]
       · simpa [Pos.Raw.le_iff] using h₁
@@ -120,28 +122,6 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
 theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
     (h' : MatchesAt pat pos) : pos.offset.increaseBy pat.utf8ByteSize ≤ s.rawEndPos := by
   simpa [Pos.Raw.le_iff] using ((matchesAt_iff_getElem h).1 h').1
-
--- TODO: clean up this proof
--- theorem matchesAt_iff_extract {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
---     MatchesAt pat pos ↔
---       s.copy.toByteArray.extract pos.offset.byteIdx (pos.offset.byteIdx + pat.utf8ByteSize)
---         = pat.copy.toByteArray := by
---   rw [matchesAt_iff_exists_isLongestMatchAt]
---   refine ⟨fun ⟨endPos, h'⟩ => ?_, fun h' => ?_⟩
---   · have := byteIdx_offset_of_isLongestMatchAt h h'
---     rwa [isLongestMatchAt_iff_extract h, this] at h'
---   · suffices (pos.offset.increaseBy pat.utf8ByteSize).IsValidForSlice s by
---       refine ⟨s.pos _ this, by simpa [isLongestMatchAt_iff_extract h]⟩
---     have := h' ▸ pat.copy.isValidUTF8
---     rw [Pos.Raw.isValidUTF8_extract_iff _ _ (by simp [Pos.Raw.le_iff])] at this
---     · refine Pos.Raw.isValid_copy_iff.1 (this.resolve_left ?_).2
---       simpa [Pos.Raw.ext_iff, ← Slice.isEmpty_iff]
---     · replace h' := congrArg ByteArray.size h'
---       simp only [ByteArray.size_extract, size_toByteArray, utf8ByteSize_copy] at h'
---       simp [Pos.Raw.le_iff]
---       have := pos.le_endPos
---       simp [Pos.Raw.le_iff, Pos.le_iff] at this
---       omega
 
 end ForwardSliceSearcher
 

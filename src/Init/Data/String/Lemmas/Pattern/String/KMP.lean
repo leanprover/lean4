@@ -63,7 +63,8 @@ theorem partialMatch_add_one_add_one_iff {pat s : ByteArray} {stackPos needlePos
 
 theorem PartialMatch.partialMatch_of_le {pat s : ByteArray} {stackPos needlePos : Nat}
     (h : PartialMatch pat s needlePos stackPos) (newStackPos : Nat) (h' : newStackPos ≤ stackPos)
-    (h'' : stackPos - newStackPos ≤ needlePos) : PartialMatch pat s (needlePos - (stackPos - newStackPos)) newStackPos := by
+    (h'' : stackPos - newStackPos ≤ needlePos) :
+    PartialMatch pat s (needlePos - (stackPos - newStackPos)) newStackPos := by
   rcases h with ⟨h₀, h₁, h₂, h₃⟩
   refine ⟨by omega, by omega, by omega, fun j hj => ?_⟩
   rw [h₃ j (by omega)]
@@ -146,7 +147,8 @@ where go (k : Nat) : Nat :=
     go (k - 1)
 
 theorem prefixFunction.le_go_iff {pat : ByteArray} {stackPos : Nat} {hst : stackPos < pat.size} {k k'} :
-    k ≤ prefixFunction.go pat stackPos hst k' ↔ ∃ k'', k ≤ k'' ∧ k'' ≤ k' ∧ PartialMatch pat pat k'' (stackPos + 1) := by
+    k ≤ prefixFunction.go pat stackPos hst k' ↔
+      ∃ k'', k ≤ k'' ∧ k'' ≤ k' ∧ PartialMatch pat pat k'' (stackPos + 1) := by
   fun_induction go with
   | case1 k' h =>
     exact ⟨fun h' => ⟨k', h', Std.le_refl _, h⟩, fun ⟨k'', h₁, h₂, _⟩ => Std.le_trans h₁ h₂⟩
@@ -157,24 +159,30 @@ theorem prefixFunction.le_go_iff {pat : ByteArray} {stackPos : Nat} {hst : stack
     exact ⟨k'', h₀, by omega, h₂⟩
 
 theorem le_prefixFunction_iff {pat : ByteArray} {stackPos : Nat} {hst : stackPos < pat.size} :
-    k ≤ prefixFunction pat stackPos hst ↔ ∃ k', k ≤ k' ∧ k' ≤ stackPos ∧ PartialMatch pat pat k' (stackPos + 1) := by
+    k ≤ prefixFunction pat stackPos hst ↔
+      ∃ k', k ≤ k' ∧ k' ≤ stackPos ∧ PartialMatch pat pat k' (stackPos + 1) := by
   rw [prefixFunction, prefixFunction.le_go_iff]
 
 theorem prefixFunction_le_iff {pat : ByteArray} {stackPos : Nat} {hst : stackPos < pat.size} :
-    prefixFunction pat stackPos hst ≤ k ↔ ∀ k', k < k' → k' ≤ stackPos → ¬ PartialMatch pat pat k' (stackPos + 1) := by
+    prefixFunction pat stackPos hst ≤ k ↔
+      ∀ k', k < k' → k' ≤ stackPos → ¬ PartialMatch pat pat k' (stackPos + 1) := by
   rw [Nat.le_iff_lt_add_one, ← Std.not_le, le_prefixFunction_iff]
   simp [Nat.le_iff_lt_add_one]
 
 theorem prefixFunction_eq_iff {pat : ByteArray} {stackPos : Nat} {hst : stackPos < pat.size} :
     prefixFunction pat stackPos hst = k ↔
-      k ≤ stackPos ∧ PartialMatch pat pat k (stackPos + 1) ∧ ∀ k', k < k' → k' ≤ stackPos → ¬ PartialMatch pat pat k' (stackPos + 1) := by
-  rw [← Std.le_antisymm_iff, le_prefixFunction_iff, prefixFunction_le_iff, and_comm, ← and_assoc, and_congr_left_iff]
-  refine fun h => ⟨fun ⟨k', h₀, h₁, h₂⟩ => ⟨by omega, ?_⟩, fun ⟨h'₁, h'₂⟩ => ⟨_, Nat.le_refl _, h'₁, h'₂⟩⟩
+      k ≤ stackPos ∧ PartialMatch pat pat k (stackPos + 1) ∧ ∀
+        k', k < k' → k' ≤ stackPos → ¬ PartialMatch pat pat k' (stackPos + 1) := by
+  rw [← Std.le_antisymm_iff, le_prefixFunction_iff, prefixFunction_le_iff, and_comm,
+    ← and_assoc, and_congr_left_iff]
+  refine fun h =>
+    ⟨fun ⟨k', h₀, h₁, h₂⟩ => ⟨by omega, ?_⟩, fun ⟨h'₁, h'₂⟩ => ⟨_, Nat.le_refl _, h'₁, h'₂⟩⟩
   suffices ¬ k < k' by (obtain rfl : k = k' := by omega); assumption
   exact fun h' => h _ h' h₁ h₂
 
 theorem PartialMatch.le_prefixFunction {pat : ByteArray} {stackPos needlePos : Nat}
-    (h : PartialMatch pat pat needlePos stackPos) (h₀ : 0 < stackPos) (h₁ : needlePos ≤ stackPos - 1) :
+    (h : PartialMatch pat pat needlePos stackPos) (h₀ : 0 < stackPos)
+    (h₁ : needlePos ≤ stackPos - 1) :
     needlePos ≤ prefixFunction pat (stackPos - 1) (by have := h.stackPos_le_size; omega) := by
   rw [le_prefixFunction_iff]
   exact ⟨needlePos, Nat.le_refl _, h₁, by rwa [Nat.sub_add_cancel (by omega)]⟩
@@ -183,7 +191,8 @@ theorem partialMatch_prefixFunction (pat : ByteArray) (stackPos : Nat) (hst) :
     PartialMatch pat pat (prefixFunction pat stackPos hst) (stackPos + 1) :=
   (prefixFunction_eq_iff.1 rfl).2.1
 
-theorem partialMatch_prefixFunction_sub_one {pat : ByteArray} {stackPos : Nat} {hst} (h : 0 < stackPos) :
+theorem partialMatch_prefixFunction_sub_one {pat : ByteArray} {stackPos : Nat} {hst}
+    (h : 0 < stackPos) :
     PartialMatch pat pat (prefixFunction pat (stackPos - 1) hst) stackPos := by
   rw (occs := [2]) [(by omega : stackPos = stackPos - 1 + 1)]
   exact partialMatch_prefixFunction ..
@@ -197,7 +206,8 @@ theorem prefixFunction_sub_one_lt {pat : ByteArray} {stackPos : Nat} {hst} (h : 
   have := prefixFunction_le (hst := hst)
   omega
 
-theorem prefixFunction_le_prefixFunction_sub_one_add_one {pat : ByteArray} {stackPos : Nat} {hst} (h₀ : 0 < stackPos) :
+theorem prefixFunction_le_prefixFunction_sub_one_add_one {pat : ByteArray} {stackPos : Nat} {hst}
+    (h₀ : 0 < stackPos) :
     prefixFunction pat stackPos hst ≤ prefixFunction pat (stackPos - 1) (by omega) + 1 := by
   rw [prefixFunction_le_iff]
   refine fun k hk hk' hpart => ?_
@@ -225,8 +235,9 @@ def prefixFunctionRecurrence (pat : ByteArray) (stackPos : Nat) (hst : stackPos 
 theorem prefixFunction_zero {b hi} : prefixFunction b 0 hi = 0 :=
   Nat.le_zero.1 prefixFunction_le
 
-theorem prefixFunctionRecurrence_eq_prefixFunction {pat : ByteArray} {stackPos : Nat} {hst : stackPos < pat.size}
-    {guess : Nat} {hg : guess < stackPos} (h : prefixFunction pat stackPos (by omega) ≤ guess + 1)
+theorem prefixFunctionRecurrence_eq_prefixFunction {pat : ByteArray} {stackPos : Nat}
+    {hst : stackPos < pat.size} {guess : Nat} {hg : guess < stackPos}
+    (h : prefixFunction pat stackPos (by omega) ≤ guess + 1)
     (hpa : PartialMatch pat pat guess stackPos) :
     prefixFunctionRecurrence pat stackPos hst guess hg = prefixFunction pat stackPos hst := by
   fun_induction prefixFunctionRecurrence with
@@ -301,20 +312,23 @@ theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
     · simp only [ht'.eq_prefixFunction, ih]
     · simp [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, *]
 
-theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h} (ht' : IsTable pat.copy.toByteArray table) :
+theorem isTable_buildTableGo {pat : Slice} {table : Array Nat} {ht₀ ht h}
+    (ht' : IsTable pat.copy.toByteArray table) :
     IsTable pat.copy.toByteArray (buildTable.go pat table ht₀ ht h).1 := by
   fun_induction buildTable.go with
   | case1 t ht₀ ht h hlt patByte dist ih =>
     refine ih (ht'.push (by simp; omega) ?_)
     simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ht'.eq_prefixFunction, dist,
       patByte]
-    rw [computeDistance_eq_prefixFunctionRecurrence _ _ rfl _ ht', prefixFunctionRecurrence_eq_prefixFunction]
+    rw [computeDistance_eq_prefixFunctionRecurrence _ _ rfl _ ht',
+      prefixFunctionRecurrence_eq_prefixFunction]
     · exact prefixFunction_le_prefixFunction_sub_one_add_one ht₀
     · exact partialMatch_prefixFunction_sub_one ht₀
     · exact prefixFunction_sub_one_lt ht₀
   | case2 t ht₀ ht h hlt => simpa
 
-theorem isTable_buildTable {pat : Slice} : IsTable pat.copy.toByteArray (buildTable pat).toArray := by
+theorem isTable_buildTable {pat : Slice} :
+    IsTable pat.copy.toByteArray (buildTable pat).toArray := by
   rw [buildTable]
   split
   · simp [String.toByteArray_eq_empty_iff.2 (by rwa [Slice.copy_eq_empty_iff, Slice.isEmpty_iff])]
@@ -331,19 +345,22 @@ the code does not panic and returns the correct result.
 -/
 structure Invariants (pat s : Slice) (needlePos stackPos : String.Pos.Raw) : Prop where
   isEmpty_eq_false : pat.isEmpty = false
-  partialMatch : PartialMatch pat.copy.toByteArray s.copy.toByteArray needlePos.byteIdx stackPos.byteIdx
+  partialMatch : PartialMatch pat.copy.toByteArray s.copy.toByteArray
+    needlePos.byteIdx stackPos.byteIdx
   isValidForSlice' : needlePos = 0 → stackPos.IsValidForSlice s
 
-theorem Invariants.inc {pat s : Slice} {stackPos needlePos : String.Pos.Raw} (h₀ : Invariants pat s needlePos stackPos)
-    (h₁ h₂)
-    (h : pat.getUTF8Byte needlePos h₁ = s.getUTF8Byte stackPos h₂) : Invariants pat s needlePos.inc stackPos.inc where
+theorem Invariants.inc {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
+    (h₀ : Invariants pat s needlePos stackPos) (h₁ h₂)
+    (h : pat.getUTF8Byte needlePos h₁ = s.getUTF8Byte stackPos h₂) :
+    Invariants pat s needlePos.inc stackPos.inc where
   isEmpty_eq_false := h₀.isEmpty_eq_false
   partialMatch := partialMatch_add_one_add_one_iff.2 ⟨h₀.partialMatch, ⟨_, _,
     by simpa [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte] using h⟩⟩
   isValidForSlice' := by simp
 
 theorem Invariants.isValidForSlice {pat s : Slice} {needlePos stackPos : String.Pos.Raw}
-    (h : Invariants pat s needlePos stackPos) : (stackPos.unoffsetBy needlePos).IsValidForSlice s := by
+    (h : Invariants pat s needlePos stackPos) :
+    (stackPos.unoffsetBy needlePos).IsValidForSlice s := by
   by_cases hn : needlePos = 0
   · cases hn
     simpa using h.isValidForSlice' rfl
@@ -384,19 +401,22 @@ theorem Invariants.isLongestMatchAt {pat s : Slice} {stackPos needlePos : String
   cases h'
   exact h.partialMatch.isLongestMatchAt h.isEmpty_eq_false h.isValidForSlice
 
-theorem Invariants.not_matchesAt_of_prefixFunction_eq {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
-    (h : Invariants pat s needlePos stackPos)
+theorem Invariants.not_matchesAt_of_prefixFunction_eq {pat s : Slice}
+    {stackPos needlePos : String.Pos.Raw} (h : Invariants pat s needlePos stackPos)
     {k : Nat} {hki} (hk : prefixFunction pat.copy.toByteArray (needlePos.byteIdx - 1) hki = k)
-    (p : s.Pos) (hp₁ : stackPos.unoffsetBy needlePos ≤ p.offset) (hp₂ : p.offset < stackPos.unoffsetBy ⟨k⟩)
+    (p : s.Pos) (hp₁ : stackPos.unoffsetBy needlePos ≤ p.offset)
+    (hp₂ : p.offset < stackPos.unoffsetBy ⟨k⟩)
     {h₁ h₂} (hmism : s.getUTF8Byte stackPos h₁ ≠ pat.getUTF8Byte needlePos h₂) :
     ¬ MatchesAt pat p := by
   simp only [getUTF8Byte_eq_getUTF8Byte_copy, String.getUTF8Byte, ne_eq] at hmism
   rw [matchesAt_iff_partialMatch h.isEmpty_eq_false]
   intro hpart
-  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy, Nat.sub_le_iff_le_add, Pos.Raw.lt_iff] at hp₁ hp₂
+  simp only [Pos.Raw.le_iff, Pos.Raw.byteIdx_unoffsetBy, Nat.sub_le_iff_le_add,
+    Pos.Raw.lt_iff] at hp₁ hp₂
   by_cases hin : stackPos.byteIdx - p.offset.byteIdx ≤ needlePos.byteIdx - 1
   · have := hpart.partialMatch_of_le stackPos.byteIdx (by omega) (by omega)
-    have := hk ▸ (h.partialMatch.partialMatch_iff.2 ⟨by omega, this⟩).le_prefixFunction (by omega) (by omega)
+    have := hk ▸ (h.partialMatch.partialMatch_iff.2 ⟨by omega, this⟩).le_prefixFunction
+      (by omega) (by omega)
     omega
   · obtain rfl : stackPos = needlePos.offsetBy p.offset := by simpa [Pos.Raw.ext_iff] using by omega
     simp [hpart.getElem_eq needlePos.byteIdx (by simpa [Pos.Raw.lt_iff] using h₂)] at hmism

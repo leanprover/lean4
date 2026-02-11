@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
+#include <chrono>
 #include <lean/lean.h>
 #include "runtime/object.h"
 #include "runtime/thread.h"
@@ -2753,6 +2754,34 @@ void finalize_object() {
     delete g_ext_classes_mutex;
 }
 
+#ifdef __APPLE__
+
+// TODO: This is only necessary up to MacOS 10.15, discuss how we want to proceed here
+
+void lock_simple_atomic(std::atomic<int>& lock) {
+    while (true) {
+        int retries = 0;
+        int max_retries = 8;
+        while (lock.load() == 1) {
+            auto delay = std::chrono::microseconds(1 << retries);
+            std::this_thread::sleep_for(delay);
+            if (retries < max_retries) {
+                retries++;
+            }
+        }
+        int should = 0;
+        if (lock.compare_exchange_strong(should, 1)) {
+            break;
+        }
+    }
+}
+
+void unlock_simple_atomic(std::atomic<int>& lock) {
+    lock.store(0);
+}
+
+#else
+
 void lock_simple_atomic(std::atomic<int>& lock) {
     while (true) {
         lock.wait(1);
@@ -2767,6 +2796,8 @@ void unlock_simple_atomic(std::atomic<int>& lock) {
     lock.store(0);
     lock.notify_one();
 }
+
+#endif
 
 extern "C" LEAN_EXPORT lean_object* lean_obj_once_cold(lean_object** loc, lean_once_cell_t* tok, lean_object* (*init)()) {
     lock_simple_atomic(tok->lock);

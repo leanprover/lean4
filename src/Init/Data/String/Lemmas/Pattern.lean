@@ -11,3 +11,4 @@ public import Init.Data.String.Lemmas.Pattern.Memcmp
 public import Init.Data.String.Lemmas.Pattern.Pred
 public import Init.Data.String.Lemmas.Pattern.Char
 public import Init.Data.String.Lemmas.Pattern.String
+public import Init.Data.String.Lemmas.Pattern.Split

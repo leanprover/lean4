@@ -339,6 +339,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
             .isFalse (by simp; omega)
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .replicate .. | .shiftLeft ..
         | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+
       | .replicate (w := lw) ln lexpr lh =>
         match r with
         | .replicate (w := rw) rn rexpr rh =>

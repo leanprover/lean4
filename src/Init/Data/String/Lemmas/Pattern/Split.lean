@@ -120,6 +120,11 @@ public protected noncomputable def split {ρ : Type} (pat : ρ) [ForwardPatternM
     | none => (Model.split pat (start.next h)).extend start (by simp)
 termination_by start
 
+@[simp]
+public theorem split_endPos {ρ : Type} {pat : ρ} [ForwardPatternModel pat] {s : Slice} :
+    Model.split pat s.endPos = SlicesFrom.at s.endPos := by
+  simp [Model.split]
+
 public theorem split_eq_of_isLongestMatchAt {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
     {s : Slice} {start stop : s.Pos} (h : IsLongestMatchAt pat start stop) :
     Model.split pat start = (SlicesFrom.at start).append (Model.split pat stop) := by

@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
 import Lean.Meta.Sym
+import Lean.Meta.Tactic.Refl
 
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
@@ -180,5 +181,45 @@ public def cbvEntry (e : Expr) : MetaM Result := do
   Sym.SymM.run do
     let e ← Sym.shareCommon e
     SimpM.run' (simp e) (methods := methods)
+
+public def cbvGoalCore (m : MVarId) (inv : Bool := false) : MetaM (Option MVarId) := do
+  Sym.SymM.run do
+    let methods := {pre := cbvPre, post := cbvPost}
+    let m ← Sym.preprocessMVar m
+    let mType ← m.getType
+    let some (_, lhs, rhs) := mType.eq? | return m
+    let (toReduce, toCompare) := if inv then (rhs, lhs) else (lhs, rhs)
+    let result ← SimpM.run' (simp toReduce) (methods := methods)
+    match result with
+    | .rfl _ =>
+      unless (← isDefEq toReduce toCompare) do return m
+      m.refl
+      return .none
+    | .step e' proof _ =>
+      if (← isDefEq e' toCompare) then
+        if inv then
+          m.assign (← mkEqSymm proof)
+        else
+          m.assign proof
+        return .none
+      else
+        if inv then
+          let newGoalType ← mkEq toCompare e'
+          let newGoal ← mkFreshExprMVar newGoalType
+          let toAssign ← mkEqTrans newGoal proof
+          m.assign toAssign
+          return newGoal.mvarId!
+        else
+          let newGoalType ← mkEq e' toCompare
+          let newGoal ← mkFreshExprMVar newGoalType
+          let toAssign ← mkEqTrans proof newGoal
+          m.assign toAssign
+          return newGoal.mvarId!
+
+public def cbvGoal (m : MVarId) : MetaM (Option MVarId) := do
+  match (← cbvGoalCore m (inv := false)) with
+  | .none => return .none
+  | .some m' => cbvGoalCore m' (inv := true)
+
 
 end Lean.Meta.Tactic.Cbv

@@ -2296,6 +2296,28 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying matcher equations.
+
+`cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
+two passes:
+1. Reduce `lhs`. If the result is definitionally equal to `rhs`, close the goal.
+2. Otherwise, reduce `rhs`. If the result is now definitionally equal to the
+   reduced `lhs`, close the goal.
+3. If neither check succeeds, generate a new goal `lhs' = rhs'`, where `lhs'`
+   and `rhs'` are the reduced forms of the original sides.
+
+`cbv` is therefore not a finishing tactic in general: it may leave a new
+(simpler) equality goal. For goals that are not equalities, `cbv` currently
+leaves the goal unchanged.
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
+-/
+syntax (name := cbv) "cbv" : tactic
+
 end Tactic
 
 namespace Attr

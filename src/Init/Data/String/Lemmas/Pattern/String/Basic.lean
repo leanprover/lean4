@@ -14,7 +14,7 @@ import Init.Omega
 
 public section
 
-namespace String.Slice.Pattern
+namespace String.Slice.Pattern.Model
 
 namespace ForwardSliceSearcher
 
@@ -36,7 +36,7 @@ instance {pat : Slice} : NoPrefixForwardPatternModel pat :=
 
 theorem isMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false) :
     IsMatch pat pos ↔ (s.sliceTo pos).copy = pat.copy := by
-  simp only [Pattern.isMatch_iff, ForwardPatternModel.Matches, ne_eq, copy_eq_empty_iff,
+  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, ne_eq, copy_eq_empty_iff,
     Bool.not_eq_true, and_iff_right_iff_imp]
   intro h'
   rw [← isEmpty_copy (s := s.sliceTo pos), h', isEmpty_copy, h]
@@ -47,7 +47,7 @@ theorem isLongestMatch_iff {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = fals
 
 theorem isLongestMatchAt_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat.copy := by
-  simp [Pattern.isLongestMatchAt_iff, isLongestMatch_iff h]
+  simp [Model.isLongestMatchAt_iff, isLongestMatch_iff h]
 
 theorem isLongestMatchAt_iff_splits {pat s : Slice} {pos₁ pos₂ : s.Pos} (h : pat.isEmpty = false) :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ t₁ t₂, pos₁.Splits t₁ (pat.copy ++ t₂) ∧
@@ -125,4 +125,4 @@ theorem le_of_matchesAt {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = false)
 
 end ForwardSliceSearcher
 
-end String.Slice.Pattern
+end String.Slice.Pattern.Model

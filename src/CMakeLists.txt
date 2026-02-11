@@ -42,6 +42,7 @@ set(LEAN_EXTRA_LINKER_FLAGS_DEFAULT "")
 find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -Wl,--icf=safe")
 endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # Create space in install names so they can be patched later in Nix.

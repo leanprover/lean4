@@ -401,6 +401,16 @@ private unsafe def updateParamImp (p : Param pu) (type : Expr) : CompilerM (Para
 
 @[implemented_by updateParamImp] opaque Param.update (p : Param pu) (type : Expr) : CompilerM (Param pu)
 
+private unsafe def updateParamBorrowImp (p : Param pu) (borrow : Bool) : CompilerM (Param pu) := do
+  if borrow = p.borrow then
+    return p
+  else
+    let p := { p with borrow }
+    modifyLCtx fun lctx => lctx.addParam p
+    return p
+
+@[implemented_by updateParamBorrowImp] opaque Param.updateBorrow (p : Param pu) (borrow : Bool) : CompilerM (Param pu)
+
 private unsafe def updateLetDeclImp (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : CompilerM (LetDecl pu) := do
   if ptrEq type decl.type && ptrEq value decl.value then
     return decl

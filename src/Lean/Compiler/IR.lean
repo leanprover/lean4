@@ -13,7 +13,6 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.Borrow
 public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.IR.RC
 public import Lean.Compiler.IR.ExpandResetReuse
@@ -39,8 +38,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls ← inferBorrow decls
-  logDecls `borrow decls
   decls ← explicitBoxing decls
   logDecls `boxing decls
   decls ← explicitRC decls

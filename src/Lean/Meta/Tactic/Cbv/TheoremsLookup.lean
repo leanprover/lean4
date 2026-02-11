@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Match.MatchEqsExt
+import Lean.Elab.PreDefinition.EqUnfold
 import Lean.Meta.Eqns
 
 
@@ -56,7 +57,7 @@ public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
-    let some unfoldEqn ← getUnfoldEqnFor? fnName (nonRec := true) | return none
+    let some unfoldEqn ← getConstUnfoldEqnFor? fnName | return none
     let thm ← mkTheoremFromDecl unfoldEqn
 
     modifyEnv fun env =>

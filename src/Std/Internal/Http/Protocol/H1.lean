@@ -482,7 +482,7 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
   let machine : Machine dir :=
     match dir with
     | .receiving =>
-      if machine.isWaitingMessage then
+      if ¬machine.writer.sentMessage ∧ ¬machine.writer.isClosed then
         machine
        |>.setWriterState .waitingHeaders
        |>.disableKeepAlive

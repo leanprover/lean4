@@ -633,7 +633,6 @@ def emitFullApp (z : VarId) (t : IRType) (f : FunId) (ys : Array Arg) : M Unit :
     emitLn ";"
   | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
-
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f
   let arity := decl.params.size;
@@ -870,12 +869,6 @@ def emitDeclAux (d : Decl) : M Unit := do
       emitLn "}"
     | _ => pure ()
 
-def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
-  if d.resultType.isObj then
-    emit "lean_mark_persistent("
-    emitCName n
-    emitLn ");"
-
 def emitDecl (d : Decl) : M Unit := do
   let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
   try
@@ -887,6 +880,12 @@ def emitFns : M Unit := do
   let env ← getEnv;
   let decls := getDecls env;
   decls.reverse.forM emitDecl
+
+def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
+  if d.resultType.isObj then
+    emit "lean_mark_persistent("
+    emitCName n
+    emitLn ");"
 
 def emitDeclInit (d : Decl) : M Unit := do
   let env ← getEnv

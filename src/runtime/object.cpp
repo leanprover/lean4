@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
-#include <chrono>
 #include <lean/lean.h>
 #include "runtime/object.h"
 #include "runtime/thread.h"

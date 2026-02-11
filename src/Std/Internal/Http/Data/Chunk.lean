@@ -75,16 +75,6 @@ instance : Encode .v11 Chunk where
     let size := Nat.toDigits 16 chunkLen |>.toArray |>.map Char.toUInt8 |> ByteArray.mk
     buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
 
-/--
-Returns the total wire format size of the chunk in bytes. This includes the hex-encoded data length
-prefix, formatted extensions (`;name=value`), CRLF after the size line, the data itself, and the
-trailing CRLF.
--/
-def wireFormatSize (chunk : Chunk) : Nat :=
-  let hexSize := (Nat.toDigits 16 chunk.data.size).length
-  let extensionsSize := chunk.extensions.foldl (fun acc (name, value) => acc + name.length + (value.map (fun v => v.length + 1) |>.getD 0) + 1) 0
-  hexSize + extensionsSize + 2 + chunk.data.size + 2
-
 end Chunk
 
 /--
@@ -116,12 +106,10 @@ def header (trailer : Trailer) (key : String) (value : String) : Trailer :=
 
 instance : Encode .v11 Trailer where
   encode buffer trailer :=
-    let buffer := buffer.write "0\r\n".toUTF8
-
-    let buffer := trailer.headers.fold (init := buffer) fun acc key values =>
+    let terminalChunk := "0\r\n".toUTF8
+    let trailerFields := trailer.headers.fold (init := ByteArray.empty) fun acc key values =>
       values.foldl (init := acc) fun acc value =>
-        acc.write (key ++ ": " ++ value ++ "\r\n").toUTF8
-
-    buffer.write "\r\n".toUTF8
+        acc ++ (key ++ ": " ++ value ++ "\r\n").toUTF8
+    buffer.append #[terminalChunk, trailerFields, "\r\n".toUTF8]
 
 end Trailer

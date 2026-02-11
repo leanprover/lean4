@@ -11,7 +11,6 @@ public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.LiveVars
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.IR.CompilerM
 
 namespace Lean.Compiler.LCNF
 
@@ -147,10 +146,9 @@ Check how the variable `x` is used in `instr` if at all.
 def classifyUse (instr : CodeDecl .impure) (x : FVarId) : ReuseM UseClassification := do
   match instr with
   | .let { value := e@(.fap f args _), .. } =>
-    -- TODO: change this to getImpureSignature in later refactoring phases
-    if let some decl := IR.findEnvDecl (← getEnv) f then
+    if let some sig := ← getImpureSignature? f then
       let mut result := .none
-      for arg in args, param in decl.params do
+      for arg in args, param in sig.params do
         if let .fvar y := arg then
           if y == x then
             result :=

@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.FVarUtil
 public import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.LCNF.PhaseExt
 
 public section
 
@@ -124,7 +124,7 @@ def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decisio
     if let .let decl := val then
       if (← ignore? decl) then
         return (acc.insert decl.fvarId .dont, owned)
-    let (dont, owned) := (visitDecl (← getEnv) val).run owned
+    let (dont, owned) ← (visitDecl (← getEnv) val).run owned
     if dont then
       return (acc.insert val.fvarId .dont, owned)
     else
@@ -135,22 +135,21 @@ def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decisio
   (_, map) ← goCases cs |>.run map
   return map
 where
-  visitDecl (env : Environment) (value : CodeDecl .pure) : StateM (Std.HashSet FVarId) Bool := do
+  visitDecl (env : Environment) (value : CodeDecl .pure) : StateRefT (Std.HashSet FVarId) CompilerM Bool := do
     match value with
     | .let decl => visitLetValue env decl.value
     | _ => return false -- will need to investigate whether that can be a problem
 
-  visitLetValue (env : Environment) (value : LetValue .pure) : StateM (Std.HashSet FVarId) Bool := do
+  visitLetValue (env : Environment) (value : LetValue .pure) : StateRefT (Std.HashSet FVarId) CompilerM Bool := do
     match value with
     | .proj _ _ x => visitArg (.fvar x) true
     | .const nm _ args =>
-      let decl? := IR.findEnvDecl env nm
-      match decl? with
+      match ← getImpureSignature? nm with
       | none => args.foldlM (fun b arg => visitArg arg false <||> pure b) false
-      | some decl =>
+      | some sig =>
         let mut res := false
         for h : i in *...args.size do
-          if ← visitArg args[i] (decl.params[i]?.any (·.borrow)) then
+          if ← visitArg args[i] (sig.params[i]?.any (·.borrow)) then
             res := true
         return res
     | .fvar x args =>
@@ -158,7 +157,7 @@ where
         (← visitArg (.fvar x) false)
     | .erased | .lit _ => return false
 
-  visitArg (var : Arg .pure) (borrowed : Bool) : StateM (Std.HashSet FVarId) Bool := do
+  visitArg (var : Arg .pure) (borrowed : Bool) : StateRefT (Std.HashSet FVarId) CompilerM Bool := do
     let .fvar v := var | return false
     let res := (← get).contains v
     unless borrowed do
@@ -175,6 +174,7 @@ where
 
   goAlt (alt : Alt .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     forFVarM (goFVar (.ofAlt alt)) alt
+
   goCases (cs : Cases .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     cs.alts.forM goAlt
 

@@ -10,6 +10,8 @@ public import Init.Data.Random
 public import Std.Internal.Async.Basic
 import Init.Data.ByteArray.Extra
 import Init.Data.Array.Lemmas
+public import Std.Sync.Mutex
+public import Std.Sync.Barrier
 import Init.Omega
 
 public section
@@ -132,6 +134,8 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
 
+  let gate ← IO.Promise.new
+
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
       let result ← selectable.cont val
@@ -141,6 +145,9 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
   let promise ← IO.Promise.new
 
   for selectable in selectables do
+    if ← finished.get then
+      break
+
     let waiterPromise ← IO.Promise.new
     let waiter := Waiter.mk finished waiterPromise
     selectable.selector.registerFn waiter
@@ -157,18 +164,20 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
         let async : Async _ :=
           try
             let res ← IO.ofExcept res
+            await gate
 
             for selectable in selectables do
               selectable.selector.unregisterFn
 
-            let contRes ← selectable.cont res
-            promise.resolve (.ok contRes)
+            promise.resolve (.ok (← selectable.cont res))
           catch e =>
             promise.resolve (.error e)
 
         async.toBaseIO
 
-  Async.ofPromise (pure promise)
+  gate.resolve ()
+  let result ← Async.ofPromise (pure promise)
+  return result
 
 /--
 Performs fair and data-loss free non-blocking multiplexing on the `Selectable`s in `selectables`.
@@ -224,6 +233,8 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
         let derivedWaiter := Waiter.mk waiter.finished waiterPromise
         selectable.selector.registerFn derivedWaiter
 
+        let barrier ← IO.Promise.new
+
         discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
           match res? with
           | none => return (Task.pure (.ok ()))
@@ -231,6 +242,7 @@ def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) 
             let async : Async _ := do
               let mainPromise := waiter.promise
 
+              await barrier
               for selectable in selectables do
                 selectable.selector.unregisterFn
 

@@ -286,6 +286,7 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           if h : lidx = ridx then .isTrue (by simp [h]) else .isFalse (by simp [h])
         | .const .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
         | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+
       | .const lval =>
         match r with
         | .const rval =>
@@ -397,6 +398,7 @@ def toString : BVExpr w → String
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
+
 
 instance : ToString (BVExpr w) := ⟨toString⟩
 

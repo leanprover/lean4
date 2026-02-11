@@ -652,6 +652,17 @@ in the same module where the actual identifier was defined.
 syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
 
 /--
+The attribute `@[univ_out_params ..]` on a class specifies the universe output parameters.
+
+* `@[univ_out_params]` means the class does not have universe output parameters.
+* `@[univ_out_params u v]` means the universes `u` and `v` are output parameters.
+
+If the type declaration does not contain this attribute, then Lean assumes that universe
+parameter that does not occur in any input parameter is an output one.
+-/
+syntax (name := univ_out_params) "univ_out_params" (ppSpace ident)* : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.

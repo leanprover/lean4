@@ -24,7 +24,8 @@ def Lean.Parser.Command.classInductive :=
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoinductive : Bool) : TermElabM InductiveView := do
   let isClass := decl.isOfKind ``Parser.Command.classInductive
-  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
+  -- **Note**: We use `addFirstAttr` to make sure the `[class]` attribute is processed **before** `[univ_out_params]
+  let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers

@@ -457,19 +457,22 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
   let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
   trace[Elab.Tactic.Do.vcgen] "after genVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
-  let runOnVCs (tac : TSyntax `tactic) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
-    vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
-      Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
-  let invariants ← Term.TermElabM.run' do
-    let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+  let runOnVCs (tac : TSyntax `tactic) (extraMsg : MessageData) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
+    vcs.flatMapM fun vc =>
+      tryCatchRuntimeEx
+        (List.toArray <$> Term.withSynthesize do
+          Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals))
+        (fun ex => throwError "Error while running {tac} on {vc}Message: {indentD ex.toMessageData}\n{extraMsg}")
+  let invariants ←
+    if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." invariants else pure invariants
   trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"
   elabInvariants stx[3] invariants (suggestInvariant vcs)
   let invariants ← invariants.filterM (not <$> ·.isAssigned)
   trace[Elab.Tactic.Do.vcgen] "before trying trivial VCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
-  let vcs ← Term.TermElabM.run' do
-    let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
-    let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs
-    return vcs
+  let vcs ← do
+    let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) "Try again with -trivial." vcs else pure vcs
+    let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." vcs else pure vcs
+    pure vcs
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs

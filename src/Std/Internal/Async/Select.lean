@@ -164,7 +164,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : Async α := d
         let async : Async _ :=
           try
             let res ← IO.ofExcept res
-            await gate
+            discard <| await gate.result?
 
             for selectable in selectables do
               selectable.selector.unregisterFn

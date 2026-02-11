@@ -2853,7 +2853,7 @@ theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : 
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext i ih
-  simp [getElem_append, show i < v by omega]
+  simp
 
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
   ext

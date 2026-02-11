@@ -286,7 +286,6 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
           if h : lidx = ridx then .isTrue (by simp [h]) else .isFalse (by simp [h])
         | .const .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
         | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
-
       | .const lval =>
         match r with
         | .const rval =>

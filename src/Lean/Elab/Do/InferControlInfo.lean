@@ -137,7 +137,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   | `(doElem| $decl:doPatDecl) =>
     ofLetOrReassignArrow true decl
   -- match
-  | `(doElem| match $[(generalizing := $_)]? $(_)? $_,* with $alts:matchAlt*) =>
+  | `(doElem| match $[(dependent := $_)]? $[(generalizing := $_)]? $(_)? $_,* with $alts:matchAlt*) =>
     let mut info := {}
     for alt in alts do
       let `(matchAltExpr| | $[$_,*]|* => $rhs) := alt | throwUnsupportedSyntax

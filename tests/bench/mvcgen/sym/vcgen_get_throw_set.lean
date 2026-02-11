@@ -8,31 +8,23 @@ import VCGen
 
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 
--- The following spec is necessary because the VC gen currently has no support for unfolding spec
--- theorems, which is what we usually do for `MonadState.get`.
 @[spec]
-theorem Spec.MonadState_get {m ps} [Monad m] [WPMonad m ps] {σ} {Q : PostCond σ (.arg σ ps)} :
-    ⦃fun s => Q.fst s s⦄ get (m := StateT σ m) ⦃Q⦄ := by
-  simp only [Triple, WP.get_MonadState, WP.get_StateT, SPred.entails.refl]
+theorem Spec.monadLift_ExceptT [Monad m] [WPMonad m ps] {x : m α} :
+    ⦃wp⟦x⟧ (Q.1, Q.2.2)⦄ monadLift (n := ExceptT ε m) x ⦃Q⦄ := by
+  simp [Triple.iff, monadLift, MonadLift.monadLift, MonadLiftT.monadLift, ExceptT.lift, wp]
 
-/-!
-Same benchmark as `shallow_add_sub_cancel` but using `mvcgen`.
--/
-
-def step (v : Nat) : StateM Nat Unit := do
+def step (lim : Nat) : ExceptT String (StateM Nat) Unit := do
   let s ← get
-  set (s + v)
-  let s ← get
-  set (s - v)
+  if s > lim then
+    throw "s is too large"
+  set (s + 1)
 
-def loop (n : Nat) : StateM Nat Unit := do
+def loop (n : Nat) : ExceptT String (StateM Nat) Unit := do
   match n with
   | 0 => pure ()
-  | n+1 => step n; loop n
+  | n+1 => loop n; step n
 
-def Goal (n : Nat) : Prop := ∀ post, ⦃post⦄ loop n ⦃⇓_ => post⦄
-
-open Lean Meta Elab
+def Goal (n : Nat) : Prop := ⦃fun s => ⌜s = 0⌝⦄ loop n ⦃⇓_ s => ⌜s = n⌝⦄
 
 /-- Helper function for executing a tactic `k` for solving `Goal n`. -/
 def driver (n : Nat) (check := true) (k : MVarId → MetaM Unit) : MetaM Unit := do
@@ -51,17 +43,14 @@ def driver (n : Nat) (check := true) (k : MVarId → MetaM Unit) : MetaM Unit :=
   else
     IO.println s!"goal_{n}: {ms} ms"
 
-/-!
-`MetaM` Solution
--/
-
 /-
 A tactic for solving goal `Goal n`
 -/
 macro "solve" : tactic => `(tactic| {
-  intro post
   simp only [loop, step]
-  mvcgen' <;> grind
+  mvcgen'
+  all_goals sorry
+  -- all_goals grind
 })
 
 /--
@@ -80,5 +69,12 @@ def runBenchUsingMeta (sizes : List Nat) : MetaM Unit := do
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
--- #eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-#eval runBenchUsingMeta [1000]
+/-
+example : Goal 20 := by
+  simp only [Goal, loop, step]
+  mvcgen'
+  all_goals sorry
+-/
+
+#eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+-- #eval runBenchUsingMeta [1000]

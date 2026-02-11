@@ -8,29 +8,44 @@ import VCGen
 
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 
--- The following spec is necessary because the VC gen currently has no support for unfolding spec
--- theorems, which is what we usually do for `MonadState.get`.
-@[spec]
-theorem Spec.MonadState_get {m ps} [Monad m] [WPMonad m ps] {σ} {Q : PostCond σ (.arg σ ps)} :
-    ⦃fun s => Q.fst s s⦄ get (m := StateT σ m) ⦃Q⦄ := by
-  simp only [Triple, WP.get_MonadState, WP.get_StateT, SPred.entails.refl]
+set_option mvcgen.warning false
 
 /-!
-Same benchmark as `shallow_add_sub_cancel` but using `mvcgen`.
+Same benchmark as `vcgen_add_sub_cancel` but using a deep transformer stack.
 -/
 
-def step (v : Nat) : StateM Nat Unit := do
-  let s ← get
+abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| ExceptT Unit <| StateM Unit
+
+/-
+Known issues:
+* Using `StateT String` instead of `ReaderT String` picks the wrong spec for `MonadStateOf.get`; namely that on `String`.
+  It seems we need to disambiguate discrimination tree lookup results with defeq.
+* Even using `ReaderT String` it doesn't work. TODO: Why?
+* But just using `ExceptT String` works.
+-/
+
+def step (v : Nat) : M Unit := do
+  let s ← getThe Nat
   set (s + v)
-  let s ← get
+  let s ← getThe Nat
   set (s - v)
 
-def loop (n : Nat) : StateM Nat Unit := do
+def loop (n : Nat) : M Unit := do
   match n with
   | 0 => pure ()
   | n+1 => step n; loop n
 
 def Goal (n : Nat) : Prop := ∀ post, ⦃post⦄ loop n ⦃⇓_ => post⦄
+
+@[spec high]
+theorem Spec.M_getThe_Nat :
+    ⦃fun s₁ s₂ => Q.fst s₂ s₁ s₂⦄ getThe (m := M) Nat ⦃Q⦄ := by
+  mvcgen
+
+@[spec high]
+theorem Spec.M_set_Nat (n : Nat) :
+    ⦃fun s₁ _ => Q.fst ⟨⟩ s₁ n⦄ set (m := M) n ⦃Q⦄ := by
+  mvcgen
 
 open Lean Meta Elab
 
@@ -80,5 +95,11 @@ def runBenchUsingMeta (sizes : List Nat) : MetaM Unit := do
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
--- #eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-#eval runBenchUsingMeta [1000]
+/-
+example : Goal 20 := by
+  simp only [Goal, loop, step]
+  mvcgen' <;> grind
+-/
+
+#eval runBenchUsingMeta [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+-- #eval runBenchUsingMeta [1000]

@@ -92,6 +92,8 @@ def ppLetValue (e : LetValue pu) : M Format := do
   | .reset n fvarId _ => return f!"reset[{n}] {← ppFVar fvarId}"
   | .reuse fvarId info updateHeader args _ =>
     return f!"reuse" ++ (if updateHeader then f!"!" else f!"") ++ f!" {← ppFVar fvarId} in {info}{← ppArgs args}"
+  | .box _ fvarId _ => return f!"box {← ppFVar fvarId}"
+  | .unbox fvarId _ => return f!"unbox {← ppFVar fvarId}"
 
 def ppParam (param : Param pu) : M Format := do
   let borrow := if param.borrow then "@&" else ""

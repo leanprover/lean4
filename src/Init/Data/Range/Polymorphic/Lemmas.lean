@@ -535,7 +535,7 @@ public theorem Rxc.Iterator.pairwise_toList_upwardEnumerableLt [LE α] [Decidabl
   · apply ihy (out := a)
     simp_all [Rxc.Iterator.isPlausibleStep_iff, Rxc.Iterator.step]
 
-theorem Std.Rxc.Iterator.nodup_toList [LE α] [DecidableLE α]
+theorem Rxc.Iterator.nodup_toList [LE α] [DecidableLE α]
     [PRange.UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
     [PRange.LawfulUpwardEnumerableLE α]
     {it : Iter (α := Rxc.Iterator α) α} :
@@ -566,7 +566,7 @@ public theorem Rxo.Iterator.pairwise_toList_upwardEnumerableLt [LT α] [Decidabl
   · apply ihy (out := a)
     simp_all [Rxo.Iterator.isPlausibleStep_iff, Rxo.Iterator.step]
 
-theorem Std.Rxo.Iterator.nodup_toList [LT α] [DecidableLT α]
+theorem Rxo.Iterator.nodup_toList [LT α] [DecidableLT α]
     [PRange.UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
     [PRange.LawfulUpwardEnumerableLT α]
     {it : Iter (α := Rxo.Iterator α) α} :
@@ -597,7 +597,7 @@ public theorem Rxi.Iterator.pairwise_toList_upwardEnumerableLt
   · apply ihy (out := a)
     simp_all [Rxi.Iterator.isPlausibleStep_iff, Rxi.Iterator.step]
 
-theorem Std.Rxi.Iterator.nodup_toList
+theorem Rxi.Iterator.nodup_toList
     [PRange.UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} :
     it.toList.Nodup := by

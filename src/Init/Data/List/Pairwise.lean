@@ -325,6 +325,41 @@ theorem getElem?_inj {xs : List α}
       rw [mem_iff_getElem?]
     exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
 
+theorem getElem?_inj_iff {l : List α} (h₀ : i < l.length) (h₁ : List.Nodup l) :
+    l[i]? = l[j]? ↔ i = j :=
+  ⟨getElem?_inj h₀ h₁, by simp +contextual⟩
+
+theorem getElem_inj {xs : List α}
+    {h₀ : i < xs.length} {h₁ : j < xs.length} (h₂ : Nodup xs) (h₃ : xs[i] = xs[j]) : i = j := by
+  apply getElem?_inj (xs := xs) h₀ h₂
+  simpa only [List.getElem_eq_getElem?_get, Option.get_inj] using h₃
+
+theorem getElem_inj_iff {xs : List α}
+    {h₀ : i < xs.length} {h₁ : j < xs.length} (h : Nodup xs) : xs[i] = xs[j] ↔ i = j :=
+  ⟨getElem_inj h, by simp +contextual⟩
+
+theorem getD_inj {xs : List α} {fallback}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs)
+    (h₃ : xs.getD i fallback = xs.getD j fallback) : i = j := by
+  apply getElem?_inj (xs := xs) h₀ h₂
+  rwa [getD_eq_getElem?_getD, getD_eq_getElem?_getD, Option.getD_inj_iff] at h₃
+  · simpa
+  · simpa
+
+theorem getD_inj_iff {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) :
+    xs.getD i fallback = xs.getD j fallback ↔ i = j :=
+  ⟨getD_inj h₀ h₁ h₂, by simp +contextual⟩
+
+theorem getElem!_inj [Inhabited α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) (h₃ : xs[i]! = xs[j]!) : i = j := by
+  revert h₃
+  simpa [getElem!_eq_getElem?_getD] using getD_inj h₀ h₁ h₂
+
+theorem getElem!_inj_iff [Inhabited α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j := by
+  simpa [getElem!_eq_getElem?_getD] using getD_inj_iff h₀ h₁ h₂
+
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
 

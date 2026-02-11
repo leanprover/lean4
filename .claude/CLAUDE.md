@@ -4,28 +4,24 @@ To build Lean you should use `make -j$(nproc) -C build/release`.
 
 ## Running Tests
 
-See `doc/dev/testing.md` for full documentation. Quick reference:
+See `tests/README.md` for full documentation. Quick reference:
 
 ```bash
 # Full test suite (use after builds to verify correctness)
-make -j$(nproc) -C build/release test ARGS="-j$(nproc)"
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test
 
 # Specific test by name (supports regex via ctest -R)
-make -j$(nproc) -C build/release test ARGS='-R grind_ematch --output-on-failure'
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS='-R grind_ematch'
 
 # Rerun only previously failed tests
-make -j$(nproc) -C build/release test ARGS='--rerun-failed --output-on-failure'
+CTEST_PARALLEL_LEVEL="$(nproc)" CTEST_OUTPUT_ON_FAILURE=1 \
+make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 
-# Single test from tests/lean/run/ (quick check during development)
-cd tests/lean/run && ./test_single.sh example_test.lean
-
-# ctest directly (from stage1 build dir)
-cd build/release/stage1 && ctest -j$(nproc) --output-on-failure --timeout 300
+# Single test from tests/foo/bar/ (quick check during development)
+cd tests/foo/bar && ./run_test example_test.lean
 ```
-
-The full test suite includes `tests/lean/`, `tests/lean/run/`, `tests/lean/interactive/`,
-`tests/compiler/`, `tests/pkg/`, Lake tests, and more. Using `make test` or `ctest` runs
-all of them; `test_single.sh` in `tests/lean/run/` only covers that one directory.
 
 ## New features
 
@@ -33,8 +29,6 @@ When asked to implement new features:
 * begin by reviewing existing relevant code and tests
 * write comprehensive tests first (expecting that these will initially fail)
 * and then iterate on the implementation until the tests pass.
-
-All new tests should go in `tests/lean/run/`. These tests don't have expected output; we just check there are no errors. You should use `#guard_msgs` to check for specific messages.
 
 ## Success Criteria
 

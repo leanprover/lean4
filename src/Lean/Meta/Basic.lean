@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Lean.Data.LOption
 public import Lean.Class
 public import Lean.ReducibilityAttrs

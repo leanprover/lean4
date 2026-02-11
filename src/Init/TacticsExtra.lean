@@ -20,7 +20,7 @@ namespace Lean.Parser.Tactic
 private meta def expandIfThenElse
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `tactic) := do
-  let mkCase tk holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := do
+  let mkCase (tk : Syntax) holeOrTacticSeq mkName : MacroM (Term × Array (TSyntax `tactic)) := do
     if holeOrTacticSeq.isOfKind `Lean.Parser.Term.syntheticHole then
       pure (⟨holeOrTacticSeq⟩, #[])
     else if holeOrTacticSeq.isOfKind `Lean.Parser.Term.hole then

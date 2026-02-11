@@ -15,7 +15,7 @@ public section
 namespace Lean.Elab.Term
 
 register_builtin_option backward.do.legacy : Bool := {
-  defValue := true
+  defValue := false
   descr    := "Use the legacy `do` elaborator instead of the new, extensible implementation."
 }
 

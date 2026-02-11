@@ -60,7 +60,7 @@ def mySum2 (l : List Nat) : Nat := Id.run do
 /--
 info: Try this:
   [apply] invariants
-  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = (0, 0) ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
 -/
 #guard_msgs (info) in
 theorem mySum2_suggest_invariant (l : List Nat) : mySum2 l = l.sum := by
@@ -104,7 +104,7 @@ def nodup (l : List Int) : Bool := Id.run do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -132,14 +132,13 @@ info: Try this:
   [apply] invariants
   ·
     Invariant.withEarlyReturn (onReturn := fun r letMuts =>
-      spred(Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧
-          { down := r = true ↔ l.Nodup }))
+      spred({ down := r = true ↔ l.Nodup } ∧ Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, none, ∅)))
       (onContinue := fun xs letMuts =>
       spred({ down := xs.prefix = [] ∧ letMuts = ∅ } ∨
           ⌜xs.suffix = []⌝ ∧
-            Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, ⟨none, ∅⟩) ∧ { down := True }))
+            { down := True } ∧ Prod.fst ?inv2 ({ «prefix» := [], suffix := l, property := ⋯ }, none, ∅)))
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = ∅ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -190,7 +189,7 @@ def mkFreshN_early_return (n : Nat) : AppM (List Nat) := do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜letMuts.toList.Nodup ∧ r.Nodup⌝) (onContinue :=
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜r.Nodup ∧ letMuts.toList.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = acc✝ ∨ xs.suffix = [] ∧ letMuts.toList.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -230,7 +229,7 @@ def notQuiteEarlyReturn (l : List Nat) : Option Nat := Id.run do
 /--
 info: Try this:
   [apply] invariants
-  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨none, ()⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.getLast?⌝
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = (none, ()) ∨ xs.suffix = [] ∧ letMuts.fst = l.getLast?⌝
 -/
 #guard_msgs (info) in
 theorem notQuiteEarlyReturn_suggest_invariant (l : List Nat) : notQuiteEarlyReturn l = l.getLast? := by
@@ -250,7 +249,11 @@ def polySum [Monad m] (l : List Nat) : m Nat := do
 /--
 info: Try this:
   [apply] invariants
-  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨0, 0⟩ ∨ xs.suffix = [] ∧ letMuts.fst = l.sum⌝
+  · ⇓⟨xs, letMuts⟩ =>
+    ⌜xs.prefix = [] ∧ letMuts = (0, 0) ∨
+        xs.suffix = [] ∧
+          let acc := letMuts.fst;
+          acc = l.sum⌝
 -/
 #guard_msgs (info) in
 theorem polySum_suggest_invariant [Monad m] [WPMonad m ps] (l : List Nat) : ⦃⌜True⌝⦄ @polySum m _ l ⦃⇓ r => ⌜r = l.sum⌝⦄ := by
@@ -269,7 +272,7 @@ def polyNodup [Monad m] (l : List Int) : m Bool := do
 info: Try this:
   [apply] invariants
   ·
-    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜l.Nodup ∧ (r = true ↔ l.Nodup)⌝) (onContinue :=
+    Invariant.withEarlyReturn (onReturn := fun r letMuts => ⌜(r = true ↔ l.Nodup) ∧ l.Nodup⌝) (onContinue :=
       fun xs letMuts => ⌜xs.prefix = [] ∧ letMuts = seen✝ ∨ xs.suffix = [] ∧ l.Nodup⌝)
 -/
 #guard_msgs (info) in
@@ -297,7 +300,7 @@ open Std.Do
 /--
 info: Try this:
   [apply] invariants
-  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = ⟨n, x, 1⟩ ∨ xs.suffix = [] ∧ letMuts.2.snd = x ^ n⌝
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = (x, 1, n) ∨ xs.suffix = [] ∧ letMuts.snd.fst = x ^ n⌝
 -/
 #guard_msgs (info) in
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by

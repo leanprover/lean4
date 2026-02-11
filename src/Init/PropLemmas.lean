@@ -445,17 +445,27 @@ theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 @[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
-else isFalse fun ⟨h', _⟩ => h h'
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (Exists P) where
+  decide := if h : p then decide (P h) else false
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (Exists P) from
+      match hP h with
+      | isTrue h2 => ⟨h, h2⟩
+      | isFalse h2 => fun ⟨_, h2'⟩ => h2 h2'
+    | isFalse h => fun ⟨h', _⟩ => h h'
 
 @[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
-else isTrue fun h2 => absurd h2 h
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) where
+  decide := if h : p then decide (P h) else true
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (∀ h, P h) from
+      match hP h with
+      | isTrue h2 => fun _ => h2
+      | isFalse h2 => fun al => absurd (al h) h2
+    | isFalse h => fun h2 => absurd h2 h
 
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
@@ -594,11 +604,12 @@ instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
 instance [DecidablePred p] : DecidablePred (p ∘ f) :=
   fun x => inferInstanceAs (Decidable (p (f x)))
 
-/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
-(This is sometimes taken as an alternate definition of decidability.) -/
-@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
-  | true, h => isTrue (h.1 rfl)
-  | false, h => isFalse (mt h.2 Bool.noConfusion)
+/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`. -/
+abbrev decidable_of_bool (b : Bool) (h : b ↔ a) : Decidable a :=
+  Decidable.intro b
+    (match b, h with
+    | true, h => h.1 rfl
+    | false, h => mt h.2 Bool.noConfusion)
 
 protected theorem Decidable.not_forall {p : α → Prop} [Decidable (∃ x, ¬p x)]
     [∀ x, Decidable (p x)] : (¬∀ x, p x) ↔ ∃ x, ¬p x :=

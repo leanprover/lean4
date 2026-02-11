@@ -31,26 +31,39 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   return expectedType
 
 /--
-Given the decidable instance `inst`, reduces it and returns a decidable instance expression
-in whnf that can be regarded as the reason for the failure of `inst` to fully reduce.
+Given the Bool / Decidable expression `expr`, reduces it and returns a Bool / Decidable expression
+in whnf that can be regarded as the reason for the failure of `expr` to fully reduce.
 -/
-private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := withIncRecDepth do
-  let inst ← whnf inst
-  -- If it's the Decidable recursor, then blame the major premise.
-  if inst.isAppOfArity ``Decidable.rec 5 then
-    return ← blameDecideReductionFailure inst.appArg!
-  -- If it is a matcher, look for a discriminant that's a Decidable instance to blame.
-  if let .const c _ := inst.getAppFn then
+private partial def blameDecideReductionFailure (expr : Expr) : MetaM Expr := withIncRecDepth do
+  let expr ← whnf expr
+  let numArgs := expr.getAppNumArgs
+  -- If it's the Bool recursor or the Decidable recursor, then blame the major premise.
+  if numArgs ≥ 4 ∧ (expr.isAppOf ``Bool.rec || expr.isAppOf ``Decidable.rec) then
+    return ← blameDecideReductionFailure (expr.getArg! 3 numArgs)
+  -- If it's the Decidable constructor, then blame the first parameter.
+  if expr.isAppOfArity `Decidable.intro 3 then
+    return ← blameDecideReductionFailure expr.appFn!.appArg!
+  -- If it's decide (the first projection of Decidable), then blame the parameter
+  if let .proj ``Decidable 0 e := expr then
+    return ← blameDecideReductionFailure e
+  -- If it is a matcher, look for a discriminant that's a Bool or a Decidable instance to blame.
+  if let .const c _ := expr.getAppFn then
     if let some info ← getMatcherInfo? c then
-      if inst.getAppNumArgs == info.arity then
-        let args := inst.getAppArgs
+      if info.arity ≤ numArgs then
+        let args := expr.getAppArgs
         for i in *...info.numDiscrs do
-          let inst' := args[info.numParams + 1 + i]!
-          if (← Meta.isClass? (← inferType inst')) == ``Decidable then
-            let inst'' ← whnf inst'
-            if !(inst''.isAppOf ``isTrue || inst''.isAppOf ``isFalse) then
-              return ← blameDecideReductionFailure inst''
-  return inst
+          let expr' := args[info.numParams + 1 + i]!
+          let type ← inferType expr'
+          let type ← whnf type
+          if type.isConstOf ``Bool then
+            let expr'' ← whnf expr'
+            unless expr''.isConstOf ``Bool.true || expr''.isConstOf ``Bool.false do
+              return ← blameDecideReductionFailure expr''
+          else if type.isAppOf ``Decidable then
+            let expr'' ← whnf (.proj ``Decidable 0 expr')
+            unless expr''.isConstOf ``Bool.true || expr''.isConstOf ``Bool.false do
+              return ← blameDecideReductionFailure expr''
+  return expr
 
 def elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
   let d ← mkDecide expectedType
@@ -84,20 +97,20 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
       doElab expectedType
 where
   doElab (expectedType : Expr) : TacticM Expr := do
-    let pf ← mkDecideProof expectedType
+    let dec ← mkDecide expectedType
     -- Get instance from `pf`
-    let s := pf.appFn!.appArg!
-    let r ← withAtLeastTransparency .default <| whnf s
-    if r.isAppOf ``isTrue then
+    let inst := dec.appArg!
+    -- reduce `dec`
+    let r ← withAtLeastTransparency .default <| whnf dec
+    if r.isConstOf ``true then
       -- Success!
-      -- While we have a proof from reduction, we do not embed it in the proof term,
-      -- and instead we let the kernel recompute it during type checking from the following more
-      -- efficient term. The kernel handles the unification `e =?= true` specially.
-      return pf
+      let eq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) dec (mkConst ``Bool.true)
+      let refl := mkExpectedPropHint reflBoolTrue eq
+      return mkApp3 (mkConst ``of_decide_eq_true) expectedType inst refl
     else
       -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
       throwError MessageData.ofLazyM (es := #[expectedType]) do
-        diagnose expectedType s r
+        diagnose expectedType dec r
 
   doKernel (expectedType : Expr) : TacticM Expr := do
     let pf ← mkDecideProof expectedType
@@ -117,16 +130,17 @@ where
     catch ex =>
       -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
       throwError MessageData.ofLazyM (es := #[expectedType]) do
-        let r ← withAtLeastTransparency .default <| whnf s
-        if r.isAppOf ``isTrue then
+        let dec := mkApp2 (mkConst ``Decidable.decide) expectedType s
+        let r ← withAtLeastTransparency .default <| whnf dec
+        if r.isConstOf ``true then
           return m!"\
             Tactic `{tacticName}` failed. The elaborator is able to reduce the \
             `{.ofConstName ``Decidable}` instance, but the kernel fails with:\n\
             {indentD ex.toMessageData}"
-        diagnose expectedType s r
+        diagnose expectedType dec r
 
   diagnose (expectedType s : Expr) (r : Expr) : MetaM MessageData := do
-    if r.isAppOf ``isFalse then
+    if r.isConstOf ``false then
       return m!"\
         Tactic `{tacticName}` proved that the proposition\
         {indentExpr expectedType}\n\
@@ -145,11 +159,11 @@ where
       return (reason, unfoldedInsts)
     let stuckMsg :=
       if unfoldedInsts.isEmpty then
-        m!"Reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+        m!"Reduction got stuck at{indentExpr reason}"
       else
         let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
         m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-        reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
+        reduction got stuck at{indentExpr reason}"
     let hint :=
       if reason.isAppOf ``Eq.rec then
         .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
@@ -167,11 +181,12 @@ where
           `{.ofConstName ``Classical.propDecidable}`."
       else
         MessageData.nil
+    let inst := s.appArg!
     return m!"\
       Tactic `{tacticName}` failed for proposition\
       {indentExpr expectedType}\n\
       because its `{.ofConstName ``Decidable}` instance\
-      {indentExpr s}\n\
+      {indentExpr inst}\n\
       did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
       {stuckMsg}{hint}"
 

@@ -816,9 +816,10 @@ Non-instance for `DecidableEq` from `LawfulBEq`.
 To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
 -/
 def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
-  match h : x == y with
-  | false => .isFalse (not_eq_of_beq_eq_false h)
-  | true => .isTrue (eq_of_beq h)
+  Decidable.intro (x == y)
+    (match h : x == y with
+    | false => not_eq_of_beq_eq_false h
+    | true => eq_of_beq h)
 
 instance : LawfulBEq Char := inferInstance
 
@@ -1087,7 +1088,7 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  decide (h := d)
+  d.decide
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
@@ -1143,11 +1144,12 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
-  if hp : p then
-    isTrue (Iff.mp h hp)
-  else
-    isFalse fun hq => absurd (Iff.mpr h hq) hp
+@[inline] def decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
+  decide := decide p
+  reflects_decide :=
+    match dp with
+    | isTrue hp => Iff.mp h hp
+    | isFalse hp => fun hq => absurd (Iff.mpr h hq) hp
 
 /-- Transfer a decidability proof across an equality of propositions. -/
 @[inline] def decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
@@ -1161,17 +1163,14 @@ end
   else isTrue (fun h => absurd h hp)
 
 @[inline]
-instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
-  if hp : p then
-    if hq : q then
-      isTrue ⟨fun _ => hq, fun _ => hp⟩
-    else
-      isFalse fun h => hq (h.1 hp)
-  else
-    if hq : q then
-      isFalse fun h => hp (h.2 hq)
-    else
-      isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
+instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
+  decide := (decide p).beq (decide q)
+  reflects_decide :=
+    match dp, dq with
+    | isTrue  hp, isTrue  hq => ⟨fun _ => hq, fun _ => hp⟩
+    | isTrue  hp, isFalse hq => fun h => hq (h.1 hp)
+    | isFalse hp, isTrue  hq => fun h => hp (h.2 hq)
+    | isFalse hp, isFalse hq => ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
 /-! # if-then-else expression theorems -/
 
@@ -1215,18 +1214,16 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isFalse hc => dE hc
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  (inst (f x) (f y)).casesOn
-    (fun _ => P)
-    (fun _ => P → P)
+abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
+  ((f x).beq (f y)).casesOn P (P → P)
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  Decidable.casesOn
-    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
-    (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
-    (fun _ => fun x => x)
+abbrev noConfusionEnum {α : Sort u} (f : α → Nat) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  ((f x).beq (f y)).casesOn
+    (motive := fun b => (f x).beq (f y) = b → b.casesOn P (P → P))
+    (fun h' => False.elim (Nat.ne_of_beq_eq_false h' (congrArg f h)))
+    (fun _ a => a)
+    rfl
 
 /-! # Inhabited -/
 
@@ -1291,7 +1288,7 @@ theorem recSubsingleton
      {h₂ : ¬p → Sort u}
      [h₃ : ∀ (h : p), Subsingleton (h₁ h)]
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
-     : Subsingleton (h.casesOn h₂ h₁) :=
+     : Subsingleton (h.falseTrueCases h₂ h₁) :=
   match h with
   | isTrue h  => h₃ h
   | isFalse h => h₄ h
@@ -1437,14 +1434,15 @@ instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
 instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
   default := ⟨default, default⟩
 
-instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
+instance [h : DecidableEq α] [h' : DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>
-    match decEq a a' with
-    | isTrue e₁ =>
-      match decEq b b' with
-      | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _   e₂' => absurd (eq_of_heq e₂') n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁
+    Decidable.intro (decide (a = a') && decide (b = b'))
+      (match h a a' with
+      | isTrue e₁ =>
+        match h' b b' with
+        | isTrue e₂  => (e₁ ▸ e₂ ▸ rfl : (a, b) = (a', b'))
+        | isFalse n₂ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _ e₂' => absurd (eq_of_heq e₂') n₂
+      | isFalse n₁ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁)
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -2261,9 +2259,10 @@ instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α),
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
-        match d a₁ a₂ with
-        | isTrue h₁  => isTrue (Quotient.sound h₁)
-        | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
+        Decidable.intro (decide (a₁ ≈ a₂))
+          (match d a₁ a₂ with
+          | isTrue h₁  => Quotient.sound h₁
+          | isFalse h₂ => fun h => absurd (Quotient.exact h) h₂)
 
 /-! # Function extensionality -/
 

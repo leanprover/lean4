@@ -82,15 +82,7 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
-    if declName == ``Decidable.isTrue then
-      return .const ``Bool.true [] #[]
-    else if declName == ``Decidable.isFalse then
-      return .const ``Bool.false [] #[]
-    else if declName == ``Decidable.decide then
-      -- Decidable.decide is the identity function since Decidable
-      -- and Bool have the same runtime representation.
-      return args[1]!.toLetValue
-    else if declName == ``Quot.mk then
+    if declName == ``Quot.mk then
       return args[2]!.toLetValue
     else if declName == ``Quot.lcInv then
       match args[2]! with
@@ -173,18 +165,6 @@ partial def FunDecl.toMono (decl : FunDecl .pure) : ToMonoM (FunDecl .pure) := d
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
-
-/-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases .pure) (_ : c.typeName == ``Decidable) : ToMonoM (Code .pure) := do
-  let resultType ← toMonoType c.resultType
-  let alts ← c.alts.mapM fun alt => do
-    match alt with
-    | .default k => return alt.updateCode (← k.toMono)
-    | .alt ctorName ps k =>
-      eraseParams ps
-      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
-      return .alt ctorName #[] (← k.toMono)
-  return .cases ⟨``Bool, resultType, c.discr, alts⟩
 
 /-- Eliminate `cases` for `Nat`. -/
 partial def casesNatToMono (c: Cases .pure) (_ : c.typeName == ``Nat) : ToMonoM (Code .pure) := do
@@ -351,9 +331,7 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
-    else if h : c.typeName == ``Nat then
+    if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then
       casesIntToMono c h

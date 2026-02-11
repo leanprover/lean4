@@ -144,9 +144,10 @@ is classically true but not constructively. -/
 -- This can not be an instance as it would be tried everywhere.
 @[instance_reducible]
 def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
-  match h with
-  | isFalse h => isTrue (Classical.not_not.mp h)
-  | isTrue h => isFalse h
+  Decidable.intro (!decide (¬p))
+    (match h with
+    | isFalse h => Classical.not_not.mp h
+    | isTrue h => h)
 
 attribute [local instance] decidable_of_decidable_not in
 /-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/

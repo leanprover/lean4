@@ -34,11 +34,11 @@ inductive L (α : Type u) : Type u
 info: instBEqL.beq_spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   (x✝ == x✝¹) =
     match decEq x✝.ctorIdx x✝¹.ctorIdx with
-    | isTrue h =>
+    | { decide := true, reflects_decide := h } =>
       match x✝, x✝¹, h with
       | L.nil, L.nil, ⋯ => true
       | L.cons a a_1, L.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | isFalse h => false
+    | { decide := false, reflects_decide := reflects_decide } => false
 -/
 #guard_msgs in #check instBEqL.beq_spec
 
@@ -65,11 +65,11 @@ info: @[instance_reducible, expose] def InNamespace.instBEqL'.{u_1} : {α : Type
 info: theorem InNamespace.instBEqL'.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
   (x == x_1) =
     match decEq x.ctorIdx x_1.ctorIdx with
-    | isTrue h =>
+    | { decide := true, reflects_decide := h } =>
       match x, x_1, h with
       | InNamespace.L'.nil, InNamespace.L'.nil, ⋯ => true
       | InNamespace.L'.cons a a_1, InNamespace.L'.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | isFalse h => false
+    | { decide := false, reflects_decide := reflects_decide } => false
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'.beq_spec
 
@@ -82,11 +82,11 @@ inductive Vec (α : Type u) : Nat → Type u
 info: instBEqVec.beq_spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
   (x✝ == x✝¹) =
     match decEq x✝.ctorIdx x✝¹.ctorIdx with
-    | isTrue h =>
+    | { decide := true, reflects_decide := h } =>
       match a✝, x✝, x✝¹ with
       | 0, Vec.nil, Vec.nil, ⋯ => true
       | x + 1, Vec.cons a a_1, Vec.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | isFalse h => false
+    | { decide := false, reflects_decide := reflects_decide } => false
 -/
 #guard_msgs in
 #check instBEqVec.beq_spec

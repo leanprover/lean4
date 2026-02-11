@@ -57,8 +57,9 @@ It reduces the target term by unfolding definitions using their defining equatio
 applying matcher equations. The unfolding is propositional, so `cbv` also works
 with functions defined via well-founded recursion or partial fixpoints.
 
-`cbv` does not require trust in the correctness of
-the code generator and hence does not rely on additional axioms.
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
 
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.

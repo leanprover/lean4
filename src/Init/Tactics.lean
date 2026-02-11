@@ -2314,8 +2314,9 @@ two passes:
 (simpler) equality goal. For goals that are not equalities, `cbv` currently
 leaves the goal unchanged.
 
-Unlike `native_decide`, `cbv` does not require trust in the correctness of
-the code generator and hence does not rely on additional axioms.
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
 
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.
@@ -2333,8 +2334,9 @@ is a `Decidable` proposition. It proceeds in two steps:
 Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
 fails.
 
-Unlike `native_decide` and `bv_decide`, `decide_cbv` does not rely on
-additional axioms.
+The proofs produced by `decide_cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
 
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.

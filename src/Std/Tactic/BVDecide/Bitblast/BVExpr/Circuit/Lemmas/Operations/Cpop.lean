@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
+Authors: Luisa Cicolini
 -/
 module
 
@@ -22,10 +22,8 @@ import Init.Omega
 
 
 /-!
-This module contains the verification of the bitblaster for `BitVec.hAdd` from
-`Impl.Operations.Cpop`. We prove that the recursive addition of `w`-long words over
-a `len * w`-long bitvector is equal to the addition using a parallel prefix sum circuit of the
-same bitvector.
+This module contains the verification of the bitblaster for `BitVec.cpop`, implemented in
+`Impl.Operations.Cpop`.
 -/
 
 namespace Std.Tactic.BVDecide

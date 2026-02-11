@@ -6,6 +6,7 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Ma
 module
 
 prelude
+public import Init.Control.Do
 public import Init.System.IOError
 public import Init.System.FilePath
 import Init.Data.String.TakeDrop

@@ -106,18 +106,19 @@ def sampler {m} [Monad m] (n k : ℕ) [NeZero n] (h : k ≤ n) : RandT m (Vector
 variable {m : Type → Type u} [Monad m] [LawfulMonad m] {n k : ℕ}
 
 
-abbrev Midway (n k : ℕ) : Type := MProd (Std.TreeMap ℕ (Fin n)) (Vector (Fin n) k)
+abbrev Midway (n k : ℕ) : Type := Prod (Vector (Fin n) k) (Std.TreeMap ℕ (Fin n))
 
 def init (n k : ℕ) [NeZero n] : Midway n k :=
-  ⟨Std.TreeMap.empty, Vector.replicate _ 0⟩
+  ⟨Vector.replicate _ 0, Std.TreeMap.empty⟩
 
 variable [NeZero n]
 
 def next (data : Midway n k) (i : ℕ) (hi : i < k) (j : ℕ) : Midway n k :=
-  ⟨data.fst.insert j (data.fst.getD i ⟨i, sorry⟩), data.snd.set i (data.fst.getD j ⟨j, sorry⟩) hi⟩
+  let (x, h) := data
+  ⟨x.set i (h.getD j ⟨j, sorry⟩), h.insert j (h.getD i ⟨i, sorry⟩)⟩
 
 structure Midway.valid (data : Midway n k) (i : ℕ) : Prop where
-  nodup_take : (data.2.toList.take i).Nodup
+  nodup_take : (data.1.toList.take i).Nodup
   -- disjoint : ∀ j, i ≤ j → j ≤ n - 1 → data.1.getD j j ∉ data.2.toList.take i
   -- injOn : Set.InjOn (fun j ↦ data.1.getD j j) {j | i ≤ j ∧ j ≤ n - 1}
 
@@ -159,7 +160,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
     rename_i hinv
     mpure_intro
     simp only [List.length_append, List.length_cons, List.length_nil, Nat.zero_add]
-    have : cur = pref.length := sorry -- by grind -- wishful thinking :(
+    have : cur = pref.length := by grind
     subst this
     apply Midway.valid_next _ pref.length _ r.val r.property.1 r.property.2 hinv
   case vc2 =>

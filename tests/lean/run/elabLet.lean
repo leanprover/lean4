@@ -123,6 +123,13 @@ has type
   IO (IO.Ref Bool)
 but is expected to have type
   IO Unit
+---
+error: Type mismatch
+  jp ()
+has type
+  IO (IO.Ref Bool)
+but is expected to have type
+  IO Unit
 -/
 #guard_msgs in
 def f (x : Nat) : IO Unit :=

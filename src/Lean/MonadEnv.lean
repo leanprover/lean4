@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+import Init.Control.Do
 public import Lean.Elab.Exception
 public import Lean.Log
 public import Lean.AuxRecursor

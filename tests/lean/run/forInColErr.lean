@@ -1,10 +1,12 @@
 set_option pp.mvars.anonymous false
 
 /--
-error: failed to construct 'ForIn' instance for collection
-  ?_
-and monad
-  Id
+error: typeclass instance problem is stuck
+  ForIn Id ?_ ?α
+
+Note: Lean will not try to resolve this typeclass instance problem because the second type argument to `ForIn` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs in
 example {c} := Id.run do
@@ -14,15 +16,6 @@ example {c} := Id.run do
 
 
 /--
-error: don't know how to synthesize implicit argument `ρ`
-  @forIn Id (List ?_) ?_ instForInOfForIn' PUnit [] PUnit.unit fun x r => do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
-context:
-⊢ Type _
----
-error: Failed to infer type of binder `x`
----
 error: don't know how to synthesize implicit argument `α`
   @List.nil ?_
 context:
@@ -35,10 +28,12 @@ example : Unit := Id.run do
   pure ()
 
 /--
-error: failed to construct `ForIn'` instance for collection
-  ?_
-and monad
-  Id
+error: typeclass instance problem is stuck
+  ForIn' Id ?_ ?α ?d
+
+Note: Lean will not try to resolve this typeclass instance problem because the second type argument to `ForIn'` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #guard_msgs in
 example {c} := Id.run do
@@ -47,26 +42,6 @@ example {c} := Id.run do
   pure ()
 
 /--
-error: don't know how to synthesize implicit argument `d`
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembershipOfMonad PUnit [] PUnit.unit fun x h r =>
-    do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
-context:
-⊢ outParam (Membership ?_ (List ?_))
----
-error: don't know how to synthesize implicit argument `ρ`
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembershipOfMonad PUnit [] PUnit.unit fun x h r =>
-    do
-    pure ()
-    pure (ForInStep.yield PUnit.unit)
-context:
-⊢ Type _
----
-error: Failed to infer type of binder `h`
----
-error: Failed to infer type of binder `x`
----
 error: don't know how to synthesize implicit argument `α`
   @List.nil ?_
 context:

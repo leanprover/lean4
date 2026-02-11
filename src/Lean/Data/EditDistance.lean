@@ -42,12 +42,13 @@ public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.ru
     v1 := v1.set 0 (i+1)
     let mut iter2 := str2.startPos
     let mut j : Fin (len2 + 1) := 0
+    let cur1 := iter1.get h1
     while h2 : ¬iter2.IsAtEnd do
       let j' : Fin _ := j + 1
       let deletionCost := v0[j'] + 1
       let insertionCost := v1[j] + 1
       let substCost :=
-        if iter1.get h1 == iter2.get h2 then v0[j]
+        if cur1 == iter2.get h2 then v0[j]
         else v0[j] + 1
       let cost := min (min deletionCost insertionCost) substCost
       v1 := v1.set j' cost

@@ -84,7 +84,7 @@ open Lean.Meta
   let mi := (← read).monadInfo
   let mutVars := (← read).mutVars
 
-  let info ← computeControlInfoSeq body
+  let info ← inferControlInfoSeq body
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
   let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId

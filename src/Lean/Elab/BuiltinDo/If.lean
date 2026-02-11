@@ -41,7 +41,8 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
 
 @[builtin_doElem_elab Lean.Parser.Term.doIf] def elabDoIf : DoElab := fun stx dec => do
   let `(doIf|if $cond:doIfCond then $thenSeq else $elseSeq) := stx | throwUnsupportedSyntax
-  dec.withDuplicableCont fun dec => do
+  let info := (← inferControlInfoSeq thenSeq).alternative (← inferControlInfoSeq elseSeq)
+  dec.withDuplicableCont info fun dec => do
   match cond with
   | `(doIfCond|$cond) => elabIte cond thenSeq elseSeq dec
   | `(doIfCond|$h : $cond) => elabDite h cond thenSeq elseSeq dec

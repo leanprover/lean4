@@ -355,8 +355,9 @@ USAGE:
   lake cache <COMMAND>
 
 COMMANDS:
-  get [<mappings>]      download artifacts into the Lake cache
+  get [<mappings>]      download artifacts into the local Lake cache
   put <mappings>        upload artifacts to a remote cache
+  clean                 removes ALL froms the local Lake cache
 
 See `lake cache help <command>` for more information on a specific command."
 
@@ -447,6 +448,16 @@ The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
 full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheClean :=
+"Removes ALL files from the local Lake cache
+
+USAGE:
+  lake cache clean
+
+Deletes the configured Lake cache directory. If a workspace configuration
+exists, this will delete the cache directory it uses. Otherwise, it will
+delete the default Lake cache directory for the system."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -578,6 +589,7 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "clean"               => helpCacheClean
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String

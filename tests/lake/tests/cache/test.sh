@@ -180,8 +180,13 @@ test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
 test_lines 6 .lake/outputs.jsonl
 
-# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
+# Verify that `lake cache clean` deletes the cache directory
+test_exp -d "$CACHE_DIR"
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
+test_run cache clean
+test_exp ! -d "$CACHE_DIR"
+
+# Verify all artifacts end up in the cache directory with `restoreAllArtifacts`
 test_cmd rm -rf "$CACHE_DIR" .lake/build
 test_run build -R -KrestoreAll=true \
   test:exe Test:static Test:shared +Test:o.export +Test:o.noexport +Module

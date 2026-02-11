@@ -56,7 +56,7 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
   -- So we need to pack up our effects and unpack them after the `try`.
   -- We could optimize for the terminal action case by omitting the state tuple ... in the future.
   let mi := (← read).monadInfo
-  let lifter ← ControlLifter.ofCont (← computeControlInfoElem stx) dec
+  let lifter ← ControlLifter.ofCont (← inferControlInfoElem stx) dec
   let body ← do
     let body ← lifter.lift (elabDoSeq trySeq)
     let body ← catches.foldlM (init := body) fun body catch_ => do

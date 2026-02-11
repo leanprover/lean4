@@ -32,7 +32,8 @@ private def expandToTermMatch : DoElab := fun stx dec => do
   let `(doMatch| match $discrs:matchDiscr,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
   -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
-  dec.withDuplicableCont fun dec => do
+  let info ← inferControlInfoElem stx
+  dec.withDuplicableCont info fun dec => do
   let rec loop i (alts : Array (TSyntax ``matchAlt)) := do
     if h : i < alts.size then
       match alts[i] with
@@ -164,7 +165,8 @@ private def generalizeMutsContsFVars (initialGenFVars : Array FVarId) (mutVars :
 private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``motive))
     (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView) (nondupDec : DoElemCont) :
     DoElabM Expr := do
-  nondupDec.withDuplicableCont fun dec => do
+  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs) ControlInfo.pure
+  nondupDec.withDuplicableCont info fun dec => do
   let doBlockResultType := (← read).doBlockResultType
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   Term.tryPostponeIfDiscrTypeIsMVar motive? discrs

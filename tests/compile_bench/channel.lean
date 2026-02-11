@@ -94,7 +94,7 @@ def run (name : String) (cap : Option Nat) (bench : Std.CloseableChannel.Sync Na
   bench ch.sync MESSAGES
   let t2 ← IO.monoMsNow
   let time : Float := (t2 - t1).toFloat / 1000.0
-  IO.println s!"{name}: {time}"
+  IO.println s!"measurement: {name} {time} s"
 
 
 def main : IO Unit := do

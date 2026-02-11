@@ -375,8 +375,7 @@ struct native_symbol_cache_entry {
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
 name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
-// could be `shared_mutex` with C++17
-std::shared_timed_mutex * g_native_symbol_cache_mutex;
+std::shared_mutex * g_native_symbol_cache_mutex;
 
 class interpreter {
     // stack of IR variable slots
@@ -830,7 +829,7 @@ private:
         if (e != m_symbol_cache.end()) {
             return e->second;
         }
-        std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
+        std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -838,7 +837,7 @@ private:
             return e_new;
         }
         lock.unlock();
-        std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
+        std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -1227,7 +1226,7 @@ void initialize_ir_interpreter() {
         register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
-    ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
+    ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 
 void finalize_ir_interpreter() {

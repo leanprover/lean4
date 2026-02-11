@@ -602,7 +602,7 @@ static const lean_ctor_object l___private_Lean_Elab_Inductive_0__Lean_Elab_Comma
 static const lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___closed__4 = (const lean_object*)&l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___closed__4_value;
 lean_object* l_Lean_Elab_Term_getLevelNames___redArg(lean_object*);
 lean_object* l_Lean_Elab_Term_expandDeclId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Modifiers_addAttr(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Modifiers_addFirstAttr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_x3f___at___00Lean_Elab_addDeclarationRangesFromSyntax___at___00__private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView_spec__2_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11145,7 +11145,7 @@ else
 {
 lean_object* x_49; lean_object* x_50; 
 x_49 = ((lean_object*)(l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___closed__4));
-x_50 = l_Lean_Elab_Modifiers_addAttr(x_1, x_49);
+x_50 = l_Lean_Elab_Modifiers_addFirstAttr(x_1, x_49);
 x_14 = x_50;
 goto block_48;
 }

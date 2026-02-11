@@ -46,6 +46,12 @@ def bad400 : String :=
 /-- Handler that reads and echoes the full request body. -/
 def echoBodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
   fun req => do
+    let ctx ← ContextAsync.getContext
+
+    background do
+      Async.sleep 2000
+      ctx.cancel .deadline
+
     let mut body := ByteArray.empty
     for chunk in req.body do
       body := body ++ chunk.data

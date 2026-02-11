@@ -173,10 +173,11 @@ def tryRecv? (client : Mock.Client) (_expect : UInt64 := 0) : BaseIO (Option Byt
     return some result
 
 /--
-Close the mock client, closing both directions of the connection.
+Close the mock server and client.
 -/
 def close (client : Mock.Client) : IO Unit := do
   client.shared.clientToServer.close
+  client.shared.serverToClient.close
 
 end Mock.Client
 
@@ -222,10 +223,11 @@ def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option Byt
     return some result
 
 /--
-Close the mock server, closing the client to server direction.
+Close the mock server and client.
 -/
 def close (server : Mock.Server) : IO Unit := do
   server.shared.clientToServer.close
+  server.shared.serverToClient.close
 
 end Mock.Server
 

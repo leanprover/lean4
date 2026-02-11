@@ -9,14 +9,14 @@ def mkCompletionRequest (id : Nat) : JsonRpc.Request Json :=
 def main : IO Unit := do
   Ipc.runWith "lean" #["--server"] do
     let hIn ← Ipc.stdin
-    hIn.write (← FS.readBinFile "identifier_completion_initialization.log")
+    hIn.write (← FS.readBinFile "identifier_completion.lean.dir/initialization.log")
     hIn.flush
     let _ ← Ipc.readResponseAs 0 InitializeResult
     Ipc.writeNotification {
       method := "initialized"
       param := InitializedParams.mk
     }
-    hIn.write (← FS.readBinFile "identifier_completion_didOpen.log")
+    hIn.write (← FS.readBinFile "identifier_completion.lean.dir/didOpen.log")
     -- Let file progress proceed to the point of the completion that we want to benchmark
     Ipc.writeRequest <| mkCompletionRequest 1
     let _ ← Ipc.readResponseAs 1 CompletionList
@@ -25,5 +25,5 @@ def main : IO Unit := do
       Ipc.writeRequest <| mkCompletionRequest i
       let _ ← Ipc.readResponseAs i CompletionList
     let endTime ← IO.monoMsNow
-    IO.println s!"completion: {(endTime - startTime).toFloat / 1000.0}"
+    IO.println s!"measurement: completion {(endTime - startTime).toFloat / 1000.0} s"
     Ipc.shutdown 5

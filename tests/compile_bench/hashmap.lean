@@ -196,7 +196,7 @@ def createTest : IO (Std.HashSet Nat ) := do
 
   return set
 
-set_option trace.compiler.ir true in
+-- set_option trace.compiler.ir true in
 def test : IO Unit := do
   let set ← createTest
 
@@ -260,7 +260,7 @@ def compareAnyBench : IO Unit := do
   IO.println s!"Native function better: {nativeBetter}"
   IO.println s!"Iterator function better: {iteratorBetter}"
 
-#eval compareAnyBench
+-- #eval compareAnyBench
 
 end anyTests
 
@@ -281,4 +281,4 @@ def main (args : List String) : IO Unit := do
 
   for (name, benchFunc) in benches do
     let time ← benchFunc seed size
-    IO.println s!"{name}: {time}"
+    IO.println s!"measurement: {name} {time} s"

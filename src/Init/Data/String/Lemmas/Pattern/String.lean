@@ -8,3 +8,4 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Lemmas.Pattern.String.ForwardPattern
+public import Init.Data.String.Lemmas.Pattern.String.ForwardSearcher

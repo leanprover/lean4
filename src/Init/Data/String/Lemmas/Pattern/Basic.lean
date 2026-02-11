@@ -253,6 +253,13 @@ theorem IsValidSearchFrom.mismatched_of_eq {pat : ρ} [ForwardPatternModel pat] 
   cases h₃
   exact IsValidSearchFrom.mismatched h₀ h₂ h₁
 
+theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+    {p : s.Pos} {l : List (SearchStep s)} (hp : p = s.endPos) (hl : l = []) :
+    IsValidSearchFrom pat p l := by
+  cases hp
+  cases hl
+  exact IsValidSearchFrom.endPos
+
 /--
 Predicate stating compatibility between {name}`ForwardPatternModel` and {name}`ToForwardSearcher`.
 

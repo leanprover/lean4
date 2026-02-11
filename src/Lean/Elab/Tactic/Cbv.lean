@@ -22,4 +22,14 @@ namespace Lean.Elab.Tactic.Cbv
       | .some newGoal => return [newGoal]
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.decide_cbv] def evalDecideCbv : Tactic := fun stx =>
+  match stx with
+  | `(tactic| decide_cbv) => withMainContext do
+    liftMetaFinishingTactic fun mvar => do
+      let [mvar'] ← mvar.applyConst ``of_decide_eq_true | throwError "Could not apply `of_decide_eq_true`"
+      match (← Lean.Meta.Tactic.Cbv.cbvGoalCore mvar') with
+      | .none => return
+      | .some remaining => throwError "Could not evaluate expression to a value: {remaining}"
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Cbv

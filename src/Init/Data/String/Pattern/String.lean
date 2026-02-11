@@ -43,14 +43,11 @@ where
       let patByte := pat.getUTF8Byte ⟨table.size⟩ hs
       let dist := computeDistance patByte table ht h (table[table.size - 1])
         (by have := h (table.size - 1) (by omega); omega)
-      let dist' := if pat.getUTF8Byte ⟨dist.1⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then dist.1 + 1 else dist
-      go (table.push dist') (by simp) (by simp; omega) (by
+      go (table.push dist) (by simp) (by simp; omega) (by
         intro i hi
         by_cases hi' : i = table.size
         · subst hi'
-          simp [dist']
-          have := dist.2
-          split <;> omega
+          simpa using dist.2
         · rw [Array.getElem_push_lt]
           · apply h
           · simp at hi
@@ -61,9 +58,11 @@ where
   computeDistance (patByte : UInt8) (table : Array Nat)
       (ht : table.size ≤ pat.utf8ByteSize)
       (h : ∀ (i : Nat) hi, table[i]'hi ≤ i) (guess : Nat) (hg : guess < table.size) :
-      { n : Nat // n < table.size } :=
-    if h' : guess = 0 ∨ pat.getUTF8Byte ⟨guess⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then
-      ⟨guess, hg⟩
+      { n : Nat // n ≤ table.size } :=
+    if pat.getUTF8Byte ⟨guess⟩ (by simp [Pos.Raw.lt_iff]; omega) = patByte then
+      ⟨guess + 1, by omega⟩
+    else if h₀ : guess = 0 then
+      ⟨0, by simp⟩
     else
       have : table[guess - 1] < guess := by have := h (guess - 1) (by omega); omega
       computeDistance patByte table ht h table[guess - 1] (by omega)
@@ -126,7 +125,8 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       -- **Invariant 2:** `stackPos - needlePos` is a valid position
       -- **Invariant 3:** the range from `stackPos - needlePos` to `stackPos` (exclusive) is a
       -- prefix of the pattern.
-      if h₁ : stackPos < s.rawEndPos then
+      if h₁' : (stackPos.unoffsetBy needlePos).increaseBy needle.utf8ByteSize ≤ s.rawEndPos then
+        have h₁ : stackPos < s.rawEndPos := by simp [Pos.Raw.lt_iff, Pos.Raw.le_iff] at ⊢ hn h₁'; omega
         let stackByte := s.getUTF8Byte stackPos h₁
         let patByte := needle.getUTF8Byte needlePos hn
         if stackByte = patByte then
@@ -135,7 +135,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
           if h : nextNeedlePos = needle.rawEndPos then
             -- Safety: the section from `nextStackPos.decreaseBy needle.utf8ByteSize` to `nextStackPos`
             -- (exclusive) is exactly the needle, so it must represent a valid range.
-            let res := .matched (s.pos! (nextStackPos.decreaseBy needle.utf8ByteSize)) (s.pos! nextStackPos)
+            let res := .matched (s.pos! (nextStackPos.unoffsetBy nextNeedlePos)) (s.pos! nextStackPos)
             -- Invariants still satisfied
             pure (.deflate ⟨.yield ⟨.proper needle table htable nextStackPos 0
               (by simp [Pos.Raw.lt_iff] at hn ⊢; omega)⟩ res,
@@ -148,7 +148,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [nextNeedlePos, Pos.Raw.lt_iff, Pos.Raw.ext_iff] at h hn ⊢; omega,
                 Or.inl (by simp [nextStackPos, Pos.Raw.lt_iff] at h₁ ⊢; omega)⟩⟩)
         else
-          if hnp : needlePos.byteIdx = 0 then
+          if hnp : needlePos = 0 then
             -- Safety: by invariant 2
             let basePos := s.pos! stackPos
             -- Since we report (mis)matches by code point and not by byte, missing in the first byte
@@ -178,11 +178,11 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                  by simpa using ⟨_, _, ⟨rfl, rfl⟩, by simp [Pos.Raw.lt_iff] at hn ⊢; omega, by
                   have h₂ := le_offset_posGE (h := Pos.Raw.le_of_lt h₁)
                   have h₃ := (s.posGE _ (Pos.Raw.le_of_lt h₁)).isValidForSlice.le_utf8ByteSize
-                  simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂
+                  simp [Pos.Raw.le_iff, Pos.Raw.lt_iff, Pos.Raw.ext_iff, nextStackPos] at ⊢ h₂ hnp
                   omega⟩⟩)
             else
-              let oldBasePos := s.pos! (stackPos.decreaseBy needlePos.byteIdx)
-              let newBasePos := s.pos! (stackPos.decreaseBy newNeedlePos)
+              let oldBasePos := s.pos! (stackPos.unoffsetBy needlePos)
+              let newBasePos := s.pos! (stackPos.unoffsetBy ⟨newNeedlePos⟩)
               let res := .rejected oldBasePos newBasePos
               -- Invariants still satisfied by definition of the prefix table
               pure (.deflate ⟨.yield ⟨.proper needle table htable stackPos ⟨newNeedlePos⟩
@@ -198,10 +198,10 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
                   all_goals
                     subst htable
                     have := getElem_buildTable_le needle (needlePos.byteIdx - 1) (by simp [Pos.Raw.lt_iff] at hn; omega)
-                    simp [newNeedlePos, Pos.Raw.lt_iff] at hn ⊢
+                    simp [newNeedlePos, Pos.Raw.lt_iff] at hn hnp ⊢
                     omega⟩)
       else
-        if 0 < needlePos then
+        if stackPos.unoffsetBy needlePos < s.rawEndPos then
           let basePos := stackPos.unoffsetBy needlePos
           let res := .rejected (s.pos! basePos) s.endPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ res, by simp⟩)

@@ -176,7 +176,7 @@ def runSingleDecideTest (n : Nat) : MetaM Unit := do
   Meta.checkWithKernel goalMVar
   let endTime ← IO.monoNanosNow
   let kernelMs := (endTime - startTime).toFloat / 1000000.0
-  IO.println s!"native_decide: goal_{n}: {ms} ms, kernel: {kernelMs} ms"
+  IO.println s!"decide: goal_{n}: {ms} ms, kernel: {kernelMs} ms"
 
 set_option maxRecDepth 400000
 set_option maxHeartbeats 400000
@@ -191,6 +191,5 @@ def runDecideTests : MetaM Unit := do
   IO.println ""
   for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000] do
     runSingleDecideTest n
-
 
 #eval runCbvTests

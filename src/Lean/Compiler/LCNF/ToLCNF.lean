@@ -484,7 +484,7 @@ where
   visitCore (e : Expr) : M (Arg .pure) := withIncRecDepth do
     if let some arg := (← get).cache.find? e then
       return arg
-    let r : Arg ← match e with
+    let r : Arg .pure ← match e with
       | .app ..      => visitApp e
       | .const ..    => visitApp e
       | .proj s i e  => visitProj s i e

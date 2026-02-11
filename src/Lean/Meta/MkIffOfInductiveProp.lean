@@ -283,7 +283,7 @@ private def toInductive (mvar : MVarId) (cs : List Name)
       let subgoals ← nCasesSum n mvar h
       let _ ← (cs.zip (subgoals.zip s)).mapM fun ⟨constr_name, ⟨h, mv⟩, bs, e⟩ ↦ do
         let n := (bs.filter id).length
-        let (mvar', _fvars) ← match e with
+        let ((mvar' : MVarId), fvars) ← match e with
         | none =>
             let (id, fvarIds) ← nCasesProd (n-1) mv h
             pure ⟨id, fvarIds⟩
@@ -307,7 +307,7 @@ private def toInductive (mvar : MVarId) (cs : List Name)
         mvar'.withContext do
           let fvarIds := (← getLCtx).getFVarIds.toList
           let gs := fvarIds.take gs.length
-          let m := gs.map some ++ listBoolMerge bs _fvars
+          let m := gs.map some ++ listBoolMerge bs fvars
           let args ← m.mapM fun a ↦
             match a with
             | some v => pure (mkFVar v)

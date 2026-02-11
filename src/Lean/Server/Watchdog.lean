@@ -1318,7 +1318,7 @@ end NotificationHandling
 
 section MessageHandling
   def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let fileId : FileIdent ←
+    let fileId ←
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps

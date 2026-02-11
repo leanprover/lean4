@@ -150,7 +150,7 @@ inductive BVUnOp where
   -/
   | clz
   /--
-  Population count
+  Population count.
   -/
   | cpop
   deriving Hashable, DecidableEq

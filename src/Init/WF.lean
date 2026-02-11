@@ -209,7 +209,7 @@ theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
 /--
 If `Acc r x` holds and `y` is transitively related to `x`, then `Acc r y` holds, too.
 -/
-theorem Acc.invTransGen {x y : α} (h₁ : Acc r x) (h₂ : Relation.TransGen r y x) : Acc r y := by
+theorem Acc.inv_of_transGen {x y : α} (h₁ : Acc r x) (h₂ : Relation.TransGen r y x) : Acc r y := by
   simpa [acc_transGen_iff] using h₁.transGen.inv h₂
 
 theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=

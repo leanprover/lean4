@@ -535,6 +535,14 @@ public theorem Rxc.Iterator.pairwise_toList_upwardEnumerableLt [LE α] [Decidabl
   · apply ihy (out := a)
     simp_all [Rxc.Iterator.isPlausibleStep_iff, Rxc.Iterator.step]
 
+theorem Std.Rxc.Iterator.nodup_toList [LE α] [DecidableLE α]
+    [PRange.UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLE α]
+    {it : Iter (α := Rxc.Iterator α) α} :
+    it.toList.Nodup := by
+  apply (Rxc.Iterator.pairwise_toList_upwardEnumerableLt it).imp
+  apply PRange.UpwardEnumerable.ne_of_lt
+
 public theorem Rxo.Iterator.pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α]
@@ -558,6 +566,14 @@ public theorem Rxo.Iterator.pairwise_toList_upwardEnumerableLt [LT α] [Decidabl
   · apply ihy (out := a)
     simp_all [Rxo.Iterator.isPlausibleStep_iff, Rxo.Iterator.step]
 
+theorem Std.Rxo.Iterator.nodup_toList [LT α] [DecidableLT α]
+    [PRange.UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLT α]
+    {it : Iter (α := Rxo.Iterator α) α} :
+    it.toList.Nodup := by
+  apply (Rxo.Iterator.pairwise_toList_upwardEnumerableLt it).imp
+  apply PRange.UpwardEnumerable.ne_of_lt
+
 public theorem Rxi.Iterator.pairwise_toList_upwardEnumerableLt
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxi.IsAlwaysFinite α]
@@ -580,6 +596,13 @@ public theorem Rxi.Iterator.pairwise_toList_upwardEnumerableLt
     exact UpwardEnumerable.lt_of_lt_of_le this ha.choose_spec.2
   · apply ihy (out := a)
     simp_all [Rxi.Iterator.isPlausibleStep_iff, Rxi.Iterator.step]
+
+theorem Std.Rxi.Iterator.nodup_toList
+    [PRange.UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    {it : Iter (α := Rxi.Iterator α) α} :
+    it.toList.Nodup := by
+  apply (Rxi.Iterator.pairwise_toList_upwardEnumerableLt it).imp
+  apply PRange.UpwardEnumerable.ne_of_lt
 
 namespace Rcc
 
@@ -657,6 +680,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α]
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxc.Iterator.pairwise_toList_upwardEnumerableLt
+
+public theorem nodup_toList [LE α] [DecidableLE α]
+    [PRange.UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLE α]
+    {a b : α} :
+    (a...=b).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxc.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -913,6 +943,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LE α] [LT α] [DecidableLT �
   rw [Internal.toList_eq_toList_iter]
   apply Rxo.Iterator.pairwise_toList_upwardEnumerableLt
 
+public theorem nodup_toList [LT α] [DecidableLT α]
+    [PRange.UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLT α]
+    {a b : α} :
+    (a...b).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxo.Iterator.nodup_toList
+
 public theorem pairwise_toList_ne [LE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [Rxo.IsAlwaysFinite α] :
@@ -1123,6 +1160,11 @@ public theorem pairwise_toList_upwardEnumerableLt [LE α]
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxi.Iterator.pairwise_toList_upwardEnumerableLt
+
+public theorem nodup_toList
+    [PRange.UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    {a : α} : (a...*).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxi.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
@@ -1363,6 +1405,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α]
   rw [Internal.toList_eq_toList_iter]
   apply Rxc.Iterator.pairwise_toList_upwardEnumerableLt
 
+public theorem nodup_toList [LE α] [DecidableLE α]
+    [PRange.UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLE α]
+    {a b : α} :
+    (a<...=b).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxc.Iterator.nodup_toList
+
 public theorem pairwise_toList_ne [LE α] [DecidableLE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [Rxc.IsAlwaysFinite α] :
@@ -1587,6 +1636,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α]
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxo.Iterator.pairwise_toList_upwardEnumerableLt
+
+public theorem nodup_toList [LT α] [DecidableLT α]
+    [PRange.UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLT α]
+    {a b : α} :
+    (a<...b).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxo.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -1822,6 +1878,11 @@ public theorem pairwise_toList_upwardEnumerableLt
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   apply Rxi.Iterator.pairwise_toList_upwardEnumerableLt
+
+public theorem nodup_toList
+    [PRange.UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    {a : α} : (a<...*).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxi.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
@@ -2071,6 +2132,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LE α] [DecidableLE α] [Leas
     [LawfulUpwardEnumerableLeast? α] [Rxc.IsAlwaysFinite α] :
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   simp [toList_eq_toList_rcc, Rcc.pairwise_toList_upwardEnumerableLt]
+
+public theorem nodup_toList [LE α] [DecidableLE α] [Least? α]
+    [PRange.UpwardEnumerable α] [Rxc.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLE α]
+    {a : α} :
+    (*...=a).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxc.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne [LE α] [DecidableLE α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
@@ -2395,6 +2463,13 @@ public theorem pairwise_toList_upwardEnumerableLt [LT α] [DecidableLT α] [Leas
     · exact Roo.pairwise_toList_upwardEnumerableLt
   · simp
 
+public theorem nodup_toList [LT α] [DecidableLT α] [Least? α]
+    [PRange.UpwardEnumerable α] [Rxo.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α]
+    [PRange.LawfulUpwardEnumerableLT α]
+    {a : α} :
+    (*...a).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxo.Iterator.nodup_toList
+
 public theorem pairwise_toList_ne [LT α] [DecidableLT α] [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α] [Rxo.IsAlwaysFinite α] :
@@ -2687,6 +2762,11 @@ public theorem pairwise_toList_upwardEnumerableLt [Least? α]
   split
   · simp
   · exact Rci.pairwise_toList_upwardEnumerableLt
+
+public theorem nodup_toList [Least? α]
+    [PRange.UpwardEnumerable α] [Rxi.IsAlwaysFinite α] [PRange.LawfulUpwardEnumerable α] :
+    (*...* : Std.Rii α).toList.Nodup := by
+  simpa [Internal.toList_eq_toList_iter] using Std.Rxi.Iterator.nodup_toList
 
 public theorem pairwise_toList_ne [Least? α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]

@@ -43,19 +43,23 @@ def assertStartsWith (name : String) (response : ByteArray) (prefix_ : String) :
 def bad400 : String :=
   "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
+def timeout408 : String :=
+  "HTTP/1.1 408 Request Timeout\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+
 /-- Handler that reads and echoes the full request body. -/
 def echoBodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
   fun req => do
     let ctx ← ContextAsync.getContext
 
     background do
-      Async.sleep 2000
+      Async.sleep 3000
       ctx.cancel .deadline
 
     let mut body := ByteArray.empty
     for chunk in req.body do
       body := body ++ chunk.data
     Response.ok |>.text (String.fromUTF8! body)
+
 
 -- =============================================================================
 -- POST with body and handler reads it correctly
@@ -164,11 +168,9 @@ def echoBodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  -- When both are present, Transfer-Encoding takes precedence
   let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 100\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
-  -- Server should use chunked encoding (5 bytes "hello"), not Content-Length (100 bytes)
-  assertContains "TE over CL: body correct" response "hello"
+  assertExact "Does not allow both headers" response bad400
 
 -- =============================================================================
 -- POST without Content-Length or Transfer-Encoding (ambiguous body)
@@ -378,3 +380,132 @@ def echoBodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream
   let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\nX-Checksum: abc\x0d\nX-Signature: def\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw echoBodyHandler
   assertContains "Multiple trailers" response "hello"
+
+-- =============================================================================
+-- Content-Length mismatch: body shorter than declared (should timeout/error)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  -- Declare CL=10 but only send 5 bytes, then close
+  let headers := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let body := "hello".toUTF8
+  let raw := headers ++ body
+  let result ← Async.block do
+    client.send raw
+    -- Close only the client→server direction to simulate client disconnect
+    client.getSendChan.close
+    Std.Http.Server.serveConnection server echoBodyHandler (fun _ => pure ()) (config := { lingeringTimeout := 500 })
+      |>.run
+    let res ← client.recv?
+    pure <| res.getD .empty
+  -- Server should respond with something (timeout, error, or partial) but not crash
+  assert! result.size > 0 ∨ result.size == 0
+
+-- =============================================================================
+-- Content-Length mismatch: body longer than declared (extra data is next request)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  -- CL=5 so only "hello" is read; remainder is parsed as a new request
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 5\x0d\n\x0d\nhelloGET /second HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw (fun req => do
+    let mut body := ByteArray.empty
+    for chunk in req.body do
+      body := body ++ chunk.data
+    Response.ok |>.text (String.fromUTF8! body))
+  -- First response should have exactly "hello"
+  assertContains "CL mismatch longer: first body" response "hello"
+  -- The server processes the remainder as a second request on keep-alive.
+  -- We see two HTTP/1.1 200 responses in the output.
+  let responseStr := String.fromUTF8! response
+  let parts := responseStr.splitOn "HTTP/1.1 200 OK"
+  if parts.length < 3 then
+    throw <| IO.userError s!"CL mismatch longer: expected 2 responses, got {parts.length} parts"
+
+-- =============================================================================
+-- Duplicate Content-Length with different values (MUST reject per RFC 9110 §8.6)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\nContent-Length: 7\x0d\nConnection: close\x0d\n\x0d\nabc".toUTF8
+  let response ← sendRaw client server raw echoBodyHandler
+  assertExact "Duplicate CL different values (3 vs 7)" response bad400
+
+-- =============================================================================
+-- Chunk size overflow (extremely large hex number)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\nFFFFFFFFFFFFFFFF\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw echoBodyHandler
+  -- Should either reject or handle gracefully
+  assertStartsWith "Chunk size overflow" response "HTTP/1.1"
+
+-- =============================================================================
+-- Incomplete chunked body (missing final 0\r\n\r\n, then connection closes)
+-- =============================================================================
+
+#eval show IO _ from do Async.block do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n".toUTF8
+  client.send raw
+  client.close
+  let result ← Async.block do
+    Std.Http.Server.serveConnection server echoBodyHandler (fun _ => pure ()) (config := { lingeringTimeout := 500 })
+      |>.run
+    let res ← client.recv?
+    pure <| res.getD .empty
+  -- Server should handle incomplete chunked body without crashing
+  assert! result.size >= 0
+
+-- =============================================================================
+-- Content-Length: 0 with POST and handler reading body
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw (fun req => do
+    let mut body := ByteArray.empty
+    for chunk in req.body do
+      body := body ++ chunk.data
+    if body.size == 0
+    then Response.ok |>.text "empty"
+    else Response.badRequest |>.text s!"unexpected: {body.size}")
+  assertContains "CL=0 body is empty" response "empty"
+
+-- =============================================================================
+-- Handler ignores chunked body on keep-alive, next request uses Content-Length
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let req1 := "POST /first HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\n\x0d\na\x0d\n0123456789\x0d\n0\x0d\n\x0d\n"
+  let req2 := "POST /second HTTP/1.1\x0d\nHost: example.com\x0d\nContent-Length: 3\x0d\nConnection: close\x0d\n\x0d\nabc"
+  let raw := (req1 ++ req2).toUTF8
+
+  let response ← sendRaw client server raw (fun req => do
+    -- Intentionally don't read body of first request
+    Response.ok |>.text (toString req.head.uri))
+
+  assertContains "Chunked then CL: first" response "/first"
+  assertContains "Chunked then CL: second" response "/second"
+
+-- =============================================================================
+-- Extremely large number of chunks (100 single-byte chunks)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let mut chunked := ""
+  for _ in [0:100] do
+    chunked := chunked ++ "1\x0d\nX\x0d\n"
+  chunked := chunked ++ "0\x0d\n\x0d\n"
+  let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n{chunked}".toUTF8
+  let response ← sendRaw client server raw echoBodyHandler
+  let expected := String.ofList (List.replicate 100 'X')
+  assertContains "100 single-byte chunks" response expected

@@ -234,7 +234,9 @@ private def handle
         waitingResponse := false
 
       | .failed _ =>
-        pure ()
+        waitingResponse := false
+        requiresData := false
+        break
 
       | .close =>
         pure ()

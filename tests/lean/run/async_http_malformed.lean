@@ -61,8 +61,6 @@ def ok200 : String :=
   let (client, server) ← Mock.new
   let raw := "GET / HTTP/1.1\x0d\nHost: \x0d\nConnection: close\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw okHandler
-  let responseStr := String.fromUTF8! response
-  -- Empty host is technically valid per RFC (for authority-form), server should handle it
   assertStatus "Empty Host header" response "HTTP/1.1"
 
 -- =============================================================================
@@ -363,3 +361,123 @@ def ok200 : String :=
     if req.head.method == .trace then Response.ok |>.text "traced"
     else Response.badRequest |>.text "wrong method")
   assertStatus "TRACE request" response "HTTP/1.1 200"
+
+-- =============================================================================
+-- Multiple Host headers (MUST return 400 per RFC 9112 §3.2)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nHost: other.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "Multiple Host headers" response bad400
+
+-- =============================================================================
+-- Header value with leading/trailing OWS (should be trimmed per RFC 9110 §5.5)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "GET / HTTP/1.1\x0d\nHost:   example.com   \x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertStatus "OWS around header value" response "HTTP/1.1 200"
+
+-- =============================================================================
+-- Mixed-case Transfer-Encoding (e.g., Chunked instead of chunked)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: Chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw (fun req => do
+    let mut body := ByteArray.empty
+    for chunk in req.body do
+      body := body ++ chunk.data
+    Response.ok |>.text (String.fromUTF8! body))
+  assertStatus "Mixed-case TE: Chunked" response "HTTP/1.1 200"
+
+-- =============================================================================
+-- Transfer-Encoding with trailing space (e.g., "chunked ")
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked \x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw (fun req => do
+    let mut body := ByteArray.empty
+    for chunk in req.body do
+      body := body ++ chunk.data
+    Response.ok |>.text (String.fromUTF8! body))
+  assertStatus "TE with trailing space" response "HTTP/1.1"
+
+-- =============================================================================
+-- Transfer-Encoding: chunked, chunked (double chunked - should reject)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked, chunked\x0d\nConnection: close\x0d\n\x0d\n5\x0d\nhello\x0d\n0\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "Double chunked TE" response bad400
+
+-- =============================================================================
+-- Empty connection (client connects then immediately disconnects)
+-- =============================================================================
+
+#eval show IO _ from do Async.block do
+  let (client, server) ← Mock.new
+  let raw := ByteArray.empty
+  client.send raw
+  client.close
+  let result ← Async.block do
+    Std.Http.Server.serveConnection server okHandler (fun _ => pure ()) (config := { lingeringTimeout := 500 })
+      |>.run
+    let res ← client.recv?
+    pure <| res.getD .empty
+  -- Empty connection should result in no response or a timeout
+  assert! result.size == 0 ∨ (String.fromUTF8! result).startsWith "HTTP/1.1"
+
+-- =============================================================================
+-- Request with extremely long header name (boundary test at maxHeaderNameLength)
+-- =============================================================================
+
+#eval show IO _ from do Async.block do
+  let (client, server) ← Mock.new
+  let longName := String.ofList (List.replicate 257 'X')
+  let raw := s!"GET / HTTP/1.1\x0d\nHost: example.com\x0d\n{longName}: value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "Header name at 257 chars" response bad400
+
+-- =============================================================================
+-- Control character (0x01) in header value
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let before := "GET / HTTP/1.1\x0d\nHost: example.com\x0d\nX-Header: bad".toUTF8
+  let ctrl := ByteArray.mk #[0x01]
+  let after := "value\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let raw := before ++ ctrl ++ after
+  let response ← sendRaw client server raw okHandler
+  assertExact "Control char in header value" response bad400
+
+-- =============================================================================
+-- Request line with no spaces at all
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let raw := "GETHTTP/1.1\x0d\nHost: example.com\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "Request line no spaces" response bad400
+
+-- =============================================================================
+-- Very long URI (exceeds maxUriLength=8192)
+-- =============================================================================
+
+#eval show IO _ from do
+  let (client, server) ← Mock.new
+  let longUri := "/" ++ String.ofList (List.replicate 9000 'a')
+  let raw := s!"GET {longUri} HTTP/1.1\x0d\nHost: example.com\x0d\nConnection: close\x0d\n\x0d\n".toUTF8
+  let response ← sendRaw client server raw okHandler
+  assertExact "URI too long" response bad400

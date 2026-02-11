@@ -859,7 +859,7 @@ def emitDeclAux (d : Decl) : M Unit := do
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
       else
-        emit ("_init_" ++ baseName ++ "()")
+        emit ("_init_" ++ baseName ++ "(void)")
       emitLn " {";
       if xs.size > closureMaxArgs && isBoxedName d.name then
         xs.size.forM fun i _ => do

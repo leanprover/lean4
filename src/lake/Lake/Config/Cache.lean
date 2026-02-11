@@ -400,12 +400,12 @@ namespace CacheService
   (key artifactEndpoint revisionEndpoint : String)
 : CacheService := {key, artifactEndpoint, revisionEndpoint}
 
-/-- Constructs a `CacheService` to download artifacts and/or outputs from to an S3 endpoint. -/
+/-- Constructs a `CacheService` to download artifacts and/or outputs from an S3 endpoint. -/
 @[inline] public def downloadService
   (artifactEndpoint revisionEndpoint : String) (name? : Option String := none)
 : CacheService := {name?, artifactEndpoint, revisionEndpoint}
 
-/-- Constructs a `CacheService` to download just artifacts from to an S3 endpoint. -/
+/-- Constructs a `CacheService` to download just artifacts from an S3 endpoint. -/
 @[inline] public def downloadArtsService
   (artifactEndpoint : String) (name? : Option String := none)
 : CacheService := {name?, artifactEndpoint}

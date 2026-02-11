@@ -481,10 +481,14 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
     match dir with
-    | .receiving => machine
+    | .receiving =>
+      if machine.isWaitingMessage then
+        machine
        |>.setWriterState .waitingHeaders
        |>.disableKeepAlive
        |>.send { status := .badRequest } |>.userClosedBody
+      else
+        machine
     | .sending => machine
 
   machine

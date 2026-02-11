@@ -85,6 +85,14 @@ structure Response.Builder where
 
 namespace Response
 
+instance : ToString Head where
+  toString r :=
+    toString r.version ++ " " ++
+    toString r.status.toCode ++ " " ++
+    toString r.status ++ "\r\n" ++
+    toString r.headers ++
+    "\r\n"
+
 open Internal in
 instance : Encode .v11 Head where
   encode buffer r :=

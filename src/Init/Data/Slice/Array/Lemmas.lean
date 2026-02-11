@@ -114,7 +114,7 @@ public instance : LawfulSliceSize (Internal.SubarrayData α) where
 
 public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
     s.toArray = Slice.toArray s := by
-  simp [Subarray.toArray]
+  simp [Std.Slice.toArray]
 
 @[simp]
 public theorem forIn_toList {α : Type u} {s : Subarray α}
@@ -210,32 +210,27 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
       simp [Subarray.array, Subarray.start, Subarray.stop]
   simp +instances [this, ListSlice.toList_eq, lslice]
 
-@[grind =]
-public theorem Subarray.size_eq {xs : Subarray α} :
-    xs.size = xs.stop - xs.start := by
-  simp [Subarray.size]
-
 @[simp, grind =]
 public theorem Subarray.toArray_toList {xs : Subarray α} :
     xs.toList.toArray = xs.toArray := by
-  simp [Std.Slice.toList, Subarray.toArray, Std.Slice.toArray]
+  simp [Std.Slice.toList, Std.Slice.toArray, Std.Slice.toArray]
 
 @[simp, grind =]
 public theorem Subarray.toList_toArray {xs : Subarray α} :
     xs.toArray.toList = xs.toList := by
-  simp [Std.Slice.toList, Subarray.toArray, Std.Slice.toArray]
+  simp [Std.Slice.toList, Std.Slice.toArray, Std.Slice.toArray]
 
 @[simp, grind =]
 public theorem Subarray.length_toList {xs : Subarray α} :
     xs.toList.length = xs.size := by
   have : xs.start ≤ xs.stop := xs.internalRepresentation.start_le_stop
   have : xs.stop ≤ xs.array.size := xs.internalRepresentation.stop_le_array_size
-  simp [Subarray.toList_eq, Subarray.size]; omega
+  simp [Subarray.toList_eq, Subarray.size_eq]; omega
 
 @[simp, grind =]
 public theorem Subarray.size_toArray {xs : Subarray α} :
     xs.toArray.size = xs.size := by
-  simp [← Subarray.toArray_toList, Subarray.size, Slice.size, SliceSize.size, start, stop]
+  simp [← Subarray.toArray_toList, Subarray.size_eq, start, stop]
 
 namespace Array
 
@@ -638,7 +633,7 @@ public theorem toList_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :
     Array.start_toSubarray, Array.stop_toSubarray, Array.toList_extract, List.take_drop,
     List.take_take]
   rw [Nat.add_sub_cancel' (by omega)]
-  simp [Subarray.size, ← Array.length_toList, ← List.take_eq_take_min, Nat.add_comm xs.start]
+  simp [Subarray.size_eq, ← Array.length_toList, ← List.take_eq_take_min, Nat.add_comm xs.start]
 
 @[simp, grind =]
 public theorem toArray_mkSlice_rco {xs : Subarray α} {lo hi : Nat} :

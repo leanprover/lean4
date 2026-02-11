@@ -321,13 +321,13 @@ public theorem extrinsicFix_eq_apply_of_acc [∀ a, Nonempty (C a)] {R : α → 
     refine InvImage.accessible _ ?_
     cases x.2 <;> rename_i hx
     · rwa [hx]
-    · exact h.invTransGen hx
+    · exact h.inv_of_transGen hx
   · constructor
     intro x
     refine InvImage.accessible _ ?_
     cases x.2 <;> rename_i hx
     · rwa [hx]
-    · exact h.invTransGen hx
+    · exact h.inv_of_transGen hx
 
 public theorem extrinsicFix_eq_apply [∀ a, Nonempty (C a)] {R : α → α → Prop}
     {F : ∀ a, (∀ a', R a' a → C a') → C a} {a : α} (wf : WellFounded R) :
@@ -411,7 +411,7 @@ public theorem extrinsicFix₂_eq_extrinsicFix [∀ a b, Nonempty (C₂ a b)]
   apply InvImage.accessible
   cases x.2 <;> rename_i heq
   · rwa [heq]
-  · exact h.invTransGen heq
+  · exact h.inv_of_transGen heq
 
 public theorem extrinsicFix₂_eq_apply_of_acc [∀ a b, Nonempty (C₂ a b)]
     {R : (a : α) ×' β a → (a : α) ×' β a → Prop}
@@ -504,7 +504,7 @@ public theorem extrinsicFix₃_eq_extrinsicFix [∀ a b c, Nonempty (C₃ a b c)
   apply InvImage.accessible
   cases x.2 <;> rename_i heq
   · rwa [heq]
-  · exact h.invTransGen heq
+  · exact h.inv_of_transGen heq
 
 public theorem extrinsicFix₃_eq_apply_of_acc [∀ a b c, Nonempty (C₃ a b c)]
     {R : (a : α) ×' (b : β a) ×' γ a b → (a : α) ×' (b : β a) ×' γ a b → Prop}

@@ -533,6 +533,20 @@ protected def add : CliM PUnit := do
   let map ← CacheMap.load file
   ws.lakeCache.writeMap scope map
 
+protected def clean : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let dir ← id do
+    if (← configFileExists cfg.configFile) then
+      return (← loadWorkspaceRoot cfg).lakeCache.dir
+    else if let some cache := cfg.lakeEnv.lakeCache? then
+      return cache.dir
+    else
+      error "no cache to delete; no workspace configuration found and no system cache detected"
+  IO.FS.removeDirAll dir
+
 protected def help : CliM PUnit := do
   IO.println <| helpCache <| ← takeArgD ""
 
@@ -542,6 +556,7 @@ def cacheCli : (cmd : String) → CliM PUnit
 | "add"   => cache.add
 | "get"   => cache.get
 | "put"   => cache.put
+| "clean" => cache.clean
 | "help"  => cache.help
 | cmd     => throw <| CliError.unknownCommand cmd
 

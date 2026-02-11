@@ -123,6 +123,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   -- Let
   | `(doElem| let $[mut]? $_:letDecl) => return .pure
   | `(doElem| have $_:letDecl) => return .pure
+  | `(doElem| let rec $_:letRecDecl) => return .pure
   | `(doElem| let $[mut]? $_ := $_ | $otherwise $(body?)?) =>
     ofLetOrReassign #[] none otherwise body?
   | `(doElem| let $[mut]? $decl) =>

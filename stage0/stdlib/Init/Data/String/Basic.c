@@ -2213,7 +2213,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_slice_x21___closed__1));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1111u);
+x_3 = lean_unsigned_to_nat(1115u);
 x_4 = ((lean_object*)(l_String_Slice_slice_x21___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2429,7 +2429,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_Pos_get_x21___closed__1));
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1196u);
+x_3 = lean_unsigned_to_nat(1200u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_get_x21___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3198,7 +3198,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_Pos_next_x21___closed__1));
 x_2 = lean_unsigned_to_nat(29u);
-x_3 = lean_unsigned_to_nat(1576u);
+x_3 = lean_unsigned_to_nat(1580u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_next_x21___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3507,7 +3507,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_Pos_prev_x21___closed__1));
 x_2 = lean_unsigned_to_nat(31u);
-x_3 = lean_unsigned_to_nat(1658u);
+x_3 = lean_unsigned_to_nat(1662u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_prev_x21___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3616,7 +3616,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_pos_x21___closed__1));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(1683u);
+x_3 = lean_unsigned_to_nat(1687u);
 x_4 = ((lean_object*)(l_String_Slice_pos_x21___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -4956,7 +4956,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_Pos_sliceOrPanic___redArg___closed__1));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(2540u);
+x_3 = lean_unsigned_to_nat(2544u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_sliceOrPanic___redArg___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5151,7 +5151,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_slice_x21___closed__1));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(2564u);
+x_3 = lean_unsigned_to_nat(2568u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_ofSlice_x21___redArg___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -5294,7 +5294,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = ((lean_object*)(l_String_Slice_Pos_slice_x21___redArg___closed__1));
 x_2 = lean_unsigned_to_nat(4u);
-x_3 = lean_unsigned_to_nat(2582u);
+x_3 = lean_unsigned_to_nat(2586u);
 x_4 = ((lean_object*)(l_String_Slice_Pos_slice_x21___redArg___closed__0));
 x_5 = ((lean_object*)(l_String_fromUTF8_x21___closed__1));
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

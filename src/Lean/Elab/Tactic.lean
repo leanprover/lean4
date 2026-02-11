@@ -55,3 +55,4 @@ public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
 public import Lean.Elab.Tactic.Decide
+public import Lean.Elab.Tactic.Cbv

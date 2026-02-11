@@ -176,8 +176,8 @@ def tryRecv? (client : Mock.Client) (_expect : UInt64 := 0) : BaseIO (Option Byt
 Close the mock server and client.
 -/
 def close (client : Mock.Client) : IO Unit := do
-  client.shared.clientToServer.close
-  client.shared.serverToClient.close
+  if !(← client.shared.clientToServer.isClosed) then client.shared.clientToServer.close
+  if !(← client.shared.serverToClient.isClosed) then client.shared.serverToClient.close
 
 end Mock.Client
 
@@ -226,8 +226,9 @@ def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option Byt
 Close the mock server and client.
 -/
 def close (server : Mock.Server) : IO Unit := do
-  server.shared.clientToServer.close
-  server.shared.serverToClient.close
+  if !(← server.shared.clientToServer.isClosed) then server.shared.clientToServer.close
+  if !(← server.shared.serverToClient.isClosed) then server.shared.serverToClient.close
+
 
 end Mock.Server
 

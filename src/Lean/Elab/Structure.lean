@@ -412,7 +412,8 @@ def structCtor           := leading_parser try (declModifiers >> ident >> " :: "
 def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
-  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
+  -- **Note**: We use `addFirstAttr` to make sure the `[class]` attribute is processed **before** `[univ_out_params]`
+  let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   if modifiers.isMeta then

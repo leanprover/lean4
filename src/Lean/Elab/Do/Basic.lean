@@ -539,10 +539,13 @@ def observingPostpone (x : DoElabM α) : DoElabM (Option α) := do
       else
         throw ex
 
-def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
+def doElabToSyntaxWithExpectedType (hint : MessageData) (doElab : Option Expr → DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   controlAtTermElabM fun runInBase =>
     Term.elabToSyntax (hint? := hint) (ref := ref)
-      (fun _ => runInBase doElab) (runInBase ∘ k)
+      (fun ty? => runInBase (doElab ty?)) (runInBase ∘ k)
+
+def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
+  doElabToSyntaxWithExpectedType hint (fun _ty? => doElab) k ref
 
 /--
 Call `caller` with a duplicable proxy of `dec`.

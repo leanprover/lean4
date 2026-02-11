@@ -68,9 +68,9 @@ def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
      expand alts >>= fun alts? => alts?.mapM fun alts =>
       `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
-  | `(doElem| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+  | `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
      expand alts >>= fun alts? => alts?.mapM fun alts =>
-      `(doElem| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
+      `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
   | _ => return none
   where
     expand (alts : Array (TSyntax ``matchAlt)) : MacroM (Option (Array (TSyntax ``matchAlt))) := do

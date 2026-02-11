@@ -21,18 +21,40 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
+  let newDoBlockResultType ← withNewMCtxDepth do
+    let γ ← mkFreshExprMVar (mkSort (← read).monadInfo.u.succ)
+    unless ← isDefEqGuarded type (← mkMonadicType γ) do
+      throwError "Could not determine dependently-refined result type of `do` block.\n
+        Expected type {type} was not def eq to {← mkMonadicType γ}"
+    instantiateMVars γ
+  trace[Elab.do.match] "newDoBlockResultType: {newDoBlockResultType}"
+  -- The `doBlockResultType` *is* the continuation's return type, since it is duplicable.
+  let dec := { dec with resultType := newDoBlockResultType }
+  withDoBlockResultType newDoBlockResultType (elabDoSeq doSeq dec)
+
 /--
-Expand a `doMatch` into a term `match` term. We do this for `match_syntax` only.
-Reason: In case of a dependent match, we cannot guarantee that generalization of join points and
+Expand a `doMatch` into a term `match` term. We do this for `match_syntax` and
+`match (dependent := true)`. For the latter, the functionality is very restricted to effectively
+ban join points.
+Reason: In case of a dependent match, it is hard to guarantee that generalization of join points and
 `mut` vars will succeed.
 The rest of the code in this file is concerned with copying just enough code from the term `match`
 elaborator to guarantee that said generalization will always succeed.
 -/
 private def expandToTermMatch : DoElab := fun stx dec => do
-  let `(doMatch| match $discrs:matchDiscr,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let `(doMatch| match $[(dependent := $dep)]? $discrs:matchDiscr,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
+  let doBlockResultType := (← read).doBlockResultType
+  let mγ ← mkMonadicType doBlockResultType
   -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
   let info ← inferControlInfoElem stx
+  let dependent := dep.getD ⟨.missing⟩ matches `(trueVal| true)
+  trace[Elab.do.match] "expandToTermMatch. dependent: {dependent}, doBlockResultType: {doBlockResultType}, dec.resultType: {dec.resultType}"
+  let complexDec := withNewMCtxDepth <| not <$> isDefEqGuarded dec.resultType doBlockResultType
+  if ← pure dependent <&&> complexDec then
+    throwError "Dependent match is not supported when the result type of the `do` block \
+      {indentExpr doBlockResultType}\n is different to the result type of the `match` \
+      {indentExpr dec.resultType}"
   dec.withDuplicableCont info fun dec => do
   let rec loop i (alts : Array (TSyntax ``matchAlt)) := do
     if h : i < alts.size then
@@ -40,8 +62,12 @@ private def expandToTermMatch : DoElab := fun stx dec => do
       | `(matchAltExpr| | $patterns,* => $seq) =>
         let vars ← getPatternsVarsEx patterns
         checkMutVarsForShadowing vars
-        doElabToSyntax m!"match_syntax alternative {patterns.getElems}" (ref := seq) (elabDoSeq ⟨seq⟩ dec) fun rhs => do
-          loop (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
+        let elabRhs (type? : Option Expr) : DoElabM Expr := do
+          let (true, some type) := (dependent, type?) | elabDoSeq ⟨seq⟩ dec
+          elabDoSeqWithRefinedType type ⟨seq⟩ dec
+        doElabToSyntaxWithExpectedType m!"match_syntax alternative {patterns.getElems}"
+          (ref := seq) elabRhs fun rhs => do
+            loop (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
       | _ => throwUnsupportedSyntax
     else
       Term.elabTerm (← `(match $[$discrs],* with $alts:matchAlt*)) mγ
@@ -283,7 +309,7 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
   return vars
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] partial def elabDoMatch : DoElab := fun stx dec => do
-  let `(doMatch| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
+  let `(doMatch| match $[(dependent := $dep)]? $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   -- Expand alts
   if let some stxNew ← liftMacroM <| Term.expandMatchAlts? stx then
     return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
@@ -300,10 +326,17 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
   -- Expand syntax_match to a term match. This is OK because it is never dependent.
   if isSyntaxMatch alts then
     return ← expandToTermMatch stx dec
+  let testParam (flag : Option (TSyntax [``trueVal, ``falseVal])) : Option Bool :=
+    match flag.getD ⟨.missing⟩ with
+    | `(trueVal| true) => some true
+    | `(falseVal| false) => some false
+    | _ => none
+  -- If the user has explicitly requested a dependent match, we expand to a term match as well.
+  if testParam dep == some true then
+    return ← expandToTermMatch stx dec
 
   if let some motive? := motive? then
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."
-  let gen? := gen?.map (· matches `(trueVal| true))
-  let doGeneralize := gen?.getD true
+  let doGeneralize := testParam gen? != some false
   checkMutVarsForShadowing (← getAltsPatternVars alts)
   elabDoMatchCore doGeneralize motive? discrs (alts.filterMap (Term.getMatchAlt ``doSeq)) dec

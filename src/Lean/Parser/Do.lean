@@ -178,9 +178,12 @@ The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
+def dependentParam := leading_parser
+  atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
+    (trueVal <|> falseVal)  >> ")" >> ppSpace
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtin_doElem_parser] def doMatch := leading_parser:leadPrec
-  "match " >> optional Term.generalizingParam >> optional Term.motive >>
+  "match " >> optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
 def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)

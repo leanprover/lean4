@@ -51,8 +51,18 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
-/-- `cbv` performs simplification that closely mimics call-by-value evaluation,
-using equations associated with definitions and the matchers. -/
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces the target term by unfolding definitions using their defining equations and
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
+
+`cbv` does not require trust in the correctness of
+the code generator and hence does not rely on additional axioms.
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
+-/
 syntax (name := cbv) "cbv" : conv
 
 /--

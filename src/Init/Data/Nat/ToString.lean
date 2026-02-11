@@ -18,6 +18,7 @@ import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Bitwise
 import Init.Data.Nat.Simproc
 import Init.WFTactics
+import Init.Data.Char.Lemmas
 
 public section
 
@@ -135,7 +136,7 @@ theorem length_toDigits_le_iff {n k : Nat} (hb : 1 < b) (h : 0 < k) :
   | k + 1 =>
     induction k generalizing n
     · rw [toDigits_eq_if hb]
-      split <;> simp [*, length_toDigits_pos, ← Nat.pos_iff_ne_zero]
+      split <;> simp [*, length_toDigits_pos, ← Nat.pos_iff_ne_zero, - List.length_eq_zero_iff]
     · rename_i ih
       rw [toDigits_eq_if hb]
       split
@@ -163,13 +164,27 @@ theorem toString_eq_repr {n : Nat} :
   (rfl)
 
 @[simp, grind norm]
-theorem toString_eq_repr {n : Nat} :
-    toString n = n.repr :=
+theorem reprPrec_eq_repr {n i : Nat} :
+    reprPrec n i = n.repr :=
+  (rfl)
+
+@[simp, grind norm]
+theorem repr_eq_repr {n : Nat} :
+    repr n = n.repr :=
   (rfl)
 
 theorem repr_of_lt {n : Nat} (h : n < 10) :
-    n.repr = (digitChar n).toString := by
-  sorry
+    n.repr = .singleton (digitChar n) := by
+  rw [repr_eq_ofList_toDigits, toDigits_of_lt_base h, String.singleton_eq_ofList]
+
+theorem repr_of_ge {n : Nat} (h : 10 ≤ n) :
+    n.repr = (n / 10).repr ++ .singleton (digitChar (n % 10)) := by
+  simp [repr_eq_ofList_toDigits, toDigits_of_base_le (by omega) h, String.singleton_eq_ofList,
+    String.ofList_append]
+
+theorem repr_eq_repr_append_repr {n : Nat} (h : 10 ≤ n) :
+    n.repr = (n / 10).repr ++ (n % 10).repr := by
+  rw [repr_of_ge h, repr_of_lt (n := n % 10) (by omega)]
 
 theorem length_repr_pos {n : Nat} :
     0 < n.repr.length := by

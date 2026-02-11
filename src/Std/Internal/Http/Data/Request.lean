@@ -86,6 +86,15 @@ structure Request.Builder where
 
 namespace Request
 
+instance : ToString Head where
+  toString req :=
+    toString req.method ++ " " ++
+    toString req.uri ++ " " ++
+    toString req.version ++
+    "\r\n" ++
+    toString req.headers ++
+    "\r\n"
+
 open Internal in
 instance : Encode .v11 Head where
   encode buffer req :=

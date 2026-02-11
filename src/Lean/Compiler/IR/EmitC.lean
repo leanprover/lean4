@@ -617,7 +617,7 @@ where
       | .uint32 => pure "lean_uint32_once"
       | .uint64 => pure "lean_uint64_once"
       | .usize => pure "lean_usize_once"
-      | .object | .tobject | .tagged => pure "lean_obj_once"
+      | .object | .tobject | .tagged | .void => pure "lean_obj_once"
       | _ => throw s!"failed to emit closed term read for '{f}'"
     emit s!"{fn}(&{← toCName f}, &{toTokenName (← toCName f)}, {← toCInitName f})"
 

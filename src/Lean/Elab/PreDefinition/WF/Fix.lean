@@ -38,8 +38,36 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   let _mvarId ← mvarId.cleanup
   return mvar
 
+/--
+Below we need a way to identify local contexts, and check if one is included in the other.
+We use the last free variable for that. This works because
+
+* the code below never sees an empty context
+* contexts are extended with fresh variable names
+* we do not clear free variable in this code
+-/
+private def LCtxId := FVarId
+
+private def getLCtxId : MetaM LCtxId := do
+  let lctx := (← getLCtx)
+  if lctx.isEmpty then
+    throwError "unexpected empty local context"
+  return lctx.decls[lctx.size - 1]!.get!.fvarId
+
+private def LCtxId.isValid (lctxid : LCtxId) : MetaM Bool :=
+  return (← getLCtx).contains lctxid
+
+/--
+Since `replaceRecApp` looks at the whole context (by way of `mkDecreasingProof`), a cache entry
+for it is only valid in the current local context, or a sub-context. We use a `LctxId` to track
+that, and ignore cache entries that come from a deeper context.
+
+In the case where we first see a recursive application in a deeper context, and later the same
+call in a less deep context, we thus get two proof obligations. We catch that situation later in
+`assignSubsumed` and the user should only see the more general one.
+-/
 private abbrev RecM (recFnName : Name) :=
-  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap (Expr × FVarId)) TermElabM
+  StateRefT (HasConstCache #[recFnName]) $ StateRefT (ExprMap (Expr × LCtxId)) TermElabM
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
@@ -70,17 +98,16 @@ where
   loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if !(← containsRecFn e) then
       return e
-    if let some (newE, lastFVar) := (← getThe (ExprMap _)).get? e then
-      -- make sure the local contexts are compatible
-      if (← getLCtx).contains lastFVar then
+    if let some (newE, lctxId) := (← getThe (ExprMap _)).get? e then
+      -- only use if the local context is still valid, else ignore and override
+      if (← LCtxId.isValid lctxId) then
         return newE
     let e' ← loopGo F e
     -- we only ever extend the local context in this procedure
     -- so it should suffice to check the last fvar
     -- (note that we assume here that the local context is not empty)
-    let lctx ← getLCtx
-    let lastFVar := lctx.decls[lctx.size - 1]!.get!.fvarId
-    modifyThe (ExprMap _) fun map => map.insert e (e', lastFVar)
+    let lctxId ← getLCtxId
+    modifyThe (ExprMap _) fun map => map.insert e (e', lctxId)
     if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
       withTransparency .all do withNewMCtxDepth do
         unless (← isTypeCorrect e') do

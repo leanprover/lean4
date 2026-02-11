@@ -58,17 +58,20 @@ def skipByte (b : UInt8) : Parser Unit :=
 Skip a sequence of bytes equal to the given `ByteArray`.
 -/
 def skipBytes (arr : ByteArray) : Parser Unit := fun it =>
-  if it.remainingBytes < arr.size then
-    .error it .eof
-  else
-    let rec go (idx : Nat) (it : ByteArray.Iterator) : ParseResult Unit ByteArray.Iterator :=
-      if h : idx < arr.size then
-        match skipByte arr[idx] it with
-        | .success it' _ => go (idx + 1) it'
-        | .error it' err => .error it' err
+  let rec go (idx : Nat) (it : ByteArray.Iterator) : ParseResult Unit ByteArray.Iterator :=
+    if h : idx < arr.size then
+      if hnext : it.hasNext then
+        let got := it.curr' hnext
+        let want := arr[idx]
+        if got = want then
+          go (idx + 1) (it.next' hnext)
+        else
+          .error it (.other s!"expected byte {want}, got {got}")
       else
-        .success it ()
-    go 0 it
+        .error it (.other s!"unexpected end of input while matching {arr.size} bytes")
+    else
+      .success it ()
+  go 0 it
 
 /--
 Parse a string by matching its UTF-8 bytes, returns the string on success.

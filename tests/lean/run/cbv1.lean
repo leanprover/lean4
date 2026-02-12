@@ -172,12 +172,20 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
     lhs
     cbv
 
+--set_option trace.Meta.Tactic true
+example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
+  conv =>
+    lhs
+    cbv
+
 attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
 attribute [cbv_opaque] Std.DHashMap.insert
 attribute [cbv_opaque] Std.DHashMap.getEntry
 attribute [cbv_opaque] Std.DHashMap.contains
 attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_emptyWithCapacity
 attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_insert
+
+#check System.Platform.numBits.eq_def
 
 example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
   conv =>

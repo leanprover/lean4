@@ -57,7 +57,8 @@ public def getUnfoldTheorem (fnName : Name) : MetaM (Option Theorem) := do
   if let some thm := cache.unfoldTheorems.find? fnName then
     return some thm
   else
-    let some unfoldEqn ← getConstUnfoldEqnFor? fnName | return none
+    let some unfoldEqn ← getUnfoldEqnFor? fnName (nonRec := true) | return none
+    --let some unfoldEqn ← getConstUnfoldEqnFor? fnName | return none
     let thm ← mkTheoremFromDecl unfoldEqn
 
     modifyEnv fun env =>

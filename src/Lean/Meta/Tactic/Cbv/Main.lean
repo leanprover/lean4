@@ -142,15 +142,16 @@ def simplifyAppFn : Simproc := fun e => do
       return .step newValue newProof
 
 def handleConst : Simproc := fun e => do
+  trace[Meta.Tactic] "Trying const: {e}"
   let .const n _ := e | return .rfl
   let info ← getConstInfo n
   unless info.isDefinition do return .rfl
   let eType ← Sym.inferType e
   let eType ← whnfD eType
-  unless eType matches .forallE .. do
+  if eType matches .forallE .. then return .rfl
+  let some thm ← getUnfoldTheorem n |
+    unless info.isCtor || info.isCtor do throwError "Cannot unfold {e}"
     return .rfl
-  -- TODO: Check if we need to look if we applied all the levels correctly
-  let some thm ← getUnfoldTheorem n | return .rfl
   Theorem.rewrite thm e
 
 def cbvPreStep : Simproc := fun e => do

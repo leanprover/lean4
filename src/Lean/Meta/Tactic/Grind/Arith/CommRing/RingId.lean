@@ -11,28 +11,26 @@ import Lean.Meta.Sym.Arith.Ring.Detect
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
-open Sym.Arith.Ring (detectCommRing? arithRingExt)
+open Sym.Arith.Ring (detectCommRing?)
 
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.
-Uses the shared ring state in `SymM` so that ring detection and lazily-computed
-operations (e.g., `addFn?`) are shared between the arithmetic normalizer and
-grind's ring solver.
+Uses the shared detection cache in `SymM` so that ring detection results and
+lazily-computed operations (e.g., `addFn?`) are shared between the arithmetic
+normalizer and grind's ring solver.
 -/
 def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
-  let some sharedRingId ← detectCommRing? type | do
+  let some tmpl ← detectCommRing? type | do
     modify' fun s => { s with typeIdOf := s.typeIdOf.insert { expr := type } none }
     return none
-  -- Copy from shared state (includes pre-computed lazy fields like addFn? from ArithNorm)
-  let sharedState ← arithRingExt.getState
-  let baseRing := sharedState.rings[sharedRingId]!
   trace_goal[grind.ring] "new ring: {type}"
-  trace_goal[grind.ring] "NoNatZeroDivisors available: {baseRing.noZeroDivInst?.isSome}"
+  trace_goal[grind.ring] "NoNatZeroDivisors available: {tmpl.noZeroDivInst?.isSome}"
   let id := (← get').rings.size
-  -- Reset per-context state (vars, varMap, denote) but keep instances and cached operations
-  let ring : CommRing := { baseRing with
+  -- Copy from shared cache (includes pre-computed lazy fields from ArithNorm),
+  -- reset per-context state (vars, varMap, denote)
+  let ring : CommRing := { tmpl with
     toRing.id := id
     toRing.vars := {}
     toRing.varMap := {}

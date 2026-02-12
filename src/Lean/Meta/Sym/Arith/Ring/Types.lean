@@ -105,10 +105,21 @@ structure CommSemiring extends Semiring where
   toQFn?             : Option Expr := none
   deriving Inhabited
 
-/-- Shared ring state, accessible from both `Sym.simp` and `grind`. -/
+/-- Per-consumer ring state (e.g., for ArithNorm or grind). -/
 structure State where
   rings   : Array CommRing := {}
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  deriving Inhabited
+
+/--
+Shared ring cache, accessible from both `Sym.simp` and `grind`.
+Maps types to `CommRing` templates containing synthesized instances
+and lazily-computed operations (`addFn?`, etc.).
+Per-context fields (`id`, `vars`, `varMap`, `denote`) are irrelevant
+in the cache — each consumer resets them when copying.
+-/
+structure SharedRingCache where
+  cache : PHashMap ExprPtr CommRing := {}
   deriving Inhabited
 
 end Lean.Meta.Sym.Arith.Ring

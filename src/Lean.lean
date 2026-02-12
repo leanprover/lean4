@@ -48,3 +48,5 @@ public import Lean.DefEqAttrib
 public import Lean.Shell
 public import Lean.ExtraModUses
 public import Lean.OriginalConstKind
+public import Lean.SimpLC
+public import Lean.SimpLC.Exceptions

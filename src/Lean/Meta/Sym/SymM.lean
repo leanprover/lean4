@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.AlphaShareCommon
+public import Lean.Meta.Sym.Arith.Ring.Types
 public import Lean.Meta.CongrTheorems
 public section
 namespace Lean.Meta.Sym
@@ -131,6 +132,8 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
+  /-- Cached ring detection state for arithmetic normalization. -/
+  arith : Arith.Ring.State := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM

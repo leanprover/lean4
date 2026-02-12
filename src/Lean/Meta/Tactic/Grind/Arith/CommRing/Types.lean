@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
-export Sym.Arith.Ring (Ring Semiring RingExpr SemiringExpr)
+export Sym.Arith.Ring (Ring Semiring CommSemiring RingExpr SemiringExpr)
 export Lean.Grind.CommRing (Var Power Mon Poly)
 
 mutual
@@ -140,24 +140,7 @@ structure DiseqCnstr where
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
 /-- State for each `CommRing` processed by this module. -/
-structure CommRing extends Ring where
-  /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr := none
-  /--
-  If this is a `OfSemiring.Q α` ring, this field contain the
-  `semiringId` for `α`.
-  -/
-  semiringId?    : Option Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `CommRing` instance for `type` -/
-  commRingInst   : Expr
-  /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr
-  /-- `Field` instance for `type` if available. -/
-  fieldInst?     : Option Expr
-  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
-  denoteEntries  : PArray (Expr × RingExpr) := {}
+structure CommRing extends Sym.Arith.Ring.CommRing where
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
@@ -188,19 +171,7 @@ structure CommRing extends Ring where
   numEq0Updated  : Bool := false
   deriving Inhabited
 
-/--
-State for each `CommSemiring` processed by this module.
-Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
--/
-structure CommSemiring extends Semiring where
-  /-- Id for `OfCommSemiring.Q` -/
-  ringId         : Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option (Option Expr) := none
-  toQFn?         : Option Expr := none
-  deriving Inhabited
+-- CommSemiring is reused from Sym.Arith.Ring.CommSemiring via the export above.
 
 /-- State for all `CommRing` types detected by `grind`. -/
 structure State where

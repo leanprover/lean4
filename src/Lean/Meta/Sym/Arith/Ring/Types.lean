@@ -74,4 +74,41 @@ structure Ring where
   denote         : PHashMap ExprPtr RingExpr := {}
   deriving Inhabited
 
+/-- Shared state for commutative rings. -/
+structure CommRing extends Ring where
+  /--
+  If this is a `OfSemiring.Q α` ring, this field contains the
+  `semiringId` for `α`.
+  -/
+  semiringId?        : Option Nat
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `CommRing` instance for `type` -/
+  commRingInst       : Expr
+  /-- `NoNatZeroDivisors` instance for `type` if available. -/
+  noZeroDivInst?     : Option Expr
+  /-- `Field` instance for `type` if available. -/
+  fieldInst?         : Option Expr
+  invFn?             : Option Expr := none
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries      : PArray (Expr × RingExpr) := {}
+  deriving Inhabited
+
+/-- Shared state for commutative semirings. -/
+structure CommSemiring extends Semiring where
+  /-- Id for `OfSemiring.Q` -/
+  ringId             : Nat
+  /-- `CommSemiring` instance for `type` -/
+  commSemiringInst   : Expr
+  /-- `AddRightCancel` instance for `type` if available. -/
+  addRightCancelInst? : Option (Option Expr) := none
+  toQFn?             : Option Expr := none
+  deriving Inhabited
+
+/-- Ring detection and caching state. -/
+structure State where
+  rings   : Array CommRing := {}
+  typeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  deriving Inhabited
+
 end Lean.Meta.Sym.Arith.Ring

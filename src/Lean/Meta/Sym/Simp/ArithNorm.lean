@@ -27,27 +27,8 @@ Given an expression like `(a + b) * (a - b)`, it normalizes to `a*a + (-1)*b*b`
 `Grind.CommRing.Expr.denote_toPoly`.
 -/
 
-/-- Commutative ring state for the arithmetic normalizer. -/
-structure CommRing extends Ring where
-  semiringId?        : Option Nat
-  commSemiringInst   : Expr
-  commRingInst       : Expr
-  noZeroDivInst?     : Option Expr
-  fieldInst?         : Option Expr
-  deriving Inhabited
-
-/-- Ring detection and caching state. -/
-structure RingState where
-  rings   : Array CommRing := {}
-  typeIdOf : PHashMap ExprPtr (Option Nat) := {}
-
-/-- State for the arithmetic normalizer, persisted across simproc invocations within a session. -/
-structure ArithNormState where
-  ringState : RingState := {}
-
-/-- Monad for ring operations within the normalizer. Wraps `SimpM` with ring state and a current ring id. -/
+/-- Monad for ring operations within the normalizer. Wraps `SimpM` with a current ring id. -/
 structure ArithRingM.Context where
-  stateRef : IO.Ref ArithNormState
   ringId : Nat
 
 abbrev ArithRingM := ReaderT ArithRingM.Context SimpM
@@ -56,35 +37,35 @@ instance : MonadCanon ArithRingM where
   canonExpr e := shareCommonInc e
   synthInstance? e := Meta.synthInstance? e
 
-def getArithState : ArithRingM ArithNormState := do
-  (← read).stateRef.get
+def getArithState : ArithRingM Arith.Ring.State := do
+  return (← getThe Sym.State).arith
 
-def modifyArithState (f : ArithNormState → ArithNormState) : ArithRingM Unit := do
-  (← read).stateRef.modify f
+def modifyArithState (f : Arith.Ring.State → Arith.Ring.State) : ArithRingM Unit := do
+  modifyThe Sym.State fun s => { s with arith := f s.arith }
 
 def ArithRingM.getCommRing : ArithRingM CommRing := do
   let s ← getArithState
   let ringId := (← read).ringId
-  if h : ringId < s.ringState.rings.size then
-    return s.ringState.rings[ringId]
+  if h : ringId < s.rings.size then
+    return s.rings[ringId]
   else
     throwError "arith normalizer: invalid ringId"
 
 def ArithRingM.modifyCommRing (f : CommRing → CommRing) : ArithRingM Unit := do
   let ringId := (← read).ringId
-  modifyArithState fun s => { s with ringState.rings := s.ringState.rings.modify ringId f }
+  modifyArithState fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadRing ArithRingM where
   getRing := return (← ArithRingM.getCommRing).toRing
   modifyRing f := ArithRingM.modifyCommRing fun s => { s with toRing := f s.toRing }
 
 /-- Detect whether `type` has a `Grind.CommRing` instance. Returns the ring id if found. -/
-private def getCommRingId? (stateRef : IO.Ref ArithNormState) (type : Expr) : SimpM (Option Nat) := do
-  let s ← stateRef.get
-  if let some id? := s.ringState.typeIdOf.find? { expr := type } then
+private def getCommRingId? (type : Expr) : SimpM (Option Nat) := do
+  let s := (← getThe Sym.State).arith
+  if let some id? := s.typeIdOf.find? { expr := type } then
     return id?
   let id? ← go?
-  stateRef.modify fun s => { s with ringState.typeIdOf := s.ringState.typeIdOf.insert { expr := type } id? }
+  modifyThe Sym.State fun st => { st with arith.typeIdOf := st.arith.typeIdOf.insert { expr := type } id? }
   return id?
 where
   go? : SimpM (Option Nat) := do
@@ -100,13 +81,13 @@ where
     let noZeroDivInst? ← getNoZeroDivInst? u type
     let fieldInst? ← Meta.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
     let semiringId? := none
-    let s ← stateRef.get
-    let id := s.ringState.rings.size
+    let s := (← getThe Sym.State).arith
+    let id := s.rings.size
     let ring : CommRing := {
       id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
       commRingInst, charInst?, noZeroDivInst?, fieldInst?,
     }
-    stateRef.modify fun s => { s with ringState.rings := s.ringState.rings.push ring }
+    modifyThe Sym.State fun st => { st with arith.rings := st.arith.rings.push ring }
     return some id
 
   getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SimpM (Option (Expr × Nat)) := do
@@ -249,7 +230,6 @@ Create an arithmetic normalizer simproc.
 The returned simproc normalizes ring expressions to polynomial normal form.
 -/
 def mkArithNormSimproc : SymM Simproc := do
-  let stateRef ← IO.mkRef ({} : ArithNormState)
   return fun e => do
     -- Quick check: is this an arithmetic operation?
     unless e.isApp do return .rfl
@@ -263,9 +243,9 @@ def mkArithNormSimproc : SymM Simproc := do
     let type ← Sym.inferType e
     let type ← shareCommonInc type
     -- Try to find a CommRing instance for this type
-    let some ringId ← getCommRingId? stateRef type | return .rfl
+    let some ringId ← getCommRingId? type | return .rfl
     -- Run normalization in the ring context
-    let ctx : ArithRingM.Context := { stateRef, ringId }
+    let ctx : ArithRingM.Context := { ringId }
     let r ← (do
       let some re ← reify? e | return Result.rfl
       let some result ← normalizeRingExpr re | return Result.rfl

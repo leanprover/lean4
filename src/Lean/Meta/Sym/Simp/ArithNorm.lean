@@ -38,16 +38,8 @@ instance : MonadCanon ArithRingM where
   canonExpr e := shareCommonInc e
   synthInstance? e := Meta.synthInstance? e
 
-builtin_initialize arithExt : SymExtension Arith.Ring.State ← registerSymExtension
-
-def getArithState : ArithRingM Arith.Ring.State := do
-  arithExt.getState
-
-def modifyArithState (f : Arith.Ring.State → Arith.Ring.State) : ArithRingM Unit := do
-  arithExt.modifyState f
-
 def ArithRingM.getCommRing : ArithRingM CommRing := do
-  let s ← getArithState
+  let s ← arithRingExt.getState
   let ringId := (← read).ringId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
@@ -56,27 +48,11 @@ def ArithRingM.getCommRing : ArithRingM CommRing := do
 
 def ArithRingM.modifyCommRing (f : CommRing → CommRing) : ArithRingM Unit := do
   let ringId := (← read).ringId
-  modifyArithState fun s => { s with rings := s.rings.modify ringId f }
+  arithRingExt.modifyState fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadRing ArithRingM where
   getRing := return (← ArithRingM.getCommRing).toRing
   modifyRing f := ArithRingM.modifyCommRing fun s => { s with toRing := f s.toRing }
-
-/-- Detect whether `type` has a `Grind.CommRing` instance. Returns the ring id if found. -/
-private def getCommRingId? (type : Expr) : SimpM (Option Nat) := do
-  let s ← arithExt.getState
-  if let some id? := s.typeIdOf.find? { expr := type } then
-    return id?
-  let some info ← Arith.Ring.detectCommRingInfo? type | do
-    arithExt.modifyState fun st => { st with typeIdOf := st.typeIdOf.insert { expr := type } none }
-    return none
-  let id := s.rings.size
-  let ring := info.toCommRing id
-  arithExt.modifyState fun st => { st with
-    rings := st.rings.push ring
-    typeIdOf := st.typeIdOf.insert { expr := type } (some id)
-  }
-  return some id
 
 /-- Check if an expression is an instance of the expected one by pointer equality. -/
 private def isExpectedInst (expected inst : Expr) : Bool :=
@@ -216,7 +192,7 @@ def mkArithNormSimproc : SymM Simproc := do
     let type ← Sym.inferType e
     let type ← shareCommonInc type
     -- Try to find a CommRing instance for this type
-    let some ringId ← getCommRingId? type | return .rfl
+    let some ringId ← Arith.Ring.detectCommRing? type | return .rfl
     -- Run normalization in the ring context
     let ctx : ArithRingM.Context := { ringId }
     let r ← (do

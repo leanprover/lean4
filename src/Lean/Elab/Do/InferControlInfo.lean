@@ -6,9 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Syntax
-public import Lean.Parser
+public import Lean.Elab.Term
 meta import Lean.Parser.Do
+import Lean.Elab.Do.PatternVar
 
 public section
 
@@ -67,62 +67,6 @@ For pure handlers, use `fun stx => return ControlInfo.pure`.
 @[builtin_doc]
 builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHandler ←
   mkControlInfoElemAttribute decl_name%
-
-private def getPatternVarsEx (pattern : Term) : TermElabM (Array Ident) :=
-  open TSyntax.Compat in -- until PatternVar := Ident
-  Term.getPatternVars pattern <|>
-  Term.Quotation.getPatternVars pattern
-
-private def getLetIdVars (letId : TSyntax ``letId) : TermElabM (Array Ident) := do
-  match letId with
-  | `(letId| _) => return #[]
-  | `(letId| $id:ident) => return #[id]
-  | `(letId| $s:hygieneInfo) => return #[HygieneInfo.mkIdent s `this (canonical := true)]
-  | _ => throwError "Not a letId: {letId}"
-
-private def getLetIdDeclVars (letIdDecl : TSyntax ``letIdDecl) : TermElabM (Array Ident) := do
-  -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
-  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
-  -- NB: `letIdLhs` does not introduce a new node
-  getLetIdVars ⟨letIdDecl.raw[0]⟩
-
-
-private def getLetPatDeclVars (letPatDecl : TSyntax ``letPatDecl) : TermElabM (Array Ident) := do
-  -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
-  getPatternVarsEx ⟨letPatDecl.raw[0]⟩
-
-private def getLetEqnsDeclVars (letEqnsDecl : TSyntax ``letEqnsDecl) : TermElabM (Array Ident) :=
-  -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
-  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
-  -- NB: `letIdLhs` does not introduce a new node
-  getLetIdVars ⟨letEqnsDecl.raw[0]⟩
-
-private def getLetDeclVars (letDecl : TSyntax ``letDecl) : TermElabM (Array Ident) := do
-  match letDecl with
-  | `(letDecl| $letIdDecl:letIdDecl) => getLetIdDeclVars letIdDecl
-  | `(letDecl| $letPatDecl:letPatDecl) => getLetPatDeclVars ⟨letPatDecl⟩
-  | `(letDecl| $letEqnsDecl:letEqnsDecl) => getLetEqnsDeclVars letEqnsDecl
-  | _ => throwError "Not a let declaration: {toString letDecl}"
-
-private def getDoLetDeclVars (letDecl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM (Array Ident) := do
-  match letDecl with
-  | `(letDecl| $letIdDecl:letIdDecl) => getLetIdDeclVars letIdDecl
-  | `(letDecl| $letPatDecl:letPatDecl) => getLetPatDeclVars ⟨letPatDecl⟩
-  | `(letDecl| $letEqnsDecl:letEqnsDecl) => getLetEqnsDeclVars letEqnsDecl
-  | _ => throwError "Not a let declaration: {toString letDecl}"
-
-private def getLetRecDeclVars (letRecDecl : TSyntax ``letRecDecl) : TermElabM (Array Ident) := do
-  -- def letRecDecl := optional docComment >> optional «attributes» >> letDecl >> Termination.suffix
-  getLetDeclVars ⟨letRecDecl.raw[2]⟩
-
-private def getLetRecDeclsVars (letRecDecls : TSyntax ``letRecDecls) : TermElabM (Array Ident) := do
-  -- def letRecDecls := sepBy1 letRecDecl ", "
-  let `(letRecDecls| $[$letRecDecls:letRecDecl],*) := letRecDecls | throwUnsupportedSyntax
-  let mut allVars := #[]
-  for letRecDecl in letRecDecls do
-    let vars ← getLetRecDeclVars letRecDecl
-    allVars := allVars ++ vars
-  return allVars
 
 namespace InferControlInfo
 

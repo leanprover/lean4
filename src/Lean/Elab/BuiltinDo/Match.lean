@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
+import Lean.Elab.Do.PatternVar
 import Lean.Elab.BuiltinDo.Basic
 import Lean.Elab.Match
 import Lean.Elab.MatchAltView

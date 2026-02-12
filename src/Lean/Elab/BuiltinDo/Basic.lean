@@ -16,23 +16,6 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
--- support both regular and syntax match
-def getPatternVarsEx (pattern : Term) : TermElabM (Array Ident) :=
-  open TSyntax.Compat in -- until PatternVar := Ident
-  Term.getPatternVars pattern <|>
-  Term.Quotation.getPatternVars pattern
-
-def getPatternsVarsEx (patterns : Array Term) : TermElabM (Array Ident) :=
-  open TSyntax.Compat in -- until PatternVar := Ident
-  Term.getPatternsVars patterns <|>
-  Term.Quotation.getPatternsVars patterns
-
-def getExprPatternVarsEx (exprPattern : TSyntax ``matchExprPat) : TermElabM (Array Ident) := do
-  let `(matchExprPat| $[$var? @]? $_funName:ident $pvars*) := exprPattern | throwUnsupportedSyntax
-  match var? with
-  | some var => return #[var] ++ pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
-  | none => return pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
-
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
   let xType ← Term.elabType (xType?.getD (mkHole x))

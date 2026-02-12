@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
 import Lean.Elab.BuiltinDo.Basic
+import Lean.Elab.Do.PatternVar
 
 public section
 
@@ -16,49 +17,6 @@ namespace Lean.Elab.Do
 
 open Lean.Parser.Term
 open Lean.Meta
-
-def getLetIdVars (letId : TSyntax ``letId) : TermElabM (Array Ident) := do
-  match letId with
-  | `(letId| _) => return #[]
-  | `(letId| $id:ident) => return #[id]
-  | `(letId| $s:hygieneInfo) => return #[HygieneInfo.mkIdent s `this (canonical := true)]
-  | _ => throwError "Not a letId: {letId}"
-
-def getLetIdDeclVars (letIdDecl : TSyntax ``letIdDecl) : TermElabM (Array Ident) := do
-  -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
-  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
-  -- NB: `letIdLhs` does not introduce a new node
-  getLetIdVars ⟨letIdDecl.raw[0]⟩
-
-def getLetPatDeclVars (letPatDecl : TSyntax ``letPatDecl) : TermElabM (Array Ident) := do
-  -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
-  getPatternVarsEx ⟨letPatDecl.raw[0]⟩
-
-def getLetEqnsDeclVars (letEqnsDecl : TSyntax ``letEqnsDecl) : TermElabM (Array Ident) :=
-  -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
-  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
-  -- NB: `letIdLhs` does not introduce a new node
-  getLetIdVars ⟨letEqnsDecl.raw[0]⟩
-
-def getLetDeclVars (letDecl : TSyntax ``letDecl) : TermElabM (Array Ident) := do
-  match letDecl with
-  | `(letDecl| $letIdDecl:letIdDecl) => getLetIdDeclVars letIdDecl
-  | `(letDecl| $letPatDecl:letPatDecl) => getLetPatDeclVars ⟨letPatDecl⟩
-  | `(letDecl| $letEqnsDecl:letEqnsDecl) => getLetEqnsDeclVars letEqnsDecl
-  | _ => throwError "Not a let declaration: {toString letDecl}"
-
-def getLetRecDeclVars (letRecDecl : TSyntax ``letRecDecl) : TermElabM (Array Ident) := do
-  -- def letRecDecl := optional docComment >> optional «attributes» >> letDecl >> Termination.suffix
-  getLetDeclVars ⟨letRecDecl.raw[2]⟩
-
-def getLetRecDeclsVars (letRecDecls : TSyntax ``letRecDecls) : TermElabM (Array Ident) := do
-  -- def letRecDecls := sepBy1 letRecDecl ", "
-  let `(letRecDecls| $[$letRecDecls:letRecDecl],*) := letRecDecls | throwUnsupportedSyntax
-  let mut allVars := #[]
-  for letRecDecl in letRecDecls do
-    let vars ← getLetRecDeclVars letRecDecl
-    allVars := allVars ++ vars
-  return allVars
 
 inductive LetOrReassign
   | let (mutTk? : Option Syntax)

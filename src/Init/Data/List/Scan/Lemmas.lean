@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro, Chad Sharp
 -/
 module
 
@@ -12,7 +12,6 @@ import all Init.Data.List.Scan.Basic
 import Init.Data.List.TakeDrop
 import Init.Data.Option.Lemmas
 import Init.Data.Nat.Lemmas
--- public import Init
 
 public section
 

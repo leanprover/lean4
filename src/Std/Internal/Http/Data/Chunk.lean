@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String
 public import Std.Data.HashMap
 public import Std.Internal.Http.Internal
+public import Std.Internal.Http.Data.Headers
 
 
 public section
@@ -146,3 +147,114 @@ instance : Encode .v11 Chunk where
     buffer.append #[size, exts.toUTF8, "\r\n".toUTF8, chunk.data, "\r\n".toUTF8]
 
 end Chunk
+
+
+/--
+Trailer headers sent after the final chunk in HTTP/1.1 chunked transfer encoding.
+Per RFC 9112 §7.1.2, trailers allow the sender to include additional metadata after
+the message body, such as message integrity checks or digital signatures.
+-/
+structure Trailer where
+  /--
+  The trailer header fields as key-value pairs.
+  -/
+  headers : Headers
+deriving Inhabited
+
+namespace Trailer
+
+/--
+Creates an empty trailer with no headers.
+-/
+def empty : Trailer :=
+  { headers := .empty }
+
+/--
+Inserts a trailer header field.
+-/
+@[inline]
+def insert (trailer : Trailer) (name : Header.Name) (value : Header.Value) : Trailer :=
+  { headers := trailer.headers.insert name value }
+
+/--
+Inserts a trailer header field from string name and value, panicking if either is invalid.
+-/
+@[inline]
+def insert! (trailer : Trailer) (name : String) (value : String) : Trailer :=
+  { headers := trailer.headers.insert! name value }
+
+/--
+Retrieves the first value for the given trailer header name.
+Returns `none` if absent.
+-/
+@[inline]
+def get? (trailer : Trailer) (name : Header.Name) : Option Header.Value :=
+  trailer.headers.get? name
+
+/--
+Retrieves all values for the given trailer header name.
+Returns `none` if absent.
+-/
+@[inline]
+def getAll? (trailer : Trailer) (name : Header.Name) : Option (Array Header.Value) :=
+  trailer.headers.getAll? name
+
+/--
+Checks if a trailer header with the given name exists.
+-/
+@[inline]
+def contains (trailer : Trailer) (name : Header.Name) : Bool :=
+  trailer.headers.contains name
+
+/--
+Removes a trailer header with the given name.
+-/
+@[inline]
+def erase (trailer : Trailer) (name : Header.Name) : Trailer :=
+  { headers := trailer.headers.erase name }
+
+/--
+Gets the number of trailer headers.
+-/
+@[inline]
+def size (trailer : Trailer) : Nat :=
+  trailer.headers.size
+
+/--
+Checks if the trailer has no headers.
+-/
+@[inline]
+def isEmpty (trailer : Trailer) : Bool :=
+  trailer.headers.isEmpty
+
+/--
+Merges two trailers, accumulating values for duplicate keys from both.
+-/
+def merge (t1 t2 : Trailer) : Trailer :=
+  { headers := t1.headers.merge t2.headers }
+
+/--
+Converts the trailer headers to a list of key-value pairs.
+-/
+def toList (trailer : Trailer) : List (Header.Name × Header.Value) :=
+  trailer.headers.toList
+
+/--
+Converts the trailer headers to an array of key-value pairs.
+-/
+def toArray (trailer : Trailer) : Array (Header.Name × Header.Value) :=
+  trailer.headers.toArray
+
+/--
+Folds over all key-value pairs in the trailer headers.
+-/
+def fold (trailer : Trailer) (init : α) (f : α → Header.Name → Header.Value → α) : α :=
+  trailer.headers.fold init f
+
+instance : Encode .v11 Trailer where
+  encode buffer trailer :=
+    buffer.write "0\r\n".toUTF8
+    |> (Encode.encode .v11 · trailer.headers)
+    |>.write  "\r\n".toUTF8
+
+end Trailer

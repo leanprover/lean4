@@ -22,6 +22,7 @@ set(
   stack_overflow.cpp
   process.cpp
   object_ref.cpp
+  object_graph.cpp
   mpn.cpp
   mutex.cpp
   libuv.cpp

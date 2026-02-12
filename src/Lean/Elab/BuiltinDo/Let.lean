@@ -57,35 +57,36 @@ def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (
     letOrReassign.registerReassignAliasInfo vars
     k
 
+private def pushTypeIntoReassignment (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) : TermElabM (TSyntax ``letDecl) := do
+  if letOrReassign matches .reassign then
+    match decl with
+    | `(letDecl| $x:ident $[: $xType?]? := $rhs) =>
+      -- We use `Term.elabTermEnsuringType` instead of `Term.ensureHasType` to turn type
+      -- mismatches into sorrys.
+      discard <| Term.elabTermEnsuringType (← `($x:ident)) (← xType?.mapM (Term.elabType ·))
+      let xType ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
+      `(letDecl| $x:ident : $xType := $rhs)
+    | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
+      let pattern ← match xType? with
+        | some xType => `(($pattern : $xType))
+        | none       => pure pattern
+      -- `Term.withoutErrToSorry` prevents a confusing secondary error message when elaborating
+      -- the `match` pattern, where the mut vars potentially get a different type.
+      -- Example: `let mut n : Nat := 0; ((n : Char), _) := (false, false)`. We don't want to see
+      --          "`n` has type `Char` but was expected to have type `Bool`".
+      let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
+      let patType ← Term.exprToSyntax (← inferType e)
+      `(letDecl| $pattern:term := ($rhs : $patType))
+    | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
+  else
+    pure decl
+
 partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
   -- Some decl preprocessing on the patterns and expected types:
-  let decl ←
-    if letOrReassign matches .reassign then
-      match decl with
-      | `(letDecl| $x:ident $[: $xType?]? := $rhs) =>
-        -- We use `Term.elabTermEnsuringType` instead of `Term.ensureHasType` to turn type
-        -- mismatches into sorrys.
-        discard <| Term.elabTermEnsuringType (← `($x:ident)) (← xType?.mapM (Term.elabType ·))
-        let xType ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
-        `(letDecl| $x:ident : $xType := $rhs)
-      | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
-        let pattern ← match xType? with
-          | some xType => `(($pattern : $xType))
-          | none       => pure pattern
-        -- `Term.withoutErrToSorry` prevents a confusing secondary error message when elaborating
-        -- the `match` pattern, where the mut vars potentially get a different type.
-        -- Example: `let mut n : Nat := 0; ((n : Char), _) := (false, false)`. We don't want to see
-        --          "`n` has type `Char` but was expected to have type `Bool`".
-        let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
-        let patType ← Term.exprToSyntax (← inferType e)
-        `(letDecl| $pattern:term := ($rhs : $patType))
-      | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
-    else
-      pure decl
-
+  let decl ← pushTypeIntoReassignment letOrReassign decl
   let mγ ← mkMonadicType (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
@@ -106,18 +107,29 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
   | `(letDecl| $decl:letIdDecl) =>
     let { id, binders, type, value } := Term.mkLetIdDeclView decl
     let id ← if id.isIdent then pure id else Term.mkFreshIdent id (canonical := true)
+    let nondep := letOrReassign matches .have
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
-    -- TODO: Perhaps make let muts actually behave as let muts again once the attribute-based inference stuff is in place
-    let nondep := !(letOrReassign matches .let none)
-    let config := { nondep }
-    controlAtTermElabM fun runInBase => do
-    Term.withElabLetDeclAux config id binders type value fun x val => runInBase do
+    -- See `elabLetDeclAux` for rationale.
+    let (type, val) ← Term.elabBindersEx binders fun xs => do
+      let fvars := xs.map (·.2) -- discard binders
+      let ty ← Term.withSynthesize (postpone := .partial) <| Term.elabType type
+      let letMsg := if nondep then "have" else "let"
+      Term.registerCustomErrorIfMVar ty type m!"failed to infer `{letMsg}` declaration type"
+      Term.registerLevelMVarErrorExprInfo ty type m!"failed to infer universe levels in `{letMsg}` declaration type"
+      let lctx' := fvars.foldl (init := ← getLCtx) fun lctx fvar =>
+        lctx.modifyLocalDecl fvar.fvarId! (fun decl => decl.setType decl.type.cleanupAnnotations)
+      let val ← withLCtx' lctx' do
+        let val ← Term.elabTermEnsuringType value ty
+        mkLambdaFVars fvars val (usedLetOnly := false)
+      let ty ← mkForallFVars fvars ty
+      pure (ty, val)
+    let kind := .ofBinderName id.getId
+    trace[Elab.let.decl] "{id.getId} : {type} := {val}"
+    withLetDecl id.getId (kind := kind) type val (nondep := nondep) fun x => do
+      Term.addLocalVarInfo id x
       elabWithReassignments letOrReassign vars do
-      let body ← dec.continueWithUnit >>= instantiateMVars
-      if config.zeta then
-        body.replaceFVarsM #[x] #[val]
-      else
-        mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+      let body ← dec.continueWithUnit
+      mkLetFVars #[x] body (usedLetOnly := false) (generalizeNondepLet := false)
   | _ => throwUnsupportedSyntax
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do

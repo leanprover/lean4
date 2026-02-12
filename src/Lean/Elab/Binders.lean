@@ -239,13 +239,12 @@ private partial def elabBindersAux (binders : Array Syntax) (k : Array (Syntax �
   `elabBinders(Ex)` automatically adds binder info nodes for the produced fvars, but storing the syntax nodes
   might be necessary when later adding the same binders back to the local context so that info nodes can
   manually be added for the new fvars; see `MutualDef` for an example. -/
-@[specialize]
-def elabBindersEx [Monad m] [MonadLiftT TermElabM m] [MonadControlT TermElabM m] (binders : Array Syntax) (k : Array (Syntax × Expr) → m α) : m α :=
+def elabBindersEx (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
   universeConstraintsCheckpoint do
     if binders.isEmpty then
       k #[]
     else
-      controlAt TermElabM fun runInBase => elabBindersAux binders <| (runInBase ∘ k)
+      elabBindersAux binders <| k
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `bracketedBinder`),

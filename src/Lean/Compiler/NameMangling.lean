@@ -10,6 +10,7 @@ public import Lean.Setup
 import Init.Data.String.TakeDrop
 import Init.Data.UInt.Lemmas
 import Init.Omega
+import Init.Data.String.Lemmas.FindPos
 
 namespace String
 

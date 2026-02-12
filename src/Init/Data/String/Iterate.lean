@@ -7,10 +7,12 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.String.FindPos
 public import Init.Data.Iterators.Combinators.FilterMap
 public import Init.Data.Iterators.Consumers.Loop
 import Init.Omega
 import Init.Data.Iterators.Consumers.Collect
+import Init.Data.String.Lemmas.FindPos
 
 set_option doc.verso true
 
@@ -22,18 +24,25 @@ structure PosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited
 
+/--
+Creates an iterator over the valid positions within {name}`s`, starting at {name}`p`.
+-/
+def positionsFrom {s : Slice} (p : s.Pos) :
+    Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
+  { internalState := { currPos := p } }
+
 set_option doc.verso false
 /--
 Creates an iterator over all valid positions within {name}`s`.
 
-Examples
+Examples:
  * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
  * {lean}`("abc".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
  * {lean}`("ab∀c".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
  * {lean}`("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
 -/
 def positions (s : Slice) : Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.startPos }}
+  s.positionsFrom s.startPos
 
 set_option doc.verso true
 
@@ -102,6 +111,13 @@ structure RevPosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited
 
+/--
+Creates an iterator over all valid positions within {name}`s` that are strictly smaller than
+{name}`p`, starting from the position before {name}`p` and iterating towards the first one.
+-/
+def revPositionsFrom (s : Slice) (p : s.Pos) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
+  { internalState := { currPos := p } }
+
 set_option doc.verso false
 /--
 Creates an iterator over all valid positions within {name}`s`, starting from the last valid
@@ -114,7 +130,7 @@ Examples
  * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
 -/
 def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.endPos }}
+  s.revPositionsFrom s.endPos
 
 set_option doc.verso true
 
@@ -134,7 +150,7 @@ instance [Pure m] :
       pure (.deflate ⟨.done, by simp [h]⟩)
     else
       let prevPos := currPos.prev h
-      pure (.deflate ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩)
+      pure (.deflate ⟨.yield ⟨⟨prevPos⟩⟩ ⟨prevPos, by exact Pos.prev_ne_endPos⟩, by simp [h, prevPos]⟩)
 
 private def finitenessRelation [Pure m] :
     Std.Iterators.FinitenessRelation (RevPosIterator s) m where
@@ -147,8 +163,8 @@ private def finitenessRelation [Pure m] :
     cases step
     · cases h
       obtain ⟨h1, h2, _⟩ := h'
-      have h3 := Pos.offset_prev_lt_offset (h := h1)
-      simp [Pos.ext_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
+      have h3 := Pos.prev_lt (h := h1)
+      simp [Pos.ext_iff, Pos.lt_iff, String.Pos.Raw.ext_iff, String.Pos.Raw.lt_iff] at h2 h3
       omega
     · cases h'
     · cases h
@@ -317,7 +333,7 @@ instance [Monad m] [Monad n] : Std.IteratorLoop RevByteIterator m n :=
 
 docs_to_verso revBytes
 
-instance : ForIn Id String.Slice Char where
+instance {m : Type u → Type v} [Monad m] : ForIn m String.Slice Char where
   forIn s b f := ForIn.forIn s.chars b f
 
 end RevByteIterator
@@ -351,9 +367,16 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 end Slice
 
 @[inline]
-def Internal.toSliceWithProof {s : String} :
+def Internal.ofToSliceWithProof {s : String} :
     { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
   fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, by simpa [← Pos.toSlice_inj]⟩
+
+/--
+Creates an iterator over the valid positions within {name}`s`, starting at {name}`p`.
+-/
+def positionsFrom (s : String) (p : s.Pos) :=
+  ((s.toSlice.positionsFrom p.toSlice).map Internal.ofToSliceWithProof :
+    Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all valid positions within {name}`s`.
@@ -366,7 +389,7 @@ Examples
 -/
 @[inline]
 def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
+  s.positionsFrom s.startPos
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`.
@@ -380,6 +403,14 @@ def chars (s : String) :=
   (s.toSlice.chars : Std.Iter Char)
 
 /--
+Creates an iterator over all valid positions within {name}`s` that are strictly smaller than
+{name}`p`, starting from the position before {name}`p` and iterating towards the first one.
+-/
+def revPositionsFrom (s : String) (p : s.Pos) :=
+  ((s.toSlice.revPositionsFrom p.toSlice).map Internal.ofToSliceWithProof :
+    Std.Iter { p : s.Pos // p ≠ s.endPos })
+
+/--
 Creates an iterator over all valid positions within {name}`s`, starting from the last valid
 position and iterating towards the first one.
 
@@ -391,7 +422,7 @@ Examples
 -/
 @[inline]
 def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
+  s.revPositionsFrom s.endPos
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end
@@ -428,7 +459,7 @@ Examples:
 def revBytes (s : String) :=
   (s.toSlice.revBytes : Std.Iter UInt8)
 
-instance : ForIn Id String Char where
+instance {m : Type u → Type v} [Monad m] : ForIn m String Char where
   forIn s b f := ForIn.forIn s.toSlice b f
 
 end String

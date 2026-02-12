@@ -2542,6 +2542,9 @@ grind_pattern flatMap_reverse => l.reverse.flatMap f where
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
+theorem reverse_singleton {a : α} : [a].reverse = [a] := by
+  simp
+
 @[simp]
 theorem append_singleton_inj {as bs : List α} : as ++ [a] = bs ++ [b] ↔ as = bs ∧ a = b := by
   rw [← List.reverse_inj, And.comm]; simp

@@ -11,6 +11,7 @@ public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Runtime
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.AuxDeclCache
 
 namespace Lean.Compiler.LCNF
 
@@ -86,7 +87,7 @@ abbrev BoxM := ReaderT Ctx StateRefT State CompilerM
 @[inline]
 def getResultType : BoxM Expr := return (← read).currDeclResultType
 
-def eqvTypes (t₁ t₂ : Expr) : Bool :=
+def typesEqvForBoxing (t₁ t₂ : Expr) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 /--
@@ -118,15 +119,42 @@ def mkCast (fvarId : FVarId) (fvarIdType : Expr) (expectedType : Expr) :
     match ← isExpensiveConstantValueBoxing fvarId fvarIdType with
     | none => return .box fvarIdType fvarId
     | some v =>
-      -- v is guaranteed to be closed
-      sorry
-
+      /-
+      v is guaranteed to be closed so we can generate the following:
+      let _x.1 : fvarIdType := v;
+      let _x.2 : expectedType := box fvarIdType _x.1;
+      return _x.2
+      -/
+      let x1 ← mkLetDecl .anonymous fvarIdType v
+      let x2 ← mkLetDecl .anonymous expectedType (.box fvarIdType x1.fvarId)
+      let body : Code .impure := .let x1 <| .let x2 <| .return x2.fvarId
+      let auxDecl : Decl .impure := {
+        name := (← read).currDecl ++ ((`_boxed_const).appendIndexAfter (← get).nextAuxIdx)
+        levelParams := []
+        type := expectedType
+        params := #[]
+        value := .code body
+        inlineAttr? := none
+      }
+      match ← cacheAuxDecl auxDecl with
+      | .alreadyCached auxName =>
+        auxDecl.erase
+        let auxConst := .fap auxName #[]
+        return auxConst
+      | .new =>
+        modify fun s => { s with
+          auxDecls := s.auxDecls.push auxDecl
+          nextAuxIdx := s.nextAuxIdx + 1
+        }
+        auxDecl.saveImpure
+        let auxConst := .fap auxDecl.name #[]
+        return auxConst
 
 @[inline]
 def castVarIfNeeded (var : FVarId) (expectedType : Expr) (k : FVarId → BoxM (Code .impure)) :
     BoxM (Code .impure) := do
   let varType ← getType var
-  if eqvTypes varType expectedType then
+  if typesEqvForBoxing varType expectedType then
     k var
   else
     let v ← mkCast var varType expectedType
@@ -151,7 +179,7 @@ def castArgsIfNeededAux (args : Array (Arg .impure)) (typeFromIdx : Nat → Expr
     | .erased => newArgs := newArgs.push arg
     | .fvar fvarId =>
       let fvarType ← getType fvarId
-      if eqvTypes fvarType expectedType then
+      if typesEqvForBoxing fvarType expectedType then
         newArgs := newArgs.push arg
       else
         let v ← mkCast fvarId fvarType expectedType
@@ -184,7 +212,7 @@ def unboxResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (k : Code
 
 def castResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (expType : Expr)
     (k : Code .impure) : BoxM (Code .impure) := do
-  if eqvTypes decl.type expType then
+  if typesEqvForBoxing decl.type expType then
     return code.updateLet! decl k
   else
     let boxedTy := decl.type.boxed

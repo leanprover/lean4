@@ -416,7 +416,7 @@ private unsafe def LetValue.updatePapImp (e : LetValue pu) (declName' : Name) (a
   | .pap declName args _ => if declName == declName' && ptrEq args args' then e else .pap declName' args'
   | _ => unreachable!
 
-@[implemented_by LetValue.updateFapImp] opaque LetValue.updatePap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
+@[implemented_by LetValue.updatePapImp] opaque LetValue.updatePap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
 
 private unsafe def LetValue.updateBoxImp (e : LetValue pu) (ty' : Expr) (fvarId' : FVarId) : LetValue pu :=
   match e with
@@ -759,17 +759,17 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
     (offset' : Nat) (y' : FVarId) (ty' : Expr) (k' : Code pu) : Code pu
 
 @[inline] private unsafe def updateUsetImp (c : Code pu) (fvarId' : FVarId)
-    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu :=
+    (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu :=
   match c with
-  | .sset fvarId i offset y ty k _ =>
-    if ptrEq fvarId fvarId' && offset == offset' && ptrEq y y' && ptrEq k k' then
+  | .uset fvarId i y k _ =>
+    if ptrEq fvarId fvarId' && i == i' && ptrEq y y' && ptrEq k k' then
       c
     else
-      .uset fvarId' offset' y' k'
+      .uset fvarId' i' y' k'
   | _ => unreachable!
 
 @[implemented_by updateUsetImp] opaque Code.updateUset! (c : Code pu) (fvarId' : FVarId)
-    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
+    (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
 
 private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then

@@ -3085,7 +3085,8 @@ end String
 
 namespace Char
 
-@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := by
-  simp [toString_eq_singleton]
+@[deprecated String.length_singleton (since := "2026-02-12")]
+theorem length_toString (c : Char) : c.toString.length = 1 := by
+  simp
 
 end Char

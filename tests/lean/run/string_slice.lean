@@ -246,3 +246,9 @@ end
 #guard " ".revFind? (· = ' ') = some " ".startPos
 #guard " ".endsWith (·.isWhitespace) = true
 #guard " ".endsWith (· = ' ') = true
+
+#guard (Id.run do
+  let mut s' := ""
+  for c in "hello" do
+    s' := s'.push c
+  return s') = "hello"

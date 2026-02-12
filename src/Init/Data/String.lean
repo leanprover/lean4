@@ -29,3 +29,4 @@ public import Init.Data.String.OrderInstances
 public import Init.Data.String.FindPos
 public import Init.Data.String.Subslice
 public import Init.Data.String.Iter
+public import Init.Data.String.Iterate

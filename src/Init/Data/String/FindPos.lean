@@ -63,6 +63,7 @@ def posGT (s : String) (offset : String.Pos.Raw) (h : offset < s.rawEndPos) : s.
 /--
 Obtains the largest valid position that is less than or equal to the given byte position.
 -/
+@[expose]
 def Slice.posLE (s : Slice) (offset : String.Pos.Raw) : s.Pos :=
   if h' : offset.IsValidForSlice s then
     s.pos offset h'
@@ -75,7 +76,7 @@ decreasing_by simp only [ne_eq, Pos.Raw.eq_zero_iff, Pos.Raw.byteIdx_dec] at ⊢
 /--
 Obtains the largest valid position that is strictly less than the given byte position.
 -/
-@[inline]
+@[inline, expose]
 def Slice.posLT (s : Slice) (offset : String.Pos.Raw) (_h : 0 < offset) : s.Pos :=
   s.posLE offset.dec
 
@@ -97,7 +98,7 @@ def posLT (s : String) (offset : String.Pos.Raw) (h : 0 < offset) : s.Pos :=
 Returns the previous valid position before the given position, given a proof that the position
 is not the start position, which guarantees that such a position exists.
 -/
-@[inline]
+@[inline, expose]
 def Slice.Pos.prev {s : Slice} (pos : s.Pos) (h : pos ≠ s.startPos) : s.Pos :=
   s.posLT pos.offset (by simpa [Pos.Raw.pos_iff_ne_zero, Pos.ext_iff] using h)
 

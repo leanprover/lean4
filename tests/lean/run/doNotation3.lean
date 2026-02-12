@@ -22,10 +22,10 @@ rfl
 
 def fold2 {m α β} [Monad m] (as : Array α) (b : β) (f : α → β → m β) : m β :=
 let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
-  match i, h with
+  match hi : i, h with
   | 0,   h => return b
   | i+1, h =>
-    have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+    have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) (hi ▸ h)
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
     have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
     let b ← f as[as.size - 1 - i] b

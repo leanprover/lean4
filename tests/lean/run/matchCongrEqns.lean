@@ -72,7 +72,7 @@ info: take.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : Nat → List 
 -/
 #guard_msgs(pass trace, all) in #check take.match_1.congr_eq_1
 
-def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
+def matchOptionUnit (o? : Option Unit) : Bool :=
     if let some _ := o? then
       true
     else

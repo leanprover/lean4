@@ -26,21 +26,3 @@ def testFoo (input : Option Nat) (expected : Nat) : IO Unit := do
     x := x + 100
     return "unreachable"
   if x + y < 23 then pure "ok" else pure "wrong"
-
-def bar (x : Nat) : IO (Fin (x + 1)) := do
-  let 2 := x | return 0
-  -- the pattern match performed a substitution
-  let y : Fin 3 := ⟨1, by decide⟩
-  return y
-
-def testBar (x : Nat) (expected : Fin (x + 1)) : IO Unit := do
-  assert! (← bar x) == expected
-
-#guard_msgs in
-#eval testBar 1 0
-
-#guard_msgs in
-#eval testBar 2 1
-
-#guard_msgs in
-#eval testBar 3 0

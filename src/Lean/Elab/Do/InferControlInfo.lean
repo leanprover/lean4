@@ -48,6 +48,26 @@ instance : ToMessageData ControlInfo where
     returnsEarly: {info.returnsEarly}, exitsRegularly: {info.exitsRegularly},
     reassigns: {info.reassigns.toList}"
 
+/-- A handler for inferring `ControlInfo` from a `doElem` syntax. Register with `@[doElem_control_info parserName]`. -/
+abbrev ControlInfoHandler := TSyntax `doElem → TermElabM ControlInfo
+
+unsafe def mkControlInfoElemAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute ControlInfoHandler) :=
+  mkElabAttribute ControlInfoHandler `builtin_doElem_control_info `doElem_control_info
+    `Lean.Parser.Term.doElem ``Lean.Elab.Do.ControlInfoHandler "control info inference" ref
+
+@[implemented_by mkControlInfoElemAttributeUnsafe]
+opaque mkControlInfoElemAttribute (ref : Name) : IO (KeyedDeclsAttribute ControlInfoHandler)
+
+/--
+Registers a `ControlInfo` inference handler for the given `doElem` syntax node kind.
+
+A handler should have type `ControlInfoHandler` (i.e. `TSyntax \`doElem → TermElabM ControlInfo`).
+For pure handlers, use `fun stx => return ControlInfo.pure`.
+-/
+@[builtin_doc]
+builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHandler ←
+  mkControlInfoElemAttribute decl_name%
+
 private def getPatternVarsEx (pattern : Term) : TermElabM (Array Ident) :=
   open TSyntax.Compat in -- until PatternVar := Ident
   Term.getPatternVars pattern <|>
@@ -195,7 +215,16 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let otherwiseInfo ← ofSeq ⟨otherwise⟩
     let bodyInfo ← match body? with | none => pure {} | some body => ofSeq ⟨body⟩
     return otherwiseInfo.alternative bodyInfo
-  | _ => throwError "unexpected `do` element syntax in `ofElem`: {indentD stx}"
+  | _ =>
+    let handlers := controlInfoElemAttribute.getEntries (← getEnv) stx.raw.getKind
+    for handler in handlers do
+      let res ← catchInternalId unsupportedSyntaxExceptionId
+        (some <$> handler.value stx)
+        (fun _ => pure none)
+      if let some info := res then return info
+    throwError
+      "No `ControlInfo` inference handler found for `{stx.raw.getKind}` in syntax {indentD stx}\n\
+       Register a handler with `@[doElem_control_info {stx.raw.getKind}]`."
 
 partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM ControlInfo := do
   match decl with

@@ -5,12 +5,19 @@ import Lean
 
 open Lean
 
+-- For debugging:
+-- set_option trace.Elab.tacticConfig true
+-- set_option debug.Elab.tacticConfig.forceEval true
+-- set_option profiler true
+-- set_option profiler.threshold 0
+
 /-!
 Simple tactic configuration
 -/
 structure MyTacticConfig where
   x : Nat := 0
   y : Bool := false
+  z : List Nat := []
   deriving Repr
 
 declare_config_elab elabMyTacticConfig MyTacticConfig
@@ -19,24 +26,28 @@ elab "my_tactic" cfg:Parser.Tactic.optConfig : tactic => do
   let config ← elabMyTacticConfig cfg
   logInfo m!"config is {repr config}"
 
+-- Making this irreducible forces the compiler to be used to evaluate configurations using it.
+--@[irreducible]
+def aa : List Nat := [1,2,3]
+
 /--
-info: config is { x := 0, y := false }
+info: config is { x := 0, y := false, z := [] }
 ---
-info: config is { x := 0, y := true }
+info: config is { x := 0, y := true, z := [] }
 ---
-info: config is { x := 1, y := false }
+info: config is { x := 1, y := false, z := [1, 2, 3] }
 ---
-info: config is { x := 2, y := false }
+info: config is { x := 2, y := false, z := [] }
 ---
-info: config is { x := 1, y := true }
+info: config is { x := 1, y := true, z := [] }
 ---
-info: config is { x := 0, y := false }
+info: config is { x := 0, y := false, z := [] }
 -/
 #guard_msgs in
 example : True := by
   my_tactic
   my_tactic +y
-  my_tactic (x := 1)
+  my_tactic (x := 1) (z := aa)
   my_tactic -y (x := 2)
   my_tactic (config := {x := 1, y := true})
   my_tactic +y (config := {y := false})
@@ -49,7 +60,7 @@ Basic errors
 /--
 error: Option is not boolean-valued, so `(x := ...)` syntax must be used
 ---
-info: config is { x := 0, y := false }
+info: config is { x := 0, y := false, z := [] }
 ---
 error: unsolved goals
 ⊢ True
@@ -59,7 +70,7 @@ error: unsolved goals
 /--
 error: Structure `MyTacticConfig` does not have a field named `w`
 ---
-info: config is { x := 0, y := false }
+info: config is { x := 0, y := false, z := [] }
 ---
 error: unsolved goals
 ⊢ True
@@ -69,7 +80,7 @@ error: unsolved goals
 /--
 error: Field `x` of structure `MyTacticConfig` is not a structure
 ---
-info: config is { x := 0, y := false }
+info: config is { x := 0, y := false, z := [] }
 ---
 error: unsolved goals
 ⊢ True
@@ -91,17 +102,17 @@ elab "my_tactic'" cfg:Parser.Tactic.optConfig : tactic => do
   logInfo m!"config is {repr config}"
 
 /--
-info: config is { toMyTacticConfig := { x := 22, y := true } }
+info: config is { toMyTacticConfig := { x := 22, y := true, z := [] } }
 ---
-info: config is { toMyTacticConfig := { x := 22, y := true } }
+info: config is { toMyTacticConfig := { x := 22, y := true, z := [] } }
 ---
-info: config is { toMyTacticConfig := { x := 1, y := true } }
+info: config is { toMyTacticConfig := { x := 1, y := true, z := [] } }
 ---
-info: config is { toMyTacticConfig := { x := 2, y := false } }
+info: config is { toMyTacticConfig := { x := 2, y := false, z := [] } }
 ---
-info: config is { toMyTacticConfig := { x := 1, y := true } }
+info: config is { toMyTacticConfig := { x := 1, y := true, z := [] } }
 ---
-info: config is { toMyTacticConfig := { x := 22, y := false } }
+info: config is { toMyTacticConfig := { x := 22, y := false, z := [] } }
 -/
 #guard_msgs in
 example : True := by

@@ -821,6 +821,30 @@ def initializeKeyword := leading_parser
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in" >> ppLine >> commandParser))
 
+/-!
+`declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`
+that elaborates a tactic configuration.
+The tactic configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
+and these can also be wrapped in null nodes (for example, from `(config)?`).
+
+The elaborator responds to the current recovery state.
+
+For defining elaborators for commands, use `declare_command_config_elab`.
+-/
+@[builtin_command_parser] def configElab := leading_parser
+  optional docComment >> "declare_config_elab" >> ident >> ident
+
+/-!
+`declare_command_config_elab elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
+that elaborates a command configuration.
+The configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
+and these can also be wrapped in null nodes (for example, from `(config)?`).
+
+The elaborator has error recovery enabled.
+-/
+@[builtin_command_parser] def commandConfigElab := leading_parser
+  optional docComment >> "declare_command_config_elab" >> ident >> ident
+
 /--
 Adds a docstring to an existing declaration, replacing any existing docstring.
 The provided docstring should be written as a docstring for the `add_decl_doc` command, as in

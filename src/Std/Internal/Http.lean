@@ -34,29 +34,26 @@ the actual reading and writing of bytes.
 
 ## Quick Start
 
-The main entry point is `HTTP.Server.serve`, which starts an HTTP/1.1 server:
+The main entry point is `Server.serve`, which starts an HTTP/1.1 server:
 
 ```lean
 import Std.Internal.Http
-import Std.Internal.Async
 
-open Std.Internal.IO.Async
+open Std Internal IO Async
 open Std Http
 
-def handler (req : Request Body.ChunkStream) : ContextAsync (Response Body.Full) := do
-  -- Return a simple text response
-  Response.ok
-    |>.text "Hello, World!"
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+  Response.ok |>.text "Hello, World!"
 
-def main : IO Unit := do
-  let address := .v4 (.mk (.ofParts 127 0 0 1) 8080)
-  let server ← (Server.serve address handler (IO.eprintln ·)).block
-  server.waitShutdown.block
+def main : IO Unit := Async.block do
+  let addr : Net.SocketAddress := .v4 ⟨.ofParts 127 0 0 1, 8080⟩
+  let server ← Server.serve addr handler (fun e => IO.eprintln s!"Error: {e}")
+  server.waitShutdown
 ```
 
 ## Working with Requests
 
-Incoming requests are represented by `Request Body.ChunkStream`, which bundles together the
+Incoming requests are represented by `Request Body.Stream`, which bundles together the
 request line, parsed headers, and a lazily-consumed body. Headers are available
 immediately, while the body can be streamed or collected on demand, allowing handlers
 to efficiently process both small and large requests.
@@ -64,41 +61,40 @@ to efficiently process both small and large requests.
 ### Reading Headers
 
 ```lean
-def handler (req : Request Body.ChunkStream) : ContextAsync (Response Body.Full) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
   -- Access request method and URI
   let method := req.head.method      -- Method.get, Method.post, etc.
   let uri := req.head.uri            -- RequestTarget
 
   -- Read a specific header
-  if let some contentType := req.head.headers.get? (.new "content-type") then
-    IO.println s!"Content-Type: {contentType.value}"
+  if let some contentType := req.head.headers.get? (.mk "content-type") then
+    IO.println s!"Content-Type: {contentType}"
 
   Response.ok |>.text "OK"
 ```
 
-### Reading Requests with body
+### Reading the Request Body
 
-The request body.ChunkStream is exposed as a stream, which can be consumed incrementally or collected into memory.
-Helper functions are provided to decode the body as UTF-8 text or raw bytes, with optional size limits
-to protect against unbounded payloads.
+The request body is exposed as a `Body.Stream`, which can be consumed incrementally or
+collected into memory. The `readAll` method reads the entire body, with an optional size
+limit to protect against unbounded payloads.
 
 ```lean
-def handler (req : Request Body.ChunkStream) : ContextAsync (Response Body.Full) := do
-  -- Collect entire body as string (with optional size limit)
-  let some bodyStr ← req.body.collectString (maxBytes := some 1024)
-    | Response.badRequest |>.text "Invalid UTF-8 or body too large"
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+  -- Collect entire body as a String
+  let bodyStr : String ← req.body.readAll
 
-  -- Or collect as raw bytes
-  let bodyBytes ← req.body.collectByteArray
+  -- Or with a maximum size limit
+  let bodyStr : String ← req.body.readAll (maximumSize := some 1024)
 
- Response.ok |>.text s!"Received: {bodyStr}"
+  Response.ok |>.text s!"Received: {bodyStr}"
 ```
 
 ## Building Responses
 
-Responses are constructed using an API that starts from a status code and adds headers and a body.
-Common helpers exist for text, HTML, and binary responses, while still allowing full control over status
-codes and header values.
+Responses are constructed using a builder API that starts from a status code and adds
+headers and a body. Common helpers exist for text, HTML, JSON, and binary responses, while
+still allowing full control over status codes and header values.
 
 ```lean
 -- Text response
@@ -107,11 +103,14 @@ Response.ok |>.text "Hello!"
 -- HTML response
 Response.ok |>.html "<h1>Hello!</h1>"
 
+-- JSON response
+Response.ok |>.json "{\"key\": \"value\"}"
+
 -- Binary response
-Response.ok |>.binary someByteArray
+Response.ok |>.bytes someByteArray
 
 -- Custom status
-Response.withStatus .created |>.text "Resource created"
+Response.new |>.status .created |>.text "Resource created"
 
 -- With custom headers
 Response.ok
@@ -125,62 +124,57 @@ Response.ok
 For large responses or server-sent events, use streaming:
 
 ```lean
-def handler (req : Request Body.ChunkStream) : ContextAsync (Response Body.Full) := do
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
   Response.ok
     |>.header! "Content-Type" "text/plain"
     |>.stream fun stream => do
       for i in [0:10] do
-        stream.writeChunk { data := s!"chunk {i}\n".toUTF8 }
-        -- Optionally add delays for SSE-like behavior
+        stream.send { data := s!"chunk {i}\n".toUTF8 }
+        Async.sleep 1000
       stream.close
 ```
 
 ## Server Configuration
 
-Configure server behavior with `Server.Config`:
+Configure server behavior with `Config`:
 
 ```lean
-def config : Std.Http.Config := {
-  keepAliveTimeout := ⟨30000, by decide⟩,
+def config : Config := {
+  maxRequests := 10000000,
   lingeringTimeout := 5000,
-  maximumRecvSize := 65536,
-  defaultPayloadBytes := 8192,
 }
 
-let server ← Server.serve address handler (IO.eprintln ·) config
+let server ← Server.serve addr handler (fun e => IO.eprintln s!"Error: {e}") config
 ```
 
-## Architecture
+## Handler Signature
 
-### Request/Response Types
-
-- `Request Body.ChunkStream` - HTTP request with headers and body
-- `Response Body.Full` - HTTP response with status, headers, and body
-- `Body` - Request/response body.Full (empty, bytes, or stream)
-- `Headers` - Collection of header name-value pairs
-
-### Handler Signature
+Each handler receives a parsed request and returns a response inside `ContextAsync`:
 
 ```lean
-Request Body.ChunkStream → ContextAsync (Response Body.Full)
+Request Body.Stream → ContextAsync (Response Body.Stream)
 ```
 
-`ContextAsync` provides:
-- Asynchronous I/O via the `Async` monad
-- Cancellation context to monitor connection status
+- `Request Body.Stream` — the incoming request with headers available immediately and a streaming body
+- `Response Body.Stream` — the outgoing response built via the response builder API
+- `ContextAsync` — an asynchronous monad (`ReaderT CancellationContext Async`) that provides:
+  - Full access to `Async` operations (spawning tasks, sleeping, concurrent I/O)
+  - A `CancellationContext` tied to the client connection — when the client disconnects, the
+    context is cancelled, allowing your handler to detect this and stop work early
 
-### Transport Layer
+### Cooperative Cancellation
 
-`Transport` is a type class abstracting the network layer. Implementations:
-- `TCP.Socket.Client` - Standard TCP sockets for production
-- `Mock.Client` - In-memory mock for testing
-
-### Low-Level API
-
-For custom connection handling, use `Server.serveConnection`:
+Handlers can check whether the client is still connected and exit gracefully:
 
 ```lean
--- Handle a single connection with custom transport
-Server.serveConnection client handler config
+def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+  -- Check if the client disconnected
+  if ← ContextAsync.isCancelled then
+    return Response.new |>.status .serviceUnavailable |>.text "Cancelled"
+
+  -- Race handler logic against client disconnection
+  ContextAsync.race
+    (do Async.sleep 10000; Response.ok |>.text "Done!")
+    (do ContextAsync.awaitCancellation; Response.new |>.status .serviceUnavailable |>.text "Cancelled")
 ```
 -/

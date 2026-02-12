@@ -369,17 +369,20 @@ instance : ForIn ContextAsync Stream Chunk where
   forIn := Std.Http.Body.Stream.forIn'
 
 /--
-Reads all remaining chunks from the stream and returns the concatenated data decoded as type `α`
-using `FromByteArray`. Blocks until the stream is closed. Throws an `IO.Error` if the conversion
-fails.
+Reads all remaining chunks from the stream and returns the concatenated data as a `ByteArray`.
+Blocks until the stream is closed. If `maximumSize` is provided, throws an `IO.Error` if the
+total data exceeds that limit.
 -/
-partial def readAllAs [FromByteArray α] (stream : Stream) : ContextAsync α := do
+partial def readAll [FromByteArray α] (stream : Stream) (maximumSize : Option UInt64 := none) : ContextAsync α := do
   let mut result := ByteArray.empty
 
   for chunk in stream do
     result := result ++ chunk.data
+    if let some max := maximumSize then
+      if result.size.toUInt64 > max then
+        throw (.userError s!"body exceeded maximum size of {max} bytes")
 
-  match FromByteArray.fromByteArray (α := α) result with
+  match FromByteArray.fromByteArray result with
   | .ok a => return a
   | .error msg => throw (.userError msg)
 

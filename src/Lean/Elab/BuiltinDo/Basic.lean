@@ -16,12 +16,12 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
-def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : DoElabM Expr)
+def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
   let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
-  elabDoElem rhs <| .mk (kind := kind) (ref := contRef) x.getId xType do
+  elabDoElem rhs <| .mk (kind := kind) x.getId xType do
     withLCtxKeepingMutVarDefs lctx ctx x.getId do
       Term.addLocalVarInfo x (← getFVarFromUserName x.getId)
       k

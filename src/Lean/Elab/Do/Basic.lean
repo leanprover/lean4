@@ -142,8 +142,6 @@ structure DoElemCont where
   branches of a `match` or `if`.
   -/
   kind : DoElemContKind := .nonDuplicable
-  /-- An optional hint for trace messages. -/
-  ref : Syntax := .missing
 deriving Inhabited
 
 /--
@@ -222,7 +220,6 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
     resultType,
     k := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
     kind := .duplicable
-    ref := .missing
   }
 
 /-- Create a `ReturnCont` returning the result using `pure`. -/
@@ -322,10 +319,7 @@ def getReassignedMutVars (rootCtx : LocalContext) (mutVars : Std.HashSet Name) (
 Adds the new reaching definitions of the given `tunneledVars` in `childCtx` relative to `rootCtx` as
 non-dependent decls.
 -/
-def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : Std.HashMap Name α) : MetaM LocalContext := do
-  -- let ldeclToUserNameAndFVarId (d : LocalDecl) := (d.userName, d.fvarId.name)
-  -- let lctxToMessage (lctx : LocalContext) := toMessageData <| lctx.decls.toList.filterMap (ldeclToUserNameAndFVarId <$> ·)
-  -- trace[Elab.do] "addReachingDefsAsNonDep\nTunnel vars: {tunneledVars.toList.map Prod.fst}\nRoot ctx: {lctxToMessage rootCtx}\nChild ctx: {lctxToMessage childCtx}"
+private def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : Std.HashMap Name α) : MetaM LocalContext := do
   let mut tunnelDecls := childCtx.findFromUserNames tunneledVars (start := rootCtx.numIndices)
   -- We must also tunnel any variables that the tunneled vars depend on; hence compute the closure.
   let fvars ← (·.2.fvarIds) <$> (tunnelDecls.mapM (Expr.collectFVars ·.type) |>.run {})
@@ -333,7 +327,6 @@ def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : St
   let fvarDecls := fvarDecls.insertionSort (·.index > ·.index)
     |>.takeWhile (·.index >= rootCtx.numIndices)
     |>.reverse
-  -- trace[Elab.do] "addReachingDefsAsNonDep: {fvarDecls.map (·.toExpr)}, {tunnelDecls.map (·.toExpr)}"
   tunnelDecls := tunnelDecls.filter fun tun => !fvarDecls.any (·.index == tun.index)
   tunnelDecls := fvarDecls ++ tunnelDecls
   let mut rootCtx := rootCtx
@@ -391,7 +384,6 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
   let k := dec.k
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
   let declKind := .ofBinderName x
-  withRef? dec.ref do
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
     let body ← k
     let body' := body.consumeMData
@@ -432,7 +424,7 @@ def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
-    withRef? dec.ref dec.k
+    dec.k
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
 def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
@@ -468,13 +460,6 @@ where
       withLetDecl x fstTy fst fun x => do
       withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
         go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
-
-private def withLambda (name : Name) (type : Expr) (k : Expr → DoElabM Expr) (kind := LocalDeclKind.default) (bi := BinderInfo.default) : DoElabM Expr := do
-  withLocalDecl name type (bi := bi) (kind := kind) fun r => do
-    mkLambdaFVars #[r] (← k r)
-
-private def withLambdaIf (b : Bool) (name : Name) (type : Expr) (k : DoElabM Expr) (kind := LocalDeclKind.default) (bi := BinderInfo.default) : DoElabM Expr := do
-  if b then withLambda name type (fun _ => k) kind bi else k
 
 /--
   Backtrackable state for the `TermElabM` monad.
@@ -568,19 +553,6 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
 
   mkLetFVars (generalizeNondepLet := false) #[jp] body
 
-/--
-Create syntax standing in for an unelaborated metavariable.
-After the syntax has been elaborated, the `DoElabM MVarId` can be used to get the metavariable.
--/
-def mkSyntheticHole (ref : Syntax) : MetaM (Term × MetaM MVarId) := withFreshMacroScope do
-  let name ← Term.mkFreshIdent ref
-  let result ← `(?$name)
-  let getMVar : MetaM MVarId := do
-    let some mvar := (← getMCtx).findUserName? name.getId
-      | throwError "Internal error: could not find metavariable {`m}. Has the syntax {result} been elaborated yet?"
-    return mvar
-  return (result, getMVar)
-
 def getReturnCont : DoElabM ReturnCont := do
   return (← read).contInfo.toContInfo.returnCont
 
@@ -589,6 +561,11 @@ def getBreakCont : DoElabM (Option (DoElabM Expr)) := do
 
 def getContinueCont : DoElabM (Option (DoElabM Expr)) := do
   return (← read).contInfo.toContInfo.continueCont
+
+/-- Set the new `do` block result type for the scope of the continuation `k`. -/
+@[inline]
+def withDoBlockResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM α := do
+  withReader (fun ctx => { ctx with doBlockResultType }) k
 
 /--
 Prepare the context for elaborating the body of a loop.
@@ -609,11 +586,6 @@ def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
   let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}
   let contInfo := ContInfo.toContInfoRef contInfo
   withReader (fun ctx => { ctx with contInfo }) k
-
-/-- Set the new `do` block result type for the scope of the continuation `k`. -/
-@[inline]
-def withDoBlockResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM α := do
-  withReader (fun ctx => { ctx with doBlockResultType }) k
 
 /--
 Prepare the context for elaborating the body of a `finally` block.
@@ -666,11 +638,6 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
 section NestedActions
-
--- @[builtin_term_elab liftMethod]
-def elabNestedAction : Term.TermElab := fun stx _ty? => do
-  let `(← $_rhs) := stx | throwUnsupportedSyntax
-  throwErrorAt stx "Nested action `{stx}` must be nested inside a `do` expression."
 
 /-- Return true if we should not lift nested action `(← …)` out of syntax nodes with the given kind. -/
 private def liftNestedActionDelimiter (k : SyntaxNodeKind) : Bool :=
@@ -792,15 +759,6 @@ directly.
 @[builtin_doc]
 builtin_initialize doElemElabAttribute : KeyedDeclsAttribute DoElab ← mkDoElemElabAttribute decl_name%
 
-/--
-An auxiliary syntax node expressing that a `doElem` has no nested actions to lift.
-This purely to make lifting nested actions more efficient.
--/
-def doElemNoNestedAction : Lean.Parser.Parser := leading_parser
-  Lean.Parser.doElemParser
-
-builtin_initialize Lean.Parser.registerBuiltinNodeKind ``doElemNoNestedAction
-
 private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedType : Expr) (x : DoElabM Expr) : DoElabM Expr :=
   controlAtTermElabM fun runInBase =>
     Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
@@ -827,10 +785,10 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
             throw ex
         | _ => throw ex
 
-private def DoElemCont.mkUnit (ref : Syntax) (k : DoElabM Expr) : DoElabM DoElemCont := do
+private def DoElemCont.mkUnit (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
-  return DoElemCont.mk r unit k .nonDuplicable ref
+  return DoElemCont.mk r unit k .nonDuplicable
 
 mutual
 partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
@@ -866,8 +824,8 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
     throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
   let back := doElems.back
-  let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
-  let mkCont el k := { initCont with ref := el, k }
+  let initCont ← DoElemCont.mkUnit (fun _ => throwError "always replaced")
+  let mkCont el k := { initCont with k }
   let init := (back, elabDoElem back cont catchExPostpone)
   let (_, res) := doElems.pop.foldr (init := init) fun el (prev, k) =>
     (el, elabDoElem el (mkCont prev k) catchExPostpone)
@@ -888,9 +846,10 @@ partial def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) (catchExPost
         throw ex
     | _ => throw ex
 
-@[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
-  let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
-  elabDoElem e cont
+-- @[builtin_term_elab liftMethod]
+def elabNestedAction : Term.TermElab := fun stx _ty? => do
+  let `(← $_rhs) := stx | throwUnsupportedSyntax
+  throwErrorAt stx "Nested action `{stx}` must be nested inside a `do` expression."
 
 -- @[builtin_term_elab «do»] -- once the legacy `do` elaborator has been phased out
 def elabDo : Term.TermElab := fun e expectedType? => do

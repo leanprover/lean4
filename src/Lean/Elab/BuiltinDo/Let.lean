@@ -144,16 +144,14 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
     elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x <| dec.continueWithUnit)
-      (kind := dec.kind) (contRef := dec.ref)
+      (kind := dec.kind)
   | `(doPatDecl| _%$pattern ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    trace[Elab.do] "wildcard arrow: {rhs}, dec.ref: {dec.ref}"
-    elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind) (contRef := dec.ref)
+    elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    trace[Elab.do] "pattern let arrow: {pattern} <- {rhs}, dec.ref: {dec.ref}"
-    elabDoIdDecl x none rhs (contRef := pattern) do
+    elabDoIdDecl x none rhs do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec

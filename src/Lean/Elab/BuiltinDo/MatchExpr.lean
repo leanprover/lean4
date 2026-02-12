@@ -40,7 +40,7 @@ open Lean.Meta
   let info ← inferControlInfoElem stx
   if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
     let x := mkIdentFrom discr (← mkFreshUserName `__x)
-    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) (contRef := dec.ref) do
+    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) do
       elabDoMatchExprNoMeta info x alts dec
   else
     elabDoMatchExprNoMeta info discr alts dec

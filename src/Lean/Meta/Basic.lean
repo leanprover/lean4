@@ -2526,28 +2526,6 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
-/--
-If `e` is of the form `?n ...` and `?n := fun ... => ?m` is delayed assigned to an assigned
-synthetic opaque metavariable `?m`, instantiate `?n` with the abstracted delayed assignment.
-
-In contrast to `instantiateMVars`, this function also works when the assignment for `?m` contains
-metavariables.
--/
-def instantiateSyntheticOpaqueMVarsIfMVarApp (e : Expr) : MetaM Expr := do
-  if !e.getAppFn.isMVar then
-    return e
-  let mut mvarId := e.getAppFn.mvarId!
-  let args := e.getAppArgs
-  let mut fvars := #[]
-  repeat do
-    let some da ← getDelayedMVarAssignment? mvarId | break
-    fvars := fvars ++ da.fvars
-    mvarId := da.mvarIdPending
-  let some val ← getExprMVarAssignment? mvarId
-    | return e
-  let val ← mvarId.withContext <| val.replaceFVarsM fvars args
-  instantiateMVars val
-
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do

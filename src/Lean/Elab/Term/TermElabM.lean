@@ -2184,8 +2184,7 @@ def TermElabM.toIO (x : TermElabM α)
   Execute `x` and then tries to solve pending universe constraints.
   Note that, stuck constraints will not be discarded.
 -/
-@[specialize]
-def universeConstraintsCheckpoint [Monad m] [MonadLiftT TermElabM m] (x : m α) : m α := do
+def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
   let a ← x
   discard <| liftM (m:=TermElabM) (processPostponed (mayPostpone := true) (exceptionOnFailure := true))
   return a

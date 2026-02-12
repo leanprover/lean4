@@ -244,7 +244,7 @@ def elabBindersEx (binders : Array Syntax) (k : Array (Syntax × Expr) → TermE
     if binders.isEmpty then
       k #[]
     else
-      elabBindersAux binders <| k
+      elabBindersAux binders k
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `bracketedBinder`),

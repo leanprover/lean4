@@ -2,6 +2,8 @@ import Lean
 
 open Lean
 
+set_option backward.do.legacy false -- only fixed in the new do elaborator
+
 structure Foo (n : Nat) where
   (l : List Nat)
   (h : n = n)

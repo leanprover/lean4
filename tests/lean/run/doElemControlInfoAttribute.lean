@@ -2,6 +2,8 @@ import Lean
 
 open Lean Parser Meta Elab Do
 
+set_option backward.do.legacy false
+
 syntax (name := myReturn) "myreturn" : doElem
 
 @[doElem_elab myReturn] def elabMyReturn : DoElab := fun _stx dec => do

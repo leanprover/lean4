@@ -22,18 +22,25 @@ structure PosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited
 
+/--
+Creates an iterator over the valid positions within {name}`s`, starting at {name}`p`.
+-/
+def positionsFrom {s : Slice} (p : s.Pos) :
+    Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
+  { internalState := { currPos := p } }
+
 set_option doc.verso false
 /--
 Creates an iterator over all valid positions within {name}`s`.
 
-Examples
+Examples:
  * {lean}`("abc".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', 'c']`
  * {lean}`("abc".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2]`
  * {lean}`("ab∀c".toSlice.positions.map (fun ⟨p, h⟩ => p.get h) |>.toList) = ['a', 'b', '∀', 'c']`
  * {lean}`("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
 -/
 def positions (s : Slice) : Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.startPos } }
+  s.positionsFrom s.startPos
 
 set_option doc.verso true
 
@@ -102,6 +109,13 @@ structure RevPosIterator (s : Slice) where
   currPos : s.Pos
 deriving Inhabited
 
+/--
+Creates an iterator over all valid positions within {name}`s` that are strictly smaller than
+{name}`p`, starting from the position before {name}`p` and iterating towards the first one.
+-/
+def revPositionsFrom (s : Slice) (p : s.Pos) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
+  { internalState := { currPos := p } }
+
 set_option doc.verso false
 /--
 Creates an iterator over all valid positions within {name}`s`, starting from the last valid
@@ -114,7 +128,7 @@ Examples
  * {lean}`("ab∀c".toSlice.revPositions.map (·.val.offset.byteIdx) |>.toList) = [5, 2, 1, 0]`
 -/
 def revPositions (s : Slice) : Std.Iter (α := RevPosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.endPos }}
+  s.revPositionsFrom s.endPos
 
 set_option doc.verso true
 
@@ -351,9 +365,16 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 end Slice
 
 @[inline]
-def Internal.toSliceWithProof {s : String} :
+def Internal.ofToSliceWithProof {s : String} :
     { p : s.toSlice.Pos // p ≠ s.toSlice.endPos } → { p : s.Pos // p ≠ s.endPos } :=
   fun ⟨p, h⟩ => ⟨Pos.ofToSlice p, by simpa [← Pos.toSlice_inj]⟩
+
+/--
+Creates an iterator over the valid positions within {name}`s`, starting at {name}`p`.
+-/
+def positionsFrom (s : String) (p : s.Pos) :=
+  ((s.toSlice.positionsFrom p.toSlice).map Internal.ofToSliceWithProof :
+    Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all valid positions within {name}`s`.
@@ -366,7 +387,7 @@ Examples
 -/
 @[inline]
 def positions (s : String) :=
-  (s.toSlice.positions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
+  s.positionsFrom s.startPos
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`.
@@ -391,7 +412,7 @@ Examples
 -/
 @[inline]
 def revPositions (s : String) :=
-  (s.toSlice.revPositions.map Internal.toSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
+  (s.toSlice.revPositions.map Internal.ofToSliceWithProof : Std.Iter { p : s.Pos // p ≠ s.endPos })
 
 /--
 Creates an iterator over all characters (Unicode code points) in {name}`s`, starting from the end

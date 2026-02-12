@@ -38,8 +38,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls ← explicitBoxing decls
-  logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
   if Compiler.LCNF.compiler.reuse.get (← getOptions) then

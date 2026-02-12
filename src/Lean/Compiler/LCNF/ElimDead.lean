@@ -105,11 +105,11 @@ partial def Code.elimDead (code : Code pu) : M (Code pu) := do
 
 end
 
-def Decl.elimDead (decl : Decl pu) : CompilerM (Decl pu) := do
+public def Decl.elimDeadVars (decl : Decl pu) : CompilerM (Decl pu) := do
   return { decl with value := (← decl.value.mapCodeM fun code => code.elimDead.run' {}) }
 
 public def elimDeadVars (phase : Phase)  (occurrence : Nat) : Pass :=
-  Pass.mkPerDeclaration `elimDeadVars phase Decl.elimDead occurrence
+  Pass.mkPerDeclaration `elimDeadVars phase Decl.elimDeadVars occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.elimDeadVars (inherited := true)

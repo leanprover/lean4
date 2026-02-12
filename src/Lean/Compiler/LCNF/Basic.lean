@@ -404,6 +404,20 @@ private unsafe def LetValue.updateReuseImp (e : LetValue pu) (var' : FVarId) (i'
 @[implemented_by LetValue.updateReuseImp] opaque LetValue.updateReuse! (e : LetValue pu)
     (var' : FVarId) (i' : CtorInfo) (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu
 
+private unsafe def LetValue.updateFapImp (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .fap declName args _ => if declName == declName' && ptrEq args args' then e else .fap declName' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateFapImp] opaque LetValue.updateFap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
+
+private unsafe def LetValue.updatePapImp (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .pap declName args _ => if declName == declName' && ptrEq args args' then e else .pap declName' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateFapImp] opaque LetValue.updatePap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
+
 private unsafe def LetValue.updateBoxImp (e : LetValue pu) (ty' : Expr) (fvarId' : FVarId) : LetValue pu :=
   match e with
   | .box ty fvarId _ => if ptrEq ty ty' && fvarId == fvarId' then e else .box ty' fvarId'
@@ -417,6 +431,8 @@ private unsafe def LetValue.updateUnboxImp (e : LetValue pu) (fvarId' : FVarId) 
   | _ => unreachable!
 
 @[implemented_by LetValue.updateUnboxImp] opaque LetValue.updateUnbox! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
+
+
 
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with

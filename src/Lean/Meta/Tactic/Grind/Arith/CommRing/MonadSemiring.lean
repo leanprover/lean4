@@ -6,19 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadCanon
+public import Lean.Meta.Sym.Arith.Ring.MonadSemiring
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
-
-class MonadSemiring (m : Type → Type) where
-  getSemiring : m Semiring
-  modifySemiring : (Semiring → Semiring) → m Unit
-
-export MonadSemiring (getSemiring modifySemiring)
-
-@[always_inline]
-instance (m n) [MonadLift m n] [MonadSemiring m] : MonadSemiring n where
-  getSemiring    := liftM (getSemiring : m Semiring)
-  modifySemiring f := liftM (modifySemiring f : m Unit)
+export Sym.Arith.Ring (MonadSemiring getSemiring modifySemiring)
 
 class MonadCommSemiring (m : Type → Type) where
   getCommSemiring : m CommSemiring
@@ -32,7 +23,7 @@ instance (m n) [MonadLift m n] [MonadCommSemiring m] : MonadCommSemiring n where
   modifyCommSemiring f := liftM (modifyCommSemiring f : m Unit)
 
 @[always_inline]
-instance (m) [Monad m] [MonadCommSemiring m] : MonadSemiring m where
+instance (m) [Monad m] [MonadCommSemiring m] : Sym.Arith.Ring.MonadSemiring m where
   getSemiring := return (← getCommSemiring).toSemiring
   modifySemiring f := modifyCommSemiring fun s => { s with toSemiring := f s.toSemiring }
 

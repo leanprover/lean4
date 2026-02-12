@@ -2299,7 +2299,8 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
 It reduces terms by unfolding definitions using their defining equations and
-applying matcher equations.
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
 
 `cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
 two passes:
@@ -2312,6 +2313,10 @@ two passes:
 `cbv` is therefore not a finishing tactic in general: it may leave a new
 (simpler) equality goal. For goals that are not equalities, `cbv` currently
 leaves the goal unchanged.
+
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
 
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.
@@ -2328,6 +2333,10 @@ is a `Decidable` proposition. It proceeds in two steps:
 `decide_cbv` fails with an error if `decide p` does not reduce to `true`.
 Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
 fails.
+
+The proofs produced by `decide_cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
 
 This tactic is experimental and its behavior is likely to change in upcoming
 releases of Lean.

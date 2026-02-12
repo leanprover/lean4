@@ -23,10 +23,22 @@ theorem Slice.Pos.next_le_iff_lt {s : Slice} {p q : s.Pos} {h} : p.next h ≤ q 
 theorem Slice.Pos.lt_next_iff_le {s : Slice} {p q : s.Pos} {h} : p < q.next h ↔ p ≤ q := by
   rw [← Decidable.not_iff_not, Std.not_lt, next_le_iff_lt, Std.not_le]
 
+theorem Slice.Pos.next_eq_iff {s : Slice} {p q : s.Pos} {h} :
+    p.next h = q ↔ p < q ∧ ∀ (q' : s.Pos), p < q' → q ≤ q' :=
+  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
+
 @[simp]
 theorem Pos.next_le_iff_lt {s : String} {p q : s.Pos} {h} : p.next h ≤ q ↔ p < q := by
   rw [next, Pos.ofToSlice_le_iff, ← Pos.toSlice_lt_toSlice_iff]
   exact Slice.Pos.next_le_iff_lt
+
+@[simp]
+theorem Pos.lt_next_iff_le {s : String} {p q : s.Pos} {h} : p < q.next h ↔ p ≤ q := by
+  rw [← Std.not_le, next_le_iff_lt, Std.not_lt]
+
+theorem Pos.next_eq_iff {s : String} {p q : s.Pos} {h} :
+    p.next h = q ↔ p < q ∧ ∀ (q' : s.Pos), p < q' → q ≤ q' :=
+  ⟨by rintro rfl; simp, fun ⟨h₁, h₂⟩ => Std.le_antisymm (by simpa) (h₂ _ (by simp))⟩
 
 @[simp]
 theorem Slice.Pos.le_startPos {s : Slice} (p : s.Pos) : p ≤ s.startPos ↔ p = s.startPos :=
@@ -49,6 +61,10 @@ theorem Pos.le_startPos {s : String} (p : s.Pos) : p ≤ s.startPos ↔ p = s.st
   ⟨fun h => Std.le_antisymm h (startPos_le _), by simp +contextual⟩
 
 @[simp]
+theorem Pos.startPos_lt_iff {s : String} {p : s.Pos} : s.startPos < p ↔ p ≠ s.startPos := by
+  simp [← le_startPos, Std.not_le]
+
+@[simp]
 theorem Pos.endPos_le {s : String} (p : s.Pos) : s.endPos ≤ p ↔ p = s.endPos :=
   ⟨fun h => Std.le_antisymm (le_endPos _) h, by simp +contextual [Std.le_refl]⟩
 
@@ -57,6 +73,22 @@ theorem Slice.Pos.not_lt_startPos {s : Slice} {p : s.Pos} : ¬ p < s.startPos :=
   fun h => Std.lt_irrefl (Std.lt_of_lt_of_le h (Slice.Pos.startPos_le _))
 
 theorem Slice.Pos.ne_startPos_of_lt {s : Slice} {p q : s.Pos} : p < q → q ≠ s.startPos := by
+  rintro h rfl
+  simp at h
+
+@[simp]
+theorem Pos.not_lt_startPos {s : String} {p : s.Pos} : ¬ p < s.startPos :=
+  fun h => Std.lt_irrefl (Std.lt_of_lt_of_le h (Pos.startPos_le _))
+
+@[simp]
+theorem Slice.Pos.not_endPos_lt {s : Slice} {p : s.Pos} : ¬ s.endPos < p :=
+  fun h => Std.lt_irrefl (Std.lt_of_le_of_lt (Slice.Pos.le_endPos _) h)
+
+@[simp]
+theorem Pos.not_endPos_lt {s : String} {p : s.Pos} : ¬ s.endPos < p :=
+  fun h => Std.lt_irrefl (Std.lt_of_le_of_lt (Pos.le_endPos _) h)
+
+theorem Pos.ne_endPos_of_lt {s : String} {p q : s.Pos} : p < q → p ≠ s.endPos := by
   rintro h rfl
   simp at h
 

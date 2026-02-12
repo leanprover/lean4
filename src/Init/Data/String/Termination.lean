@@ -7,9 +7,11 @@ module
 
 prelude
 public import Init.Data.String.Lemmas.Splits
+public import Init.Data.String.FindPos
 import Init.Data.Option.Lemmas
 import Init.Omega
 import Init.ByCases
+import Init.Data.String.Lemmas.FindPos
 
 /-!
 # Helpers for termination arguments about functions operating on strings

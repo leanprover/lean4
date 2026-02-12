@@ -10,16 +10,19 @@ public import Lean.Compiler.NameMangling
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
-public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.ModPkgExt
+import Lean.Compiler.LCNF.ExplicitBoxing
+import Lean.Compiler.ClosedTermCache
 import Lean.Compiler.IR.SimpleGroundExpr
 import Init.Omega
 import Init.While
+import Init.Data.Range.Polymorphic.Iterators
+import Lean.Runtime
 
 public section
 
 namespace Lean.IR.EmitC
-open ExplicitBoxing (isBoxedName)
+open Lean.Compiler.LCNF (isBoxedName)
 
 def leanMainFn := "_lean_main"
 

@@ -75,7 +75,6 @@ public def addBoxedVersions (decls : Array (Decl .impure)) : CompilerM (Array (D
 structure Ctx where
   currDecl : Name
   currDeclResultType : Expr
--- TODO: use auxdeclcache for caching auxiliary decls
   decls : Array (Decl .impure)
 
 structure State where

@@ -10,13 +10,16 @@ public import Lean.Compiler.NameMangling
 public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
-public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.IR.LLVMBindings
+import Lean.Compiler.LCNF.ExplicitBoxing
 import Lean.Compiler.ModPkgExt
+import Lean.Runtime
+import Lean.Compiler.ClosedTermCache
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
-open Lean.IR.ExplicitBoxing (isBoxedName)
+open Lean.Compiler.LCNF (isBoxedName)
 
 namespace Lean.IR
 /-

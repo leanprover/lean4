@@ -105,10 +105,38 @@ structure CommSemiring extends Semiring where
   toQFn?             : Option Expr := none
   deriving Inhabited
 
-/-- Ring detection and caching state. -/
+/-- Immutable CommRing detection result. Contains only synthesized instances, no per-context state. -/
+structure CommRingInfo where
+  type             : Expr
+  u                : Level
+  semiringInst     : Expr
+  ringInst         : Expr
+  commSemiringInst : Expr
+  commRingInst     : Expr
+  charInst?        : Option (Expr × Nat) := none
+  noZeroDivInst?   : Option Expr := none
+  fieldInst?       : Option Expr := none
+  deriving Inhabited
+
+/-- Create a `CommRing` with fresh per-context state from a `CommRingInfo`. -/
+def CommRingInfo.toCommRing (info : CommRingInfo) (id : Nat) (semiringId? : Option Nat := none) : CommRing := {
+  id, semiringId?,
+  type := info.type, u := info.u,
+  semiringInst := info.semiringInst, ringInst := info.ringInst,
+  commSemiringInst := info.commSemiringInst, commRingInst := info.commRingInst,
+  charInst? := info.charInst?, noZeroDivInst? := info.noZeroDivInst?,
+  fieldInst? := info.fieldInst?,
+}
+
+/-- Per-context ring state (e.g., for ArithNorm or grind). -/
 structure State where
   rings   : Array CommRing := {}
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  deriving Inhabited
+
+/-- Shared detection cache. Maps types to their immutable CommRing detection results. -/
+structure DetectionCache where
+  typeInfo : PHashMap ExprPtr (Option CommRingInfo) := {}
   deriving Inhabited
 
 end Lean.Meta.Sym.Arith.Ring

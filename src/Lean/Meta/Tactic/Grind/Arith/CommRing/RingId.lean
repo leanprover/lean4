@@ -7,45 +7,32 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.Insts
+import Lean.Meta.Sym.Arith.Ring.Detect
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
+open Sym.Arith.Ring (detectCommRingInfo?)
+
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.
-
-This function will also perform sanity-checks
-(e.g., the `Add` instance for `type` must be definitionally equal to the `CommRing.toAdd` one.)
-
-It also caches the functions representing `+`, `*`, `-`, `^`, and `intCast`.
+Uses the shared detection cache in `SymM` so that ring detection results are
+shared between the arithmetic normalizer and grind's ring solver.
 -/
 def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
-  else
-    let id? ← go?
-    modify' fun s => { s with typeIdOf := s.typeIdOf.insert { expr := type } id? }
-    return id?
-where
-  go? : GoalM (Option Nat) := do
-    let u ← getDecLevel type
-    let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
-    let some commRingInst ← synthInstance? commRing | return none
-    let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
-    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
-    let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
-    trace_goal[grind.ring] "new ring: {type}"
-    let charInst? ← getIsCharInst? u type semiringInst
-    let noZeroDivInst? ← getNoZeroDivInst? u type
-    trace_goal[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
-    let fieldInst? ← synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
-    let semiringId? := none
-    let id := (← get').rings.size
-    let ring : CommRing := {
-      id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
-    }
-    modify' fun s => { s with rings := s.rings.push ring }
-    return some id
+  let some info ← detectCommRingInfo? type | do
+    modify' fun s => { s with typeIdOf := s.typeIdOf.insert { expr := type } none }
+    return none
+  trace_goal[grind.ring] "new ring: {type}"
+  trace_goal[grind.ring] "NoNatZeroDivisors available: {info.noZeroDivInst?.isSome}"
+  let id := (← get').rings.size
+  let ring : CommRing := { info.toCommRing id with }
+  modify' fun s => { s with
+    rings := s.rings.push ring
+    typeIdOf := s.typeIdOf.insert { expr := type } (some id)
+  }
+  return some id
 
 /--
 Returns the ring id for the given type if there is a `Ring` instance for it.

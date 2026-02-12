@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Arith.Ring.DenoteExpr
+public import Lean.Meta.Sym.Arith.Ring.Detect
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InferType
@@ -17,8 +18,6 @@ public section
 namespace Lean.Meta.Sym.Simp
 
 open Arith.Ring
-
-builtin_initialize arithExt : SymExtension Arith.Ring.State ← registerSymExtension
 
 /-!
 # Arithmetic Normalizer for Sym.simp
@@ -38,6 +37,8 @@ abbrev ArithRingM := ReaderT ArithRingM.Context SimpM
 instance : MonadCanon ArithRingM where
   canonExpr e := shareCommonInc e
   synthInstance? e := Meta.synthInstance? e
+
+builtin_initialize arithExt : SymExtension Arith.Ring.State ← registerSymExtension
 
 def getArithState : ArithRingM Arith.Ring.State := do
   arithExt.getState
@@ -66,46 +67,16 @@ private def getCommRingId? (type : Expr) : SimpM (Option Nat) := do
   let s ← arithExt.getState
   if let some id? := s.typeIdOf.find? { expr := type } then
     return id?
-  let id? ← go?
-  arithExt.modifyState fun st => { st with typeIdOf := st.typeIdOf.insert { expr := type } id? }
-  return id?
-where
-  go? : SimpM (Option Nat) := do
-    let u ← getDecLevel type
-    let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
-    let some commRingInst ← Meta.synthInstance? commRing | return none
-    let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
-    let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
-    let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
-    -- Detect characteristic
-    let charInst? ← getIsCharInst? u type semiringInst
-    -- Detect NoNatZeroDivisors
-    let noZeroDivInst? ← getNoZeroDivInst? u type
-    let fieldInst? ← Meta.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
-    let semiringId? := none
-    let s ← arithExt.getState
-    let id := s.rings.size
-    let ring : CommRing := {
-      id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-      commRingInst, charInst?, noZeroDivInst?, fieldInst?,
-    }
-    arithExt.modifyState fun st => { st with rings := st.rings.push ring }
-    return some id
-
-  getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SimpM (Option (Expr × Nat)) := do
-    withNewMCtxDepth do
-      let n ← mkFreshExprMVar (mkConst ``Nat)
-      let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
-      let some charInst ← Meta.synthInstance? charType | return none
-      let n ← instantiateMVars n
-      let some n := getNatValue? n | return none
-      return some (charInst, n)
-
-  getNoZeroDivInst? (u : Level) (type : Expr) : SimpM (Option Expr) := do
-    let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
-    let some natModuleInst ← Meta.synthInstance? natModuleType | return none
-    let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
-    Meta.synthInstance? noZeroDivType
+  let some info ← Arith.Ring.detectCommRingInfo? type | do
+    arithExt.modifyState fun st => { st with typeIdOf := st.typeIdOf.insert { expr := type } none }
+    return none
+  let id := s.rings.size
+  let ring := info.toCommRing id
+  arithExt.modifyState fun st => { st with
+    rings := st.rings.push ring
+    typeIdOf := st.typeIdOf.insert { expr := type } (some id)
+  }
+  return some id
 
 /-- Check if an expression is an instance of the expected one by pointer equality. -/
 private def isExpectedInst (expected inst : Expr) : Bool :=

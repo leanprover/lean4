@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+import Init.Data.Array
+import Init.Data.List.ToArray
 public import Lean.SimpLC.Exceptions.Root
 public import Lean.SimpLC.Exceptions.Array
 public import Lean.SimpLC.Exceptions.BitVec
@@ -43,11 +45,6 @@ simp_lc ignore forIn'_eq_forIn
 simp_lc ignore forIn'_eq_forIn
 
 
-namespace Option
-
-attribute [simp] Option.map_attach
-
-end Option
 
 namespace Array
 
@@ -56,9 +53,9 @@ namespace Array
     List.foldlM f init xs.toList.attach =
       Array.foldlM (fun b ⟨x, m⟩ => f b ⟨x, by simpa using m⟩) init xs.attach := by
   cases xs
-  simp only [toList_toArray]
+  simp only [List.toList_toArray]
   rw [List.attach_toArray]
-  simp only [List.attachWith_mem_toArray, size_toArray, List.length_map, List.length_attach,
+  simp only [List.attachWith_mem_toArray, List.size_toArray,
     List.foldlM_toArray', List.foldlM_map]
 
 @[simp] theorem foldrM_attach_toList [Monad m] [LawfulMonad m]{xs : Array α}
@@ -66,7 +63,7 @@ namespace Array
     List.foldrM f init xs.toList.attach =
       Array.foldrM (fun ⟨x, m⟩ b => f ⟨x, by simpa using m⟩ b) init xs.attach := by
   cases xs
-  simp only [toList_toArray]
+  simp only [List.toList_toArray]
   rw [List.attach_toArray]
   simp [List.foldrM_map]
 

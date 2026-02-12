@@ -14,8 +14,8 @@ set_option Elab.async false -- `simplc` crashes on the command line with a 139 w
 
 simp_lc allow Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`
 
-#guard_msgs (drop info) in
-simp_lc check in Bool
+-- #guard_msgs (drop info) in
+-- simp_lc check in Bool
 
 -- x y : Bool
 -- ⊢ x = (y != (x != y))

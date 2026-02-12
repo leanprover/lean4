@@ -213,7 +213,7 @@ where
     | some ps => return ps
     | none =>
       let .decl fn := k | unreachable!
-      let some sig ← getImpureSignature? fn | unreachable!
+      let some sig ← getImpureSignature? fn | throwError "Failed to find LCNF signature for {fn}"
       return sig.params
 
   /-- For each ps[i], if ps[i] is owned, then mark args[i] as owned. -/

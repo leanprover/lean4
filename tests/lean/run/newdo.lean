@@ -33,6 +33,8 @@ namespace Do
 
 section Backtrack
 
+set_option trace.Elab.do.match true in
+set_option trace.Meta.Match.match true in
 /--
 Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
 -/
@@ -153,45 +155,6 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
-open Std IterM in
-example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
-    {it₁ : IterM (α := α₁) m β₁}
-    {memo : Option { out : β₁ //
-        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
-    {it₂ : IterM (α := α₂) m β₂} :
-    (Intermediate.zip it₁ memo it₂).step = (do
-      match memo with
-      | none =>
-        match (← it₁.step).inflate with
-        | .yield it₁' out hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
-            (.yieldLeft rfl hp)
-        | .skip it₁' hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
-            (.skipLeft rfl hp)
-        | .done hp =>
-          pure <| .deflate <| .done (.doneLeft rfl hp)
-      | some out₁ =>
-        match (← it₂.step).inflate with
-        | .yield it₂' out₂ hp =>
-          pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
-            (.yieldRight rfl hp)
-        | .skip it₂' hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
-            (.skipRight rfl hp)
-        | .done hp =>
-          pure <| .deflate <| .done (.doneRight rfl hp)) := by
-  simp only [Intermediate.zip, step, Iterator.step]
-  split
-  · apply bind_congr
-    intro step
-    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
-  · rename_i heq
-    cases heq
-    apply bind_congr
-    intro step
-    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
-
 section Array
 
 -- Test that `forInNew` forces all mut vars into the same universe
@@ -297,45 +260,23 @@ example (x : Nat) : Id Nat := do
   _ ← pure true
   return 0
 
--- This test documents a regression wrt. the old do elaborator. Note that the result type of the
--- match (i.e., the type of `mvar'`) will be a metavariable `?m.7` (which *might* depend on `e`).
--- Since `?m.7` occurs in the type of `jp : MVarId → MetaM ?m.7` and `?m.7` is weakly dependent on
--- `e`, we generalize the match to include `jp` as a discriminant. But the type of `jp` contains a
--- metavariable which leads to indefinite postponement before calling the match compiler.
--- The old elaborator did not generalize over `jp` because it was let-bound, not have-bound.
--- The workaround is to turn off generalization (`(generalizing := false)`) or to provide an
--- expected type for `mvar'`.
-/--
-error: Invalid field notation: Type of
-  mvar'
-is not known; cannot resolve field `withContext`
-
-Hint: Consider replacing the field projection with a call to one of the following:
-  • `MVarId.withContext`
-  • `MessageData.withContext`
-  • `Grind.Goal.withContext`
--/
-#guard_msgs(error) in
-open Lean Meta in
 example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
   discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
     let mvar' ← match e with | none => pure mv | some _ => pure mv
     mvar'.withContext <| mvar'.assign Nat.mkType
 
-open Lean Meta in
-example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
-  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
-    let mvar' : MVarId ← match e with | none => pure mv | some _ => pure mv
-    mvar'.withContext <| mvar'.assign Nat.mkType
-
-example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
-  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
-    let mvar' ← match (generalizing := false) e with | none => pure mv | some _ => pure mv
-    mvar'.withContext <| mvar'.assign Nat.mkType
-
 end Repros
 
--- test case doLetElse
+-- test case doLetElse. We reject this because we don't support dependent match.
+/--
+error: Type mismatch
+  y
+has type
+  Fin 3
+but is expected to have type
+  Fin (x + 1)
+-/
+#guard_msgs (error) in
 example (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
   -- the pattern match performed a substitution
@@ -388,9 +329,10 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
     | _     => pure ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
--- Providing a motive... is not currently supported
 /--
-error: The `do` elaborator does not support custom motives. Try type ascription to provide expected types.
+error: The `do` elaborator does not support custom motives.
+If you want a dependent match, try `(dependent := true)`.
+If you want to provide an expected type, do so via type ascription on the bind.
 -/
 #guard_msgs (error) in
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
@@ -401,48 +343,6 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
     | z + 1 => pure ⟨1, by grind⟩
     | _     => pure ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
-
--- The motive is the result type of the join point and it is not refined without generalization.
--- If we dependently match on `x`, the first RHS has type `Fin (x + 2)` but is expected to have type
--- `Fin (0 + 2)`.
--- set_option backward.do.legacy true in
-set_option trace.Elab.do true in
-set_option trace.Elab.do.match true in
-def depMatchNeedsGeneralization (x : Nat) := Id.run (α := Fin (x + 2)) do
-  let y : Fin (x + 1) <-
-    match (generalizing := false) x with
-    | 0 => pure ⟨0, sorry⟩
-    | _ => pure ⟨0, sorry⟩
-  return ⟨y + 1, sorry⟩
-
-example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
-  let y : Fin (x + 1) <-
-    match hh : h with
-    | rfl => pure ⟨0, by grind⟩
-  return ⟨y + 1, by grind⟩
-
-example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
-  let y : Fin (x + 1) <-
-    match (generalizing := false) h with
-    | rfl => pure ⟨0, by grind⟩
-  return ⟨y + 1, by grind⟩
-
--- It would be too tedious to fix the following example.
--- We would need to kabstract the new discriminant `z + z` in any of the join point types in order
--- to determine whether we need to generalize. It's like collecting forward dependencies but with
--- arbitrary patterns. We don't support this; the user should instead specify `x` as a discriminant.
-/--
-error: The inferred match motive ⏎
-  Fin (x + x)
-or the monadic result type ⏎
-  Id (Fin (x + x))
-had occurrences of free variables that depend on the discriminants, but no continuation variables were generalized.
-This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
--/
-#guard_msgs (error) in
-example (x z : Nat) (h : x = z + z) := Id.run (α := Fin (x + (z + z))) do
-  let y : Fin (x + z + z) <- match h with | rfl => pure ⟨0, by grind⟩
-  return ⟨y - 1, by grind⟩
 
 -- Full-blown dependent match + try/catch + early return
 example (p n : Nat) := Id.run <| ExceptT.run (α := Fin (2 * p + 2)) (ε:=String) do
@@ -550,32 +450,6 @@ set_option backward.do.legacy false in
     pure (0 : Fin 1)
   let y := ↑res + ↑x + 3
   return ⟨y, by grind⟩
-
--- The following example was lifted from test case optionGetD prior to fixing
--- the `doFor` expander to emit a non-generalizing `match`.
--- Both the outer `match` and the inner `if` introduce JPs.
--- But since the outer `jpo` is duplicable, the inner `jpi` will turn out to be dead.
--- It is difficult to synthesize a `joinRhs` for `jpi` in this case, in particular because
--- the context might have changed since the introduction of `jpo`.
--- But we need to synthesize a `joinRhs` to substitute for `jpi`.
--- So there is some special code for the 0 jumps case that ensures
--- `joinRhs := fun _ (s : σ) => (s : mγ)` is well-typed.
-example : IO Nat := do
-  let mut i := 1
-  for x in Loop.mk do
-    match (generalizing := true) x with
-    | _ =>
-      if i < 10 then
-        i := i + 1
-      else
-        break
-  return i
-
-set_option trace.Meta.Match.debug true in
-set_option trace.Elab.do true in
-example (a b : Nat) (h : a = b) : Nat := Id.run do
-  match a, b, h with
-  | _, _, rfl => return 0
 
 -- Test that dependent matches do not leave behind unnecessary join point discriminants
 set_option trace.Elab.do true in
@@ -700,14 +574,6 @@ end Blah
 example : MetaM Bool := do
   let cfg := (← read).config
   return cfg.beta
-
-example [Monad m] : ForIn' m (Option α) α inferInstance where
-  forIn' x init f := do
-    match x with
-    | none => return init
-    | some a =>
-      match ← f a rfl init with
-      | .done r | .yield r => return r
 
 elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
@@ -2378,7 +2244,7 @@ def bar (n : Nat) : MetaM (List Nat) := doo
   trace[Meta.Tactic.simp] "{result.l}"
   -- match (motive := ∀ _, MetaM (List Nat)) n with
   have result2 : Foo n := ⟨[7], rfl⟩
-  match (generalizing := false) n with
+  match n with
   | 0   => pure (); result := ⟨[10], rfl⟩
   | n+1 => result := ⟨[6], rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"

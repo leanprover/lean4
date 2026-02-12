@@ -34,7 +34,7 @@ open Lean.Meta
         pure ⟨pattern⟩
       else
         let x ← Term.mkFreshIdent pattern
-        body ← `(doSeq| match (generalizing := false) $x:term with | $pattern => $body)
+        body ← `(doSeq| match $x:term with | $pattern => $body)
         pure x
     -- Expand the remaining `doForDecl`s:
     for doForDecl in decls[1...*] do

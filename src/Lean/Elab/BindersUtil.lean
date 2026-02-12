@@ -75,7 +75,7 @@ def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   where
     expand (alts : Array (TSyntax ``matchAlt)) : MacroM (Option (Array (TSyntax ``matchAlt))) := do
       if alts.any shouldExpandMatchAlt then
-        let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
+        let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ expandMatchAlt alt
         return some alts
       else
         return none

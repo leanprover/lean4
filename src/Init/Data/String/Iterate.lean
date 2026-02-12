@@ -33,7 +33,7 @@ Examples
  * {lean}`("ab∀c".toSlice.positions.map (·.val.offset.byteIdx) |>.toList) = [0, 1, 2, 5]`
 -/
 def positions (s : Slice) : Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
-  { internalState := { currPos := s.startPos }}
+  { internalState := { currPos := s.startPos } }
 
 set_option doc.verso true
 

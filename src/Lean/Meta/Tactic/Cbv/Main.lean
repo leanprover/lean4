@@ -120,10 +120,14 @@ def handleProj : Simproc := fun e => do
   | .step e' proof _ =>
     let type ← Sym.inferType e'
     let congrArgFun := Lean.mkLambda `x .default type <| .proj typeName idx <| .bvar 0
-
     -- TODO: Create an efficient symbolic version of `mkCongrArg`
-    let newProof ← mkCongrArg congrArgFun proof
-    return .step (← Lean.Expr.updateProjS! e e') newProof
+    try
+      let newProof ← mkCongrArg congrArgFun proof
+      return .step (← Lean.Expr.updateProjS! e e') newProof
+    catch _ =>
+      let some reduced ← reduceProj? e | return .rfl
+      let reduced ← Sym.share reduced
+      return .step reduced (← Sym.mkEqRefl reduced)
 
 def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl

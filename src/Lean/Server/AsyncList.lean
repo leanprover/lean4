@@ -106,8 +106,8 @@ where
         | .ok tl => go timeoutTask tl
         | .error e => return ⟨[], some e, true⟩
       else
-        let tl := tl.mapCheap Sum.inr
-        let cancelTks := cancelTks.map (ServerTask.mapCheap Sum.inl)
+        let tl := tl.mapCheap .inr
+        let cancelTks := cancelTks.map (·.mapCheap .inl)
         let r ← ServerTask.waitAny (tl :: cancelTks ++ [timeoutTask])
         match r with
         | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting

@@ -3,18 +3,18 @@ doIssue.lean:2:2-2:3: error: Type mismatch
 has type
   Nat
 but is expected to have type
-  IO Unit
+  IO PUnit
 doIssue.lean:10:2-10:13: error: Type mismatch
   xs.set! 0 1
 has type
   Array Nat
 but is expected to have type
-  IO Unit
+  IO PUnit
 doIssue.lean:18:7-18:20: error: Application type mismatch: The argument
   xs.set! 0 1
 has type
   Array Nat
 but is expected to have type
-  Unit
+  PUnit
 in the application
   pure (xs.set! 0 1)

@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-import Init.Control.Do
 public import Lake.Util.JsonObject
 public import Lake.Util.Version
 public import Lake.Config.Env

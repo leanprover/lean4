@@ -78,11 +78,11 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
 /--
 trace: l : List Int
 ⊢ (match
-          (forIn l (none, ∅) fun x __s =>
-                if -x ∈ __s.snd then pure (ForInStep.done (some true, __s.snd))
-                else pure (ForInStep.yield (none, __s.snd.insert x))).run.fst with
-        | some r => pure r
-        | none => pure false).run =
+          (forIn l ⟨none, ∅⟩ fun x r =>
+                if -x ∈ r.snd then pure (ForInStep.done ⟨some true, r.snd⟩)
+                else pure (ForInStep.yield ⟨none, r.snd.insert x⟩)).run.fst with
+        | none => pure false
+        | some a => pure a).run =
       true ↔
     List.ExistsPair (fun a b => a + b = 0) l
 ---

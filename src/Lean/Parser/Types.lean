@@ -546,7 +546,7 @@ in order to increase cache hits. Finally, `errorMsg` is also reset to `none` as 
 place if there was an error.
 -/
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
-  let key : ParserCacheKey := ⟨c.toCacheableParserContext, parserName, s.pos⟩
+  let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
   if let some r := s.cache.parserCache[key]? then
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
@@ -555,7 +555,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
   let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
-  return { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
+  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
 @[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)

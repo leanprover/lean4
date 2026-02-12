@@ -12,7 +12,7 @@ open Lean Elab Command
 Test various classes of atoms that should be allowed or not.
 -/
 
-def test (expected : Bool) (strings : List String) : CommandElabM Unit := do
+def test (expected : Bool) (strings : List String) : CommandElabM Unit := Id.run do
   let mut wrong : List String := []
   for s in strings do
     if isValidAtom s != expected then

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Control.Except
-import Init.Control.Do
 public import Init.Data.Option.Coe
 
 public section

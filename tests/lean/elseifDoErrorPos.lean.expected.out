@@ -6,9 +6,11 @@ but is expected to have type
   Prop
 in the application
   @ite ?m x
-elseifDoErrorPos.lean:7:11-7:14: error: Type mismatch
+elseifDoErrorPos.lean:7:11-7:14: error: Application type mismatch: The argument
   "a"
 has type
   String
 but is expected to have type
   Nat
+in the application
+  pure "a"

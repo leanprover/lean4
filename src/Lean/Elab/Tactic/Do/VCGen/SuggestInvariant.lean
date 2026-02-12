@@ -91,21 +91,21 @@ def classifyInvariantUse (assertion : Expr) (inv : MVarId) : ClassifyInvariantUs
   let_expr List.Cursor.mk _α _l pref suff _prf := cursor | return .unknownInvariantUse -- dito
   let mut acc := letMutsTuple
   let mut letMuts := #[]
-  while acc.isAppOfArity ``Prod.mk 4 do
+  while acc.isAppOfArity ``MProd.mk 4 do
     letMuts := letMuts.push (acc.getArg! 2)
     acc := acc.getArg! 3
   letMuts := letMuts.push acc
   return .success { conditionIdx, cursorPrefix := pref, cursorSuffix := suff, letMuts, letMutsTuple, stateArgs }
 
 /--
-Returns `some (ρ, σ)` if `letMutsTy` is of the form `Prod (Option ρ) σ` and every VC in `vcs`
+Returns `some (ρ, σ)` if `letMutsTy` is of the form `MProd (Option ρ) σ` and every VC in `vcs`
 uses the `Option ρ` component according to early return semantics.
 * `ρ` is the type of early return (`Unit` in case of `break`)
-* `σ` is an `n`-ary `Prod`, carrying the current value of the `let mut` variables.
-  NB: When `n=0`, we have `Prod (Option ρ) PUnit` rather than `Option ρ`.
+* `σ` is an `n`-ary `MProd`, carrying the current value of the `let mut` variables.
+  NB: When `n=0`, we have `MProd (Option ρ) PUnit` rather than `Option ρ`.
 -/
 def hasEarlyReturn (vcs : Array MVarId) (inv : MVarId) (letMutsTy : Expr) : MetaM (Option (Expr × Expr)) := do
-  if !(letMutsTy.isAppOf ``Prod) || letMutsTy.getAppNumArgs < 2 then return none
+  if !(letMutsTy.isAppOf ``MProd) || letMutsTy.getAppNumArgs < 2 then return none
   let_expr Option ρ := letMutsTy.getArg! 0 | return none
   let σ := letMutsTy.getArg! 1
 
@@ -425,8 +425,8 @@ public def suggestInvariant (vcs : Array MVarId) (inv : MVarId) : TacticM Term :
       let (onContinue, onReturn) ← withLocalDeclD `xs (mkApp2 (mkConst ``List.Cursor us) α l) fun xs =>
         withLocalDeclD `r ρ fun r =>
         withLocalDeclD `letMuts σ fun letMuts => do
-        let onContinue := success.beta #[xs, ← mkAppM ``Prod.mk #[← mkNone ρ, letMuts]]
-        let onReturn := onReturn.beta #[← mkAppM ``Prod.mk #[← mkSome ρ r, letMuts]]
+        let onContinue := success.beta #[xs, ← mkAppM ``MProd.mk #[← mkNone ρ, letMuts]]
+        let onReturn := onReturn.beta #[← mkAppM ``MProd.mk #[← mkSome ρ r, letMuts]]
         let ctx ← Simp.mkContext
           (config := {})
           (simpTheorems := #[(← Meta.getSimpTheorems)])

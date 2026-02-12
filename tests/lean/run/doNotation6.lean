@@ -18,7 +18,6 @@ let v ←
     return x
   catch _ =>
     return 1
-pure v
 
 def f2 (xs : List Nat) : M Nat := do
 let mut sum := 0

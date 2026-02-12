@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.Do
 public import Lean.CoreM
 
 public section

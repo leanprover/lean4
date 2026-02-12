@@ -274,15 +274,16 @@ fun {α} x y => do
   if a = true then
       have arr : Array α := #[];
       do
-      let __s ←
-        forIn (*...10) arr fun i __s =>
-            have arr : Array α := __s;
+      let r ←
+        forIn (*...10) arr fun i r =>
+            have arr : Array α := r;
             do
             let __do_lift ← y i
             have b : α := __do_lift
             have arr : Array α := arr.push b
+            pure PUnit.unit
             pure (ForInStep.yield arr)
-      have arr : Array α := __s
+      have arr : Array α := r
       pure arr
     else pure #[]
 -/

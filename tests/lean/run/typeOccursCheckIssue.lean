@@ -71,11 +71,6 @@ partial def minimizeAux [SampleableExt α] {β : α → Prop} [∀ x, Testable (
       if cfg.traceShrink then
         pure () -- slimTrace s!"{var} shrunk to {repr candidate} from {repr x}"
       let currentStep := OptionT.lift <| pure <| Sigma.mk candidate (addShrinks (n + 1) res)
-      -- In the legacy do elaborator, this program used to type-check without `β := β`.
-      -- This was because the default instance `instHOrElseOfOrElse` was synthesized at just the
-      -- right moment, so that the return type of the `minimizeAux` was determined to be the same
-      -- as that of `nextStep` and `currentStep`. That in turn allows type inference of the
-      -- `addShrinks (n+1) res` expression to succeed. Very tricky business.
-      let nextStep := minimizeAux (β := β) cfg var candidate (n + 1)
+      let nextStep := minimizeAux cfg var candidate (n + 1)
       return ← (nextStep <|> currentStep)
   failure

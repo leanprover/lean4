@@ -14,34 +14,37 @@ namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith.Ring (detectCommRing?)
 
 /--
-Returns the ring id for the given type if there is a `CommRing` instance for it.
-Uses the shared detection cache in `SymM` so that ring detection results and
+Returns the shared ring id for the given type if there is a `CommRing` instance for it.
+Uses the shared state in `arithRingExt` so that ring detection results and
 lazily-computed operations (e.g., `addFn?`) are shared between the arithmetic
 normalizer and grind's ring solver.
 -/
 def getCommRingId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').typeIdOf.find? { expr := type } then
     return id?
-  let some tmpl ← detectCommRing? type | do
+  let some sharedId ← detectCommRing? type | do
     modify' fun s => { s with typeIdOf := s.typeIdOf.insert { expr := type } none }
     return none
+  let shared ← Sym.Arith.Ring.arithRingExt.getState
+  let tmpl := shared.rings[sharedId]!
   trace_goal[grind.ring] "new ring: {type}"
   trace_goal[grind.ring] "NoNatZeroDivisors available: {tmpl.noZeroDivInst?.isSome}"
-  let id := (← get').rings.size
-  -- Copy from shared cache (includes pre-computed lazy fields from ArithNorm),
-  -- reset per-context state (vars, varMap, denote)
+  -- Create grind-local entry at the shared ring id index, with fresh per-context state
   let ring : CommRing := { tmpl with
-    toRing.id := id
+    toRing.id := sharedId
     toRing.vars := {}
     toRing.varMap := {}
     toRing.denote := {}
     denoteEntries := {}
   }
+  -- Pad the rings array if needed to accommodate the shared id
+  while (← get').rings.size ≤ sharedId do
+    modify' fun s => { s with rings := s.rings.push default }
   modify' fun s => { s with
-    rings := s.rings.push ring
-    typeIdOf := s.typeIdOf.insert { expr := type } (some id)
+    rings := s.rings.set! sharedId ring
+    typeIdOf := s.typeIdOf.insert { expr := type } (some sharedId)
   }
-  return some id
+  return some sharedId
 
 /--
 Returns the ring id for the given type if there is a `Ring` instance for it.

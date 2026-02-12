@@ -57,17 +57,7 @@ where
     Term.elabTermEnsuringType (← `(if $cond then $then_ else $else_)) mγ
 
   elabDite h cond thenSeq elseSeq dec := do
-    -- It turned out to be far more reliable to offload as much work as possible to the App
-    -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
-    -- let h ← h?.getDM (mkFreshUserName `h)
     let elabDiteBranch (then_ : Bool) : DoElabM Expr := do
-      -- Term.tryPostponeIfNoneOrMVar ty?
-      -- let some ty ← pure ty? | throwError "expected type must be known"
-      -- let .forallE _ (.forallE _ cond _ _) _ _ := ty
-      --   | Term.tryPostpone
-      --     throwError "Internal error of `do` `dite` elaborator: expected a type of the form `(c → α) → (¬c → α) → α` but got {ty}"
-      -- withLocalDeclD h (if then_ then cond else mkNot cond) fun h => do
-      --   mkLambdaFVars #[h] (← elabDoSeq (if then_ then thenSeq else elseSeq) dec)
       elabDoSeq (if then_ then thenSeq else elseSeq) dec
     doElabToSyntax "then branch of if with condition {cond}" (elabDiteBranch true) fun then_ => do
     doElabToSyntax "else branch of if with condition {cond}" (elabDiteBranch false) fun else_ => do

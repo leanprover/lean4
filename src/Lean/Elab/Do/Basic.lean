@@ -72,14 +72,6 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
   | _, .deadSyntactically => a
   | _, _ => a
 
-/--
-A function that generalizes the type of a free variable binding a continuation
-(join point, `continue`, `break`, etc.) given the discriminants of a match alternative and the
-current `doBlockResultType`.
--/
-abbrev ContFVarGeneralizer :=
-  (discrs : Array Expr) → (patternFVars : Array Expr) → (matchResultType : Expr) → (doBlockResultType : Expr) → MetaM Expr
-
 structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
@@ -94,11 +86,6 @@ structure Context where
   doBlockResultType : Expr
   /-- Information about `return`, `break` and `continue` continuations. -/
   contInfo : ContInfoRef
-  /--
-  Join point and other continuation variables (`continue`, `break`, etc.) which are non-optional to
-  generalize in a dependent pattern match.
-  -/
-  contFVars : Std.HashSet Name := {}
   /--
   Whether the current `do` element is dead code. `elabDoElem` will emit a warning if not `.alive`.
   -/
@@ -157,8 +144,6 @@ structure DoElemCont where
   kind : DoElemContKind := .nonDuplicable
   /-- An optional hint for trace messages. -/
   ref : Syntax := .missing
-  /-- How `resultName` should be introduced. Useful to say `.implDetail`. -/
-  declKind : LocalDeclKind := .default
 deriving Inhabited
 
 /--
@@ -238,8 +223,6 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
     k := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
     kind := .duplicable
     ref := .missing
-    declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
-                             -- type class synthesis.
   }
 
 /-- Create a `ReturnCont` returning the result using `pure`. -/
@@ -407,7 +390,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
   let eResultTy := dec.resultType
   let k := dec.k
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
-  let declKind := if dec.declKind matches .default then .ofBinderName x else dec.declKind
+  let declKind := .ofBinderName x
   withRef? dec.ref do
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
     let body ← k
@@ -448,7 +431,7 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
+  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
     withRef? dec.ref dec.k
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
@@ -462,9 +445,6 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
     let warnings := MessageLog.getWarningMessages (← Core.getMessageLog)
     s.restore
     Core.setMessageLog (log ++ warnings)
-
-def withContFVar (name : Name) (k : DoElabM α) : DoElabM α :=
-  withReader (fun ctx => { ctx with contFVars := ctx.contFVars.insert name }) k
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
@@ -513,19 +493,6 @@ instance : MonadBacktrack SavedState DoElabM where
   saveState      := DoElabM.saveState
   restoreState b := b.restore
 
-def inlineJoinPointM (body : Expr) (jp : Expr) : MetaM Expr := do
-  let some value ← jp.fvarId!.getValue? (allowNondep := true) | throwError "Internal error: join point {jp} has no value"
-  -- So, first zeta-reduce the defn of `jp` into its exposed uses
-  let body ← zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)
-  -- Furthermore, replace the remaining occurrences (in MVars contexts) by a dummy value.
-  -- It works to substitute an inhabited instance, but I want to measure whether this is actually
-  -- necessary.
-  -- let u ← getLevel joinTy
-  -- if let LOption.some inh ← joinRhsMVar.mvarId!.withContext do trySynthInstance (mkApp (mkConst ``Inhabited [u]) joinTy) then
-  --   body.replaceFVarsM #[jp] #[mkApp2 (mkConst ``Inhabited.default [u]) joinTy inh]
-  -- else
-  body.replaceFVarsM #[jp] #[value]
-
 def observingPostpone (x : DoElabM α) : DoElabM (Option α) := do
   let s ← saveState
   try
@@ -555,12 +522,12 @@ elaborated once to fill in the RHS of this join point.
 This is useful for control-flow constructs like `if` and `match`, where multiple tail-called
 branches share the continuation.
 -/
-def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (info : ControlInfo) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : ControlInfo) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
   if nondupDec.kind matches .duplicable .. then
     return ← caller nondupDec
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
-  let mutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
+  let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
   let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
@@ -570,8 +537,6 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (info : ControlInfo) 
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
   withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
-  withContFVar joinName do
-  let deadCode : IO.Ref CodeLiveness ← IO.mkRef .deadSyntactically
   let mkJump : DoElabM Expr := do
     let jp' ← getFVarFromUserName joinName
     let result ← getFVarFromUserName nondupDec.resultName
@@ -580,27 +545,26 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (info : ControlInfo) 
       let newX ← getFVarFromUserName x.getId
       Term.addTermInfo' x newX
       e := mkApp e (← getFVarFromUserName x.getId)
-    deadCode.modify (·.lub (← read).deadCode)
     return e
 
-  let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
+  let elabBody :=
+    caller { nondupDec with k := mkJump, kind := .duplicable }
+
   -- We need observingPostpone to decouple elaboration problems from the RHS and the body.
   let body? : Option Expr ← observingPostpone elabBody
-
-  -- trace[Elab.do] "body?: {body?}"
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
+    withDeadCode (if callerInfo.exitsRegularly then .alive else .deadSemantically) do
     let e ← nondupDec.k
     mkLambdaFVars (#[r] ++ muts) e
   discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
 
-  let body ←
-    match body? with
-    | some body => pure body
-    | none => doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
+  let body ← body?.getDM do
+    -- Here we unconditionally add a pending MVar.
+    doElabToSyntax "join point RHS" elabBody (Term.postponeElabTerm · mγ)
 
   mkLetFVars (generalizeNondepLet := false) #[jp] body
 
@@ -700,14 +664,6 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   let returnCont ← ReturnCont.mkPure resultType
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
-
-private def checkUnchangedResultType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
-  if let some ty := ty? then
-    let α ← mkFreshResultType `α
-    let oldTy ← mkMonadicType α
-    unless ← isDefEqGuarded oldTy ty do
-      throwError "The monadic type changed from {oldTy} to {ty}. This is not supported by the `do` elaborator."
-  k
 
 section NestedActions
 
@@ -874,7 +830,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
 private def DoElemCont.mkUnit (ref : Syntax) (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
-  return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
+  return DoElemCont.mk r unit k .nonDuplicable ref
 
 mutual
 partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
@@ -889,6 +845,7 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostp
     return ← mkFreshExprMVar mγ (userName := `deadCode)
   if (← read).deadCode matches .deadSemantically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
+  withDeadCode .alive do -- we have warned for this doElem. No need to warn for every element of the block
   let env ← getEnv
   if let some (decl, stxNew?) ← liftMacroM (expandMacroImpl? env stx) then
     let stxNew ← liftMacroM <| liftExcept stxNew?
@@ -952,10 +909,3 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   -- Term.synthesizeSyntheticMVarsUsingDefault
   trace[Elab.do] "{← instantiateMVars res}"
   pure res
-
-syntax:arg (name := dooBlock) "doo" doSeq : term
-
-@[builtin_term_elab «dooBlock»]
-def elabDooBlock : Term.TermElab := fun e expectedType? => do
-  let `(doo $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
-  elabDo (← `(do $doSeq)) expectedType?

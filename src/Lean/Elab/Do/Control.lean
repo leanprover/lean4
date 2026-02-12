@@ -177,10 +177,8 @@ def ControlStack.mkReturn (base : ControlStack) (r : Expr) : DoElabM Expr := do
   synthUsingDefEq "early return result type" mγ mγ'
   base.runInBase <| mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r
 
-def ControlStack.mkPure (base : ControlStack) (pureDeadCode : IO.Ref CodeLiveness) (resultName : Name) : DoElabM Expr := do
+def ControlStack.mkPure (base : ControlStack) (resultName : Name) : DoElabM Expr := do
   let mi := { (← read).monadInfo with m := (← base.m) }
-  let deadCode := (← read).deadCode
-  pureDeadCode.modify (·.lub deadCode)
   let instMonad ← mkInstMonad mi
   let instPure := instMonad |> mkApp2 (mkConst ``Monad.toApplicative [mi.u, mi.v]) mi.m
                             |> mkApp2 (mkConst ``Applicative.toPure [mi.u, mi.v]) mi.m
@@ -193,7 +191,7 @@ structure ControlLifter where
   breakBase? : Option ControlStack
   continueBase? : Option ControlStack
   pureBase : ControlStack
-  pureDeadCode : IO.Ref CodeLiveness
+  pureDeadCode : CodeLiveness
   liftedDoBlockResultType : Expr
 
 -- abbrev M := List
@@ -232,7 +230,9 @@ def ControlLifter.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM Contr
     breakBase?,
     continueBase?,
     pureBase := controlStack,
-    pureDeadCode := (← IO.mkRef .deadSyntactically),
+    -- The success continuation `origCont` is dead code iff the `ControlInfo` says that there is no
+    -- regular exit.
+    pureDeadCode := if info.exitsRegularly then .alive else .deadSemantically,
     liftedDoBlockResultType := (← controlStack.stM dec.resultType),
   }
 
@@ -261,12 +261,9 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
     | some returnBase => { oldReturnCont with k := returnBase.mkReturn }
     | _ => oldReturnCont
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
-  let pureCont := { l.origCont with k := l.pureBase.mkPure l.pureDeadCode l.origCont.resultName, kind := .duplicable }
+  let pureCont := { l.origCont with k := l.pureBase.mkPure l.origCont.resultName, kind := .duplicable }
   withReader (fun ctx => { ctx with contInfo, doBlockResultType := l.liftedDoBlockResultType }) do
     elabElem pureCont
 
 def ControlLifter.restoreCont (l : ControlLifter) : DoElabM DoElemCont := do
-  -- The success continuation `l.origCont` is dead code iff `l.pureKVar` is.
-  -- However, we need to generate code for it, so we relax its flag to `.deadSemantically`.
-  let deadCode := (← l.pureDeadCode.get).lub .deadSemantically
-  l.pureBase.restoreCont { l.origCont with k := withDeadCode deadCode l.origCont.k }
+  l.pureBase.restoreCont { l.origCont with k := withDeadCode l.pureDeadCode l.origCont.k }

@@ -39,8 +39,8 @@ open Lean.Meta
   let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr with $alts) := stx | throwUnsupportedSyntax
   let info ← inferControlInfoElem stx
   if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
-    let x ← Term.mkFreshIdent discr
-    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) (contRef := dec.ref) (declKind := .implDetail) do
+    let x := mkIdentFrom discr (← mkFreshUserName `__x)
+    elabDoIdDecl x none (← `(doElem| instantiateMVarsIfMVarApp $discr)) (contRef := dec.ref) do
       elabDoMatchExprNoMeta info x alts dec
   else
     elabDoMatchExprNoMeta info discr alts dec

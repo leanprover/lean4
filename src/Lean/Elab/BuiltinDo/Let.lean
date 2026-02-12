@@ -153,7 +153,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     trace[Elab.do] "pattern let arrow: {pattern} <- {rhs}, dec.ref: {dec.ref}"
-    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
+    elabDoIdDecl x none rhs (contRef := pattern) do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec

@@ -257,7 +257,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Pure
 end Check
 
-def Decl.check (decl : Decl pu) : CompilerM Unit := do
+def Decl.check (decl : Decl pu) : CompilerM Unit :=
   match pu with
   | .pure => Check.Pure.run do decl.value.forCodeM (Check.Pure.checkFunDeclCore decl.name decl.params decl.type)
   | .impure => return () -- TODO: port the IR check once it actually makes sense to

@@ -562,10 +562,10 @@ def modifyOp (xs : Array α) (idx : Nat) (f : α → α) : Array α :=
 /-- Reference implementation for `forIn'` -/
 @[implemented_by Array.forIn'Unsafe, expose]
 protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
-  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
+  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β :=
     match i, h with
     | 0,   _ => pure b
-    | i+1, h =>
+    | i+1, h => do
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
@@ -696,12 +696,12 @@ example [Monad m] (f : α → β → m β) :
 -- Reference implementation for `foldrM`
 @[implemented_by foldrMUnsafe, expose]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
-  let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
+  let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β :=
     if i == stop then
       pure b
     else match i, h with
       | 0, _   => pure b
-      | i+1, h =>
+      | i+1, h => do
         have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
         fold i (Nat.le_of_lt this) (← f as[i] b)
   if h : start ≤ as.size then
@@ -755,10 +755,10 @@ proof that the index is in bounds, from left to right. Returns the array of resu
 @[inline, expose]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
-  let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
+  let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) :=
     match i, inv with
     | 0,    _  => pure bs
-    | i+1, inv =>
+    | i+1, inv => do
       have j_lt : j < as.size := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right

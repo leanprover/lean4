@@ -32,6 +32,18 @@ public  abbrev BuildStore :=
 namespace BuildStore
 
 set_option linter.deprecated false in
+private def getModuleFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+    (k : BuildKey) (v : Job (BuildData k)) : Option (Name × Job α) :=
+  match k with
+  | .moduleFacet m f
+  | .packageModuleFacet p m f =>
+    if h : f = facet then
+      have of_data := by unfold BuildData; simp [h]
+      some (m, cast of_data v)
+    else none
+  | _ => none
+
+set_option linter.deprecated false in
 /-- Derive an array of built module facets from the store. -/
 @[deprecated "Deprecated without replacement." (since := "2025-11-13")]
 public def collectModuleFacetArray
@@ -39,13 +51,8 @@ public def collectModuleFacetArray
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
-    match k with
-    | .moduleFacet m f
-    | .packageModuleFacet p m f =>
-      if h : f = facet then
-        have of_data := by unfold BuildData; simp [h]
-        res := res.push <| cast of_data v
-    | _ => pure ()
+    if let some (_, job) := getModuleFacetJob? facet k v then
+      res := res.push job
   return res
 
 set_option linter.deprecated false in
@@ -56,14 +63,19 @@ public def collectModuleFacetMap
 : NameMap (Job α) := Id.run do
   let mut res := Lean.mkNameMap (Job α)
   for ⟨k, v⟩ in self do
-    match k with
-    | .moduleFacet m f
-    | .packageModuleFacet p m f =>
-      if h : f = facet then
-        have of_data := by unfold BuildData; simp [h]
-        res := res.insert m <| cast of_data v
-    | _ => pure ()
+    if let some (m, job) := getModuleFacetJob? facet k v then
+      res := res.insert m job
   return res
+
+private def getPackageFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+    (k : BuildKey) (v : Job (BuildData k)) : Option (Job α) :=
+  match k with
+  | .packageFacet p f =>
+    if h : f = facet then
+      have of_data := by unfold BuildData; simp [h]
+      some (cast of_data v)
+    else none
+  | _ => none
 
 /-- Derive an array of built package facets from the store. -/
 @[deprecated "Deprecated without replacement." (since := "2025-11-13")]
@@ -72,13 +84,19 @@ public def collectPackageFacetArray
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
-    match k with
-    | .packageFacet p f =>
-      if h : f = facet then
-        have of_data := by unfold BuildData; simp [h]
-        res := res.push <| cast of_data v
-    | _ => pure ()
+    if let some job := getPackageFacetJob? facet k v then
+      res := res.push job
   return res
+
+private def getTargetFacetJob? (facet : Name) [FamilyOut FacetOut facet α]
+    (k : BuildKey) (v : Job (BuildData k)) : Option (Job α) :=
+  match k with
+  | .packageFacet p f =>
+    if h : f = facet then
+      have of_data := by unfold BuildData; simp [h]
+      some (cast of_data v)
+    else none
+  | _ => none
 
 /-- Derive an array of built target facets from the store. -/
 @[deprecated "Deprecated without replacement." (since := "2025-11-13")]
@@ -87,12 +105,8 @@ public def collectTargetFacetArray
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
-    match k with
-    | .targetFacet _ _ f =>
-      if hf : f = facet then
-        have of_data := by unfold BuildData; simp [hf]
-        res := res.push <| cast of_data v
-    | _ => pure ()
+    if let some job := getTargetFacetJob? facet k v then
+      res := res.push job
   return res
 
 set_option linter.deprecated false in

@@ -172,10 +172,10 @@ instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
 instance [Monad m] : ForIn' m (Option α) α inferInstance where
-  forIn' x init f := do
+  forIn' x init f :=
     match x with
     | none => return init
-    | some a =>
+    | some a => do
       match ← f a rfl init with
       | .done r | .yield r => return r
 

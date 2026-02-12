@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.AlphaShareCommon
-public import Lean.Meta.Sym.Arith.Ring.Types
 public import Lean.Meta.CongrTheorems
 public section
 namespace Lean.Meta.Sym
@@ -83,6 +82,17 @@ inductive CongrInfo where
     -/
     congrTheorem (thm : CongrTheorem)
 
+/-- Opaque extension state for `SymM`. -/
+opaque SymExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+@[expose] def SymExtensionState : Type := SymExtensionStateSpec.fst
+instance : Inhabited SymExtensionState := SymExtensionStateSpec.snd
+
+/-- A registered extension that stores state of type `σ` in the `SymM` state. -/
+structure SymExtension (σ : Type) where
+  id        : Nat
+  mkInitial : Unit → σ
+  deriving Inhabited
+
 /-- Pre-shared expressions for commonly used terms. -/
 structure SharedExprs where
   trueExpr   : Expr
@@ -132,11 +142,51 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
-  /-- Cached ring detection state for arithmetic normalization. -/
-  arith : Arith.Ring.State := {}
+  /-- Extension states, indexed by `SymExtension.id`. -/
+  extensions : Array SymExtensionState := #[]
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM
+
+private builtin_initialize symExtensionsRef : IO.Ref (Array (SymExtension SymExtensionState)) ← IO.mkRef #[]
+
+/--
+Register a `SymM` state extension. Must be called during initialization (via `builtin_initialize`).
+Returns a `SymExtension σ` handle used to access the state.
+-/
+private unsafe def registerSymExtensionImpl {σ : Type} [Inhabited σ] (mkInitial : Unit → σ := fun _ => default) : IO (SymExtension σ) := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register `Sym` extension, extensions can only be registered during initialization")
+  let exts ← symExtensionsRef.get
+  let id := exts.size
+  let ext : SymExtension σ := { id, mkInitial }
+  symExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
+  return ext
+
+@[implemented_by registerSymExtensionImpl]
+opaque registerSymExtension {σ : Type} [Inhabited σ] (mkInitial : Unit → σ := fun _ => default) : IO (SymExtension σ)
+
+/-- Create initial states for all registered extensions. -/
+def SymExtension.mkInitialStates : IO (Array SymExtensionState) := do
+  let exts ← symExtensionsRef.get
+  return exts.map fun ext => ext.mkInitial ()
+
+private unsafe def SymExtension.getStateCoreImpl (ext : SymExtension σ) (s : State) : IO σ :=
+  return unsafeCast s.extensions[ext.id]!
+
+@[implemented_by SymExtension.getStateCoreImpl]
+opaque SymExtension.getStateCore (ext : SymExtension σ) (s : State) : IO σ
+
+def SymExtension.getState (ext : SymExtension σ) : SymM σ := do
+  ext.getStateCore (← get)
+
+private unsafe def SymExtension.modifyStateImpl (ext : SymExtension σ) (f : σ → σ) : SymM Unit := do
+  modify fun s => { s with
+    extensions := s.extensions.modify ext.id fun st => unsafeCast (f (unsafeCast st))
+  }
+
+@[implemented_by SymExtension.modifyStateImpl]
+opaque SymExtension.modifyState (ext : SymExtension σ) (f : σ → σ) : SymM Unit
 
 private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
   let falseExpr  ← shareCommonAlphaInc <| mkConst ``False
@@ -151,7 +201,8 @@ private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
 def SymM.run (x : SymM α) : MetaM α := do
   let (sharedExprs, share) := mkSharedExprs |>.run {}
   let debug := sym.debug.get (← getOptions)
-  x { sharedExprs } |>.run' { debug, share }
+  let extensions ← SymExtension.mkInitialStates
+  x { sharedExprs } |>.run' { debug, share, extensions }
 
 /-- Returns maximally shared commonly used terms -/
 def getSharedExprs : SymM SharedExprs :=

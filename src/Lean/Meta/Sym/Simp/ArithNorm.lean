@@ -18,6 +18,8 @@ namespace Lean.Meta.Sym.Simp
 
 open Arith.Ring
 
+builtin_initialize arithExt : SymExtension Arith.Ring.State ← registerSymExtension
+
 /-!
 # Arithmetic Normalizer for Sym.simp
 
@@ -38,10 +40,10 @@ instance : MonadCanon ArithRingM where
   synthInstance? e := Meta.synthInstance? e
 
 def getArithState : ArithRingM Arith.Ring.State := do
-  return (← getThe Sym.State).arith
+  arithExt.getState
 
 def modifyArithState (f : Arith.Ring.State → Arith.Ring.State) : ArithRingM Unit := do
-  modifyThe Sym.State fun s => { s with arith := f s.arith }
+  arithExt.modifyState f
 
 def ArithRingM.getCommRing : ArithRingM CommRing := do
   let s ← getArithState
@@ -61,11 +63,11 @@ instance : MonadRing ArithRingM where
 
 /-- Detect whether `type` has a `Grind.CommRing` instance. Returns the ring id if found. -/
 private def getCommRingId? (type : Expr) : SimpM (Option Nat) := do
-  let s := (← getThe Sym.State).arith
+  let s ← arithExt.getState
   if let some id? := s.typeIdOf.find? { expr := type } then
     return id?
   let id? ← go?
-  modifyThe Sym.State fun st => { st with arith.typeIdOf := st.arith.typeIdOf.insert { expr := type } id? }
+  arithExt.modifyState fun st => { st with typeIdOf := st.typeIdOf.insert { expr := type } id? }
   return id?
 where
   go? : SimpM (Option Nat) := do
@@ -81,13 +83,13 @@ where
     let noZeroDivInst? ← getNoZeroDivInst? u type
     let fieldInst? ← Meta.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
     let semiringId? := none
-    let s := (← getThe Sym.State).arith
+    let s ← arithExt.getState
     let id := s.rings.size
     let ring : CommRing := {
       id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
       commRingInst, charInst?, noZeroDivInst?, fieldInst?,
     }
-    modifyThe Sym.State fun st => { st with arith.rings := st.arith.rings.push ring }
+    arithExt.modifyState fun st => { st with rings := st.rings.push ring }
     return some id
 
   getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SimpM (Option (Expr × Nat)) := do

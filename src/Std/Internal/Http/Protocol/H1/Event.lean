@@ -70,4 +70,9 @@ inductive Event (dir : Direction)
   Indicates readiness to process the next message.
   -/
   | next
+
+  /--
+  Indicates that it needs a continue.
+  -/
+  | «continue»
 deriving Inhabited, Repr

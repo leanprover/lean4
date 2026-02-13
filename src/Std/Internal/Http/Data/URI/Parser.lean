@@ -272,7 +272,7 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
       else
         acc.push val
 
-    let some segmentStr := URI.EncodedSegment.fromByteArray? segmentBytes
+    let some segmentStr := URI.EncodedSegment.ofByteArray? segmentBytes
       | fail "invalid percent encoding in path segment"
 
     segments := segments.push segmentStr

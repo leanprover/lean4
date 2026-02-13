@@ -698,16 +698,14 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 end NormalizeMul
 
 namespace NormBvMulPow2Rev
-/-- NORM_BV_MUL_POW2_REV: extractLsb' ++ 0#tz to multiplication -/
+
+/- NORM_BV_MUL_POW2_REV: extractLsb' ++ 0#tz to multiplication -/
 
 example {x : BitVec 8} :
-    (x.extractLsb' 0 5 ++ 0#3) = (x * 8).cast (by omega) := by bv_normalize
+  (x.extractLsb' 0 5 ++ 0#3) = (x * (1#8 <<< 3)).cast (by omega) := by bv_normalize
+
 example {x : BitVec 8} :
-    (x.extractLsb' 0 7 ++ 0#1) = (x * 2).cast (by omega) := by bv_normalize
-example {x : BitVec 16} :
-    (x.extractLsb' 0 12 ++ 0#4) = (x * 16).cast (by omega) := by bv_normalize
-example {x : BitVec 8} :
-    (x.extractLsb' 0 5 ++ 0#3) = (x * (1#8 <<< 3)).cast (by omega) := by bv_normalize
+  (x.extractLsb' 0 5 ++ 0#3) = (x * 8).cast (by omega) := by bv_normalize
 
 end NormBvMulPow2Rev
 

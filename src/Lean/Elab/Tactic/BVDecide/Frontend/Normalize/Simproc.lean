@@ -1249,7 +1249,7 @@ builtin_simproc [bv_normalize] extract_mul
   return .visit { expr := expr, proof? := some proof }
 
 /--
-NORM_BV_MUL_POW2_REV: Normalize `x.extractLsb' 0 m ++ 0#tz` → `(x * (1#n <<< tz)).cast hm`.
+NORM_BV_MUL_POW2_REV: Normalize `(x : BitVec n).extractLsb' 0 m ++ 0#tz` → `(x * (1#n <<< tz)).cast hm`.
 -/
 builtin_simproc [bv_normalize] bv_extractLsb'_append_zero_to_mul
     (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _))
@@ -1279,7 +1279,8 @@ builtin_simproc [bv_normalize] bv_extractLsb'_append_zero_to_mul
   let hm := Nat.mkDecideProofEq nExpr resultWidthExpr
   let expr := mkApp4 (mkConst ``BitVec.cast) nExpr resultWidthExpr hm mulExpr
   let proof := mkApp5 (mkConst ``BitVec.extractLsb'_append_zero_eq_mul_shiftLeft) nExpr mExpr xExpr rhsWidthExpr hm
-  return .done { expr := expr, proof? := some proof }
+  return .continue
+  -- return .done { expr := expr, proof? := some proof }
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

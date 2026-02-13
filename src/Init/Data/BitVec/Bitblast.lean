@@ -2595,7 +2595,7 @@ private theorem addRecAux_append_extractLsb' {x : BitVec (x_len * w)} (ha : 0 < 
   rw [BitVec.zero_add, Nat.sub_one_add_one (by omega)] at hsucc
   rw [hsucc, addRecAux_eq, BitVec.add_comm]
 
-theorem Nat.succ_mul_le {a b c : Nat} (h : a + 1 ≤ c) :
+private theorem Nat.succ_mul_le {a b c : Nat} (h : a + 1 ≤ c) :
     a * b + b ≤ c * b := by
   rw [← Nat.succ_mul]
   exact mul_le_mul_right b h

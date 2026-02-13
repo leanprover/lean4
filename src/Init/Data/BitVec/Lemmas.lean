@@ -5334,10 +5334,10 @@ theorem append_assoc' {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w
 appending 'tz' trailing zeroes to the truncated 'x' is equal to
 multiplying 'x' by 2^tz.
 -/
-theorem extractLsb'_append_zero_eq_mul_shiftLeft {n : Nat}
-    (x : BitVec n) (tz : Nat) (htz : tz ≤ n) :
-    ((x.extractLsb' 0 (n - tz) ++ (0#tz)).cast (by omega))
-      = x * (1#n <<< tz) := by
+theorem extractLsb'_append_zero_eq_mul_shiftLeft {n m : Nat}
+    (x : BitVec n) (tz : Nat) (hm : n = m + tz) :
+    ((x.extractLsb' 0 m ++ (0#tz)))
+      = (x * (1#n <<< tz)).cast hm := by
   ext i
   simp only [BitVec.getElem_cast]
   rw [BitVec.getElem_append]

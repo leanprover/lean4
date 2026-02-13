@@ -5,6 +5,12 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
+abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+
+instance : Std.Http.Server.Handler TestHandler where
+  onRequest handler request := handler request
+
+
 structure TestCase where
   /-- Descriptive name for the test -/
   name : String
@@ -36,7 +42,7 @@ def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Re
   for req in reqs do data := data ++ (← toByteArray req chunked)
 
   client.send data
-  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) (config := { lingeringTimeout := 3000, generateDate := false })
+  Std.Http.Server.serveConnection server onRequest { lingeringTimeout := 3000, generateDate := false }
     |>.run
 
   let res ← client.recv?

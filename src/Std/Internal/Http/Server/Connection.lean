@@ -237,6 +237,7 @@ private def handle
         waitingResponse := false
 
       | .failed _ =>
+        pendingHead := none
         waitingResponse := false
         requiresData := false
         break

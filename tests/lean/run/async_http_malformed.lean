@@ -5,6 +5,12 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
+abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+
+instance : Std.Http.Server.Handler TestHandler where
+  onRequest handler request := handler request
+
+
 /-!
 # Malformed HTTP Request Tests
 
@@ -17,7 +23,7 @@ def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
     (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
-  Std.Http.Server.serveConnection server handler (fun _ => pure ()) (config := config)
+  Std.Http.Server.serveConnection server handler config
     |>.run
   let res ← client.recv?
   pure <| res.getD .empty
@@ -430,7 +436,7 @@ def ok200 : String :=
   client.send raw
   client.close
   let result ← Async.block do
-    Std.Http.Server.serveConnection server okHandler (fun _ => pure ()) (config := { lingeringTimeout := 500, generateDate := false })
+    Std.Http.Server.serveConnection server okHandler { lingeringTimeout := 500, generateDate := false }
       |>.run
     let res ← client.recv?
     pure <| res.getD .empty

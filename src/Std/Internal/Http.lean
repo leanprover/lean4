@@ -34,20 +34,25 @@ the actual reading and writing of bytes.
 
 ## Quick Start
 
-The main entry point is `Server.serve`, which starts an HTTP/1.1 server:
+The main entry point is `Server.serve`, which starts an HTTP/1.1 server. Implement the
+`Server.Handler` type class to define how the server handles requests, errors, and
+`Expect: 100-continue` headers:
 
 ```lean
 import Std.Internal.Http
 
 open Std Internal IO Async
-open Std Http
+open Std Http Server
 
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
-  Response.ok |>.text "Hello, World!"
+structure MyHandler
+
+instance : Handler MyHandler where
+  onRequest _ req := do
+    Response.ok |>.text "Hello, World!"
 
 def main : IO Unit := Async.block do
   let addr : Net.SocketAddress := .v4 ⟨.ofParts 127 0 0 1, 8080⟩
-  let server ← Server.serve addr handler (fun e => IO.eprintln s!"Error: {e}")
+  let server ← Server.serve addr MyHandler.mk
   server.waitShutdown
 ```
 
@@ -144,37 +149,37 @@ def config : Config := {
   lingeringTimeout := 5000,
 }
 
-let server ← Server.serve addr handler (fun e => IO.eprintln s!"Error: {e}") config
+let server ← Server.serve addr MyHandler.mk config
 ```
 
-## Handler Signature
+## Handler Type Class
 
-Each handler receives a parsed request and returns a response inside `ContextAsync`:
+Implement `Server.Handler` to define how the server processes events. The class has three
+methods, all with default implementations:
+
+- `onRequest` — called for each incoming request; returns a response inside `ContextAsync`
+- `onFailure` — called when an error occurs while processing a request
+- `onContinue` — called when a request includes an `Expect: 100-continue` header; return
+  `true` to accept the body or `false` to reject it
 
 ```lean
-Request Body.Stream → ContextAsync (Response Body.Stream)
+structure MyHandler where
+  greeting : String
+
+instance : Handler MyHandler where
+  onRequest self req := do
+    Response.ok |>.text self.greeting
+
+  onFailure self err := do
+    IO.eprintln s!"Error: {err}"
 ```
 
-- `Request Body.Stream` — the incoming request with headers available immediately and a streaming body
-- `Response Body.Stream` — the outgoing response built via the response builder API
-- `ContextAsync` — an asynchronous monad (`ReaderT CancellationContext Async`) that provides:
+The handler methods operate in the following monads:
+
+- `onRequest` uses `ContextAsync` — an asynchronous monad (`ReaderT CancellationContext Async`) that provides:
   - Full access to `Async` operations (spawning tasks, sleeping, concurrent I/O)
   - A `CancellationContext` tied to the client connection — when the client disconnects, the
     context is cancelled, allowing your handler to detect this and stop work early
-
-### Cooperative Cancellation
-
-Handlers can check whether the client is still connected and exit gracefully:
-
-```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
-  -- Check if the client disconnected
-  if ← ContextAsync.isCancelled then
-    return Response.new |>.status .serviceUnavailable |>.text "Cancelled"
-
-  -- Race handler logic against client disconnection
-  ContextAsync.race
-    (do Async.sleep 10000; Response.ok |>.text "Done!")
-    (do ContextAsync.awaitCancellation; Response.new |>.status .serviceUnavailable |>.text "Cancelled")
-```
+- `onFailure` uses `Async`
+- `onContinue` uses `Async`
 -/

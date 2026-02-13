@@ -11,6 +11,7 @@ public import Std.Internal.Async.ContextAsync
 public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
+public import Std.Internal.Http.Server.Handler
 
 public section
 
@@ -155,12 +156,11 @@ private def handleError (machine : H1.Machine .receiving) (status : Status) (wai
     (machine.closeWriter.noMoreInput, waitingResponse)
 
 private def handle
-    [Transport α]
+    {σ : Type} [Transport α] [Handler σ]
     (connection : Connection α)
     (config : Config)
     (connectionContext : CancellationContext)
-    (onError : Error → Async Unit)
-    (handler : Request Body.Stream → ContextAsync (Response Body.Stream)) : Async Unit := do
+    (handler : σ) : Async Unit := do
 
   let mut machine := connection.machine
   let socket := connection.socket
@@ -205,7 +205,7 @@ private def handle
         if let some length := head.getSize true then
           requestStream.setKnownSize (some length)
 
-        let newResponse := handler { head, body := requestStream, extensions := connection.extensions } connectionContext
+        let newResponse := Handler.onRequest handler { head, body := requestStream, extensions := connection.extensions } connectionContext
         let task ← newResponse.asTask
 
         BaseIO.chainTask task fun x => discard <| response.send x
@@ -283,7 +283,7 @@ private def handle
         waitingResponse := newWaitingResponse
 
       | .response (.error err) =>
-        onError err
+        Handler.onFailure handler err
         let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
         machine := newMachine
         waitingResponse := newWaitingResponse
@@ -329,13 +329,13 @@ server.listen backlog
 -- Enter an infinite loop to handle incoming client connections
 while true do
   let client ← server.accept
-  background (serveConnection client onRequest onError config)
+  background (serveConnection client handler config)
 ```
 -/
 def serveConnection
-    [Transport t] (client : t) (onRequest : Request Body.Stream → ContextAsync (Response Body.Stream))
-    (onError : Error → Async Unit) (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
+    {σ : Type} [Transport t] [Handler σ] (client : t) (handler : σ)
+    (config : Config) (extensions : Extensions := .empty) : ContextAsync Unit := do
   (Connection.mk client { config := config.toH1Config } extensions)
-  |>.handle config (← ContextAsync.getContext) onError onRequest
+  |>.handle config (← ContextAsync.getContext) handler
 
 end Std.Http.Server

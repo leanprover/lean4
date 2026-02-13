@@ -10,6 +10,7 @@ public import Std.Internal.Async
 public import Std.Internal.Async.TCP
 public import Std.Sync.CancellationToken
 public import Std.Internal.Http.Server.Config
+public import Std.Internal.Http.Server.Handler
 public import Std.Internal.Http.Server.Connection
 
 public section
@@ -119,10 +120,9 @@ private def frameCancellation (s : Server) (action : ContextAsync α) : ContextA
 Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks
 and TCP connections, and returns a `Server` structure that can be used to cancel the server.
 -/
-def serve
+def serve {σ : Type} [Handler σ]
     (addr : Net.SocketAddress)
-    (onRequest : Request Body.Stream → ContextAsync (Response Body.Stream))
-    (onError : IO.Error → Async Unit)
+    (handler : σ)
     (config : Config := {}) (backlog : UInt32 := 128) : Async Server := do
 
   let httpServer ← Server.new config
@@ -145,7 +145,7 @@ def serve
             | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
             | .error _ => Extensions.empty
 
-          ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest onError config extensions))
+          ContextAsync.background (frameCancellation httpServer (serveConnection client handler config extensions))
         | none => break
 
   background (runServer httpServer.context)

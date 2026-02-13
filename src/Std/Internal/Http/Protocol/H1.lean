@@ -468,8 +468,9 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
         let (writer, remaining) := Writer.writeFixedBody machine.writer n
         let machine := { machine with writer }
 
-        if machine.writer.isReadyToSend ∨ remaining = 0 then
+        if remaining = 0 then
           machine.setWriterState .complete |> processWrite
+          |>.addEvent .closeBody
         else
           machine.setWriterState (.writingBody (.fixed remaining))
       else

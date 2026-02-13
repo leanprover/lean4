@@ -242,6 +242,10 @@ private def handle
         requiresData := false
         break
 
+      | .closeBody =>
+        if let some stream := respStream then
+          stream.close
+
       | .close =>
         pure ()
 

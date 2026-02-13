@@ -57,6 +57,11 @@ inductive Event (dir : Direction)
   | close
 
   /--
+  The body should be closed.
+  -/
+  | closeBody
+
+  /--
   Indicates that a response is required.
   -/
   | needAnswer

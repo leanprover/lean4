@@ -34,6 +34,15 @@ When asked to implement new features:
 
 All new tests should go in `tests/lean/run/`. These tests don't have expected output; we just check there are no errors. You should use `#guard_msgs` to check for specific messages.
 
+## Writing tests for bugs/features
+
+**A test for a bug must FAIL (non-zero exit code) until the bug is fixed.**
+
+- Write the test showing what SHOULD work
+- The test file should fail to compile/run until you implement the fix
+- Do NOT use `#guard_msgs` to capture expected errors - that makes the test pass
+- Do NOT add workarounds - that also makes the test pass
+
 ## Success Criteria
 
 *Never* report success on a task unless you have verified both a clean build without errors, and that the relevant tests pass.

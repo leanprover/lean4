@@ -27,12 +27,6 @@ namespace Lean.Compiler.LCNF
 
 open ImpureType
 
-public def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-public def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
 def requiresBoxedVersion (sig : Signature .impure) : CompilerM Bool := do
   let ps := sig.params
   let env ← getEnv

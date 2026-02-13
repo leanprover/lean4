@@ -353,4 +353,144 @@ def isInductiveWithNoCtors (type : Expr) : CoreM Bool := do
   let some (.inductInfo info) := (← getEnv).find? declName | return false
   return info.numCtors == 0
 
+def mkBoxedName (n : Name) : Name :=
+  Name.mkStr n "_boxed"
+
+def isBoxedName (name : Name) : Bool :=
+  name matches .str _ "_boxed"
+
+namespace ImpureType
+
+/-!
+This section defines the low level IR types used in the impure phase of LCNF.
+-/
+
+/--
+`float` is a 64-bit floating point number.
+-/
+@[inline, expose, match_pattern]
+def float : Expr := .const ``Float []
+
+
+/--
+`float32` is a 32-bit floating point number.
+-/
+@[inline, expose, match_pattern]
+def float32 : Expr := .const ``Float32 []
+
+/--
+`uint8` is an 8-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint8 : Expr := .const ``UInt8 []
+
+/--
+`uint16` is a 16-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint16 : Expr := .const ``UInt16 []
+
+/--
+`uint32` is a 32-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint32 : Expr := .const ``UInt32 []
+
+/--
+`uint64` is a 64-bit unsigned integer.
+-/
+@[inline, expose, match_pattern]
+def uint64 : Expr := .const ``UInt64 []
+
+/--
+`usize` represents the C `size_t` type. It has a separate representation because depending on the
+target architecture it has a different width and we try to generate platform independent C code.
+
+We generally assume that `sizeof(size_t) == sizeof(void)`.
+-/
+@[inline, expose, match_pattern]
+def usize : Expr := .const ``USize []
+
+/--
+`erased` represents type arguments, propositions and proofs which are no longer relevant at this
+point in time.
+-/
+@[inline, expose, match_pattern]
+def erased : Expr := .const ``lcErased []
+
+/-
+`object` is a pointer to a value in the heap.
+-/
+@[inline, expose, match_pattern]
+def object : Expr := .const `obj []
+
+/--
+`tobject` is either an `object` or a `tagged` pointer.
+
+Crucially the RC the RC operations for `tobject` are slightly more expensive because we
+first need to test whether the `tobject` is really a pointer or not.
+-/
+@[inline, expose, match_pattern]
+def tobject : Expr := .const `tobj []
+
+/--
+tagged` is a tagged pointer (i.e., the least significant bit is 1) storing a scalar value.
+-/
+@[inline, expose, match_pattern]
+def tagged : Expr := .const `tagged []
+
+/--
+`void` is used to identify uses of the state token from `BaseIO` which do no longer need
+to be passed around etc. at this point in the pipeline.
+-/
+@[inline, expose, match_pattern]
+def void : Expr := .const ``lcVoid []
+
+/--
+Whether the type is a scalar as opposed to a pointer (or a value disguised as a pointer).
+-/
+def Lean.Expr.isScalar : Expr → Bool
+  | ImpureType.float    => true
+  | ImpureType.float32  => true
+  | ImpureType.uint8    => true
+  | ImpureType.uint16   => true
+  | ImpureType.uint32   => true
+  | ImpureType.uint64   => true
+  | ImpureType.usize    => true
+  | _        => false
+
+/--
+Whether the type is an object which is to say a pointer or a value disguised as a pointer.
+-/
+def Lean.Expr.isObj : Expr → Bool
+  | ImpureType.object  => true
+  | ImpureType.tagged  => true
+  | ImpureType.tobject => true
+  | ImpureType.void    => true
+  | _       => false
+
+/--
+Whether the type might be an actual pointer (crucially this excludes `tagged`).
+-/
+def Lean.Expr.isPossibleRef : Expr → Bool
+  | ImpureType.object | ImpureType.tobject => true
+  | _ => false
+
+/--
+Whether the type is a pointer for sure.
+-/
+def Lean.Expr.isDefiniteRef : Expr → Bool
+  | ImpureType.object => true
+  | _ => false
+
+/--
+The boxed version of types.
+-/
+def Lean.Expr.boxed : Expr → Expr
+  | ImpureType.object | ImpureType.float | ImpureType.float32 => ImpureType.object
+  | ImpureType.void | ImpureType.tagged | ImpureType.uint8 | ImpureType.uint16 => ImpureType.tagged
+  | _ => ImpureType.tobject
+
+end ImpureType
+
 end Lean.Compiler.LCNF

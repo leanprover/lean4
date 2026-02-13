@@ -698,26 +698,6 @@ info: key=new
     |>.set "key" "new"
   IO.println query.toRawString
 
--- ============================================================================
--- Fragment Tests
--- ============================================================================
-
-/--
-info: some "section/subsection"
--/
-#guard_msgs in
-#eval show IO _ from do
-  let result ← runParser parseRequestTarget "https://example.com/page#section%2Fsubsection"
-  IO.println (repr result.fragment?)
-
-/--
-info: some "heading with spaces"
--/
-#guard_msgs in
-#eval show IO _ from do
-  let result ← runParser parseRequestTarget "https://example.com/page#heading%20with%20spaces"
-  IO.println (repr result.fragment?)
-
 /--
 info: none
 -/

@@ -266,7 +266,7 @@ theorem denote_blastCpop (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (
       simp only at hgen
       rw [← hgen]
       unfold BitVec.cpopRec
-      simp [show 1 < w by omega]
+      simp only [BitVec.ofNat_eq_ofNat, show 1 < w by omega, reduceDIte, BitVec.getLsbD_cast]
       let ext := blastextractAndExtend aig 0 xc (blastConst aig 0#0) (by omega)
       let ext_bv := (BitVec.extractAndExtend w x)
       apply denote_blastCpopTree

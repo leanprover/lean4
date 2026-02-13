@@ -2982,9 +2982,9 @@ theorem extractLsb'_append_extractLsb' {x : BitVec (w + len)} :
   · rw [← getLsbD_eq_getElem]
   · simp [show len + (i - len) = i by omega, ← getLsbD_eq_getElem]
 
-theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} (ha : 0 < x_len) :
-    (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast
-    (by rw [Nat.sub_mul, ← Nat.add_sub_assoc (by exact Nat.mul_le_mul_right w ha)]; omega) = x := by
+theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)}
+    (hcast : w + (x_len - 1) * w = x_len * w):
+    (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast = x := by
   ext i hi
   simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
   rw [← getLsbD_eq_getElem, ite_eq_left_iff, Nat.not_lt]
@@ -3028,8 +3028,9 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   congr 1
   omega
 
-theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k):
-    extractLsb' (i * w) w ((y ++ x).cast (m := (k + 1) * w) (by simp [Nat.add_mul, Nat.add_comm])) = extractLsb' (i * w) w x := by
+theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k)
+    (hcast : w + k * w = (k + 1) * w) :
+    extractLsb' (i * w) w ((y ++ x).cast hcast) = extractLsb' (i * w) w x := by
   ext j hj
   simp [← getLsbD_eq_getElem, getLsbD_append, hj]
   intros h
@@ -3041,8 +3042,9 @@ theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < 
     rw [Nat.sub_one_add_one (by omega)] at h'
     omega
 
-theorem extractLsb'_append_of_eq {x : BitVec (k * w)} {y : BitVec w} (heq : i = k) :
-    extractLsb' (i * w) w ((y ++ x).cast (m := (k + 1) * w) (by simp [Nat.add_mul, Nat.add_comm])) = y := by
+theorem extractLsb'_append_of_eq {x : BitVec (k * w)} {y : BitVec w} (heq : i = k)
+    (hcast : w + k * w = (k + 1) * w) :
+    extractLsb' (i * w) w ((y ++ x).cast hcast) = y := by
   ext j hj
   simp [← getLsbD_eq_getElem, getLsbD_append, hj, heq]
 

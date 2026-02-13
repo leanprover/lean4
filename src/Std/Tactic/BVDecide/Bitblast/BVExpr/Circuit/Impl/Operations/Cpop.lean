@@ -59,10 +59,10 @@ theorem extractAndExtendBit_decl_eq (aig : AIG α) (x : AIG.RefVec aig w) (start
   unfold blastExtractAndExtendBit at hres
   dsimp only at hres
   rw [← hres]
-  intros
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
-  (expose_names; exact h1)
+  intros _ h1 _
+  rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend),
+    AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
+  exact h1
 
 /-- We extract one bit at a time from the initial vector and zero-extend them to width `w`,
   appending the result to `acc` which eventually will have size `w * w`-/
@@ -261,7 +261,7 @@ theorem blastCpop_decl_eq (aig : AIG α) (input : AIG.RefVec aig w) :
     ∀ (idx : Nat) h1 h2, (blastCpop aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
   unfold blastCpop
   split
-  · simp
+  · simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet]
     intros idx hidx hidx'
     let initAcc := blastConst (aig := aig) (w := 0) (val := 0)
     let res := blastextractAndExtend aig 0 input initAcc (by omega)

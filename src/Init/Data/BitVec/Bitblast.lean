@@ -2580,17 +2580,11 @@ private theorem extractLsb'_extractAndExtend_eq (i len : Nat) (x : BitVec w) :
     · omega
     · omega
 
-private theorem hcast_proof (ha : 0 < x_len) :
-    w + (x_len - 1) * w = x_len * w := by
-  simp only [Nat.sub_mul, Nat.one_mul]
-  rw [← Nat.add_sub_assoc (by exact Nat.le_mul_of_pos_left w ha)]
-  omega
-
 private theorem addRecAux_append_extractLsb' {x : BitVec (x_len * w)} (ha : 0 < x_len)
-    (hcast := hcast_proof ha) :
+    (hcast : w + (x_len - 1) * w = x_len * w) :
     ((x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast).addRecAux x_len 0#w =
     x.extractLsb' ((x_len - 1) * w) w + (x.extractLsb' 0 ((x_len - 1) * w)).addRecAux (x_len - 1) 0#w := by
-  simp only [extractLsb'_addRecAux_of_le (k := x_len - 1) (r := x_len - 1) (by omega), BitVec.append_extractLsb'_of_lt ha]
+  simp only [extractLsb'_addRecAux_of_le (k := x_len - 1) (r := x_len - 1) (by omega), BitVec.append_extractLsb'_of_lt hcast]
   have hsucc := addRecAux_succ (x := x) (acc := 0#w) (n := x_len - 1)
   rw [BitVec.zero_add, Nat.sub_one_add_one (by omega)] at hsucc
   rw [hsucc, addRecAux_eq, BitVec.add_comm]
@@ -2617,13 +2611,17 @@ private theorem addRecAux_eq_of
   · case zero =>
     simp [show y_len = 0 by omega]
   · case succ x_len' ih =>
-    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x) (by omega)]
     have happ := addRecAux_append_extractLsb' (x_len := x_len' + 1) (x := x) (by omega)
     simp only [Nat.add_one_sub_one, addRecAux_succ, BitVec.zero_add] at happ
-    simp only [Nat.add_one_sub_one, BitVec.zero_add, happ]
+    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x)
+          (by simp only [Nat.add_one_sub_one, Nat.succ_mul]; omega), Nat.add_one_sub_one, BitVec.zero_add, happ]
+    have := Nat.succ_mul (n := y_len - 1) (m := w)
+    rw [succ_eq_add_one, Nat.sub_one_add_one (by omega)] at this
     by_cases hmod : y_len % 2 = 0
     · /- `sum` results from the addition of the two last elements in `y`, `sum = op1 + op2` -/
       have := Nat.mul_le_mul_right (n := y_len - 1 - 1) (m := y_len - 1) (k := w) (by omega)
+      have := Nat.succ_mul (n := y_len - 1 - 1) (m := w)
+      rw [succ_eq_add_one, Nat.sub_one_add_one (by omega)] at this
       rw [← BitVec.append_extractLsb'_of_lt (x := y) (by omega), addRecAux_append_extractLsb' (by omega),
           ← BitVec.append_extractLsb'_of_lt (x := extractLsb' 0 ((y_len - 1) * w) y) (by omega),
           addRecAux_append_extractLsb' (by omega), extractLsb'_extractLsb'_of_le (by exact Nat.succ_mul_le (by omega)),

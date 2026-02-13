@@ -190,6 +190,7 @@ info: some " "
 -- Request Target Parsing - Basic Tests
 -- ============================================================================
 
+#eval parseCheck "///path/with/encoded%20space"
 #eval parseCheck "/path/with/encoded%20space"
 #eval parseCheck "/path/with/encoded%20space/"
 #eval parseCheck "*"
@@ -199,6 +200,7 @@ info: some " "
 #eval parseCheck "/files/../etc/passwd"
 #eval parseCheck "example.com:8080"
 #eval parseCheck "https://example.com:8080/ata"
+#eval parseCheck "https://example.com:8080////./ata"
 #eval parseCheck "192.168.1.1:3000"
 #eval parseCheck "[::1]:8080"
 #eval parseCheck "http://example.com/path/to/resource?query=value"
@@ -232,6 +234,14 @@ info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/path/with/encoded%20space"
+  IO.println (repr result)
+
+/--
+info: Std.Http.RequestTarget.originForm { segments := #["", "", "path", "with", "encoded%20space"], absolute := true } none
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "///path/with/encoded%20space"
   IO.println (repr result)
 
 /--

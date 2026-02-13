@@ -113,8 +113,10 @@ private def parsePctEncoded : Parser UInt8 := do
 
 -- scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 private def parseScheme : Parser URI.Scheme := do
-  let schemeBytes ← takeWhileUpTo1 isSchemeChar 63
-  return ⟨String.fromUTF8! schemeBytes.toByteArray |>.toLower, .isLowerCase_toLower⟩
+  let first ← takeWhileUpTo1 isAlpha 1
+  let rest ← takeWhileUpTo isSchemeChar 62
+  let schemeBytes := first.toByteArray ++ rest.toByteArray
+  return ⟨String.fromUTF8! schemeBytes |>.toLower, .isLowerCase_toLower⟩
 
 -- port = *DIGIT
 private def parsePortNumber : Parser UInt16 := do
@@ -250,8 +252,6 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   if ← peekIs (· == '/'.toUInt8) then
     isAbsolute := true
     skip
-    if ← peekIs (· == '/'.toUInt8) then
-      fail "it's a scheme starter"
   else if forceAbsolute then
     if allowEmpty ∧ ((← isEof) ∨ ¬isSegmentOrSlash) then
       return { segments := segments, absolute := isAbsolute }

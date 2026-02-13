@@ -26,7 +26,7 @@ namespace Std.Http
 set_option linter.all true
 
 /--
-The main parts of a request containing the HTTP method, version, URI, and headers.
+The main parts of a request containing the HTTP method, version, and request target URI.
 -/
 structure Request.Head where
   /--
@@ -109,7 +109,7 @@ instance : Encode .v11 Head where
 
 /--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty headers)
+empty URI)
 -/
 def new : Builder := { }
 
@@ -117,7 +117,7 @@ namespace Builder
 
 /--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty headers)
+empty URI)
 -/
 def empty : Builder := { }
 

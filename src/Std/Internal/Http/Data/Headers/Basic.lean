@@ -71,8 +71,8 @@ def parse (v : Value) : Option ContentLength :=
    v.value.toNat?.map (.mk)
 
 /--
-Serializes a content length header back to a name-value pair
-.-/
+Serialize a content length header back to a name-value pair
+-/
 def serialize (h : ContentLength) : Name × Value :=
   (Header.Name.contentLength, Value.ofString! (toString h.length))
 

@@ -15,7 +15,7 @@ Covers: missing Host, invalid methods, bad headers, CRLF issues, invalid charact
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
     (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
-    (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
+    (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler (fun _ => pure ()) (config := config)
     |>.run
@@ -430,7 +430,7 @@ def ok200 : String :=
   client.send raw
   client.close
   let result ← Async.block do
-    Std.Http.Server.serveConnection server okHandler (fun _ => pure ()) (config := { lingeringTimeout := 500 })
+    Std.Http.Server.serveConnection server okHandler (fun _ => pure ()) (config := { lingeringTimeout := 500, generateDate := false })
       |>.run
     let res ← client.recv?
     pure <| res.getD .empty

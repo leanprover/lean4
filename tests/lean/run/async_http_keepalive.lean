@@ -15,7 +15,7 @@ on a single connection, and connection limits.
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
     (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
-    (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
+    (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler (fun _ => pure ()) (config := config)
     |>.run
@@ -158,7 +158,7 @@ def okHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
 
   let response ← sendRaw client server raw
     (fun req => Response.ok |>.text (toString req.head.uri))
-    (config := { lingeringTimeout := 3000, enableKeepAlive := false })
+    (config := { lingeringTimeout := 3000, enableKeepAlive := false, generateDate := false })
 
   let responseStr := String.fromUTF8! response
   assertContains "Keep-alive disabled: first served" response "/1"
@@ -172,7 +172,7 @@ def okHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxRequests := 3 }
+  let config : Config := { lingeringTimeout := 3000, maxRequests := 3, generateDate := false }
 
   -- Send 4 requests but only 3 should be processed
   let mut raw := ""

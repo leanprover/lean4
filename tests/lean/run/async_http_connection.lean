@@ -36,7 +36,7 @@ def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Re
   for req in reqs do data := data ++ (← toByteArray req chunked)
 
   client.send data
-  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) (config := { lingeringTimeout := 3000 })
+  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) (config := { lingeringTimeout := 3000, generateDate := false })
     |>.run
 
   let res ← client.recv?

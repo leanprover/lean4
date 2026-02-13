@@ -17,7 +17,7 @@ and potential parser abuse scenarios.
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
     (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
-    (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
+    (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler (fun _ => pure ()) (config := config)
     |>.run
@@ -117,7 +117,7 @@ def bad400 : String :=
 #eval show IO _ from do
   let (client, server) ← Mock.new
   -- Use a config with maxTrailerHeaders = 3 to keep test small
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 3 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 3, generateDate := false }
   let trailers := "T1: v1\x0d\nT2: v2\x0d\nT3: v3\x0d\nT4: v4\x0d\n"
   let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\n{trailers}\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)
@@ -129,7 +129,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 3 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 3, generateDate := false }
   let trailers := "T1: v1\x0d\nT2: v2\x0d\nT3: v3\x0d\n"
   let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\n{trailers}\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)
@@ -235,7 +235,7 @@ def bad400 : String :=
   client.send raw
   client.close
   let result ← Async.block do
-    Std.Http.Server.serveConnection server bodyHandler (fun _ => pure ()) (config := { lingeringTimeout := 500 })
+    Std.Http.Server.serveConnection server bodyHandler (fun _ => pure ()) (config := { lingeringTimeout := 500, generateDate := false })
       |>.run
     let res ← client.recv?
     pure <| res.getD .empty
@@ -275,7 +275,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 0 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 0, generateDate := false }
   -- Even a single trailer should be rejected
   let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\nX-Trailer: rejected\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)
@@ -287,7 +287,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 0 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 0, generateDate := false }
   let raw := "POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)
   assertStatus "maxTrailerHeaders=0 with no trailers" response "HTTP/1.1 200"
@@ -320,7 +320,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 5, maxHeaderValueLength := 50 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 5, maxHeaderValueLength := 50, generateDate := false }
   -- 5 trailers with values near the limit
   let longVal := String.ofList (List.replicate 50 'z')
   let trailers := s!"T1: {longVal}\x0d\nT2: {longVal}\x0d\nT3: {longVal}\x0d\nT4: {longVal}\x0d\nT5: {longVal}\x0d\n"
@@ -334,7 +334,7 @@ def bad400 : String :=
 
 #eval show IO _ from do
   let (client, server) ← Mock.new
-  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 5, maxHeaderValueLength := 50 }
+  let config : Config := { lingeringTimeout := 3000, maxTrailerHeaders := 5, maxHeaderValueLength := 50, generateDate := false }
   let longVal := String.ofList (List.replicate 51 'z')
   let raw := s!"POST / HTTP/1.1\x0d\nHost: example.com\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\n\x0d\n3\x0d\nabc\x0d\n0\x0d\nT1: {longVal}\x0d\n\x0d\n".toUTF8
   let response ← sendRaw client server raw bodyHandler (config := config)

@@ -37,7 +37,6 @@ Proposition that asserts all characters in a string are valid for HTTP header va
 abbrev IsValidHeaderValue (s : String) : Prop :=
   s.toList.all isValidHeaderChar
 
-
 /--
 A validated HTTP header value that ensures all characters conform to HTTP standards.
 -/

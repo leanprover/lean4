@@ -289,7 +289,13 @@ private def handle
         waitingResponse := newWaitingResponse
 
       | .response (.ok res) =>
-        machine := machine.send res.head
+        let head ← do
+          if config.generateDate ∧ ¬res.head.headers.contains Header.Name.date then
+            let now ← Std.Time.DateTime.now (tz := .UTC)
+            pure { res.head with headers := res.head.headers.insert Header.Name.date (Header.Value.ofString! now.toRFC822String) }
+          else
+            pure res.head
+        machine := machine.send head
         waitingResponse := false
 
         let size ← res.body.getKnownSize

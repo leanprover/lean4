@@ -67,6 +67,11 @@ structure Config where
   defaultPayloadBytes : Nat := 8192
 
   /--
+  Whether to automatically generate the `Date` header in responses.
+  -/
+  generateDate : Bool := true
+
+  /--
   The server name.
   -/
   serverName : Option Header.Value := some (.mk "LeanHTTP/1.1")

@@ -833,6 +833,7 @@ info: Std.Http.RequestTarget.absoluteForm
     path := { segments := #["path"], absolute := true },
     query := #[],
     fragment := none }
+  _
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -846,6 +847,7 @@ info: Std.Http.RequestTarget.absoluteForm
     path := { segments := #["page"], absolute := true },
     query := #[],
     fragment := none }
+  _
 -/
 #guard_msgs in
 #eval show IO _ from do

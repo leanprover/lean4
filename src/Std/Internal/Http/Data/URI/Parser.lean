@@ -263,16 +263,7 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   -- Parse segments
   while (← peek?).isSome do
     let segmentBytes ← parseSegment
-
-    let segmentBytes := segmentBytes.toByteArray.foldl (init := ByteArray.empty) fun acc val =>
-      if isSubDelims val ∨ val = ':'.toUInt8 ∨ val = '@'.toUInt8 then
-        acc.push '%'.toUInt8
-          |>.push (hexDigit (val >>> 4))
-          |>.push (hexDigit (val &&& 0xF))
-      else
-        acc.push val
-
-    let some segmentStr := URI.EncodedSegment.fromByteArray? segmentBytes
+    let some segmentStr := URI.EncodedSegment.ofByteArray? segmentBytes.toByteArray
       | fail "invalid percent encoding in path segment"
 
     segments := segments.push segmentStr

@@ -18,7 +18,7 @@ public section
 /-!
 # Headers
 
-This module defines the `Headers` type, which represents an collection of HTTP header name-value pairs.
+This module defines the `Headers` type, which represents a collection of HTTP header name-value pairs.
 -/
 
 namespace Std.Http

@@ -345,6 +345,14 @@ inductive LetValue (pu : Purity) where
   /-- `reuse x in ctor_i ys` instruction in the paper. `updateHeader` is set if the tag in the new
       ctor differs from the one in the old ctor and thus needs to be updated. -/
   | reuse (var : FVarId) (i : CtorInfo) (updateHeader : Bool) (args : Array (Arg pu)) (h : pu = .impure := by purity_tac)
+  /--
+  Given a scalar type `ty` and a value `fvarId : ty`, this operation returns a value of type
+  `tobject`. For small scalar values the result is a tagged pointer, and no memory allocation is
+  performed.
+  -/
+  | box (ty : Expr) (fvarId : FVarId) (h : pu = .impure := by purity_tac)
+  /-- Given `fvarId : [t]object`, obtain the underlying scalar value. -/
+  | unbox (fvarId : FVarId) (h : pu = .impure := by purity_tac)
   deriving Inhabited, BEq, Hashable
 
 def Arg.toLetValue (arg : Arg pu) : LetValue pu :=
@@ -396,6 +404,36 @@ private unsafe def LetValue.updateReuseImp (e : LetValue pu) (var' : FVarId) (i'
 @[implemented_by LetValue.updateReuseImp] opaque LetValue.updateReuse! (e : LetValue pu)
     (var' : FVarId) (i' : CtorInfo) (updateHeader' : Bool) (args' : Array (Arg pu)) : LetValue pu
 
+private unsafe def LetValue.updateFapImp (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .fap declName args _ => if declName == declName' && ptrEq args args' then e else .fap declName' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateFapImp] opaque LetValue.updateFap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
+
+private unsafe def LetValue.updatePapImp (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu :=
+  match e with
+  | .pap declName args _ => if declName == declName' && ptrEq args args' then e else .pap declName' args'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updatePapImp] opaque LetValue.updatePap! (e : LetValue pu) (declName' : Name) (args' : Array (Arg pu)) : LetValue pu
+
+private unsafe def LetValue.updateBoxImp (e : LetValue pu) (ty' : Expr) (fvarId' : FVarId) : LetValue pu :=
+  match e with
+  | .box ty fvarId _ => if ptrEq ty ty' && fvarId == fvarId' then e else .box ty' fvarId'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateBoxImp] opaque LetValue.updateBox! (e : LetValue pu) (ty' : Expr) (fvarId' : FVarId) : LetValue pu
+
+private unsafe def LetValue.updateUnboxImp (e : LetValue pu) (fvarId' : FVarId) : LetValue pu :=
+  match e with
+  | .unbox fvarId _ => if fvarId == fvarId' then e else .unbox fvarId'
+  | _ => unreachable!
+
+@[implemented_by LetValue.updateUnboxImp] opaque LetValue.updateUnbox! (e : LetValue pu) (fvarId' : FVarId) : LetValue pu
+
+
+
 private unsafe def LetValue.updateArgsImp (e : LetValue pu) (args' : Array (Arg pu)) : LetValue pu :=
   match e with
   | .const declName us args h => if ptrEq args args' then e else .const declName us args'
@@ -425,6 +463,8 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .reuse var i updateHeader args _ =>
     mkAppN (.const `reuse []) <|
       #[.fvar var, .const i.name [], ToExpr.toExpr updateHeader] ++ (args.map Arg.toExpr)
+  | .box ty var _ => mkApp2 (.const `box []) ty (.fvar var)
+  | .unbox var _ => mkApp (.const `unbox []) (.fvar var)
 
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
@@ -719,17 +759,17 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
     (offset' : Nat) (y' : FVarId) (ty' : Expr) (k' : Code pu) : Code pu
 
 @[inline] private unsafe def updateUsetImp (c : Code pu) (fvarId' : FVarId)
-    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu :=
+    (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu :=
   match c with
-  | .sset fvarId i offset y ty k _ =>
-    if ptrEq fvarId fvarId' && offset == offset' && ptrEq y y' && ptrEq k k' then
+  | .uset fvarId i y k _ =>
+    if ptrEq fvarId fvarId' && i == i' && ptrEq y y' && ptrEq k k' then
       c
     else
-      .uset fvarId' offset' y' k'
+      .uset fvarId' i' y' k'
   | _ => unreachable!
 
 @[implemented_by updateUsetImp] opaque Code.updateUset! (c : Code pu) (fvarId' : FVarId)
-    (offset' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
+    (i' : Nat) (y' : FVarId) (k' : Code pu) : Code pu
 
 private unsafe def updateParamCoreImp (p : Param pu) (type : Expr) : Param pu :=
   if ptrEq type p.type then
@@ -1096,7 +1136,7 @@ private def collectLetValue (e : LetValue pu) (s : FVarIdHashSet) : FVarIdHashSe
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _  => collectArgs args s
   | .proj _ _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _ | .oproj _ fvarId _
-  | .reset _ fvarId _  => s.insert fvarId
+  | .reset _ fvarId _  | .box _ fvarId _ | .unbox fvarId _ => s.insert fvarId
   | .lit .. | .erased => s
   | .reuse fvarId _ _ args _ => collectArgs args <| s.insert fvarId
 

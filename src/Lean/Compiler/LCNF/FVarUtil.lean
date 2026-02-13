@@ -81,12 +81,14 @@ def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarI
   | .reset n fvarId _ => return e.updateReset! n (← f fvarId)
   | .reuse fvarId i updateHeader args _ =>
     return e.updateReuse! (← f fvarId) i updateHeader (← args.mapM (TraverseFVar.mapFVarM f))
+  | .box ty fvarId _ => return e.updateBox! ty (← f fvarId)
+  | .unbox fvarId _ => return e.updateUnbox! (← f fvarId)
 
 def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue pu) : m Unit := do
   match e with
   | .lit .. | .erased => return ()
   | .proj _ _ fvarId _ | .oproj _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _
-  | .reset _ fvarId _ => f fvarId
+  | .reset _ fvarId _ | .box _ fvarId _ | .unbox fvarId _ => f fvarId
   | .const _ _ args _ | .pap _ args _ | .fap _ args _ | .ctor _ args _ =>
     args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args | .reuse fvarId _ _ args _ => f fvarId; args.forM (TraverseFVar.forFVarM f)

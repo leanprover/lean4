@@ -13,7 +13,6 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.PushProj
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.IR.RC
 public import Lean.Compiler.IR.ExpandResetReuse
 public import Lean.Compiler.IR.UnboxResult
@@ -24,6 +23,7 @@ public import Lean.Compiler.IR.ToIRType
 public import Lean.Compiler.IR.Meta
 public import Lean.Compiler.IR.Toposort
 public import Lean.Compiler.IR.SimpleGroundExpr
+public import Lean.Compiler.IR.ElimDeadVars
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.
@@ -38,8 +38,6 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls := decls
-  decls ← explicitBoxing decls
-  logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
   if Compiler.LCNF.compiler.reuse.get (← getOptions) then

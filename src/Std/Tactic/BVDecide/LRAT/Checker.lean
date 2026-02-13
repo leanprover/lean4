@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Convert
 public import Std.Tactic.BVDecide.LRAT.Internal.LRATCheckerSound
+public import Std.Tactic.BVDecide.LRAT.Internal.CompactLRATChecker
+import Std.Tactic.BVDecide.LRAT.Internal.CompactLRATCheckerSound
 
 @[expose] public section
 
@@ -27,67 +29,8 @@ Check whether `lratProof` is a valid LRAT certificate for the unsatisfiability o
 -/
 def check (lratProof : Array IntAction) (cnf : CNF Nat) : Bool :=
   let internalFormula := CNF.convertLRAT cnf
-  let checkerResult := go internalFormula lratProof 0
+  let checkerResult := compactLratChecker internalFormula lratProof
   checkerResult = .success
-where
-  go  {n : Nat} (f : DefaultFormula n) (proof : Array IntAction) (idx : Nat) : Result :=
-    if h : idx < proof.size then
-      let step := intActionToDefaultClauseAction n proof[idx]
-      match step with
-      | none => go f proof (idx + 1)
-      | some (.addEmpty _ rupHints) =>
-        let (_, checkSuccess) := Formula.performRupAdd f Clause.empty rupHints
-        if checkSuccess then
-          .success
-        else
-          .rupFailure
-      | some (.addRup _ c rupHints) =>
-        let (f, checkSuccess) := Formula.performRupAdd f c rupHints
-        if checkSuccess then
-          go f proof (idx + 1)
-        else
-          .rupFailure
-      | some (.addRat _ c pivot rupHints ratHints) =>
-        if pivot ∈ Clause.toList c then
-          let (f, checkSuccess) := Formula.performRatAdd f c pivot rupHints ratHints
-          if checkSuccess then
-            go f proof (idx + 1)
-          else
-            .rupFailure
-        else
-          go f proof (idx + 1)
-      | some (.del ids) => go (Formula.delete f ids) proof (idx + 1)
-    else
-      .outOfProof
-
-theorem go_sound (f : DefaultFormula n) (proof : Array IntAction) (idx : Nat)
-    (h1 : Formula.ReadyForRupAdd f) (h2 : Formula.ReadyForRatAdd f) :
-    check.go f proof idx = .success → Unsatisfiable (PosFin n) f := by
-  fun_induction check.go
-  case case1 ih1 => apply ih1 <;> assumption
-  case case2 f _ _ _ _ hints _ f' h3 =>
-    intro _ p pf
-    have f'_def : f' = Formula.insert f Clause.empty := by grind
-    have f_liff_f' : Liff (PosFin n) f (Formula.insert f Clause.empty) := by grind
-    specialize f_liff_f' p
-    rw [f_liff_f', Formula.sat_iff_forall] at pf
-    have empty_in_f' : Clause.empty ∈ Formula.toList (Formula.insert f Clause.empty) := by grind
-    simp only [(· ⊨ ·)] at pf
-    grind [Clause.eval]
-  case case3 => simp
-  case case4 => grind [Unsatisfiable, Liff]
-  case case5 => simp
-  case case6 => grind [Equisat, Clause.limplies_iff_mem]
-  case case7 => simp
-  case case8 ih1 => apply ih1 <;> assumption
-  case case9 ih1 =>
-    intro h3
-    intro p pf
-    specialize ih1 (by grind) (by grind) h3 p
-    apply ih1
-    apply Formula.limplies_delete
-    assumption
-  case case10 => simp
 
 open Std.Tactic.BVDecide.LRAT.Internal in
 /--
@@ -99,7 +42,7 @@ theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
   apply CNF.unsat_of_convertLRAT_unsat
   unfold check at h1
   simp at h1
-  apply go_sound (proof := lratProof) (idx := 0)
+  apply compactLratChecker_sound (proof := lratProof)
   · apply CNF.convertLRAT_readyForRupAdd
   · apply CNF.convertLRAT_readyForRatAdd
   · assumption

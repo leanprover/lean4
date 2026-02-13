@@ -65,8 +65,8 @@ deriving BEq, Repr
 namespace ContentLength
 
 /--
-Parse a content length header from a name and value
-.-/
+Parses a content length header from a name and value
+-/
 def parse (v : Value) : Option ContentLength :=
    v.value.toNat?.map (.mk)
 
@@ -81,7 +81,7 @@ instance : Header ContentLength := ⟨parse, serialize⟩
 end ContentLength
 
 /--
-Validate the chunked placement rules. Returns `none` if the encoding list violates the constraints.
+Validates the chunked placement rules. Returns `none` if the encoding list violates the constraints.
 -/
 @[expose]
 def TransferEncoding.Validate (codings : Array String) : Bool :=
@@ -127,7 +127,7 @@ def isChunked (te : TransferEncoding) : Bool :=
   te.codings.back? == some "chunked"
 
 /--
-Parse a comma-separated list of transfer codings from a header value, validating chunked placement.
+Parses a comma-separated list of transfer codings from a header value, validating chunked placement.
 -/
 def parse (v : Value) : Option TransferEncoding :=
   let codings := v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
@@ -137,7 +137,7 @@ def parse (v : Value) : Option TransferEncoding :=
     none
 
 /--
-Serialize a transfer encoding back to a comma-separated header value.
+Serializes a transfer encoding back to a comma-separated header value.
 -/
 def serialize (te : TransferEncoding) : Header.Name × Header.Value :=
   let value := ",".intercalate (te.codings.toList)

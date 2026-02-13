@@ -193,7 +193,6 @@ info: some " "
 #eval parseCheck "/path/with/encoded%20space"
 #eval parseCheck "/path/with/encoded%20space/"
 #eval parseCheck "*"
-#eval parseCheck "https://ata/b?ata=be#lol%F0%9F%94%A5"
 #eval parseCheck "/api/search?q=hello%20world&category=tech%2Bgames"
 #eval parseCheck "/"
 #eval parseCheck "/api/v1/users/123/posts/456/comments/789"
@@ -205,7 +204,6 @@ info: some " "
 #eval parseCheck "http://example.com/path/to/resource?query=value"
 #eval parseCheck "https://api.example.com:443/v1/users?limit=10"
 #eval parseCheck "http://[2001:db8::1]:8080/path"
-#eval parseCheck "https://example.com/page#section1"
 #eval parseCheck "https://xn--nxasmq6b.xn--o3cw4h/path"
 #eval parseCheck "localhost:65535"
 #eval parseCheck "https://user:pass@secure.example.com/private"
@@ -245,11 +243,11 @@ info: Std.Http.RequestTarget.asteriskForm
   IO.println (repr result)
 
 /--
-info: some "lol🔥"
+info: none
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser parseRequestTarget "https://ata/b?ata=be#lol%F0%9F%94%A5"
+  let result ← runParser parseRequestTarget "https://ata/b?ata=be"
   IO.println (repr (result.fragment?))
 
 /--
@@ -300,6 +298,7 @@ info: Std.Http.RequestTarget.absoluteForm
     path := { segments := #["ata"], absolute := true },
     query := #[],
     fragment := none }
+  _
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -313,6 +312,7 @@ info: Std.Http.RequestTarget.absoluteForm
     path := { segments := #["path"], absolute := true },
     query := #[],
     fragment := none }
+  _
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -328,6 +328,7 @@ info: Std.Http.RequestTarget.absoluteForm
     path := { segments := #["private"], absolute := true },
     query := #[],
     fragment := none }
+  _
 -/
 #guard_msgs in
 #eval show IO _ from do

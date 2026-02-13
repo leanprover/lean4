@@ -9,9 +9,19 @@ prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.ElimDead
-import Lean.Runtime
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.AuxDeclCache
+import Lean.Runtime
+
+/-!
+This pass is responsible for inserting `box` and `unbox` instructions and generally attempts to make
+the IR actually type correct. After this pass is the first time where we can generally assume type
+information to actually be correct in the entirety of LCNF. Furthermore, it also generates `boxed`
+versions of functions if required. They take all arguments as [t]object/tagged and return a
+[t]object/tagged. These functions are used by the interpreter and when allocating closures.
+
+This pass does not support: `isShared`, `inc`, `dec`, `set`, `setTag` and `del`.
+-/
 
 namespace Lean.Compiler.LCNF
 
@@ -32,6 +42,13 @@ def requiresBoxedVersion (sig : Signature .impure) : CompilerM Bool := do
       || isExtern env sig.name))
     || ps.size > closureMaxArgs
 
+/--
+For a given signature we generate the `boxed` version by:
+- declaring all parameters as the boxed variant of the current parameters
+- inserting unbox instructions as required
+- invoking the function
+- boxing the result if required before returning it
+-/
 def mkBoxedVersion (sig : Signature .impure) : CompilerM (Decl .impure) := do
   let newParams ← sig.params.mapM fun p => mkParam p.binderName p.type.boxed false
   let mut body := #[]
@@ -63,6 +80,9 @@ def mkBoxedVersion (sig : Signature .impure) : CompilerM (Decl .impure) := do
   decl.saveImpure
   return decl
 
+/--
+For all declarations in `decls` add their `_boxed` version if required.
+-/
 public def addBoxedVersions (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
   let boxedDecls ← decls.filterMapM fun decl => do
     if ← requiresBoxedVersion decl.toSignature then
@@ -73,12 +93,34 @@ public def addBoxedVersions (decls : Array (Decl .impure)) : CompilerM (Array (D
   return decls ++ boxedDecls
 
 structure Ctx where
+  /--
+  The name of the declaration we are currently operating on.
+  -/
   currDecl : Name
+  /--
+  The result type of the declaration we are currently operating on.
+  -/
   currDeclResultType : Expr
+  /--
+  The SCC of declarations we are operating on.
+  -/
   decls : Array (Decl .impure)
 
 structure State where
+  /--
+  When boxing constants and literals we generate auxiliary declarations.
+  This is to avoid code like:
+  ```
+  let x1 := UInt64.inhabited;
+  let x2 := box x1;
+  ...
+  ```
+  We cache these declarations on a per-module level but not globally through `cacheAuxDecl`.
+  -/
   auxDecls : Array (Decl .impure) := #[]
+  /--
+  Counter for generating unique auxDecl names.
+  -/
   nextAuxIdx : Nat := 1
 
 abbrev BoxM := ReaderT Ctx StateRefT State CompilerM
@@ -90,7 +132,7 @@ def typesEqvForBoxing (t₁ t₂ : Expr) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 /--
-If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
+If `x` declaration is of the form `x := .lit _` or `x := .fap c #[]`,
 and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value.
 -/
 def isExpensiveConstantValueBoxing (x : FVarId) (xType : Expr) :
@@ -100,15 +142,14 @@ def isExpensiveConstantValueBoxing (x : FVarId) (xType : Expr) :
   | _ => do
     let some val ← findLetValue? x | return none
     match val with
-    -- TODO: This should check whether larger literals fit into tagged values.
     | .lit _ => return some val
     | .fap _ args => return if args.size == 0 then some val else none
     | _ => return none
 
 /--
-Auxiliary function used by castVarIfNeeded.
-It is used when the expected type does not match `xType`.
-If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it.
+Auxiliary function used by `castVarIfNeeded`.
+It is used when the expected type does not match `fvarIdType`.
+If `fvarIdType` is scalar, then we need to box it. Otherwise, we need to unbox it.
 -/
 def mkCast (fvarId : FVarId) (fvarIdType : Expr) (expectedType : Expr) :
     BoxM (LetValue .impure) := do
@@ -150,13 +191,13 @@ def mkCast (fvarId : FVarId) (fvarIdType : Expr) (expectedType : Expr) :
         return auxConst
 
 @[inline]
-def castVarIfNeeded (var : FVarId) (expectedType : Expr) (k : FVarId → BoxM (Code .impure)) :
+def castVarIfNeeded (fvarId : FVarId) (expectedType : Expr) (k : FVarId → BoxM (Code .impure)) :
     BoxM (Code .impure) := do
-  let varType ← getType var
-  if typesEqvForBoxing varType expectedType then
-    k var
+  let fvarIdType ← getType fvarId
+  if typesEqvForBoxing fvarIdType expectedType then
+    k fvarId
   else
-    let v ← mkCast var varType expectedType
+    let v ← mkCast fvarId fvarIdType expectedType
     let castDecl ← mkLetDecl .anonymous expectedType v
     return .let castDecl (← k castDecl.fvarId)
 
@@ -177,11 +218,11 @@ def castArgsIfNeededAux (args : Array (Arg .impure)) (typeFromIdx : Nat → Expr
     match arg with
     | .erased => newArgs := newArgs.push arg
     | .fvar fvarId =>
-      let fvarType ← getType fvarId
-      if typesEqvForBoxing fvarType expectedType then
+      let fvarIdType ← getType fvarId
+      if typesEqvForBoxing fvarIdType expectedType then
         newArgs := newArgs.push arg
       else
-        let v ← mkCast fvarId fvarType expectedType
+        let v ← mkCast fvarId fvarIdType expectedType
         let decl ← mkLetDecl .anonymous expectedType v
         newArgs := newArgs.push <| .fvar decl.fvarId
         casters := casters.push (.let decl)
@@ -201,7 +242,8 @@ def boxArgsIfNeeded (args : Array (Arg .impure)) (k : Array (Arg .impure) → Bo
   let k ← k args
   return attachCodeDecls decls k
 
-def unboxResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) : BoxM (Code .impure) := do
+def unboxResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (k : Code .impure) :
+    BoxM (Code .impure) := do
   if decl.type.isScalar then
     let auxDecl ← mkLetDecl .anonymous tobject decl.value
     let decl ← decl.updateValue (.unbox auxDecl.fvarId)
@@ -221,6 +263,10 @@ def castResultIfNeeded (code : Code .impure) (decl : LetDecl .impure) (expType :
     return .let castDecl <| .let decl k
 
 
+/--
+Traverse `code`, trying to correct types through inference and ensuring that the ABI of other
+functions is respected by inserting `box`/`unbox` operations.
+-/
 partial def Code.explicitBoxing (code : Code .impure) : BoxM (Code .impure) := do
   match code with
   | .let decl k => visitLet code decl k

@@ -19,5 +19,5 @@ public import Std.Internal.Http.Data.URI
 # HTTP Data Types
 
 This module re-exports all HTTP data types including request/response structures,
-headers, methods, status codes, URIs, and body handling.
+methods, status codes, chunks, and extension metadata.
 -/

@@ -231,9 +231,8 @@ def find_grind_introduction_commit(repo: str, file_path: str, decl_name: str) ->
             if line and not line[0].isspace() and end_patterns.match(line):
                 break
             if 'grind' in line:
-                # Already had grind in parent - need to go further back
-                # For simplicity, we'll just use this commit
-                return commit_sha
+                # Already had grind in parent — not the introduction commit
+                return None
 
     return commit_sha
 

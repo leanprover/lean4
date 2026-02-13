@@ -85,12 +85,12 @@ def streamForIn : Async Unit := do
 -- Test chunks preserve extensions
 def streamExtensions : Async Unit := do
   let stream ← Stream.empty
-  let chunk := { data := "hello".toUTF8, extensions := #[("key", some "value")] : Chunk }
+  let chunk := { data := "hello".toUTF8, extensions := #[(.mk "key", some "value")] : Chunk }
   stream.send chunk
   let result ← stream.recv none
   assert! result.isSome
   assert! result.get!.extensions.size == 1
-  assert! result.get!.extensions[0]! == ("key", some "value")
+  assert! result.get!.extensions[0]! == (.mk "key", some "value")
 
 #eval streamExtensions.block
 

@@ -690,7 +690,7 @@ inductive RequestTarget where
   Absolute-form request target containing a complete URI. Used when making requests through a proxy.
   Example: `http://example.com:8080/path?key=value`
   -/
-  | absoluteForm (uri : URI)
+  | absoluteForm (uri : URI) (noFrag : uri.fragment.isNone)
 
   /--
   Authority-form request target (used for CONNECT requests).
@@ -713,7 +713,7 @@ Returns an empty relative path for targets without a path.
 -/
 def path : RequestTarget → URI.Path
   | .originForm p _ => p
-  | .absoluteForm u => u.path
+  | .absoluteForm u _ => u.path
   | _ => { segments := #[], absolute := false }
 
 /--
@@ -722,7 +722,7 @@ Returns an empty array for targets without a query.
 -/
 def query : RequestTarget → URI.Query
   | .originForm _ q => q.getD URI.Query.empty
-  | .absoluteForm u => u.query
+  | .absoluteForm u _ => u.query
   | _ => URI.Query.empty
 
 /--
@@ -730,7 +730,7 @@ Extracts the authority component from a request target, if available.
 -/
 def authority? : RequestTarget → Option URI.Authority
   | .authorityForm a => some a
-  | .absoluteForm u => u.authority
+  | .absoluteForm u _ => u.authority
   | _ => none
 
 /--
@@ -738,14 +738,14 @@ Extracts the fragment component from a request target, if available.
 -/
 def fragment? : RequestTarget → Option String
   | .originForm _ _ => none
-  | .absoluteForm u => u.fragment
+  | .absoluteForm u _ => u.fragment
   | _ => none
 
 /--
 Extracts the full URI if the request target is in absolute form.
 -/
 def uri? : RequestTarget → Option URI
-  | .absoluteForm u => some u
+  | .absoluteForm u _ => some u
   | _ => none
 
 instance : ToString RequestTarget where
@@ -754,7 +754,7 @@ instance : ToString RequestTarget where
         let pathStr := toString path
         let queryStr := query.map toString |>.getD ""
         s!"{pathStr}{queryStr}"
-    | .absoluteForm uri => toString uri
+    | .absoluteForm uri _ => toString uri
     | .authorityForm auth => toString auth
     | .asteriskForm => "*"
 

@@ -15,7 +15,7 @@ public section
 /-!
 # Header Values
 
-This module defines the `Value` type, which represent validated HTTP header values that conform to HTTP
+This module defines the `Value` type, which represents validated HTTP header values that conform to HTTP
 standards.
 -/
 
@@ -29,7 +29,7 @@ open Internal
 Checks if a character is valid for use in an HTTP header value.
 -/
 abbrev isValidHeaderChar (c : Char) : Bool :=
-  (' ' ≤ c ∧ c ≤ '~') ∨ c = '\t'
+  ((' ' ≤ c ∧ c ≤ '~') ∨ c = '\t') ∨ ('\u0080' ≤ c ∧ c ≤ '\u00FF')
 
 /--
 Proposition that asserts all characters in a string are valid for HTTP header values.

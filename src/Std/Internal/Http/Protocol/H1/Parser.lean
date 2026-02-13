@@ -83,12 +83,22 @@ def crlf : Parser Unit := do
   skipByte '\n'.toUInt8
 
 @[inline]
-def rsp (limits : H1.Config) : Parser Unit :=
+def rsp (limits : H1.Config) : Parser Unit := do
   discard <| takeWhileUpTo1 (· == ' '.toUInt8) limits.maxSpaceSequence
 
+  if (← peekWhen? (· == ' '.toUInt8)) |>.isSome then
+    fail "invalid space sequence"
+  else
+    pure ()
+
 @[inline]
-def osp (limits : H1.Config) : Parser Unit :=
+def osp (limits : H1.Config) : Parser Unit := do
   discard <| takeWhileUpTo (· == ' '.toUInt8) limits.maxSpaceSequence
+
+  if (← peekWhen? (· == ' '.toUInt8)) |>.isSome then
+    fail "invalid space sequence"
+  else
+    pure ()
 
 @[inline]
 def uint8 : Parser UInt8 := do
@@ -153,10 +163,10 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
 -- field-line   = field-name ":" OWS field-value OWS
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
   let name ← token limits.maxHeaderNameLength
-  let value ← skipByte ':'.toUInt8 *> osp limits *> takeWhileUpTo1 isFieldVChar limits.maxHeaderValueLength <* osp limits
+  let value ← skipByte ':'.toUInt8 *> osp limits *> optional (takeWhileUpTo isFieldVChar limits.maxHeaderValueLength) <* osp limits
 
   let name ← opt <| String.fromUTF8? name.toByteArray
-  let value ← opt <| String.fromUTF8? value.toByteArray
+  let value ← opt <| String.fromUTF8? <| value.map (·.toByteArray) |>.getD .empty
 
   return (name, value)
 

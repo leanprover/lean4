@@ -176,6 +176,7 @@ private def handle
 
   let mut expectData := none
   let mut waitingResponse := false
+  let mut pendingHead : Option Request.Head := none
 
   while ¬machine.halted do
     let (newMachine, step) := machine.step
@@ -198,17 +199,19 @@ private def handle
         pure ()
 
       | .endHeaders head =>
-        waitingResponse := true
         currentTimeout := config.lingeringTimeout
         keepAliveTimeout := none
 
         if let some length := head.getSize true then
           requestStream.setKnownSize (some length)
 
-        let newResponse := Handler.onRequest handler { head, body := requestStream, extensions := connection.extensions } connectionContext
-        let task ← newResponse.asTask
+        pendingHead := some head
 
-        BaseIO.chainTask task fun x => discard <| response.send x
+      | .«continue» =>
+        if let some head := pendingHead then
+          let canContinue ← Handler.onContinue handler head
+          let status := if canContinue then Status.«continue» else Status.unauthorized
+          machine := machine.canContinue status
 
       | .gotData final ext data =>
         try
@@ -240,6 +243,13 @@ private def handle
 
       | .close =>
         pure ()
+
+    if let some head := pendingHead then
+      waitingResponse := true
+      let newResponse := Handler.onRequest handler { head, body := requestStream, extensions := connection.extensions } connectionContext
+      let task ← newResponse.asTask
+      BaseIO.chainTask task fun x => discard <| response.send x
+      pendingHead := none
 
     if requiresData ∨ waitingResponse ∨ respStream.isSome then
       let socket := some socket

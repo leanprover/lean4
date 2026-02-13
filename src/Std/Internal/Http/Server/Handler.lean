@@ -40,7 +40,7 @@ class Handler (σ : Type) where
   `100 Continue` response and accept the body, or `false` to reject it. The default implementation
   always accepts.
   -/
-  onContinue (self : σ) (request : Headers) : Async Bool :=
+  onContinue (self : σ) (request : Request.Head) : Async Bool :=
     pure true
 
 end Std.Http.Server

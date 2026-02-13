@@ -1,12 +1,15 @@
 module
 import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.NameMangling
+import Lean.Compiler.LCNF.ExplicitBoxing
 
 /-!
 # Test behavior of name mangling
 -/
 
-open Lean IR ExplicitBoxing
+open Lean IR
+open Lean.Compiler.LCNF (mkBoxedName)
+
 def checkMangle (n : Name) (s : String) : IO Unit := do
   if n.mangle "" ≠ s then
     throw <| .userError s!"failed: {n} mangles to {n.mangle ""} but expected {s}"

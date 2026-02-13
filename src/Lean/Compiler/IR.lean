@@ -23,6 +23,7 @@ public import Lean.Compiler.IR.ToIRType
 public import Lean.Compiler.IR.Meta
 public import Lean.Compiler.IR.Toposort
 public import Lean.Compiler.IR.SimpleGroundExpr
+public import Lean.Compiler.IR.ElimDeadVars
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.

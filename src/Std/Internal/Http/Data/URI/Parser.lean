@@ -381,12 +381,8 @@ where
     let (authority, path) ← parseHierPart
     let query ← optional (skipByteChar '?' *> parseQuery)
     let query := query.getD URI.Query.empty
-    let fragment ← optional do
-      let some result := (← (skipByteChar '#' *> parseFragment)) |>.decode
-        | fail "invalid fragment parse encoding"
-      return result
 
-    return .absoluteForm { path, scheme, authority, query, fragment }
+    return .absoluteForm { path, scheme, authority, query, fragment := none } (by simp)
 
   -- authority-form = host ":" port
   authority : Parser RequestTarget := attempt do

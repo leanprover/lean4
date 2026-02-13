@@ -937,6 +937,12 @@ theorem getElem_zero_eq_head {l : List α} (h : 0 < l.length) :
   | nil => simp at h
   | cons _ _ => simp
 
+theorem head!_eq_getElem! [Inhabited α] {l : List α} : head! l = l[0]! := by
+  cases l <;> rfl
+
+theorem headD_eq_getD {l : List α} {fallback} : headD l fallback = l.getD 0 fallback := by
+  cases l <;> rfl
+
 theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
   cases xs with
   | nil => simp at h

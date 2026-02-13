@@ -147,6 +147,9 @@ end List
 
 namespace Array
 
+@[simp, grind =] theorem getElem!_toList [Inhabited α] {xs : Array α} {i : Nat} : xs.toList[i]! = xs[i]! := by
+  rw [List.getElem!_toArray]
+
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 /-! ### Externs -/

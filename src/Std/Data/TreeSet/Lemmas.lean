@@ -91,6 +91,12 @@ theorem isEmpty_iff_forall_not_mem [TransCmp cmp] :
     t.isEmpty = true ↔ ∀ a, ¬a ∈ t :=
   TreeMap.isEmpty_iff_forall_not_mem
 
+theorem toArray_toList : t.toList.toArray = t.toArray :=
+  TreeMap.toArray_keys
+
+theorem toList_toArray : t.toArray.toList = t.toList :=
+  TreeMap.toList_keysArray
+
 @[simp]
 theorem insert_eq_insert {p : α} : Insert.insert p t = t.insert p :=
   rfl
@@ -454,23 +460,47 @@ theorem length_toList [TransCmp cmp] :
   TreeMap.length_keys
 
 @[simp, grind =]
+theorem size_toArray [TransCmp cmp] :
+    t.toArray.size = t.size := by
+  simp [← toArray_toList, length_toList]
+
+@[simp, grind =]
 theorem isEmpty_toList :
     t.toList.isEmpty = t.isEmpty :=
   TreeMap.isEmpty_keys
+
+@[simp, grind =]
+theorem isEmpty_toArray :
+    t.toArray.isEmpty = t.isEmpty := by
+  simp [← toArray_toList, isEmpty_toList]
 
 @[simp, grind =]
 theorem contains_toList [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
     t.toList.contains k = t.contains k :=
   TreeMap.contains_keys
 
+@[simp, grind =]
+theorem contains_toArray [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
+    t.toArray.contains k = t.contains k := by
+  simp [← toArray_toList, contains_toList]
+
 @[simp]
 theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
     k ∈ t.toList ↔ k ∈ t :=
   TreeMap.mem_keys
 
+@[simp]
+theorem mem_toArray [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
+    k ∈ t.toArray ↔ k ∈ t :=
+  TreeMap.mem_keysArray
+
 theorem mem_of_mem_toList [TransCmp cmp] {k : α} :
     k ∈ t.toList → k ∈ t :=
   TreeMap.mem_of_mem_keys
+
+theorem mem_of_mem_toArray [TransCmp cmp] {k : α} :
+    k ∈ t.toArray → k ∈ t := by
+  simpa [← toArray_toList] using mem_of_mem_toList
 
 theorem distinct_toList [TransCmp cmp] :
     t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
@@ -945,17 +975,33 @@ theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → m �
     t.foldlM f init = t.toList.foldlM f init :=
   TreeMap.foldlM_eq_foldlM_keys
 
+theorem foldlM_eq_foldlM_toArray [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
+    t.foldlM f init = t.toArray.foldlM f init := by
+  simp [foldlM_eq_foldlM_toList, ← toArray_toList]
+
 theorem foldl_eq_foldl_toList {f : δ → α → δ} {init : δ} :
     t.foldl f init = t.toList.foldl f init :=
   TreeMap.foldl_eq_foldl_keys
+
+theorem foldl_eq_foldl_toArray {f : δ → α → δ} {init : δ} :
+    t.foldl f init = t.toArray.foldl f init := by
+  simp [foldl_eq_foldl_toList, ← toArray_toList]
 
 theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
     t.foldrM f init = t.toList.foldrM f init :=
   TreeMap.foldrM_eq_foldrM_keys
 
+theorem foldrM_eq_foldrM_toArray [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
+    t.foldrM f init = t.toArray.foldrM f init := by
+  simp [foldrM_eq_foldrM_toList, ← toArray_toList]
+
 theorem foldr_eq_foldr_toList {f : α → δ → δ} {init : δ} :
     t.foldr f init = t.toList.foldr f init :=
   TreeMap.foldr_eq_foldr_keys
+
+theorem foldr_eq_foldr_toArray {f : α → δ → δ} {init : δ} :
+    t.foldr f init = t.toArray.foldr f init := by
+  simp [foldr_eq_foldr_toList, ← toArray_toList]
 
 @[simp, grind =]
 theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → m PUnit} :
@@ -965,6 +1011,10 @@ theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → m PUnit} :
     ForM.forM t f = t.toList.forM f :=
   TreeMap.forM_eq_forM_keys
 
+theorem forM_eq_forM_toArray [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    ForM.forM t f = t.toArray.forM f :=
+  TreeMap.forM_eq_forM_keysArray
+
 @[simp, grind =]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     t.forIn f init = ForIn.forIn t init f := rfl
@@ -972,6 +1022,10 @@ theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   TreeMap.forIn_eq_forIn_keys
+
+theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toArray init f := by
+  simp [forIn_eq_forIn_toList, ← toArray_toList]
 
 end monadic
 
@@ -1360,6 +1414,10 @@ theorem min?_le_min?_erase [TransCmp cmp] {k km kme} :
     t.min? = t.toList.head? :=
   TreeMap.minKey?_eq_head?_keys
 
+@[grind =_] theorem min?_eq_getElem?_toArray [TransCmp cmp] :
+    t.min? = t.toArray[0]? :=
+  TreeMap.minKey?_eq_getElem?_keysArray
+
 theorem min_eq_get_min? [TransCmp cmp] {he} :
     t.min he = t.min?.get (isSome_min?_iff_isEmpty_eq_false.mpr he) :=
   TreeMap.minKey_eq_get_minKey?
@@ -1454,6 +1512,10 @@ theorem min_eq_head_toList [TransCmp cmp] {he} :
     t.min he = t.toList.head (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
   TreeMap.minKey_eq_head_keys
 
+theorem min_eq_getElem_toArray [TransCmp cmp] {he} :
+   t.min he = t.toArray[0]'(Nat.zero_lt_of_ne_zero (by simpa [isEmpty_eq_size_eq_zero] using he)) :=
+  TreeMap.minKey_eq_getElem_keysArray
+
 theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.min? = some t.min! :=
   TreeMap.minKey?_eq_some_minKey! he
@@ -1546,6 +1608,10 @@ theorem min!_eq_head!_toList [TransCmp cmp] [Inhabited α] :
     t.min! = t.toList.head! :=
   TreeMap.minKey!_eq_head!_keys
 
+theorem min!_eq_get!_toArray [TransCmp cmp] [Inhabited α] :
+    t.min! = t.toArray[0]! :=
+  TreeMap.minKey!_eq_getElem!_keysArray
+
 theorem min?_eq_some_minD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.min? = some (t.minD fallback) :=
   TreeMap.minKey?_eq_some_minKeyD he
@@ -1633,6 +1699,10 @@ theorem minD_le_minD_erase [TransCmp cmp] {k}
 theorem minD_eq_headD_toList [TransCmp cmp] {fallback} :
     t.minD fallback = t.toList.headD fallback :=
   TreeMap.minKeyD_eq_headD_keys
+
+theorem minD_eq_getD_toArray [TransCmp cmp] {fallback} :
+    t.minD fallback = t.toArray.getD 0 fallback :=
+  TreeMap.minKeyD_eq_getD_keysArray
 
 end Min
 
@@ -1768,6 +1838,10 @@ theorem max?_eq_getLast?_toList [TransCmp cmp] :
     t.max? = t.toList.getLast? :=
   TreeMap.maxKey?_eq_getLast?_keys
 
+theorem max?_eq_back?_toArray [TransCmp cmp] :
+    t.max? = t.toArray.back? := by
+  rw [max?_eq_getLast?_toList, ← Array.getLast?_toList, toList_toArray]
+
 theorem max_eq_get_max? [TransCmp cmp] {he} :
     t.max he = t.max?.get (isSome_max?_iff_isEmpty_eq_false.mpr he) :=
   TreeMap.maxKey_eq_get_maxKey?
@@ -1863,6 +1937,11 @@ theorem max_eq_getLast_toList [TransCmp cmp] {he} :
     t.max he = t.toList.getLast (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
   TreeMap.maxKey_eq_getLast_keys
 
+@[grind =_]
+theorem max_eq_back_toArray [TransCmp cmp] {he} :
+    t.max he = t.toArray.back (Nat.zero_lt_of_ne_zero (by simpa [isEmpty_eq_size_eq_zero] using he)) := by
+  exact TreeMap.maxKey_eq_back_keysArray
+
 theorem max?_eq_some_max! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.max? = some t.max! :=
   TreeMap.maxKey?_eq_some_maxKey! he
@@ -1956,6 +2035,11 @@ theorem max!_eq_getLast!_toList [TransCmp cmp] [Inhabited α] :
     t.max! = t.toList.getLast! :=
   TreeMap.maxKey!_eq_getLast!_keys
 
+@[grind =_]
+theorem max!_eq_back!_toArray [TransCmp cmp] [Inhabited α] :
+    t.max! = t.toArray.back! := by
+  rw [max!_eq_getLast!_toList, ← Array.getLast!_toList, toList_toArray]
+
 theorem max?_eq_some_maxD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.max? = some (t.maxD fallback) :=
   TreeMap.maxKey?_eq_some_maxKeyD he
@@ -2043,6 +2127,10 @@ theorem maxD_erase_le_maxD [TransCmp cmp] {k}
 theorem maxD_eq_getLastD_toList [TransCmp cmp] {fallback} :
     t.maxD fallback = t.toList.getLastD fallback :=
   TreeMap.maxKeyD_eq_getLastD_keys
+
+theorem maxD_eq_getD_back?_toArray [TransCmp cmp] {fallback} :
+    t.maxD fallback = t.toArray.back?.getD fallback :=
+  TreeMap.maxKeyD_eq_getD_back?_keysArray
 
 end Max
 
@@ -2313,6 +2401,10 @@ variable {t : TreeSet α cmp}
 theorem toList_filter {f : α → Bool} :
     (t.filter f).toList = t.toList.filter f :=
   TreeMap.keys_filter_key
+
+theorem toArray_filter {f : α → Bool} :
+    (t.filter f).toArray = t.toArray.filter f :=
+  TreeMap.keysArray_filter_key
 
 @[grind =] theorem isEmpty_filter_iff [TransCmp cmp]
     {f : α → Bool} :

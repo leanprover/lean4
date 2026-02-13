@@ -255,8 +255,8 @@ def bad400 : String :=
 
 #eval show IO _ from Async.block do
   let trailer := Trailer.empty
-    |>.header "Checksum" "abc123"
-    |>.header "Expires" "Thu, 01 Dec 1994"
+    |>.insert (.mk "checksum") (.mk "abc123")
+    |>.insert (.mk "expires") (.mk "Thu, 01 Dec 1994")
   let encoded := (Encode.encode (v := .v11) ChunkedBuffer.empty trailer).toByteArray
   let s := String.fromUTF8! encoded
   -- Should contain terminal chunk "0\r\n", trailer fields, and final "\r\n"

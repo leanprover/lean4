@@ -487,7 +487,8 @@ def Lean.Expr.isDefiniteRef : Expr → Bool
 The boxed version of types.
 -/
 def Lean.Expr.boxed : Expr → Expr
-  | ImpureType.object | ImpureType.float | ImpureType.float32 => ImpureType.object
+  | ImpureType.object | ImpureType.float | ImpureType.float32 | ImpureType.uint64 =>
+    ImpureType.object
   | ImpureType.void | ImpureType.tagged | ImpureType.uint8 | ImpureType.uint16 => ImpureType.tagged
   | _ => ImpureType.tobject
 

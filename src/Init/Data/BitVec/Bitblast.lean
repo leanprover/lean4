@@ -2611,10 +2611,11 @@ private theorem addRecAux_eq_of
   · case zero =>
     simp [show y_len = 0 by omega]
   · case succ x_len' ih =>
+    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x)
+          (by simp only [Nat.add_one_sub_one, Nat.succ_mul]; omega)]
     have happ := addRecAux_append_extractLsb' (x_len := x_len' + 1) (x := x) (by omega)
     simp only [Nat.add_one_sub_one, addRecAux_succ, BitVec.zero_add] at happ
-    rw [addRecAux_succ, ← BitVec.append_extractLsb'_of_lt (x := x)
-          (by simp only [Nat.add_one_sub_one, Nat.succ_mul]; omega), Nat.add_one_sub_one, BitVec.zero_add, happ]
+    simp only [Nat.add_one_sub_one, BitVec.zero_add, happ]
     have := Nat.succ_mul (n := y_len - 1) (m := w)
     rw [succ_eq_add_one, Nat.sub_one_add_one (by omega)] at this
     by_cases hmod : y_len % 2 = 0

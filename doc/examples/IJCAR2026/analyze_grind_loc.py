@@ -282,37 +282,6 @@ def get_commit_date(repo: str, sha: str) -> str:
     return result.strip().split()[0]  # Just the date part
 
 
-def analyze_usage(repo: str, usage: GrindUsage) -> LocChange | None:
-    """Analyze a single grind usage and return LoC change info."""
-    commit = find_grind_introduction_commit(repo, usage.file, usage.decl_name)
-    if commit is None:
-        return None
-
-    parent = run_git_safe(["rev-parse", f"{commit}^"], repo)
-    if parent is None:
-        return None
-    parent = parent.strip()
-
-    old_loc = extract_proof_loc(repo, usage.file, usage.decl_name, parent)
-    new_loc = extract_proof_loc(repo, usage.file, usage.decl_name, "master")
-
-    if old_loc is None or new_loc is None:
-        return None
-
-    commit_date = get_commit_date(repo, commit)
-
-    return LocChange(
-        file=usage.file,
-        decl_name=usage.decl_name,
-        decl_type=usage.decl_type,
-        old_loc=old_loc,
-        new_loc=new_loc,
-        loc_saved=old_loc - new_loc,
-        commit_sha=commit[:12],
-        commit_date=commit_date
-    )
-
-
 def analyze_usage_detailed(repo: str, usage: GrindUsage) -> tuple[LocChange | None, str]:
     """Analyze a single grind usage, returning (result, skip_reason)."""
     commit = find_grind_introduction_commit(repo, usage.file, usage.decl_name)

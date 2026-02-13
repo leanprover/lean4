@@ -354,7 +354,7 @@ Returns `none` if the key is not found or if the value cannot be decoded as UTF-
 def get (query : Query) (key : String) : Option String :=
   match query.find? key with
   | none => none
-  | some none => some ""  -- Key exists but has Pno value
+  | some none => some ""  -- Key exists but has no value
   | some (some encoded) => encoded.decode
 
 /--

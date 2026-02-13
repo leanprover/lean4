@@ -6,39 +6,36 @@ Authors: Robin Arnez
 module
 
 prelude
-public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.LCNF.PhaseExt
 
 public section
 
 namespace Lean.Compiler.Bytecode
 
-structure Symbol where
-  arity : Nat
-  declName : Name
+private opaque SymbolCacheImpl (symbols : Array Name) : NonemptyType.{0}
 
-private opaque SymbolCacheImpl (symbols : Array Symbol) : NonemptyType.{0}
-
-def SymbolCache (symbols : Array Symbol) : Type := (SymbolCacheImpl symbols).type
+def SymbolCache (symbols : Array Name) : Type := (SymbolCacheImpl symbols).type
 
 instance : Nonempty (SymbolCache symbols) := by exact (SymbolCacheImpl symbols).property
 
 @[extern "lean_bytecode_mk_initial_cache"]
-opaque SymbolCache.mkEmpty (symbols : @& Array Symbol) : SymbolCache symbols
+opaque SymbolCache.mkEmpty (symbols : @& Array Name) : SymbolCache symbols
 
 structure BytecodeDecl where
   name : Name
   code : ByteArray
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
-  symbols : Array Symbol
+  symbols : Array Name
   arity : Nat
+deriving Inhabited
 
 structure RuntimeBytecodeDecl where
   name : Name
   code : ByteArray
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
-  symbols : Array Symbol
+  symbols : Array Name
   cache : SymbolCache symbols
   arity : Nat
 
@@ -69,3 +66,7 @@ builtin_initialize declExt :
 @[export lean_find_bytecode_decl]
 def findBytecodeDecl (env : Environment) (nm : Name) : Option RuntimeBytecodeDecl :=
   (declExt.getState env).find? nm
+
+@[export lean_ir_decl_arity]
+def declArity (env : Environment) (nm : Name) : USize :=
+  (LCNF.getSigCore? env LCNF.impureSigExt nm).map (·.params.usize) |>.getD 0

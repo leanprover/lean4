@@ -104,12 +104,17 @@ string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
     return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
-extern "C" object* lean_get_export_name_for(object* env, object* fn);
+extern "C" obj_res lean_get_export_name_for(object* env, object* fn);
 optional<name> get_export_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
-extern "C" object* lean_find_bytecode_decl(object* env, object* fn);
+extern "C" size_t lean_ir_decl_arity(object* env, object* fn);
+size_t ir_decl_arity(elab_environment const & env, name const & n) {
+    return lean_ir_decl_arity(env.to_obj_arg(), n.to_obj_arg());
+}
+
+extern "C" obj_res lean_find_bytecode_decl(object* env, object* fn);
 optional<object_ref> find_bytecode_decl(elab_environment const & env, name const & n) {
     return to_optional<object_ref>(lean_find_bytecode_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
@@ -138,19 +143,17 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
-symbol_cache_entry fill_cache_entry(elab_environment const & env, object_ref const & symbol) {
+symbol_cache_entry fill_cache_entry(elab_environment const & env, name const & decl_name) {
     symbol_cache_entry result = { .m_arity = 0, .m_native = nullptr, .m_object = nullptr };
-    nat const & arity = cnstr_get_ref_t<nat>(symbol, 0);
-    name const & decl_name = cnstr_get_ref_t<name>(symbol, 1);
-    if (!arity.is_small() || arity.get_small_value() > UINT_MAX) {
-        return result;
-    }
+    size_t arity = ir_decl_arity(env, decl_name);
+    lean_assert(arity <= UINT32_MAX);
     optional<object_ref> decl = find_bytecode_decl(env, decl_name);
     if (decl) {
         result.m_object = decl->steal();
+        arity = lean_unbox(lean_ctor_get(result.m_object, 6));
     }
     string_ref mangled = get_symbol_stem(env, decl_name);
-    result.m_arity = static_cast<unsigned>(arity.get_small_value());
+    result.m_arity = static_cast<unsigned>(arity);
     string_ref mangled_interp = string_ref(string_append(mangled.to_obj_arg(), mk_string("_0interp")));
     if (void * p = lookup_symbol_in_cur_exe(mangled_interp.data())) {
         result.m_native = p;
@@ -166,7 +169,7 @@ symbol_cache_entry fill_cache_entry(elab_environment const & env, object_ref con
     return result;
 }
 
-void fill_cache(elab_environment const & env, array_ref<object_ref> const & symbols, symbol_cache * cache) {
+void fill_cache(elab_environment const & env, array_ref<name> const & symbols, symbol_cache * cache) {
     if (LEAN_LIKELY(cache->m_loaded.load() == 1)) {
         return;
     }
@@ -265,7 +268,7 @@ frame call_init(interpreter * interp, object_ref decl) {
     object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
     nat const & stack_reserved_obj = cnstr_get_ref_t<nat>(decl, 2);
     nat const & stack_space_obj = cnstr_get_ref_t<nat>(decl, 3);
-    array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
+    array_ref<name> const & symbols_array = cnstr_get_ref_t<array_ref<name>>(decl, 4);
     object_ref const & cache_obj = cnstr_get_ref(decl, 5);
 
     uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));

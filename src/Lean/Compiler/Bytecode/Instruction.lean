@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.Bytecode.Basic
+import Init.Omega
 
 public section
 
@@ -132,6 +133,9 @@ def Instruction.ifTag (target tag : UInt32) (offset : Int32) : Instruction where
 def Instruction.jump (offset : Int32) : Instruction where
   value := (39 : UInt32) <<< 26 ||| (offset + 0x200_0000).toUInt32
 
+def Instruction.nojump : Instruction where
+  value := (39 : UInt32) <<< 26
+
 def Instruction.app (fn n : UInt32) : Instruction where
   value := (40 : UInt32) <<< 26 ||| n <<< 16 ||| fn
 
@@ -146,3 +150,86 @@ def pushInstr (code : ByteArray) (instr : Instruction) : ByteArray :=
 
 def assemble (instrs : Array Instruction) : ByteArray :=
   instrs.foldl pushInstr (.emptyWithCapacity (instrs.size * 4))
+
+def addrToString (addr : Int) : String :=
+  let addr := addr.toNat
+  let addr := ((16).toDigits addr).leftpad 4 '0'
+  "0x" ++ String.ofList addr
+
+def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
+  let lo13 := instr.value &&& ((1 : UInt32) <<< 13 - 1)
+  let hi13 := (instr.value >>> 13) &&& ((1 : UInt32) <<< 13 - 1)
+  let lo8 := instr.value &&& ((1 : UInt32) <<< 8 - 1)
+  let mid8 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 8 - 1)
+  let hi10 := (instr.value >>> 16) &&& ((1 : UInt32) <<< 10 - 1)
+  let lo18 := instr.value &&& ((1 : UInt32) <<< 10 - 1)
+  let hi8 := (instr.value >>> 18) &&& ((1 : UInt32) <<< 8 - 1)
+  let mid10 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 10 - 1)
+  let hi18 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 18 - 1)
+  let lo10 := instr.value &&& ((1 : UInt32) <<< 10 - 1)
+  let hi16 := (instr.value >>> 10) &&& ((1 : UInt32) <<< 16 - 1)
+  let lo16 := instr.value &&& ((1 : UInt32) <<< 16 - 1)
+  let all := instr.value &&& ((1 : UInt32) <<< 26 - 1)
+  match instr.value >>> 26 with
+  | 0 => s!"uconst R{hi8} {lo18}"
+  | 1 => s!"move R{hi13} R{lo13}"
+  | 2 => s!"ret R{all}"
+  | 3 => s!"call #{all}"
+  | 4 => s!"retcall #{all}"
+  | 5 => s!"scalar {hi13} {lo13}"
+  | 6 => s!"ctor R{hi8} {mid10} {lo8}"
+  | 7 => s!"proj R{hi10} R{mid8} {lo8}"
+  | 8 => s!"uproj R{hi10} R{mid8} {lo8}"
+  | 9 => s!"sproj8 R{hi18} R{lo8}"
+  | 10 => s!"sproj16 R{hi18} R{lo8}"
+  | 11 => s!"sproj32 R{hi18} R{lo8}"
+  | 12 => s!"sproj64 R{hi18} R{lo8}"
+  | 13 => s!"set R{hi10} R{mid8} {lo8}"
+  | 14 => s!"uset R{hi10} R{mid8} {lo8}"
+  | 15 => s!"sset8 R{hi18} R{lo8}"
+  | 16 => s!"sset16 R{hi18} R{lo8}"
+  | 17 => s!"sset32 R{hi18} R{lo8}"
+  | 18 => s!"sset64 R{hi18} R{lo8}"
+  | 19 => s!"box R{hi18} R{lo8}"
+  | 20 => s!"box32 R{hi18} R{lo8}"
+  | 21 => s!"box64 R{hi18} R{lo8}"
+  | 22 => s!"box_usz R{hi18} R{lo8}"
+  | 23 => s!"box_f64 R{hi18} R{lo8}"
+  | 24 => s!"box_f32 R{hi18} R{lo8}"
+  | 25 => s!"unbox R{hi18} R{lo8}"
+  | 26 => s!"unbox32 R{hi18} R{lo8}"
+  | 27 => s!"unbox64 R{hi18} R{lo8}"
+  | 28 => s!"unbox_usz R{hi18} R{lo8}"
+  | 29 => s!"unbox_f64 R{hi18} R{lo8}"
+  | 30 => s!"unbox_f32 R{hi18} R{lo8}"
+  | 31 => s!"inc R{hi18} {lo8}"
+  | 32 => s!"dec R{hi18} {lo8}"
+  | 33 => s!"is_shared R{hi18} R{lo8}"
+  | 34 => s!"load_tag R{hi18} R{lo8}"
+  | 35 => s!"table R{hi16} {lo10}"
+  | 36 => s!"set_tag R{hi16} {lo10}"
+  | 38 => s!"if_tag R{hi8} {mid10} {addrToString <| pos + lo8.toNat - 0x80}"
+  | 39 => s!"jump {addrToString <| pos + all.toNat - 0x200_0000}"
+  | 40 => s!"app {hi10} R{lo16}"
+  | 41 => s!"pap {hi10} #{lo16}"
+  | _ => s!"0x{instr.value.toBitVec.toHex}"
+
+def disassemble (code : BytecodeDecl) : String := Id.run do
+  let mut str := s!"Declaration {code.name} (arity {code.arity}) with {code.stackSpace} stack \
+    and {code.stackReserved} reserved\n"
+  str := s!"{str}Code:\n"
+  let sz : Nat := code.code.size / 4
+  for h : i in *...sz do
+    let pos := addrToString i
+    have : i < code.code.size / 4 := h
+    let b1 := code.code[i * 4]
+    let b2 := code.code[i * 4 + 1]
+    let b3 := code.code[i * 4 + 2]
+    let b4 := code.code[i * 4 + 3]
+    let val := b1.toUInt32 ||| b2.toUInt32 <<< 8 ||| b3.toUInt32 <<< 16 ||| b4.toUInt32 <<< 24
+    let instr : Instruction := ⟨val⟩
+    str := s!"{str}{pos}: {instr.toString (i + 1)}\n"
+  str := s!"{str}Symbol table:\n"
+  for h : i in *...code.symbols.size do
+    str := s!"{str}#{i}: {code.symbols[i]}\n"
+  return str

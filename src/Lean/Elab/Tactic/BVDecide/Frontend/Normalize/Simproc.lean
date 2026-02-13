@@ -1249,38 +1249,37 @@ builtin_simproc [bv_normalize] extract_mul
   return .visit { expr := expr, proof? := some proof }
 
 /--
-NORM_BV_MUL_POW2_REV: Normalize `(x.extractLsb' 0 (n - tz) ++ 0#tz).cast ...` → `x * (1#n <<< tz)`.
+NORM_BV_MUL_POW2_REV: Normalize `x.extractLsb' 0 m ++ 0#tz` → `(x * (1#n <<< tz)).cast hm`.
 -/
 builtin_simproc [bv_normalize] bv_extractLsb'_append_zero_to_mul
-    (BitVec.cast _
-      (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _))
-        (BitVec.extractLsb' _ _ _) _)) := fun e => do
-  let_expr BitVec.cast nExpr _mExpr _hExpr appendExpr := e | return .continue
-  let_expr HAppend.hAppend _lhsTypeExpr rhsTypeExpr _ _ lhsExpr rhsExpr := appendExpr | return .continue
+    (HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _))
+        (BitVec.extractLsb' _ _ _) _) := fun e => do
+  let_expr HAppend.hAppend _lhsTypeExpr rhsTypeExpr γExpr _instExpr lhsExpr rhsExpr := e | return .continue
   let_expr BitVec rhsWidthExpr := rhsTypeExpr | return .continue
-  let_expr BitVec.extractLsb' wExpr startExpr _lenExpr xExpr := lhsExpr | return .continue
+  let_expr BitVec resultWidthExpr := γExpr | return .continue
+  let_expr BitVec.extractLsb' nExpr startExpr mExpr xExpr := lhsExpr | return .continue
   -- Check that start is 0
   let some start ← getNatValue? startExpr | return .continue
   if start != 0 then return .continue
   -- Check that rhs is 0#tz
   let some ⟨tz, rhsValue⟩ ← getBitVecValue? rhsExpr | return .continue
   if rhsValue != 0#tz then return .continue
-  -- Check that n matches w (the width of x)
   let some n ← getNatValue? nExpr | return .continue
-  let some w ← getNatValue? wExpr | return .continue
-  if n != w then return .continue
+  let some m ← getNatValue? mExpr | return .continue
   -- Check that tz matches rhsWidth
   let some rhsWidth ← getNatValue? rhsWidthExpr | return .continue
   if tz != rhsWidth then return .continue
-  -- Check that tz ≤ n
-  if tz > n then return .continue
-  -- Now we can rewrite to x * (1#n <<< tz)
-  let tzExpr := toExpr tz
-  let oneShift := BitVec.mkNatShiftLeft (toExpr 1#n) tzExpr (toExpr n)
-  let expr := BitVec.mkMul xExpr oneShift (toExpr n)
-  let htz := Nat.mkDecideProofLe tzExpr nExpr
-  let proof := mkApp4 (mkConst ``BitVec.extractLsb'_append_zero_eq_mul_shiftLeft) nExpr xExpr tzExpr htz
-  return .visit { expr := expr, proof? := some proof }
+  -- Check that n = m + tz
+  if n != m + tz then return .continue
+  -- Now we can rewrite to (x * (1#n <<< tz)).cast hm
+  -- Use expressions from the original term tree to avoid type mismatches
+  let oneExpr := mkApp2 (.const ``BitVec.ofNat []) nExpr (mkNatLit 1)
+  let oneShift := BitVec.mkNatShiftLeft oneExpr rhsWidthExpr nExpr
+  let mulExpr := BitVec.mkMul xExpr oneShift nExpr
+  let hm := Nat.mkDecideProofEq nExpr resultWidthExpr
+  let expr := mkApp4 (mkConst ``BitVec.cast) nExpr resultWidthExpr hm mulExpr
+  let proof := mkApp5 (mkConst ``BitVec.extractLsb'_append_zero_eq_mul_shiftLeft) nExpr mExpr xExpr rhsWidthExpr hm
+  return .done { expr := expr, proof? := some proof }
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

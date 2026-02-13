@@ -24,7 +24,7 @@ namespace Std.Http
 set_option linter.all true
 
 /--
-The main parts of a request containing the HTTP method, version, URI, and headers.
+The main parts of a request containing the HTTP method, version, and request target URI.
 -/
 structure Request.Head where
   /--
@@ -40,7 +40,7 @@ structure Request.Head where
   /--
   The request target/URI indicating the resource being requested
   -/
-  uri : String := ""
+  uri : String := "*"
 deriving Inhabited, Repr
 
 /--
@@ -98,7 +98,7 @@ instance : Encode .v11 Head where
 
 /--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty headers)
+empty URI)
 -/
 def new : Builder := { }
 
@@ -106,7 +106,7 @@ namespace Builder
 
 /--
 Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty headers)
+empty URI)
 -/
 def empty : Builder := { }
 
@@ -193,7 +193,7 @@ def head' (uri : String) : Builder :=
 
 /--
 Creates a new HTTP OPTIONS Request builder with the specified URI.
-Use `Request.options (String.asteriskForm)` for server-wide OPTIONS.
+Use `Request.options "*"` for server-wide OPTIONS.
 -/
 def options (uri : String) : Builder :=
   new
@@ -202,7 +202,7 @@ def options (uri : String) : Builder :=
 
 /--
 Creates a new HTTP CONNECT Request builder with the specified URI.
-Typically used with `String.authorityForm` for tunneling.
+Typically used with authority-form URIs such as `"example.com:443"` for tunneling.
 -/
 def connect (uri : String) : Builder :=
   new

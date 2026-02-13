@@ -93,14 +93,14 @@ instance : Encode .v11 Head where
     buffer.writeString "\r\n"
 
 /--
-Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1, empty headers)
+Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).
 -/
 def new : Builder := { }
 
 namespace Builder
 
 /--
-Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1, empty headers)
+Creates a new HTTP Response builder with default head (status: 200 OK, version: HTTP/1.1).
 -/
 def empty : Builder := { }
 

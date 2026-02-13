@@ -63,7 +63,7 @@ structure Response (t : Type) where
 deriving Inhabited
 
 /--
-Builds a HTTP Response.
+Builds an HTTP Response.
 -/
 structure Response.Builder where
   /--

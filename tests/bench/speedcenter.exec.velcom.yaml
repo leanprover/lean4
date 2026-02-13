@@ -683,3 +683,9 @@
   run_config:
     <<: *time
     cmd: lean ./cbv/dedup.lean
+- attributes:
+    description: cbv tactic (evaluating Decidable.decide)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/decide.lean

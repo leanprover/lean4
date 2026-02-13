@@ -11,7 +11,7 @@ public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.ModPkgExt
-import Lean.Compiler.LCNF.ExplicitBoxing
+import Lean.Compiler.LCNF.Types
 import Lean.Compiler.ClosedTermCache
 import Lean.Compiler.IR.SimpleGroundExpr
 import Init.Omega

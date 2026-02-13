@@ -11,7 +11,7 @@ public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
 import Init.Data.Format.Macro
-import Lean.Compiler.LCNF.ExplicitBoxing
+import Lean.Compiler.LCNF.Types
 
 public section
 

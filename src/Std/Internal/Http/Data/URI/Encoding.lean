@@ -60,40 +60,80 @@ def isUnreserved (c : UInt8) : Bool :=
   (c = '-'.toUInt8 || c = '.'.toUInt8 || c = '_'.toUInt8 || c = '~'.toUInt8)
 
 /--
+Checks if a byte is a sub-delimiter character according to RFC 3986.
+Sub-delimiters are: `!`, `$`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`.
+-/
+def isSubDelims (c : UInt8) : Bool :=
+  c = '!'.toUInt8 || c = '$'.toUInt8 || c = '&'.toUInt8 || c = '\''.toUInt8 ||
+  c = '('.toUInt8 || c = ')'.toUInt8 || c = '*'.toUInt8 || c = '+'.toUInt8 ||
+  c = ','.toUInt8 || c = ';'.toUInt8 || c = '='.toUInt8
+
+/--
+Checks if a byte is a valid path character (`pchar`) according to RFC 3986.
+`pchar = unreserved / pct-encoded / sub-delims / ":" / "@"`
+
+Note: The percent-encoding (`pct-encoded`) is handled separately by `isEncodedChar`,
+so this predicate only covers the non-percent characters.
+-/
+def isPChar (c : UInt8) : Bool :=
+  isUnreserved c || isSubDelims c || c = ':'.toUInt8 || c = '@'.toUInt8
+
+/--
+Checks if a byte is a valid character in a URI query component according to RFC 3986.
+`query = *( pchar / "/" / "?" )`
+-/
+def isQueryChar (c : UInt8) : Bool :=
+  isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
+
+/--
+Checks if a byte is a valid character in a URI fragment component according to RFC 3986.
+`fragment = *( pchar / "/" / "?" )`
+-/
+def isFragmentChar (c : UInt8) : Bool :=
+  isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
+
+/--
+Checks if a byte is a valid character in a URI userinfo component according to RFC 3986.
+`userinfo = *( unreserved / pct-encoded / sub-delims / ":" )`
+-/
+def isUserInfoChar (c : UInt8) : Bool :=
+  isUnreserved c || isSubDelims c || c = ':'.toUInt8
+
+/--
 Checks if a byte is a valid character in a percent-encoded URI component. Valid characters are
 unreserved characters or the percent sign (for escape sequences).
 -/
-def isEncodedChar (c : UInt8) : Bool :=
-  isUnreserved c || c = '%'.toUInt8
+def isEncodedChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
+  isAscii c ∧ (rule c ∨ isHexDigit c ∨  c = '%'.toUInt8)
 
 /--
 Checks if a byte is valid in a percent-encoded query string component. Extends `isEncodedChar` to also
 allow '+' which represents space in application/x-www-form-urlencoded format.
 -/
-def isEncodedQueryChar (c : UInt8) : Bool :=
-  isEncodedChar c || c = '+'.toUInt8
+def isEncodedQueryChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
+  isEncodedChar rule c ∨ c = '+'.toUInt8
 
 /--
 Checks if all characters in a `ByteArray` are allowed in an encoded URI component. This is a fast check
 that only verifies the character set, not full encoding validity.
 -/
 @[inline]
-abbrev isAllowedEncodedChars (s : ByteArray) : Prop :=
-  s.data.all isEncodedChar
+abbrev isAllowedEncodedChars (rule : UInt8 → Bool) (s : ByteArray) : Prop :=
+  s.data.all (isEncodedChar rule)
 
-instance : Decidable (isAllowedEncodedChars s) :=
-  inferInstanceAs (Decidable (s.data.all isEncodedChar = true))
+instance : Decidable (isAllowedEncodedChars r s) :=
+  inferInstanceAs (Decidable (s.data.all (isEncodedChar r) = true))
 
 /--
 Checks if all characters in a `ByteArray` are allowed in an encoded query parameter. Allows '+' as an
 alternative encoding for space (application/x-www-form-urlencoded).
 -/
 @[inline]
-abbrev isAllowedEncodedQueryChars (s : ByteArray) : Prop :=
-  s.data.all isEncodedQueryChar
+abbrev isAllowedEncodedQueryChars (rule : UInt8 → Bool) (s : ByteArray) : Prop :=
+  s.data.all (isEncodedQueryChar rule)
 
-instance : Decidable (isAllowedEncodedQueryChars s) :=
-  inferInstanceAs (Decidable (s.data.all isEncodedQueryChar = true))
+instance : Decidable (isAllowedEncodedQueryChars r s) :=
+  inferInstanceAs (Decidable (s.data.all (isEncodedQueryChar r) = true))
 
 /--
 Validates that all percent signs in a byte array are followed by exactly two hexadecimal digits.
@@ -144,36 +184,26 @@ def hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
   else
     none
 
-theorem isAllowedEncodedChars.push {bs : ByteArray} (h : isAllowedEncodedChars bs) (h₁ : isEncodedChar c) :
-    isAllowedEncodedChars (bs.push c) := by
+private theorem isAllowedEncodedChars.push {bs : ByteArray} (h : isAllowedEncodedChars r bs) (h₁ : isEncodedChar r c) :
+    isAllowedEncodedChars r (bs.push c) := by
   simpa [isAllowedEncodedChars, ByteArray.push, Array.all_push, And.intro h h₁]
 
-theorem isAllowedEncodedQueryChars.push {bs : ByteArray} (h : isAllowedEncodedQueryChars bs) (h₁ : isEncodedQueryChar c) :
-    isAllowedEncodedQueryChars (bs.push c) := by
+private theorem isAllowedEncodedQueryChars.push {bs : ByteArray} (h : isAllowedEncodedQueryChars r bs) (h₁ : isEncodedQueryChar r c) :
+    isAllowedEncodedQueryChars r (bs.push c) := by
   simpa [isAllowedEncodedQueryChars, ByteArray.push, Array.all_push, And.intro h h₁]
 
-theorem isAlphaNum_isAscii {c : UInt8} (h : isAlphaNum c) : isAscii c := by
-  unfold isAlphaNum isAscii at *
-  simp at h
-  rcases h with ⟨h1, h2⟩
-  next => simp; exact Nat.lt_of_le_of_lt h2 (by decide)
-  next h => simp; exact Nat.lt_of_le_of_lt h.2 (by decide)
-  next h => simp; exact Nat.lt_of_le_of_lt h.2 (by decide)
+private theorem isEncodedChar_isAscii (c : UInt8) (h : isEncodedChar r c) : isAscii c := by
+  simp [isEncodedChar, isAscii] at *
+  exact h.left
 
-theorem isEncodedChar_isAscii (c : UInt8) (h : isEncodedChar c) : isAscii c := by
-  unfold isEncodedChar isUnreserved at *
-  cases h' : isAlphaNum c
-  · simp [h'] at *; rcases h with ⟨h, h⟩ | h | h | h <;> (subst_vars; decide)
-  · simp [h'] at h; exact (isAlphaNum_isAscii h')
-
-theorem isEncodedQueryChar_isAscii (c : UInt8) (h : isEncodedQueryChar c) : isAscii c := by
+private theorem isEncodedQueryChar_isAscii (c : UInt8) (h : isEncodedQueryChar r c) : isAscii c := by
   unfold isEncodedQueryChar isAscii at *
   simp at h
   rcases h
   next h => exact isEncodedChar_isAscii c h
   next h => subst_vars; decide
 
-theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigit (hexDigit x) := by
+private theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigit (hexDigit x) := by
   unfold hexDigit isHexDigit
   have h₁ : x.toNat < 16 := h₀
   split <;> simp [Char.toUInt8]
@@ -200,29 +230,22 @@ theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigit (hexDigit x) := by
     · simpa [UInt8.ofNat_add, UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using
         UInt8.ofNat_le_iff_le h₄ (by decide : 70 < 256) |>.mpr h₅
 
-theorem isHexDigit_isAlphaNum {c : UInt8} (h : isHexDigit c) : isAlphaNum c := by
-  unfold isHexDigit isAlphaNum at *
-  simp at h ⊢
-  rcases h with ⟨h1, h2⟩
-  next => exact Or.inl (Or.inl ⟨h1, h2⟩)
-  next h => exact Or.inl (Or.inr ⟨h.1, Nat.le_trans h.2 (by decide)⟩)
-  next h => exact Or.inr ⟨h.1, Nat.le_trans h.2 (by decide)⟩
+private theorem isHexDigit_isAscii {c : UInt8} (h : isHexDigit c) : isAscii c := by
+  simp [isHexDigit, isAscii, Char.toUInt8] at *
+  rcases h with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · exact UInt8.lt_of_le_of_lt h2 (by decide)
+  next h => exact UInt8.lt_of_le_of_lt h.right (by decide)
+  · exact UInt8.lt_of_le_of_lt h2 (by decide)
 
-theorem isAlphaNum_isEncodedChar {c : UInt8} (h : isAlphaNum c) : isEncodedChar c := by
-  unfold isEncodedChar isUnreserved
+private theorem isHexDigit_isEncodedChar {c : UInt8} (h : isHexDigit c) : isEncodedChar r c := by
+  unfold isEncodedChar
   simp at *
-  exact Or.inl (Or.inl h)
+  exact And.intro (isHexDigit_isAscii h) (Or.inr (Or.inl h))
 
-theorem isAlphaNum_isEncodedQueryChar {c : UInt8} (h : isAlphaNum c) : isEncodedQueryChar c := by
-  unfold isEncodedQueryChar isEncodedChar isUnreserved
+private theorem isHexDigit_isEncodedQueryChar {c : UInt8} (h : isHexDigit c) : isEncodedQueryChar r c := by
+  unfold isEncodedQueryChar isEncodedChar
   simp at *
-  exact Or.inl (Or.inl (Or.inl h))
-
-theorem isHexDigit_isEncodedChar {c : UInt8} (h : isHexDigit c) : isEncodedChar c :=
-  isAlphaNum_isEncodedChar (isHexDigit_isAlphaNum h)
-
-theorem isHexDigit_isEncodedQueryChar {c : UInt8} (h : isHexDigit c) : isEncodedQueryChar c :=
-  isAlphaNum_isEncodedQueryChar (isHexDigit_isAlphaNum h)
+  exact Or.inl (And.intro (isHexDigit_isAscii h) (Or.inr (Or.inl h)))
 
 theorem all_of_all_of_imp {b : ByteArray} (h : b.data.all p) (imp : ∀ c, p c → q c) : b.data.all q := by
   rw [Array.all_eq] at *
@@ -230,7 +253,7 @@ theorem all_of_all_of_imp {b : ByteArray} (h : b.data.all p) (imp : ∀ c, p c �
   intro i x
   exact (imp b.data[i]) (h i x)
 
-theorem autf8EncodeChar_flatMap_ascii {a : List UInt8}
+private theorem autf8EncodeChar_flatMap_ascii {a : List UInt8}
     (is_ascii_list : ∀ (x : UInt8), x ∈ a → x < 128) :
     List.flatMap (fun a => String.utf8EncodeChar (Char.ofUInt8 a)) a = a := by
   have h_encode {i : UInt8} (h : i < 128) : String.utf8EncodeChar (Char.ofUInt8 i) = [i] := by
@@ -246,13 +269,13 @@ theorem autf8EncodeChar_flatMap_ascii {a : List UInt8}
       exact is_ascii_list x (by simp [hx])
     · exact is_ascii_list head (by simp)
 
-theorem List.toByteArray_loop_eq (xs : List UInt8) (acc : ByteArray) :
+private theorem List.toByteArray_loop_eq (xs : List UInt8) (acc : ByteArray) :
     (List.toByteArray.loop xs acc).data = acc.data ++ xs.toArray := by
   induction xs generalizing acc with
   | nil => simp [List.toByteArray.loop]
   | cons x xs ih => simp [List.toByteArray.loop, ih, Array.push]
 
-theorem ByteArray.toList_toByteArray (ba : ByteArray) :
+private theorem ByteArray.toList_toByteArray (ba : ByteArray) :
     ba.data.toList.toByteArray = ba := by
   cases ba with
   | mk data =>
@@ -280,7 +303,7 @@ This provides type-safe URI encoding without runtime validation.
 The invariant guarantees that the string contains only unreserved characters (alphanumeric, hyphen, period,
 underscore, tilde) and percent signs (for escape sequences).
 -/
-structure EncodedString where
+structure EncodedString (r : UInt8 → Bool) where
   private mk ::
 
   /--
@@ -291,40 +314,46 @@ structure EncodedString where
   /--
   Proof that all characters in the byte array are valid encoded characters.
   -/
-  valid : isAllowedEncodedChars toByteArray
+  valid : isAllowedEncodedChars r toByteArray
 
 namespace EncodedString
 
 /--
 Creates an empty encoded string.
 -/
-def empty : EncodedString :=
-  ⟨.empty, by native_decide⟩
+def empty : EncodedString r :=
+  ⟨.empty, by simp []; exact fun i h => by contradiction⟩
 
-instance : Inhabited EncodedString where
+instance : Inhabited (EncodedString r) where
   default := EncodedString.empty
 
 /--
 Appends a single encoded character to an encoded string.
 Requires that the character is not '%' to maintain the percent-encoding invariant.
 -/
-private def push (s : EncodedString) (c : UInt8) (h : isEncodedChar c) : EncodedString :=
+private def push (s : EncodedString r) (c : UInt8) (h : isEncodedChar r c) : EncodedString r :=
   ⟨s.toByteArray.push c, isAllowedEncodedChars.push s.valid h⟩
 
 /--
 Converts a byte to its percent-encoded hexadecimal representation (%XX). For example, a space
 character (0x20) becomes "%20".
 -/
-private def byteToHex (b : UInt8) (s : EncodedString) : EncodedString :=
+private def byteToHex (b : UInt8) (s : EncodedString r) : EncodedString r :=
   let ba := s.toByteArray.push '%'.toUInt8
     |>.push (hexDigit (b >>> 4))
     |>.push (hexDigit (b &&& 0xF))
   let valid := by
-    have h1 : isEncodedChar '%'.toUInt8 := by decide
-    have h2 : isEncodedChar (hexDigit (b >>> 4)) :=
-      isHexDigit_isEncodedChar (hexDigit_isHexDigit (BitVec.toNat_ushiftRight_lt b.toBitVec 4 (by decide)))
-    have h3 : isEncodedChar (hexDigit (b &&& 0xF)) :=
-      isHexDigit_isEncodedChar (hexDigit_isHexDigit (@UInt8.and_lt_add_one b 0xF (by decide)))
+    have h1 : isEncodedChar r '%'.toUInt8 :=
+      by simp [isEncodedChar]; decide
+
+    have h2 : isEncodedChar r (hexDigit (b >>> 4)) :=
+      let h₀ := hexDigit_isHexDigit (BitVec.toNat_ushiftRight_lt b.toBitVec 4 (by decide))
+      isHexDigit_isEncodedChar h₀
+
+    have h3 : isEncodedChar r (hexDigit (b &&& 0xF)) :=
+      let h₀ := hexDigit_isHexDigit (@UInt8.and_lt_add_one b 0xF (by decide))
+      isHexDigit_isEncodedChar h₀
+
     exact isAllowedEncodedChars.push (isAllowedEncodedChars.push (isAllowedEncodedChars.push s.valid h1) h2) h3
   ⟨ba, valid⟩
 
@@ -332,10 +361,10 @@ private def byteToHex (b : UInt8) (s : EncodedString) : EncodedString :=
 Encodes a raw string into an `EncodedString` with automatic proof construction. Unreserved characters
 (alphanumeric, hyphen, period, underscore, tilde) are kept as-is, while all other characters are percent-encoded.
 -/
-def encode (s : String) : EncodedString :=
+def encode (s : String) : EncodedString r :=
   s.toUTF8.foldl (init := EncodedString.empty) fun acc c =>
-    if h : isUnreserved c then
-      acc.push c (by simp [isEncodedChar]; exact Or.inl h)
+    if h : isAscii c ∧ r c then
+      acc.push c (by simp [isEncodedChar]; exact And.intro h.left (Or.inl h.right))
     else
       byteToHex c acc
 
@@ -343,15 +372,15 @@ def encode (s : String) : EncodedString :=
 Attempts to create an `EncodedString` from a `ByteArray`. Returns `some` if the byte array contains only
 valid encoded characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/
-def ofByteArray? (ba : ByteArray) : Option EncodedString :=
-  if h : isAllowedEncodedChars ba then
+def ofByteArray? (ba : ByteArray) : Option (EncodedString r) :=
+  if h : isAllowedEncodedChars r ba then
     if isValidPercentEncoding ba then some ⟨ba, h⟩ else none
   else none
 
 /--
 Creates an `EncodedString` from a `ByteArray`, panicking if the byte array is invalid.
 -/
-def ofByteArray! (ba : ByteArray) : EncodedString :=
+def ofByteArray! (ba : ByteArray) : EncodedString r :=
   match ofByteArray? ba with
   | some es => es
   | none => panic! "invalid encoded string"
@@ -360,30 +389,30 @@ def ofByteArray! (ba : ByteArray) : EncodedString :=
 Creates an `EncodedString` from a `String` by checking if it's already a valid percent-encoded string.
 Returns `some` if valid, `none` otherwise.
 -/
-def ofString? (s : String) : Option EncodedString :=
+def ofString? (s : String) : Option (EncodedString r) :=
   ofByteArray? s.toUTF8
 
 /--
 Creates an `EncodedString` from a `String`, panicking if the string is not a valid percent-encoded string.
 -/
-def ofString! (s : String) : EncodedString :=
+def ofString! (s : String) : EncodedString r :=
   ofByteArray! s.toUTF8
 
 /--
 Creates an `EncodedString` from a `ByteArray` with compile-time proofs.
 Use this when you have proofs that the byte array is valid.
 -/
-def new (ba : ByteArray) (valid : isAllowedEncodedChars ba) (_validEncoding : isValidPercentEncoding ba) : EncodedString :=
+def new (ba : ByteArray) (valid : isAllowedEncodedChars r ba) (_validEncoding : isValidPercentEncoding ba) : EncodedString r :=
   ⟨ba, valid⟩
 
-instance : ToString EncodedString where
-  toString es := ⟨es.toByteArray, ascii_is_valid_utf8 es.toByteArray (all_of_all_of_imp es.valid isEncodedChar_isAscii)⟩
+instance : ToString (EncodedString r) where
+  toString es := ⟨es.toByteArray, ascii_is_valid_utf8 es.toByteArray (all_of_all_of_imp es.valid (fun c h => by simp [isEncodedChar] at h; exact h.left))⟩
 
 /--
 Decodes an `EncodedString` back to a regular `String`. Converts percent-encoded sequences (e.g., "%20")
 back to their original characters. Returns `none` if the decoded bytes are not valid UTF-8.
 -/
-def decode (es : EncodedString) : Option String := Id.run do
+def decode (es : EncodedString r) : Option String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
   let rawBytes := es.toByteArray
   let len := rawBytes.size
@@ -408,13 +437,13 @@ def decode (es : EncodedString) : Option String := Id.run do
       (decoded.push c, i + 1)
   return String.fromUTF8? decoded
 
-instance : Repr EncodedString where
-  reprPrec es := reprPrec (toString es)
+instance : Repr (EncodedString r) where
+  reprPrec es n := reprPrec (toString es) n
 
-instance : BEq EncodedString where
+instance : BEq (EncodedString r) where
   beq x y := x.toByteArray = y.toByteArray
 
-instance : Hashable EncodedString where
+instance : Hashable (EncodedString r) where
   hash x := Hashable.hash x.toByteArray
 
 end EncodedString
@@ -427,7 +456,7 @@ application/x-www-form-urlencoded format.
 This type is specifically designed for encoding query parameters where spaces can be represented as '+'
 instead of "%20".
 -/
-structure EncodedQueryString where
+structure EncodedQueryString (r : UInt8 → Bool) where
   private mk ::
 
   /--
@@ -438,38 +467,38 @@ structure EncodedQueryString where
   /--
   Proof that all characters in the byte array are valid encoded query characters.
   -/
-  valid : isAllowedEncodedQueryChars toByteArray
+  valid : isAllowedEncodedQueryChars r toByteArray
 
 namespace EncodedQueryString
 
 /--
 Creates an empty encoded query string.
 -/
-def empty : EncodedQueryString :=
-  ⟨.empty, by native_decide⟩
+def empty : EncodedQueryString r :=
+  ⟨.empty, by simp; intro a h; contradiction⟩
 
-instance : Inhabited EncodedQueryString where
+instance : Inhabited (EncodedQueryString r) where
   default := EncodedQueryString.empty
 
 /--
 Appends a single encoded query character to an encoded query string.
 -/
-private def push (s : EncodedQueryString) (c : UInt8) (h : isEncodedQueryChar c) : EncodedQueryString :=
+private def push (s : EncodedQueryString r) (c : UInt8) (h : isEncodedQueryChar r c) : EncodedQueryString r :=
   ⟨s.toByteArray.push c, isAllowedEncodedQueryChars.push s.valid h⟩
 
 /--
 Attempts to create an `EncodedQueryString` from a `ByteArray`. Returns `some` if the byte array contains
 only valid encoded query characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/
-def ofByteArray? (ba : ByteArray) : Option EncodedQueryString :=
-  if h : isAllowedEncodedQueryChars ba then
+def ofByteArray? (ba : ByteArray) : Option (EncodedQueryString r) :=
+  if h : isAllowedEncodedQueryChars r ba then
     if isValidPercentEncoding ba then some ⟨ba, h⟩ else none
   else none
 
 /--
 Creates an `EncodedQueryString` from a `ByteArray`, panicking if the byte array is invalid.
 -/
-def ofByteArray! (ba : ByteArray) : EncodedQueryString :=
+def ofByteArray! (ba : ByteArray) : EncodedQueryString r :=
   match ofByteArray? ba with
   | some es => es
   | none => panic! "invalid encoded query string"
@@ -478,35 +507,36 @@ def ofByteArray! (ba : ByteArray) : EncodedQueryString :=
 Creates an `EncodedQueryString` from a `String` by checking if it's already a valid percent-encoded string.
 Returns `some` if valid, `none` otherwise.
 -/
-def ofString? (s : String) : Option EncodedQueryString :=
+def ofString? (s : String) : Option (EncodedQueryString r) :=
   ofByteArray? s.toUTF8
 
 /--
 Creates an `EncodedQueryString` from a `String`, panicking if the string is not a valid percent-encoded string.
 -/
-def ofString! (s : String) : EncodedQueryString :=
+def ofString! (s : String) : EncodedQueryString r :=
   ofByteArray! s.toUTF8
 
 /--
 Creates an `EncodedQueryString` from a `ByteArray` with compile-time proofs.
 Use this when you have proofs that the byte array is valid.
 -/
-def new (ba : ByteArray) (valid : isAllowedEncodedQueryChars ba) (_validEncoding : isValidPercentEncoding ba) : EncodedQueryString :=
+def new (ba : ByteArray) (valid : isAllowedEncodedQueryChars r ba) (_validEncoding : isValidPercentEncoding ba) : EncodedQueryString r :=
   ⟨ba, valid⟩
 
 /--
 Converts a byte to its percent-encoded hexadecimal representation (%XX). For example, a space character
 (0x20) becomes "%20".
 -/
-private def byteToHex (b : UInt8) (s : EncodedQueryString) : EncodedQueryString :=
+private def byteToHex (b : UInt8) (s : EncodedQueryString r) : EncodedQueryString r :=
   let ba := s.toByteArray.push '%'.toUInt8
     |>.push (hexDigit (b >>> 4))
     |>.push (hexDigit (b &&& 0xF))
   let valid := by
-    have h1 : isEncodedQueryChar '%'.toUInt8 := by decide
-    have h2 : isEncodedQueryChar (hexDigit (b >>> 4)) :=
+    have h1 : isEncodedQueryChar r '%'.toUInt8 := by
+      simp [isEncodedQueryChar, isEncodedChar]; decide
+    have h2 : isEncodedQueryChar r (hexDigit (b >>> 4)) :=
       isHexDigit_isEncodedQueryChar (hexDigit_isHexDigit (BitVec.toNat_ushiftRight_lt b.toBitVec 4 (by decide)))
-    have h3 : isEncodedQueryChar (hexDigit (b &&& 0xF)) :=
+    have h3 : isEncodedQueryChar r (hexDigit (b &&& 0xF)) :=
       isHexDigit_isEncodedQueryChar (hexDigit_isHexDigit (@UInt8.and_lt_add_one b 0xF (by decide)))
     exact isAllowedEncodedQueryChars.push (isAllowedEncodedQueryChars.push (isAllowedEncodedQueryChars.push s.valid h1) h2) h3
   ⟨ba, valid⟩
@@ -515,17 +545,20 @@ private def byteToHex (b : UInt8) (s : EncodedQueryString) : EncodedQueryString 
 Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Unreserved characters
 are kept as-is, spaces are encoded as '+', and all other characters are percent-encoded.
 -/
-def encode (s : String) : EncodedQueryString :=
+def encode {r} (s : String) : EncodedQueryString r :=
   s.toUTF8.foldl (init := EncodedQueryString.empty) fun acc c =>
-    if h : isUnreserved c then
-      acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (Or.inl h))
+    if h : isAscii c ∧ r c then
+      acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (And.intro h.left (Or.inl h.right)))
     else if _ : c = ' '.toUInt8 then
       acc.push '+'.toUInt8 (by simp [isEncodedQueryChar])
     else
       byteToHex c acc
 
-instance : ToString EncodedQueryString where
-  toString es := ⟨es.toByteArray, ascii_is_valid_utf8 es.toByteArray (all_of_all_of_imp es.valid isEncodedQueryChar_isAscii)⟩
+/--
+Converts an `EncodedQueryString` to a `String`, given a proof that all characters satisfying `r` are ASCII.
+-/
+def toString (es : EncodedQueryString r) : String :=
+  ⟨es.toByteArray, ascii_is_valid_utf8 es.toByteArray (all_of_all_of_imp es.valid (fun c h => isEncodedQueryChar_isAscii c h))⟩
 
 /--
 Decodes an `EncodedQueryString` back to a regular `String`. Converts percent-encoded sequences and '+'
@@ -533,7 +566,7 @@ signs back to their original characters. Returns `none` if the decoded bytes are
 
 This is almost the same code from `System.Uri.UriEscape.decodeUri`, but with `Option` instead.
 -/
-def decode (es : EncodedQueryString) : Option String := Id.run do
+def decode (es : EncodedQueryString r) : Option String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
   let rawBytes := es.toByteArray
   let len := rawBytes.size
@@ -563,18 +596,159 @@ def decode (es : EncodedQueryString) : Option String := Id.run do
 
 end EncodedQueryString
 
-instance : Repr EncodedQueryString where
-  reprPrec es := reprPrec (toString es)
+instance : ToString (EncodedQueryString r) where
+  toString := EncodedQueryString.toString
 
-instance : BEq EncodedQueryString where
+instance : Repr (EncodedQueryString r) where
+  reprPrec es n := reprPrec (toString es) n
+
+instance : BEq (EncodedQueryString r) where
   beq x y := x.toByteArray = y.toByteArray
 
-instance : Hashable EncodedQueryString where
+instance : Hashable (EncodedQueryString r) where
   hash x := Hashable.hash x.toByteArray
 
-instance : Hashable (Option EncodedQueryString) where
+instance : Hashable (Option (EncodedQueryString r)) where
   hash
     | some x =>  Hashable.hash ((ByteArray.mk #[1] ++ x.toByteArray))
     | none =>  Hashable.hash (ByteArray.mk #[0])
+
+/--
+A percent-encoded URI path segment. Valid characters are `pchar` (unreserved, sub-delims, ':', '@').
+-/
+abbrev EncodedSegment := EncodedString isPChar
+
+namespace EncodedSegment
+
+/--
+Encodes a raw string into an encoded path segment.
+-/
+def encode (s : String) : EncodedSegment :=
+  EncodedString.encode (r := isPChar) s
+
+/--
+Attempts to create an encoded path segment from raw bytes.
+-/
+def ofByteArray? (ba : ByteArray) : Option EncodedSegment :=
+  EncodedString.ofByteArray? (r := isPChar) ba
+
+/--
+Creates an encoded path segment from raw bytes, panicking on invalid encoding.
+-/
+def ofByteArray! (ba : ByteArray) : EncodedSegment :=
+  EncodedString.ofByteArray! (r := isPChar) ba
+
+/--
+Decodes an encoded path segment back to a UTF-8 string.
+-/
+def decode (segment : EncodedSegment) : Option String :=
+  EncodedString.decode segment
+
+end EncodedSegment
+
+/--
+A percent-encoded URI fragment component. Valid characters are `pchar / "/" / "?"`.
+-/
+abbrev EncodedFragment := EncodedString isFragmentChar
+
+namespace EncodedFragment
+
+/--
+Encodes a raw string into an encoded fragment component.
+-/
+def encode (s : String) : EncodedFragment :=
+  EncodedString.encode (r := isFragmentChar) s
+
+/--
+Attempts to create an encoded fragment component from raw bytes.
+-/
+def ofByteArray? (ba : ByteArray) : Option EncodedFragment :=
+  EncodedString.ofByteArray? (r := isFragmentChar) ba
+
+/--
+Creates an encoded fragment component from raw bytes, panicking on invalid encoding.
+-/
+def ofByteArray! (ba : ByteArray) : EncodedFragment :=
+  EncodedString.ofByteArray! (r := isFragmentChar) ba
+
+/--
+Decodes an encoded fragment component back to a UTF-8 string.
+-/
+def decode (fragment : EncodedFragment) : Option String :=
+  EncodedString.decode fragment
+
+end EncodedFragment
+
+/--
+A percent-encoded URI userinfo component. Valid characters are `unreserved / sub-delims / ":"`.
+-/
+abbrev EncodedUserInfo := EncodedString isUserInfoChar
+
+namespace EncodedUserInfo
+
+/--
+Encodes a raw string into an encoded userinfo component.
+-/
+def encode (s : String) : EncodedUserInfo :=
+  EncodedString.encode (r := isUserInfoChar) s
+
+/--
+Attempts to create an encoded userinfo component from raw bytes.
+-/
+def ofByteArray? (ba : ByteArray) : Option EncodedUserInfo :=
+  EncodedString.ofByteArray? (r := isUserInfoChar) ba
+
+/--
+Creates an encoded userinfo component from raw bytes, panicking on invalid encoding.
+-/
+def ofByteArray! (ba : ByteArray) : EncodedUserInfo :=
+  EncodedString.ofByteArray! (r := isUserInfoChar) ba
+
+/--
+Decodes an encoded userinfo component back to a UTF-8 string.
+-/
+def decode (userInfo : EncodedUserInfo) : Option String :=
+  EncodedString.decode userInfo
+
+end EncodedUserInfo
+
+/--
+A percent-encoded URI query parameter. Valid characters are `pchar / "/" / "?"` with '+' for spaces.
+-/
+abbrev EncodedQueryParam := EncodedQueryString isQueryChar
+
+namespace EncodedQueryParam
+
+/--
+Encodes a raw string into an encoded query parameter.
+-/
+def encode (s : String) : EncodedQueryParam :=
+  EncodedQueryString.encode (r := isQueryChar) s
+
+/--
+Attempts to create an encoded query parameter from raw bytes.
+-/
+def ofByteArray? (ba : ByteArray) : Option EncodedQueryParam :=
+  EncodedQueryString.ofByteArray? (r := isQueryChar) ba
+
+/--
+Creates an encoded query parameter from raw bytes, panicking on invalid encoding.
+-/
+def ofByteArray! (ba : ByteArray) : EncodedQueryParam :=
+  EncodedQueryString.ofByteArray! (r := isQueryChar) ba
+
+/--
+Attempts to create an encoded query parameter from an encoded string.
+-/
+def fromString? (s : String) : Option EncodedQueryParam :=
+  EncodedQueryString.ofString? (r := isQueryChar) s
+
+/--
+Decodes an encoded query parameter back to a UTF-8 string.
+-/
+def decode (param : EncodedQueryParam) : Option String :=
+  EncodedQueryString.decode param
+
+end EncodedQueryParam
 
 end Std.Http.URI

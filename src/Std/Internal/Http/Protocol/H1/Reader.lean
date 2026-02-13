@@ -50,7 +50,7 @@ inductive Reader.State (dir : Direction) : Type
   /--
   State waiting for chunk body data of specified size.
   -/
-  | needChunkedBody : Array (String × Option String) → Nat → State dir
+  | needChunkedBody : Array (ExtensionName × Option String) → Nat → State dir
 
   /--
   State waiting for fixed-length body data of specified size.

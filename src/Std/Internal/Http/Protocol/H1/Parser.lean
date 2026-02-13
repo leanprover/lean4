@@ -215,13 +215,17 @@ partial def parseQuotedString : Parser String := do
   opt <| String.fromUTF8? (← loop .empty)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
-def parseChunkExt (limits : H1.Config) : Parser (String × Option String) := do
+def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String) := do
   osp limits *> skipByte ';'.toUInt8 *> osp limits
   let name ← (opt =<< String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtNameLength) <* osp limits
+
+  let some name := ExtensionName.ofString? name
+    | fail "invalid extension name"
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
     osp limits *> skipByte '='.toUInt8 *> osp limits
     let value ← osp limits *> (parseQuotedString <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
+
     return (name, some value)
 
   return (name, none)
@@ -229,7 +233,7 @@ def parseChunkExt (limits : H1.Config) : Parser (String × Option String) := do
 /--
 This function parses the size and extension of a chunk
 -/
-public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (String × Option String)) := do
+public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (ExtensionName × Option String)) := do
   let size ← hex
   let ext ← many (parseChunkExt limits)
   crlf
@@ -245,7 +249,7 @@ public inductive TakeResult
 /--
 This function parses a single chunk in chunked transfer encoding
 -/
-public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (String × Option String) × ByteSlice)) := do
+public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (ExtensionName × Option String) × ByteSlice)) := do
   let (size, ext) ← parseChunkSize limits
   if size == 0 then
     return none

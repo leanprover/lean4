@@ -39,7 +39,7 @@ inductive Event (dir : Direction)
   /--
   Carries a chunk of message body data.
   -/
-  | gotData (final : Bool) (ext : Array (String × Option String)) (data : ByteSlice)
+  | gotData (final : Bool) (ext : Array (ExtensionName × Option String)) (data : ByteSlice)
 
   /--
   Signals that additional input data is required to continue processing.

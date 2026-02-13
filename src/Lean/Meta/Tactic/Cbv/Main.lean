@@ -120,14 +120,29 @@ def handleProj : Simproc := fun e => do
   | .step e' proof _ =>
     let type ← Sym.inferType e'
     let congrArgFun := Lean.mkLambda `x .default type <| .proj typeName idx <| .bvar 0
-    -- TODO: Create an efficient symbolic version of `mkCongrArg`
-    try
+    let congrArgFunType ← inferType congrArgFun
+    -- If the type of a projection function is non-dependent, we can safely prove `e.i = e'.i` from `e = e'`
+    if (congrArgFunType.isArrow) then
       let newProof ← mkCongrArg congrArgFun proof
       return .step (← Lean.Expr.updateProjS! e e') newProof
-    catch _ =>
-      let some reduced ← reduceProj? e | return .rfl
-      let reduced ← Sym.share reduced
-      return .step reduced (← Sym.mkEqRefl reduced)
+    else
+      -- If the type of the projection function is dependent, we first try to reduce the projection
+      let reduced ← reduceProj? e
+      match reduced with
+      | .some reduced =>
+        let reduced ← Sym.share reduced
+        return .step reduced (← Sym.mkEqRefl reduced)
+      | .none =>
+       -- If we failed to reduce it, we turn to a last resort; we try use heterogenous congruence lemma that we then try to turn into an equality.
+        unless (← isDefEq struct e') do
+          -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
+          -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
+          return .rfl
+        let hcongr ← mkHCongr congrArgFun
+        let newProof := mkApp3 (hcongr.proof) struct e' proof
+        -- We have already checked if `struct` and `e'` are defEq, so we can skip the check.
+        let newProof ← mkEqOfHEq newProof (check := false)
+        return .step (← Lean.Expr.updateProjS! e e') newProof
 
 def simplifyAppFn : Simproc := fun e => do
     unless e.isApp do return .rfl

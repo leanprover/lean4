@@ -68,7 +68,7 @@ def skipBytes (arr : ByteArray) : Parser Unit := fun it =>
         else
           .error it (.other s!"expected byte {want}, got {got}")
       else
-        .error it .eof
+        .error it (.other s!"unexpected end of input while matching {arr.size} bytes")
     else
       .success it ()
   go 0 it
@@ -218,11 +218,7 @@ partial def takeWhile (pred : UInt8 → Bool) : Parser ByteSlice :=
       else (count, iter)
 
     let (length, newIt) := findEnd 0 it
-
-    if newIt.atEnd then
-      .error newIt .eof
-    else
-      .success newIt (it.array[it.idx...(it.idx + length)])
+    .success newIt (it.array[it.idx...(it.idx + length)])
 
 /--
 Parses until a predicate is satisfied (exclusive).
@@ -242,12 +238,7 @@ partial def skipWhile (pred : UInt8 → Bool) : Parser Unit :=
       else if pred iter.curr then findEnd (count + 1) iter.next
       else iter
 
-    let newIt := findEnd 0 it
-
-    if newIt.atEnd then
-      .error newIt .eof
-    else
-      .success (findEnd 0 it) ()
+    .success (findEnd 0 it) ()
 
 /--
 Skips until a predicate is satisfied.
@@ -269,11 +260,7 @@ partial def takeWhileUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser ByteSli
       else (count, iter)
 
     let (length, newIt) := findEnd 0 it
-
-    if newIt.atEnd then
-      .error newIt .eof
-    else
-      .success newIt (it.array[it.idx...(it.idx + length)])
+    .success newIt (it.array[it.idx...(it.idx + length)])
 
 /--
 Parses while a predicate is satisfied, up to a given limit, requiring at least one byte.
@@ -288,11 +275,8 @@ def takeWhileUpTo1 (pred : UInt8 → Bool) (limit : Nat) : Parser ByteSlice :=
       else (count, iter)
 
     let (length, newIt) := findEnd 0 it
-
-    if newIt.atEnd then
-      .error newIt <| .eof
-    else if length = 0 then
-      .error newIt <| .other "expected at least one char"
+    if length = 0 then
+      .error it (if newIt.atEnd then .eof else .other "expected at least one char")
     else
       .success newIt (it.array[it.idx...(it.idx + length)])
 
@@ -315,12 +299,7 @@ partial def skipWhileUpTo (pred : UInt8 → Bool) (limit : Nat) : Parser Unit :=
       else if pred iter.curr then findEnd (count + 1) iter.next
       else iter
 
-    let newIt := findEnd 0 it
-
-    if newIt.atEnd then
-      .error newIt .eof
-    else
-      .success newIt ()
+    .success (findEnd 0 it) ()
 
 /--
 Skips until a predicate is satisfied, up to a given limit.

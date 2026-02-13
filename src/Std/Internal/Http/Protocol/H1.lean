@@ -240,12 +240,12 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
 
 -- Message Processing
 
-private def resetForNextMessage (machine : Machine ty) : Machine ty :=
+private def resetForNextMessage (machine : Machine dir) : Machine dir :=
 
   if machine.keepAlive then
     { machine with
       reader := {
-        state := .needStartLine,
+        state := match dir with | .receiving => .needStartLine | .sending => .pending,
         input := machine.reader.input,
         messageHead := {},
         messageCount := machine.reader.messageCount + 1
@@ -253,7 +253,7 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
       writer := {
         userData := .empty,
         outputData := machine.writer.outputData,
-        state := .pending,
+        state := match dir with | .receiving => .pending | .sending => .waitingHeaders,
         knownSize := none,
         messageHead := {},
         userClosedBody := false,
@@ -293,9 +293,9 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       let nextState : Reader.State dir := if waitingContinue then Reader.State.«continue» state else state
       let machine := if waitingContinue then machine.addEvent .continue else machine
 
-      machine.setReaderState nextState
-      |>.setWriterState .waitingHeaders
-      |>.addEvent .needAnswer
+      match dir, nextState, machine with
+      | .receiving,nextState,  machine => machine.setReaderState nextState |>.setWriterState .waitingHeaders |>.addEvent .needAnswer
+      | .sending, nextState, machine => machine.setReaderState nextState
 
 /--
 This processes the message we are sending.
@@ -354,7 +354,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
 
 /--Put some data inside the input of the machine. -/
 @[inline]
-def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
+def feed (machine : Machine dir) (data : ByteArray) : Machine dir :=
   if machine.isReaderClosed then
     machine
   else
@@ -385,6 +385,12 @@ def noMoreInput (machine : Machine dir) : Machine dir :=
 def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
   machine.modifyWriter (fun w => { w with knownSize := w.knownSize.or (some size) })
 
+@[inline]
+private def isWriterClosed (machine : Machine dir) : Bool :=
+  match machine.writer.state with
+  | .closed => true
+  | _ => false
+
 /--Send the head of a message to the machine. -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
@@ -399,7 +405,9 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
       else
         machine
 
-    machine.setWriterState .waitingForFlush
+    match dir, machine with
+    | .sending, machine => machine.setWriterState .waitingForFlush |>.setReaderState .needStartLine
+    | .receiving, machine => machine.setWriterState .waitingForFlush
   else
     machine
 
@@ -534,6 +542,12 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
 /--Process the reader part of the machine. -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
+  | .pending =>
+      if machine.isWriterClosed then
+        machine.setReaderState .closed
+      else
+        machine
+
   | .needStartLine =>
       if machine.reader.noMoreInput ∧ machine.reader.input.atEnd then
         machine.setReaderState .closed

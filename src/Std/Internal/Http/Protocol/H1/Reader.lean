@@ -63,6 +63,11 @@ inductive Reader.State (dir : Direction) : Type
   | continue : State dir → State dir
 
   /--
+  State waiting to be able to read new data.
+  -/
+  | pending : State dir
+
+  /--
   State that it completed a single request or response and can go to the next one
   -/
   | complete
@@ -85,7 +90,7 @@ structure Reader (dir : Direction) where
   /--
   The current state of the machine.
   -/
-  state : Reader.State dir := .needStartLine
+  state : Reader.State dir := match dir with | .receiving => .needStartLine | .sending => .pending
 
   /--
   The input byte array.

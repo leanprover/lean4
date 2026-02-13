@@ -134,7 +134,7 @@ private def parsePortNumber : Parser UInt16 := do
 private def parseUserInfo : Parser URI.UserInfo := do
   let userBytesName ← takeWhileUpTo (fun x => x ≠ ':'.toUInt8 ∧ isUserInfoChar x) 1024
 
-  let some userName := URI.EncodedString.ofByteArray? userBytesName.toByteArray
+  let some userName := URI.EncodedUserInfo.ofByteArray? userBytesName.toByteArray
     | fail "invalid percent encoding in user info"
 
   let userPass ← if ← peekIs (· == ':'.toUInt8) then
@@ -142,7 +142,7 @@ private def parseUserInfo : Parser URI.UserInfo := do
 
       let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
 
-      let some userStrPass := URI.EncodedString.ofByteArray? userBytesPass.toByteArray >>= URI.EncodedString.decode
+      let some userStrPass := URI.EncodedUserInfo.ofByteArray? userBytesPass.toByteArray >>= URI.EncodedUserInfo.decode
         | fail "invalid percent encoding in user info"
 
       pure <| some userStrPass
@@ -263,16 +263,7 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   -- Parse segments
   while (← peek?).isSome do
     let segmentBytes ← parseSegment
-
-    let segmentBytes := segmentBytes.toByteArray.foldl (init := ByteArray.empty) fun acc val =>
-      if isSubDelims val ∨ val = ':'.toUInt8 ∨ val = '@'.toUInt8 then
-        acc.push '%'.toUInt8
-          |>.push (hexDigit (val >>> 4))
-          |>.push (hexDigit (val &&& 0xF))
-      else
-        acc.push val
-
-    let some segmentStr := URI.EncodedString.ofByteArray? segmentBytes
+    let some segmentStr := URI.EncodedSegment.ofByteArray? segmentBytes.toByteArray
       | fail "invalid percent encoding in path segment"
 
     segments := segments.push segmentStr
@@ -297,11 +288,11 @@ private def parseQuery : Parser URI.Query := do
   let pairs : Option URI.Query := queryStr.splitOn "&" |>.foldlM (init := URI.Query.empty) fun acc pair => do
     match pair.splitOn "=" with
     | [key] =>
-      let key ← URI.EncodedQueryString.ofString? key
+      let key ← URI.EncodedQueryParam.fromString? key
       pure (acc.insertEncoded key none)
     | key :: value =>
-      let key ← URI.EncodedQueryString.ofString? key
-      let value ←  URI.EncodedQueryString.ofString? (String.intercalate "=" value)
+      let key ← URI.EncodedQueryParam.fromString? key
+      let value ← URI.EncodedQueryParam.fromString? (String.intercalate "=" value)
       pure (acc.insertEncoded key (some value))
     | [] => pure acc
 
@@ -311,10 +302,10 @@ private def parseQuery : Parser URI.Query := do
     fail "invalid query string"
 
 --  fragment = *( pchar / "/" / "?" )
-private def parseFragment : Parser URI.EncodedString := do
+private def parseFragment : Parser URI.EncodedFragment := do
   let fragmentBytes ← takeWhileUpTo isFragmentChar 1024
 
-  let some fragmentStr := URI.EncodedString.ofByteArray? fragmentBytes.toByteArray
+  let some fragmentStr := URI.EncodedFragment.ofByteArray? fragmentBytes.toByteArray
     | fail "invalid percent encoding in fragment"
 
   return fragmentStr

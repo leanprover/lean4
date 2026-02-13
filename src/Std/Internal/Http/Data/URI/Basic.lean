@@ -145,8 +145,8 @@ instance : ToString Authority where
   toString auth :=
     let userPart := match auth.userInfo with
       | none => ""
-      | some ⟨name, some pass⟩ => s!"{toString (EncodedString.encode name)}:{toString (EncodedString.encode pass)}@"
-      | some ⟨name, none⟩ => s!"{toString (EncodedString.encode name)}@"
+      | some ⟨name, some pass⟩ => s!"{toString (EncodedString.encode name (r := isUnreserved))}:{toString (EncodedString.encode pass (r := isUnreserved))}@"
+      | some ⟨name, none⟩ => s!"{toString (EncodedString.encode name (r := isUnreserved))}@"
     let hostPart := toString auth.host
     let portPart := match auth.port with
       | none => ""
@@ -157,14 +157,14 @@ namespace Authority
 end Authority
 
 /--
-Hierarchical path component of a URI. Each segment is stored as an `EncodedString` to maintain
+Hierarchical path component of a URI. Each segment is stored as an `EncodedSegment` to maintain
 proper percent-encoding.
 -/
 structure Path where
   /--
   The path segments making up the hierarchical structure (each segment is percent-encoded).
   -/
-  segments : Array EncodedString
+  segments : Array (EncodedSegment)
 
   /--
   Whether the path is absolute (begins with '/') or relative.
@@ -203,12 +203,12 @@ def join (p1 : Path) (p2 : Path) : Path :=
 Appends a single segment to the path. The segment will be percent-encoded.
 -/
 def append (p : Path) (segment : String) : Path :=
-  { p with segments := p.segments.push (EncodedString.encode segment) }
+  { p with segments := p.segments.push (EncodedSegment.encode segment) }
 
 /--
 Appends an already-encoded segment to the path.
 -/
-def appendEncoded (p : Path) (segment : EncodedString) : Path :=
+def appendEncoded (p : Path) (segment : EncodedSegment) : Path :=
   { p with segments := p.segments.push segment }
 
 /--
@@ -216,7 +216,7 @@ Removes dot segments from the path according to RFC 3986 Section 5.2.4. This han
 (current directory) and ".." (parent directory) segments.
 -/
 def normalize (p : Path) : Path :=
-  let rec loop (input : List EncodedString) (output : List EncodedString) : List EncodedString :=
+  let rec loop (input : List (EncodedSegment)) (output : List (EncodedSegment)) : List (EncodedSegment) :=
     match input with
     | [] =>
       output.reverse
@@ -244,11 +244,11 @@ end Path
 
 /--
 Query string represented as an array of key-value pairs. Both keys and values are stored as
-`EncodedQueryString` for proper application/x-www-form-urlencoded encoding. Values are optional to
+`EncodedQueryParam` for proper application/x-www-form-urlencoded encoding. Values are optional to
 support parameters without values (e.g., "?flag"). Order is preserved based on insertion order.
 -/
 @[expose]
-def Query := Array (EncodedQueryString × Option EncodedQueryString)
+def Query := Array (EncodedQueryParam × Option EncodedQueryParam)
 deriving Repr, Inhabited
 
 namespace Query
@@ -257,7 +257,7 @@ namespace Query
 Extracts all unique query parameter names.
 -/
 @[expose]
-def names (query : Query) : Array EncodedQueryString :=
+def names (query : Query) : Array EncodedQueryParam :=
   query.map (fun p => p.fst)
   |> Array.toList
   |> List.eraseDups
@@ -267,7 +267,7 @@ def names (query : Query) : Array EncodedQueryString :=
 Extracts all query parameter values.
 -/
 @[expose]
-def values (query : Query) : Array (Option EncodedQueryString) :=
+def values (query : Query) : Array (Option EncodedQueryParam) :=
   query.map (fun p => p.snd)
 
 /--
@@ -275,33 +275,33 @@ Returns the query as an array of (key, value) pairs. This is an identity functio
 already an array of pairs.
 -/
 @[expose]
-def toArray (query : Query) : Array (EncodedQueryString × Option EncodedQueryString) :=
+def toArray (query : Query) : Array (EncodedQueryParam × Option EncodedQueryParam) :=
   query
 
 /--
 Formats a query parameter as a string in the format "key" or "key=value". The key and value are
-already percent-encoded as `EncodedQueryString`.
+already percent-encoded as `EncodedQueryParam`.
 -/
-def formatQueryParam (key : EncodedQueryString) (value : Option EncodedQueryString) : String :=
+def formatQueryParam (key : EncodedQueryParam) (value : Option EncodedQueryParam) : String :=
   match value with
   | none => toString key
   | some v => s!"{toString key}={toString v}"
 
 /--
 Finds the first value of a query parameter by key name. Returns `none` if the key is not found.
-The value remains encoded as `EncodedQueryString`.
+The value remains encoded as `EncodedQueryParam`.
 -/
-def find? (query : Query) (key : String) : Option (Option EncodedQueryString) :=
-  let encodedKey := EncodedQueryString.encode key
+def find? (query : Query) (key : String) : Option (Option EncodedQueryParam) :=
+  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
   let matchingKey := Array.find? (fun x => x.fst.toByteArray = encodedKey.toByteArray) query
   matchingKey.map (fun x => x.snd)
 
 /--
 Finds all values of a query parameter by key name. Returns an empty array if the key is not found.
-The values remain encoded as `EncodedQueryString`.
+The values remain encoded as `EncodedQueryParam`.
 -/
-def findAll (query : Query) (key : String) : Array (Option EncodedQueryString) :=
-  let encodedKey := EncodedQueryString.encode key
+def findAll (query : Query) (key : String) : Array (Option EncodedQueryParam) :=
+  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
   query.filterMap (fun x =>
     if x.fst.toByteArray = encodedKey.toByteArray then
       some (x.snd)
@@ -311,14 +311,14 @@ def findAll (query : Query) (key : String) : Array (Option EncodedQueryString) :
 Adds a query parameter to the query string.
 -/
 def insert (query : Query) (key : String) (value : String) : Query :=
-  let encodedKey := EncodedQueryString.encode key
-  let encodedValue := EncodedQueryString.encode value
+  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
+  let encodedValue : EncodedQueryParam := EncodedQueryParam.encode value
   query.push (encodedKey, some encodedValue)
 
 /--
 Adds a query parameter to the query string.
 -/
-def insertEncoded (query : Query) (key : EncodedQueryString) (value : Option EncodedQueryString) : Query :=
+def insertEncoded (query : Query) (key : EncodedQueryParam) (value : Option EncodedQueryParam) : Query :=
   query.push (key, value)
 
 /--
@@ -329,21 +329,21 @@ def empty : Query := #[]
 /--
 Creates a query string from a list of key-value pairs.
 -/
-def ofList (pairs : List (EncodedQueryString × Option EncodedQueryString)) : Query :=
+def ofList (pairs : List (EncodedQueryParam × Option EncodedQueryParam)) : Query :=
   pairs.toArray
 
 /--
 Checks if a query parameter exists.
 -/
 def contains (query : Query) (key : String) : Bool :=
-  let encodedKey := EncodedQueryString.encode key
+  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
   query.any (fun x => x.fst.toByteArray = encodedKey.toByteArray)
 
 /--
 Removes all occurrences of a query parameter by key name.
 -/
 def erase (query : Query) (key : String) : Query :=
-  let encodedKey := EncodedQueryString.encode key
+  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
   -- Filter out matching keys
   query.filter (fun x => x.fst.toByteArray ≠ encodedKey.toByteArray)
 
@@ -354,7 +354,7 @@ Returns `none` if the key is not found or if the value cannot be decoded as UTF-
 def get (query : Query) (key : String) : Option String :=
   match query.find? key with
   | none => none
-  | some none => some ""  -- Key exists but has no value
+  | some none => some ""  -- Key exists but has Pno value
   | some (some encoded) => encoded.decode
 
 /--
@@ -440,7 +440,7 @@ instance : ToString URI where
       | some auth => s!"//{toString auth}"
     let pathPart := toString uri.path
     let queryPart := toString uri.query
-    let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedString.encode f)) |>.getD ""
+    let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
 namespace URI
@@ -607,13 +607,13 @@ def build (b : Builder) : URI :=
     else none
 
   let path : Path := {
-    segments := b.pathSegments.map EncodedString.encode
+    segments := b.pathSegments.map EncodedSegment.encode
     absolute := true
   }
 
   let query :=
     b.query.map fun (k, v) =>
-      (EncodedQueryString.encode k, v.map EncodedQueryString.encode)
+      (EncodedQueryParam.encode k, v.map EncodedQueryParam.encode)
 
   let query := URI.Query.ofList query.toList
 

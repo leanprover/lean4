@@ -48,75 +48,75 @@ def parseCheckFail (s : String) : IO Unit := do
 info: some "abc"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "abc".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "abc".toUTF8))
 
 /--
 info: some "%20"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%20".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%20".toUTF8))
 
 /--
 info: some "hello%20world"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "hello%20world".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "hello%20world".toUTF8))
 
 /--
 info: some "%FF"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%FF".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%FF".toUTF8))
 
 /--
 info: some "%00"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%00".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%00".toUTF8))
 
 -- Invalid percent encoding: incomplete
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "hello%".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "hello%".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%2".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%2".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%A".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%A".toUTF8))
 
 -- Invalid percent encoding: non-hex characters
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%GG".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%GG".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%2G".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%2G".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedString.ofByteArray? "%G2".toUTF8))
+#eval IO.println (repr (EncodedSegment.ofByteArray? "%G2".toUTF8))
 
 -- ============================================================================
 -- Percent Encoding Decode Tests
@@ -126,37 +126,37 @@ info: none
 info: some "abc"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "abc".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "abc".toUTF8))
 
 /--
 info: some " "
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "%20".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "%20".toUTF8))
 
 /--
 info: some "hello world"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "hello%20world".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "hello%20world".toUTF8))
 
 /--
 info: some " !"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "%20%21".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "%20%21".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "%FF".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "%FF".toUTF8))
 
 /--
 info: some "\x00"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedString.decode =<< (EncodedString.ofByteArray? "%00".toUTF8))
+#eval IO.println (repr <| EncodedSegment.decode =<< (EncodedSegment.ofByteArray? "%00".toUTF8))
 
 -- ============================================================================
 -- Query String Encoding Tests
@@ -166,25 +166,25 @@ info: some "\x00"
 info: some "hello+world"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedQueryString.ofByteArray? "hello+world".toUTF8))
+#eval IO.println (repr (EncodedQueryString.ofByteArray? (r := isQueryChar) "hello+world".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedQueryString.ofByteArray? "%".toUTF8))
+#eval IO.println (repr (EncodedQueryString.ofByteArray? (r := isQueryChar) "%".toUTF8))
 
 /--
 info: some "hello world"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedQueryString.decode =<< (EncodedQueryString.ofByteArray? "hello+world".toUTF8))
+#eval IO.println (repr <| EncodedQueryString.decode (r := isQueryChar) =<< (EncodedQueryString.ofByteArray? (r := isQueryChar) "hello+world".toUTF8))
 
 /--
 info: some " "
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedQueryString.decode =<< (EncodedQueryString.ofByteArray? "%20".toUTF8))
+#eval IO.println (repr <| EncodedQueryString.decode (r := isQueryChar) =<< (EncodedQueryString.ofByteArray? (r := isQueryChar) "%20".toUTF8))
 
 -- ============================================================================
 -- Request Target Parsing - Basic Tests
@@ -547,7 +547,7 @@ info: /x/y
 info: http://example.com/#section1
 -/
 #guard_msgs in
-#eval IO.println ((URI.parse! "http://example.com/").withFragment (some (toString <| URI.EncodedString.encode "section1")))
+#eval IO.println ((URI.parse! "http://example.com/").withFragment (some (toString (URI.EncodedString.encode "section1" : URI.EncodedFragment))))
 
 /--
 info: http://example.com/?key=value

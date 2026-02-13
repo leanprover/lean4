@@ -71,7 +71,7 @@ structure Request (t : Type) where
 deriving Inhabited
 
 /--
-Builds a HTTP Request
+Builds an HTTP Request
 -/
 structure Request.Builder where
   /--

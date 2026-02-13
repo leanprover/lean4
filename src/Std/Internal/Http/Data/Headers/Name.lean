@@ -159,4 +159,14 @@ Standard Server header name
 -/
 def server : Header.Name := .mk "server"
 
+/--
+Standard Date header name
+-/
+def date : Header.Name := .mk "date"
+
+/--
+Standard Expect header name
+-/
+def expect : Header.Name := .mk "expect"
+
 end Std.Http.Header.Name

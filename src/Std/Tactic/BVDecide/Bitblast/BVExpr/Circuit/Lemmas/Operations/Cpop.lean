@@ -247,26 +247,21 @@ theorem denote_blastCpop (aig : AIG α) (xc : AIG.RefVec aig w) (x : BitVec w) (
     rw [BitVec.cpop_eq_cpopRec]
     unfold blastCpop at hgen
     split at hgen
-    · case _ h1 =>
-      simp only at hgen
+    · simp only at hgen
       rw [← hgen]
       unfold BitVec.cpopRec
       simp only [BitVec.ofNat_eq_ofNat, show 1 < w by omega, reduceDIte, BitVec.getLsbD_cast]
-      let ext := blastextractAndExtend aig 0 xc (blastConst aig 0#0) (by omega)
-      let ext_bv := (BitVec.extractAndExtend w x)
       apply denote_blastCpopTree
-      · exact Nat.one_le_of_lt h1
+      · exact Nat.one_le_of_lt (by omega)
       · apply denote_blastextractAndExtend
         · simp
         · exact hx
     · unfold BitVec.cpopRec
       split at hgen
-      · case _ hw =>
-        rw [← hgen]
-        simp [hw, show ¬ 1 < w by omega, hx]
-      · case _ hw =>
-        rw [← hgen]
-        simp [hw, show ¬ 1 < w by omega]
+      · rw [← hgen]
+        simp [show w = 1 by omega, hx]
+      · rw [← hgen]
+        simp [show w = 0 by omega]
 
 end bitblast
 end BVExpr

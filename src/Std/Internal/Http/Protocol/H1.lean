@@ -159,6 +159,10 @@ private def checkMessageHead (message : Message.Head dir) : Option Body.Length :
 
   message.getSize true
 
+@[inline]
+private def hasExpectContinue (message : Message.Head dir) : Bool :=
+  message.headers.hasEntry (.mk "expect") (Header.Value.ofString! "100-continue")
+
 -- State Checks
 
 /--
@@ -275,13 +279,21 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   match checkMessageHead machine.reader.messageHead with
   | none => machine.setFailure .badMessage
   | some size =>
-      let size := match size with
-      | .fixed n => .needFixedBody n
-      | .chunked => .needChunkedSize
+      let state : Reader.State dir := match size with
+      | .fixed n => Reader.State.needFixedBody n
+      | .chunked => Reader.State.needChunkedSize
 
       let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
 
-      machine.setReaderState size
+      let waitingContinue : Bool :=
+        match dir with
+        | .receiving => hasExpectContinue machine.reader.messageHead
+        | .sending => false
+
+      let nextState : Reader.State dir := if waitingContinue then Reader.State.«continue» state else state
+      let machine := if waitingContinue then machine.addEvent .continue else machine
+
+      machine.setReaderState nextState
       |>.setWriterState .waitingHeaders
       |>.addEvent .needAnswer
 
@@ -390,6 +402,26 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
     machine.setWriterState .waitingForFlush
   else
     machine
+
+/--
+Allow body processing to continue after receiving `Expect: 100-continue`.
+-/
+def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
+  match dir, machine.reader.state with
+  | .sending, _ => machine
+  | .receiving, Reader.State.«continue» nextState =>
+      if status == .«continue» then
+        let machine := machine.modifyWriter (fun writer => {
+          writer with outputData := Encode.encode (v := .v11) writer.outputData ({ status := .«continue» } : Response.Head)
+        })
+        machine.setReaderState nextState
+      else
+        machine.send { status }
+        |>.userClosedBody
+        |>.disableKeepAlive
+        |>.closeReader
+        |>.setReaderState .closed
+  | .receiving, _ => machine
 
 /--Send data to the socket. -/
 @[inline]
@@ -608,6 +640,9 @@ partial def processRead (machine : Machine dir) : Machine dir :=
             |>.addEvent (.gotData false #[] body)
       else
         machine
+
+  | Reader.State.«continue» _ =>
+      machine
 
   | .complete =>
       if (machine.reader.noMoreInput ∧ machine.reader.input.atEnd) ∨ ¬machine.keepAlive then

@@ -58,6 +58,11 @@ inductive Reader.State (dir : Direction) : Type
   | needFixedBody : Nat → State dir
 
   /--
+  Paused waiting for a `canContinue` decision, carrying the next state.
+  -/
+  | continue : State dir → State dir
+
+  /--
   State that it completed a single request or response and can go to the next one
   -/
   | complete
@@ -205,7 +210,7 @@ Checks if more input is needed to continue parsing.
 def needsMoreInput (reader : Reader dir) : Bool :=
   reader.input.atEnd && !reader.noMoreInput &&
   match reader.state with
-  | .complete | .closed | .failed _ => false
+  | .complete | .closed | .failed _ | .«continue» _ => false
   | _ => true
 
 /--

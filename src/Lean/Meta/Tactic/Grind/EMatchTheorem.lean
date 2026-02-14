@@ -483,10 +483,9 @@ private partial def visit (e : Expr) (offset : Nat) : MillerM Unit := do
       args.forM (visit · offset)
   | .bvar idx => if idx ≥ offset then addVar (idx - offset)
   | .const .. | .sort .. | .fvar .. | .mvar .. | .lit .. => return ()
-  | .mdata _ b | .proj _ _ b => visit b offset
-  | .lam _ _ b _ => visit b (offset+1)
-  | .forallE _ d b _ => visit d offset; visit b (offset+1)
-  | .letE .. => unreachable!
+  | .mdata _ b => visit b offset
+  | .forallE _ _ b _ | .lam _ _ b _ => visit b (offset+1)
+  | .proj .. | .letE .. => unreachable!
 
 end MillerCheck
 

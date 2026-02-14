@@ -354,7 +354,7 @@ Returns `none` if the key is not found or if the value cannot be decoded as UTF-
 def get (query : Query) (key : String) : Option String :=
   match query.find? key with
   | none => none
-  | some none => some ""  -- Key exists but has Pno value
+  | some none => some ""  -- Key exists but has no value
   | some (some encoded) => encoded.decode
 
 /--
@@ -680,8 +680,7 @@ Reference: https://www.rfc-editor.org/rfc/rfc7230.html#section-5.3
 -/
 inductive RequestTarget where
   /--
-  Origin-form request target (most common for HTTP requests). Consists of a path, optional query string,
-  and optional fragment.
+  Origin-form request target (most common for HTTP requests). Consists of a path and an optional query string.
   Example: `/path/to/resource?key=value#section`
   -/
   | originForm (path : URI.Path) (query : Option URI.Query)

@@ -12,7 +12,8 @@ public import Std.Internal.Parsec.ByteArray
 public import Std.Internal.Http.Protocol.H1.Config
 
 /-!
-This module defines a parser for HTTP/1.1 requests. The reference used is https://httpwg.org/specs/rfc9112.html.
+This module defines parsers for HTTP/1.1 request and response lines, headers, and body framing. The
+reference used is https://httpwg.org/specs/rfc9112.html.
 -/
 
 namespace Std.Http.Protocol.H1
@@ -121,12 +122,18 @@ def hex : Parser Nat := do
 
 -- HTTP-version  = HTTP-name "/" DIGIT "." DIGIT
 -- HTTP-name     = %s"HTTP"
-def parseHttpVersion : Parser Version := do
+def parseHttpVersionNumber : Parser (Nat × Nat) := do
   skipBytes "HTTP/".toUTF8
   let major ← uint8
   skipByte '.'.toUInt8
   let minor ← uint8
-  opt <| Version.ofNumber? (major - 48 |>.toNat) (minor - 48 |>.toNat)
+  pure ((major - 48 |>.toNat), (minor - 48 |>.toNat))
+
+-- HTTP-version  = HTTP-name "/" DIGIT "." DIGIT
+-- HTTP-name     = %s"HTTP"
+def parseHttpVersion : Parser Version := do
+  let (major, minor) ← parseHttpVersionNumber
+  opt <| Version.ofNumber? major minor
 
 --   method         = token
 def parseMethod : Parser Method :=
@@ -159,6 +166,22 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
 
   let version ← parseHttpVersion <* crlf
   return ⟨method, version, uri, .empty⟩
+
+/--
+Parses a request line and returns raw version numbers.
+
+request-line = method SP request-target SP HTTP-version
+-/
+public def parseRequestLineRawVersion (limits : H1.Config) : Parser (Method × RequestTarget × Nat × Nat) := do
+  let method ← parseMethod <* rsp limits
+  let uri ← parseURI limits <* rsp limits
+
+  let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
+  | .ok res => pure res
+  | .error res => fail res
+
+  let (major, minor) ← parseHttpVersionNumber <* crlf
+  return (method, uri, major, minor)
 
 -- field-line   = field-name ":" OWS field-value OWS
 def parseFieldLine (limits : H1.Config) : Parser (String × String) := do
@@ -271,7 +294,7 @@ public def parseFixedSizeData (size : Nat) : Parser TakeResult := fun it =>
 /--
 Parses a fixed size data that can be incomplete.
 -/
-public def parseChunkedSizedData (size : Nat) : Parser TakeResult := do
+public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
   match ← parseFixedSizeData size with
   | .complete data => crlf *> return .complete data
   | .incomplete data res => return .incomplete data res
@@ -317,6 +340,17 @@ public def parseStatusLine (limits : H1.Config) : Parser Response.Head := do
   let status ← parseStatusCode <* rsp limits
   discard <| parseReasonPhrase limits <* crlf
   return ⟨status, version, .empty⟩
+
+/--
+Parses a status line and returns raw version numbers.
+
+status-line = HTTP-version SP status-code SP [ reason-phrase ]
+-/
+public def parseStatusLineRawVersion (limits : H1.Config) : Parser (Status × Nat × Nat) := do
+  let (major, minor) ← parseHttpVersionNumber <* rsp limits
+  let status ← parseStatusCode <* rsp limits
+  discard <| parseReasonPhrase limits <* crlf
+  return (status, major, minor)
 
 /--
 This function parses the body of the last chunk.

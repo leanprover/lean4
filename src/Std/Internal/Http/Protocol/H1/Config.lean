@@ -50,11 +50,6 @@ structure Config where
   identityHeader : Option Header.Value := some (.mk "LeanServer")
 
   /--
-  Maximum length of HTTP method token (default: 16 bytes)
-  -/
-  maxMethodLength : Nat := 16
-
-  /--
   Maximum length of request URI (default: 8192 bytes)
   -/
   maxUriLength : Nat := 8192

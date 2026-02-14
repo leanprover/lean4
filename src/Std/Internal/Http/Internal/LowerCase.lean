@@ -17,9 +17,9 @@ public section
 /-!
 # LowerCase
 
-This module provides predicates and normalization functions to handle ASCII case-insensitivity. It
-includes proofs of idempotency for lowercase transformations and utilities for validating lowercase
-state `String`.
+TThis module provides predicates and normalization functions for handling ASCII case-insensitivity.
+It includes proofs of idempotency for lowercase transformations, as well as utilities for validating
+the lowercase state of a String.
 -/
 
 namespace Std.Http.Internal

@@ -58,6 +58,11 @@ inductive Reader.State (dir : Direction) : Type
   | needFixedBody : Nat → State dir
 
   /--
+  State waiting for EOF-delimited body data (read-until-close).
+  -/
+  | needCloseDelimitedBody : State dir
+
+  /--
   Paused waiting for a `canContinue` decision, carrying the next state.
   -/
   | continue : State dir → State dir

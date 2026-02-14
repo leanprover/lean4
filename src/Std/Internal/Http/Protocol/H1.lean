@@ -146,18 +146,40 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
   { machine with keepAlive := machine.keepAlive ∧ should }
 
 
-private def checkMessageHead (message : Message.Head dir) : Option Body.Length := do
+private inductive BodyMode where
+  | fixed (n : Nat)
+  | chunked
+  | eof
+
+@[inline]
+private def responseMustNotHaveBody (status : Status) : Bool :=
+  let code := status.toCode.toNat
+  (100 ≤ code ∧ code < 200) ∨ code = 204 ∨ code = 304
+
+private def checkMessageHead (message : Message.Head dir) : Option BodyMode := do
   match dir with
   | .receiving => do
     let headers ← message.headers.getAll? Header.Name.host
     guard (headers.size = 1)
+    let size ← message.getSize true
+    match size with
+    | .fixed n => return .fixed n
+    | .chunked => return .chunked
   | .sending => pure ()
 
-  if let .receiving := dir then
-    if message.method == .head ∨ message.method == .connect then
-      return .fixed 0
-
-  message.getSize true
+  if let .sending := dir then
+    match message.getSize false with
+    | some (.fixed n) => return .fixed n
+    | some .chunked => return .chunked
+    | none =>
+        if message.headers.contains Header.Name.contentLength ∨ message.headers.contains Header.Name.transferEncoding then
+          none
+        else if responseMustNotHaveBody message.status then
+          some (.fixed 0)
+        else
+          some .eof
+  else
+    none
 
 @[inline]
 private def hasExpectContinue (message : Message.Head dir) : Bool :=
@@ -278,10 +300,11 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
 
   match checkMessageHead machine.reader.messageHead with
   | none => machine.setFailure .badMessage
-  | some size =>
-      let state : Reader.State dir := match size with
-      | .fixed n => Reader.State.needFixedBody n
-      | .chunked => Reader.State.needChunkedSize
+  | some mode =>
+      let (machine, state) : Machine dir × Reader.State dir := match mode with
+      | .fixed n => (machine, Reader.State.needFixedBody n)
+      | .chunked => (machine, Reader.State.needChunkedSize)
+      | .eof => (machine.disableKeepAlive, Reader.State.needCloseDelimitedBody)
 
       let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
 
@@ -464,14 +487,27 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
       |> processWrite
 
   | .writingBody (.fixed n) =>
-      if machine.writer.userData.size > 0 ∨ machine.writer.isReadyToSend then
+      if n = 0 then
+        if machine.writer.userData.isEmpty then
+          machine.setWriterState .complete |> processWrite
+        else
+          machine
+          |>.disableKeepAlive
+          |>.setWriterState .closed
+          |>.addEvent .close
+      else if machine.writer.userData.size > 0 then
         let (writer, remaining) := Writer.writeFixedBody machine.writer n
         let machine := { machine with writer }
 
-        if machine.writer.isReadyToSend ∨ remaining = 0 then
+        if remaining = 0 then
           machine.setWriterState .complete |> processWrite
         else
           machine.setWriterState (.writingBody (.fixed remaining))
+      else if machine.writer.userClosedBody then
+        machine
+        |>.disableKeepAlive
+        |>.setWriterState .closed
+        |>.addEvent .close
       else
         machine
 
@@ -539,43 +575,51 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       else if machine.reader.input.atEnd then
         machine.addEvent (.needMoreData none)
       else
-        let (machine, result) : Machine dir × Option (Message.Head dir) :=
-          match dir with
-          | .receiving => parseWith machine (parseRequestLine machine.config) (limit := some 8192)
-          | .sending => parseWith machine (parseStatusLine machine.config) (limit := some 8192)
-
-        if let some head := result then
-          if head.version != .v11 then
-            machine.setFailure .unsupportedVersion
-          else
-            machine
-            |>.modifyReader (.setMessageHead head)
-            |>.setReaderState (.needHeader 0)
-            |> processRead
-        else
-          machine
+        match dir with
+        | .receiving =>
+            let (machine, result) := parseWith machine (parseRequestLineRawVersion machine.config) (limit := some 8192)
+            if let some (method, uri, major, minor) := result then
+              if major == 1 ∧ minor == 1 then
+                machine
+                |>.modifyReader (.setMessageHead ({ method, version := .v11, uri, headers := .empty } : Request.Head))
+                |>.setReaderState (.needHeader 0)
+                |> processRead
+              else
+                machine.setFailure .unsupportedVersion
+            else
+              machine
+        | .sending =>
+            let (machine, result) := parseWith machine (parseStatusLineRawVersion machine.config) (limit := some 8192)
+            if let some (status, major, minor) := result then
+              if major == 1 ∧ minor == 1 then
+                machine
+                |>.modifyReader (.setMessageHead ({ status, version := .v11, headers := .empty } : Response.Head))
+                |>.setReaderState (.needHeader 0)
+                |> processRead
+              else
+                machine.setFailure .unsupportedVersion
+            else
+              machine
 
   | .needHeader headerCount =>
       let (machine, result) := parseWith machine
         (parseSingleHeader machine.config) (limit := none)
-
-      if headerCount > machine.config.maxHeaders then
-        machine |>.setFailure .badMessage
-      else
-        if let some result := result then
-          if let some (name, value) := result then
-            if let some (name, headerValue) := Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value then
-              machine
-              |>.modifyReader (.addHeader name headerValue)
-              |>.setReaderState (.needHeader (headerCount + 1))
-              |> processRead
-            else
-              machine.setFailure .badMessage
-          else
-            processHeaders machine
+      if let some result := result then
+        if let some (name, value) := result then
+          if headerCount ≥ machine.config.maxHeaders then
+            machine.setFailure .badMessage
+          else if let some (name, headerValue) := Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value then
+            machine
+            |>.modifyReader (.addHeader name headerValue)
+            |>.setReaderState (.needHeader (headerCount + 1))
             |> processRead
+          else
+            machine.setFailure .badMessage
         else
-          machine
+          processHeaders machine
+          |> processRead
+      else
+        machine
 
   | .needChunkedSize =>
       let (machine, result) := parseWith machine (parseChunkSize machine.config) (limit := some 128)
@@ -602,7 +646,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
 
   | .needChunkedBody ext size =>
       let (machine, result) := parseWith machine
-        (parseChunkedSizedData size) (limit := none) (some size)
+        (parseChunkSizedData size) (limit := none) (some size)
 
       if let some body := result then
         match body with
@@ -640,6 +684,22 @@ partial def processRead (machine : Machine dir) : Machine dir :=
             |>.addEvent (.gotData false #[] body)
       else
         machine
+
+  | .needCloseDelimitedBody =>
+      if machine.reader.input.atEnd then
+        if machine.reader.noMoreInput then
+          machine
+          |>.setReaderState Reader.State.complete
+          |>.addEvent (.gotData true #[] .empty)
+          |> processRead
+        else
+          machine.addEvent (.needMoreData none)
+      else
+        let data := machine.reader.input.array[machine.reader.input.pos...machine.reader.input.array.size]
+        machine
+        |>.modifyReader (fun r => r.advance r.remainingBytes)
+        |>.addEvent (.gotData false #[] data)
+        |> processRead
 
   | Reader.State.«continue» _ =>
       machine

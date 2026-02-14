@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
+import Init.Omega
 
 public section
 
@@ -78,7 +79,7 @@ def tmpStar := mkMVar tmpMVarId
 def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos[i]
-    if info.isInstImplicit then
+    if info.isInstance then
       return true
     else if info.isImplicit || info.isStrictImplicit then
       return !(← isType a)
@@ -895,10 +896,9 @@ partial def loadImportedModule
     (mname : Name)
     (mdata : ModuleData)
     (i : Nat := 0) : BaseIO (PreDiscrTree α) := do
-  if h : i < mdata.constNames.size then
-    let name := mdata.constNames[i]
-    let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData cctx env mname d cacheRef tree act name constInfo
+  if h : i < mdata.constants.size then
+    let constInfo  := mdata.constants[i]
+    let tree ← addConstImportData cctx env mname d cacheRef tree act constInfo.name constInfo
     loadImportedModule cctx env act d cacheRef tree mname mdata (i+1)
   else
     pure tree

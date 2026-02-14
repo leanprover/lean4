@@ -10,6 +10,9 @@ public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
 public import Lean.Elab.Open
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.System.Platform
 
 public section
 
@@ -21,14 +24,19 @@ namespace Lean.Elab.Command
 
   match stx[1] with
   | Syntax.atom _ val =>
-    if getVersoModuleDocs (← getEnv) |>.isEmpty then
+    if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
       let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
   | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    runTermElabM fun _ => do
-      addVersoModDocString range ⟨args.getD 0 .missing⟩
+    let docSyntax := args.getD 0 .missing
+    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+      -- Report parser errors without attempting elaboration
+      runTermElabM fun _ => reportVersoParseFailure docSyntax
+    else
+      runTermElabM fun _ => do
+        addVersoModDocString range ⟨docSyntax⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -456,7 +464,7 @@ where
       withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding false }) do
         let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
         logInfoAt tk e
 

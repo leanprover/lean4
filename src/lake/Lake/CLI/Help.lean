@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.ToString
 import Lake.Version
-import Init.Data.String.Basic
 
 namespace Lake
 
@@ -30,6 +29,7 @@ COMMANDS:
   lint                  lint the package using the configured lint driver
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -310,6 +310,44 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -317,8 +355,9 @@ USAGE:
   lake cache <COMMAND>
 
 COMMANDS:
-  get [<mappings>]      download artifacts into the Lake cache
+  get [<mappings>]      download artifacts into the local Lake cache
   put <mappings>        upload artifacts to a remote cache
+  clean                 removes ALL froms the local Lake cache
 
 See `lake cache help <command>` for more information on a specific command."
 
@@ -339,10 +378,11 @@ OPTIONS:
 Downloads artifacts for packages in the workspace from a remote cache service.
 The cache service used can be configured via the environment variables:
 
+  LAKE_CACHE_SERVICE            identifier recorded in ouptuts
   LAKE_CACHE_ARTIFACT_ENDPOINT  base URL for artifact downloads
   LAKE_CACHE_REVISION_ENDPOINT  base URL for the mapping download
 
-If neither of these are set, Lake will use Reservoir.
+If neither endpoint is set, Lake will use Reservoir.
 
 If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
 Lake will download artifacts for the root package. Otherwise, it will use
@@ -408,6 +448,16 @@ The mappings file is uploaded to the revision endpoint with a file name
 derived from the package's current Git revision (and prefixed by the
 full scope). As such, the command will warn if the work tree currently
 has changes."
+
+def helpCacheClean :=
+"Removes ALL files from the local Lake cache
+
+USAGE:
+  lake cache clean
+
+Deletes the configured Lake cache directory. If a workspace configuration
+exists, this will delete the cache directory it uses. Otherwise, it will
+delete the default Lake cache directory for the system."
 
 def helpScriptCli :=
 "Manage Lake scripts
@@ -539,6 +589,7 @@ public def helpScript : (cmd : String) → String
 public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
+| "clean"               => helpCacheClean
 | _                     => helpCacheCli
 
 public def help : (cmd : String) → String
@@ -557,6 +608,7 @@ public def help : (cmd : String) → String
 | "lint"                => helpLint
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

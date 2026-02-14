@@ -16,6 +16,8 @@ import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
 import Lean.Meta.Injective
+import Init.Data.List.MapIdx
+import Init.Omega
 
 public section
 
@@ -1210,8 +1212,8 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
     computedFields := computedFields.push (declName, computedFieldNames)
   withScope (fun scope => { scope with
       opts := scope.opts
-        |>.setBool `bootstrap.genMatcherCode false
-        |>.setBool `elaboratingComputedFields true}) <|
+        |>.set `bootstrap.genMatcherCode false
+        |>.set `elaboratingComputedFields true}) <|
     elabCommand <| ← `(mutual $computedFieldDefs* end)
 
   liftTermElabM do Term.withDeclName indViews[0]!.declName do

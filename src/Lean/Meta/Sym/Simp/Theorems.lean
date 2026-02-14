@@ -24,6 +24,7 @@ structure Theorem where
   pattern : Pattern
   /-- Right-hand side of the equation. -/
   rhs     : Expr
+  deriving Inhabited
 
 instance : BEq Theorem where
   beq thm₁ thm₂ := thm₁.expr == thm₂.expr
@@ -37,6 +38,9 @@ def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
 
 def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
   Sym.getMatch thms.thms e
+
+def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × Nat) :=
+  Sym.getMatchWithExtra thms.thms e
 
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, rhs) ← mkEqPatternFromDecl declName

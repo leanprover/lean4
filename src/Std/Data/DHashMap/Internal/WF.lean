@@ -12,6 +12,9 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.Model
 import all Std.Data.DHashMap.Internal.AssocList.Basic
 import all Std.Data.DHashMap.RawDef
+import Init.Data.Array.Bootstrap
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
 
 public section
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI
-// Imports: public import Lake.CLI.Actions public import Lake.CLI.Build public import Lake.CLI.Error public import Lake.CLI.Help public import Lake.CLI.Init public import Lake.CLI.Main public import Lake.CLI.Serve public import Lake.CLI.Translate public import Lake.CLI.Translate.Lean public import Lake.CLI.Translate.Toml
+// Imports: public import Lake.CLI.Actions public import Lake.CLI.Build public import Lake.CLI.Error public import Lake.CLI.Help public import Lake.CLI.Init public import Lake.CLI.Main public import Lake.CLI.Serve public import Lake.CLI.Shake public import Lake.CLI.Translate public import Lake.CLI.Translate.Lean public import Lake.CLI.Translate.Toml
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* initialize_Lake_CLI_Help(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Init(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Main(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Serve(uint8_t builtin);
+lean_object* initialize_Lake_CLI_Shake(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Translate(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Translate_Lean(uint8_t builtin);
 lean_object* initialize_Lake_CLI_Translate_Toml(uint8_t builtin);
@@ -47,6 +48,9 @@ res = initialize_Lake_CLI_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_CLI_Serve(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_CLI_Shake(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_CLI_Translate(builtin);

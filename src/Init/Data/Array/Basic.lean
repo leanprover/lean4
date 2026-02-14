@@ -11,6 +11,9 @@ public import Init.Data.List.ToArrayImpl
 import all Init.Data.List.ToArrayImpl
 public import Init.Data.Array.Set
 import all Init.Data.Array.Set
+public import Init.WF
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 
@@ -2122,7 +2125,7 @@ Examples:
 
 /-! ### Repr and ToString -/
 
-protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
   let _ : Std.ToFormat α := ⟨repr⟩
   if xs.size == 0 then
     "#[]"

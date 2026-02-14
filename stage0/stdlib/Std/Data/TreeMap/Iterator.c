@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeMap.Iterator
-// Imports: public import Std.Data.TreeMap.Basic public import Std.Data.DTreeMap.Iterator
+// Imports: public import Std.Data.TreeMap.Basic public import Std.Data.DTreeMap.Iterator import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,33 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_iter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_iter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_iter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_TreeMap_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_4);
-return x_5;
-}
-}
+LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_iter___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_iter___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_TreeMap_iter___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_iter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_TreeMap_iter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -52,11 +61,19 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_iter___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_TreeMap_iter___redArg(x_1);
+x_2 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_TreeMap_keysIter___redArg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -69,14 +86,6 @@ x_5 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -87,11 +96,19 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_keysIter___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_TreeMap_keysIter___redArg(x_1);
+x_2 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_TreeMap_valuesIter___redArg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -104,14 +121,6 @@ x_5 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -122,17 +131,9 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_TreeMap_valuesIter___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_TreeMap_valuesIter___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 lean_object* initialize_Std_Data_TreeMap_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Iterator(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeMap_Iterator(uint8_t builtin) {
 lean_object * res;
@@ -142,6 +143,9 @@ res = initialize_Std_Data_TreeMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Order
 

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Action
 public import Lean.Meta.Tactic.Grind.Intro
 import Lean.Util.ParamMinimizer
 import Lean.Meta.Tactic.Grind.EMatch

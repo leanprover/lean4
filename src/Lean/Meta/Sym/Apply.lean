@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Pattern
 import Lean.Util.CollectFVars
+import Init.Data.Range.Polymorphic.Iterators
 namespace Lean.Meta.Sym
 
 /--
@@ -44,8 +45,11 @@ first because solving it often solves `?w`.
 def mkResultPos (pattern : Pattern) : List Nat := Id.run do
   let auxPrefix := `_sym_pre
   -- Initialize "found" mask with arguments that can be synthesized by type class resolution.
-  let mut found := pattern.isInstance
   let numArgs := pattern.varTypes.size
+  let mut found := if let some varInfos := pattern.varInfos? then
+     varInfos.argsInfo.map fun info : ProofInstArgInfo => info.isInstance
+  else
+     Array.replicate numArgs false
   let auxVars := pattern.varTypes.mapIdx fun i _ => mkFVar ⟨.num auxPrefix i⟩
   -- Collect arguments that occur in the pattern
   for fvarId in collectFVars {} (pattern.pattern.instantiateRev auxVars) |>.fvarIds do
@@ -85,6 +89,21 @@ public def mkBackwardRuleFromDecl (declName : Name) (num? : Option Nat := none) 
   return { expr := mkConst declName, pattern, resultPos }
 
 /--
+Creates a `BackwardRule` from an expression.
+
+`levelParams` is not `[]` if the expression is supposed to be
+universe polymorphic.
+
+The `num?` parameter optionally limits how many arguments are included in the pattern
+(useful for partially applying theorems).
+-/
+public def mkBackwardRuleFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM BackwardRule := do
+  let pattern ← mkPatternFromExpr e levelParams num?
+  let resultPos := mkResultPos pattern
+  let e := e.instantiateLevelParams levelParams (pattern.levelParams.map mkLevelParam)
+  return { expr := e, pattern, resultPos }
+
+/--
 Creates a value to assign to input goal metavariable using unification result.
 
 Handles both constant expressions (common case, avoids `instantiateLevelParams`)
@@ -96,6 +115,10 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
   else
     mkAppN (expr.instantiateLevelParams pattern.levelParams result.us) result.args
 
+public inductive ApplyResult where
+  | failed
+  | goals (mvarIds : List MVarId)
+
 /--
 Applies a backward rule to a goal, returning new subgoals.
 
@@ -103,15 +126,23 @@ Applies a backward rule to a goal, returning new subgoals.
 2. Assigns the goal metavariable to the theorem application
 3. Returns new goals for unassigned arguments (per `resultPos`)
 
-Throws an error if unification fails.
+Returns `.notApplicable` if unification fails.
 -/
-public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := mvarId.withContext do
+public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM ApplyResult := mvarId.withContext do
   let decl ← mvarId.getDecl
   if let some result ← rule.pattern.unify? decl.type then
     mvarId.assign (mkValue rule.expr rule.pattern result)
-    return rule.resultPos.map fun i =>
+    return .goals <| rule.resultPos.map fun i =>
       result.args[i]!.mvarId!
   else
-    throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
+    return .failed
+
+/--
+Similar to `BackwardRule.apply', but throws an error if unification fails.
+-/
+public def BackwardRule.apply' (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := do
+  let .goals mvarIds ← rule.apply mvarId
+    | throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
+  return mvarIds
 
 end Lean.Meta.Sym

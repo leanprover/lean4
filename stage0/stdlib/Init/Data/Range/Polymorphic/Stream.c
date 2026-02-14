@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.Stream
-// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Iterators.Consumers.Stream
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Init.Data.Stream
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,38 +13,44 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
+static const lean_closure_object l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___closed__0 = (const lean_object*)&l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___lam__0(lean_object*);
+static const lean_closure_object l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___closed__0 = (const lean_object*)&l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___closed__0_value;
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___lam__0(lean_object*);
+static const lean_closure_object l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___closed__0 = (const lean_object*)&l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___closed__0_value;
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___lam__0(lean_object* x_1) {
 _start:
 {
@@ -80,7 +86,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___lam__0), 1, 0);
+x_3 = ((lean_object*)(l_Std_PRange_instToStreamRccIterIteratorOfUpwardEnumerable___closed__0));
 return x_3;
 }
 }
@@ -128,7 +134,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___lam__0), 1, 0);
+x_3 = ((lean_object*)(l_Std_PRange_instToStreamRcoIterIteratorOfUpwardEnumerable___closed__0));
 return x_3;
 }
 }
@@ -154,7 +160,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___lam__0), 1, 0);
+x_3 = ((lean_object*)(l_Std_PRange_instToStreamRciIterIteratorOfUpwardEnumerable___closed__0));
 return x_3;
 }
 }
@@ -212,7 +218,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRocIterIteratorOfUpwardEnumerable___redArg___lam__0), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -261,7 +268,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRooIterIteratorOfUpwardEnumerable___redArg___lam__0), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -289,7 +297,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(x_2);
+x_4 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRoiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0), 2, 1);
+lean_closure_set(x_4, 0, x_2);
 return x_4;
 }
 }
@@ -325,7 +334,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRicIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0), 2, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -361,7 +371,8 @@ LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumera
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRioIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0), 2, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -390,15 +401,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0___boxed), 2, 1);
-lean_closure_set(x_4, 0, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg(lean_object* x_1) {
 _start:
 {
@@ -406,6 +408,15 @@ lean_object* x_2;
 x_2 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_4, 0, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instToStreamRiiIterIteratorOfUpwardEnumerableOfLeast_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -418,7 +429,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Consumers_Stream(uint8_t builtin);
+lean_object* initialize_Init_Data_Stream(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_Stream(uint8_t builtin) {
 lean_object * res;
@@ -427,7 +438,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Range_Polymorphic_Iterators(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Stream(builtin);
+res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

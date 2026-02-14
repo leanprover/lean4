@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.Closure
 namespace Lean.Meta.Sym.Simp
 
 /--
@@ -46,16 +45,19 @@ def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
   let result ← mkLambdaFVars #[f, g, h] result
   return result
 
-public def simpLambda (e : Expr) : SimpM Result := do
-  lambdaTelescope e fun xs b => do
-    match (← simp b) with
+public def simpLambda' (simpBody : Simproc) (e : Expr) : SimpM Result := do
+  lambdaTelescope e fun xs b => withoutModifyingCacheIfNotWellBehaved do
+    main xs (← shareCommon b)
+where
+  main (xs : Array Expr) (b : Expr) : SimpM Result := do
+    match (← simpBody b) with
     | .rfl _ => return .rfl
     | .step b' h _ =>
       let h ← mkLambdaFVars xs h
-      let e' ← shareCommonInc (← mkLambdaFVars xs b')
+      let e' ← shareCommon (← mkLambdaFVars xs b')
       let funext ← getFunext xs b
       return .step e' (mkApp3 funext e e' h)
-where
+
   getFunext (xs : Array Expr) (b : Expr) : SimpM Expr := do
     let key ← inferType e
     if let some h := (← get).funext.find? { expr := key } then
@@ -65,5 +67,8 @@ where
       let h ← mkFunextFor xs β
       modify fun s => { s with funext := s.funext.insert { expr := key } h }
       return h
+
+public def simpLambda : Simproc :=
+  simpLambda' simp
 
 end Lean.Meta.Sym.Simp

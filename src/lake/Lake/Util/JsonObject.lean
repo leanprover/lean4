@@ -26,6 +26,9 @@ namespace JsonObject
 @[inline] public def mk (val : Std.TreeMap.Raw String Json) : JsonObject :=
   val
 
+@[inline] public def empty : JsonObject :=
+  Std.TreeMap.Raw.empty
+
 @[inline] public protected def toJson (obj : JsonObject) : Json :=
   .obj obj
 
@@ -36,6 +39,9 @@ public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
   json.getObj?
 
 public instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
+
+@[inline] public nonrec def contains (obj : JsonObject) (prop : String) : Bool :=
+  obj.contains prop
 
 public def insertJson (obj : JsonObject) (prop : String) (val : Json) : JsonObject :=
   obj.insert prop (toJson val) -- specializes `insert`

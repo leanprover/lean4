@@ -2,7 +2,7 @@ import Lean.Meta.Tactic
 
 open Lean Meta
 def profileM {α : Type} (k : MetaM α) (msg : String := "experiment") : MetaM α :=
-  profileitM Exception msg ({ : Options }.setBool `profiler true |>.setNat `profiler.threshold 0)  k
+  profileitM Exception msg ({ : Options }.set `profiler true |>.setNat `profiler.threshold 0)  k
 
 def genTerm (n : Nat) : Expr := Id.run do
   let mut e := mkConst ``True

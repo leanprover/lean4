@@ -8,7 +8,6 @@ module
 prelude
 public import Lake.Config.Env
 public import Lake.Load.Manifest
-public import Lake.Util.FilePath
 
 set_option doc.verso true
 

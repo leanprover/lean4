@@ -42,20 +42,20 @@ attribute [grind ext] List.ext_getElem?
 info: Try these:
   [apply] grind only [= List.getElem?_replicate, = List.getElem?_map, = List.getElem?_eq_none,
     = List.getElem?_eq_getElem, = List.length_replicate, = List.getElem?_eq_some_iff, = Option.map_some,
-    = Option.map_none, #12fe, #986e, #0323]
+    = Option.map_none, #648a, #bb68, #a564]
   [apply] grind only [= List.getElem?_replicate, = List.getElem?_map, = List.getElem?_eq_none,
     = List.getElem?_eq_getElem, = List.length_replicate, = List.getElem?_eq_some_iff, = Option.map_some,
     = Option.map_none]
   [apply] grind =>
-    cases #12fe
+    cases #648a
     instantiate only [= List.getElem?_replicate, = List.getElem?_map, = List.getElem?_eq_none,
       = List.getElem?_eq_getElem]
     instantiate only [= List.getElem?_replicate, = List.getElem?_eq_none, = List.getElem?_eq_getElem,
       = List.length_replicate]
     instantiate only [= List.length_replicate]
-    cases #986e
+    cases #bb68
     · instantiate only [= List.getElem?_eq_some_iff]
-      cases #0323
+      cases #a564
       · instantiate only [= Option.map_some]
       · instantiate only [= Option.map_none]
     · instantiate only [= Option.map_some]
@@ -66,11 +66,11 @@ theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := 
 
 /--
 info: Try these:
-  [apply] grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self, #e8ab]
+  [apply] grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self, #1ecf]
   [apply] grind only [= List.getLast?_eq_some_iff, ← List.mem_concat_self]
   [apply] grind =>
     instantiate only [= List.getLast?_eq_some_iff]
-    cases #e8ab <;> instantiate only [← List.mem_concat_self]
+    cases #1ecf <;> instantiate only [← List.mem_concat_self]
 -/
 #guard_msgs (info) in
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by

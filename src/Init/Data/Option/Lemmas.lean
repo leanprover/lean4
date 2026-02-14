@@ -9,9 +9,12 @@ prelude
 import all Init.Data.Option.BasicAux
 public import Init.Data.Option.Instances
 import all Init.Data.Option.Instances
-public import Init.Data.BEq
-public import Init.Classical
 public import Init.Ext
+public import Init.Data.Option.BasicAux
+public import Init.PropLemmas
+import Init.Classical
+import Init.Data.BEq
+import Init.Data.Bool
 
 public section
 
@@ -307,11 +310,19 @@ theorem map_id' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
 
 theorem map_id_apply' {α : Type u} {x : Option α} : Option.map (fun (a : α) => a) x = x := by simp
 
+/-- See `Option.apply_get` for a version that can be rewritten in the reverse direction. -/
 @[simp, grind =] theorem get_map {f : α → β} {o : Option α} {h : (o.map f).isSome} :
     (o.map f).get h = f (o.get (by simpa using h)) := by
   cases o with
   | none => simp at h
   | some a => simp
+
+/-- See `Option.get_map` for a version that can be rewritten in the reverse direction. -/
+theorem apply_get {f : α → β} {o : Option α} {h} :
+    f (o.get h) = (o.map f).get (by simp [h]) := by
+  cases o
+  · simp at h
+  · simp
 
 @[simp] theorem map_map (h : β → γ) (g : α → β) (x : Option α) :
     (x.map g).map h = x.map (h ∘ g) := by
@@ -732,6 +743,11 @@ theorem get_merge {o o' : Option α} {f : α → α → α} {i : α} [Std.Lawful
 theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
+@[simp]
+theorem elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+    (o.map f).elim g' g = o.elim g' (g ∘ f) := by
+  cases o <;> simp
+
 -- I don't see how to construct a good grind pattern to instantiate this.
 @[simp] theorem getD_map (f : α → β) (x : α) (o : Option α) :
   (o.map f).getD (f x) = f (getD o x) := by cases o <;> rfl
@@ -869,6 +885,10 @@ theorem get!_or {o o' : Option α} [Inhabited α] : (o.or o').get! = o.getD o'.g
 theorem guard_or_guard : (guard p a).or (guard q a) = guard (fun x => p x || q x) a := by
   simp only [guard]
   split <;> simp_all
+
+theorem any_or_of_any_left {o₁ o₂ : Option α} {f : α → Bool} (h : o₁.any f) :
+    (o₁.or o₂).any f := by
+  cases o₁ <;> simp_all
 
 /-! ### `orElse` -/
 

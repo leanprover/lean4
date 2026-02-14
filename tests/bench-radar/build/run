@@ -8,7 +8,11 @@ STAGE3="build/release/stage3"
 # Build previous stages and warm up stage3
 cmake --preset release
 timeout -s KILL 1h time make -C build/release -j"$(nproc)" stage3
-find "$STAGE3" -name "*.olean" -delete
+pushd "$STAGE3"
+mkdir install
+make install DESTDIR=install
+find lib -name "*.olean" -delete
+popd
 
 # Use stage2 binaries from now on
 #
@@ -29,8 +33,8 @@ cp "$BENCH/build/lean_wrapper.py" "$STAGE2/bin/lean"
 # Analyze lakeprof data
 mv lakeprof.log src
 pushd src
-lakeprof report -pj | jq -r '"radar::measurement=\({metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"})"'
-lakeprof report -rj | jq -r '"radar::measurement=\({metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"})"'
+lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
+lakeprof report -rj | jq '{metric: "build/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"}' -c >> ../measurements.jsonl
 popd
 
 # Upload lakeprof report

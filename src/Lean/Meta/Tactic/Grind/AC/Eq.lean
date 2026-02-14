@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.AC.DenoteExpr
 import Lean.Meta.Tactic.Grind.AC.Proof
 import Lean.Meta.Tactic.Grind.AC.Seq
 import Lean.Meta.Tactic.Grind.AC.Inv
+import Init.Data.Nat.Linear
 public section
 namespace Lean.Meta.Grind.AC
 open Lean.Grind

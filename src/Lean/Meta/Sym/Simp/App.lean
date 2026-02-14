@@ -6,12 +6,11 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
-import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.CongrInfo
+import Init.Omega
 namespace Lean.Meta.Sym.Simp
 open Internal
 
@@ -70,7 +69,7 @@ Returns a proof using `congrFun`
 congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
 ```
 -/
-def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) : SymM Result := do
+def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) (done := false) : SymM Result := do
   let .forallE x _ βx _ ← whnfD (← inferType f)
     | throwError "failed to build congruence proof, function expected{indentExpr f}"
   let α ← inferType a
@@ -79,7 +78,7 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   let β := Lean.mkLambda x .default α βx
   let e' ← mkAppS f' a
   let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
-  return .step e' h
+  return .step e' h done
 
 /--
 Handles simplification of over-applied function terms.
@@ -108,7 +107,7 @@ then `numArgs = 2` (the extra arguments) and we:
 **Note**: This is a fallback path without specialized optimizations. The common case (correct number of arguments)
 is handled more efficiently by the specific strategies.
 -/
-def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
+public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
   let rec visit (e : Expr) (i : Nat) : SimpM Result := do
     if i == 0 then
       simpFn e
@@ -126,6 +125,43 @@ def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) 
         else match fr with
           | .rfl _ => return .rfl
           | .step f' hf _ => mkCongrFun e f a f' hf h
+      | _ => unreachable!
+  visit e numArgs
+
+/--
+Handles over-applied function expressions by simplifying only the base function and
+propagating changes through extra arguments WITHOUT simplifying them.
+
+Unlike `simpOverApplied`, this function does not simplify the extra arguments themselves.
+It only uses congruence (`mkCongrFun`) to propagate changes when the base function is simplified.
+
+**Algorithm**:
+1. Peel off `numArgs` extra arguments from `e`
+2. Apply `simpFn` to simplify the base function
+3. If the base changed, propagate the change through each extra argument using `mkCongrFun`
+4. Return `.rfl` if the base function was not simplified
+
+**Parameters**:
+- `e`: The over-applied expression
+- `numArgs`: Number of excess arguments to peel off
+- `simpFn`: Strategy for simplifying the base function after peeling
+
+**Contrast with `simpOverApplied`**:
+- `simpOverApplied`: Fully simplifies both base and extra arguments
+- `propagateOverApplied`: Only simplifies base, appends extra arguments unchanged
+-/
+public def propagateOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      simpFn e
+    else
+      let i := i - 1
+      match h : e with
+      | .app f a =>
+        let r ← visit f i
+        match r with
+        | .rfl _ => return r
+        | .step f' hf done => mkCongrFun e f a f' hf h done
       | _ => unreachable!
   visit e numArgs
 
@@ -187,7 +223,7 @@ position. However, the type is only meaningful (non-`default`) when `Result` is
 `.step`, since we only need types for constructing congruence proofs. This avoids
 unnecessary type inference when no rewriting occurs.
 -/
-def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
+public def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if numArgs ≤ prefixSize then
     -- Nothing to be done
@@ -237,7 +273,7 @@ Uses `rewritable[i]` to determine whether argument `i` should be simplified.
 For rewritable arguments, calls `simp` and uses `congrFun'`, `congrArg`, and `congr`; for fixed arguments,
 uses `congrFun` to propagate changes from earlier arguments.
 -/
-def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
+public def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then
     -- Nothing to be done
@@ -401,5 +437,44 @@ public def simpAppArgs (e : Expr) : SimpM Result := do
   | .fixedPrefix prefixSize suffixSize => simpFixedPrefix e prefixSize suffixSize
   | .interlaced rewritable => simpInterlaced e rewritable
   | .congrTheorem thm => simpUsingCongrThm e thm
+
+/--
+Simplifies arguments in a specified range `[start, stop)` of a function application.
+
+Given an expression `f a₀ a₁ ... aₙ`, this function simplifies only the arguments
+at positions `start ≤ i < stop`, leaving arguments outside this range unchanged.
+Changes are propagated using congruence lemmas.
+
+**Use case**: Useful for control-flow simplification where we want to simplify only
+discriminants of a `match` expression without touching the branches.
+-/
+public def simpAppArgRange (e : Expr) (start stop : Nat) : SimpM Result := do
+  let numArgs := e.getAppNumArgs
+  assert! start < stop
+  if numArgs < start then return .rfl
+  let numArgs := numArgs - start
+  let stop := stop - start
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      return .rfl
+    let i := i - 1
+    match h : e with
+    | .app f a =>
+      let fr ← visit f i
+      let skip : SimpM Result := do
+        match fr with
+        | .rfl _ => return .rfl
+        | .step f' hf _ => mkCongrFun e f a f' hf h
+      if i < stop then
+        let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
+        if !β.hasLooseBVars then
+          if (← isProp α) then
+            mkCongr e f a fr .rfl h
+          else
+            mkCongr e f a fr (← simp a) h
+        else skip
+      else skip
+    | _ => unreachable!
+  visit e numArgs
 
 end Lean.Meta.Sym.Simp

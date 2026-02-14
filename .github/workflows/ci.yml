@@ -60,10 +60,23 @@ jobs:
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
-            LEAN_VERSION_STRING="nightly-$(date -u +%F)"
-            # do nothing if commit already has a different tag
-            if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+            if [[ '${{ github.event_name }}' == 'workflow_dispatch' ]]; then
+              # Manual re-release: create a revision of the most recent nightly
+              BASE_NIGHTLY=$(git tag -l 'nightly-*' | sort -rV | head -1)
+              # Strip any existing -revK suffix to get the base date tag
+              BASE_NIGHTLY="${BASE_NIGHTLY%%-rev*}"
+              REV=1
+              while git rev-parse "refs/tags/${BASE_NIGHTLY}-rev${REV}" >/dev/null 2>&1; do
+                REV=$((REV + 1))
+              done
+              LEAN_VERSION_STRING="${BASE_NIGHTLY}-rev${REV}"
               echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
+            else
+              # Scheduled: do nothing if commit already has a different tag
+              LEAN_VERSION_STRING="nightly-$(date -u +%F)"
+              if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+                echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
+              fi
             fi
           fi
 
@@ -115,7 +128,7 @@ jobs:
           CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
-          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | sed -nE 's/^set\(LEAN_VERSION_IS_RELEASE ([0-9]+)\).*/\1/p')
 
           # Expected values from tag parsing
           TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"
@@ -260,21 +273,24 @@ jobs:
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-16x32-with-cache" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // `StackOverflow*` correctly triggers ubsan.
-                // `reverse-ffi` fails to link in sanitizers.
-                // `interactive` and `async_select_channel` fail nondeterministically, would need to
-                // be investigated..
-                // 9366 is too close to timeout.
-                // `bv_` sometimes times out calling into cadical even though we should be using the
-                // standard compile flags for it.
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_'"
+                // * `StackOverflow*` correctly triggers ubsan.
+                // * `reverse-ffi` fails to link in sanitizers.
+                // * `interactive` and `async_select_channel` fail nondeterministically, would need
+                //   to be investigated..
+                // * 9366 is too close to timeout.
+                // * `bv_` sometimes times out calling into cadical even though we should be using
+                //   the standard compile flags for it.
+                // * `grind_guide` always times out.
+                // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
+                //   failures?
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|grind_bitvec2|grind_constProp|grind_indexmap|grind_list|grind_lint|grind_array_attach|grind_ite_trace|pkg/|lake/'"
               },
               {
                 "name": "macOS",
@@ -430,7 +446,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Release
@@ -462,7 +478,7 @@ jobs:
           # Doesn't seem to be working when additionally fetching from lean4-nightly
           #filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -472,7 +488,7 @@ jobs:
           git tag "${{ needs.configure.outputs.nightly }}"
           git push nightly "${{ needs.configure.outputs.nightly }}"
           git push -f origin refs/tags/${{ needs.configure.outputs.nightly }}:refs/heads/nightly
-          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)"
+          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[^ ,)]*" | head -n 1)"
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show "$last_tag":RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
@@ -495,8 +511,18 @@ jobs:
           gh workflow -R leanprover/release-index run update-index.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
+      - name: Generate mathlib nightly-testing app token
+        id: mathlib-app-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        continue-on-error: true
+        with:
+          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
+          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
+          owner: leanprover-community
+          repositories: mathlib4-nightly-testing
       - name: Update toolchain on mathlib4's nightly-testing branch
+        if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
         env:
-          GITHUB_TOKEN: ${{ secrets.MATHLIB4_BOT }}
+          GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Control.Reader
-public import Init.Control.Lawful.Instances
 import Init.Control.Lawful.MonadAttach.Lemmas
+public import Init.Control.Lawful.Basic
+public import Init.Control.State
+public import Init.Control.StateRef
+public import Init.Ext
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (ReaderT ρ m) where

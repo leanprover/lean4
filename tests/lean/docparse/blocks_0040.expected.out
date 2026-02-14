@@ -1,5 +1,5 @@
 3 failures:
-  @73 (⟨9, 3⟩): expected token
+  @73 (⟨9, 3⟩): expected identifier
     "\n"
   @74 (⟨10, 0⟩): expected closing ':::' for directive from line 9
     ""

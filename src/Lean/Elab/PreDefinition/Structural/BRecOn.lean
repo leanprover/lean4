@@ -11,6 +11,8 @@ public import Lean.Meta.PProdN
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 public section
 

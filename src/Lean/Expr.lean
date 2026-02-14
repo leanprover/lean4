@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Hashable
 public import Lean.Level
+import Init.Omega
 
 public section
 
@@ -216,7 +217,7 @@ instance : Repr FVarId where
 A set of unique free variable identifiers.
 This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
-  deriving Inhabited, EmptyCollection
+  deriving Inhabited, EmptyCollection, Singleton
 
 instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
@@ -2385,5 +2386,28 @@ def eagerReflBoolTrue : Expr :=
 
 def eagerReflBoolFalse : Expr :=
   mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
+
+/--
+Replaces the head constant in a function application chain with a different constant.
+
+Given an expression that is either a constant or a function application chain,
+replaces the head constant with `declName` while preserving all arguments and universe levels.
+
+**Examples**:
+- `f.replaceFn g` → `g` (where `f` is a constant)
+- `(f a b c).replaceFn g` → `g a b c`
+- `(@f.{u, v} a b).replaceFn g` → `@g.{u, v} a b`
+
+**Panics**: If the expression is neither a constant nor a function application.
+
+**Use case**: Useful for substituting one function for another while maintaining
+the same application structure, such as replacing a theorem with a related theorem
+that has the same type and universe parameters.
+-/
+def Expr.replaceFn (e : Expr) (declName : Name) : Expr :=
+  match e with
+  | .app f a    => mkApp (f.replaceFn declName) a
+  | .const _ us => mkConst declName us
+  | _ => panic! "function application or constant expected"
 
 end Lean

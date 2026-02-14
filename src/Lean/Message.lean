@@ -12,6 +12,8 @@ public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
 import Init.Data.String.Search
+import Init.Data.Format.Macro
+import Init.Data.Iterators.Consumers.Collect
 
 public section
 
@@ -247,7 +249,7 @@ def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
       let msg ← ofFormatWithInfos <$> match ctx? with
         | .none => pure (format constName)
         | .some ctx =>
-          let ctx := if fullNames then { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } else ctx
+          let ctx := if fullNames then { ctx with opts := ctx.opts.set `pp.fullNames fullNames } else ctx
           ppConstNameWithInfos ctx constName
       return Dynamic.mk msg)
     (fun _ => false)

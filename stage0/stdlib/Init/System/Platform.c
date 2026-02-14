@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.Platform
-// Imports: public import Init.Data.String.Bootstrap
+// Imports: public import Init.Data.Nat.Div.Basic public import Init.SimpLemmas import Init.Data.Nat.Basic import Init.Data.String.Bootstrap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,22 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static uint8_t l_System_Platform_isWindows___closed__0;
-LEAN_EXPORT uint8_t l_System_Platform_isOSX;
 uint8_t lean_system_platform_windows(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
-static uint8_t l_System_Platform_isEmscripten___closed__0;
-static lean_object* l_System_Platform_target___closed__0;
-uint8_t lean_system_platform_emscripten(lean_object*);
-LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
-static uint8_t l_System_Platform_isOSX___closed__0;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);
 uint8_t lean_system_platform_osx(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_target;
+LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
+uint8_t lean_system_platform_emscripten(lean_object*);
+LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
+static uint8_t l_System_Platform_isWindows___closed__0;
 LEAN_EXPORT uint8_t l_System_Platform_isWindows;
+static uint8_t l_System_Platform_isOSX___closed__0;
+LEAN_EXPORT uint8_t l_System_Platform_isOSX;
+static uint8_t l_System_Platform_isEmscripten___closed__0;
+LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
 lean_object* lean_system_platform_target(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
+static lean_object* l_System_Platform_target___closed__0;
+LEAN_EXPORT lean_object* l_System_Platform_target;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* x_1) {
 _start:
 {
@@ -132,12 +132,24 @@ x_1 = l_System_Platform_target___closed__0;
 return x_1;
 }
 }
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Bootstrap(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_Platform(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Init_Data_Nat_Div_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_SimpLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_String_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -12,22 +12,17 @@ import Lean.PrettyPrinter
 import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Tactic.Simp.Rewrite
-import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.RevertAll
-import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.CtorIdx
-import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
@@ -107,13 +102,6 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
 open Sym
 
 def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
-  let falseExpr  ← share <| mkConst ``False
-  let trueExpr   ← share <| mkConst ``True
-  let bfalseExpr ← share <| mkConst ``Bool.false
-  let btrueExpr  ← share <| mkConst ``Bool.true
-  let natZExpr   ← share <| mkNatLit 0
-  let ordEqExpr  ← share <| mkConst ``Ordering.eq
-  let intExpr    ← share <| Int.mkType
   /- **Note**: Consider using `Sym.simp` in the future. -/
   let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
@@ -124,9 +112,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, simp, extensions, symPrios
-      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
-      debug }
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -155,7 +141,7 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
 /-- Returns a new goal for the given metavariable. -/
-public def mkGoal (mvarId : MVarId) : GrindM Goal := do
+public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
   let config ← getConfig
   let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -288,7 +274,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  let goal ← mkGoal mvarId
+  let goal ← mkGoalCore mvarId
   if config.revert then
     return goal
   else
@@ -319,13 +305,56 @@ def main (mvarId : MVarId) (params : Params) : MetaM Result := do profileitM Exc
     mkResult params failure?
 
 /--
-A helper combinator for executing a `grind`-based terminal tactic.
-Given an input goal `mvarId`, it first abstracts meta-variables, cleans up local hypotheses
-corresponding to internal details, creates an auxiliary meta-variable `mvarId'`, and executes `k mvarId'`.
-The execution is performed in a new meta-variable context depth to ensure that universe meta-variables
-cannot be accidentally assigned by `grind`. If `k` fails, it admits the input goal.
+Resolves delayed metavariable assignments created inside the current `withNewMCtxDepth` block.
+`instantiateMVars` only resolves a delayed assignment `?m #[xs] := ?pending` when `?pending`'s
+assignment is ground (no unassigned expression metavariables). This ground restriction exists
+because `val` may contain metavariables that have `fvars` in their scope. For example, if
+`fvars = #[x]` and `val = ?m + x` where `x` is in the scope of `?m`, then `mkLambda` creates
+`fun x => ?m + x`. If `?m` is later assigned to `f x`, the term becomes ill-formed with a
+dangling free variable.
 
-See issue #11806 for a motivating example.
+This scenario cannot occur here: metavariables created before `withNewMCtxDepth` cannot contain
+free variables created by `grind`, so the conversion is safe. Only metavariables at the current
+depth are processed; pre-existing delayed assignments are left untouched as they are meant to
+be resolved by other tactics.
+
+We do not need to erase the delayed assignments from `dAssignment` because they will be
+discarded when `withNewMCtxDepth` restores the metavariable context.
+-/
+private partial def resolveDelayedMVarAssignments (e : Expr) : MetaM Expr := do
+  if !e.hasMVar then return e
+  let e ← go e
+  -- Ensure no metavariables at the current depth remain. They would become
+  -- dangling references after `withNewMCtxDepth` restores the metavariable context.
+  let mctx ← getMCtx
+  for mvarId in (e.collectMVars {}).result do
+    if let some decl := mctx.findDecl? mvarId then
+      if decl.depth == mctx.depth then
+        throwError "`grind` failed, proof contains unresolved internal metavariable {Expr.mvar mvarId}"
+  return e
+where
+  go (e : Expr) : MetaM Expr := do
+    let mctx ← getMCtx
+    let mvars := (e.collectMVars {}).result
+    for mvarId in mvars do
+      if let some decl := mctx.findDecl? mvarId then
+        if decl.depth == mctx.depth then
+          if let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? mvarId then
+            if let some val ← getExprMVarAssignment? mvarIdPending then
+              let pendingDecl ← mvarIdPending.getDecl
+              let val ← go (← instantiateMVars val)
+              mvarId.assign (pendingDecl.lctx.mkLambda fvars val)
+    instantiateMVars e
+
+/--
+A helper combinator for executing a `grind`-based terminal tactic.
+Given an input goal `mvarId`, it cleans up local hypotheses corresponding to internal details,
+creates an auxiliary meta-variable `mvarId'`, and executes `k mvarId'`.
+`withNewMCtxDepth` is used to prevent metavariables from being accidentally assigned by
+`grind`'s `isDefEq` calls. After `grind` finishes, delayed metavariable assignments are
+resolved, and the resulting proof is assigned to the original goal.
+
+See issue #11806 and issue #12242 for motivating examples.
 -/
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
@@ -335,13 +364,6 @@ def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   This is particularly important when using `grind -revert`.
   -/
   let mut mvarId ← mvarId.instantiateGoalMVars
-  /-
-  **TODO**: It would be nice to remove the following step, but
-  some tests break with unknown metavariable error when this
-  step is removed. The main issue is the `withNewMCtxDepth` step at
-  `main`.
-  -/
-  mvarId ← mvarId.abstractMVars
   if config.revert then
     /-
     **Note**: We now skip implementation details at `addHypotheses`
@@ -357,6 +379,7 @@ where
       let mvar' ← mkFreshExprSyntheticOpaqueMVar type
       let a ← k mvar'.mvarId!
       let val ← instantiateMVarsProfiling mvar'
+      let val ← resolveDelayedMVarAssignments val
       return (a, val)
     let val ← finalize val
     (mvarId.assign val : MetaM _)

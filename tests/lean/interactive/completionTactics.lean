@@ -118,3 +118,17 @@ example : True := by
   { skip -- All tactic completions expected
      }
   --^ completion
+
+/-!
+Now check that first token detection and tactic names work correctly in completion.
+-/
+
+/-- Local def -/
+syntax  "let " letDecl : tactic
+
+/-- Local recursive def -/
+@[tactic_name "let rec"]
+syntax (name := letrec) "let " &"rec" letRecDecls : tactic
+
+example : True := by
+                   --^ completion

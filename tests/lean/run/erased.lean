@@ -18,14 +18,14 @@ open Lean.Compiler
 set_option pp.explicit true
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
-set_option trace.Compiler.result true
+set_option trace.Compiler.saveMono true
 /--
-trace: [Compiler.result] size: 1
+trace: [Compiler.saveMono] size: 1
     def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
       let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
       return _x.1
 ---
-trace: [Compiler.result] size: 5
+trace: [Compiler.saveMono] size: 5
     def _private.lean.run.erased.0._eval._lam_0 (_x.1 : Array
        Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : lcAny) (_y.5 : Lean.Meta.Context) (_y.6 : lcAny) (_y.7 : Lean.Core.Context) (_y.8 : lcAny) (_y.9 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
@@ -36,40 +36,15 @@ trace: [Compiler.result] size: 5
         return _x.13
       | EST.Out.error (a.14 : Lean.Exception) (a.15 : lcVoid) =>
         return _x.10
-[Compiler.result] size: 1
-    def _private.lean.run.erased.0._eval._closed_0 : String :=
-      let _x.1 : String := "Erased";
-      return _x.1
-[Compiler.result] size: 1
-    def _private.lean.run.erased.0._eval._closed_1 : String :=
-      let _x.1 : String := "mk";
-      return _x.1
-[Compiler.result] size: 3
-    def _private.lean.run.erased.0._eval._closed_2 : Lean.Name :=
-      let _x.1 : String := _eval._closed_1.2;
-      let _x.2 : String := _eval._closed_0.2;
-      let _x.3 : Lean.Name := Lean.Name.mkStr2 _x.2 _x.1;
-      return _x.3
-[Compiler.result] size: 2
-    def _private.lean.run.erased.0._eval._closed_3 : Array Lean.Name :=
-      let _x.1 : Nat := 1;
-      let _x.2 : Array Lean.Name := Array.mkEmpty ◾ _x.1;
-      return _x.2
-[Compiler.result] size: 3
-    def _private.lean.run.erased.0._eval._closed_4 : Array Lean.Name :=
-      let _x.1 : Lean.Name := _eval._closed_2.2;
-      let _x.2 : Array Lean.Name := _eval._closed_3.2;
-      let _x.3 : Array Lean.Name := Array.push ◾ _x.2 _x.1;
-      return _x.3
-[Compiler.result] size: 9
+[Compiler.saveMono] size: 9
     def _private.lean.run.erased.0._eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
-      let _x.4 : String := _eval._closed_0.2;
-      let _x.5 : String := _eval._closed_1.2;
-      let _x.6 : Lean.Name := _eval._closed_2.2;
+      let _x.4 : String := "Erased";
+      let _x.5 : String := "mk";
+      let _x.6 : Lean.Name := Lean.Name.mkStr2 _x.4 _x.5;
       let _x.7 : Nat := 1;
-      let _x.8 : Array Lean.Name := _eval._closed_3.2;
-      let _x.9 : Array Lean.Name := _eval._closed_4.2;
+      let _x.8 : Array Lean.Name := Array.mkEmpty ◾ _x.7;
+      let _x.9 : Array Lean.Name := Array.push ◾ _x.8 _x.6;
       let _x.10 : PUnit := PUnit.unit;
       let _f.11 : Lean.Elab.Term.Context →
         lcAny →

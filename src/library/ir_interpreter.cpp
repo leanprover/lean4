@@ -200,8 +200,9 @@ option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
-static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
+DEBUG_CODE(static name * g_interpreter_step = nullptr;)
+DEBUG_CODE(static name * g_interpreter_call = nullptr;)
 
 // constants (lacking native declarations) initialized by `lean_run_init`
 // We can assume this variable is never written to and read from in parallel; see `enableInitializersExecution`.
@@ -212,6 +213,12 @@ static name_hash_map<object *> * g_init_globals;
 extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
 string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
     return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
+}
+
+extern "C" obj_res lean_mk_mangled_boxed_name(obj_arg str);
+
+string_ref mk_mangled_boxed_name(string_ref const & str) {
+    return string_ref(lean_mk_mangled_boxed_name(str.to_obj_arg()));
 }
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
@@ -368,8 +375,7 @@ struct native_symbol_cache_entry {
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
 name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
-// could be `shared_mutex` with C++17
-std::shared_timed_mutex * g_native_symbol_cache_mutex;
+std::shared_mutex * g_native_symbol_cache_mutex;
 
 class interpreter {
     // stack of IR variable slots
@@ -638,7 +644,7 @@ private:
         // make reference reassignable...
         std::reference_wrapper<fn_body const> b(b0);
         while (true) {
-            DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
+            DEBUG_CODE(lean_trace(*g_interpreter_step,
                                   tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
             switch (fn_body_tag(b)) {
                 case fn_body_kind::VDecl: { // variable declaration
@@ -668,7 +674,7 @@ private:
                     // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
                     // the pointer
                     var(fn_body_vdecl_var(b)) = v;
-                    DEBUG_CODE(lean_trace(name({"interpreter", "step"}),
+                    DEBUG_CODE(lean_trace(*g_interpreter_step,
                                           tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
                                           tout() << fn_body_vdecl_var(b).get_small_value() << " = ";
                                           print_value(tout(), var(fn_body_vdecl_var(b)), fn_body_vdecl_type(b));
@@ -793,7 +799,7 @@ private:
     // specify argument base pointer explicitly because we've usually already pushed some function arguments
     void push_frame(decl const & d, size_t arg_bp) {
         DEBUG_CODE({
-            lean_trace(name({"interpreter", "call"}),
+            lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
                               << decl_fun_id(d);
                        for (size_t i = arg_bp; i < m_arg_stack.size(); i++) {
@@ -809,7 +815,7 @@ private:
         m_jp_stack.resize(get_frame().m_jp_bp);
         m_call_stack.pop_back();
         DEBUG_CODE({
-            lean_trace(name({"interpreter", "call"}),
+            lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
                               << "=> ";
                        print_value(tout(), r, t);
@@ -823,7 +829,7 @@ private:
         if (e != m_symbol_cache.end()) {
             return e->second;
         }
-        std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
+        std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -831,7 +837,7 @@ private:
             return e_new;
         }
         lock.unlock();
-        std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
+        std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -841,7 +847,7 @@ private:
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
-            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+            string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
                 e_new.m_native.m_addr = p_boxed;
@@ -963,7 +969,7 @@ private:
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 string_ref mangled = get_symbol_stem(m_env, fn);
-                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+                string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
                                           << "For declarations from `Init`, `Std`, or `Lean`, you need to set `supportInterpreter := true` "
@@ -1210,25 +1216,27 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 }
 
 void initialize_ir_interpreter() {
-    ir::g_boxed_mangled_suffix = new string_ref("___boxed");
-    mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
     ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
-        register_trace_class({"interpreter"});
-        register_trace_class({"interpreter", "call"});
-        register_trace_class({"interpreter", "step"});
+        ir::g_interpreter_call = new name({"interpreter", "call"});
+        register_trace_class(*ir::g_interpreter_call);
+        ir::g_interpreter_step = new name({"interpreter", "step"});
+        register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
-    ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
+    ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 
 void finalize_ir_interpreter() {
     delete ir::g_native_symbol_cache_mutex;
     delete ir::g_native_symbol_cache;
+    DEBUG_CODE({
+        delete ir::g_interpreter_call;
+        delete ir::g_interpreter_step;
+    });
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
-    delete ir::g_boxed_mangled_suffix;
 }
 }

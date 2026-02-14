@@ -9,6 +9,7 @@ prelude
 public import Init.Data.String.Basic
 import Init.Data.String.Modify
 import Init.Data.String.Search
+import Init.Data.Iterators.Consumers.Collect
 
 namespace Lake
 

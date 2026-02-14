@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Pattern
 public section
 namespace Lean.Meta.Sym.Simp
@@ -101,8 +100,12 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 /-- Configuration options for the structural simplifier. -/
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
-  maxSteps : Nat := 1000
-  -- **TODO**: many are still missing
+  maxSteps : Nat := 100_000
+  /--
+  Maximum depth of reentrant simplifier calls through dischargers.
+  Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
+  -/
+  maxDischargeDepth : Nat := 2
 
 /--
 The result of simplifying an expression `e`.
@@ -162,22 +165,20 @@ structure Context where
   /-- Size of the local context when simplification started.
   Used to determine which free variables were introduced during simplification. -/
   initialLCtxSize : Nat
+  dischargeDepth  : Nat := 0
 
 /-- Cache mapping expressions (by pointer equality) to their simplified results. -/
 abbrev Cache := PHashMap ExprPtr Result
 
 /-- Mutable state for the simplifier. -/
 structure State where
+  /-- Number of steps performed so far. -/
+  numSteps := 0
   /--
   Cache of previously simplified expressions to avoid redundant work.
   **Note**: Consider moving to `SymM.State`
   -/
   cache : Cache := {}
-  /-- Stack of free variables available for reuse when re-entering binders.
-  Each entry is (type pointer, fvarId). -/
-  binderStack : List (ExprPtr × FVarId) := []
-  /-- Number of steps performed so far. -/
-  numSteps := 0
   /-- Cache for generated funext theorems -/
   funext : PHashMap ExprPtr Expr := {}
 
@@ -192,14 +193,13 @@ abbrev Simproc := Expr → SimpM Result
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
   post       : Simproc  := fun _ => return .rfl
-  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   /--
-  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
-  access local declarations with index >= `Context.lctxInitIndices` when
-  `contextual := false`.
+  `wellBehavedMethods` must **not** be set to `true` IF their behavior
+  depends on new hypotheses in the local context. For example, for applying
+  conditional rewrite rules.
   Reason: it would prevent us from aggressively caching `simp` results.
   -/
-  wellBehavedDischarge : Bool := true
+  wellBehavedMethods : Bool := true
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -217,8 +217,13 @@ opaque MethodsRef.toMethods (m : MethodsRef) : Methods
 def getMethods : SimpM Methods :=
   return MethodsRef.toMethods (← read)
 
+/-- Runs a `SimpM` computation with the given theorems, configuration, and initial state -/
+def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) (s : State := {}) : SymM (α × State) := do
+  let initialLCtxSize := (← getLCtx).decls.size
+  x methods.toMethodsRef { initialLCtxSize, config } |>.run s
+
 /-- Runs a `SimpM` computation with the given theorems and configuration. -/
-def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
+def SimpM.run' (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
   x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
@@ -237,9 +242,17 @@ abbrev pre : Simproc := fun e => do
 abbrev post : Simproc := fun e => do
   (← getMethods).post e
 
+abbrev withoutModifyingCache (k : SimpM α) : SimpM α := do
+  let cache ← getCache
+  let funext := (← get).funext
+  try k finally modify fun s => { s with cache, funext }
+
+abbrev withoutModifyingCacheIfNotWellBehaved (k : SimpM α) : SimpM α := do
+  if (← getMethods).wellBehavedMethods then k else withoutModifyingCache k
+
 end Simp
 
 abbrev simp (e : Expr) (methods :  Simp.Methods := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
-  Simp.SimpM.run (Simp.simp e) methods config
+  Simp.SimpM.run' (Simp.simp e) methods config
 
 end Lean.Meta.Sym

@@ -121,3 +121,20 @@ example : [1, 2, 3, 4, 5][1...*][*...2].toArray = #[2, 3] := by simp
 example : [1, 2, 3, 4, 5][1...*][*...=2].toArray = #[2, 3, 4] := by simp
 example : [1, 2, 3, 4, 5][1...*][*...*].toArray = #[2, 3, 4, 5] := by simp
 example : [1, 2, 3][0...2][*...*].toArray = #[1, 2] := by simp
+
+example (xs : List α) : xs[*...5].size = xs[0...5].size := by
+  grind
+
+example {xs : List α} {lo hi : Nat} :
+    xs[lo...=hi].toList = (xs.take (hi + 1)).drop lo := by
+  grind
+
+example : type_of% @List.toArray_mkSlice_rii_eq_toArray_mkSlice_rco := by grind
+
+example (xs : List Nat) : xs[1...=4][2...3].toList = xs[3...4].toList := by
+  grind [List.take_drop, List.drop_drop]
+
+example (xs : Array Nat) : xs[1...=4][2...3].toList = xs[3...4].toList := by
+  grind [List.take_drop, List.drop_drop]
+
+example (xs : Array Nat) : xs[1...=4][2...3].toArray = xs[3...4].toArray := by grind

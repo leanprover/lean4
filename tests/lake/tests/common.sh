@@ -31,17 +31,20 @@ fi
 
 if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
+  stat_ch() { stat -f %l -- "$1"; }
   TAIL=gtail
 else
   sed_i() { sed -i "$@"; }
+  stat_ch() { stat -c %h -- "$1"; }
   TAIL=tail
 fi
 
 if [ "$OS" = Windows_NT ]; then
-  norm_dirname() { cygpath -u "$(dirname -- "$1")";  }
+  norm_path() { cygpath -u "$1";  }
 else
-  norm_dirname() { dirname -- "$1"; }
+  norm_path() { echo "$1";  }
 fi
+norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
 init_git() {
   echo "# initialize test repository"

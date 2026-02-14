@@ -10,11 +10,11 @@ public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 public import Lake.Build.Infos
 import Lean.Elab.ParseImportsFast
-import Lake.Util.IO
 import Lake.Util.Proc
 import Lake.Build.Job.Register
 import Lake.Build.Common
 import Lake.Build.Target
+import Init.Omega
 
 /-! # Module Build Definitions -/
 
@@ -357,6 +357,7 @@ private def Package.discriminant (self : Package) :=
   else
     s!"{self.prettyName}@{self.version}"
 
+set_option linter.unusedVariables.funArgs false in
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
@@ -373,29 +374,31 @@ private def fetchImportInfo
       return s
     else if n = 1 then -- common fast path
       let mod := mods[0]
-      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.keyName then
-        logError s!"{fileName}: cannot `import all` \
-          the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
-        return .error
+      -- Remark: We've decided to disable this check for now
+      -- if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.keyName then
+      --   logError s!"{fileName}: cannot `import all` \
+      --     the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
+      --   return .error
       let importJob ← mod.exportInfo.fetch
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
-      let isImportable (mod) :=
-        mod.allowImportAll || pkgName == mod.pkg.keyName
-      let allImportable :=
-        if imp.importAll then
-          mods.all isImportable
-        else true
-      unless allImportable do
-        let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
-          from the following packages:"
-        let msg := mods.foldl (init := msg) fun msg mod =>
-          if isImportable mod then
-            msg
-          else
-            s!"{msg}\n  {mod.pkg.discriminant}"
-        logError msg
-        return .error
+      -- Remark: We've decided to disable this check for now
+      -- let isImportable (mod) :=
+      --   mod.allowImportAll || pkgName == mod.pkg.keyName
+      -- let allImportable :=
+      --   if imp.importAll then
+      --     mods.all isImportable
+      --   else true
+      -- unless allImportable do
+      --   let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
+      --     from the following packages:"
+      --   let msg := mods.foldl (init := msg) fun msg mod =>
+      --     if isImportable mod then
+      --       msg
+      --     else
+      --       s!"{msg}\n  {mod.pkg.discriminant}"
+      --   logError msg
+      --   return .error
       let mods : Vector Module n := .mk mods rfl
       let expInfosJob ← Job.collectVector <$> mods.mapM (·.exportInfo.fetch)
       s.bindM (sync := true) fun impInfo => do
@@ -558,23 +561,29 @@ public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
 
 /-- Remove all existing artifacts produced by the Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
-  removeFileIfExists mod.oleanFile
-  removeFileIfExists mod.oleanServerFile
-  removeFileIfExists mod.oleanPrivateFile
-  removeFileIfExists mod.ileanFile
-  removeFileIfExists mod.irFile
-  removeFileIfExists mod.cFile
-  removeFileIfExists mod.bcFile
+  try
+    removeFileIfExists mod.oleanFile
+    removeFileIfExists mod.oleanServerFile
+    removeFileIfExists mod.oleanPrivateFile
+    removeFileIfExists mod.ileanFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+    removeFileIfExists mod.bcFile
+  catch e =>
+    error s!"failed to remove output artifacts: {e}"
 
 /-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
 public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
-  clearFileHash mod.oleanFile
-  clearFileHash mod.oleanServerFile
-  clearFileHash mod.oleanPrivateFile
-  clearFileHash mod.ileanFile
-  clearFileHash mod.irFile
-  clearFileHash mod.cFile
-  clearFileHash mod.bcFile
+  try
+    clearFileHash mod.oleanFile
+    clearFileHash mod.oleanServerFile
+    clearFileHash mod.oleanPrivateFile
+    clearFileHash mod.ileanFile
+    clearFileHash mod.irFile
+    clearFileHash mod.cFile
+    clearFileHash mod.bcFile
+  catch e =>
+    error s!"failed to remove output hashes: {e}"
 
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
@@ -621,7 +630,7 @@ instance
   [MonadWorkspace m] [MonadLiftT BaseIO m] [MonadError m] [Monad m]
 : ResolveOutputs m ModuleOutputArtifacts := ⟨resolveModuleOutputs?⟩
 
-/-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
+/-- Save module build artifacts to the local Lake cache. -/
 private def Module.cacheOutputArtifacts
   (mod : Module)  (isModule : Bool) (useLocalFile : Bool)
 : JobM ModuleOutputArtifacts := do
@@ -636,17 +645,10 @@ private def Module.cacheOutputArtifacts
   }
 where
   @[inline] cache file ext := do
+    -- `text` is always `false` because Lean produces LF-only `.ir` and `.c`
     cacheArtifact file ext (useLocalFile := useLocalFile)
   @[inline] cacheIf? c art ext := do
     if c then return some (← cache art ext) else return none
-
-private def restoreModuleArtifact (file : FilePath) (art : Artifact) : JobM Artifact := do
-  unless (← file.pathExists) do
-    logVerbose s!"restored artifact from cache to: {file}"
-    createParentDirs file
-    copyFile art.path file
-    writeFileHash file art.hash
-  return art.useLocalFile file
 
 /--
 Some module build artifacts must be located in the build directory (e.g., ILeans).
@@ -655,22 +657,21 @@ updates the data structure with the new paths.
 -/
 private def Module.restoreNeededArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    ilean := ← restoreModuleArtifact mod.ileanFile cached.ilean
+    ilean := ← restoreArtifact mod.ileanFile cached.ilean
   }
 
 private def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    olean := ← restoreModuleArtifact mod.oleanFile cached.olean
+    olean := ← restoreArtifact mod.oleanFile cached.olean
     oleanServer? := ← restoreSome mod.oleanServerFile cached.oleanServer?
     oleanPrivate? := ← restoreSome mod.oleanPrivateFile cached.oleanPrivate?
-    ilean := ← restoreModuleArtifact mod.ileanFile cached.ilean
+    ilean := ← restoreArtifact mod.ileanFile cached.ilean
     ir? := ← restoreSome mod.irFile cached.ir?
-    c := ← restoreModuleArtifact mod.cFile cached.c
+    c := ← restoreArtifact mod.cFile cached.c
     bc? := ← restoreSome mod.bcFile cached.bc?
   }
 where
-  @[inline] restoreSome file art? :=
-    art?.mapM (restoreModuleArtifact file)
+  @[inline] restoreSome file art? := art?.mapM (restoreArtifact file ·)
 
 
 private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : ModuleArtifacts where
@@ -711,6 +712,7 @@ private def Module.buildLean
   let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
   let setup := {setup with importArts := transImpArts}
   let arts := mod.mkArtifacts srcFile setup.isModule
+  mod.clearOutputArtifacts
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
   mod.clearOutputHashes
@@ -741,6 +743,9 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
     let srcTrace := leanJob.getTrace
     addTrace srcTrace
     addTrace <| traceOptions setup.options "options"
+    addPureTrace setup.isModule "isModule"
+    addPureTrace mod.name "Module.name"
+    addPureTrace mod.pkg.id? "Package.id?"
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let depTrace ← getTrace
@@ -758,7 +763,7 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
       else
         some <$> mod.restoreNeededArtifacts arts
     let arts ← id do
-      if (← mod.pkg.isArtifactCacheEnabled) then
+      if (← mod.pkg.isArtifactCacheWritable) then
         if let some arts ← fetchArtsFromCache? mod.pkg.restoreAllArtifacts then
           return arts
         else
@@ -773,9 +778,10 @@ private def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifac
             mod.computeArtifacts setup.isModule
       else if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
         mod.computeArtifacts setup.isModule
-      else if let some arts ← fetchArtsFromCache? true then
-        return arts
       else
+        if (← mod.pkg.isArtifactCacheReadable) then
+          if let some arts ← fetchArtsFromCache? true then
+            return arts
         mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.outputsRef? then
       ref.insert inputHash arts.descrs

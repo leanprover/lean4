@@ -12,6 +12,8 @@ public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
 meta import all Lake.Util.OpaqueType
+import Lake.Util.OpaqueType
+import Lean.DocString.Syntax
 
 set_option doc.verso true
 
@@ -52,6 +54,16 @@ public instance : Nonempty Workspace :=
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
+/-- Returns the names of the root modules of the package's default targets. -/
+public def Package.defaultTargetRoots (self : Package) : Array Lean.Name :=
+  self.defaultTargets.flatMap fun target =>
+    if let some lib := self.findLeanLib? target then
+      lib.roots
+    else if let some exe := self.findLeanExe? target then
+      #[exe.root.name]
+    else
+      #[]
+
 namespace Workspace
 
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
@@ -75,12 +87,22 @@ namespace Workspace
   self.root.lakeDir
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
-  ws.lakeEnv.enableArtifactCache
+@[inline] public def enableArtifactCache? (ws : Workspace) : Option Bool :=
+  ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
+
+/-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
+@[deprecated enableArtifactCache? (since := "2026-02-03")]
+public def enableArtifactCache (ws : Workspace) : Bool :=
+  ws.enableArtifactCache?.getD false
 
 /-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
-public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
-  ws.root.enableArtifactCache?.getD ws.enableArtifactCache
+public def isRootArtifactCacheWritable (ws : Workspace) : Bool :=
+  ws.enableArtifactCache?.getD false
+
+/-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
+@[deprecated isRootArtifactCacheWritable (since := "2026-02-03")]
+public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
+  ws.isRootArtifactCacheWritable
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
@@ -101,6 +123,10 @@ public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 /-- Options to pass to the Lean server when editing Lean files outside a library. -/
 @[inline] public def serverOptions (self : Workspace) : LeanOptions :=
   self.root.moreServerOptions
+
+/-- Returns the names of the root modules of the workpace root's default targets. -/
+@[inline] public def defaultTargetRoots (self : Workspace) : Array Lean.Name :=
+  self.root.defaultTargetRoots
 
 /-- The workspace's Lake manifest. -/
 @[inline] public def manifestFile (self : Workspace) : FilePath :=
@@ -286,6 +312,7 @@ to run executables.
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
+    ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

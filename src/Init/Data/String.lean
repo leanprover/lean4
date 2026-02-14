@@ -25,4 +25,8 @@ public import Init.Data.String.Termination
 public import Init.Data.String.ToSlice
 public import Init.Data.String.Search
 public import Init.Data.String.Legacy
-public import Init.Data.String.Grind
+public import Init.Data.String.OrderInstances
+public import Init.Data.String.FindPos
+public import Init.Data.String.Subslice
+public import Init.Data.String.Iter
+public import Init.Data.String.Iterate

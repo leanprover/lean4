@@ -45,3 +45,4 @@ public import Lean.Meta.Tactic.Rewrites
 public import Lean.Meta.Tactic.Grind
 public import Lean.Meta.Tactic.Ext
 public import Lean.Meta.Tactic.Try
+public import Lean.Meta.Tactic.Cbv

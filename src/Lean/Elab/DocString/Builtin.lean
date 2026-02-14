@@ -15,6 +15,7 @@ import Lean.Elab.Tactic.Doc
 import Lean.Data.EditDistance
 public import Lean.Elab.DocString.Builtin.Keywords
 import Lean.Server.InfoUtils
+import Init.Omega
 
 
 namespace Lean.Doc
@@ -907,23 +908,26 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
       (endPos := endPos) (endPos_valid := by simp only [endPos]; split <;> simp [*])
   let cctx : Command.Context := {fileName := ← getFileName, fileMap := text, snap? := none, cancelTk? := none}
   let scopes := (← get).scopes
-  let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
-  let mut pstate : Parser.ModuleParserState := {pos := pos, recovering := false}
-  let mut cmds := #[]
-  repeat
-    let scope := cmdState.scopes.head!
-    let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-    let (cmd, ps', messages) := Parser.parseCommand ictx pmctx pstate cmdState.messages
-    cmds := cmds.push cmd
-    pstate := ps'
-    cmdState := { cmdState with messages := messages }
-    cmdState ← runCommand (Command.elabCommand cmd) cmd cctx cmdState
-    if Parser.isTerminalCommand cmd then break
-  setEnv cmdState.env
-  modify fun st => { st with scopes := cmdState.scopes }
+  let (cmds, cmdState, trees) ← withSaveInfoContext do
+    let mut cmdState : Command.State := { env, maxRecDepth := ← MonadRecDepth.getMaxRecDepth, scopes }
+    let mut pstate : Parser.ModuleParserState := {pos := pos, recovering := false}
+    let mut cmds := #[]
+    repeat
+      let scope := cmdState.scopes.head!
+      let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
+      let (cmd, ps', messages) := Parser.parseCommand ictx pmctx pstate cmdState.messages
+      cmds := cmds.push cmd
+      pstate := ps'
+      cmdState := { cmdState with messages := messages }
+      cmdState ← runCommand (Command.elabCommand cmd) cmd cctx cmdState
+      if Parser.isTerminalCommand cmd then break
+    setEnv cmdState.env
+    modify fun st => { st with scopes := cmdState.scopes }
 
-  for t in cmdState.infoState.trees do
-    pushInfoTree t
+    for t in cmdState.infoState.trees do
+      pushInfoTree t
+    let trees := (← getInfoTrees)
+    pure (cmds, cmdState, trees)
 
   let mut output := #[]
   for msg in cmdState.messages.toArray do
@@ -937,14 +941,13 @@ def lean (name : Option Ident := none) (error warning : flag false) («show» : 
         let hint ← flagHint m!"The `+error` flag indicates that errors are expected:" #[" +error"]
         logErrorAt msgStx m!"Unexpected error:{indentD msg.data}{hint.getD m!""}"
       if msg.severity == .warning && !warning then
-        let hint ← flagHint m!"The `+error` flag indicates that warnings are expected:" #[" +warning"]
+        let hint ← flagHint m!"The `+warning` flag indicates that warnings are expected:" #[" +warning"]
         logErrorAt msgStx m!"Unexpected warning:{indentD msg.data}{hint.getD m!""}"
       else
         withRef msgStx <| log msg.data (severity := .information) (isSilent := true)
     if let some x := name then
       modifyEnv (leanOutputExt.modifyState · (·.insert x.getId output))
   if «show» then
-    let trees := (← getInfoTrees)
     if h : trees.size > 0 then
       let hl := Data.LeanBlock.mk (← highlightSyntax trees (mkNullNode cmds))
       return .other {name := ``Data.LeanBlock, val := .mk hl} #[.code code.getString]
@@ -1267,7 +1270,7 @@ def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline
   pushInfoLeaf <| .ofOptionInfo { stx := option, optionName, declName := decl.declName }
   validateOptionValue optionName decl value
   let o ← getOptions
-  modify fun s => { s with options := o.insert optionName value }
+  modify fun s => { s with options := o.set optionName value }
   return .empty
 
 /--

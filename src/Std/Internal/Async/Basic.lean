@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.Promise
+public import Init.While
 
 public section
 

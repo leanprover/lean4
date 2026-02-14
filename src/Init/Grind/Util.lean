@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.Classical
-
+public import Init.Data.Cast
+public import Init.Grind.Tactics
+public meta import Init.Grind.Tactics
+import Init.Classical
 public section
-
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/

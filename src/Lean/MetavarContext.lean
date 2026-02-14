@@ -10,6 +10,8 @@ public import Init.ShareCommon
 public import Lean.Util.MonadCache
 public import Lean.LocalContext
 import Init.Data.Slice
+import Init.Data.ToString.Macro
+import Init.Omega
 
 public section
 
@@ -785,9 +787,6 @@ def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf :
 
 
 namespace MetavarContext
-
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
 
 /-- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.

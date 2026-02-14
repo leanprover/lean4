@@ -239,14 +239,14 @@ Attempt to turn a `Value` that is representing a literal into a set of
 auxiliary declarations + the final `FVarId` of the declaration that
 contains the actual literal. If it is not a literal return none.
 -/
-partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVarId)) := do
+partial def getLiteral (v : Value) : CompilerM (Option ((Array (CodeDecl .pure)) × FVarId)) := do
   if isLiteral v then
     let literal ← go v
     return some literal
   else
     return none
 where
-  go : Value → CompilerM ((Array CodeDecl) × FVarId)
+  go : Value → CompilerM ((Array (CodeDecl .pure)) × FVarId)
   | .ctor ``Nat.zero #[] .. => do
     let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
@@ -260,7 +260,7 @@ where
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
     let (decls, args) :=
       fields.foldl (init := (#[], Array.replicate ctorInfo.numParams .erased)) flatten
-    let letVal : LetValue := .const ctorName [] args
+    let letVal : LetValue .pure := .const ctorName [] args
     let letDecl ← mkAuxLetDecl letVal
     return (decls.push <| .let letDecl, letDecl.fvarId)
   | _ => unreachable!
@@ -328,7 +328,7 @@ structure InterpContext where
   a single declaration or a mutual block of declarations where their
   analysis might influence each other as we approach the fixpoint.
   -/
-  decls     : Array Decl
+  decls     : Array (Decl .pure)
   /--
   The index of the function we are currently operating on in `decls.`
   -/
@@ -386,7 +386,7 @@ def findVarValue (var : FVarId) : InterpM Value := do
 /--
 Find the value of `arg` using the logic of `findVarValue`.
 -/
-def findArgValue (arg : Arg) : InterpM Value := do
+def findArgValue (arg : Arg .pure) : InterpM Value := do
   match arg with
   | .fvar fvarId => findVarValue fvarId
   | _ => return .top
@@ -421,7 +421,8 @@ Furthermore if we see that `params.size != args.size` we know that this is
 a partial application and set the values of the remaining parameters to
 `top` since it is impossible to track what will happen with them from here on.
 -/
-def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : InterpM Bool := do
+def updateFunDeclParamsAssignment (params : Array (Param .pure)) (args : Array (Arg .pure)) :
+    InterpM Bool := do
   let mut ret := false
   let env ← getEnv
   for param in params, arg in args do
@@ -443,7 +444,7 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
       updateVarAssignment param.fvarId .top
   return ret
 
-def updateFunDeclParamsTop (params : Array Param) : InterpM Bool := do
+def updateFunDeclParamsTop (params : Array (Param .pure)) : InterpM Bool := do
   let mut ret := false
   for param in params do
     let paramVal ← findVarValue param.fvarId
@@ -453,7 +454,7 @@ def updateFunDeclParamsTop (params : Array Param) : InterpM Bool := do
       ret := true
   return ret
 
-private partial def resetNestedFunDeclParams : Code → InterpM Unit
+private partial def resetNestedFunDeclParams : Code .pure → InterpM Unit
 | .let _ k => resetNestedFunDeclParams k
 | .jp decl k | .fun decl k => do
   decl.params.forM (resetVarAssignment ·.fvarId)
@@ -467,7 +468,7 @@ private partial def resetNestedFunDeclParams : Code → InterpM Unit
 /--
 The actual abstract interpreter on a block of `Code`.
 -/
-partial def interpCode : Code → InterpM Unit
+partial def interpCode : Code .pure → InterpM Unit
 | .let decl k => do
   let val ← interpLetValue decl.value
   updateVarAssignment decl.fvarId val
@@ -503,7 +504,7 @@ where
   /--
   The abstract interpreter on a `LetValue`.
   -/
-  interpLetValue (letVal : LetValue) : InterpM Value := do
+  interpLetValue (letVal : LetValue .pure) : InterpM Value := do
     match letVal with
     | .lit val => return .ofLCNFLit val
     | .proj _ idx struct =>
@@ -513,7 +514,7 @@ where
       let env ← getEnv
       args.forM handleFunArg
       match (← getDecl? declName) with
-      | some decl =>
+      | some ⟨_, decl⟩ =>
         if decl.getArity == args.size then
           match getFunctionSummary? env declName with
           | some v => return v
@@ -538,7 +539,7 @@ where
       return .top
     | .erased => return .top
 
-  handleFunArg (arg : Arg) : InterpM Unit := do
+  handleFunArg (arg : Arg .pure) : InterpM Unit := do
     if let .fvar fvarId := arg then
       handleFunVar fvarId
 
@@ -557,7 +558,7 @@ where
         resetNestedFunDeclParams funDecl.value
         interpCode funDecl.value
 
-  interpFunCall (funDecl : FunDecl) (args : Array Arg) : InterpM Unit := do
+  interpFunCall (funDecl : FunDecl .pure) (args : Array (Arg .pure)) : InterpM Unit := do
     let updated ← updateFunDeclParamsAssignment funDecl.params args
     if updated then
       /- We must reset the value of nested function declaration
@@ -608,11 +609,11 @@ Use the information produced by the abstract interpreter to:
 - Eliminate branches that we know cannot be hit
 - Eliminate values that we know have to be constants.
 -/
-partial def elimDead (assignment : Assignment) (decl : Decl) : CompilerM Decl := do
+partial def elimDead (assignment : Assignment) (decl : Decl .pure) : CompilerM (Decl .pure) := do
   trace[Compiler.elimDeadBranches] s!"Eliminating {decl.name} with {repr (← assignment.toArray |>.mapM (fun (name, val) => do return (toString (← getBinderName name), val)))}"
   return { decl with value := (← decl.value.mapCodeM go) }
 where
-  go (code : Code) : CompilerM Code := do
+  go (code : Code .pure) : CompilerM (Code .pure) := do
     match code with
     | .let decl k =>
       return code.updateLet! decl (← go k)
@@ -624,16 +625,14 @@ where
         match alt with
         | .alt ctor args body =>
           if discrVal.containsCtor ctor then
-            let filter param := do
+            let constantInfos ← args.filterMapM fun param => do
               if let some val := assignment[param.fvarId]? then
                 if let some literal ← val.getLiteral then
                   return some (param, literal)
               return none
-            let constantInfos ← args.filterMapM filter
             if constantInfos.size != 0 then
-              let folder := fun (body, subst) (param, decls, var) => do
+              let (body, subst) ← constantInfos.foldlM (init := (← go body, {})) fun (body, subst) (param, decls, var) => do
                 return (attachCodeDecls decls body, subst.insert param.fvarId (.fvar var))
-              let (body, subst) ← constantInfos.foldlM (init := (← go body, {})) folder
               let body ← replaceFVars body subst false
               return alt.updateCode body
             else
@@ -649,7 +648,7 @@ where
 end UnreachableBranches
 
 open UnreachableBranches in
-def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
+def Decl.elimDeadBranches (decls : Array (Decl .pure)) : CompilerM (Array (Decl .pure)) := do
   /-
   We sort declarations by size here to ensure that when we restart in inferStep it will mostly be
   small declarations that get re-analyzed.
@@ -679,7 +678,7 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
 
 def elimDeadBranches : Pass :=
-  { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }
+  { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono, phaseOut := .mono }
 
 builtin_initialize
   registerTraceClass `Compiler.elimDeadBranches (inherited := true)

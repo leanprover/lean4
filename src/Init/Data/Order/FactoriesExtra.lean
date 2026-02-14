@@ -8,7 +8,8 @@ module
 prelude
 public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.Ord
-import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+import Init.Data.Bool
 
 namespace Std
 
@@ -18,7 +19,7 @@ Creates an `LE α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LE α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.LE.ofOrd (α : Type u) [Ord α] : LE α where
   le a b := (compare a b).isLE
 
@@ -38,7 +39,7 @@ Creates an `LT α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LT α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.LT.ofOrd (α : Type u) [Ord α] :
     LT α where
   lt a b := compare a b = .lt
@@ -68,6 +69,27 @@ public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrde
   rw [LawfulOrderBEq.beq_iff_le_and_ge, ← isLE_compare, ← isGE_compare]
   cases compare a b <;> simp
 
+public theorem compare_ne_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
+    {a b : α} :
+    compare a b ≠ .eq ↔ ¬ a == b := by
+  simp [compare_eq_eq]
+
+public theorem compare_ne_eq_iff_ne {α : Type u} [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b ≠ .eq ↔ a ≠ b := by
+  simp
+
+grind_pattern compare_eq_lt => compare a b, Ordering.lt where
+  guard compare a b = .lt
+
+grind_pattern compare_eq_eq => compare a b, Ordering.eq where
+  guard compare a b = .eq
+
+grind_pattern compare_eq_gt => compare a b, Ordering.gt where
+  guard compare a b = .gt
+
+grind_pattern compare_ne_eq => compare a b, Ordering.eq where
+  guard compare a b ≠ .eq
+
 /--
 Creates a `DecidableLT α` instance using a well-behaved `Ord α` instance.
 -/
@@ -82,7 +104,7 @@ public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [Lawf
 
 /--
 Creates a `BEq α` instance from an `Ord α` instance. -/
-@[inline, expose]
+@[inline, expose, instance_reducible]
 public def _root_.BEq.ofOrd (α : Type u) [Ord α] :
     BEq α where
   beq a b := compare a b = .eq
@@ -95,8 +117,8 @@ public instance instLawfulOrderOrd_ofOrd (α : Type u) [Ord α] [OrientedOrd α]
     haveI := LE.ofOrd α
     LawfulOrderOrd α :=
   letI := LE.ofOrd α
-  { isLE_compare := by simp [LE.ofOrd]
-    isGE_compare := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
+  { isLE_compare := by simp [LE.le]
+    isGE_compare := by simp [LE.le, OrientedCmp.isGE_eq_isLE] }
 
 attribute [local instance] LT.ofOrd in
 /--

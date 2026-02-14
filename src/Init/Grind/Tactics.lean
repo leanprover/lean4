@@ -7,7 +7,6 @@ module
 prelude
 public import Init.Core
 public import Init.Grind.Interactive
-public import Init.Grind.Config
 public section
 namespace Lean.Parser.Tactic
 open Parser.Tactic.Grind
@@ -313,6 +312,22 @@ It is a implemented as a thin wrapper around the `grind` tactic, enabling only t
 Please use `grind` instead if you need additional capabilities.
 -/
 syntax (name := lia) "lia" optConfig : tactic
+
+/--
+`grind_order` solves simple goals about partial orders and linear orders.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `order` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grind_order) "grind_order" optConfig : tactic
+
+/--
+`grind_linarith` solves simple goals about linear arithmetic.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `linarith` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grind_linarith) "grind_linarith" optConfig : tactic
 
 /--
 `grobner` solves goals that can be phrased as polynomial equations (with further polynomial equations as hypotheses)

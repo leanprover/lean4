@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Classical
-public import Init.Ext
+public import Init.NotationExtra
+public import Init.WFTactics
+import Init.Ext
+import Init.PropLemmas
 
 set_option doc.verso true
 set_option linter.missingDocs true
@@ -94,8 +96,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `Iter` for a more convenient interface in case that no monadic effects are needed (`m = Id`).
@@ -123,9 +126,11 @@ def x := ([1, 2, 3].iterM IO : IterM IO Nat)
 -/
 @[ext]
 structure IterM {α : Type w} (m : Type w → Type w') (β : Type w) where
-  mk' ::
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `IterM` object. -/
+add_decl_doc IterM.mk
 
 /--
 An iterator that sequentially emits values of type `β`. It may be finite
@@ -139,8 +144,9 @@ By convention, the monadic iterator associated with an object can be obtained vi
 For example, `List.iterM IO` creates an iterator over a list in the monad `IO`.
 
 See `Init.Data.Iterators.Consumers` for ways to use an iterator. For example, `it.toList` will
-convert a provably finite iterator `it` into a list and `it.allowNontermination.toList` will
-do so even if finiteness cannot be proved. It is also always possible to manually iterate using
+convert an iterator `it` into a list and `it.ensureTermination.toList` guarantees that this
+operation will terminate, given a proof that the iterator is finite.
+It is also always possible to manually iterate using
 `it.step`, relying on the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 
 See `IterM` for iterators that operate in a monad.
@@ -169,6 +175,9 @@ def x := ([1, 2, 3].iter : Iter Nat)
 structure Iter {α : Type w} (β : Type w) where
   /-- Internal implementation detail of the iterator. -/
   internalState : α
+
+/-- Wraps the state of an iterator into an `Iter` object. -/
+add_decl_doc IterM.mk
 
 /--
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
@@ -372,29 +381,43 @@ class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) w
 
 section Monadic
 
-/--
-Wraps the state of an iterator into an `IterM` object.
--/
-@[always_inline, inline, expose]
-def IterM.mk {α : Type w} (it : α) (m : Type w → Type w') (β : Type w) :
-    IterM (α := α) m β :=
+/-- The constructor has been renamed. -/
+@[deprecated IterM.mk (since := "2025-01-19"), inline, expose]
+abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
-@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk]
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk']
 def Iterators.toIterM := @IterM.mk
 
-@[simp]
 theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
-    .mk it.internalState m β = it :=
-  rfl
+    ⟨it.internalState⟩ = it := by
+  simp
 
 set_option linter.missingDocs false in
 @[deprecated IterM.mk_internalState (since := "2025-12-01")]
 def Iterators.toIterM_internalState := @IterM.mk_internalState
 
 @[simp]
-theorem internalState_toIterM {α m β} (it : α) :
-    (IterM.mk it m β).internalState = it :=
+theorem IterM.internalState_mk {α m β} (it : α) :
+    (⟨it⟩ : IterM m β).internalState = it :=
+  rfl
+
+set_option linter.missingDocs false in
+@[expose, deprecated IterM.internalState_mk (since := "2025-01-29")]
+def internalState_toIterM := @IterM.internalState_mk
+
+@[simp]
+theorem Iter.internalState_toIterM {α β} (it : Std.Iter (α := α) β) :
+    it.toIterM.internalState = it.internalState := rfl
+
+@[simp]
+theorem Iter.toIterM_mk {α β} {it : α} :
+    (⟨it⟩ : Iter β).toIterM = ⟨it⟩ :=
+  rfl
+
+@[simp]
+theorem IterM.toIter_mk {α β} {it : α} :
+    (⟨it⟩ : IterM Id β).toIter = ⟨it⟩ :=
   rfl
 
 /--
@@ -424,6 +447,15 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m (Shrink it.Step) :=
   Iterator.step it
+
+theorem IterM.step_eq {α m β IsPlausibleStep step} {it : IterM (α := α) m β} :
+    letI : Iterator α m β := ⟨IsPlausibleStep, step⟩
+    it.step = step it :=
+  (rfl)
+
+theorem IterM.step_mk {α m β} [Iterator α m β] (it : α) :
+    (⟨it⟩ : IterM m β).step = Iterator.step (⟨it⟩ : IterM m β) := by
+  simp [IterM.step_eq]
 
 /--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next
@@ -697,6 +729,11 @@ the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 def Iter.step {α β : Type w} [Iterator α Id β] (it : Iter (α := α) β) : it.Step :=
   it.toIterM.step.run.inflate.toPure
 
+theorem Iter.step_eq {IsPlausibleStep step} {it : Iter (α := α) β} :
+    letI : Iterator α Id β := ⟨IsPlausibleStep, step⟩
+    it.step = IterM.Step.toPure (it := it.toIterM) (step it.toIterM).run.inflate :=
+  (rfl)
+
 end Pure
 
 section Finite
@@ -754,8 +791,8 @@ def IterM.finitelyManySteps {α : Type w} {m : Type w → Type w'} {β : Type w}
   ⟨it⟩
 
 /--
-Termination measure to be used in well-founded recursive functions recursing over a finite iterator
-(see also `Finite`).
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a finite iterator without requiring a proof of finiteness (see also `Finite`).
 -/
 @[expose]
 def IterM.finitelyManySteps! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
@@ -795,6 +832,11 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
 def Iter.finitelyManySteps {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Finite α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
   it.toIterM.finitelyManySteps
+
+@[inherit_doc IterM.finitelyManySteps!, expose]
+def Iter.finitelyManySteps! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Finite α Id :=
+  it.toIterM.finitelyManySteps!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
@@ -903,6 +945,16 @@ def IterM.finitelyManySkips {α : Type w} {m : Type w → Type w'} {β : Type w}
   ⟨it⟩
 
 /--
+Termination measure to be used in recursive functions built with `WellFounded.extrinsicFix`
+recursing over a productive iterator without requiring a proof of productiveness
+(see also `Productive`).
+-/
+@[expose]
+def IterM.finitelyManySkips! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : IterM.TerminationMeasures.Productive α m :=
+  ⟨it⟩
+
+/--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs
 with `IterM.finitelyManySkips`.
 -/
@@ -921,6 +973,11 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic|
 def Iter.finitelyManySkips {α : Type w} {β : Type w} [Iterator α Id β] [Iterators.Productive α Id]
     (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
   it.toIterM.finitelyManySkips
+
+@[inherit_doc IterM.finitelyManySkips!, expose]
+def Iter.finitelyManySkips! {α : Type w} {β : Type w} [Iterator α Id β]
+    (it : Iter (α := α) β) : IterM.TerminationMeasures.Productive α Id :=
+  it.toIterM.finitelyManySkips!
 
 /--
 This theorem is used by a `decreasing_trivial` extension. It powers automatic termination proofs

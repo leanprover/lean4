@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.Attr
-public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 
 -- All these should become private imports in the future:
-import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame
@@ -41,8 +39,8 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
       -- information why the defeq check failed, so we do it again.
       withOptions (fun o =>
         if o.getBool `trace.Elab.Tactic.Do.spec then
-          o |>.setBool `pp.universes true
-            |>.setBool `trace.Meta.isDefEq true
+          o |>.set `pp.universes true
+            |>.set `trace.Meta.isDefEq true
         else
           o) do
       withTraceNode `Elab.Tactic.Do.spec (fun _ => return m!"Defeq check for {type} failed.") do
@@ -199,7 +197,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   let_expr f@Triple m ps instWP α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
   let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
-  unless (← withAssignableSyntheticOpaque <| isDefEqGuarded wp wp') do
+  unless (← isDefEqGuarded wp wp') do
     Term.throwTypeMismatchError none wp wp' spec
 
   -- Try synthesizing synthetic MVars. We don't have the convenience of `TermElabM`, hence

@@ -106,9 +106,8 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 trace: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 246, num: 2):
+  [reduction] unfolded declarations (max: 246, num: 1):
     [reduction] Nat.rec ↦ 246
-    [reduction] OfNat.ofNat ↦ 24
   [reduction] unfolded reducible declarations (max: 246, num: 2):
     [reduction] h ↦ 246
     [reduction] Nat.casesOn ↦ 246

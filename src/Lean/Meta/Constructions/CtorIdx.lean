@@ -9,7 +9,6 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Linter.Deprecated
 

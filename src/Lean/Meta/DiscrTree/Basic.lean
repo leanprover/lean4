@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.DiscrTree.Types
-public import Lean.ToExpr
 public import Lean.CoreM
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Omega
 public section
 namespace Lean.Meta.DiscrTree
 

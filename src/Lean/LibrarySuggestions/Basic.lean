@@ -6,12 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.Command
 public import Lean.Meta.Eval
 public import Lean.Meta.CompletionName
-public import Lean.Linter.Deprecated
 public import Init.Data.Random
 public import Lean.Elab.Tactic.Grind.Annotated
+import Init.Omega
 
 /-!
 # An API for library suggestion algorithms.
@@ -66,7 +65,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
     | .app f a           =>
       let fi ← getFunInfo f (some 1)
       if fi.paramInfo[0]!.isInstImplicit then
-        -- Don't visit implicit arguments.
+        -- Don't visit instance implicit arguments.
         visit f acc
       else
         visit a (← visit f acc)
@@ -76,7 +75,7 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
         return acc
       else
         modify fun s => { s with visitedConsts := s.visitedConsts.insert c }
-        if ← isInstance c then
+        if ← isInstanceReducible c then
           return acc
         else
           f c acc
@@ -320,7 +319,7 @@ def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := fa
   if name == ``sorryAx then return true
   -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
   if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
-  if Lean.Meta.isInstanceCore env name then return true
+  if isInstanceReducibleCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then

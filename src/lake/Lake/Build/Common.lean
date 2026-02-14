@@ -9,8 +9,7 @@ prelude
 public import Lake.Build.Job.Monad
 public import Lake.Config.Monad
 public import Lake.Util.JsonObject
-import Lake.Util.IO
-import Lake.Build.Target.Fetch
+public import Lake.Util.IO
 public import Lake.Build.Actions
 
 /-! # Common Build Tools
@@ -304,17 +303,20 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
   (action : JobAction := .build)
 : JobM α := do
+  updateAction action
+  let noBuildTraceFile := traceFile.addExtension "nobuild"
   if (← getNoBuild) then
-    updateAction .build
+    modify ({· with wantsRebuild := true})
+    writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
-    updateAction action
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos
       let a ← build -- fatal errors will abort here
       let log := (← getLog).takeFrom iniPos
       writeBuildTrace traceFile depTrace (toOutputJson a) log
+      removeFileIfExists noBuildTraceFile
       return a
     finally
       let endTime ← IO.monoMsNow
@@ -452,7 +454,12 @@ public def Cache.saveArtifact
     let descr := artifactWithExt hash ext
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
+    -- make the local file unwritable where possible to discourage users from
+    -- writing to such paths as this can corrupt the cache if the file was hard linked
+    let r := {read := true, write := false, execution := false}
+    IO.setAccessRights file ⟨r, r, r⟩
     IO.FS.writeFile cacheFile normalized
+    IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
     let path := if useLocalFile then file else cacheFile
@@ -463,16 +470,19 @@ public def Cache.saveArtifact
     let descr := artifactWithExt hash ext
     let cacheFile := cache.artifactDir / descr.relPath
     createParentDirs cacheFile
-    IO.FS.writeBinFile cacheFile contents
-    if exe then
-      let r := ⟨true, true, true⟩
-      IO.setAccessRights cacheFile ⟨r, r, r⟩ -- 777
+    -- make the local file unwritable where possible to discourage users from
+    -- writing to such paths as this can corrupt the cache if the file is hard linked
+    let r := {read := true, write := false, execution := exe}
+    IO.setAccessRights file ⟨r, r, r⟩
+    if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
+      IO.FS.writeBinFile cacheFile contents
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
     writeFileHash file hash
     let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
     let path := if useLocalFile then file else cacheFile
     return {descr, name := file.toString, path, mtime}
 
-@[inline,  inherit_doc Cache.saveArtifact]
+@[inline, inherit_doc Cache.saveArtifact]
 public def cacheArtifact
   [MonadWorkspace m] [MonadLiftT IO m] [Monad m]
   (file : FilePath) (ext := "art") (text exe useLocalFile := false)
@@ -495,7 +505,7 @@ in either the saved trace file or in the cached input-to-content mapping.
   (inputHash : Hash) (savedTrace : SavedTrace)
   (cache : Cache) (pkg : Package)
 : JobM (Option α) := do
-  let updateCache ← pkg.isArtifactCacheEnabled
+  let updateCache ← pkg.isArtifactCacheWritable
   if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
     match (← resolveOutputs? out) with
     | .ok arts =>
@@ -535,6 +545,31 @@ public def computeArtifact (path : FilePath) (ext := "art") (text := false) : Jo
   return {descr := artifactWithExt hash ext, name := path.toString, path, mtime}
 
 /--
+Makes an artifact from the cache, `art`, available at the local path, `file` and returns an
+altered artifact using `file` as the preferred path.
+
+If `file` already exists, it is used. Otherwise, the function first attempts to create `file`
+as hard link to the artifact. If this fails (e.g., because the artifact and path are on differets
+drives and/or file systems), falls back to copying the artifact to the new path.
+
+**For internal use.**
+-/
+public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : LogIO Artifact := do
+  unless (← file.pathExists) do
+    logVerbose s!"found artifact in cache: {art.path}"
+    createParentDirs file
+    if let .error e ← (IO.FS.hardLink art.path file).toBaseIO then
+      logVerbose s!"could not hard link artifact, copying from cache instead; error: {e}"
+      copyFile art.path file
+      -- make the local file unwritable where possible to discourage users from
+      -- writing to such paths as this can corrupt the cache if the file was hard linked instead
+      let r := {read := true, write := false, execution := exe}
+      IO.setAccessRights file ⟨r, r, r⟩
+    logVerbose s!"restored artifact from cache to: {file}"
+    writeFileHash file art.hash
+  return art.useLocalFile file
+
+/--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
 with a matching extension (`ext`) and content hash. If one is found, use it.
 Otherwise, builds `file` using `build` and saves it to the cache. If Lake's
@@ -563,19 +598,11 @@ public def buildArtifactUnlessUpToDate
         removeFileIfExists file
         writeFetchTrace traceFile inputHash (toJson art.descr)
       if restore then
-        if !(← file.pathExists) then
-          logVerbose s!"restored artifact from cache to: {file}"
-          createParentDirs file
-          copyFile art.path file
-          if exe then
-            let r := ⟨true, true, true⟩
-            IO.setAccessRights file ⟨r, r, r⟩ -- 777
-          writeFileHash file art.hash
-        return some (art.useLocalFile file)
+        some <$> restoreArtifact file art exe
       else
         return some art
     let art ← id do
-      if (← pkg.isArtifactCacheEnabled) then
+      if (← pkg.isArtifactCacheWritable) then
         let restore := restore || pkg.restoreAllArtifacts
         if let some art ← fetchArt? restore then
           return art
@@ -591,9 +618,10 @@ public def buildArtifactUnlessUpToDate
             computeArtifact file ext text
       else if (← savedTrace.replayIfUpToDate file depTrace) then
         computeArtifact file ext text
-      else if let some art ← fetchArt? (restore := true) then
-        return art
       else
+        if (← pkg.isArtifactCacheReadable) then
+          if let some art ← fetchArt? (restore := true) then
+            return art
         doBuild depTrace traceFile
     if let some outputsRef := pkg.outputsRef? then
       outputsRef.insert inputHash art.descr
@@ -610,6 +638,7 @@ public def buildArtifactUnlessUpToDate
 where
   doBuild depTrace traceFile :=
     inline <| buildAction depTrace traceFile do
+      removeFileIfExists file
       build
       clearFileHash file
       removeFileIfExists traceFile

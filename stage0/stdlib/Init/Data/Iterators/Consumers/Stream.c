@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers.Stream
-// Imports: public import Init.Data.Stream public import Init.Data.Iterators.Consumers.Access
+// Imports: public import Init.Data.Stream public import Init.Data.Iterators.Consumers.Monadic.Access
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -75,7 +75,8 @@ LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId(lean
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(x_5);
+x_6 = lean_alloc_closure((void*)(l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0), 2, 1);
+lean_closure_set(x_6, 0, x_5);
 return x_6;
 }
 }
@@ -89,7 +90,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init_Data_Stream(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Access(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers_Stream(uint8_t builtin) {
 lean_object * res;
@@ -98,7 +99,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Consumers_Access(builtin);
+res = initialize_Init_Data_Iterators_Consumers_Monadic_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

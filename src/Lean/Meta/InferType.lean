@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.Char.Basic
-public import Init.Data.UInt.Lemmas
+public import Init.Data.Char.Basic
+public import Init.Ext
+import Init.Data.UInt.Lemmas
 
 public section
 
@@ -48,6 +50,7 @@ instance ltTrans : Trans (· < · : Char → Char → Prop) (· < ·) (· < ·) 
   trans := Char.lt_trans
 
 -- This instance is useful while setting up instances for `String`.
+@[instance_reducible]
 def notLTTrans : Trans (¬ · < · : Char → Char → Prop) (¬ · < ·) (¬ · < ·) where
   trans h₁ h₂ := by simpa using Char.le_trans (by simpa using h₂) (by simpa using h₁)
 
@@ -80,6 +83,7 @@ def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
 @[simp]
 theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 
+@[simp]
 theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 end Char

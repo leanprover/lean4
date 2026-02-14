@@ -3,6 +3,8 @@ source ../common.sh
 
 ./clean.sh
 
+NO_BUILD_CODE=3
+
 # ---
 # Test Lake's behavior when failing to fetch a cloud release
 # ---
@@ -23,12 +25,21 @@ git tag release
 INIT_REV=`git rev-parse release`
 git commit --allow-empty -m "second commit"
 popd
+set +x
 
 # Clone dependency
-$LAKE update
+test_run update
+
+# Test that an indirect fetch does not cause `--no-build` to fail
+echo "# TEST: --no-build success"
+test_run build dep:extraDep -v --no-build
+
+# Test that a direct fetch causes `--no-build` to fail with the proper exit code
+echo "# TEST: --no-build failure"
+test_status $NO_BUILD_CODE build dep:release -v --no-build
+
 # Remove the release tag from the local copy
-git -C .lake/packages/dep tag -d release
-set +x
+test_cmd git -C .lake/packages/dep tag -d release
 
 # Test that a direct invocation of `lake build *:release` fails
 echo "# TEST: Direct fetch"

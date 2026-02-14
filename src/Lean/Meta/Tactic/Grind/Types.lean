@@ -6,17 +6,16 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
-public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
-import Lean.HeadIndex
-import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-import Lean.PrettyPrinter
-meta import Lean.Parser.Do
+public import Init.Grind.Config
+import Init.Data.Nat.Linear
+meta import Init.Data.String.Basic
+import Init.Omega
+import Lean.Util.ShareCommon
 public section
 namespace Lean.Meta.Grind
 export Sym (isSameExpr hashPtrExpr ExprPtr shareCommon shareCommonInc)
@@ -160,14 +159,9 @@ structure Context where
   /-- Symbol priorities for inferring E-matching patterns -/
   symPrios     : SymbolPriorities
   extensions   : ExtensionStateArray := #[]
-  trueExpr     : Expr
-  falseExpr    : Expr
-  natZExpr     : Expr
-  btrueExpr    : Expr
-  bfalseExpr   : Expr
-  ordEqExpr    : Expr -- `Ordering.eq`
-  intExpr      : Expr -- `Int`
   debug        : Bool -- Cached `grind.debug (← getOptions)`
+
+export Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr getNatZeroExpr getOrderingEqExpr getIntExpr isTrueExpr isFalseExpr)
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -305,34 +299,6 @@ abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n]
   let m := if (← getConfig).reducible then .reducible else .default
   withTransparency m k
 
-/-- Returns the internalized `True` constant.  -/
-def getTrueExpr : GrindM Expr := do
-  return (← readThe Context).trueExpr
-
-/-- Returns the internalized `False` constant.  -/
-def getFalseExpr : GrindM Expr := do
-  return (← readThe Context).falseExpr
-
-/-- Returns the internalized `Bool.true`.  -/
-def getBoolTrueExpr : GrindM Expr := do
-  return (← readThe Context).btrueExpr
-
-/-- Returns the internalized `Bool.false`.  -/
-def getBoolFalseExpr : GrindM Expr := do
-  return (← readThe Context).bfalseExpr
-
-/-- Returns the internalized `0 : Nat` numeral.  -/
-def getNatZeroExpr : GrindM Expr := do
-  return (← readThe Context).natZExpr
-
-/-- Returns the internalized `Ordering.eq`.  -/
-def getOrderingEqExpr : GrindM Expr := do
-  return (← readThe Context).ordEqExpr
-
-/-- Returns the internalized `Int`.  -/
-def getIntExpr : GrindM Expr := do
-  return (← readThe Context).intExpr
-
 /-- Returns the anchor references (if any) being used to restrict the search. -/
 def getAnchorRefs : GrindM (Option (Array AnchorRef)) := do
   return (← readThe Context).anchorRefs?
@@ -411,14 +377,6 @@ Abstracts nested proofs in `e`. This is a preprocessing step performed before in
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr :=
   Meta.abstractNestedProofs e
-
-/-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getTrueExpr)
-
-/-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getFalseExpr)
 
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
@@ -1148,11 +1106,11 @@ def getGeneration (e : Expr) : GoalM Nat :=
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getTrueExpr)
+  return (← isTrueExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  return isSameExpr (← getENode e).root (← getFalseExpr)
+  return (← isFalseExpr (← getENode e).root)
 
 /-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
 def isEqBoolTrue (e : Expr) : GoalM Bool := do
@@ -1720,6 +1678,9 @@ def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (gener
     modify fun s => { s with
       ematch.delayedThmInsts := s.ematch.delayedThmInsts.insert { expr := guard } thms
       ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
+      -- Bump numInstances for delayed instances too, so that uniqueId generation
+      -- in EMatch.instantiateTheorem' doesn't produce collisions.
+      ematch.numInstances := s.ematch.numInstances + 1
     }
 
 def DelayedTheoremInstance.check (delayed : DelayedTheoremInstance) : GoalM Unit := do
@@ -2006,7 +1967,10 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .nil => return .next id e .nil
     | .next id' e' sTerms' =>
       if id == id' then
-        (← solverExtensionsRef.get)[id]!.newEq e e'
+        -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
+        -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+        if (← pure !root.heqProofs <||> hasSameType e e') then
+          (← solverExtensionsRef.get)[id]!.newEq e e'
         return sTerms
       else if id < id' then
         return .next id e sTerms
@@ -2086,7 +2050,11 @@ where
     match p with
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
-      (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
+      -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
+      -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+      let root ← getRootENode lhs
+      if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
+        (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs
       go rest
     | .diseqs solverId parentSet rest =>
       forEachDiseq parentSet (propagateDiseqOf solverId)

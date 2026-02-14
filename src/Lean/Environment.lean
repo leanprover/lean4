@@ -22,6 +22,8 @@ public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
+import Init.Data.Range.Polymorphic.Iterators
+import Init.While
 
 public section
 
@@ -179,6 +181,13 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /-- For `getModuleIdx?` -/
+  private moduleName2Idx : Std.HashMap Name ModuleIdx := Id.run do
+    let mut m := {}
+    for _h : idx in [0:modules.size] do
+      let mod := modules[idx]
+      m := m.insert mod.module idx
+    return m
   /--
   Subset of `modules` for which `importAll` is `true`. This is assumed to be a much smaller set so
   we precompute it instead of iterating over all of `modules` multiple times. However, note that
@@ -267,7 +276,7 @@ structure Environment where
   -/
   private irBaseExts      : Array EnvExtensionState
   /-- The header contains additional information that is set at import time. -/
-  header                  : EnvironmentHeader := {}
+  header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
 
 /-- Exceptions that can be raised by the kernel when type checking new declarations. -/
@@ -439,7 +448,7 @@ private structure AsyncConst where
   constInfo   : AsyncConstantInfo
   /--
   Reported extension state eventually fulfilled by promise; may be missing for tasks (e.g. kernel
-  checking) that can eagerly guarantee they will not report any state.
+  checking, synchronous decl addition) that can eagerly guarantee they will not report any state.
   -/
   exts?       : Option (Task (Array EnvExtensionState))
   /--
@@ -1174,7 +1183,7 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
   | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
-  env.header.modules.findIdx? (·.module == moduleName)
+  env.header.moduleName2Idx[moduleName]?
 
 end Environment
 
@@ -1357,7 +1366,7 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
     -- common case of confusing `mainEnv` and `asyncEnv`.
     | .async .mainEnv => ctx.mayContain asyncDecl && ctx.declPrefix != asyncDecl
     -- The async env's async context should either be `asyncDecl` itself or `asyncDecl` is a nested
-    -- declaration that is not itself async.
+    -- declaration that is known not to contribute env ext state (e.g. synchronously added decls).
     | .async .asyncEnv => ctx.declPrefix == asyncDecl ||
       (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
     | _ => true
@@ -2484,6 +2493,7 @@ where
       let decl ← match info with
         | .thmInfo thm   => pure <| .thmDecl thm
         | .defnInfo defn => pure <| .defnDecl defn
+        | .axiomInfo ax  => pure <| .axiomDecl ax
         | _              =>
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be

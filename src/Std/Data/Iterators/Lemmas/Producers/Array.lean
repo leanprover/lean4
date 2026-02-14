@@ -7,6 +7,8 @@ module
 
 prelude
 public import Std.Data.Iterators.Lemmas.Consumers.Collect
+import Std.Data.Iterators.Lemmas.Consumers.Loop
+import Init.Data.List.TakeDrop
 public import Std.Data.Iterators.Producers.Array
 public import Init.Data.Iterators.Producers.List
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.Array
@@ -76,7 +78,7 @@ theorem Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
   simp [iterFromIdx_eq_toIter_iterFromIdxM, Iter.toArray]
 
 @[simp, grind =]
-theorem Array.toArray_toIter {array : Array β} :
+theorem Array.toArray_iter {array : Array β} :
     array.iter.toArray = array := by
   simp [Array.iter_eq_iterFromIdx]
 
@@ -86,9 +88,19 @@ theorem Array.toListRev_iterFromIdx {array : Array β} {pos : Nat} :
   simp [Iter.toListRev_eq, Array.toList_iterFromIdx]
 
 @[simp, grind =]
-theorem Array.toListRev_toIter {array : Array β} :
+theorem Array.toListRev_iter {array : Array β} :
     array.iter.toListRev = array.toListRev := by
   simp [Array.iter_eq_iterFromIdx]
+
+@[simp, grind =]
+theorem Array.length_iterFromIdx {array : Array β} {pos : Nat} :
+    (array.iterFromIdx pos).length = array.size - pos := by
+  simp [← Iter.length_toList_eq_length]
+
+@[simp, grind =]
+theorem Array.length_iter {array : Array β} :
+    array.iter.length = array.size := by
+  simp [← Iter.length_toList_eq_length]
 
 section Equivalence
 

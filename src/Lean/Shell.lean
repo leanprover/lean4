@@ -11,6 +11,7 @@ import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.IR.EmitC
+import Init.System.Platform
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -284,7 +285,7 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
     else
       -- More options may be registered by imports, so we leave validating them to the elaborator.
       -- This (minor) duplication may be resolved later.
-      return opts.insert name val
+      return opts.set name val
 
 /--
 Process a command-line option parsed by the C++ shell.

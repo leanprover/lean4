@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.Fin
-// Imports: import all Init.Data.Zero public import Init.GrindInstances.ToInt import all Init.GrindInstances.ToInt
+// Imports: import all Init.Data.Zero public import Init.GrindInstances.ToInt import all Init.GrindInstances.ToInt public import Init.Data.Fin.Lemmas public import Init.Grind.Ring.Basic import Init.Data.Nat.Lemmas import Init.Data.Nat.MinMax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,32 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Fin_neg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero(lean_object*, lean_object*);
-lean_object* l_Fin_NatCast_instNatCast___redArg(lean_object*);
-lean_object* l_Fin_intCast___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_intCast___redArg(lean_object*, lean_object*);
-lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(lean_object*, lean_object*);
-lean_object* l_Fin_mul(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat(lean_object*, lean_object*);
-lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_npowRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Fin_NatCast_instNatCast___redArg___lam__0(lean_object*, lean_object*);
+lean_object* l_Fin_mul(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_intCast___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_NatCast_instNatCast___redArg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Fin_neg___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Fin_intCast___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -50,6 +51,15 @@ lean_closure_set(x_6, 0, x_1);
 x_7 = l_npowRec___redArg(x_5, x_6, x_3, x_2);
 lean_dec(x_5);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Grind_Fin_npow___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -69,25 +79,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_npow___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Grind_Fin_npow___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, lean_box(0));
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero___redArg(lean_object* x_1) {
 _start:
 {
@@ -98,7 +89,7 @@ lean_closure_set(x_2, 1, lean_box(0));
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instHPowFinNatOfNeZero(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -116,6 +107,16 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, lean_box(0));
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instPowFinNatOfNeZero(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, lean_box(0));
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -139,14 +140,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_inc(x_1);
-x_4 = l_Fin_NatCast_instNatCast___redArg(x_1);
-x_5 = lean_apply_1(x_4, x_2);
-x_6 = l_Fin_mul(x_1, x_5, x_3);
-lean_dec(x_5);
-lean_dec(x_1);
-return x_6;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Fin_NatCast_instNatCast___redArg___lam__0(x_1, x_2);
+x_5 = l_Fin_mul(x_1, x_4, x_3);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -155,6 +153,8 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -199,7 +199,8 @@ lean_inc(x_1);
 x_6 = lean_alloc_closure((void*)(l_Fin_mul___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_1);
 lean_inc(x_1);
-x_7 = l_Fin_NatCast_instNatCast___redArg(x_1);
+x_7 = lean_alloc_closure((void*)(l_Fin_NatCast_instNatCast___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_7, 0, x_1);
 lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l_Fin_neg___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_1);
@@ -240,6 +241,10 @@ return x_3;
 lean_object* initialize_Init_Data_Zero(uint8_t builtin);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_Fin(uint8_t builtin) {
 lean_object * res;
@@ -252,6 +257,18 @@ res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

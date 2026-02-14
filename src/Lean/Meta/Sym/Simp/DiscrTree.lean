@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree.Basic
+import Lean.Meta.Sym.Offset
+import Init.Omega
 namespace Lean.Meta.Sym
 open DiscrTree
 
@@ -77,7 +79,7 @@ def pushArgsUsingInfo (infos : Array ProofInstArgInfo) (i : Nat) (e : Expr) (tod
 Computes the discrimination tree key for an expression and pushes its subterms onto the todo stack.
 Returns `Key.star` for bound variables and `noindex`-annotated terms.
 -/
-def pushArgs (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (e : Expr) : Key × Array Expr :=
+def pushArgs (root : Bool) (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (e : Expr) : Key × Array Expr :=
   if hasNoindexAnnotation e then
     (.star, todo)
   else
@@ -87,12 +89,15 @@ def pushArgs (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (e : E
     | .bvar _ => (.star, todo)
     | .forallE _ d b _ => (.arrow, todo.push b |>.push d)
     | .const declName _ =>
-      let numArgs := e.getAppNumArgs
-      let todo := if let some info := fnInfos.find? declName then
-        pushArgsUsingInfo info.argsInfo (numArgs - 1) e todo
+      if !root && isOffset' declName e then
+        (.star, todo)
       else
-        pushAllArgs e todo
-      (.const declName numArgs, todo)
+        let numArgs := e.getAppNumArgs
+        let todo := if let some info := fnInfos.find? declName then
+          pushArgsUsingInfo info.argsInfo (numArgs - 1) e todo
+        else
+          pushAllArgs e todo
+        (.const declName numArgs, todo)
     | .fvar fvarId   =>
       let numArgs := e.getAppNumArgs
       let todo := pushAllArgs e todo
@@ -100,14 +105,14 @@ def pushArgs (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (e : E
     | _ => (.other, todo)
 
 /-- Work-list based traversal that builds the key sequence for a pattern. -/
-partial def mkPathAux (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (keys : Array Key) : Array Key :=
+partial def mkPathAux (root : Bool) (fnInfos : AssocList Name ProofInstInfo) (todo : Array Expr) (keys : Array Key) : Array Key :=
   if todo.isEmpty then
     keys
   else
     let e    := todo.back!
     let todo := todo.pop
-    let (k, todo) := pushArgs fnInfos todo e
-    mkPathAux fnInfos todo (keys.push k)
+    let (k, todo) := pushArgs root fnInfos todo e
+    mkPathAux false fnInfos todo (keys.push k)
 
 def initCapacity := 8
 
@@ -115,7 +120,7 @@ def initCapacity := 8
 public def Pattern.mkDiscrTreeKeys (p : Pattern) : Array Key :=
   let todo : Array Expr := .mkEmpty initCapacity
   let keys : Array Key := .mkEmpty initCapacity
-  mkPathAux p.fnInfos (todo.push p.pattern) keys
+  mkPathAux true p.fnInfos (todo.push p.pattern) keys
 
 /-- Inserts a pattern into a discrimination tree, associating it with value `v`. -/
 public def insertPattern [BEq α] (d : DiscrTree α) (p : Pattern) (v : α) : DiscrTree α :=

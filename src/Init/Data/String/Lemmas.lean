@@ -9,11 +9,18 @@ prelude
 public import Init.Data.String.Lemmas.Splits
 public import Init.Data.String.Lemmas.Modify
 public import Init.Data.String.Lemmas.Search
-public import Init.Data.Char.Order
-public import Init.Data.Char.Lemmas
-public import Init.Data.List.Lex
+public import Init.Data.String.Lemmas.FindPos
+public import Init.Data.String.Lemmas.Basic
+public import Init.Data.String.Lemmas.Order
+public import Init.Data.String.Lemmas.IsEmpty
+public import Init.Data.String.Lemmas.Pattern
+public import Init.Data.String.Lemmas.Slice
+public import Init.Data.String.Lemmas.Iterate
 import Init.Data.Order.Lemmas
 public import Init.Data.String.Basic
+import Init.Data.Char.Lemmas
+import Init.Data.Char.Order
+import Init.Data.List.Lex
 
 public section
 

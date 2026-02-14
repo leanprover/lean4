@@ -8,13 +8,19 @@ module
 prelude
 public import Init.Data.Option.Attach
 public import Init.Data.List.Perm
-public import Init.Data.List.Monadic
 public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
-public import Init.Data.Order.Ord
-import Init.Data.Subtype.Order
-public import Init.Data.Order.ClassesExtra
 public import Init.Data.Order.LemmasExtra
+public import Init.Data.Bool
+import Init.ByCases
+import Init.Data.List.Count
+import Init.Data.List.Erase
+import Init.Data.List.Find
+import Init.Data.List.MinMax
+import Init.Data.List.Pairwise
+import Init.Data.List.Sublist
+import Init.Data.Prod
+import Init.Omega
 
 public section
 
@@ -8118,7 +8124,7 @@ private local instance [Ord α] : DecidableLE ((a : α) × β a) :=
 
 private theorem leSigmaOfOrd_total [Ord α] [OrientedOrd α] (a b : (a : α) × β a) :
     a ≤ b ∨ b ≤ a := by
-  simp only [leSigmaOfOrd]
+  simp only [LE.le]
   rw [← OrientedCmp.isGE_iff_isLE]
   cases compare b.fst a.fst <;> trivial
 

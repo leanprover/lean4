@@ -10,7 +10,9 @@ public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
 import Lean.Parser.Command
-meta import Lean.Parser.Command
+public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
+meta import Lean.Parser.Do
 
 public section
 
@@ -142,7 +144,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     for (k, v) in m do
       if (`pp).isPrefixOf k then
         let opts := posOpts.get? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
+        posOpts := posOpts.insert pos (opts.set k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
 

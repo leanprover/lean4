@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Data.AssocList
-import Lean.Util.FoldConsts
 import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
@@ -16,6 +15,10 @@ import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.Offset
+import Lean.Meta.Sym.Eta
+import Init.Data.List.MapIdx
+import Init.Data.Nat.Linear
 namespace Lean.Meta.Sym
 open Internal
 
@@ -62,7 +65,11 @@ def mkProofInstInfoMapFor (pattern : Expr) : MetaM (AssocList Name ProofInstInfo
 public structure Pattern where
   levelParams    : List Name
   varTypes       : Array Expr
-  isInstance     : Array Bool
+  /--
+  If `some argsInfo`, `argsInfo` stores whether the pattern variables are instances/proofs.
+  It is `none` if no pattern variables are instance/proof.
+  -/
+  varInfos?      : Option ProofInstInfo
   pattern        : Expr
   fnInfos        : AssocList Name ProofInstInfo
   /--
@@ -76,17 +83,35 @@ public structure Pattern where
 
 def uvarPrefix : Name := `_uvar
 
+/-- Returns `true` if the `i`th argument / pattern variable is an instance. -/
+def Pattern.isInstance (p : Pattern) (i : Nat) : Bool := Id.run do
+  let some varInfos := p.varInfos? | return false
+  varInfos.argsInfo[i]!.isInstance
+
+/-- Returns `true` if the `i`th argument / pattern variable is a proof. -/
+def Pattern.isProof (p : Pattern) (i : Nat) : Bool := Id.run do
+  let some varInfos := p.varInfos? | return false
+  varInfos.argsInfo[i]!.isProof
+
 def isUVar? (n : Name) : Option Nat := Id.run do
   let .num p idx := n | return none
   unless p == uvarPrefix do return none
   return some idx
 
 /-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
-def preprocessPattern (declName : Name) : MetaM (List Name × Expr) := do
+def preprocessDeclPattern (declName : Name) : MetaM (List Name × Expr) := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
+  let type ← preprocessType type
+  return (levelParams, type)
+
+def preprocessExprPattern (e : Expr) (levelParams₀ : List Name) : MetaM (List Name × Expr) := do
+  let type ← inferType e
+  let levelParams := levelParams₀.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.map mkLevelParam
+  let type := type.instantiateLevelParams levelParams₀ us
   let type ← preprocessType type
   return (levelParams, type)
 
@@ -142,12 +167,23 @@ where
       else
         mask
 
-def mkPatternCore (levelParams : List Name) (varTypes : Array Expr) (isInstance : Array Bool)
-    (pattern : Expr) : MetaM Pattern := do
+def mkPatternCore (type : Expr) (levelParams : List Name) (varTypes : Array Expr) (pattern : Expr) : MetaM Pattern := do
   let fnInfos ← mkProofInstInfoMapFor pattern
   let checkTypeMask := mkCheckTypeMask pattern varTypes.size
   let checkTypeMask? := if checkTypeMask.all (· == false) then none else some checkTypeMask
-  return { levelParams, varTypes, isInstance, pattern, fnInfos, checkTypeMask? }
+  let varInfos? ← forallBoundedTelescope type varTypes.size fun xs _ =>
+    mkProofInstArgInfo? xs
+  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
+
+def mkPatternFromType (levelParams : List Name) (type : Expr) (num? : Option Nat) : MetaM Pattern := do
+  let hugeNumber := 10000000
+  let num := num?.getD hugeNumber
+  let rec go (i : Nat) (pattern : Expr) (varTypes : Array Expr) : MetaM Pattern := do
+    if i < num then
+      if let .forallE _ d b _ := pattern then
+        return (← go (i+1) b (varTypes.push d))
+    mkPatternCore type levelParams varTypes pattern
+  go 0 type #[]
 
 /--
 Creates a `Pattern` from the type of a theorem.
@@ -163,15 +199,22 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let (levelParams, type) ← preprocessPattern declName
-  let hugeNumber := 10000000
-  let num := num?.getD hugeNumber
-  let rec go (i : Nat) (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
-    if i < num then
-      if let .forallE _ d b _ := type then
-        return (← go (i+1) b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
-    mkPatternCore levelParams varTypes isInstance type
-  go 0 type #[] #[]
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkPatternFromType levelParams type num?
+
+public def mkPatternFromExpr (e : Expr) (levelParams : List Name := []) (num? : Option Nat := none) : MetaM Pattern := do
+  let (levelParams, type) ← preprocessExprPattern e levelParams
+  mkPatternFromType levelParams type num?
+
+def mkEqPatternFromType (levelParams : List Name) (type : Expr) : MetaM (Pattern × Expr) := do
+  let rec go (pattern : Expr) (varTypes : Array Expr) : MetaM (Pattern × Expr) := do
+    if let .forallE _ d b _ := pattern then
+      return (← go b (varTypes.push d))
+    else
+      let_expr Eq _ lhs rhs := pattern | throwError "conclusion is not a equality{indentExpr type}"
+      let pattern ← mkPatternCore type levelParams varTypes lhs
+      return (pattern, rhs)
+  go type #[]
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
@@ -185,15 +228,8 @@ For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` w
 Throws an error if the theorem's conclusion is not an equality.
 -/
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
-  let (levelParams, type) ← preprocessPattern declName
-  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM (Pattern × Expr) := do
-    if let .forallE _ d b _ := type then
-      return (← go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
-    else
-      let_expr Eq _ lhs rhs := type | throwError "resulting type for `{.ofConstName declName}` is not an equality"
-      let pattern ← mkPatternCore levelParams varTypes isInstance lhs
-      return (pattern, rhs)
-  go type #[] #[]
+  let (levelParams, type) ← preprocessDeclPattern declName
+  mkEqPatternFromType levelParams type
 
 structure UnifyM.Context where
   pattern   : Pattern
@@ -306,7 +342,11 @@ def isAssignedMVar (e : Expr) : MetaM Bool :=
   | _            => return false
 
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
-  match p with
+  let e' := etaReduce e
+  if !isSameExpr e e' then
+    -- **Note**: We eagerly eta reduce patterns
+    process p e'
+  else match p with
   | .bvar bidx => assignExpr bidx e
   | .mdata _ p => process p e
   | .const declName us =>
@@ -347,12 +387,42 @@ where
     let some value ← fvarId.getValue? | return false
     process p value
 
-  processApp (p : Expr) (e : Expr) : UnifyM Bool := do
-    let f := p.getAppFn
-    let .const declName _ := f | processAppDefault p e
+  processOffset (p : Offset) (e : Offset) : UnifyM Bool := do
+   -- **Note** Recall that we don't assume patterns are maximally shared terms.
+    match p, e with
+    | .num _, .num _ => unreachable!
+    | .num k₁, .add e k₂ =>
+      if k₁ < k₂ then return false
+      process (mkNatLit (k₁ - k₂)) e
+    | .add p k₁, .num k₂ =>
+      if k₂ < k₁ then return false
+      process p (← share (mkNatLit (k₂ - k₁)))
+    | .add p k₁, .add e k₂ =>
+      if k₁ == k₂ then
+        process p e
+      else if k₁ < k₂ then
+        if k₁ == 0 then return false
+        process p (← share (mkNatAdd e (mkNatLit (k₂ - k₁))))
+      else
+        if k₂ == 0 then return false
+        process (mkNatAdd p (mkNatLit (k₁ - k₂))) e
+
+  processConstApp (declName : Name) (p : Expr) (e : Expr) : UnifyM Bool := do
     let some info := (← read).pattern.fnInfos.find? declName | process.processAppDefault p e
     let numArgs := p.getAppNumArgs
     processAppWithInfo p e (numArgs - 1) info
+
+  processApp (p : Expr) (e : Expr) : UnifyM Bool := withIncRecDepth do
+    let f := p.getAppFn
+    let .const declName _ := f | processAppDefault p e
+    if (← processConstApp declName p e) then
+      return true
+    else if let some p' := isOffset?' declName p then
+      processOffset p' (toOffset e)
+    else if let some e' := isOffset? e then
+      processOffset (toOffset p) e'
+    else
+      return false
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
@@ -676,7 +746,12 @@ def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEq
 @[export lean_sym_def_eq]
 def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   if isSameExpr t s then return true
-  match t, s with
+  -- **Note**: `etaReduce` is supposed to be fast, and does not allocate memory
+  let t' := etaReduce t
+  let s' := etaReduce s
+  if !isSameExpr t t' || !isSameExpr s s' then
+    isDefEqMain t' s'
+  else match t, s with
   | .lit  l₁,      .lit l₂       => return l₁ == l₂
   | .sort u,       .sort v       => isLevelDefEqS u v
   | .lam ..,       .lam ..       => isDefEqBindingS t s
@@ -767,7 +842,6 @@ def mkPreResult : UnifyM MkPreResultResult := do
     | none => mkFreshLevelMVar
   let pattern := (← read).pattern
   let varTypes := pattern.varTypes
-  let isInstance := pattern.isInstance
   let eAssignment := (← get).eAssignment
   let tPending := (← get).tPending
   let mut args := #[]
@@ -788,7 +862,7 @@ def mkPreResult : UnifyM MkPreResultResult := do
       let type := varTypes[i]!
       let type ← instantiateLevelParamsS type pattern.levelParams us
       let type ← instantiateRevBetaS type args
-      if isInstance[i]! then
+      if pattern.isInstance i then
         if let .some val ← trySynthInstance type then
           args := args.push (← shareCommon val)
           continue

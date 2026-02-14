@@ -12,6 +12,8 @@ public import Lake.Config.Pattern
 public import Lake.Config.LeanConfig
 public import Lake.Config.WorkspaceConfig
 meta import all Lake.Config.Meta
+public import Init.System.Platform
+import Lake.Config.Meta
 
 open System Lean
 
@@ -289,8 +291,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   in their usual location within the build directory. Thus, projects with custom build
   scripts that rely on specific location of artifacts may wish to disable this feature.
 
-  If `none` (the default), the cache will be disabled by default unless
-  the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
+  If `none` (the default), this will fallback to (in order):
+  * The `LAKE_ARTIFACT_CACHE` environment variable (if set).
+  * The workspace root's `enableArtifactCache` configuration (if set and this package is a dependency).
+  * **Lake's default**: The package can use artifacts from the cache, but cannot write to it.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
 

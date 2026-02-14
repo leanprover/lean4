@@ -19,6 +19,12 @@ public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
 public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.ToImpure
+public import Lean.Compiler.LCNF.PushProj
+public import Lean.Compiler.LCNF.ResetReuse
+public import Lean.Compiler.LCNF.SimpCase
+public import Lean.Compiler.LCNF.InferBorrow
+public import Lean.Compiler.LCNF.ExplicitBoxing
 
 public section
 
@@ -52,6 +58,7 @@ def trace (phase := Phase.base) : Pass where
 def saveBase : Pass where
   occurrence := 0
   phase := .base
+  phaseOut := .base
   name := `saveBase
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveBase
@@ -61,9 +68,20 @@ def saveBase : Pass where
 def saveMono : Pass where
   occurrence := 0
   phase := .mono
+  phaseOut := .mono
   name := `saveMono
   run decls := decls.mapM fun decl => do
     (← normalizeFVarIds decl).saveMono
+    return decl
+  shouldAlwaysRunCheck := true
+
+def saveImpure : Pass where
+  occurrence := 0
+  phase := .impure
+  phaseOut := .impure
+  name := `saveImpure
+  run decls := decls.mapM fun decl => do
+    (← normalizeFVarIds decl).saveImpure
     return decl
   shouldAlwaysRunCheck := true
 
@@ -115,6 +133,8 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
     lambdaLifting,
+  ]
+  monoPassesNoLambda := #[
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     elimDeadBranches,
@@ -122,6 +142,17 @@ def builtinPassManager : PassManager := {
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),
     extractClosed,
+    toImpure,
+  ]
+  impurePasses := #[
+    pushProj (occurrence := 0),
+    insertResetReuse,
+    elimDeadVars (phase := .impure) (occurrence := 0),
+    simpCase,
+    inferBorrow,
+    explicitBoxing,
+    inferVisibility (phase := .impure),
+    saveImpure, -- End of impure phase
   ]
 }
 
@@ -167,6 +198,7 @@ builtin_initialize
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
   registerTraceClass `Compiler.saveMono (inherited := true)
+  registerTraceClass `Compiler.saveImpure (inherited := true)
   registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

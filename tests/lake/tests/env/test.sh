@@ -28,7 +28,6 @@ LAKE_CACHE_DIR= test_out "hello" -d ../../examples/hello env printenv PATH
 
 # Test other variables are set
 test_eq "false" env printenv LAKE_NO_CACHE
-test_eq "false" env printenv LAKE_ARTIFACT_CACHE
 
 # Test that a workspace always sets the cache directory
 LAKE_CACHE_DIR= test_run env -d ../../examples/hello env printenv LAKE_CACHE_DIR
@@ -39,6 +38,7 @@ test_eq "foo" env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN
 test_out "foo" env env -u LAKE_CACHE_DIR ELAN_HOME=/ ELAN_TOOLCHAIN=foo \
   $LAKE env printenv LAKE_CACHE_DIR
 LAKE_CACHE_DIR=foo test_eq "foo" env printenv LAKE_CACHE_DIR
+LAKE_CACHE_SERVICE=foo test_eq "foo" env printenv LAKE_CACHE_SERVICE
 LEAN_GITHASH=foo test_eq "foo" env printenv LEAN_GITHASH
 LEAN_AR=foo test_eq "foo" env printenv LEAN_AR
 LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
@@ -46,7 +46,11 @@ LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
 # Test `LAKE_ARTIFACT_CACHE` setting and default
 LAKE_ARTIFACT_CACHE=true test_eq "true" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE=false test_eq "false" env printenv LAKE_ARTIFACT_CACHE
-LAKE_ARTIFACT_CACHE= test_eq "false" env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" -d ../../examples/hello env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "true" -f enableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "false" -f disableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
+test_cmd rm lake-manifest.json
 
 # Test `LAKE_PKG_URL_MAP` setting and errors
 echo "# TEST: LAKE_PKG_URL_MAP"

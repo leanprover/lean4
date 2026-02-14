@@ -9,6 +9,7 @@ module
 prelude
 public import Lean.Meta.InferType
 import Lean.Meta.DecLevel
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 

@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
-import Lean.Meta.Transform
 import Lean.Meta.WHNF
 /-!
 Helper functions around named patterns

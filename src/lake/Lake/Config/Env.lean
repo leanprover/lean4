@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Config.Cache
 public import Lake.Config.InstallPath
+import Init.System.Platform
 
 open System
 open Lean hiding SearchPath
@@ -40,7 +41,7 @@ public structure Env where
   -/
   noCache : Bool
   /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
-  enableArtifactCache : Bool
+  enableArtifactCache? : Option Bool
   /-- Whether the system cache has been disabled (`LAKE_CACHE_DIR` is set but empty). -/
   noSystemCache : Bool := false
   /--
@@ -63,6 +64,8 @@ public structure Env where
   cacheArtifactEndpoint? : Option String
   /-- The base URL for revision uploads and downloads from the cache (i.e., `LAKE_CACHE_REVISION_ENDPOINT`). -/
   cacheRevisionEndpoint? : Option String
+  /-- The name of the cache service (i.e., `LAKE_CACHE_SERVICE`). -/
+  cacheService? : Option String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
   initLeanPath : SearchPath
   /-- The initial Lean source search path of the environment (i.e., `LEAN_SRC_PATH`). -/
@@ -158,10 +161,11 @@ public def compute
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
-    enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
+    enableArtifactCache? := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool?
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
+    cacheService? := (← IO.getEnv "LAKE_CACHE_SERVICE").map (·.trimAscii.copy)
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     toolchain
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -269,10 +273,10 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
-    ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
     ("LAKE_CACHE_KEY", env.cacheKey?),
     ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
     ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
+    ("LAKE_CACHE_SERVICE", env.cacheService?),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),
@@ -283,6 +287,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
 public def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
     ("LAKE_CACHE_DIR", if let some cache := env.lakeCache? then cache.dir.toString else ""),
+    ("LAKE_ARTIFACT_CACHE", if let some b := env.enableArtifactCache? then toString b else ""),
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
     ("LEAN_GITHASH", env.leanGithash),

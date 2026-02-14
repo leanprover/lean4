@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.BitVec
-// Imports: public import Init.Grind.Ordered.Order public import Init.GrindInstances.ToInt import all Init.Data.BitVec.Basic import all Init.Grind.ToInt
+// Imports: public import Init.GrindInstances.ToInt import all Init.Data.BitVec.Basic import all Init.Grind.ToInt public import Init.Data.BitVec.Lemmas public import Init.Grind.Ring.Basic import Init.Data.BitVec.Bootstrap import Init.Grind.Ring.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,38 +13,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_instPowNat___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
+lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
-lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
 lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instHPow___redArg(lean_object*);
 lean_object* l_BitVec_mul___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_instOfNat___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_instPowNat___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
+lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt___boxed(lean_object*, lean_object*);
-lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_BitVec_ofNat(x_1, x_2);
-x_5 = l_BitVec_mul(x_1, x_4, x_3);
-lean_dec(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_BitVec_ofInt(x_1, x_2);
 x_5 = l_BitVec_mul(x_1, x_4, x_3);
 lean_dec(x_4);
 return x_5;
@@ -59,6 +49,16 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_BitVec_ofInt(x_1, x_2);
+x_5 = l_BitVec_mul(x_1, x_4, x_3);
+lean_dec(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -97,7 +97,8 @@ lean_closure_set(x_7, 0, x_1);
 lean_inc(x_1);
 x_8 = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
 lean_closure_set(x_8, 0, x_1);
-x_9 = l_instHPow___redArg(x_8);
+x_9 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
+lean_closure_set(x_9, 0, x_8);
 lean_inc(x_1);
 x_10 = lean_alloc_closure((void*)(l_BitVec_neg___boxed), 2, 1);
 lean_closure_set(x_10, 0, x_1);
@@ -122,18 +123,18 @@ lean_ctor_set(x_14, 4, x_3);
 return x_14;
 }
 }
-lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Grind_Ring_ToInt(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_GrindInstances_Ring_BitVec(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_Ordered_Order(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -141,6 +142,18 @@ res = initialize_Init_Data_BitVec_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ring_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

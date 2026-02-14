@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.AlphaShareBuilder
+import Init.Omega
 namespace Lean.Meta.Sym
 open Internal
 /-!

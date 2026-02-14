@@ -8,7 +8,6 @@ prelude
 public import Init.Try
 public import Lean.Meta.Tactic.LibrarySearch
 public import Lean.Meta.Tactic.FunIndCollect
-import Lean.Meta.Eqns
 public section
 namespace Lean.Meta.Try.Collector
 

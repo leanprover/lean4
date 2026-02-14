@@ -6,15 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Slice.Array.Basic
 public import Init.Data.Slice.Operations
-import Init.Data.Iterators.Combinators.Attach
-public import Init.Data.Iterators.Combinators.ULift
 import all Init.Data.Range.Polymorphic.Basic
-public import Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Slice.Operations
 import Init.Omega
-import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+public import Init.Data.Array.Subarray
 
 public section
 
@@ -51,8 +46,7 @@ private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (Subarr
     simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
     split at h
     · cases h
-      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage,
-        Nat.lt_wfRel, sizeOf_nat]
+      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage, sizeOf_nat]
       exact Nat.sub_succ_lt_self _ _ ‹_›
     · cases h
 
@@ -61,7 +55,7 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
 
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
-@[inline, expose]
+@[inline, expose, instance_reducible]
 def Subarray.instToIterator :=
   ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
 attribute [instance] Subarray.instToIterator
@@ -148,6 +142,7 @@ theorem Subarray.copy_eq_toArray {s : Subarray α} :
     s.copy = s.toArray :=
   (rfl)
 
+@[grind =]
 theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
     Slice.toArray s = s.toArray :=
   (rfl)

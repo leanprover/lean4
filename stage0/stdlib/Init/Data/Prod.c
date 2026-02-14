@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Prod_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_swap___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Prod_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_swap___redArg(lean_object* x_1) {
 _start:
 {

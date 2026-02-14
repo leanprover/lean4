@@ -465,6 +465,18 @@
     <<: *time
     cmd: lean big_struct.lean
 - attributes:
+    description: big_struct_dep1
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct_dep1.lean
+- attributes:
+    description: big_struct_dep
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct_dep.lean
+- attributes:
     description: unionfind
     tags: [other]
   run_config:
@@ -653,3 +665,27 @@
     <<: *time
     cmd: leanchecker --fresh Init
     max_runs: 1
+- attributes:
+    description: cbv tactic (leroy compiler verification course)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/leroy.lean
+- attributes:
+    description: cbv tactic (Eratosthenes' sieve)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/divisors.lean
+- attributes:
+    description: cbv tactic (removing duplicates from the list)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/dedup.lean
+- attributes:
+    description: cbv tactic (evaluating Decidable.decide)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean ./cbv/decide.lean

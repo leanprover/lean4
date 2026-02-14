@@ -7,17 +7,13 @@ module
 prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.Arith.Ring.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
+export Sym.Arith.Ring (Ring Semiring CommSemiring RingExpr SemiringExpr)
 export Lean.Grind.CommRing (Var Power Mon Poly)
-abbrev RingExpr := Grind.CommRing.Expr
-/-
-**Note**: recall that we use ring expressions to represent semiring expressions,
-and ignore non-applicable constructors.
--/
-abbrev SemiringExpr := Grind.CommRing.Expr
 
 mutual
 structure EqCnstr where
@@ -143,79 +139,8 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
-/-- Shared state for non-commutative and commutative semirings. -/
-structure Semiring where
-  id             : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  natCastFn?     : Option Expr := none
-  /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
-  denote         : PHashMap ExprPtr SemiringExpr := {}
-  /--
-  Mapping from variables to their denotations.
-  Remark each variable can be in only one ring.
-  -/
-  vars           : PArray Expr := {}
-  /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ExprPtr Var := {}
-  deriving Inhabited
-
-/-- Shared state for non-commutative and commutative rings. -/
-structure Ring where
-  id             : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Ring` instance for `type` -/
-  ringInst       : Expr
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
-  /-- `IsCharP` instance for `type` if available. -/
-  charInst?      : Option (Expr × Nat)
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  subFn?         : Option Expr := none
-  negFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  intCastFn?     : Option Expr := none
-  natCastFn?     : Option Expr := none
-  one?           : Option Expr := none
-  /--
-  Mapping from variables to their denotations.
-  Remark each variable can be in only one ring.
-  -/
-  vars           : PArray Expr := {}
-  /-- Mapping from `Expr` to a variable representing it. -/
-  varMap         : PHashMap ExprPtr Var := {}
-  /-- Mapping from Lean expressions to their representations as `RingExpr` -/
-  denote         : PHashMap ExprPtr RingExpr := {}
-  deriving Inhabited
-
 /-- State for each `CommRing` processed by this module. -/
-structure CommRing extends Ring where
-  /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr := none
-  /--
-  If this is a `OfSemiring.Q α` ring, this field contain the
-  `semiringId` for `α`.
-  -/
-  semiringId?    : Option Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `CommRing` instance for `type` -/
-  commRingInst   : Expr
-  /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr
-  /-- `Field` instance for `type` if available. -/
-  fieldInst?     : Option Expr
-  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
-  denoteEntries  : PArray (Expr × RingExpr) := {}
+structure CommRing extends Sym.Arith.Ring.CommRing where
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/
@@ -246,19 +171,7 @@ structure CommRing extends Ring where
   numEq0Updated  : Bool := false
   deriving Inhabited
 
-/--
-State for each `CommSemiring` processed by this module.
-Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
--/
-structure CommSemiring extends Semiring where
-  /-- Id for `OfCommSemiring.Q` -/
-  ringId         : Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option (Option Expr) := none
-  toQFn?         : Option Expr := none
-  deriving Inhabited
+-- CommSemiring is reused from Sym.Arith.Ring.CommSemiring via the export above.
 
 /-- State for all `CommRing` types detected by `grind`. -/
 structure State where

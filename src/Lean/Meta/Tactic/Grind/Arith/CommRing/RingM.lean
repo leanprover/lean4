@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Sym.Arith.Ring.SymExt
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -59,6 +60,39 @@ protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := d
 instance : MonadCommRing RingM where
   getCommRing := RingM.getCommRing
   modifyCommRing := RingM.modifyCommRing
+
+/--
+`MonadRing` for grind's `RingM`. Reads lazy ops (`addFn?`, etc.) from the shared
+`arithRingExt` state, and per-context fields (`vars`, `varMap`, `denote`) from
+grind's local `CommRing`. Writes are routed to the appropriate state.
+-/
+instance : Sym.Arith.Ring.MonadRing RingM where
+  getRing := do
+    let ringId ← getRingId
+    let s ← Sym.Arith.Ring.arithRingExt.getState
+    let sharedRing := s.rings[ringId]!.toRing
+    let localRing := (← RingM.getCommRing).toRing
+    return { sharedRing with vars := localRing.vars, varMap := localRing.varMap, denote := localRing.denote }
+  modifyRing f := do
+    let ringId ← getRingId
+    let s ← Sym.Arith.Ring.arithRingExt.getState
+    let sharedRing := s.rings[ringId]!.toRing
+    let localRing := (← RingM.getCommRing).toRing
+    let combined : Sym.Arith.Ring.Ring :=
+      { sharedRing with vars := localRing.vars, varMap := localRing.varMap, denote := localRing.denote }
+    let new := f combined
+    -- Write lazy ops to shared state
+    Sym.Arith.Ring.arithRingExt.modifyState fun s => { s with rings := s.rings.modify ringId fun r =>
+      { r with toRing := { r.toRing with
+        addFn? := new.addFn?, mulFn? := new.mulFn?, subFn? := new.subFn?,
+        negFn? := new.negFn?, powFn? := new.powFn?, intCastFn? := new.intCastFn?,
+        natCastFn? := new.natCastFn?, one? := new.one?
+      }}
+    }
+    -- Write per-context to grind local
+    RingM.modifyCommRing fun s => { s with toRing := { s.toRing with
+      vars := new.vars, varMap := new.varMap, denote := new.denote
+    }}
 
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x

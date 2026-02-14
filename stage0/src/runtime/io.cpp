@@ -584,6 +584,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h) {
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes) {
     FILE * fp = io_get_handle(h);
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
+    if (nbytes == 0) {
+        // std::fread doesn't handle 0 reads well, see https://github.com/leanprover/lean4/issues/12138
+        return io_result_mk_ok(res);
+    }
     usize n = std::fread(lean_sarray_cptr(res), 1, nbytes, fp);
     if (n > 0) {
         lean_sarray_set_size(res, n);

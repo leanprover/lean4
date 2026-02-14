@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16(uint3
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_utf16Length_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,7 +132,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint32_t x_10; lean_object
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = l_String_Slice_Pos_prevAux_go___redArg(x_1, x_8);
+x_9 = l_String_Slice_posLE(x_1, x_8);
 x_10 = lean_string_utf8_get_fast(x_2, x_9);
 x_11 = l___private_Lean_Data_Lsp_Utf16_0__String_csize16(x_10);
 x_12 = lean_nat_add(x_11, x_4);

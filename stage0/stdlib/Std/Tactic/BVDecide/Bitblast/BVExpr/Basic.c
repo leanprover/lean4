@@ -298,7 +298,7 @@ static const lean_string_object l_Std_Tactic_BVDecide_BVExpr_toString___closed__
 static const lean_object* l_Std_Tactic_BVDecide_BVExpr_toString___closed__7 = (const lean_object*)&l_Std_Tactic_BVDecide_BVExpr_toString___closed__7_value;
 static const lean_string_object l_Std_Tactic_BVDecide_BVExpr_toString___closed__8_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = " >>a "};
 static const lean_object* l_Std_Tactic_BVDecide_BVExpr_toString___closed__8 = (const lean_object*)&l_Std_Tactic_BVDecide_BVExpr_toString___closed__8_value;
-lean_object* l_BitVec_BitVec_repr(lean_object*, lean_object*);
+lean_object* l_BitVec_repr(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_toString(lean_object*, lean_object*);
@@ -4448,7 +4448,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
 lean_dec_ref(x_2);
-x_8 = l_BitVec_BitVec_repr(x_1, x_7);
+x_8 = l_BitVec_repr(x_1, x_7);
 x_9 = l_Std_Format_defWidth;
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Std_Format_pretty(x_8, x_9, x_10, x_10);

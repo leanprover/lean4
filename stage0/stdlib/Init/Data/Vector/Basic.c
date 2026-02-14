@@ -50,7 +50,7 @@ static const lean_ctor_object l_instReprVector_repr___redArg___closed__17_value 
 static const lean_object* l_instReprVector_repr___redArg___closed__17 = (const lean_object*)&l_instReprVector_repr___redArg___closed__17_value;
 static const lean_ctor_object l_instReprVector_repr___redArg___closed__18_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_instReprVector_repr___redArg___closed__14_value)}};
 static const lean_object* l_instReprVector_repr___redArg___closed__18 = (const lean_object*)&l_instReprVector_repr___redArg___closed__18_value;
-lean_object* l_Array_Array_repr___redArg(lean_object*, lean_object*);
+lean_object* l_Array_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprVector_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprVector_repr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprVector_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -823,7 +823,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = ((lean_object*)(l_instReprVector_repr___redArg___closed__5));
 x_4 = ((lean_object*)(l_instReprVector_repr___redArg___closed__6));
 x_5 = l_instReprVector_repr___redArg___closed__7;
-x_6 = l_Array_Array_repr___redArg(x_1, x_2);
+x_6 = l_Array_repr___redArg(x_1, x_2);
 x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);

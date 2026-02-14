@@ -6109,8 +6109,8 @@ lean_object* x_201; uint8_t x_202;
 x_201 = lean_ctor_get(x_164, 0);
 lean_inc(x_201);
 lean_dec_ref(x_164);
+lean_inc(x_199);
 x_202 = l_Lake_instDecidableEqToolchainVer_decEq(x_201, x_199);
-lean_dec(x_201);
 if (x_202 == 0)
 {
 lean_dec(x_165);
@@ -15198,8 +15198,8 @@ lean_object* x_201; uint8_t x_202;
 x_201 = lean_ctor_get(x_164, 0);
 lean_inc(x_201);
 lean_dec_ref(x_164);
+lean_inc(x_199);
 x_202 = l_Lake_instDecidableEqToolchainVer_decEq(x_201, x_199);
-lean_dec(x_201);
 if (x_202 == 0)
 {
 lean_dec(x_165);

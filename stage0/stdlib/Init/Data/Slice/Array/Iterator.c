@@ -85,7 +85,7 @@ static const lean_string_object l_Array_Subarray_repr___redArg___closed__0_value
 static const lean_object* l_Array_Subarray_repr___redArg___closed__0 = (const lean_object*)&l_Array_Subarray_repr___redArg___closed__0_value;
 static const lean_ctor_object l_Array_Subarray_repr___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Array_Subarray_repr___redArg___closed__0_value)}};
 static const lean_object* l_Array_Subarray_repr___redArg___closed__1 = (const lean_object*)&l_Array_Subarray_repr___redArg___closed__1_value;
-lean_object* l_Array_Array_repr___redArg(lean_object*, lean_object*);
+lean_object* l_Array_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_Subarray_repr___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_Subarray_repr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instReprSubarray___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -1273,7 +1273,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Subarray_toArray___redArg(x_2);
-x_4 = l_Array_Array_repr___redArg(x_1, x_3);
+x_4 = l_Array_repr___redArg(x_1, x_3);
 x_5 = ((lean_object*)(l_Array_Subarray_repr___redArg___closed__1));
 x_6 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_6, 0, x_4);

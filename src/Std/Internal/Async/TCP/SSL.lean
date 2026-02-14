@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.TCP
+public import Std.Internal.Async.Timer
 public import Std.Internal.Async.Select
 public import Std.Internal.SSL
 
@@ -216,12 +217,19 @@ def setServerName (s : Client) (host : String) : IO Unit :=
   s.ssl.setServerName host
 
 /--
+Performs the TLS handshake on an established TCP connection.
+-/
+@[inline]
+def handshake (s : Client) (chunkSize : UInt64 := ioChunkSize) : Async Unit :=
+  SSL.handshake s.native s.ssl chunkSize
+
+/--
 Connects the client socket to the given address and performs the TLS handshake.
 -/
 @[inline]
 def connect (s : Client) (addr : SocketAddress) (chunkSize : UInt64 := ioChunkSize) : Async Unit := do
   Async.ofPromise <| s.native.connect addr
-  SSL.handshake s.native s.ssl chunkSize
+  s.handshake chunkSize
 
 /--
 Attempts to write plaintext data into TLS. Returns true when accepted.
@@ -271,62 +279,63 @@ partial def recv? (s : Client) (size : UInt64) (chunkSize : UInt64 := ioChunkSiz
       recv? s size chunkSize
 
 /--
-Waits until the SSL client has decrypted plaintext available to read.
-Recursively pulls encrypted data from TCP, feeds it into OpenSSL, and checks
-whether OpenSSL has produced plaintext. Returns a promise that resolves to `true`
-when plaintext is available, or `false` if the peer closed the connection.
--/
-partial def waitReadable (s : Client) (chunkSize : UInt64 := ioChunkSize) : IO (IO.Promise (Except IO.Error Bool)) := do
-  let promise ← IO.Promise.new
-  -- Check if SSL already has buffered plaintext.
-  let pending ← s.ssl.pendingPlaintext
-  if pending > 0 then
-    promise.resolve (.ok true)
-    return promise
-  -- Kick off the async feed loop.
-  let go : Async Unit := do
-    let readable ← loop s chunkSize
-    promise.resolve (.ok readable)
-  discard <| go.asTask
-  return promise
-where
-  loop (s : Client) (chunkSize : UInt64) : Async Bool := do
-    let encrypted? ← Async.ofPromise <| s.native.recv? chunkSize
-    match encrypted? with
-    | none =>
-      return false
-    | some encrypted =>
-      feedEncryptedChunk s.ssl encrypted
-      flushEncrypted s.native s.ssl
-      let pending ← s.ssl.pendingPlaintext
-      if pending > 0 then
-        return true
-      loop s chunkSize
-
-@[inline]
-private def cancelRecv (s : Client) : IO Unit :=
-  s.native.cancelRecv
-
-/--
 Tries to receive decrypted plaintext data without blocking.
 Returns `some (some data)` if plaintext is available, `some none` if the peer closed,
 or `none` if no data is ready yet.
 -/
-def tryRecv (s : Client) (size : UInt64) : IO (Option (Option ByteArray)) := do
-  -- Check if the SSL layer already has buffered decrypted data.
+partial def tryRecv (s : Client) (size : UInt64) (chunkSize : UInt64 := ioChunkSize) : Async (Option (Option ByteArray)) := do
   let pending ← s.ssl.pendingPlaintext
+
   if pending > 0 then
-    let res ← (s.recv? size).block
+    let res ← s.recv? size
     return some res
   else
-    -- No buffered plaintext; check if the TCP socket has encrypted data ready.
     let readableWaiter ← s.native.waitReadable
+
+    flushEncrypted s.native s.ssl
+
     if ← readableWaiter.isResolved then
-      s.cancelRecv
-      return none
+      let encrypted? ← Async.ofPromise <| s.native.recv? ioChunkSize
+      match encrypted? with
+      | none =>
+        return none
+      | some encrypted =>
+        feedEncryptedChunk s.ssl encrypted
+        tryRecv s size chunkSize
     else
-      s.cancelRecv
+      s.native.cancelRecv
       return none
+
+/--
+Feeds encrypted socket data into SSL until plaintext is pending.
+Resolves the returned promise once plaintext is available. If no more socket data
+is available (or the promise gets dropped), it exits without resolving.
+-/
+partial def waitReadable (s : Client) (chunkSize : UInt64 := ioChunkSize) : Async Unit := do
+  if (← s.ssl.pendingPlaintext) > 0 then
+    return ()
+
+  let rec go : Async Unit := do
+    let readable ← Async.ofPromise <| s.native.waitReadable
+
+    if !readable then
+      return ()
+
+    let encrypted? ← Async.ofPromise <| s.native.recv? chunkSize
+
+    match encrypted? with
+    | none =>
+      return ()
+    | some encrypted =>
+      feedEncryptedChunk s.ssl encrypted
+      flushEncrypted s.native s.ssl
+
+      if (← s.ssl.pendingPlaintext) > 0 then
+        return ()
+      else
+        go
+
+  go
 
 /--
 Creates a `Selector` that resolves once `s` has plaintext data available.
@@ -336,33 +345,24 @@ def recvSelector (s : TCP.SSL.Client) (size : UInt64) : Selector (Option ByteArr
     tryFn := s.tryRecv size
 
     registerFn waiter := do
-      match ← s.tryRecv size with
-      | some res =>
-        let lose := return ()
-        let win promise := promise.resolve (.ok res)
-        waiter.race lose win
-      | none =>
-        let readablePromise ← s.waitReadable
+      let readableWaiter ← s.waitReadable.asTask
 
-        -- If we get cancelled the promise will be dropped so prepare for that
-        IO.chainTask (t := readablePromise.result?) fun res => do
-          match res with
-          | none => return ()
-          | some res =>
-            let lose := return ()
-            let win promise := do
-              try
-                let readable ← IO.ofExcept res
-                if readable then
-                  let result ← (s.recv? size).block
-                  promise.resolve (.ok result)
-                else
-                  promise.resolve (.ok none)
-              catch e =>
-                promise.resolve (.error e)
-            waiter.race lose win
+      -- If we get cancelled the promise will be dropped so prepare for that
+      discard <| IO.mapTask (t := readableWaiter) fun res => do
+        match res with
+        | .error _ => return ()
+        | .ok _ =>
+          let lose := return ()
+          let win promise := do
+            try
+              -- We know that this read should not block.
+              let result ← (s.recv? size).block
+              promise.resolve (.ok result)
+            catch e =>
+              promise.resolve (.error e)
+          waiter.race lose win
 
-    unregisterFn := s.cancelRecv
+    unregisterFn := s.native.cancelRecv
   }
 
 /--

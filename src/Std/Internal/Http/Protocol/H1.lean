@@ -440,6 +440,7 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
         machine.setReaderState nextState
       else
         machine.send { status }
+        |>.setKnownSize (.fixed 0)
         |>.userClosedBody
         |>.disableKeepAlive
         |>.closeReader

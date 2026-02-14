@@ -77,11 +77,6 @@ structure Config where
   serverName : Option Header.Value := some (.mk "LeanHTTP/1.1")
 
   /--
-  Maximum length of HTTP method token (default: 16 bytes)
-  -/
-  maxMethodLength : Nat := 16
-
-  /--
   Maximum length of request URI (default: 8192 bytes)
   -/
   maxUriLength : Nat := 8192
@@ -129,7 +124,6 @@ Converts to HTTP 1.1 config
 def toH1Config (config : Config) : Protocol.H1.Config where
   maxMessages := config.maxRequests
   maxHeaders := config.maxHeaders
-  maxMethodLength := config.maxMethodLength
   maxUriLength := config.maxUriLength
   maxHeaderNameLength := config.maxHeaderNameLength
   maxHeaderValueLength := config.maxHeaderValueLength

@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Eta
+import Init.Omega
 public section
 namespace Lean.Meta.Grind
 /-!
@@ -399,15 +400,27 @@ def groundPattern? (e : Expr) : Option Expr :=
 private def isGroundPattern (e : Expr) : Bool :=
   groundPattern? e |>.isSome
 
+def mkHOPattern (e : Expr) : Expr :=
+  mkAnnotation `grind.ho_pat e
+
+def hoPattern? (e : Expr) : Option Expr :=
+  annotation? `grind.ho_pat e
+
+def isHOPattern (e : Expr) : Bool :=
+  hoPattern? e |>.isSome
+
 def isPatternDontCare (e : Expr) : Bool :=
   e == dontCare
 
 private def isAtomicPattern (e : Expr) : Bool :=
-  e.isBVar || isPatternDontCare e || isGroundPattern e
+  e.isBVar || isPatternDontCare e || isGroundPattern e || isHOPattern e
 
 partial def ppPattern (pattern : Expr) : MessageData := Id.run do
   if let some e := groundPattern? pattern then
     return m!"`[{e}]"
+  else if let some e := hoPattern? pattern then
+    -- **Note**: the delaborator does not support terms contains loose de Bruijn variables.
+    return m!"ho[{toString e}]"
   else if isPatternDontCare pattern then
     return m!"_"
   else match pattern with
@@ -428,6 +441,72 @@ where
       ppPattern arg
     else
       .paren (ppPattern arg)
+
+namespace MillerCheck
+/--
+Result of the Miller pattern check. Tracks all pattern variables found in the lambda body
+that are Miller pattens.
+-/
+private structure State where
+  /-- All pattern variable indices (adjusted by offset) found in the body. -/
+  foundVars     : Array Nat := #[]
+
+/--
+Checks whether the arguments are distinct variables `< offset`
+-/
+private def checkMillerArgs (args : Array Expr) (offset : Nat) : Bool := Id.run do
+  for h : i in *...args.size do
+    have : i < args.size := by omega
+    let arg := args[i]
+    let .bvar idx := arg | return false
+    unless idx < offset do return false
+    for h : j in *...i do
+      have : j < i := by omega
+      let prev := args[j]
+      if prev == arg then return false
+  return true
+
+private abbrev MillerM := StateM State
+
+private def addVar (idx : Nat) : MillerM Unit := do
+  unless (← get).foundVars.contains idx do
+    modify fun s => { s with foundVars := s.foundVars.push idx }
+
+private partial def visit (e : Expr) (offset : Nat) : MillerM Unit := do
+  match e with
+  | .app .. => e.withApp fun f args => do
+    if let .bvar idx := f then
+      if idx ≥ offset && checkMillerArgs args offset then
+        addVar (idx - offset)
+      else return ()
+    else
+      args.forM (visit · offset)
+  | .bvar idx => if idx ≥ offset then addVar (idx - offset)
+  | .const .. | .sort .. | .fvar .. | .mvar .. | .lit .. => return ()
+  | .mdata _ b | .proj _ _ b => visit b offset
+  | .lam _ _ b _ => visit b (offset+1)
+  | .forallE _ d b _ => visit d offset; visit b (offset+1)
+  | .letE .. => unreachable!
+
+end MillerCheck
+
+/--
+Checks whether the given lambda expression `e` contains subterms satisfying the Miller's pattern condition for
+higher-order matching.
+
+The function traverses the lambda body and validates:
+For each bvar with `index >= offset` (i.e., a pattern variable) where `offset` is the number of binders.
+- If applied (`#k a₁ ... aₙ`): all `aᵢ` must be distinct bvars with `index < offset`
+- If bare: OK (the metavar can't capture lambda-bound vars anyway)
+- At least one pattern variable must appear in a proper Miller application position
+  (i.e., applied to lambda-bound variables).
+
+Returns adjusted bvar indices `(index - offset)` of the pattern variables found, or `none` on violation.
+-/
+private def checkMillerHOPattern? (e : Expr) : Option (Array Nat) :=
+  let (_, { foundVars }) := MillerCheck.visit e 0 |>.run {}
+  if foundVars.isEmpty then none
+  else some foundVars
 
 namespace NormalizePattern
 
@@ -701,10 +780,17 @@ where
           saveBVar idx
           pure arg
       | _ =>
-        if let some _ ← getPatternFn? arg inSupport (root := false) argKind then
+        if arg.isLambda then
+          if let some bvarIndices := checkMillerHOPattern? arg then
+            -- Ignore if `arg` does not contain any ney bvar
+            if (← bvarIndices.anyM fun idx => return !(← foundBVar idx)) then
+              bvarIndices.forM saveBVar
+              return mkHOPattern arg
+          return dontCare
+        else if let some _ ← getPatternFn? arg inSupport (root := false) argKind then
           go arg inSupport (root := false)
         else
-          pure dontCare
+          return dontCare
 
 def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
   let (patterns, s) ← patterns.mapM (go (inSupport := false) (root := true)) { symPrios, minPrio } |>.run {}

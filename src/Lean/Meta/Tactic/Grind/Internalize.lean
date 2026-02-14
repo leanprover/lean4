@@ -590,8 +590,6 @@ where
       mkENode e generation
       activateTheorems declName generation
     | .mvar .. =>
-      if (← reportMVarInternalization) then
-        reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
       mkENode' e generation
     | .mdata .. =>
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"

@@ -34,6 +34,7 @@ public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
+    lakeConfig := config.lakeConfig
     lakeArgs? := config.lakeArgs?
     facetConfigs := initFacetConfigs
   }

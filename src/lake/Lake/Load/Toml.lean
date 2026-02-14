@@ -12,6 +12,7 @@ public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
 import Init.Omega
+meta import Lake.Config.LakeConfig
 meta import Lake.Config.InputFileConfig
 meta import Lake.Config.LeanExeConfig
 meta import Lake.Config.LeanLibConfig
@@ -325,6 +326,26 @@ public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) :
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
+/-! ## Dependency Configuration Decoders -/
+
+public protected def CacheService.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM CacheService := do
+  let typeVal ← t.decodeValue `type
+  match (← typeVal.decodeString) with
+  | "reservoir" => ensureDecode do
+    let name ← t.tryDecode `name ref
+    let repoScope ← t.tryDecode `repoScope ref
+    let apiEndpoint ← t.tryDecode `artifactEndpoint ref
+    return .reservoirService apiEndpoint repoScope (some name)
+  | "s3" => ensureDecode do
+    let name ← t.tryDecode `name ref
+    let artifactEndpoint ← t.tryDecode `artifactEndpoint ref
+    let revisionEndpoint ← t.tryDecode `revisionEndpoint ref
+    return .downloadService artifactEndpoint revisionEndpoint (some name)
+  | _ =>
+    throwDecodeErrorAt typeVal.ref "expected one of 'reservoir' or 's3'"
+
+public instance : DecodeToml CacheService := ⟨fun v => do CacheService.decodeToml (← v.decodeTable) v.ref⟩
+
 /-! ## Package & Target Configuration Decoders -/
 
 public structure TomlFieldInfo (σ : Type) where
@@ -386,6 +407,9 @@ end
 
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
+  -- Lake
+  let cmds ← genDecodeToml cmds ``CacheConfig
+  let cmds ← genDecodeToml cmds ``LakeConfig
   -- Targets
   let cmds ← genDecodeToml cmds ``LeanConfig
   let cmds ← genDecodeToml cmds ``LeanLibConfig
@@ -460,6 +484,25 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         config, depConfigs, targetDecls, targetDeclMap
         defaultTargets
       }
+    if errs.isEmpty then
+      return pkg
+    else
+      errorWithLog <| errs.forM fun {ref, msg} =>
+        let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
+        logError <| mkErrorStringWithPos ictx.fileName pos msg
+  | .error log =>
+    errorWithLog <| log.forM fun msg => do logError (← msg.toString)
+
+/-! ## System Configuration Loader -/
+
+/-- Load the system Lake configuration from a TOML file. -/
+public def loadLakeConfig (path : FilePath) : LogIO LakeConfig := do
+  let input ← IO.FS.readFile path
+  let ictx := mkInputContext input path.toString
+  match (← loadToml ictx |>.toBaseIO) with
+  | .ok table =>
+    let .ok pkg errs := EStateM.run (s := #[]) do
+      LakeConfig.decodeToml table
     if errs.isEmpty then
       return pkg
     else

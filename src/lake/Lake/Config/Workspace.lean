@@ -11,8 +11,8 @@ public import Lake.Config.LeanExe
 public import Lake.Config.ExternLib
 public import Lake.Config.FacetConfig
 public import Lake.Config.TargetConfig
-meta import all Lake.Util.OpaqueType
-import Lake.Util.OpaqueType
+public import Lake.Config.LakeConfig
+meta import Lake.Util.OpaqueType
 import Lean.DocString.Syntax
 
 set_option doc.verso true
@@ -28,6 +28,8 @@ public structure Workspace : Type where
   root : Package
   /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The Lake configuration from the system configuration file. -/
+  lakeConfig : LakeConfig := ∅
   /-- The Lake cache. -/
   lakeCache : Cache :=
     if root.bootstrap then lakeEnv.lakeSystemCache?.getD ⟨root.lakeDir / "cache"⟩

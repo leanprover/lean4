@@ -16,6 +16,7 @@ import Lake.Build.Targets
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
 import Lake.Load.Workspace
+import Lake.Load.Toml
 import Lake.Util.IO
 import Lake.Util.Git
 import Lake.Util.MainM
@@ -104,21 +105,42 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adapt fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+def LakeOptions.mkLoadConfigCore
+  (opts : LakeOptions) (wsDir : FilePath) (lakeEnv : Lake.Env) (lakeConfig : LakeConfig)
+: LoadConfig where
+  lakeEnv
+  lakeConfig
+  lakeArgs? := opts.args.toArray
+  wsDir
+  relConfigFile := opts.configFile
+  packageOverrides := opts.packageOverrides
+  lakeOpts := opts.configOpts
+  leanOpts := Lean.Options.empty
+  reconfigure := opts.reconfigure
+  updateDeps := opts.updateDeps
+  updateToolchain := opts.updateToolchain
+
+/-- Make a `LoadConfig` from a `LakeOptions`. -/
+def LakeOptions.mkLoadConfig' (opts : LakeOptions) : LogIO LoadConfig := do
+  let some wsDir ← resolvePath? opts.rootDir
+    | error <| toString <| CliError.missingRootDir opts.rootDir
+  let lakeEnv ← MonadError.runEIO <| opts.computeEnv
+  let lakeConfig ← id do
+    if let some path := lakeEnv.lakeConfig? then
+      if (← path.pathExists) then
+        loadLakeConfig path
+      else return ∅
+    else return ∅
+  return opts.mkLoadConfigCore wsDir lakeEnv lakeConfig
+
+/-- Make a `LoadConfig` from a `LakeOptions`. -/
+public def LakeOptions.mkLoadConfig
+  (opts : LakeOptions) (cfg : LakeConfig := ∅)
+: EIO CliError LoadConfig := do
   let some wsDir ← resolvePath? opts.rootDir
     | throw <| .missingRootDir opts.rootDir
-  return {
-    lakeArgs? := opts.args.toArray
-    lakeEnv := ← opts.computeEnv
-    wsDir
-    relConfigFile := opts.configFile
-    packageOverrides := opts.packageOverrides
-    lakeOpts := opts.configOpts
-    leanOpts := Lean.Options.empty
-    reconfigure := opts.reconfigure
-    updateDeps := opts.updateDeps
-    updateToolchain := opts.updateToolchain
-  }
+  let lakeEnv ← opts.computeEnv
+  return opts.mkLoadConfigCore wsDir lakeEnv cfg
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
 def LakeOptions.mkBuildConfig
@@ -134,7 +156,7 @@ def LakeOptions.mkBuildConfig
   outputsFile? := opts.outputsFile?
   out; showSuccess
 
-export LakeOptions (mkLoadConfig mkBuildConfig)
+export LakeOptions (mkLoadConfig mkLoadConfig' mkBuildConfig)
 
 /-! ## Monad -/
 
@@ -388,7 +410,7 @@ protected def get : CliM PUnit := do
   let opts ← getThe LakeOptions
   let mappings? ← takeArg?
   noArgsRem do
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
   if let some file := mappings? then liftM (m := LoggerIO) do
@@ -488,7 +510,7 @@ protected def put : CliM PUnit := do
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set for `cache put`"
   noArgsRem do
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let ws ← loadWorkspace cfg
   let pkg := ws.root
   let platform := cachePlatform pkg (opts.platform?.getD System.Platform.target)
@@ -528,7 +550,7 @@ protected def add : CliM PUnit := do
   let pkg? ← takeArg?
   let opts ← getThe LakeOptions
   noArgsRem do
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let ws ← loadWorkspace cfg
   let pkg ← match pkg? with
     | some pkg => parsePackageSpec ws pkg
@@ -541,7 +563,7 @@ protected def clean : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   noArgsRem do
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let dir ← id do
     if (← configFileExists cfg.configFile) then
       return (← loadWorkspaceRoot cfg).lakeCache.dir
@@ -570,7 +592,7 @@ namespace script
 
 protected def list : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLoadConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig' (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
     ws.packages.forM fun pkg => do
@@ -579,7 +601,7 @@ protected def list : CliM PUnit := do
 
 protected nonrec def run : CliM PUnit := do
   processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
-  let config ← mkLoadConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig' (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
     let args ← takeArgs
@@ -593,7 +615,7 @@ protected nonrec def run : CliM PUnit := do
 protected def doc : CliM PUnit := do
   processOptions lakeOption
   let spec ← takeArg "script name"
-  let config ← mkLoadConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig' (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
     let script ← parseScriptSpec ws spec
@@ -632,7 +654,7 @@ protected def init : CliM PUnit := do
 protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
@@ -644,13 +666,13 @@ protected def build : CliM PUnit := do
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
-  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  let pkg ← loadPackage (← mkLoadConfig' (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
 
 protected def query : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
@@ -662,7 +684,7 @@ protected def query : CliM PUnit := do
 protected def queryKind : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let keys ← targetSpecs.toArray.mapM fun spec =>
@@ -682,14 +704,14 @@ protected def queryKind : CliM PUnit := do
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   noArgsRem do
   discard <| loadWorkspace config
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
   updateManifest config toUpdate
 
@@ -697,7 +719,7 @@ protected def pack : CliM PUnit := do
   processOptions lakeOption
   let file? ← takeArg?
   noArgsRem do
-  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  let ws ← loadWorkspace (← mkLoadConfig' (← getThe LakeOptions))
   let file := (FilePath.mk <$> file?).getD ws.root.buildArchiveFile
   ws.root.pack file
 
@@ -705,7 +727,7 @@ protected def unpack : CliM PUnit := do
   processOptions lakeOption
   let file? ← takeArg?
   noArgsRem do
-  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  let ws ← loadWorkspace (← mkLoadConfig' (← getThe LakeOptions))
   let file := (FilePath.mk <$> file?).getD ws.root.buildArchiveFile
   ws.root.unpack file
 
@@ -713,7 +735,7 @@ protected def upload : CliM PUnit := do
   processOptions lakeOption
   let tag ← takeArg "release tag"
   noArgsRem do
-  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  let ws ← loadWorkspace (← mkLoadConfig' (← getThe LakeOptions))
   ws.root.uploadRelease tag
 
 protected def cache : CliM PUnit := do
@@ -729,7 +751,7 @@ protected def cache : CliM PUnit := do
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let loadConfig ← mkLoadConfig opts
+  let loadConfig ← mkLoadConfig' opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
   let header? ← takeArg?
@@ -744,32 +766,32 @@ protected def setupFile : CliM PUnit := do
 protected def test : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let ws ← loadWorkspace (← mkLoadConfig' opts)
   noArgsRem do
   let x := ws.root.test opts.subArgs (mkBuildConfig opts)
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkTest : CliM PUnit := do
   processOptions lakeOption
-  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  let pkg ← loadPackage (← mkLoadConfig' (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
 protected def lint : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let ws ← loadWorkspace (← mkLoadConfig' opts)
   noArgsRem do
   let x := ws.root.lint opts.subArgs (mkBuildConfig opts)
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkLint : CliM PUnit := do
   processOptions lakeOption
-  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  let pkg ← loadPackage (← mkLoadConfig' (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLoadConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig' (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let pkgSpecs ← takeArgs
   if pkgSpecs.isEmpty then
@@ -785,7 +807,7 @@ protected def clean : CliM PUnit := do
 protected def shake : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let ws ← loadWorkspace config
   -- Get remaining arguments as module names
   let mods := (← takeArgs).toArray.map (·.toName)
@@ -819,11 +841,11 @@ protected def serve : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   noArgsRem do exit <| ← serve config args
 
 protected def env : CliM PUnit := do
-  let config ← mkLoadConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig' (← getThe LakeOptions)
   let env ← do
     if (← configFileExists config.configFile) then
       pure (← loadWorkspace config).augmentedEnvVars
@@ -841,7 +863,7 @@ protected def exe : CliM PUnit := do
   let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let config ← mkLoadConfig' opts
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
@@ -852,14 +874,14 @@ protected def lean : CliM PUnit := do
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
-  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let ws ← loadWorkspace (← mkLoadConfig' opts)
   let rc ← ws.evalLeanFile leanFile opts.subArgs.toArray (mkBuildConfig opts)
   exit rc
 
 protected def translateConfig : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let lang ← parseLangSpec (← takeArg "configuration language")
   let outFile? := (← takeArg?).map FilePath.mk
   noArgsRem do
@@ -891,7 +913,7 @@ structure ReservoirConfig where
 protected def reservoirConfig : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   let _ ← id do
     let some verStr ← takeArg?
       | return ReservoirConfig.currentSchemaVersion
@@ -923,7 +945,7 @@ protected def reservoirConfig : CliM PUnit := do
 protected def versionTags : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let cfg ← mkLoadConfig opts
+  let cfg ← mkLoadConfig' opts
   noArgsRem do
   let pkg ← loadPackage cfg
   let tags ← GitRepo.getTags pkg.dir

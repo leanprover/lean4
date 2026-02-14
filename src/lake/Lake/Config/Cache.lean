@@ -384,7 +384,7 @@ public structure CacheService where
     /-- Is this a Reservoir cache service configuration? -/
     isReservoir : Bool := false
     private apiEndpoint : String := ""
-    /--  Whether interpret the scope as a repository or not. -/
+    /-- Whether interpret the scope as a repository or not. -/
     private repoScope : Bool := false
 
 namespace CacheService
@@ -392,8 +392,9 @@ namespace CacheService
 /-! ### Constructors -/
 
 /-- Constructs a `CacheService` for a Reservoir endpoint. -/
-@[inline] public def reservoirService (apiEndpoint : String) (repoScope := false) : CacheService :=
-  {name? := some "reservoir", isReservoir := true, apiEndpoint, repoScope}
+@[inline] public def reservoirService
+  (apiEndpoint : String) (repoScope := false) (name? : Option String := some "reservoir")
+: CacheService := {name?, isReservoir := true, apiEndpoint, repoScope}
 
 /-- Constructs a `CacheService` to upload artifacts and/or outputs to an S3 endpoint. -/
 @[inline] public def uploadService

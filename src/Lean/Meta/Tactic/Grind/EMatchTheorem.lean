@@ -783,7 +783,7 @@ where
           if let some bvarIndices := checkMillerHOPattern? arg then
             -- Ignore if `arg` does not contain any ney bvar
             if (← bvarIndices.anyM fun idx => return !(← foundBVar idx)) then
-              bvarIndices.forM saveBVar
+              -- **Note**: see postprocessor `removeRedundantHOPatterns`
               return mkHOPattern arg
           return dontCare
         else if let some _ ← getPatternFn? arg inSupport (root := false) argKind then
@@ -791,12 +791,49 @@ where
         else
           return dontCare
 
-def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
-  let (patterns, s) ← patterns.mapM (go (inSupport := false) (root := true)) { symPrios, minPrio } |>.run {}
-  return (patterns, s.symbols.toList, s.bvarsFound)
+/-- Collect bvar indices that appear in non-HO positions of a pattern. -/
+private partial def collectNonHOBVars (e : Expr) (s : Array Nat := #[]) : Array Nat :=
+  if isPatternDontCare e || (hoPattern? e).isSome || (groundPattern? e).isSome then s
+  else match e with
+  | .bvar idx => if s.contains idx then s else s.push idx
+  | .app f a => collectNonHOBVars a (collectNonHOBVars f s)
+  | .mdata _ b => collectNonHOBVars b s
+  | _ => s
+
+/-- Replace HO patterns with `dontCare` if all their pattern variables already appear in non-HO positions. -/
+private partial def removeRedundantHOPatterns (e : Expr) (nonHOBVars : Array Nat) : Expr :=
+  go e
+where
+  go (e : Expr) : Expr := Id.run do
+    if isPatternDontCare e || (groundPattern? e).isSome || e.isBVar then return e
+    if let some body := hoPattern? e then
+      let some bvarIndices := checkMillerHOPattern? body | return dontCare
+      if bvarIndices.all nonHOBVars.contains then return dontCare else return e
+    else
+      match e with
+      | .app f a => return mkApp (go f) (go a)
+      | .mdata d b => return mkMData d (go b)
+      | _ => return e
+
+/-- Save bvar indices from remaining HO patterns after redundant ones have been removed. -/
+private partial def saveHOPatternBVars (e : Expr) : M Unit := do
+  if let some body := hoPattern? e then
+    if let some bvarIndices := checkMillerHOPattern? body then
+      bvarIndices.forM saveBVar
+  else
+    let .app f a := e | return ()
+    saveHOPatternBVars f; saveHOPatternBVars a
 
 private def normalizePattern (e : Expr) : M Expr := do
-  go e (inSupport := false) (root := true)
+  let p ← go e (inSupport := false) (root := true)
+  let nonHOBVars := collectNonHOBVars p
+  let p := removeRedundantHOPatterns p nonHOBVars
+  saveHOPatternBVars p
+  return p
+
+def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
+  let (patterns, s) ← patterns.mapM normalizePattern { symPrios, minPrio } |>.run {}
+  return (patterns, s.symbols.toList, s.bvarsFound)
 
 end NormalizePattern
 

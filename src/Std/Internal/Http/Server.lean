@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Internal.Async
 public import Std.Internal.Async.TCP
+public import Std.Internal.Async.TCP.SSL
 public import Std.Sync.CancellationToken
 public import Std.Internal.Http.Server.Config
 public import Std.Internal.Http.Server.Handler
@@ -146,6 +147,51 @@ def serve {σ : Type} [Handler σ]
             | .error _ => Extensions.empty
 
           ContextAsync.background (frameCancellation httpServer (serveConnection client handler config extensions))
+        | none => break
+
+  background (runServer httpServer.context)
+
+  return httpServer
+
+/--
+Start a new HTTPS (HTTP over TLS) server on the given socket address.
+The server context is configured with the provided PEM certificate and key files.
+-/
+def serveSSL {σ : Type} [Handler σ]
+    (addr : Net.SocketAddress)
+    (handler : σ)
+    (certFile keyFile : String)
+    (config : Config := {}) (backlog : UInt32 := 128)
+    (chunkSize : UInt64 := TCP.SSL.ioChunkSize) : Async Server := do
+
+  TCP.SSL.Server.configureContext certFile keyFile
+
+  let httpServer ← Server.new config
+
+  let server ← TCP.SSL.Server.mk
+  server.bind addr
+  server.listen backlog
+
+  let runServer := do
+    frameCancellation httpServer do
+      while true do
+        let result ← Selectable.one #[
+          .case (server.acceptSelector) (fun x => pure <| some x),
+          .case (← ContextAsync.doneSelector) (fun _ => pure none)
+        ]
+
+        match result with
+        | some client =>
+          let extensions : Extensions := match (← EIO.toBaseIO client.getPeerName) with
+            | .ok addr => Extensions.empty.insert (Server.RemoteAddr.mk addr)
+            | .error _ => Extensions.empty
+
+          ContextAsync.background (frameCancellation httpServer do
+            try
+              client.handshake chunkSize
+              serveConnection client handler config extensions
+            catch _ =>
+              pure ())
         | none => break
 
   background (runServer httpServer.context)

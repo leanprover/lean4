@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Http.Protocol.H1
+public import Std.Internal.Async.TCP.SSL
 
 public section
 
@@ -48,6 +49,11 @@ class Transport (α : Type) where
   close : α → IO Unit := fun _ => pure ()
 
 instance : Transport Socket.Client where
+  recv client expect := client.recv? expect
+  sendAll client data := client.sendAll data
+  recvSelector client expect := client.recvSelector expect
+
+instance : Transport TCP.SSL.Client where
   recv client expect := client.recv? expect
   sendAll client data := client.sendAll data
   recvSelector client expect := client.recvSelector expect

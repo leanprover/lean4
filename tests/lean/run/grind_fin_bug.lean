@@ -2,7 +2,6 @@
 -- The fix is in `getPatternArgKinds`: `outParam` arguments are now treated as support
 -- in e-matching patterns. After the next toolchain update, the `attribute` line below
 -- can be removed.
-attribute [grind =] Fin.val_zero Fin.val_one Fin.le_def Fin.lt_def
 
 example {n : Nat} {a : Fin n} {b : Nat} (hb : b < n)
     (h : (a : Nat) < b) : a < ⟨b, hb⟩ := by grind

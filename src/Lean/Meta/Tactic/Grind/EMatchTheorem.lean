@@ -504,6 +504,39 @@ inductive PatternArgKind where
     even if it does not even mention lists.
     -/
     typeFormer
+  | /--
+    `outParam` arguments are uniquely determined by type class resolution and should not
+    be part of the e-matching pattern. Including them is redundant (the instance, which is
+    already wildcarded, determines the `outParam` value) and harmful when the normalizer
+    changes their syntactic form.
+
+    **Motivation.** Consider the `ToInt` class used by the `grind` linear arithmetic module:
+    ```
+    class ToInt (α : Type) (range : outParam IntInterval) where ...
+    instance : ToInt (Fin n) (.co 0 n) where ...
+    @[grind =] theorem toInt_fin (x : Fin n) : ToInt.toInt x = x.val
+    ```
+    The elaborated pattern for `toInt_fin` is:
+    ```
+    @ToInt.toInt (Fin #1) (IntInterval.co 0 (NatCast.natCast #1)) _ #0
+    ```
+    The `range` argument `IntInterval.co 0 (NatCast.natCast #1)` is included in the pattern
+    because the pattern generator treats it as relevant. However, the `grind` normalizer pushes
+    `NatCast.natCast` inside arithmetic operations, rewriting `↑(n + 1)` to `↑n + 1`. So when
+    `grind` processes `Fin (n + 1)`, the e-graph contains:
+    ```
+    @ToInt.toInt (Fin (n + 1)) (IntInterval.co 0 (↑n + 1)) inst x
+    ```
+    The pattern expects `NatCast.natCast #1` at the second position of `IntInterval.co`, but
+    the e-graph has `HAdd.hAdd (NatCast.natCast n) 1` — a different head symbol. The pattern
+    cannot match, and `toInt_fin` never fires.
+
+    Since `outParam` arguments are determined by type class resolution (just like instance
+    arguments, which are already wildcarded), they can be safely ignored in patterns. This is
+    justified by the same reasoning: after e-matching finds candidate substitutions, the
+    instantiation step checks all arguments via `isDefEq`, preserving soundness.
+    -/
+    outParam
     deriving Repr
 
 def PatternArgKind.isSupport : PatternArgKind → Bool
@@ -547,6 +580,7 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo matches .instImplicit then
           return .instImplicit
+        let type := xDecl.type
         /-
         **Note**: Even if the binder is not marked as instance implicit, we may still
         synthesize it using type class resolution. The motivation is declarations such as
@@ -556,8 +590,10 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
         ```
         Recall that a similar approach is used in `simp`.
         -/
-        else if (← isClass? xDecl.type).isSome then
+        if (← isClass? type).isSome then
           return .instImplicit
+        else if type.isOutParam then
+          return .outParam
         else
           return .relevant
 

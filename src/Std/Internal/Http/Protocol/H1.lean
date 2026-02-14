@@ -440,6 +440,7 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
         machine.setReaderState nextState
       else
         machine.send { status }
+        |>.setKnownSize (.fixed 0)
         |>.userClosedBody
         |>.disableKeepAlive
         |>.closeReader
@@ -501,6 +502,7 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
 
         if remaining = 0 then
           machine.setWriterState .complete |> processWrite
+          |>.addEvent .closeBody
         else
           machine.setWriterState (.writingBody (.fixed remaining))
       else if machine.writer.userClosedBody then

@@ -322,4 +322,8 @@ protected def ceil (a : Rat) : Int :=
   else
     a.num / a.den + 1
 
+/-- The absolute value of a rational number `a` is `a` if `a ≥ 0` and `-a` if `a ≤ 0`. -/
+protected def abs (a : Rat) : Rat :=
+  if 0 ≤ a then a else -a
+
 end Rat

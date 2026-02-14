@@ -612,11 +612,11 @@ goto block_73;
 block_11:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-lean_inc_ref(x_3);
-x_5 = l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(x_3);
-lean_inc(x_2);
-x_6 = l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go(lean_box(0), x_4, x_3, x_5, x_2);
-lean_dec_ref(x_3);
+lean_inc_ref(x_2);
+x_5 = l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(x_2);
+lean_inc(x_3);
+x_6 = l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go(lean_box(0), x_4, x_2, x_5, x_3);
+lean_dec_ref(x_2);
 lean_dec_ref(x_4);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
@@ -626,8 +626,8 @@ lean_dec_ref(x_6);
 x_9 = lean_nat_sub(x_8, x_7);
 lean_dec(x_7);
 lean_dec(x_8);
-x_10 = lean_nat_dec_eq(x_9, x_2);
-lean_dec(x_2);
+x_10 = lean_nat_dec_eq(x_9, x_3);
+lean_dec(x_3);
 lean_dec(x_9);
 return x_10;
 }
@@ -635,8 +635,8 @@ block_17:
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__3;
-x_16 = l_panic___redArg(x_13, x_15);
-x_2 = x_12;
+x_16 = l_panic___redArg(x_12, x_15);
+x_2 = x_13;
 x_3 = x_14;
 x_4 = x_16;
 goto block_11;
@@ -661,9 +661,9 @@ if (x_25 == 0)
 {
 lean_dec(x_22);
 lean_dec_ref(x_1);
-x_12 = x_18;
-x_13 = x_24;
-x_14 = x_23;
+x_12 = x_24;
+x_13 = x_23;
+x_14 = x_18;
 goto block_17;
 }
 else
@@ -674,9 +674,9 @@ if (x_26 == 0)
 {
 lean_dec(x_22);
 lean_dec_ref(x_1);
-x_12 = x_18;
-x_13 = x_24;
-x_14 = x_23;
+x_12 = x_24;
+x_13 = x_23;
+x_14 = x_18;
 goto block_17;
 }
 else
@@ -687,9 +687,9 @@ if (x_27 == 0)
 {
 lean_dec(x_22);
 lean_dec_ref(x_1);
-x_12 = x_18;
-x_13 = x_24;
-x_14 = x_23;
+x_12 = x_24;
+x_13 = x_23;
+x_14 = x_18;
 goto block_17;
 }
 else
@@ -699,8 +699,8 @@ x_28 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_28, 0, x_1);
 lean_ctor_set(x_28, 1, x_22);
 lean_ctor_set(x_28, 2, x_19);
-x_2 = x_18;
-x_3 = x_23;
+x_2 = x_23;
+x_3 = x_18;
 x_4 = x_28;
 goto block_11;
 }
@@ -921,11 +921,11 @@ goto block_74;
 block_12:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_inc_ref(x_4);
-x_6 = l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(x_4);
-lean_inc(x_3);
-x_7 = l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go(lean_box(0), x_5, x_4, x_6, x_3);
-lean_dec_ref(x_4);
+lean_inc_ref(x_3);
+x_6 = l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(x_3);
+lean_inc(x_4);
+x_7 = l___private_Init_Data_String_Slice_0__String_Slice_dropWhile_go(lean_box(0), x_5, x_3, x_6, x_4);
+lean_dec_ref(x_3);
 lean_dec_ref(x_5);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
@@ -935,8 +935,8 @@ lean_dec_ref(x_7);
 x_10 = lean_nat_sub(x_9, x_8);
 lean_dec(x_8);
 lean_dec(x_9);
-x_11 = lean_nat_dec_eq(x_10, x_3);
-lean_dec(x_3);
+x_11 = lean_nat_dec_eq(x_10, x_4);
+lean_dec(x_4);
 lean_dec(x_10);
 return x_11;
 }
@@ -944,8 +944,8 @@ block_18:
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__3;
-x_17 = l_panic___redArg(x_14, x_16);
-x_3 = x_13;
+x_17 = l_panic___redArg(x_13, x_16);
+x_3 = x_14;
 x_4 = x_15;
 x_5 = x_17;
 goto block_12;
@@ -970,9 +970,9 @@ if (x_26 == 0)
 {
 lean_dec(x_23);
 lean_dec_ref(x_1);
-x_13 = x_19;
-x_14 = x_25;
-x_15 = x_24;
+x_13 = x_25;
+x_14 = x_24;
+x_15 = x_19;
 goto block_18;
 }
 else
@@ -983,9 +983,9 @@ if (x_27 == 0)
 {
 lean_dec(x_23);
 lean_dec_ref(x_1);
-x_13 = x_19;
-x_14 = x_25;
-x_15 = x_24;
+x_13 = x_25;
+x_14 = x_24;
+x_15 = x_19;
 goto block_18;
 }
 else
@@ -996,9 +996,9 @@ if (x_28 == 0)
 {
 lean_dec(x_23);
 lean_dec_ref(x_1);
-x_13 = x_19;
-x_14 = x_25;
-x_15 = x_24;
+x_13 = x_25;
+x_14 = x_24;
+x_15 = x_19;
 goto block_18;
 }
 else
@@ -1008,8 +1008,8 @@ x_29 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_29, 0, x_1);
 lean_ctor_set(x_29, 1, x_23);
 lean_ctor_set(x_29, 2, x_20);
-x_3 = x_19;
-x_4 = x_24;
+x_3 = x_24;
+x_4 = x_19;
 x_5 = x_29;
 goto block_12;
 }
@@ -1425,9 +1425,9 @@ block_38:
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = l___private_Init_Data_ToString_Name_0__Lean_Name_needsNoEscape___redArg___closed__3;
-x_37 = l_panic___redArg(x_34, x_36);
+x_37 = l_panic___redArg(x_35, x_36);
 x_22 = x_33;
-x_23 = x_35;
+x_23 = x_34;
 x_24 = x_37;
 goto block_32;
 }
@@ -1449,8 +1449,8 @@ if (x_44 == 0)
 {
 lean_dec(x_41);
 x_33 = x_3;
-x_34 = x_43;
-x_35 = x_42;
+x_34 = x_42;
+x_35 = x_43;
 goto block_38;
 }
 else
@@ -1461,8 +1461,8 @@ if (x_45 == 0)
 {
 lean_dec(x_41);
 x_33 = x_3;
-x_34 = x_43;
-x_35 = x_42;
+x_34 = x_42;
+x_35 = x_43;
 goto block_38;
 }
 else
@@ -1473,8 +1473,8 @@ if (x_46 == 0)
 {
 lean_dec(x_41);
 x_33 = x_3;
-x_34 = x_43;
-x_35 = x_42;
+x_34 = x_42;
+x_35 = x_43;
 goto block_38;
 }
 else

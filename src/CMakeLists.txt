@@ -250,7 +250,7 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
@@ -345,6 +345,35 @@ include_directories(${LIBUV_INCLUDE_DIRS})
 if(NOT LEAN_STANDALONE)
   string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
+endif()
+
+# OpenSSL
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  # Only on WebAssembly we compile OpenSSL ourselves
+  set(OPENSSL_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
+
+  # OpenSSL needs to be configured for Emscripten using their configuration system
+  ExternalProject_add(openssl
+    PREFIX openssl
+    GIT_REPOSITORY https://github.com/openssl/openssl
+    # Sync version with flake.nix if applicable
+    GIT_TAG openssl-3.0.15
+    CONFIGURE_COMMAND <SOURCE_DIR>/Configure linux-generic32 no-shared no-dso no-engine no-tests --prefix=<INSTALL_DIR> CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} AR=${CMAKE_AR} CFLAGS=${OPENSSL_EMSCRIPTEN_FLAGS}
+    BUILD_COMMAND emmake make -j
+    INSTALL_COMMAND emmake make install_sw
+    BUILD_IN_SOURCE ON)
+  set(OPENSSL_INCLUDE_DIR "${CMAKE_BINARY_DIR}/openssl/include")
+  set(OPENSSL_CRYPTO_LIBRARY "${CMAKE_BINARY_DIR}/openssl/lib/libcrypto.a")
+  set(OPENSSL_SSL_LIBRARY "${CMAKE_BINARY_DIR}/openssl/lib/libssl.a")
+  set(OPENSSL_LIBRARIES "${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY}")
+else()
+  find_package(OpenSSL REQUIRED)
+  set(OPENSSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
+endif()
+include_directories(${OPENSSL_INCLUDE_DIR})
+if(NOT LEAN_STANDALONE)
+  string(JOIN " " OPENSSL_LIBRARIES ${OPENSSL_LIBRARIES})
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${OPENSSL_LIBRARIES}")
 endif()
 
 # Windows SDK (for ICU)
@@ -721,9 +750,9 @@ if(STAGE GREATER 1)
   endif()
 else()
   add_subdirectory(runtime)
-  if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-    add_dependencies(leanrt libuv)
-    add_dependencies(leanrt_initial-exec libuv)
+  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+    add_dependencies(leanrt libuv openssl)
+    add_dependencies(leanrt_initial-exec libuv openssl)
   endif()
 
   add_subdirectory(util)

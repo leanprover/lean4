@@ -2296,6 +2296,53 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
+
+`cbv` has built-in support for goals of the form `lhs = rhs`. It proceeds in
+two passes:
+1. Reduce `lhs`. If the result is definitionally equal to `rhs`, close the goal.
+2. Otherwise, reduce `rhs`. If the result is now definitionally equal to the
+   reduced `lhs`, close the goal.
+3. If neither check succeeds, generate a new goal `lhs' = rhs'`, where `lhs'`
+   and `rhs'` are the reduced forms of the original sides.
+
+`cbv` is therefore not a finishing tactic in general: it may leave a new
+(simpler) equality goal. For goals that are not equalities, `cbv` currently
+leaves the goal unchanged.
+
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
+-/
+syntax (name := cbv) "cbv" : tactic
+
+/--
+`decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`
+is a `Decidable` proposition. It proceeds in two steps:
+1. Apply `of_decide_eq_true` to transform the goal into `decide p = true`.
+2. Reduce `decide p` via call-by-value normalization. If the result is
+   definitionally equal to `true`, the goal is closed.
+
+`decide_cbv` fails with an error if `decide p` does not reduce to `true`.
+Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
+fails.
+
+The proofs produced by `decide_cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+
+This tactic is experimental and its behavior is likely to change in upcoming
+releases of Lean.
+-/
+syntax (name := decide_cbv) "decide_cbv" : tactic
+
 end Tactic
 
 namespace Attr

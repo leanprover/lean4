@@ -744,7 +744,7 @@ theorem elim_guard : (guard p a).elim b f = if p a then f a else b := by
   cases h : p a <;> simp [*, guard]
 
 @[simp]
-theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
+theorem elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
     (o.map f).elim g' g = o.elim g' (g ∘ f) := by
   cases o <;> simp
 

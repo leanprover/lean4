@@ -19656,7 +19656,7 @@ block_45:
 {
 lean_object* x_33; double x_34; double x_35; double x_36; double x_37; double x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; 
 x_33 = lean_io_mono_nanos_now();
-x_34 = lean_float_of_nat(x_29);
+x_34 = lean_float_of_nat(x_30);
 x_35 = l_Lean_mkNoConfusion___closed__0;
 x_36 = lean_float_div(x_34, x_35);
 x_37 = lean_float_of_nat(x_33);
@@ -19671,7 +19671,7 @@ lean_ctor_set(x_42, 0, x_31);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_unbox(x_25);
 lean_dec(x_25);
-x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_30, x_27, x_42, x_2, x_3, x_4, x_5);
+x_44 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkNoConfusion_spec__2___redArg(x_23, x_22, x_28, x_21, x_43, x_29, x_27, x_42, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_21);
 return x_44;
 }
@@ -19840,8 +19840,8 @@ lean_inc_ref(x_4);
 lean_inc(x_3);
 lean_inc_ref(x_2);
 x_96 = l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCore(x_1, x_2, x_3, x_4, x_5);
-x_52 = x_92;
-x_53 = x_89;
+x_52 = x_89;
+x_53 = x_92;
 x_54 = x_96;
 goto block_59;
 }
@@ -19853,8 +19853,8 @@ lean_inc_ref(x_4);
 lean_inc(x_3);
 lean_inc_ref(x_2);
 x_97 = l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionEnum(x_1, x_2, x_3, x_4, x_5);
-x_52 = x_92;
-x_53 = x_89;
+x_52 = x_89;
+x_53 = x_92;
 x_54 = x_97;
 goto block_59;
 }
@@ -19866,8 +19866,8 @@ lean_dec(x_1);
 x_98 = lean_ctor_get(x_93, 0);
 lean_inc(x_98);
 lean_dec_ref(x_93);
-x_46 = x_92;
-x_47 = x_89;
+x_46 = x_89;
+x_47 = x_92;
 x_48 = x_98;
 x_49 = lean_box(0);
 goto block_51;

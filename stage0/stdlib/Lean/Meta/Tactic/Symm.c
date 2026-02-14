@@ -6777,7 +6777,7 @@ block_22:
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec_ref(x_14);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Meta_SavedState_restore___redArg(x_13, x_4, x_6);
 lean_dec(x_13);
 if (lean_obj_tag(x_17) == 0)
@@ -6821,7 +6821,7 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_1);
-return x_14;
+return x_15;
 }
 }
 block_28:
@@ -6832,16 +6832,16 @@ if (x_26 == 0)
 {
 uint8_t x_27; 
 x_27 = l_Lean_Exception_isRuntime(x_24);
-x_14 = x_23;
-x_15 = lean_box(0);
+x_14 = lean_box(0);
+x_15 = x_23;
 x_16 = x_27;
 goto block_22;
 }
 else
 {
 lean_dec_ref(x_24);
-x_14 = x_23;
-x_15 = lean_box(0);
+x_14 = lean_box(0);
+x_15 = x_23;
 x_16 = x_26;
 goto block_22;
 }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <cstring>
 #include "runtime/hash.h"
 
 namespace lean {
@@ -17,11 +18,13 @@ static uint64 MurmurHash64A(void const * key, size_t len, uint64 seed) {
 
     uint64 h = seed ^ (len * m);
 
-    const uint64 * data = (const uint64 *)key;
-    const uint64 * end = data + (len/8);
+    const unsigned char * data = reinterpret_cast<const unsigned char *>(key);
+    const unsigned char * end = data + (len/8)*8;
 
     while (data != end) {
-        uint64 k = *data++;
+        uint64 k;
+        memcpy(&k, data, 8);
+        data += 8;
 
         k *= m;
         k ^= k >> r;

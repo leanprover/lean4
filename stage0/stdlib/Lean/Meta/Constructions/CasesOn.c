@@ -1942,7 +1942,7 @@ block_121:
 {
 lean_object* x_112; double x_113; double x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; lean_object* x_120; 
 x_112 = lean_io_get_num_heartbeats();
-x_113 = lean_float_of_nat(x_109);
+x_113 = lean_float_of_nat(x_108);
 x_114 = lean_float_of_nat(x_112);
 x_115 = lean_box_float(x_113);
 x_116 = lean_box_float(x_114);
@@ -1954,7 +1954,7 @@ lean_ctor_set(x_118, 0, x_110);
 lean_ctor_set(x_118, 1, x_117);
 x_119 = lean_unbox(x_73);
 lean_dec(x_73);
-x_120 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkCasesOn_spec__5___redArg(x_71, x_8, x_76, x_7, x_119, x_108, x_75, x_118, x_2, x_3, x_4, x_5);
+x_120 = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_mkCasesOn_spec__5___redArg(x_71, x_8, x_76, x_7, x_119, x_109, x_75, x_118, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_7);
 return x_120;
 }
@@ -2263,8 +2263,8 @@ lean_ctor_set(x_210, 1, x_213);
 x_214 = lean_st_ref_set(x_3, x_210);
 lean_inc_ref(x_4);
 x_215 = l_Lean_enableRealizationsForConst(x_9, x_4, x_5);
-x_128 = x_137;
-x_129 = x_193;
+x_128 = x_193;
+x_129 = x_137;
 x_130 = x_215;
 goto block_135;
 }
@@ -2290,8 +2290,8 @@ lean_ctor_set(x_221, 4, x_219);
 x_222 = lean_st_ref_set(x_3, x_221);
 lean_inc_ref(x_4);
 x_223 = l_Lean_enableRealizationsForConst(x_9, x_4, x_5);
-x_128 = x_137;
-x_129 = x_193;
+x_128 = x_193;
+x_129 = x_137;
 x_130 = x_223;
 goto block_135;
 }
@@ -2364,8 +2364,8 @@ lean_ctor_set(x_243, 4, x_240);
 x_244 = lean_st_ref_set(x_3, x_243);
 lean_inc_ref(x_4);
 x_245 = l_Lean_enableRealizationsForConst(x_9, x_4, x_5);
-x_128 = x_137;
-x_129 = x_193;
+x_128 = x_193;
+x_129 = x_137;
 x_130 = x_245;
 goto block_135;
 }
@@ -2373,8 +2373,8 @@ goto block_135;
 else
 {
 lean_dec(x_9);
-x_128 = x_137;
-x_129 = x_193;
+x_128 = x_193;
+x_129 = x_137;
 x_130 = x_201;
 goto block_135;
 }
@@ -2386,8 +2386,8 @@ lean_dec(x_9);
 x_246 = lean_ctor_get(x_198, 0);
 lean_inc(x_246);
 lean_dec_ref(x_198);
-x_122 = x_137;
-x_123 = x_193;
+x_122 = x_193;
+x_123 = x_137;
 x_124 = x_246;
 x_125 = lean_box(0);
 goto block_127;

@@ -50,8 +50,6 @@ class PartialOrder (α : Sort u) where
   /-- The “less-or-equal-to” or “approximates” relation is antisymmetric. -/
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
-attribute [reducible] PartialOrder.rel
-
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
 section PartialOrder

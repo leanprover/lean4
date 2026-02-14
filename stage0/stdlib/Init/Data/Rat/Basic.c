@@ -277,6 +277,8 @@ lean_object* lean_int_ediv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_floor(lean_object*);
 static lean_object* l_Rat_ceil___closed__0;
 LEAN_EXPORT lean_object* l_Rat_ceil(lean_object*);
+static lean_object* l_Rat_abs___closed__0;
+LEAN_EXPORT lean_object* l_Rat_abs(lean_object*);
 static lean_object* _init_l_Rat_den__nz___autoParam___closed__5() {
 _start:
 {
@@ -2317,6 +2319,34 @@ return x_2;
 }
 }
 }
+static lean_object* _init_l_Rat_abs___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Nat_cast___at___00Rat_ofScientific_spec__0(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Rat_abs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = l_Rat_abs___closed__0;
+lean_inc_ref(x_1);
+x_3 = l_Rat_instDecidableLe(x_2, x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+x_4 = l_Rat_neg(x_1);
+return x_4;
+}
+else
+{
+return x_1;
+}
+}
+}
 lean_object* initialize_Init_Data_Nat_Coprime(uint8_t builtin);
 lean_object* initialize_Init_Data_OfScientific(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
@@ -2418,6 +2448,8 @@ l_Rat_instLE = _init_l_Rat_instLE();
 lean_mark_persistent(l_Rat_instLE);
 l_Rat_ceil___closed__0 = _init_l_Rat_ceil___closed__0();
 lean_mark_persistent(l_Rat_ceil___closed__0);
+l_Rat_abs___closed__0 = _init_l_Rat_abs___closed__0();
+lean_mark_persistent(l_Rat_abs___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

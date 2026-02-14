@@ -61,8 +61,7 @@ A tactic for solving goal `Goal n`
 macro "solve" : tactic => `(tactic| {
   intro post
   simp only [loop, step]
-  mvcgen'
-  all_goals (mleave; grind)
+  mvcgen' <;> grind
 })
 
 /--

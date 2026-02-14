@@ -163,4 +163,14 @@ theorem cast_pos {s t : String} {p : Pos.Raw} {h : Pos.Raw.IsValid s p} {h' : s 
     (s.pos p h).cast h' = t.pos p (h' ▸ h) := by
   simp [String.Pos.ext_iff]
 
+@[simp]
+theorem Pos.Raw.isValidForSlice_zero {s : Slice} : (0 : Pos.Raw).IsValidForSlice s where
+  le_rawEndPos := by simp [Pos.Raw.le_iff]
+  isValid_offsetBy := by simpa using s.startInclusive.isValid
+
+@[simp]
+theorem Pos.get_ofToSlice {s : String} {p : (s.toSlice).Pos} {h} :
+    (ofToSlice p).get h = p.get (by simpa [← ofToSlice_inj]) := by
+  simp [get_eq_get_toSlice]
+
 end String

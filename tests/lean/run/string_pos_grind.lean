@@ -1,7 +1,10 @@
 module
 
 example {p q r : String.Pos.Raw} : p < q → q ≤ r → p < r := by
-  lia
+  grind_order
+
+example {p q r : String.Pos.Raw} : p < q → q ≤ r → p < r := by
+  lia +order
 
 example {s : String} {p q r : s.Pos} : p < q → q ≤ r → p < r := by
   lia

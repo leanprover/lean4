@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Deriving_FromToJso
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1610,7 +1610,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_7, x_10);
 lean_dec(x_7);
-x_12 = l_String_Slice_Pos_prevAux_go___redArg(x_6, x_11);
+x_12 = l_String_Slice_posLE(x_6, x_11);
 x_13 = lean_nat_add(x_4, x_12);
 x_14 = lean_string_utf8_get_fast(x_3, x_13);
 lean_dec(x_13);

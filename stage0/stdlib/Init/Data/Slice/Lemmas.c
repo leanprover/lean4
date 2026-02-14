@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Lemmas
-// Imports: public import Init.Data.Slice.Operations import all Init.Data.Slice.Operations import Init.Data.Iterators.Lemmas.Consumers public import Init.Data.List.Control public import Init.Data.Iterators.Consumers.Collect
+// Imports: public import Init.Data.Slice.Operations import all Init.Data.Slice.Operations import Init.Data.Iterators.Lemmas.Consumers public import Init.Data.List.Control public import Init.Data.Iterators.Consumers.Collect import Init.Data.Slice.InternalLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Control(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
+lean_object* initialize_Init_Data_Slice_InternalLemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Init_Data_List_Control(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Collect(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Slice_InternalLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1338,7 +1338,7 @@ goto block_82;
 block_25:
 {
 lean_object* x_20; 
-x_20 = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Compiler_compile_spec__4_spec__4(x_6, x_16, x_15, x_14, x_17, x_18);
+x_20 = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00__private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Compiler_compile_spec__4_spec__4(x_6, x_16, x_14, x_15, x_17, x_18);
 lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -1386,8 +1386,8 @@ lean_dec(x_27);
 lean_dec(x_26);
 lean_dec_ref(x_3);
 lean_dec(x_1);
-x_14 = x_31;
-x_15 = x_30;
+x_14 = x_30;
+x_15 = x_31;
 x_16 = x_34;
 x_17 = x_9;
 x_18 = x_10;
@@ -1408,8 +1408,8 @@ x_37 = lean_unbox_float(x_27);
 lean_dec(x_27);
 lean_ctor_set_float(x_35, sizeof(void*)*2 + 8, x_37);
 lean_ctor_set_uint8(x_35, sizeof(void*)*2 + 16, x_2);
-x_14 = x_31;
-x_15 = x_30;
+x_14 = x_30;
+x_15 = x_31;
 x_16 = x_35;
 x_17 = x_9;
 x_18 = x_10;

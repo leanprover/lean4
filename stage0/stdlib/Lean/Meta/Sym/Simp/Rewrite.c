@@ -3580,7 +3580,7 @@ block_29:
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_26 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 0, x_24);
 if (lean_is_scalar(x_22)) {
  x_27 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3622,8 +3622,8 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_24 = lean_box(0);
-x_25 = x_31;
+x_24 = x_31;
+x_25 = lean_box(0);
 goto block_29;
 }
 }
@@ -3640,8 +3640,8 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_24 = lean_box(0);
-x_25 = x_31;
+x_24 = x_31;
+x_25 = lean_box(0);
 goto block_29;
 }
 }

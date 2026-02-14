@@ -26,18 +26,34 @@ theorem Spec.MonadState_get_StateT {m ps} [Monad m] [WPMonad m ps] {σ} {Q : Pos
 
 -- Normally, we'd support the following two specs by unfolding:
 
-@[spec]
-theorem Spec.monadLift_ExceptT [Monad m] [WPMonad m ps] {x : m α} :
-    ⦃wp⟦x⟧ (Q.1, Q.2.2)⦄ monadLift (n := ExceptT ε m) x ⦃Q⦄ := by
-  simp [Triple.iff, monadLift, MonadLift.monadLift, MonadLiftT.monadLift, ExceptT.lift, wp]
+-- TODO: Need to figure out why the trans rule does not apply.
+-- @[spec]
+-- theorem Spec.monadLift_trans [Monad o] [WPMonad o ps] [MonadLift n o] [MonadLiftT m n] (x : m α) :
+--     ⦃wp⟦MonadLift.monadLift (m := n) (n := o) (monadLift x)⟧ Q⦄ (MonadLiftT.monadLift x : o α) ⦃Q⦄ := SPred.entails.rfl
+--
+-- @[spec]
+-- theorem Spec.monadLift_refl [WP m ps] (x : m α) :
+--     ⦃wp⟦x⟧ Q⦄ (MonadLiftT.monadLift (n := m) x) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.MonadState_get_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] :
     ⦃wp⟦monadLift (n := ExceptT ε m) (get : m σ)⟧ Q⦄ (get : ExceptT ε m σ) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
-theorem Spec.MonadState_set_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
+theorem Spec.MonadStateOf_get_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] :
+    ⦃wp⟦monadLift (n := ExceptT ε m) (get : m σ)⟧ Q⦄ (MonadStateOf.get : ExceptT ε m σ) ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.MonadStateOf_get_StateT_lift {m ps} [Monad m] [MonadStateOf σ m] [WP m ps] {Q : PostCond σ (.arg σ' ps)} :
+    ⦃wp⟦monadLift (n := StateT σ' m) (get : m σ)⟧ Q⦄ (MonadStateOf.get (σ := σ) : StateT σ' m σ) ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.MonadStateOf_set_ExceptT [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
     ⦃wp⟦monadLift (n := ExceptT ε m) (set (m := m) s)⟧ Q⦄ set (m := ExceptT ε m) s ⦃Q⦄ := SPred.entails.rfl
+
+@[spec]
+theorem Spec.MonadStateOf_set_StateT_lift [Monad m] [MonadStateOf σ m] [WP m ps] {s : σ} :
+    ⦃wp⟦monadLift (n := StateT σ' m) (set (m := m) s)⟧ Q⦄ set (m := StateT σ' m) s ⦃Q⦄ := SPred.entails.rfl
 
 /-!
 Creating backward rules for registered specifications
@@ -379,7 +395,7 @@ inductive SolveResult where
   Did not find a spec for the `e` in `H ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ`.
   Candidates were `thms`, but none of them matched the monad.
   -/
-  | noSpecFoundForProgram (e : Expr) (thms : Array SpecTheorem)
+  | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
   /-- Successfully discharged the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
@@ -444,7 +460,8 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let thms ← (← read).specThms.findSpecs e
     trace[Elab.Tactic.Do.vcgen] "Candidates for {e}: {thms.map (·.proof)}"
     let some (thm, rule) ← mkBackwardRuleFromSpecsCached thms m σs ps instWP excessArgs
-      | return .noSpecFoundForProgram e thms
+      | return .noSpecFoundForProgram e m thms
+    trace[Elab.Tactic.Do.vcgen] "Applying rule {rule.pattern.pattern} at {target}"
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply rule {thm.proof} for {indentExpr e}"
     return .goals goals
@@ -473,10 +490,10 @@ meta def work (goal : MVarId) : VCGenM Unit := do
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
-    | .noSpecFoundForProgram prog #[] =>
+    | .noSpecFoundForProgram prog _ #[] =>
       throwError "No spec found for program {prog}."
-    | .noSpecFoundForProgram prog thms =>
-      throwError "No spec matching the monad found for program {prog}. Candidates were {thms.map (·.proof)}."
+    | .noSpecFoundForProgram prog monad thms =>
+      throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
     | .noStrategyForProgram prog =>
       throwError "Did not know how to decompose weakest precondition for {prog}"
     | .goals subgoals =>
@@ -523,7 +540,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
               mkSpecTheoremFromConst declName
             else
               withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
-        specThms := specThms.eraseCore specThm.proof
+        specThms := specThms.erase specThm.proof
       catch _ =>
         simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
@@ -537,14 +554,14 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
         let info ← getConstInfo declName
         try
           let thm ← mkSpecTheoremFromConst declName
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         let decl ← getFVarLocalDecl (.fvar fvar)
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
       | _ => withRef term <| throwError "Could not resolve {repr term}"
@@ -567,7 +584,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
       unless specThms.isErased (.local fvar) do
         try
           let thm ← mkSpecTheoremFromLocal fvar
-          specThms := addSpecTheoremEntry specThms thm
+          specThms := specThms.add thm
         catch _ => continue
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
   return { specThms, entailsConsIntroRule }
@@ -589,26 +606,27 @@ Local tests for faster iteration:
 -/
 
 /-
-def step (v : Nat) : StateM Nat Unit := do
+def step (lim : Nat) : ExceptT String (StateM Nat) Unit := do
   let s ← get
-  set (s + v)
-  let s ← get
-  set (s - v)
+  if s > lim then
+    throw "s is too large"
+  set (s + 1)
 
-def loop (n : Nat) : StateM Nat Unit := do
+def loop (n : Nat) : ExceptT String (StateM Nat) Unit := do
   match n with
   | 0 => pure ()
-  | n+1 => step n; loop n
+  | n+1 => loop n; step n
 
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-set_option trace.Elab.Tactic.Do.vcgen true in
-example : ⦃post⦄ loop 1 ⦃⇓_ => post⦄ := by
-  intro post
+-- set_option trace.Elab.Tactic.Do.vcgen true in
+set_option trace.profiler true in
+example : ⦃fun s => ⌜s = 0⌝⦄ loop 50 ⦃⇓_ s => ⌜s = 50⌝⦄ := by
   simp only [loop, step]
   mvcgen'
-  grind
+  -- all_goals grind
+  all_goals sorry
 
 set_option trace.Elab.Tactic.Do.vcgen true in
 example :

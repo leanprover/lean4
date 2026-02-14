@@ -521,7 +521,7 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
   rw [← toList_toArray, Array.sum_toList, sum_toArray]
 
 @[simp, grind =]
-theorem Vector.toList_zip {as : Vector α n} {bs : Vector β n} :
+theorem toList_zip {as : Vector α n} {bs : Vector β n} :
     (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
   rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Pattern.Basic
-// Imports: public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.String.Defs import Init.Data.Iterators.Consumers.Loop import Init.Omega import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Termination import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.Order public import Init.Data.String.Basic
+// Imports: public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.String.Defs public import Init.Data.String.Basic public import Init.Data.String.FindPos import Init.Data.String.Lemmas.FindPos import Init.Data.Iterators.Consumers.Loop import Init.Omega import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Termination import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -99,7 +99,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwa
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_iter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_iter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_iter___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern___redArg(lean_object*, lean_object*);
@@ -1406,7 +1406,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_3, x_14);
-x_16 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_15);
+x_16 = l_String_Slice_posLE(x_2, x_15);
 lean_inc(x_16);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -1453,7 +1453,7 @@ if (lean_obj_tag(x_27) == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_28 = lean_unsigned_to_nat(1u);
 x_29 = lean_nat_sub(x_3, x_28);
-x_30 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_29);
+x_30 = l_String_Slice_posLE(x_2, x_29);
 lean_inc(x_30);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -1583,7 +1583,7 @@ if (lean_obj_tag(x_19) == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_sub(x_5, x_20);
-x_22 = l_String_Slice_Pos_prevAux_go___redArg(x_3, x_21);
+x_22 = l_String_Slice_posLE(x_3, x_21);
 lean_inc(x_22);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
@@ -1632,7 +1632,7 @@ if (lean_obj_tag(x_35) == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_36 = lean_unsigned_to_nat(1u);
 x_37 = lean_nat_sub(x_5, x_36);
-x_38 = l_String_Slice_Pos_prevAux_go___redArg(x_3, x_37);
+x_38 = l_String_Slice_posLE(x_3, x_37);
 lean_inc(x_38);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -1754,13 +1754,15 @@ return x_4;
 }
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Defs(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_FindPos(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Pattern_Basic(uint8_t builtin) {
 lean_object * res;
@@ -1770,6 +1772,15 @@ res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Defs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
@@ -1788,9 +1799,6 @@ res = initialize_Init_Data_String_OrderInstances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_Order(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

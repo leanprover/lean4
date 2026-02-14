@@ -18,13 +18,13 @@
       # An old nixpkgs for creating releases with an old glibc
       pkgsDist-old-aarch = import inputs.nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
 
-      llvmPackages = pkgs.llvmPackages_15;
+      llvmPackages = pkgs.llvmPackages_19;
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
           stdenv = pkgs.overrideCC pkgs.stdenv llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv ccache pkg-config
+            cmake gmp libuv ccache pkg-config openssl
             llvmPackages.bintools  # wrapped lld
             llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb

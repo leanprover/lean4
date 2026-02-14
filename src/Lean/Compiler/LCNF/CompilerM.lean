@@ -292,6 +292,14 @@ private partial def normLetValueImp (s : FVarSubst pu) (e : LetValue pu) (transl
     match normFVarImp s fvarId translator with
     | .fvar fvarId' => e.updateReuse! fvarId' info updateHeader (normArgsImp s args translator)
     | .erased => .erased
+  | .box ty fvarId _ =>
+    match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateBox! ty fvarId'
+    | .erased => .erased
+  | .unbox fvarId _ =>
+    match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateUnbox! fvarId'
+    | .erased => .erased
 
 /--
 Interface for monads that have a free substitutions.
@@ -400,6 +408,16 @@ private unsafe def updateParamImp (p : Param pu) (type : Expr) : CompilerM (Para
     return p
 
 @[implemented_by updateParamImp] opaque Param.update (p : Param pu) (type : Expr) : CompilerM (Param pu)
+
+private unsafe def updateParamBorrowImp (p : Param pu) (borrow : Bool) : CompilerM (Param pu) := do
+  if borrow = p.borrow then
+    return p
+  else
+    let p := { p with borrow }
+    modifyLCtx fun lctx => lctx.addParam p
+    return p
+
+@[implemented_by updateParamBorrowImp] opaque Param.updateBorrow (p : Param pu) (borrow : Bool) : CompilerM (Param pu)
 
 private unsafe def updateLetDeclImp (decl : LetDecl pu) (type : Expr) (value : LetValue pu) : CompilerM (LetDecl pu) := do
   if ptrEq type decl.type && ptrEq value decl.value then

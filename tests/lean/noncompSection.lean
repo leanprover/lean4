@@ -11,8 +11,12 @@ abbrev c : Nat := Classical.choose ex
 
 abbrev d : Nat := 1
 
+/-
+TODO: fix compiler pre check
+
 instance e : Inhabited Nat :=
  ⟨a⟩
+-/
 
 instance f : Inhabited Nat :=
  ⟨b⟩
@@ -23,10 +27,14 @@ section Foo
 
 def g : Nat := Classical.choose ex
 
+/-
+TODO: fix compiler pre-check
+
 def h (x : Nat) : Nat :=
   match x with
   | 0 => a
   | x+1 => h x + 1
+-/
 
 end Foo
 

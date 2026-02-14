@@ -23,7 +23,7 @@ set_option doc.verso true
 
 public section
 
-namespace String.Slice.Pattern
+namespace String.Slice.Pattern.Model
 
 /-!
 This file develops basic theory around searching in strings.
@@ -46,9 +46,9 @@ stated in terms of {name}`ForwardPatternModel.Matches`, and can be specialized t
 from there.
 
 The corresponding compatibility typeclasses are
-{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.LawfulForwardPatternModel`
+{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.LawfulForwardPatternModel`
 and
-{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.LawfulToForwardSearcherModel`.
+{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.LawfulToForwardSearcherModel`.
 
 We include the condition that the empty string is not a match. This is necessary for the theory to
 work out as there is just no reasonable notion of searching that works for the empty string that is
@@ -93,7 +93,7 @@ Predicate stating that the region between the start of the slice {name}`s` and t
 beginning of the slice. This is what a correct matcher should match.
 
 In some cases, being a match and being a longest match will coincide, see
-{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.NoPrefixForwardPatternModel`.
+{name (scope := "Init.Data.String.Lemmas.Pattern.Basic")}`String.Slice.Pattern.Model.NoPrefixForwardPatternModel`.
 -/
 structure IsLongestMatch (pat : ρ) [ForwardPatternModel pat] {s : Slice} (pos : s.Pos) where
   isMatch : IsMatch pat pos
@@ -178,7 +178,7 @@ theorem IsLongestMatch.isLongestMatchAt_ofSliceFrom {pat : ρ} [ForwardPatternMo
 Predicate stating that there is a (longest) match starting at the given position.
 -/
 structure MatchesAt (pat : ρ) [ForwardPatternModel pat] {s : Slice} (pos : s.Pos) : Prop where
-  exists_isMatchAt : ∃ endPos, IsLongestMatchAt pat pos endPos
+  exists_isLongestMatchAt : ∃ endPos, IsLongestMatchAt pat pos endPos
 
 theorem matchesAt_iff_exists_isLongestMatchAt {pat : ρ} [ForwardPatternModel pat] {s : Slice}
     {pos : s.Pos} : MatchesAt pat pos ↔ ∃ endPos, IsLongestMatchAt pat pos endPos :=
@@ -197,6 +197,31 @@ theorem matchesAt_iff_exists_isMatch {pat : ρ} [ForwardPatternModel pat] {s : S
   exact ⟨Pos.ofSliceFrom q,
     ⟨Std.le_trans h₁ (by simpa [← Pos.ofSliceFrom_le_ofSliceFrom_iff] using hq.le_of_isMatch h₂),
      by simpa using hq⟩⟩
+
+open Classical in
+/--
+Noncomputable model function returning the end point of the longest match starting at the given
+position, or {lean}`none` if there is no match.
+-/
+noncomputable def matchAt? {ρ : Type} (pat : ρ) [ForwardPatternModel pat]
+    {s : Slice} (startPos : s.Pos) : Option s.Pos :=
+  if h : ∃ endPos, IsLongestMatchAt pat startPos endPos then some h.choose else none
+
+@[simp]
+theorem matchAt?_eq_some_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+    {s : Slice} {startPos endPos : s.Pos} :
+    matchAt? pat startPos = some endPos ↔ IsLongestMatchAt pat startPos endPos := by
+  fun_cases matchAt? with
+  | case1 h => simpa using ⟨by rintro rfl; exact h.choose_spec, fun h' => h.choose_spec.eq h'⟩
+  | case2 => simp_all
+
+@[simp]
+theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [ForwardPatternModel pat]
+    {s : Slice} {startPos : s.Pos} :
+    matchAt? pat startPos = none ↔ ¬ MatchesAt pat startPos := by
+  fun_cases matchAt? with
+  | case1 h => simpa using ⟨h⟩
+  | case2 h => simpa using fun ⟨h'⟩ => h h'
 
 /--
 Predicate stating compatibility between {name}`ForwardPatternModel` and {name}`ForwardPattern`.
@@ -253,6 +278,13 @@ theorem IsValidSearchFrom.mismatched_of_eq {pat : ρ} [ForwardPatternModel pat] 
   cases h₃
   exact IsValidSearchFrom.mismatched h₀ h₂ h₁
 
+theorem IsValidSearchFrom.endPos_of_eq {pat : ρ} [ForwardPatternModel pat] {s : Slice}
+    {p : s.Pos} {l : List (SearchStep s)} (hp : p = s.endPos) (hl : l = []) :
+    IsValidSearchFrom pat p l := by
+  cases hp
+  cases hl
+  exact IsValidSearchFrom.endPos
+
 /--
 Predicate stating compatibility between {name}`ForwardPatternModel` and {name}`ToForwardSearcher`.
 
@@ -305,4 +337,4 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
     · split at heq <;> simp at heq
     · split at heq <;> simp at heq
 
-end String.Slice.Pattern
+end String.Slice.Pattern.Model

@@ -131,6 +131,8 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
+  /-- Cache for `isDefEqI` results -/
+  defEqI : PHashMap (ExprPtr × ExprPtr) Bool := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM
@@ -218,5 +220,14 @@ abbrev share (e : Expr) : SymM Expr :=
 /-- Returns `true` if `sym.debug` is set -/
 @[inline] def isDebugEnabled : SymM Bool :=
   return (← get).debug
+
+/-- Similar to `Meta.isDefEqI`, but the result is cache using pointer equality. -/
+def isDefEqI (s t : Expr) : SymM Bool := do
+  let key := (⟨s⟩, ⟨t⟩)
+  if let some result := (← get).defEqI.find? key then
+    return result
+  let result ← Meta.isDefEqI s t
+  modify fun s => { s with defEqI := s.defEqI.insert key result }
+  return result
 
 end Lean.Meta.Sym

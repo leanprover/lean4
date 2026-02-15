@@ -419,8 +419,7 @@ partial def ppPattern (pattern : Expr) : MessageData := Id.run do
   if let some e := groundPattern? pattern then
     return m!"`[{e}]"
   else if let some e := hoPattern? pattern then
-    -- **Note**: the delaborator does not support terms contains loose de Bruijn variables.
-    return m!"ho[{toString e}]"
+    return m!"ho[{ppHOBody e}]"
   else if isPatternDontCare pattern then
     return m!"_"
   else match pattern with
@@ -441,6 +440,32 @@ where
       ppPattern arg
     else
       .paren (ppPattern arg)
+  /- **Note**: This is a workaround because the current delaborator panics if the expression contains loose de Bruijn variables. -/
+  ppHOBody (e : Expr) (names : List Name := []) : MessageData :=
+    match e with
+    | .forallE n _ b _ | .lam n _ b _ =>
+      let name := if n.isAnonymous then `x else if n.hasMacroScopes then `_ else n
+      let body := ppHOBody b (name :: names)
+      if e.isLambda then m!"fun {name} => {body}" else m!"∀ {name}, {body}"
+    | .bvar idx =>
+      match names[idx]? with
+      | some n => m!"{n}"
+      | none   => m!"#{idx - names.length}"
+    | .app .. =>
+      let f := e.getAppFn
+      let args := e.getAppArgs
+      args.foldl (init := ppHOBody f names) fun r arg =>
+        r ++ " " ++ ppHOBodyAtom arg names
+    | .mdata _ b => ppHOBody b names
+    | _ =>
+      -- **Note**: This is a workaround. We use `toString` if there are loose de Bruijn variables to avoid panic in the delaborator.
+      if e.hasLooseBVars then m!"{toString e}" else m!"{e}"
+  ppHOBodyAtom (e : Expr) (names : List Name) : MessageData :=
+    match e with
+    | .bvar _ => ppHOBody e names
+    | .app .. => .paren (ppHOBody e names)
+    | .mdata _ b => ppHOBodyAtom b names
+    | _ => ppHOBody e names
 
 namespace MillerCheck
 /--

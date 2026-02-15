@@ -8,7 +8,7 @@ macro "begin " ts:tactic,*,? i:"end" : term => do
 theorem ex1 (x : Nat) : x + 0 = 0 + x :=
   begin
     rw [Nat.add_zero],
-    rw [Nat.zero_add],
+    rw [Nat.zero_add]
   end
 /- ANCHOR_END: doc -/
 

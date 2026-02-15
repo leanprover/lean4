@@ -1265,7 +1265,7 @@ variable (R : Type u) [CommSemiring R] (M : Type v)
 
 inductive r : (MvPolynomial M R) → (MvPolynomial M R) → Prop
 
-def Quot_r := RingQuot (r R M)
+abbrev Quot_r := RingQuot (r R M)
 
 instance : Semiring (Quot_r R M) :=
   RingQuot.instSemiring _

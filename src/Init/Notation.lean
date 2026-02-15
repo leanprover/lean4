@@ -654,11 +654,33 @@ syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
 /--
 The attribute `@[univ_out_params ..]` on a class specifies the universe output parameters.
 
-* `@[univ_out_params]` means the class does not have universe output parameters.
+* `@[univ_out_params]` means the class has no universe output parameters.
 * `@[univ_out_params u v]` means the universes `u` and `v` are output parameters.
 
-If the type declaration does not contain this attribute, then Lean assumes that universe
-parameter that does not occur in any input parameter is an output one.
+If this attribute is not present, Lean assumes that any universe parameter which does not
+occur in any input parameter type is an output parameter.
+
+### Effect on typeclass resolution
+
+When typeclass resolution begins, output universe parameters are replaced with fresh universe
+metavariables, similar to what is done for regular output parameters. This means the search
+proceeds without being constrained by the specific output universes in the query, and the
+actual output universes are determined by the instance that is found.
+
+As a consequence, output universe parameters are erased from typeclass resolution cache keys.
+Two queries that differ only in output universe parameters will share a cache entry,
+and the first result found will be reused for subsequent queries.
+
+### When to use this attribute
+
+The default heuristic is wrong when the universe is
+part of the *question* being asked, rather than something determined by the answer.
+
+For example, in `class Foo.{u} (C : Type v)` where `u` specifies "how large" some auxiliary
+data is, different values of `u` give genuinely different conditions on `C`. By default `u`
+would be treated as output since it does not appear in `C : Type v`, and the cache would
+conflate `Foo.{0} C` with `Foo.{1} C`, returning the wrong instance.
+Use `@[univ_out_params]` to mark that no universe parameter is output.
 -/
 syntax (name := univ_out_params) "univ_out_params" (ppSpace ident)* : attr
 

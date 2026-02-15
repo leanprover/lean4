@@ -119,7 +119,7 @@ def LakeOptions.mkLoadConfigCore
   updateDeps := opts.updateDeps
   updateToolchain := opts.updateToolchain
 
-def LakeOptions.mkLoadConfig' (opts : LakeOptions) : LogIO LoadConfig := do
+def LakeOptions.mkLoadConfig' (opts : LakeOptions) : LoggerIO LoadConfig := do
   let some wsDir ← resolvePath? opts.rootDir
     | error <| toString <| CliError.missingRootDir opts.rootDir
   let lakeEnv ← MonadError.runEIO <| opts.computeEnv

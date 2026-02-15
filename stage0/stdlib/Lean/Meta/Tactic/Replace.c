@@ -250,7 +250,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_withReverted(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_MVarId_withReverted___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___00Lean_Elab_pushInfoLeaf___at___00Lean_MVarId_withReverted_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at___00Lean_Elab_pushInfoLeaf___at___00Lean_MVarId_withReverted_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1;
 lean_object* l_Lean_MVarId_revertFrom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withRevertedFrom___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withRevertedFrom___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5676,15 +5675,6 @@ lean_dec_ref(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_MVarId_withRevertedFrom___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -5752,7 +5742,7 @@ x_29 = lean_array_get_size(x_26);
 x_30 = l_Array_toSubarray___redArg(x_26, x_28, x_29);
 x_31 = lean_array_size(x_17);
 x_32 = lean_box_usize(x_31);
-x_33 = l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1;
+x_33 = l_Lean_MVarId_withReverted___redArg___boxed__const__1;
 x_34 = lean_alloc_closure((void*)(l_Lean_MVarId_withReverted___redArg___lam__0___boxed), 9, 4);
 lean_closure_set(x_34, 0, x_17);
 lean_closure_set(x_34, 1, x_32);
@@ -5819,7 +5809,7 @@ x_45 = lean_array_get_size(x_42);
 x_46 = l_Array_toSubarray___redArg(x_42, x_44, x_45);
 x_47 = lean_array_size(x_17);
 x_48 = lean_box_usize(x_47);
-x_49 = l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1;
+x_49 = l_Lean_MVarId_withReverted___redArg___boxed__const__1;
 x_50 = lean_alloc_closure((void*)(l_Lean_MVarId_withReverted___redArg___lam__0___boxed), 9, 4);
 lean_closure_set(x_50, 0, x_17);
 lean_closure_set(x_50, 1, x_48);
@@ -7622,8 +7612,6 @@ l_Lean_Elab_pushInfoLeaf___at___00Lean_MVarId_withReverted_spec__0___closed__2 =
 lean_mark_persistent(l_Lean_Elab_pushInfoLeaf___at___00Lean_MVarId_withReverted_spec__0___closed__2);
 l_Lean_MVarId_withReverted___redArg___boxed__const__1 = _init_l_Lean_MVarId_withReverted___redArg___boxed__const__1();
 lean_mark_persistent(l_Lean_MVarId_withReverted___redArg___boxed__const__1);
-l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1 = _init_l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1();
-lean_mark_persistent(l_Lean_MVarId_withRevertedFrom___redArg___boxed__const__1);
 l_Lean_MVarId_changeLocalDecl___lam__2___closed__2 = _init_l_Lean_MVarId_changeLocalDecl___lam__2___closed__2();
 lean_mark_persistent(l_Lean_MVarId_changeLocalDecl___lam__2___closed__2);
 l_Lean_MVarId_changeLocalDecl___lam__2___closed__3 = _init_l_Lean_MVarId_changeLocalDecl___lam__2___closed__3();

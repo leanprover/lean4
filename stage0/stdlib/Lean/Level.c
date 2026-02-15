@@ -601,7 +601,7 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Level_Data_hash(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -622,7 +622,7 @@ _start:
 {
 uint64_t x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Level_Data_depth(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -645,7 +645,7 @@ _start:
 {
 uint64_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Level_Data_hasMVar(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -668,7 +668,7 @@ _start:
 {
 uint64_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Level_Data_hasParam(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -679,7 +679,7 @@ _start:
 {
 uint64_t x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9; 
 x_5 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_unbox(x_3);
 x_7 = lean_unbox(x_4);
 x_8 = lean_level_mk_data(x_5, x_2, x_6, x_7);
@@ -818,7 +818,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lean_instReprData___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;

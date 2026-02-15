@@ -1120,7 +1120,6 @@ static const lean_string_object l_Lean_Elab_WF_GuessLex_explainNonMutualFailure_
 static const lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__1 = (const lean_object*)&l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__1_value;
 static const lean_ctor_object l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 3}, .m_objs = {((lean_object*)&l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__1_value)}};
 static const lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__2 = (const lean_object*)&l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__2_value;
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1160,7 +1159,6 @@ static const lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainMutualFailure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24396,22 +24394,13 @@ x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainNonMutualFailure(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_array_size(x_1);
 x_9 = lean_box_usize(x_8);
-x_10 = l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1;
+x_10 = l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1;
 lean_inc_ref(x_1);
 x_11 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_explainNonMutualFailure_spec__0___boxed), 9, 3);
 lean_closure_set(x_11, 0, x_9);
@@ -25354,15 +25343,6 @@ lean_dec_ref(x_1);
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_explainMutualFailure(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -25370,7 +25350,7 @@ size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13
 x_9 = lean_array_size(x_2);
 x_10 = 0;
 x_11 = lean_box_usize(x_9);
-x_12 = l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1;
+x_12 = l_Array_mapFinIdxM_map___at___00Lean_Elab_WF_GuessLex_simpleMeasures_spec__1___redArg___lam__1___boxed__const__1;
 lean_inc_ref(x_2);
 x_13 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__0___boxed), 9, 3);
 lean_closure_set(x_13, 0, x_11);
@@ -29696,12 +29676,8 @@ l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainNonMutualFai
 lean_mark_persistent(l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainNonMutualFailure_spec__2___redArg___closed__1);
 l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__0 = _init_l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__0();
 lean_mark_persistent(l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___closed__0);
-l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1 = _init_l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1();
-lean_mark_persistent(l_Lean_Elab_WF_GuessLex_explainNonMutualFailure___boxed__const__1);
 l_WellFounded_opaqueFix_u2083___at___00WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__2_spec__2___redArg___closed__0 = _init_l_WellFounded_opaqueFix_u2083___at___00WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__2_spec__2___redArg___closed__0();
 lean_mark_persistent(l_WellFounded_opaqueFix_u2083___at___00WellFounded_opaqueFix_u2083___at___00Lean_Elab_WF_GuessLex_explainMutualFailure_spec__2_spec__2___redArg___closed__0);
-l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1 = _init_l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1();
-lean_mark_persistent(l_Lean_Elab_WF_GuessLex_explainMutualFailure___boxed__const__1);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_toTerminationMeasures_spec__0___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_toTerminationMeasures_spec__0___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_toTerminationMeasures_spec__0___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_toTerminationMeasures_spec__0___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_GuessLex_toTerminationMeasures_spec__0___closed__1();

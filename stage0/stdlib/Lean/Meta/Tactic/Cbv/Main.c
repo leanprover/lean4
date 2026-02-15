@@ -4047,7 +4047,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_16; uint8_t x_17; 
 x_16 = lean_st_ref_get(x_5);
-x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*6);
+x_17 = lean_ctor_get_uint8(x_16, sizeof(void*)*7);
 lean_dec(x_16);
 if (x_17 == 0)
 {

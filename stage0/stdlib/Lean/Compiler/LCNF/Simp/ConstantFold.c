@@ -760,9 +760,7 @@ static const lean_closure_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmet
 static const lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__49 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__49_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__53;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__54;
@@ -777,9 +775,7 @@ static const lean_closure_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmet
 static const lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__59 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__59_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__63;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__64;
@@ -917,9 +913,7 @@ static const lean_closure_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmet
 static const lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__146 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__146_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149;
 static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__150_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__47_value),LEAN_SCALAR_PTR_LITERAL(98, 192, 58, 241, 186, 14, 255, 186)}};
 static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__150_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__150_value_aux_0),((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__120_value),LEAN_SCALAR_PTR_LITERAL(152, 158, 253, 104, 151, 68, 86, 194)}};
@@ -941,9 +935,7 @@ static const lean_closure_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmet
 static const lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__160 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__160_value;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163;
 static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__164_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__57_value),LEAN_SCALAR_PTR_LITERAL(58, 113, 45, 150, 103, 228, 0, 41)}};
 static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__164_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__164_value_aux_0),((lean_object*)&l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__120_value),LEAN_SCALAR_PTR_LITERAL(224, 226, 94, 119, 1, 215, 11, 200)}};
@@ -3738,7 +3730,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt64___lam__1(x_2);
 return x_3;
 }
@@ -15548,7 +15540,7 @@ x_41 = lean_box_uint64(x_28);
 x_42 = lean_box_uint64(x_40);
 x_43 = lean_apply_2(x_1, x_41, x_42);
 x_44 = lean_unbox_uint64(x_43);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 lean_ctor_set_uint64(x_38, 0, x_44);
 lean_ctor_set(x_25, 0, x_30);
 return x_25;
@@ -15563,7 +15555,7 @@ x_47 = lean_box_uint64(x_45);
 x_48 = lean_apply_2(x_1, x_46, x_47);
 x_49 = lean_alloc_ctor(5, 0, 8);
 x_50 = lean_unbox_uint64(x_48);
-lean_dec(x_48);
+lean_dec_ref(x_48);
 lean_ctor_set_uint64(x_49, 0, x_50);
 lean_ctor_set(x_36, 0, x_49);
 lean_ctor_set(x_25, 0, x_30);
@@ -15606,7 +15598,7 @@ if (lean_is_scalar(x_53)) {
  x_57 = x_53;
 }
 x_58 = lean_unbox_uint64(x_56);
-lean_dec(x_56);
+lean_dec_ref(x_56);
 lean_ctor_set_uint64(x_57, 0, x_58);
 x_59 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_59, 0, x_57);
@@ -15671,7 +15663,7 @@ if (lean_is_scalar(x_64)) {
  x_68 = x_64;
 }
 x_69 = lean_unbox_uint64(x_67);
-lean_dec(x_67);
+lean_dec_ref(x_67);
 lean_ctor_set_uint64(x_68, 0, x_69);
 if (lean_is_scalar(x_62)) {
  x_70 = lean_alloc_ctor(0, 1, 0);
@@ -15806,7 +15798,7 @@ if (lean_is_scalar(x_85)) {
  x_89 = x_85;
 }
 x_90 = lean_unbox_uint64(x_88);
-lean_dec(x_88);
+lean_dec_ref(x_88);
 lean_ctor_set_uint64(x_89, 0, x_90);
 if (lean_is_scalar(x_83)) {
  x_91 = lean_alloc_ctor(0, 1, 0);
@@ -17623,7 +17615,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__16___redArg(x_5, x_2, x_3);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -17643,7 +17635,7 @@ _start:
 {
 uint64_t x_11; lean_object* x_12; 
 x_11 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__16(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -23104,9 +23096,9 @@ _start:
 {
 uint64_t x_6; uint64_t x_7; lean_object* x_8; 
 x_6 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_8 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24_spec__42___redArg(x_6, x_7, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -23126,9 +23118,9 @@ _start:
 {
 uint64_t x_10; uint64_t x_11; lean_object* x_12; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24___redArg___lam__0(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -23581,9 +23573,9 @@ _start:
 {
 uint64_t x_6; uint64_t x_7; lean_object* x_8; 
 x_6 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_8 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24_spec__43___redArg(x_6, x_7, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -23603,9 +23595,9 @@ _start:
 {
 uint64_t x_10; uint64_t x_11; lean_object* x_12; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24___redArg___lam__1(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -23643,9 +23635,9 @@ _start:
 {
 uint64_t x_11; uint64_t x_12; lean_object* x_13; 
 x_11 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_13 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24___redArg(x_11, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec_ref(x_3);
 return x_13;
@@ -23664,7 +23656,7 @@ _start:
 {
 uint64_t x_10; lean_object* x_11; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__20(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_2);
 return x_11;
@@ -23683,7 +23675,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__21(x_9, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -23958,7 +23950,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10_spec__14___redArg(x_5, x_2, x_3);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -23978,7 +23970,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10___redArg___lam__0(x_9, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -24002,7 +23994,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10___redArg___lam__1(x_9, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -24036,7 +24028,7 @@ _start:
 {
 uint64_t x_10; lean_object* x_11; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10___redArg(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_2);
 return x_11;
@@ -24055,7 +24047,7 @@ _start:
 {
 uint64_t x_10; lean_object* x_11; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__22(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_2);
 return x_11;
@@ -29053,9 +29045,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__31(x_3, x_4);
 x_6 = lean_box_uint64(x_5);
 return x_6;
@@ -29078,7 +29070,7 @@ _start:
 {
 uint64_t x_9; lean_object* x_10; 
 x_9 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_9, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_3);
 return x_10;
@@ -29180,15 +29172,15 @@ x_39 = lean_ctor_get_uint64(x_38, 0);
 lean_dec_ref(x_38);
 x_40 = lean_box_uint64(x_39);
 x_41 = lean_apply_1(x_3, x_40);
-lean_inc(x_41);
+lean_inc_ref(x_41);
 x_42 = lean_apply_1(x_2, x_41);
 x_43 = lean_unbox_uint64(x_42);
-lean_dec(x_42);
+lean_dec_ref(x_42);
 x_44 = lean_uint64_dec_eq(x_43, x_39);
 if (x_44 == 0)
 {
 lean_object* x_45; 
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -29206,7 +29198,7 @@ lean_object* x_46; uint64_t x_47; lean_object* x_48;
 lean_free_object(x_36);
 x_46 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_47 = lean_unbox_uint64(x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_48 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_47, x_46, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_48) == 0)
 {
@@ -29310,15 +29302,15 @@ x_71 = lean_ctor_get_uint64(x_70, 0);
 lean_dec_ref(x_70);
 x_72 = lean_box_uint64(x_71);
 x_73 = lean_apply_1(x_3, x_72);
-lean_inc(x_73);
+lean_inc_ref(x_73);
 x_74 = lean_apply_1(x_2, x_73);
 x_75 = lean_unbox_uint64(x_74);
-lean_dec(x_74);
+lean_dec_ref(x_74);
 x_76 = lean_uint64_dec_eq(x_75, x_71);
 if (x_76 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
-lean_dec(x_73);
+lean_dec_ref(x_73);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -29336,7 +29328,7 @@ else
 lean_object* x_79; uint64_t x_80; lean_object* x_81; 
 x_79 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_80 = lean_unbox_uint64(x_73);
-lean_dec(x_73);
+lean_dec_ref(x_73);
 x_81 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_80, x_79, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_81) == 0)
 {
@@ -29453,15 +29445,15 @@ x_98 = lean_ctor_get_uint64(x_96, 0);
 lean_dec_ref(x_96);
 x_99 = lean_box_uint64(x_98);
 x_100 = lean_apply_1(x_3, x_99);
-lean_inc(x_100);
+lean_inc_ref(x_100);
 x_101 = lean_apply_1(x_2, x_100);
 x_102 = lean_unbox_uint64(x_101);
-lean_dec(x_101);
+lean_dec_ref(x_101);
 x_103 = lean_uint64_dec_eq(x_102, x_98);
 if (x_103 == 0)
 {
 lean_object* x_104; lean_object* x_105; 
-lean_dec(x_100);
+lean_dec_ref(x_100);
 lean_free_object(x_25);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -29483,7 +29475,7 @@ lean_object* x_106; uint64_t x_107; lean_object* x_108;
 lean_dec(x_97);
 x_106 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_107 = lean_unbox_uint64(x_100);
-lean_dec(x_100);
+lean_dec_ref(x_100);
 x_108 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_107, x_106, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_108) == 0)
 {
@@ -29665,15 +29657,15 @@ x_135 = lean_ctor_get_uint64(x_133, 0);
 lean_dec_ref(x_133);
 x_136 = lean_box_uint64(x_135);
 x_137 = lean_apply_1(x_3, x_136);
-lean_inc(x_137);
+lean_inc_ref(x_137);
 x_138 = lean_apply_1(x_2, x_137);
 x_139 = lean_unbox_uint64(x_138);
-lean_dec(x_138);
+lean_dec_ref(x_138);
 x_140 = lean_uint64_dec_eq(x_139, x_135);
 if (x_140 == 0)
 {
 lean_object* x_141; lean_object* x_142; 
-lean_dec(x_137);
+lean_dec_ref(x_137);
 lean_dec(x_132);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -29695,7 +29687,7 @@ lean_object* x_143; uint64_t x_144; lean_object* x_145;
 lean_dec(x_134);
 x_143 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_144 = lean_unbox_uint64(x_137);
-lean_dec(x_137);
+lean_dec_ref(x_137);
 x_145 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_144, x_143, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_145) == 0)
 {
@@ -29976,15 +29968,15 @@ x_39 = lean_ctor_get_uint64(x_38, 0);
 lean_dec_ref(x_38);
 x_40 = lean_box_uint64(x_39);
 x_41 = lean_apply_1(x_3, x_40);
-lean_inc(x_41);
+lean_inc_ref(x_41);
 x_42 = lean_apply_1(x_2, x_41);
 x_43 = lean_unbox_uint64(x_42);
-lean_dec(x_42);
+lean_dec_ref(x_42);
 x_44 = lean_uint64_dec_eq(x_43, x_39);
 if (x_44 == 0)
 {
 lean_object* x_45; 
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -30002,7 +29994,7 @@ lean_object* x_46; uint64_t x_47; lean_object* x_48;
 lean_free_object(x_36);
 x_46 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_47 = lean_unbox_uint64(x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_48 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_47, x_46, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_48) == 0)
 {
@@ -30106,15 +30098,15 @@ x_71 = lean_ctor_get_uint64(x_70, 0);
 lean_dec_ref(x_70);
 x_72 = lean_box_uint64(x_71);
 x_73 = lean_apply_1(x_3, x_72);
-lean_inc(x_73);
+lean_inc_ref(x_73);
 x_74 = lean_apply_1(x_2, x_73);
 x_75 = lean_unbox_uint64(x_74);
-lean_dec(x_74);
+lean_dec_ref(x_74);
 x_76 = lean_uint64_dec_eq(x_75, x_71);
 if (x_76 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
-lean_dec(x_73);
+lean_dec_ref(x_73);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -30132,7 +30124,7 @@ else
 lean_object* x_79; uint64_t x_80; lean_object* x_81; 
 x_79 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_80 = lean_unbox_uint64(x_73);
-lean_dec(x_73);
+lean_dec_ref(x_73);
 x_81 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_80, x_79, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_81) == 0)
 {
@@ -30249,15 +30241,15 @@ x_98 = lean_ctor_get_uint64(x_96, 0);
 lean_dec_ref(x_96);
 x_99 = lean_box_uint64(x_98);
 x_100 = lean_apply_1(x_3, x_99);
-lean_inc(x_100);
+lean_inc_ref(x_100);
 x_101 = lean_apply_1(x_2, x_100);
 x_102 = lean_unbox_uint64(x_101);
-lean_dec(x_101);
+lean_dec_ref(x_101);
 x_103 = lean_uint64_dec_eq(x_102, x_98);
 if (x_103 == 0)
 {
 lean_object* x_104; lean_object* x_105; 
-lean_dec(x_100);
+lean_dec_ref(x_100);
 lean_free_object(x_25);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -30279,7 +30271,7 @@ lean_object* x_106; uint64_t x_107; lean_object* x_108;
 lean_dec(x_97);
 x_106 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_107 = lean_unbox_uint64(x_100);
-lean_dec(x_100);
+lean_dec_ref(x_100);
 x_108 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_107, x_106, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_108) == 0)
 {
@@ -30461,15 +30453,15 @@ x_135 = lean_ctor_get_uint64(x_133, 0);
 lean_dec_ref(x_133);
 x_136 = lean_box_uint64(x_135);
 x_137 = lean_apply_1(x_3, x_136);
-lean_inc(x_137);
+lean_inc_ref(x_137);
 x_138 = lean_apply_1(x_2, x_137);
 x_139 = lean_unbox_uint64(x_138);
-lean_dec(x_138);
+lean_dec_ref(x_138);
 x_140 = lean_uint64_dec_eq(x_139, x_135);
 if (x_140 == 0)
 {
 lean_object* x_141; lean_object* x_142; 
-lean_dec(x_137);
+lean_dec_ref(x_137);
 lean_dec(x_132);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -30491,7 +30483,7 @@ lean_object* x_143; uint64_t x_144; lean_object* x_145;
 lean_dec(x_134);
 x_143 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_144 = lean_unbox_uint64(x_137);
-lean_dec(x_137);
+lean_dec_ref(x_137);
 x_145 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_144, x_143, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_145) == 0)
 {
@@ -33845,15 +33837,15 @@ x_39 = lean_ctor_get_uint64(x_38, 0);
 lean_dec_ref(x_38);
 x_40 = lean_box_uint64(x_39);
 x_41 = lean_apply_1(x_3, x_40);
-lean_inc(x_41);
+lean_inc_ref(x_41);
 x_42 = lean_apply_1(x_2, x_41);
 x_43 = lean_unbox_uint64(x_42);
-lean_dec(x_42);
+lean_dec_ref(x_42);
 x_44 = lean_uint64_dec_eq(x_43, x_39);
 if (x_44 == 0)
 {
 lean_object* x_45; 
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -33871,7 +33863,7 @@ lean_object* x_46; uint64_t x_47; lean_object* x_48;
 lean_free_object(x_36);
 x_46 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_47 = lean_unbox_uint64(x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_48 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_47, x_46, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_48) == 0)
 {
@@ -33975,15 +33967,15 @@ x_71 = lean_ctor_get_uint64(x_70, 0);
 lean_dec_ref(x_70);
 x_72 = lean_box_uint64(x_71);
 x_73 = lean_apply_1(x_3, x_72);
-lean_inc(x_73);
+lean_inc_ref(x_73);
 x_74 = lean_apply_1(x_2, x_73);
 x_75 = lean_unbox_uint64(x_74);
-lean_dec(x_74);
+lean_dec_ref(x_74);
 x_76 = lean_uint64_dec_eq(x_75, x_71);
 if (x_76 == 0)
 {
 lean_object* x_77; lean_object* x_78; 
-lean_dec(x_73);
+lean_dec_ref(x_73);
 lean_free_object(x_30);
 lean_free_object(x_25);
 lean_dec(x_9);
@@ -34001,7 +33993,7 @@ else
 lean_object* x_79; uint64_t x_80; lean_object* x_81; 
 x_79 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_80 = lean_unbox_uint64(x_73);
-lean_dec(x_73);
+lean_dec_ref(x_73);
 x_81 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_80, x_79, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_81) == 0)
 {
@@ -34118,15 +34110,15 @@ x_98 = lean_ctor_get_uint64(x_96, 0);
 lean_dec_ref(x_96);
 x_99 = lean_box_uint64(x_98);
 x_100 = lean_apply_1(x_3, x_99);
-lean_inc(x_100);
+lean_inc_ref(x_100);
 x_101 = lean_apply_1(x_2, x_100);
 x_102 = lean_unbox_uint64(x_101);
-lean_dec(x_101);
+lean_dec_ref(x_101);
 x_103 = lean_uint64_dec_eq(x_102, x_98);
 if (x_103 == 0)
 {
 lean_object* x_104; lean_object* x_105; 
-lean_dec(x_100);
+lean_dec_ref(x_100);
 lean_free_object(x_25);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -34148,7 +34140,7 @@ lean_object* x_106; uint64_t x_107; lean_object* x_108;
 lean_dec(x_97);
 x_106 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_107 = lean_unbox_uint64(x_100);
-lean_dec(x_100);
+lean_dec_ref(x_100);
 x_108 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_107, x_106, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_108) == 0)
 {
@@ -34330,15 +34322,15 @@ x_135 = lean_ctor_get_uint64(x_133, 0);
 lean_dec_ref(x_133);
 x_136 = lean_box_uint64(x_135);
 x_137 = lean_apply_1(x_3, x_136);
-lean_inc(x_137);
+lean_inc_ref(x_137);
 x_138 = lean_apply_1(x_2, x_137);
 x_139 = lean_unbox_uint64(x_138);
-lean_dec(x_138);
+lean_dec_ref(x_138);
 x_140 = lean_uint64_dec_eq(x_139, x_135);
 if (x_140 == 0)
 {
 lean_object* x_141; lean_object* x_142; 
-lean_dec(x_137);
+lean_dec_ref(x_137);
 lean_dec(x_132);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -34360,7 +34352,7 @@ lean_object* x_143; uint64_t x_144; lean_object* x_145;
 lean_dec(x_134);
 x_143 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___redArg___lam__1___closed__1));
 x_144 = lean_unbox_uint64(x_137);
-lean_dec(x_137);
+lean_dec_ref(x_137);
 x_145 = l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLit___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__30_spec__55(x_144, x_143, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_145) == 0)
 {
@@ -34788,31 +34780,13 @@ lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50___boxed__const__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__17___boxed), 8, 1);
 lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
@@ -34821,7 +34795,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__4));
-x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50___boxed__const__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__18___boxed), 9, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -34891,31 +34865,13 @@ lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60___boxed__const__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__21___boxed), 8, 1);
 lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint64(x_1);
 return x_2;
 }
 }
@@ -34924,7 +34880,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__5));
-x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60___boxed__const__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__22___boxed), 9, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -35504,41 +35460,23 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__9));
-x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147___boxed__const__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__18___boxed), 9, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147___boxed__const__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__17___boxed), 8, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -35639,41 +35577,23 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__10));
-x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161___boxed__const__1;
 x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__22___boxed), 9, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 1;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161___boxed__const__1;
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___lam__31___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -36513,7 +36433,7 @@ _start:
 {
 uint64_t x_11; lean_object* x_12; 
 x_11 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10_spec__14(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -36538,7 +36458,7 @@ _start:
 {
 uint64_t x_12; lean_object* x_13; 
 x_12 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__10(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec_ref(x_2);
 return x_13;
@@ -36811,9 +36731,9 @@ _start:
 {
 uint64_t x_12; uint64_t x_13; lean_object* x_14; 
 x_12 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_14 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24_spec__42(x_12, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -36838,9 +36758,9 @@ _start:
 {
 uint64_t x_12; uint64_t x_13; lean_object* x_14; 
 x_12 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_14 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24_spec__43(x_12, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -36865,9 +36785,9 @@ _start:
 {
 uint64_t x_13; uint64_t x_14; lean_object* x_15; 
 x_13 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_15 = l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightAnnihilator___at___00Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders_spec__24(x_13, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec_ref(x_3);
 return x_15;
@@ -53210,12 +53130,8 @@ l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50___boxed__c
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__50);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__51);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__52);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__53 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__53();
@@ -53230,12 +53146,8 @@ l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60___boxed__c
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__60);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__61);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__62);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__63 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__63();
@@ -53346,12 +53258,8 @@ l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147___boxed__
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__147);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__148);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__149);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__152 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__152();
@@ -53372,12 +53280,8 @@ l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161___boxed__
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__161);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__162);
-l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163___boxed__const__1);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__163);
 l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__166 = _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__166();

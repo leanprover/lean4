@@ -956,7 +956,7 @@ lean_dec_ref(x_2);
 x_5 = 1;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = lean_uint64_mix_hash(x_5, x_7);
 return x_8;
 }

@@ -145,7 +145,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_15; uint8_t x_16; 
 x_15 = lean_st_ref_get(x_4);
-x_16 = lean_ctor_get_uint8(x_15, sizeof(void*)*6);
+x_16 = lean_ctor_get_uint8(x_15, sizeof(void*)*7);
 lean_dec(x_15);
 if (x_16 == 0)
 {

@@ -1620,7 +1620,7 @@ lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_10);
 lean_ctor_set(x_16, 2, x_15);
 x_17 = lean_unbox_uint64(x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 lean_ctor_set_uint64(x_16, sizeof(void*)*3, x_17);
 x_18 = lean_box(0);
 x_19 = l_Lake_BuildTrace_mix(x_8, x_16);
@@ -1656,7 +1656,7 @@ lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_27);
 lean_ctor_set(x_33, 2, x_32);
 x_34 = lean_unbox_uint64(x_26);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 lean_ctor_set_uint64(x_33, sizeof(void*)*3, x_34);
 x_35 = lean_box(0);
 x_36 = l_Lake_BuildTrace_mix(x_24, x_33);
@@ -1704,7 +1704,7 @@ lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_16);
 lean_ctor_set(x_22, 2, x_21);
 x_23 = lean_unbox_uint64(x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_ctor_set_uint64(x_22, sizeof(void*)*3, x_23);
 x_24 = lean_box(0);
 x_25 = l_Lake_BuildTrace_mix(x_14, x_22);
@@ -1740,7 +1740,7 @@ lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_33);
 lean_ctor_set(x_39, 2, x_38);
 x_40 = lean_unbox_uint64(x_32);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 lean_ctor_set_uint64(x_39, sizeof(void*)*3, x_40);
 x_41 = lean_box(0);
 x_42 = l_Lake_BuildTrace_mix(x_30, x_39);
@@ -2003,7 +2003,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_BuildMetadata_ofStub(x_2);
 return x_3;
 }
@@ -3472,7 +3472,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lake_BuildMetadata_ofFetch(x_3, x_2);
 return x_4;
 }
@@ -3959,7 +3959,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Lake_writeFetchTrace(x_1, x_5, x_3);
 return x_6;
 }
@@ -5695,7 +5695,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lake_SavedTrace_replayOrFetchIfUpToDate___redArg(x_5, x_2, x_3);
 lean_dec(x_2);
 return x_6;
@@ -5714,7 +5714,7 @@ _start:
 {
 uint64_t x_10; lean_object* x_11; 
 x_10 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lake_SavedTrace_replayOrFetchIfUpToDate(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -8257,7 +8257,7 @@ _start:
 {
 uint64_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lake_writeFileHash(x_1, x_4);
 return x_5;
 }
@@ -12661,7 +12661,7 @@ _start:
 {
 uint64_t x_13; lean_object* x_14; 
 x_13 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_14 = l_Lake_getArtifacts_x3f___redArg(x_1, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
@@ -12679,7 +12679,7 @@ _start:
 {
 uint64_t x_14; lean_object* x_15; 
 x_14 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_15 = l_Lake_getArtifacts_x3f(x_1, x_2, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_15;
 }
@@ -15348,7 +15348,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = l_Lake_getArtifacts_x3f___at___00Lake_buildArtifactUnlessUpToDate_spec__0___redArg(x_8, x_2, x_3, x_4, x_5, x_6);
 return x_9;
 }
@@ -15366,7 +15366,7 @@ _start:
 {
 uint64_t x_12; lean_object* x_13; 
 x_12 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_13 = l_Lake_getArtifacts_x3f___at___00Lake_buildArtifactUnlessUpToDate_spec__0(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -15975,7 +15975,7 @@ _start:
 {
 uint64_t x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_16 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_17 = lean_unbox(x_6);
 x_18 = lean_unbox(x_8);
 x_19 = l_Lake_buildArtifactUnlessUpToDate___lam__0(x_16, x_2, x_3, x_4, x_5, x_17, x_7, x_18, x_9, x_10, x_11, x_12, x_13, x_14);
@@ -16223,7 +16223,7 @@ x_19 = lean_unbox(x_4);
 x_20 = lean_unbox(x_5);
 x_21 = lean_unbox(x_6);
 x_22 = lean_unbox_uint64(x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_23 = l_Lake_buildArtifactUnlessUpToDate___lam__1(x_18, x_2, x_3, x_19, x_20, x_21, x_7, x_8, x_22, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -19420,7 +19420,7 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; lean_object* x_5; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lake_buildO___lam__0(x_3, x_2);
 lean_dec_ref(x_2);
 x_5 = lean_box_uint64(x_4);
@@ -20163,7 +20163,7 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanO_spec__1(x_1, x_5, x_6, x_7);
 lean_dec_ref(x_1);
 x_9 = lean_box_uint64(x_8);

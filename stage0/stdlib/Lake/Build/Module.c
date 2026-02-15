@@ -1163,7 +1163,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModu
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModule___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lake_Build_Module_0__Lake_setupExternalModule___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "<targets>"};
 static const lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModule___closed__0 = (const lean_object*)&l___private_Lake_Build_Module_0__Lake_setupExternalModule___closed__0_value;
-LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1;
 extern lean_object* l_Lake_Package_extraDepFacet;
 extern lean_object* l_Lake_Package_keyword;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12138,7 +12137,7 @@ _start:
 uint8_t x_7; uint64_t x_8; size_t x_9; size_t x_10; uint8_t x_11; lean_object* x_12; 
 x_7 = lean_unbox(x_1);
 x_8 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_9 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_10 = lean_unbox_usize(x_6);
@@ -26214,7 +26213,7 @@ _start:
 {
 uint64_t x_8; lean_object* x_9; 
 x_8 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = l_Lake_getArtifacts_x3f___at___00__private_Lake_Build_Module_0__Lake_Module_recBuildLean_spec__1___redArg(x_8, x_2, x_3, x_4, x_5, x_6);
 return x_9;
 }
@@ -26232,7 +26231,7 @@ _start:
 {
 uint64_t x_12; lean_object* x_13; 
 x_12 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_13 = l_Lake_getArtifacts_x3f___at___00__private_Lake_Build_Module_0__Lake_Module_recBuildLean_spec__1(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -26566,7 +26565,7 @@ x_16 = lean_unbox(x_1);
 x_17 = lean_unbox(x_3);
 x_18 = lean_unbox(x_4);
 x_19 = lean_unbox_uint64(x_7);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_20 = l___private_Lake_Build_Module_0__Lake_Module_recBuildLean___lam__0(x_16, x_2, x_17, x_18, x_5, x_6, x_19, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -27103,7 +27102,7 @@ _start:
 {
 uint64_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = lean_unbox(x_7);
 x_17 = l___private_Lake_Build_Module_0__Lake_Module_recBuildLean___lam__1(x_15, x_2, x_3, x_4, x_5, x_6, x_16, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_11);
@@ -27755,7 +27754,7 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Build_Module_0__Lake_Module_recBuildLean_spec__3(x_1, x_5, x_6, x_7);
 lean_dec_ref(x_1);
 x_9 = lean_box_uint64(x_8);
@@ -37782,15 +37781,6 @@ x_15 = l___private_Lake_Build_Module_0__Lake_setupExternalModule___lam__5(x_1, x
 return x_15;
 }
 }
-static lean_object* _init_l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_setupExternalModule(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -38023,7 +38013,7 @@ x_60 = lean_ctor_get(x_58, 0);
 x_61 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Build_Module_0__Lake_fetchImportInfo_spec__3___closed__2));
 x_62 = l_Lake_Job_collectArray___redArg(x_49, x_61);
 lean_dec_ref(x_49);
-x_63 = l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1;
+x_63 = l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1;
 x_64 = lean_box(x_24);
 x_65 = lean_box(x_48);
 x_66 = lean_alloc_closure((void*)(l___private_Lake_Build_Module_0__Lake_setupExternalModule___lam__4___boxed), 19, 11);
@@ -38061,7 +38051,7 @@ lean_dec(x_58);
 x_73 = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Build_Module_0__Lake_fetchImportInfo_spec__3___closed__2));
 x_74 = l_Lake_Job_collectArray___redArg(x_49, x_73);
 lean_dec_ref(x_49);
-x_75 = l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1;
+x_75 = l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1;
 x_76 = lean_box(x_24);
 x_77 = lean_box(x_48);
 x_78 = lean_alloc_closure((void*)(l___private_Lake_Build_Module_0__Lake_setupExternalModule___lam__4___boxed), 19, 11);
@@ -40116,8 +40106,6 @@ l_Array_filterMapM___at___00__private_Lake_Build_Module_0__Lake_setupEditedModul
 lean_mark_persistent(l_Array_filterMapM___at___00__private_Lake_Build_Module_0__Lake_setupEditedModule_spec__1___closed__0);
 l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1 = _init_l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1();
 lean_mark_persistent(l___private_Lake_Build_Module_0__Lake_setupEditedModule___boxed__const__1);
-l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1 = _init_l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1();
-lean_mark_persistent(l___private_Lake_Build_Module_0__Lake_setupExternalModule___boxed__const__1);
 l___private_Lake_Build_Module_0__Lake_prepareLeanCommand_mkArgs___redArg___closed__2 = _init_l___private_Lake_Build_Module_0__Lake_prepareLeanCommand_mkArgs___redArg___closed__2();
 lean_mark_persistent(l___private_Lake_Build_Module_0__Lake_prepareLeanCommand_mkArgs___redArg___closed__2);
 l___private_Lake_Build_Module_0__Lake_prepareLeanCommand_mkArgs___redArg___closed__3 = _init_l___private_Lake_Build_Module_0__Lake_prepareLeanCommand_mkArgs___redArg___closed__3();

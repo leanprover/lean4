@@ -259,7 +259,6 @@ LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__1(lean_object*,
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_computeArrayHash___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashArrayOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashArrayOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -866,7 +865,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_instReprHash_repr___redArg(x_2);
 return x_3;
 }
@@ -884,7 +883,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lake_instReprHash_repr(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -903,9 +902,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lake_instDecidableEqHash_decEq(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -924,9 +923,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lake_instDecidableEqHash(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -943,7 +942,7 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_Hash_instHashable___lam__0(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -1139,7 +1138,7 @@ _start:
 {
 uint64_t x_5; uint64_t x_6; lean_object* x_7; 
 x_5 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0___redArg(x_1, x_2, x_3, x_5);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -1180,7 +1179,7 @@ _start:
 {
 uint64_t x_6; uint64_t x_7; lean_object* x_8; 
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lake_Hash_ofHex_spec__0(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -1255,7 +1254,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_Hash_hex(x_2);
 return x_3;
 }
@@ -1371,9 +1370,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lake_Hash_mix(x_3, x_4);
 x_6 = lean_box_uint64(x_5);
 return x_6;
@@ -1392,7 +1391,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_Hash_toString(x_2);
 return x_3;
 }
@@ -1404,7 +1403,7 @@ uint64_t x_3; lean_object* x_4; uint64_t x_5; uint64_t x_6;
 x_3 = 1723;
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_uint64_mix_hash(x_3, x_5);
 return x_6;
 }
@@ -1425,7 +1424,7 @@ uint64_t x_4; lean_object* x_5; uint64_t x_6; uint64_t x_7;
 x_4 = 1723;
 x_5 = lean_apply_1(x_2, x_3);
 x_6 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_uint64_mix_hash(x_4, x_6);
 return x_7;
 }
@@ -1563,7 +1562,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_Hash_toJson(x_2);
 return x_3;
 }
@@ -1744,7 +1743,7 @@ _start:
 lean_object* x_3; uint64_t x_4; 
 x_3 = lean_apply_1(x_1, x_2);
 x_4 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -1763,7 +1762,7 @@ _start:
 lean_object* x_4; uint64_t x_5; 
 x_4 = lean_apply_1(x_2, x_3);
 x_5 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -2010,9 +2009,9 @@ _start:
 {
 uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Lake_computeArrayHash___redArg___lam__0(x_4, x_2, x_5);
 return x_6;
 }
@@ -2035,7 +2034,7 @@ _start:
 {
 uint64_t x_6; lean_object* x_7; 
 x_6 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l_Lake_computeArrayHash___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -2115,15 +2114,6 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l_Lake_computeArrayHash___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 1723;
-x_2 = lean_box_uint64(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2141,7 +2131,7 @@ lean_inc(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-x_12 = l_Lake_computeArrayHash___boxed__const__1;
+x_12 = l_Lake_computeArrayHash___redArg___boxed__const__1;
 x_13 = lean_apply_2(x_8, lean_box(0), x_12);
 return x_13;
 }
@@ -2164,7 +2154,7 @@ lean_dec_ref(x_14);
 lean_inc(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
-x_16 = l_Lake_computeArrayHash___boxed__const__1;
+x_16 = l_Lake_computeArrayHash___redArg___boxed__const__1;
 x_17 = lean_apply_2(x_8, lean_box(0), x_16);
 return x_17;
 }
@@ -2173,7 +2163,7 @@ else
 size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; 
 x_18 = 0;
 x_19 = lean_usize_of_nat(x_10);
-x_20 = l_Lake_computeArrayHash___boxed__const__1;
+x_20 = l_Lake_computeArrayHash___redArg___boxed__const__1;
 x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_4, x_14, x_5, x_18, x_19, x_20);
 return x_21;
 }
@@ -2183,7 +2173,7 @@ else
 size_t x_22; size_t x_23; lean_object* x_24; lean_object* x_25; 
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_10);
-x_24 = l_Lake_computeArrayHash___boxed__const__1;
+x_24 = l_Lake_computeArrayHash___redArg___boxed__const__1;
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_4, x_14, x_5, x_22, x_23, x_24);
 return x_25;
 }
@@ -2994,7 +2984,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lake_BuildTrace_ofHash(x_3, x_2);
 return x_4;
 }
@@ -3019,7 +3009,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_BuildTrace_instCoeHash___lam__0(x_2);
 return x_3;
 }
@@ -3340,7 +3330,7 @@ _start:
 {
 uint64_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_7 = l_Lake_BuildTrace_checkAgainstHash___redArg(x_1, x_2, x_6, x_4);
 lean_dec_ref(x_4);
 x_8 = lean_box(x_7);
@@ -3360,7 +3350,7 @@ _start:
 {
 uint64_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = l_Lake_BuildTrace_checkAgainstHash(x_1, x_2, x_3, x_7, x_5);
 lean_dec_ref(x_5);
 x_9 = lean_box(x_8);
@@ -3450,8 +3440,6 @@ l_Lake_Hash_ofBool___closed__0 = _init_l_Lake_Hash_ofBool___closed__0();
 l_Lake_Hash_ofBool___closed__1 = _init_l_Lake_Hash_ofBool___closed__1();
 l_Lake_computeArrayHash___redArg___boxed__const__1 = _init_l_Lake_computeArrayHash___redArg___boxed__const__1();
 lean_mark_persistent(l_Lake_computeArrayHash___redArg___boxed__const__1);
-l_Lake_computeArrayHash___boxed__const__1 = _init_l_Lake_computeArrayHash___boxed__const__1();
-lean_mark_persistent(l_Lake_computeArrayHash___boxed__const__1);
 l_Lake_MTime_instOfNat___closed__0 = _init_l_Lake_MTime_instOfNat___closed__0();
 lean_mark_persistent(l_Lake_MTime_instOfNat___closed__0);
 l_Lake_MTime_instOfNat = _init_l_Lake_MTime_instOfNat();

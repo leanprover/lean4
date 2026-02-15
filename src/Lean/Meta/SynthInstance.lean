@@ -786,17 +786,10 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
   TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`.
 
-  **Note**: We tried to remove `withDefault` at the following `isDefEq` because it was a potential performance footgun. TC is supposed to unfold only `reducible` definitions and `instances`.
-  We reverted the change because it triggered thousands of failures related to the `OrderDual` type. Example:
-  ```
-  variable {ι : Type}
-  def OrderDual (α : Type) : Type := α
-  instance [I : DecidableEq ι] : DecidableEq (OrderDual ι) := inferInstance -- Failure
-  ```
-  Mathlib developers are currently trying to refactor the `OrderDual` declaration,
-  but it will take time. We will try to remove the `withDefault` again after the refactoring.
+  **Note**: We used to use `withDefault` at the following `isDefEq`, but this was a potential performance footgun.
+  TC is supposed to unfold only `reducible` definitions and `instances`.
   -/
-  let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+  let defEq ← withAssignableSyntheticOpaque <| isDefEq type resultType
   unless defEq do
     trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
   return defEq

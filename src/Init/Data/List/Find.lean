@@ -654,6 +654,7 @@ theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
   simp only [Nat.not_lt] at f
   exact absurd (@findIdx_getElem _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
 theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length) :
     xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
@@ -1038,7 +1039,7 @@ theorem findFinIdx?_append {xs ys : List α} {p : α → Bool} :
 
 @[simp, grind =] theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     [a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp [findFinIdx?_cons, findFinIdx?_nil]
+  simp [findFinIdx?_cons, findFinIdx?_nil]; rfl
 
 @[simp, grind =] theorem findFinIdx?_eq_none_iff {l : List α} {p : α → Bool} :
     l.findFinIdx? p = none ↔ ∀ x ∈ l, ¬ p x := by
@@ -1080,6 +1081,7 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
   induction l with
   | nil => simp
   | cons a l ih =>
+    set_option backward.isDefEq.respectTransparency false in
     simp [hf, findFinIdx?_cons]
     split <;> simp [ih, Function.comp_def]
 

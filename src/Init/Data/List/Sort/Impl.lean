@@ -182,14 +182,14 @@ private theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α 
     simp only [mergeSortTR.run, mergeSortTR.run, mergeSort]
     rw [merge_eq_mergeTR]
     rw [mergeSortTR_run_eq_mergeSort, mergeSortTR_run_eq_mergeSort]
+    rfl
 
 -- We don't make this a `@[csimp]` lemma because `mergeSort_eq_mergeSortTR₂` is faster.
 theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by
   funext
   rw [mergeSortTR, mergeSortTR_run_eq_mergeSort]
 
--- This mutual block is unfortunately quite slow to elaborate.
-set_option maxHeartbeats 400000 in
+set_option backward.isDefEq.respectTransparency false in
 mutual
 private theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩

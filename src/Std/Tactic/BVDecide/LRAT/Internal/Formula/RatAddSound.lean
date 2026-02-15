@@ -403,6 +403,7 @@ theorem c_without_negPivot_of_performRatCheck_success {n : Nat} (f : DefaultForm
       rw [DefaultFormula.formulaEntails_def, List.all_eq_true] at pfc
       exact of_decide_eq_true (pfc (c.delete negPivot) (by simp [insert_iff]))
 
+set_option backward.isDefEq.respectTransparency false in
 theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     (f_readyForRatAdd : ReadyForRatAdd f) (pivot : Literal (PosFin n))
     (ratHints : Array (Nat × Array Nat))

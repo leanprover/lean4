@@ -42,6 +42,7 @@ theorem IterM.dropWhile_eq_intermediateDropWhile {α m β} [Monad m]
     it.dropWhile P = Intermediate.dropWhile P true it :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} {dropping} :
     (IterM.Intermediate.dropWhileWithPostcondition P dropping it).step = (do

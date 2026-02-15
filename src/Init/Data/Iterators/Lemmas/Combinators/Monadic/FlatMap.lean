@@ -36,7 +36,7 @@ theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} 
   cases it₂
   all_goals
   · apply bind_congr; intro step
-    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter]
+    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter] <;> rfl
 
 namespace Iterators.Types
 

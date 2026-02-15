@@ -1121,30 +1121,35 @@ theorem utf8Size_le_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char} :
   | case8 => simp
   | case9 => simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₁ {b : ByteArray} (hb : 1 ≤ b.size) (h : parseFirstByte b[0] = .done) :
     b.utf8DecodeChar? 0 = assemble₁ b[0] h := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₂ {b : ByteArray} (hb : 2 ≤ b.size) (h : parseFirstByte b[0] = .oneMore) :
     b.utf8DecodeChar? 0 = assemble₂ b[0] b[1] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₃ {b : ByteArray} (hb : 3 ≤ b.size) (h : parseFirstByte b[0] = .twoMore) :
     b.utf8DecodeChar? 0 = assemble₃ b[0] b[1] b[2] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_eq_assemble₄ {b : ByteArray} (hb : 4 ≤ b.size) (h : parseFirstByte b[0] = .threeMore) :
     b.utf8DecodeChar? 0 = assemble₄ b[0] b[1] b[2] b[3] := by
   fun_cases ByteArray.utf8DecodeChar?
   all_goals try (simp_all; done)
   all_goals omega
 
+set_option backward.isDefEq.respectTransparency false in
 theorem utf8DecodeChar?_append_eq_assemble₁ {l : List UInt8} {b : ByteArray} (hl : l.length = 1) (h : parseFirstByte l[0] = .done) :
     (l.toByteArray ++ b).utf8DecodeChar? 0 = assemble₁ l[0] h := by
   have : (l.toByteArray ++ b)[0]'(by simp [hl]; omega) = l[0] := by

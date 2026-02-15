@@ -358,6 +358,7 @@ theorem deleteOne_preserves_assignments_size {n : Nat} (f : DefaultFormula n) (i
   simp only [deleteOne]
   grind
 
+set_option backward.isDefEq.respectTransparency false in
 theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) (id : Nat) :
     StrongAssignmentsInvariant f → StrongAssignmentsInvariant (deleteOne f id) := by
   intro hf

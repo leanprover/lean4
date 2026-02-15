@@ -102,7 +102,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : IterM (α := Rxc.Iterator α) Id α} :
     Std.Iterator.step it = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [Std.Iterator.step]
+  simp [Std.Iterator.step]; rfl
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} {step} :
@@ -535,6 +535,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE �
     · rw [WellFounded.fix_eq]
       simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] (γ : Type u)
@@ -586,6 +587,7 @@ termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
+set_option backward.isDefEq.respectTransparency false in
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
@@ -678,7 +680,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : IterM (α := Rxo.Iterator α) Id α} :
     Std.Iterator.step it = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [Std.Iterator.step]
+  simp [Std.Iterator.step]; rfl
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} {step} :
@@ -1107,6 +1109,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LT �
     · rw [WellFounded.fix_eq]
       simp_all
 
+set_option backward.isDefEq.respectTransparency false in
 private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] (γ : Type u)
@@ -1158,6 +1161,7 @@ termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
+set_option backward.isDefEq.respectTransparency false in
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
@@ -1240,7 +1244,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α]
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Std.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]; rfl
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} {step} :

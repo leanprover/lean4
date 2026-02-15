@@ -2192,6 +2192,7 @@ def uppcRec {w} (x : BitVec w) (s : Nat) (hs : s < w) : Bool :=
   | 0 => x.msb
   | i + 1 =>  x[w - 1 - i] || uppcRec x i (by omega)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The unsigned parallel prefix of `x` at `s` is `true` if and only if x interpreted
   as a natural number is greater or equal than `2 ^ (w - 1 - (s - 1))`. -/
 @[simp]

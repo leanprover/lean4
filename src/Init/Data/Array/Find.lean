@@ -425,6 +425,7 @@ theorem lt_findIdx_of_not {p : α → Bool} {xs : Array α} {i : Nat} (h : i < x
   simp only [Nat.not_lt] at f
   exact absurd (@findIdx_getElem _ p xs (Nat.lt_of_le_of_lt f h)) (h2 (xs.findIdx p) f)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
 theorem findIdx_eq {p : α → Bool} {xs : Array α} {i : Nat} (h : i < xs.size) :
     xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
@@ -613,12 +614,12 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
 /-! ### findFinIdx? -/
 
 @[grind =]
-theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp; rfl
 
 @[grind =]
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp
+  simp; rfl
 
 -- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
 theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
@@ -714,6 +715,7 @@ theorem findFinIdx?_eq_bind_find?_finIdxOf? [BEq α] [LawfulBEq α] {xs : Array 
     xs.findFinIdx? p = (xs.find? p).bind (xs.finIdxOf? ·) := by
   cases xs
   simp [List.findFinIdx?_eq_bind_find?_finIdxOf?]
+  rfl
 
 theorem findIdx_eq_getD_bind_find?_idxOf? [BEq α] [LawfulBEq α] {xs : Array α} {p : α → Bool} :
     xs.findIdx p = ((xs.find? p).bind (xs.idxOf? ·)).getD xs.size := by
@@ -792,7 +794,7 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
   simp [idxOf?, finIdxOf?]
 
-@[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
+@[grind =] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp; rfl
 
 @[simp, grind =] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by

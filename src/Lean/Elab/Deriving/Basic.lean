@@ -124,23 +124,24 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
       -- Success
       trace[Elab.Deriving] "Argument {i} option succeeded{indentExpr classExpr}"
       -- Create the type for the declaration itself.
+      -- Construct the instance type using the target (alias) type's instances.
+      -- For each instance-implicit parameter, synthesize the instance for the target type
+      -- and verify it is defeq to the one synthesized for the underlying type.
+      -- This behaves as if the user wrote `instance : Cls T := inferInstanceAs (Cls T')`.
       let mut xs' := xs.set! i declVal
-      -- For instance-implicit class parameters, use the target type's instances
-      -- to avoid diamonds where the unfolded type has different sub-instances.
       for j in [:xs'.size], bi in bis do
         if bi.isInstImplicit then
-          -- Get the type of this argument, replacing the unfolded type with target type
+          let origInst ← instantiateMVars xs[j]!
           let argTy ← instantiateMVars (← inferType xs[j]!)
           let targetArgTy := argTy.replace fun e =>
             if e == val then declVal else none
           if let some targetInst ← synthInstance? targetArgTy then
-            -- Check if the target instance is defeq to what we synthesized
-            let origInst ← instantiateMVars xs[j]!
-            if ← isDefEq origInst targetInst then
-              xs' := xs'.set! j targetInst
-            else
-              trace[Elab.Deriving] "Warning: target type has different instance for {targetArgTy}, \
-                  using unfolded type's instance to ensure type safety"
+            unless ← isDefEq origInst targetInst do
+              throwDeltaDeriveFailure className declName
+                (m!"instance diamond: the instance for the target type\
+                  {indentExpr targetInst}\nis not definitionally equal to the instance for the underlying type\
+                  {indentExpr origInst}\nfor{indentExpr targetArgTy}")
+            xs' := xs'.set! j targetInst
       let instType := mkAppN cls xs'
       return { instType, instVal }
     try

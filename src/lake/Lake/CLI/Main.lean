@@ -104,7 +104,6 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
     opts.noCache |>.adapt fun msg => .invalidEnv msg
 
-/-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfigCore
   (opts : LakeOptions) (wsDir : FilePath) (lakeEnv : Lake.Env) (lakeConfig : LakeConfig)
 : LoadConfig where
@@ -120,7 +119,6 @@ def LakeOptions.mkLoadConfigCore
   updateDeps := opts.updateDeps
   updateToolchain := opts.updateToolchain
 
-/-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig' (opts : LakeOptions) : LogIO LoadConfig := do
   let some wsDir ← resolvePath? opts.rootDir
     | error <| toString <| CliError.missingRootDir opts.rootDir
@@ -399,6 +397,14 @@ namespace lake
 
 namespace cache
 
+def serviceNotFound (service : String) (configuredServices : Array CacheService) : String :=
+  let msg := s!"service `{service}` not found in system configuration"
+  if configuredServices.isEmpty then
+    s!"{msg}; no services configured"
+  else
+    let msg := s!"{msg}; configured services:\n"
+    configuredServices.foldl (· ++ s!"  {·.name?}") msg
+
 @[inline] private def cacheToolchain (pkg : Package) (toolchain : String) : String :=
   if pkg.bootstrap then "" else toolchain
 
@@ -431,15 +437,20 @@ protected def get : CliM PUnit := do
     let platform := opts.platform?.getD System.Platform.target
     let toolchain := opts.toolchain?.getD ws.lakeEnv.toolchain
     let service : CacheService ← id do
-      match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-      | some artifactEndpoint, some revisionEndpoint =>
-        return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
-      | none, none =>
-        return .reservoirService ws.lakeEnv.reservoirApiUrl
-      | some artifactEndpoint, none =>
-        error (invalidEndpointConfig artifactEndpoint "")
-      | none, some revisionEndpoint =>
-        error (invalidEndpointConfig "" revisionEndpoint)
+      if let some service := opts.service? then
+        let some service := ws.lakeConfig.cache.services.find? (·.name? == some service)
+          | error (serviceNotFound service ws.lakeConfig.cache.services)
+        return service
+      else
+        match ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+        | some artifactEndpoint, some revisionEndpoint =>
+          return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
+        | none, none =>
+          return .reservoirService ws.lakeEnv.reservoirApiUrl
+        | some artifactEndpoint, none =>
+          error (invalidEndpointConfig artifactEndpoint "")
+        | none, some revisionEndpoint =>
+          error (invalidEndpointConfig "" revisionEndpoint)
     if let some remoteScope := opts.scope? then
       if !opts.repoScope && service.isReservoir then
         -- `--scope` with Reservoir would imply downloading artifacts for a different package.
@@ -516,11 +527,18 @@ protected def put : CliM PUnit := do
   let platform := cachePlatform pkg (opts.platform?.getD System.Platform.target)
   let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.toolchain)
   let service : CacheService ← id do
-    match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-    | some key, some artifactEndpoint, some revisionEndpoint =>
-      return .uploadService key artifactEndpoint revisionEndpoint
-    | key?, artifactEndpoint?, revisionEndpoint? =>
-      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
+    if let some service := opts.service? then
+      let some service := ws.lakeConfig.cache.services.find? (·.name? == some service)
+        | error (serviceNotFound service ws.lakeConfig.cache.services)
+      let some key := ws.lakeEnv.cacheKey?
+        | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+      return service.withKey key
+    else
+      match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
+      | some key, some artifactEndpoint, some revisionEndpoint =>
+        return .uploadService key artifactEndpoint revisionEndpoint
+      | key?, artifactEndpoint?, revisionEndpoint? =>
+        error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
   let service := service.withRepoScope opts.repoScope
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then

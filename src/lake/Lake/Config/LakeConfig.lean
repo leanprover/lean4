@@ -16,7 +16,7 @@ namespace Lake
 
 public configuration CacheConfig where
   defaultService : Name := .anonymous
-  services : Array CacheService := #[]
+  services, service : Array CacheService := #[]
   deriving Inhabited
 
 public configuration LakeConfig where

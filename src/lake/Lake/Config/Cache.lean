@@ -358,12 +358,12 @@ def uploadS3
     let code ← id do
       match (data.get? "response_code" <|> data.get? "http_code") with
       | .ok (some code) => return code
-      | .ok none => error s!"curl's JSON output did not contain a response code"
-      | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}"
+      | .ok none => error s!"curl's JSON output did not contain a response code; JSON received:\n{out.stderr}"
+      | .error e => error s!"curl's JSON output contained an invalid JSON response code: {e}; JSON received:\n{out.stderr}"
     unless code == 200 do
       error s!"failed to upload artifact, error {code}; received:\n{out.stdout}"
   | .error e =>
-    error s!"curl produced invalid JSON output: {e}"
+    error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
 /--
 Configuration of a remote cache service (e.g., Reservoir or an S3 bucket).
@@ -375,7 +375,7 @@ the desired functions by using `CacheService`'s smart constructors
 -/
 public structure CacheService where
   private mk ::
-    private name? : Option String := none
+    name? : Option String := none
     /- S3 Bucket -/
     private key : String := ""
     private artifactEndpoint : String := ""
@@ -410,6 +410,10 @@ namespace CacheService
 @[inline] public def downloadArtsService
   (artifactEndpoint : String) (name? : Option String := none)
 : CacheService := {name?, artifactEndpoint}
+
+/-- Reconfigures the cache service to use the provided key (for uploads).-/
+@[inline] public def withKey (service : CacheService) (key : String) : CacheService :=
+  {service with key}
 
 /--
 Reconfigures the cache service to interpret scopes as repositories (or not if `false`).

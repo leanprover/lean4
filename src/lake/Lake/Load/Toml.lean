@@ -334,15 +334,17 @@ public protected def CacheService.decodeToml (t : Table) (ref := Syntax.missing)
   | "reservoir" => ensureDecode do
     let name ← t.tryDecode `name ref
     let repoScope ← t.tryDecode `repoScope ref
-    let apiEndpoint ← t.tryDecode `artifactEndpoint ref
+    let apiEndpoint ← normalizeUrl <$> t.tryDecode `apiEndpoint ref
     return .reservoirService apiEndpoint repoScope (some name)
   | "s3" => ensureDecode do
     let name ← t.tryDecode `name ref
-    let artifactEndpoint ← t.tryDecode `artifactEndpoint ref
-    let revisionEndpoint ← t.tryDecode `revisionEndpoint ref
+    let artifactEndpoint ← normalizeUrl <$> t.tryDecode `artifactEndpoint ref
+    let revisionEndpoint ← normalizeUrl <$> t.tryDecode `revisionEndpoint ref
     return .downloadService artifactEndpoint revisionEndpoint (some name)
   | _ =>
     throwDecodeErrorAt typeVal.ref "expected one of 'reservoir' or 's3'"
+where
+  normalizeUrl url := if url.back == '/' then url.dropEnd 1 |>.copy else url
 
 public instance : DecodeToml CacheService := ⟨fun v => do CacheService.decodeToml (← v.decodeTable) v.ref⟩
 

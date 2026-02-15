@@ -582,34 +582,42 @@ syntax rwRule    := patternIgnore("← " <|> "<- ")? term
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
 /--
-`rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
-If `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction.
-If `e` is a defined constant, then the equational theorems associated with `e` are used.
-This provides a convenient way to unfold `e`.
-- `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.
-- `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
-  can also be used, to signify the target of the goal.
+Tactic sequence to use to discharge side goals produced by conditional rewrites.
+-/
+syntax rwDischarge := ppAllowUngrouped ppSpace "by " tacticSeqIndentGt
+/--
+- `rewrite [e]` rewrites target of the main goal using the rewrite rule `e`,
+  a proof of `a = b` or `a ↔ b`. Each occurrence of `a` is replaced with `b`.
+  The rule may be conditional, and in that case the tactic will add side goals for
+  these conditions to the end of the goal list.
+- `rewrite [← e]` rewrites in the reverse direction, instead replacing occurrences of `b` with `a`.
+- `rewrite [c]`, where `c` is a constant, rewrites using the equation theorems for `c`,
+  providing a convenient way to unfold `c`. Refolding is supported using `←`.
+- `rewrite [e] at l` rewrites at location(s) `l`, where `l` is either `*` or a
+  list of locations, each of which is a local hypothesis or a turnstile (`⊢` or `|-`),
+  which signifies the target of the goal.
+- `rewrite [e] by tacticSeq` uses the tactic sequence to discharge side goals from conditional rewrite rules.
+- `rewrite [e₁, ..., eₙ]` rewrites with the given rewrite rules sequentially.
+- `rw [e, ...]` is `rewrite [e, ...]; try with_reducible rfl`. It rewrites and then attempts
+  to close the main goal using a "cheap" `rfl` that can only unfold reducible definitions.
 
-Using `rw (occs := .pos L) [e]`,
-where `L : List Nat`, you can control which "occurrences" are rewritten.
+Using `rw (occs := [1,3,5]) [e]` controls which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.
 At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
 restricting which later rewrites can be found.
 (Disallowed occurrences do not result in instantiation.)
-`(occs := .neg L)` allows skipping specified occurrences.
+`(occs := .neg [1,3,5])` allows skipping specified occurrences.
 -/
-syntax (name := rewriteSeq) "rewrite" optConfig rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite" optConfig rwRuleSeq (location)? (rwDischarge)? : tactic
 
-/--
-`rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
--/
-macro (name := rwSeq) "rw " c:optConfig s:rwRuleSeq l:(location)? : tactic =>
+@[inherit_doc rewriteSeq]
+macro (name := rwSeq) tk:"rw " c:optConfig s:rwRuleSeq l:(location)? d:(rwDischarge)? : tactic =>
   match s with
-  | `(rwRuleSeq| [$rs,*]%$rbrak) =>
-    -- We show the `rfl` state on `]`
-    `(tactic| (rewrite $c [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
+  | `(rwRuleSeq| [$_,*]%$rbrak) =>
+    -- We show the `rfl` state on `]`.
+    -- Limit ref variability for incrementality of discharger; see Note [Incremental Macros]
+    withRef tk `(tactic| (rewrite $c $s:rwRuleSeq $(l)? $(d)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
 /-- `rwa` is short-hand for `rw; assumption`. -/

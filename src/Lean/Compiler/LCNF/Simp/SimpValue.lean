@@ -47,7 +47,16 @@ def simpAppApp? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
   | .proj .. | .lit .. => failure
 
 def simpCtorDiscr? (e : LetValue .pure) : OptionT SimpM (LetValue .pure) := do
-  let .const declName _ _ := e | failure
+  let .const declName _ args := e | failure
+  /-
+  Don't replace scalar constructors like `true` / `false` in the first pass to avoid the following
+  kind of situation (which occurred e.g. in the `charactersIn` benchmark):
+  1. `instDecidableEqBool x true` gets converted to `instDecidableEqBool x y` by this function
+  2. `pullFunDecls` moves `instDecidableEqBool x y` into a place where `y` is no longer known
+     to be `true`
+  3. `instDecidableEqBool` is inlined as usual, producing an unnecessary branch on `y`
+  -/
+  if !(← read).config.simpCtor && args.isEmpty then failure
   let some (.ctorInfo _) := (← getEnv).find? declName | failure
   let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
   return .fvar fvarId #[]

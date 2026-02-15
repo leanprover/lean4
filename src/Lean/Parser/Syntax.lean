@@ -135,7 +135,7 @@ binder_predicate x " > " y:term => `($x > $y)
 ```
 -/
 @[builtin_command_parser] def binderPredicate := leading_parser
-   optional docComment >>  optional Term.attributes >> optional Term.attrKind >>
+   optional docComment >>  optional Term.attributes >> Term.attrKind >>
    "binder_predicate" >> optNamedName >> optNamedPrio >> ppSpace >> ident >> many (ppSpace >> macroArg) >> " => " >> termParser
 
 end Command

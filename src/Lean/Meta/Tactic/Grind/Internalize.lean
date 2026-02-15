@@ -190,6 +190,9 @@ where
   go (pattern : Expr) : GoalM Expr := do
     if pattern.isBVar || isPatternDontCare pattern then
       return pattern
+    else if (hoPattern? pattern).isSome then
+      -- HO patterns are matched via `isDefEq` at instantiation time, not via the E-graph
+      return pattern
     else if let some e := groundPattern? pattern then
       let e ← preprocessLight e
       let e ← if e.hasLevelParam && origin matches .decl _ then

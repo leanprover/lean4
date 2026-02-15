@@ -56,8 +56,6 @@ structure Choice where
   gen        : Nat
   /-- Partial assignment so far. Recall that pattern variables are encoded as de-Bruijn variables. -/
   assignment : Array Expr
-  /-- Higher-order pattern arguments pending `isDefEq` check at instantiation time. -/
-  hoPending  : Array (Expr × Expr) := #[]
   deriving Inhabited
 
 /-- Context for the E-matching monad. -/
@@ -212,8 +210,6 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
       return { c with cnstrs := .offset (some genInfo) pArg k eArg :: c.cnstrs }
     else
       return { c with cnstrs := .match (some genInfo) pArg eArg :: c.cnstrs }
-  else if let some pat := hoPattern? pArg then
-    return { c with hoPending := c.hoPending.push (pat, eArg) }
   else
     return { c with cnstrs := .match none pArg eArg :: c.cnstrs }
 
@@ -795,12 +791,6 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     reportEMatchIssue! "unexpected number of parameters at {thm.origin.pp}"
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
-  -- Process higher-order pattern arguments using `isDefEq`
-  for (pat, e) in c.hoPending do
-    let pat := pat.instantiateRev mvars
-    unless (← isDefEq pat e) do
-      reportEMatchIssue! "failed to match higher-order pattern at {thm.origin.pp}"
-      return ()
   let some _ ← synthesizeInsts mvars bis | return ()
   if (← checkConstraints thm c.gen proof mvars) then
     let guards ← collectGuards thm proof mvars

@@ -662,7 +662,12 @@ occur in any input parameter type is an output parameter.
 
 ### Effect on typeclass resolution
 
-Universe output parameters are erased from typeclass resolution cache keys.
+When typeclass resolution begins, output universe parameters are replaced with fresh universe
+metavariables, similar to what is done for regular output parameters. This means the search
+proceeds without being constrained by the specific output universes in the query, and the
+actual output universes are determined by the instance that is found.
+
+As a consequence, output universe parameters are erased from typeclass resolution cache keys.
 Two queries that differ only in output universe parameters will share a cache entry,
 and the first result found will be reused for subsequent queries.
 

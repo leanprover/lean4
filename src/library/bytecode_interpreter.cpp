@@ -729,6 +729,38 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 }
                 break;
             }
+            case instruction_type::RESET: {
+                uint32 n = (instr >> 16) & 0xFF;
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                if (lean_is_exclusive(source)) {
+                    object * val = base[source];
+                    for (uint32_t i = 0; i < n; i++) {
+                        lean_ctor_release(val, i);
+                    }
+                    base[target] = val;
+                } else {
+                    dec(base[source]);
+                    base[target] = box(0);
+                }
+                break;
+            }
+            case instruction_type::REUSE: {
+                uint32 num_objs = (instr >> 16) & 0xFF;
+                uint32 target = (instr >> 8) & 0xFF;
+                uint32 source = instr & 0xFF;
+                if (lean_is_exclusive(source)) {
+                    object * val = base[source];
+                    for (uint32_t i = 0; i < n; i++) {
+                        lean_ctor_release(val, i);
+                    }
+                    base[target] = val;
+                } else {
+                    dec(base[source]);
+                    base[target] = box(0);
+                }
+                break;
+            }
         }
     }
 }

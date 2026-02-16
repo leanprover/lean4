@@ -105,16 +105,14 @@ def shutdownAndWait (s : Server) : Async Unit := do
 @[inline]
 private def frameCancellation (s : Server) (action : ContextAsync α) : ContextAsync α := do
   s.activeConnections.atomically (modify (· + 1))
+  try
+    action
+  finally
+    s.activeConnections.atomically do
+      modify (· - 1)
 
-  let result ← action
-
-  s.activeConnections.atomically do
-    modify (· - 1)
-
-    if (← get) = 0 ∧ (← s.context.isCancelled) then
-      discard <| s.shutdownPromise.send ()
-
-  return result
+      if (← get) = 0 ∧ (← s.context.isCancelled) then
+        discard <| s.shutdownPromise.send ()
 
 /--
 Start a new HTTP/1.1 server on the given socket address. This function uses `Async` to handle tasks

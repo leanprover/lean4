@@ -185,19 +185,20 @@ def simpDecideProp : Simproc := fun e => do
   propagateOverApplied e (numArgs - 2) fun e => do
     let_expr Decidable.decide p h := e | return .rfl
     match (← (whnfSimproc >> simp) h) with
-    | .rfl _ => return .rfl
+    | .rfl _ =>
+      return .rfl
     | .step e' _ _ =>
       let args := e'.getAppArgs
       if (e'.isAppOf ``isTrue) then
         let hp := args[1]!
         let proof := mkApp3 (mkConst ``decide_eq_true) p h hp
         return .step (← Sym.getBoolTrueExpr) proof
-      else if (e'.isAppOf ``isTrue) then
+      else if (e'.isAppOf ``isFalse) then
         let hnp := args[1]!
         let proof := mkApp3 (mkConst ``decide_eq_false) p h hnp
         return .step (← Sym.getBoolFalseExpr) proof
       else
-        return .rfl (done := true)
+        return .rfl
 
 /-
   Precondition: `e` is an application

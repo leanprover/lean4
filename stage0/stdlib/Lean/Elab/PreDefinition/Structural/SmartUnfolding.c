@@ -3691,11 +3691,11 @@ block_24:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = 1;
-x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_16, x_17, x_18, x_19);
-lean_dec(x_19);
-lean_dec_ref(x_18);
+x_23 = l_Lean_Meta_mkLambdaFVars(x_9, x_21, x_1, x_2, x_1, x_2, x_22, x_20, x_18, x_16, x_17);
 lean_dec(x_17);
 lean_dec_ref(x_16);
+lean_dec(x_18);
+lean_dec_ref(x_20);
 return x_23;
 }
 block_32:
@@ -3705,20 +3705,20 @@ if (x_2 == 0)
 x_16 = x_25;
 x_17 = x_26;
 x_18 = x_27;
-x_19 = x_28;
-x_20 = lean_box(0);
-x_21 = x_29;
+x_19 = lean_box(0);
+x_20 = x_29;
+x_21 = x_28;
 goto block_24;
 }
 else
 {
 lean_object* x_31; 
-x_31 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_29);
+x_31 = l_Lean_Meta_markSmartUnfoldingMatchAlt(x_28);
 x_16 = x_25;
 x_17 = x_26;
 x_18 = x_27;
-x_19 = x_28;
-x_20 = lean_box(0);
+x_19 = lean_box(0);
+x_20 = x_29;
 x_21 = x_31;
 goto block_24;
 }
@@ -3740,11 +3740,11 @@ lean_dec_ref(x_34);
 x_36 = lean_find_expr(x_5, x_35);
 if (lean_obj_tag(x_36) == 0)
 {
-x_25 = x_11;
-x_26 = x_12;
-x_27 = x_13;
-x_28 = x_14;
-x_29 = x_35;
+x_25 = x_13;
+x_26 = x_14;
+x_27 = x_12;
+x_28 = x_35;
+x_29 = x_11;
 x_30 = lean_box(0);
 goto block_32;
 }
@@ -3753,21 +3753,21 @@ else
 lean_dec_ref(x_36);
 if (x_2 == 0)
 {
-x_25 = x_11;
-x_26 = x_12;
-x_27 = x_13;
-x_28 = x_14;
-x_29 = x_35;
+x_25 = x_13;
+x_26 = x_14;
+x_27 = x_12;
+x_28 = x_35;
+x_29 = x_11;
 x_30 = lean_box(0);
 goto block_32;
 }
 else
 {
-x_16 = x_11;
-x_17 = x_12;
-x_18 = x_13;
-x_19 = x_14;
-x_20 = lean_box(0);
+x_16 = x_13;
+x_17 = x_14;
+x_18 = x_12;
+x_19 = lean_box(0);
+x_20 = x_11;
 x_21 = x_35;
 goto block_24;
 }

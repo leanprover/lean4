@@ -5166,8 +5166,8 @@ lean_ctor_set(x_91, 1, x_90);
 x_92 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_92, 0, x_91);
 lean_ctor_set(x_92, 1, x_3);
-x_93 = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(x_92, x_86, x_83);
-lean_dec_ref(x_86);
+x_93 = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(x_92, x_84, x_83);
+lean_dec_ref(x_84);
 return x_93;
 }
 block_154:
@@ -5193,9 +5193,9 @@ if (lean_obj_tag(x_103) == 1)
 {
 lean_dec_ref(x_103);
 x_83 = x_96;
-x_84 = lean_box(0);
+x_84 = x_95;
 x_85 = x_100;
-x_86 = x_95;
+x_86 = lean_box(0);
 goto block_94;
 }
 else
@@ -5212,9 +5212,9 @@ goto block_82;
 else
 {
 x_83 = x_96;
-x_84 = lean_box(0);
+x_84 = x_95;
 x_85 = x_100;
-x_86 = x_95;
+x_86 = lean_box(0);
 goto block_94;
 }
 }

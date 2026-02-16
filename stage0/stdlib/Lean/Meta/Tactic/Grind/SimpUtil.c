@@ -3872,15 +3872,15 @@ return x_483;
 block_61:
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-lean_inc_ref(x_22);
+lean_inc_ref(x_20);
 lean_inc_ref(x_19);
-lean_inc(x_27);
-x_28 = l_Lean_mkLambda(x_27, x_25, x_19, x_22);
-x_29 = l_Lean_mkNot(x_22);
+lean_inc(x_24);
+x_28 = l_Lean_mkLambda(x_24, x_25, x_19, x_20);
+x_29 = l_Lean_mkNot(x_20);
 lean_inc_ref(x_19);
-x_30 = l_Lean_mkLambda(x_27, x_25, x_19, x_29);
+x_30 = l_Lean_mkLambda(x_24, x_25, x_19, x_29);
 lean_inc_ref(x_19);
-x_31 = l_Lean_Meta_getLevel(x_19, x_26, x_20, x_23, x_21);
+x_31 = l_Lean_Meta_getLevel(x_19, x_22, x_27, x_26, x_21);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -3974,8 +3974,8 @@ x_19 = x_62;
 x_20 = x_63;
 x_21 = x_65;
 x_22 = x_64;
-x_23 = x_66;
-x_24 = lean_box(0);
+x_23 = lean_box(0);
+x_24 = x_66;
 x_25 = x_68;
 x_26 = x_69;
 x_27 = x_70;
@@ -3986,15 +3986,15 @@ else
 lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 lean_dec(x_70);
 lean_dec_ref(x_69);
-lean_dec_ref(x_66);
+lean_dec(x_66);
 lean_dec(x_65);
-lean_dec(x_63);
-lean_inc_ref(x_64);
-x_72 = l_Lean_mkNot(x_64);
+lean_dec_ref(x_64);
+lean_inc_ref(x_63);
+x_72 = l_Lean_mkNot(x_63);
 lean_inc_ref(x_62);
 x_73 = l_Lean_mkAnd(x_62, x_72);
 x_74 = l_Lean_Meta_Grind_pushNot___redArg___closed__8;
-x_75 = l_Lean_mkAppB(x_74, x_62, x_64);
+x_75 = l_Lean_mkAppB(x_74, x_62, x_63);
 x_76 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 x_77 = lean_alloc_ctor(0, 2, 1);
@@ -4025,14 +4025,14 @@ x_90 = l_Lean_Expr_isProp(x_87);
 if (x_90 == 0)
 {
 x_62 = x_87;
-x_63 = x_82;
-x_64 = x_88;
+x_63 = x_88;
+x_64 = x_81;
 x_65 = x_84;
-x_66 = x_83;
+x_66 = x_86;
 x_67 = lean_box(0);
 x_68 = x_89;
-x_69 = x_81;
-x_70 = x_86;
+x_69 = x_83;
+x_70 = x_82;
 x_71 = x_90;
 goto block_80;
 }
@@ -4043,28 +4043,28 @@ x_91 = l_Lean_Expr_hasLooseBVars(x_88);
 if (x_91 == 0)
 {
 x_62 = x_87;
-x_63 = x_82;
-x_64 = x_88;
+x_63 = x_88;
+x_64 = x_81;
 x_65 = x_84;
-x_66 = x_83;
+x_66 = x_86;
 x_67 = lean_box(0);
 x_68 = x_89;
-x_69 = x_81;
-x_70 = x_86;
+x_69 = x_83;
+x_70 = x_82;
 x_71 = x_90;
 goto block_80;
 }
 else
 {
 x_19 = x_87;
-x_20 = x_82;
+x_20 = x_88;
 x_21 = x_84;
-x_22 = x_88;
-x_23 = x_83;
-x_24 = lean_box(0);
+x_22 = x_81;
+x_23 = lean_box(0);
+x_24 = x_86;
 x_25 = x_89;
-x_26 = x_81;
-x_27 = x_86;
+x_26 = x_83;
+x_27 = x_82;
 goto block_61;
 }
 }

@@ -2355,7 +2355,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_instFromJsonLogEntry_fromJson_spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_12; lean_object* x_13; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_12; lean_object* x_13; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = l_Lean_Json_getObjValD(x_1, x_2);
 x_18 = ((lean_object*)(l_Lean_Json_getObjValAs_x3f___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_instFromJsonLogEntry_fromJson_spec__3___closed__2));
 lean_inc(x_17);
@@ -2611,9 +2611,9 @@ lean_dec_ref(x_52);
 x_53 = lean_box(0);
 x_54 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
-x_6 = x_54;
-x_7 = x_32;
+x_5 = x_54;
+x_6 = x_32;
+x_7 = x_50;
 x_8 = x_53;
 goto block_11;
 }
@@ -2626,9 +2626,9 @@ if (x_55 == 0)
 uint8_t x_56; 
 x_56 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
-x_6 = x_56;
-x_7 = x_32;
+x_5 = x_56;
+x_6 = x_32;
+x_7 = x_50;
 x_8 = x_52;
 goto block_11;
 }
@@ -2642,9 +2642,9 @@ x_58 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_59 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
-x_6 = x_59;
-x_7 = x_32;
+x_5 = x_59;
+x_6 = x_32;
+x_7 = x_50;
 x_8 = x_58;
 goto block_11;
 }
@@ -2775,10 +2775,10 @@ block_11:
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_alloc_ctor(3, 3, 1);
-lean_ctor_set(x_9, 0, x_7);
-lean_ctor_set(x_9, 1, x_5);
+lean_ctor_set(x_9, 0, x_6);
+lean_ctor_set(x_9, 1, x_7);
 lean_ctor_set(x_9, 2, x_8);
-lean_ctor_set_uint8(x_9, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_9, sizeof(void*)*3, x_5);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 return x_10;

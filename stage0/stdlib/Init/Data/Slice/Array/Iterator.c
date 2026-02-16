@@ -43,7 +43,7 @@ LEAN_EXPORT lean_object* l_instSliceSizeSubarrayData___lam__0___boxed(lean_objec
 static const lean_closure_object l_instSliceSizeSubarrayData___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instSliceSizeSubarrayData___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_instSliceSizeSubarrayData___closed__0 = (const lean_object*)&l_instSliceSizeSubarrayData___closed__0_value;
 LEAN_EXPORT lean_object* l_instSliceSizeSubarrayData(lean_object*);
-lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopId___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instForInSubarrayOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instForInSubarrayOfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__0(lean_object*);
@@ -632,7 +632,7 @@ x_2 = ((lean_object*)(l_Subarray_instToIterator___closed__0));
 lean_inc_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg___lam__3), 7, 1);
 lean_closure_set(x_3, 0, x_1);
-x_4 = l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopOfFiniteId___redArg(x_1, x_2, x_3);
+x_4 = l_Std_Slice_instForInOfMonadOfToIteratorOfIteratorLoopId___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }

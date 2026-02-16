@@ -3762,13 +3762,13 @@ goto block_42;
 block_65:
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-x_62 = lean_ctor_get(x_60, 4);
+x_62 = lean_ctor_get(x_61, 4);
 lean_inc(x_62);
 x_63 = l___private_Lean_Meta_Tactic_Grind_AC_PP_0__Lean_Meta_Grind_AC_ppStruct_x3f___closed__9;
 x_64 = lean_array_push(x_59, x_63);
 x_43 = x_64;
-x_44 = x_58;
-x_45 = x_60;
+x_44 = x_60;
+x_45 = x_61;
 x_46 = x_62;
 x_47 = lean_box(0);
 goto block_57;
@@ -3789,10 +3789,10 @@ goto block_57;
 else
 {
 lean_dec(x_69);
-x_58 = x_67;
+x_58 = lean_box(0);
 x_59 = x_66;
-x_60 = x_68;
-x_61 = lean_box(0);
+x_60 = x_67;
+x_61 = x_68;
 goto block_65;
 }
 }
@@ -3800,10 +3800,10 @@ else
 {
 lean_dec_ref(x_70);
 lean_dec(x_69);
-x_58 = x_67;
+x_58 = lean_box(0);
 x_59 = x_66;
-x_60 = x_68;
-x_61 = lean_box(0);
+x_60 = x_67;
+x_61 = x_68;
 goto block_65;
 }
 }

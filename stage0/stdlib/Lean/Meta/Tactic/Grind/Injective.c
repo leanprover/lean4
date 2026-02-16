@@ -1253,10 +1253,10 @@ block_49:
 {
 if (x_41 == 0)
 {
-x_16 = x_38;
-x_17 = x_37;
-x_18 = x_40;
-x_19 = x_36;
+x_16 = x_37;
+x_17 = x_36;
+x_18 = x_38;
+x_19 = x_39;
 x_20 = lean_box(0);
 goto block_35;
 }
@@ -1268,11 +1268,11 @@ x_43 = l_Lean_indentExpr(x_3);
 x_44 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_44, x_38, x_37, x_40, x_36);
-lean_dec(x_36);
-lean_dec_ref(x_40);
-lean_dec(x_37);
+x_45 = l_Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Injective_0__Lean_Meta_Grind_getSymbols_spec__2___redArg(x_44, x_37, x_36, x_38, x_39);
+lean_dec(x_39);
 lean_dec_ref(x_38);
+lean_dec(x_36);
+lean_dec_ref(x_37);
 x_46 = !lean_is_exclusive(x_45);
 if (x_46 == 0)
 {
@@ -1296,21 +1296,21 @@ uint8_t x_51;
 x_51 = l_Array_isEmpty___redArg(x_2);
 if (x_51 == 0)
 {
-x_36 = x_7;
-x_37 = x_5;
-x_38 = x_4;
-x_39 = lean_box(0);
-x_40 = x_6;
+x_36 = x_5;
+x_37 = x_4;
+x_38 = x_6;
+x_39 = x_7;
+x_40 = lean_box(0);
 x_41 = x_51;
 goto block_49;
 }
 else
 {
-x_36 = x_7;
-x_37 = x_5;
-x_38 = x_4;
-x_39 = lean_box(0);
-x_40 = x_6;
+x_36 = x_5;
+x_37 = x_4;
+x_38 = x_6;
+x_39 = x_7;
+x_40 = lean_box(0);
 x_41 = x_1;
 goto block_49;
 }

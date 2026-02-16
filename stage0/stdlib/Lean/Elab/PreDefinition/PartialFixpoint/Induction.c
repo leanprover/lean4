@@ -20829,7 +20829,7 @@ _start:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_41; lean_object* x_56; uint8_t x_57; 
+lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; uint8_t x_10; uint8_t x_41; lean_object* x_56; uint8_t x_57; 
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
@@ -20872,7 +20872,7 @@ lean_ctor_set(x_18, 6, x_17);
 lean_ctor_set_uint8(x_18, sizeof(void*)*7, x_12);
 lean_ctor_set_uint8(x_18, sizeof(void*)*7 + 1, x_12);
 lean_ctor_set_uint8(x_18, sizeof(void*)*7 + 2, x_12);
-lean_ctor_set_uint8(x_18, sizeof(void*)*7 + 3, x_9);
+lean_ctor_set_uint8(x_18, sizeof(void*)*7 + 3, x_8);
 x_19 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_initFn___lam__0___closed__4_00___x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction_583250807____hygCtx___hyg_2_;
 x_20 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_initFn___lam__0___closed__5_00___x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction_583250807____hygCtx___hyg_2_;
 x_21 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_initFn___lam__0___closed__6_00___x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction_583250807____hygCtx___hyg_2_;
@@ -21009,8 +21009,8 @@ x_52 = lean_nat_dec_le(x_51, x_50);
 if (x_52 == 0)
 {
 lean_dec_ref(x_7);
-x_8 = lean_box(0);
-x_9 = x_46;
+x_8 = x_46;
+x_9 = lean_box(0);
 x_10 = x_52;
 goto block_40;
 }
@@ -21020,8 +21020,8 @@ lean_object* x_53; uint8_t x_54;
 x_53 = lean_unsigned_to_nat(0u);
 x_54 = lean_string_memcmp(x_7, x_49, x_53, x_53, x_51);
 lean_dec_ref(x_7);
-x_8 = lean_box(0);
-x_9 = x_46;
+x_8 = x_46;
+x_9 = lean_box(0);
 x_10 = x_54;
 goto block_40;
 }

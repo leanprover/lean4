@@ -1838,7 +1838,7 @@ block_27:
 uint8_t x_21; 
 lean_inc(x_20);
 lean_inc(x_2);
-x_21 = l_List_elem___redArg(x_17, x_2, x_20);
+x_21 = l_List_elem___redArg(x_18, x_2, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -1889,8 +1889,8 @@ if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 x_36 = lean_box(0);
-x_17 = x_34;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_34;
 x_19 = x_28;
 x_20 = x_36;
 goto block_27;
@@ -1901,8 +1901,8 @@ lean_object* x_37;
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
-x_17 = x_34;
-x_18 = lean_box(0);
+x_17 = lean_box(0);
+x_18 = x_34;
 x_19 = x_28;
 x_20 = x_37;
 goto block_27;

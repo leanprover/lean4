@@ -403,7 +403,6 @@ theorem c_without_negPivot_of_performRatCheck_success {n : Nat} (f : DefaultForm
       rw [DefaultFormula.formulaEntails_def, List.all_eq_true] at pfc
       exact of_decide_eq_true (pfc (c.delete negPivot) (by simp [insert_iff]))
 
-set_option backward.isDefEq.respectTransparency false in
 theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     (f_readyForRatAdd : ReadyForRatAdd f) (pivot : Literal (PosFin n))
     (ratHints : Array (Nat × Array Nat))
@@ -425,10 +424,10 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     rw [Array.mem_filter]
     constructor
     · grind
-    · rw [Array.getElem_toList] at c'_in_f
-      simp only [Array.getElem_range, getElem!_def, i_lt_f_clauses_size, Array.getElem?_eq_getElem,
-        c'_in_f, contains_iff]
-      simpa [Clause.toList] using negPivot_in_c'
+    · split
+      · grind
+      · simp [Clause.toList] at negPivot_in_c'
+        grind [contains_iff]
   rcases List.get_of_mem h with ⟨j, h'⟩
   have j_in_bounds : j < ratHints.size := by
     have j_property := j.2

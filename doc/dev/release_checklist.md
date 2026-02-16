@@ -65,6 +65,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - The `lakefile.toml` should always refer to dependencies via their `main` or `master` branch,
         not a toolchain tag
         (with the exception of `ProofWidgets4`, which *must* use a sequential version tag).
+      - **Important:** After creating and pushing the ProofWidgets4 tag (see above),
+        the mathlib4 lakefile must be updated to reference the new tag (e.g. `v0.0.87`).
+        The `release_steps.py` script handles this automatically by looking up the latest
+        ProofWidgets4 tag compatible with the target toolchain.
       - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
     - `repl`:
       There are two copies of `lean-toolchain`/`lakefile.lean`:

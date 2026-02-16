@@ -661,7 +661,7 @@ theorem minKey?_eq_minEntry?_map_fst {l : Impl α β} : l.minKey? = l.minEntry?.
 theorem minKey_eq_minEntry_fst {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
   induction l, he using minKey.induct_unfolding <;> simp only [minEntry] <;> trivial
 
-theorem minKey!_eq_get!_minKey? [Inhabited α] {l : Impl α β} :
+theorem minKey!_eq_getElem!_minKey? [Inhabited α] {l : Impl α β} :
     l.minKey! = l.minKey?.get! := by
   induction l using minKey!.induct_unfolding <;> simp only [minKey?] <;> trivial
 

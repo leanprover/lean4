@@ -8,6 +8,7 @@ module
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
+public import Init.Data.Array.Perm
 import Init.Data.List.Find
 import Init.Data.List.Pairwise
 import Init.Data.Prod
@@ -99,6 +100,18 @@ theorem isEmpty_iff_forall_contains [TransCmp cmp] (h : t.WF) :
 theorem isEmpty_iff_forall_not_mem [TransCmp cmp] (h : t.WF) :
     t.isEmpty = true ↔ ∀ a, ¬a ∈ t :=
   Impl.isEmpty_iff_forall_not_mem h
+
+theorem toArray_toList : t.toList.toArray = t.toArray :=
+  Impl.toArray_toList
+
+theorem toList_toArray : t.toArray.toList = t.toList :=
+  Impl.toList_toArray
+
+theorem toArray_keys : t.keys.toArray = t.keysArray :=
+  Impl.toArray_keys
+
+theorem toList_keysArray : t.keysArray.toList = t.keys :=
+  Impl.toList_keysArray
 
 @[simp]
 theorem insert_eq_insert {p : (a : α) × β a} : Insert.insert p t = t.insert p.1 p.2 :=
@@ -286,6 +299,12 @@ namespace Const
 
 variable {β : Type v} {t : Raw α β cmp}
 
+theorem toArray_toList : (toList t).toArray = toArray t :=
+  Impl.Const.toArray_toList
+
+theorem toList_toArray : (toArray t).toList = toList t :=
+  Impl.Const.toList_toArray
+
 @[simp, grind =]
 theorem get?_emptyc [TransCmp cmp] {a : α} :
     get? (∅ : Raw α β cmp) a = none :=
@@ -357,13 +376,25 @@ theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF)
     (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) :=
   Impl.toList_insert!_perm h
 
+theorem toArray_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v).toArray.Perm (t.toArray.filter (¬k == ·.1) |>.push ⟨k, v⟩) :=
+  Impl.toArray_insert!_perm h
+
 theorem Const.toList_insert_perm {β : Type v} {t : Raw α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β} :
     (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
   Impl.Const.toList_insert!_perm h
 
+theorem Const.toArray_insert_perm {β : Type v} {t : Raw α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (Const.toArray (t.insert k v)).Perm ((Const.toArray t).filter (¬k == ·.1) |>.push ⟨k, v⟩) :=
+  Impl.Const.toArray_insert!_perm h
+
 theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
   Impl.keys_insertIfNew!_perm h
+
+theorem keysArray_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v).keysArray.Perm (if k ∈ t then t.keysArray else t.keysArray.push k) :=
+  Impl.keysArray_insertIfNew!_perm h.out
 
 @[grind =] theorem get_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v).get a h₁ =
@@ -1107,9 +1138,19 @@ theorem length_keys [TransCmp cmp] (h : t.WF) :
   Impl.length_keys h.out
 
 @[simp, grind =]
+theorem size_keysArray [TransCmp cmp] (h : t.WF) :
+    t.keysArray.size = t.size :=
+  Impl.size_keysArray h.out
+
+@[simp, grind =]
 theorem isEmpty_keys :
     t.keys.isEmpty = t.isEmpty :=
   Impl.isEmpty_keys
+
+@[simp, grind =]
+theorem isEmpty_keysArray :
+    t.keysArray.isEmpty = t.isEmpty :=
+  Impl.isEmpty_keysArray
 
 @[simp, grind =]
 theorem contains_keys [BEq α] [LawfulBEqCmp cmp] (h : t.WF) [TransCmp cmp] {k : α} :
@@ -1117,13 +1158,26 @@ theorem contains_keys [BEq α] [LawfulBEqCmp cmp] (h : t.WF) [TransCmp cmp] {k :
   Impl.contains_keys h
 
 @[simp, grind =]
+theorem contains_keysArray [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} (h : t.WF) :
+    t.keysArray.contains k = t.contains k :=
+  Impl.contains_keysArray h.out
+
+@[simp, grind =]
 theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
     k ∈ t.keys ↔ k ∈ t :=
   Impl.mem_keys h
 
+theorem mem_keysArray [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    k ∈ t.keysArray ↔ k ∈ t :=
+  Impl.mem_keysArray h
+
 theorem mem_of_mem_keys [TransCmp cmp] (h : t.WF) {k : α}
     (h' : k ∈ t.keys) : k ∈ t :=
   Impl.mem_of_mem_keys h h'
+
+theorem mem_of_mem_keysArray [TransCmp cmp] (h : t.WF) {k : α}
+    (h' : k ∈ t.keysArray) : k ∈ t :=
+  Impl.mem_of_mem_keysArray h h'
 
 theorem distinct_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
@@ -1142,10 +1196,20 @@ theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys :=
   Impl.map_fst_toList_eq_keys
 
+@[simp, grind _=_]
+theorem map_fst_toArray_eq_keysArray :
+    t.toArray.map Sigma.fst = t.keysArray :=
+  Impl.map_fst_toArray_eq_keysArray
+
 @[simp, grind =]
 theorem length_toList [TransCmp cmp] (h : t.WF) :
     t.toList.length = t.size :=
   Impl.length_toList h.out
+
+@[simp, grind =]
+theorem size_toArray [TransCmp cmp] (h : t.WF) :
+    t.toArray.size = t.size :=
+  Impl.size_toArray h.out
 
 @[simp, grind =]
 theorem isEmpty_toList :
@@ -1153,22 +1217,45 @@ theorem isEmpty_toList :
   Impl.isEmpty_toList
 
 @[simp, grind =]
+theorem isEmpty_toArray :
+    t.toArray.isEmpty = t.isEmpty :=
+  Impl.isEmpty_toArray
+
+@[simp, grind =]
 theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
     ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v :=
   Impl.mem_toList_iff_get?_eq_some h.out
+
+@[simp, grind =]
+theorem mem_toArray_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ t.toArray ↔ t.get? k = some v :=
+  Impl.mem_toArray_iff_get?_eq_some h.out
 
 theorem find?_toList_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
     {v : β k} : t.toList.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
   Impl.find?_toList_eq_some_iff_get?_eq_some h.out
 
+theorem find?_toArray_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
+    {v : β k} : t.toArray.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
+  Impl.find?_toArray_eq_some_iff_get?_eq_some h.out
+
 theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
     t.toList.find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
   Impl.find?_toList_eq_none_iff_contains_eq_false h.out
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
+    t.toArray.find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  Impl.find?_toArray_eq_none_iff_contains_eq_false h.out
 
 @[simp]
 theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
     t.toList.find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
+
+@[simp]
+theorem find?_toArray_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
+    t.toArray.find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
+  Impl.find?_toArray_eq_none_iff_not_mem h.out
 
 theorem distinct_keys_toList [TransCmp cmp] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
@@ -1187,10 +1274,20 @@ theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
   Impl.Const.map_fst_toList_eq_keys
 
+@[simp, grind _=_]
+theorem map_fst_toArray_eq_keysArray :
+    (toArray t).map Prod.fst = t.keysArray :=
+  Impl.Const.map_fst_toArray_eq_keysArray
+
 @[simp, grind =]
 theorem length_toList (h : t.WF) :
     (toList t).length = t.size :=
   Impl.Const.length_toList h.out
+
+@[simp, grind =]
+theorem size_toArray (h : t.WF) :
+    (toArray t).size = t.size :=
+  Impl.Const.size_toArray h.out
 
 @[simp, grind =]
 theorem isEmpty_toList :
@@ -1198,18 +1295,37 @@ theorem isEmpty_toList :
   Impl.Const.isEmpty_toList
 
 @[simp, grind =]
+theorem isEmpty_toArray :
+    (toArray t).isEmpty = t.isEmpty :=
+  Impl.Const.isEmpty_toArray
+
+@[simp, grind =]
 theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β} :
     (k, v) ∈ toList t ↔ get? t k = some v :=
   Impl.Const.mem_toList_iff_get?_eq_some h
+
+@[simp, grind =]
+theorem mem_toArray_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (k, v) ∈ toArray t ↔ get? t k = some v :=
+  Impl.Const.mem_toArray_iff_get?_eq_some h
 
 @[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ get? t k = some v :=
   Impl.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some h
 
+@[simp]
+theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (k, v) ∈ toArray t ↔ t.getKey? k = some k ∧ get? t k = some v :=
+  Impl.Const.mem_toArray_iff_getKey?_eq_some_and_get?_eq_some h
+
 theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     get? t k = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toList t :=
   Impl.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList h
+
+theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toArray [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    get? t k = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toArray t :=
+  Impl.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toArray h
 
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF)
     {k k' : α} {v : β} :
@@ -1217,14 +1333,29 @@ theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp]
       t.getKey? k = some k' ∧ get? t k = some v :=
   Impl.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
 
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF)
+    {k k' : α} {v : β} :
+    (toArray t).find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
+      t.getKey? k = some k' ∧ get? t k = some v :=
+  Impl.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
+
 theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
     (toList t).find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
   Impl.Const.find?_toList_eq_none_iff_contains_eq_false h.out
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
+    (toArray t).find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  Impl.Const.find?_toArray_eq_none_iff_contains_eq_false h.out
 
 @[simp]
 theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
     (toList t).find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
   Impl.Const.find?_toList_eq_none_iff_not_mem h.out
+
+@[simp]
+theorem find?_toArray_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
+    (toArray t).find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
+  Impl.Const.find?_toArray_eq_none_iff_not_mem h.out
 
 theorem distinct_keys_toList [TransCmp cmp] (h : t.WF) :
     (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
@@ -1244,17 +1375,33 @@ theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → (a : α) �
     t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
   Impl.foldlM_eq_foldlM_toList
 
+theorem foldlM_eq_foldlM_toArray [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init : δ} :
+    t.foldlM f init = t.toArray.foldlM (fun a b => f a b.1 b.2) init :=
+  Impl.foldlM_eq_foldlM_toArray
+
 theorem foldl_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
     t.foldl f init = t.toList.foldl (fun a b => f a b.1 b.2) init :=
   Impl.foldl_eq_foldl_toList
+
+theorem foldl_eq_foldl_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    t.foldl f init = t.toArray.foldl (fun a b => f a b.1 b.2) init :=
+  Impl.foldl_eq_foldl_toArray
 
 theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : (a : α) → β a → δ → m δ} {init : δ} :
     t.foldrM f init = t.toList.foldrM (fun a b => f a.1 a.2 b) init :=
   Impl.foldrM_eq_foldrM_toList
 
+theorem foldrM_eq_foldrM_toArray [Monad m] [LawfulMonad m] {f : (a : α) → β a → δ → m δ} {init : δ} :
+    t.foldrM f init = t.toArray.foldrM (fun a b => f a.1 a.2 b) init :=
+  Impl.foldrM_eq_foldrM_toArray
+
 theorem foldr_eq_foldr_toList {f : (a : α) → β a → δ → δ} {init : δ} :
     t.foldr f init = t.toList.foldr (fun a b => f a.1 a.2 b) init :=
   Impl.foldr_eq_foldr_toList
+
+theorem foldr_eq_foldr_toArray {f : (a : α) → β a → δ → δ} {init : δ} :
+    t.foldr f init = t.toArray.foldr (fun a b => f a.1 a.2 b) init :=
+  Impl.foldr_eq_foldr_toArray
 
 @[simp, grind =]
 theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUnit} :
@@ -1263,6 +1410,10 @@ theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUni
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     ForM.forM t f = ForM.forM t.toList f :=
   Impl.forM_eq_forM_toList
+
+theorem forM_eq_forM_toArray [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
+    ForM.forM t f = ForM.forM t.toArray f :=
+  Impl.forM_eq_forM_toArray
 
 @[simp, grind =]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
@@ -1274,30 +1425,60 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   Impl.forIn_eq_forIn_toList (f := f)
 
+theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m]
+    {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toArray init f :=
+  Impl.forIn_eq_forIn_toArray (f := f)
+
 theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
     t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init :=
   Impl.foldlM_eq_foldlM_keys
+
+theorem foldlM_eq_foldlM_keysArray [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
+    t.foldlM (fun d a _ => f d a) init = t.keysArray.foldlM f init :=
+  Impl.foldlM_eq_foldlM_keysArray
 
 theorem foldl_eq_foldl_keys {f : δ → α → δ} {init : δ} :
     t.foldl (fun d a _ => f d a) init = t.keys.foldl f init :=
   Impl.foldl_eq_foldl_keys
 
+theorem foldl_eq_foldl_keysArray {f : δ → α → δ} {init : δ} :
+    t.foldl (fun d a _ => f d a) init = t.keysArray.foldl f init :=
+  Impl.foldl_eq_foldl_keysArray
+
 theorem foldrM_eq_foldrM_keys [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
     t.foldrM (fun a _ d => f a d) init = t.keys.foldrM f init :=
   Impl.foldrM_eq_foldrM_keys
+
+theorem foldrM_eq_foldrM_keysArray [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
+    t.foldrM (fun a _ d => f a d) init = t.keysArray.foldrM f init :=
+  Impl.foldrM_eq_foldrM_keysArray
 
 theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
     t.foldr (fun a _ d => f a d) init = t.keys.foldr f init :=
   Impl.foldr_eq_foldr_keys
 
+theorem foldr_eq_foldr_keysArray {f : α → δ → δ} {init : δ} :
+    t.foldr (fun a _ d => f a d) init = t.keysArray.foldr f init :=
+  Impl.foldr_eq_foldr_keysArray
+
 theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
     ForM.forM t (fun a => f a.1) = t.keys.forM f :=
   Impl.forM_eq_forM_keys
+
+theorem forM_eq_forM_keysArray [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    ForM.forM t (fun a => f a.1) = t.keysArray.forM f :=
+  Impl.forM_eq_forM_keysArray
 
 theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m]
     {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init (fun a d => f a.1 d) = ForIn.forIn t.keys init f :=
   Impl.forIn_eq_forIn_keys
+
+theorem forIn_eq_forIn_keysArray [Monad m] [LawfulMonad m]
+    {f : α → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init (fun a d => f a.1 d) = ForIn.forIn t.keysArray init f :=
+  Impl.forIn_eq_forIn_keysArray
 
 namespace Const
 
@@ -1307,17 +1488,33 @@ theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → β 
     t.foldlM f init = (Const.toList t).foldlM (fun a b => f a b.1 b.2) init :=
   Impl.Const.foldlM_eq_foldlM_toList
 
+theorem foldlM_eq_foldlM_toArray [Monad m] [LawfulMonad m] {f : δ → α → β → m δ} {init : δ} :
+    t.foldlM f init = (Const.toArray t).foldlM (fun a b => f a b.1 b.2) init :=
+  Impl.Const.foldlM_eq_foldlM_toArray
+
 theorem foldl_eq_foldl_toList {f : δ → α → β → δ} {init : δ} :
     t.foldl f init = (Const.toList t).foldl (fun a b => f a b.1 b.2) init :=
   Impl.Const.foldl_eq_foldl_toList
+
+theorem foldl_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} :
+    t.foldl f init = (Const.toArray t).foldl (fun a b => f a b.1 b.2) init :=
+  Impl.Const.foldl_eq_foldl_toArray
 
 theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : α → β → δ → m δ} {init : δ} :
     t.foldrM f init = (Const.toList t).foldrM (fun a b => f a.1 a.2 b) init :=
   Impl.Const.foldrM_eq_foldrM_toList
 
+theorem foldrM_eq_foldrM_toArray [Monad m] [LawfulMonad m] {f : α → β → δ → m δ} {init : δ} :
+    t.foldrM f init = (Const.toArray t).foldrM (fun a b => f a.1 a.2 b) init :=
+  Impl.Const.foldrM_eq_foldrM_toArray
+
 theorem foldr_eq_foldr_toList {f : α → β → δ → δ} {init : δ} :
     t.foldr f init = (Const.toList t).foldr (fun a b => f a.1 a.2 b) init :=
   Impl.Const.foldr_eq_foldr_toList
+
+theorem foldr_eq_foldr_toArray {f : α → β → δ → δ} {init : δ} :
+    t.foldr f init = (Const.toArray t).foldr (fun a b => f a.1 a.2 b) init :=
+  Impl.Const.foldr_eq_foldr_toArray
 
 theorem forM_eq_forMUncurried [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
     t.forM f = forMUncurried (fun a => f a.1 a.2) t := rfl
@@ -1325,6 +1522,10 @@ theorem forM_eq_forMUncurried [Monad m] [LawfulMonad m] {f : α → β → m PUn
 theorem forMUncurried_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
     forMUncurried f t = (Const.toList t).forM f :=
   Impl.Const.forM_eq_forM_toList
+
+theorem forMUncurried_eq_forM_toArray [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
+    forMUncurried f t = (Const.toArray t).forM f :=
+  Impl.Const.forM_eq_forM_toArray
 
 theorem forIn_eq_forInUncurried [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
@@ -1334,6 +1535,11 @@ theorem forInUncurried_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α × β → δ → m (ForInStep δ)} {init : δ} :
     forInUncurried f init t = ForIn.forIn (Const.toList t) init f :=
   Impl.Const.forIn_eq_forIn_toList
+
+theorem forInUncurried_eq_forIn_toArray [Monad m] [LawfulMonad m]
+    {f : α × β → δ → m (ForInStep δ)} {init : δ} :
+    forInUncurried f init t = ForIn.forIn (Const.toArray t) init f :=
+  Impl.Const.forIn_eq_forIn_toArray
 
 end Const
 
@@ -4374,6 +4580,11 @@ theorem minKey?_eq_head?_keys [TransCmp cmp] (h : t.WF) :
     t.minKey? = t.keys.head? :=
   Impl.minKey?_eq_head?_keys h (instOrd := ⟨cmp⟩)
 
+@[grind =_]
+theorem minKey?_eq_getElem?_keysArray [TransCmp cmp] (h : t.WF) :
+    t.minKey? = t.keysArray[0]? :=
+  Impl.minKey?_eq_getElem?_keysArray h (instOrd := ⟨cmp⟩)
+
 @[simp, grind =]
 theorem minKey?_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f} (h : t.WF) :
     (t.modify k f).minKey? = t.minKey? :=
@@ -4523,6 +4734,11 @@ theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.minKey! = t.keys.head! :=
   Impl.minKey!_eq_head!_keys h (instOrd := ⟨cmp⟩)
 
+@[grind =_]
+theorem minKey!_eq_getElem!_keysArray [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.minKey! = t.keysArray[0]! :=
+  Impl.minKey!_eq_getElem!_keysArray h (instOrd := ⟨cmp⟩)
+
 @[simp]
 theorem minKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
     (t.modify k f).minKey! = t.minKey! :=
@@ -4668,6 +4884,10 @@ theorem minKeyD_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
 theorem minKeyD_eq_headD_keys [TransCmp cmp] (h : t.WF) {fallback} :
     t.minKeyD fallback = t.keys.headD fallback :=
   Impl.minKeyD_eq_headD_keys h (instOrd := ⟨cmp⟩)
+
+theorem minKeyD_eq_getD_keysArray [TransCmp cmp] (h : t.WF) {fallback} :
+    t.minKeyD fallback = t.keysArray.getD 0 fallback :=
+  Impl.minKeyD_eq_getD_keysArray h (instOrd := ⟨cmp⟩)
 
 @[simp, grind =]
 theorem minKeyD_modify [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :
@@ -4876,6 +5096,11 @@ theorem maxKey?_eq_getLast?_keys [TransCmp cmp] (h : t.WF) :
     t.maxKey? = t.keys.getLast? :=
   Impl.maxKey?_eq_getLast?_keys h (instOrd := ⟨cmp⟩)
 
+@[grind =_]
+theorem maxKey?_eq_back?_keysArray [TransCmp cmp] (h : t.WF) :
+    t.maxKey? = t.keysArray.back? :=
+  Impl.maxKey?_eq_back?_keysArray h (instOrd := ⟨cmp⟩)
+
 @[simp, grind =]
 theorem maxKey?_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f} (h : t.WF) :
     (t.modify k f).maxKey? = t.maxKey? :=
@@ -5022,6 +5247,11 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
 theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! :=
   Impl.maxKey!_eq_getLast!_keys h (instOrd := ⟨cmp⟩)
+
+@[grind =_]
+theorem maxKey!_eq_back!_keysArray [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.maxKey! = t.keysArray.back! :=
+  Impl.maxKey!_eq_back!_keysArray h (instOrd := ⟨cmp⟩)
 
 @[simp, grind =]
 theorem maxKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
@@ -5170,6 +5400,11 @@ theorem self_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
 theorem maxKeyD_eq_getLastD_keys [TransCmp cmp] (h : t.WF) {fallback} :
     t.maxKeyD fallback = t.keys.getLastD fallback :=
   Impl.maxKeyD_eq_getLastD_keys h (instOrd := ⟨cmp⟩)
+
+@[grind =_]
+theorem maxKeyD_eq_getD_back?_keysArray [TransCmp cmp] (h : t.WF) {fallback} :
+    t.maxKeyD fallback = t.keysArray.back?.getD fallback :=
+  Impl.maxKeyD_eq_getD_back?_keysArray h (instOrd := ⟨cmp⟩)
 
 @[simp, grind =]
 theorem maxKeyD_modify [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :
@@ -5753,8 +5988,14 @@ theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
 theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList :=
   equiv_iff.trans Impl.equiv_iff_toList_perm
 
+theorem equiv_iff_toArray_perm : t₁ ~m t₂ ↔ t₁.toArray.Perm t₂.toArray :=
+  equiv_iff.trans Impl.equiv_iff_toArray_perm
+
 theorem Equiv.of_toList_perm (h : t₁.toList.Perm t₂.toList) : t₁ ~m t₂ :=
   ⟨.of_toList_perm h⟩
+
+theorem Equiv.of_toArray_perm (h : t₁.toArray.Perm t₂.toArray) : t₁ ~m t₂ :=
+  ⟨.of_toArray_perm h⟩
 
 theorem equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
@@ -5767,6 +6008,9 @@ variable {β : Type v} {t₁ t₂ : Raw α β cmp}
 theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm (Const.toList t₂) :=
   equiv_iff.trans Impl.Const.equiv_iff_toList_perm
 
+theorem Const.equiv_iff_toArray_perm : t₁ ~m t₂ ↔ (Const.toArray t₁).Perm (Const.toArray t₂) :=
+  equiv_iff.trans Impl.Const.equiv_iff_toArray_perm
+
 theorem Const.equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ :=
   equiv_iff.trans (Impl.Const.equiv_iff_toList_eq h₁.1 h₂.1)
@@ -5775,15 +6019,30 @@ theorem Const.equiv_iff_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} :
     t₁ ~m t₂ ↔ t₁.keys.Perm t₂.keys :=
   equiv_iff.trans Impl.Const.equiv_iff_keys_perm
 
+theorem Const.equiv_iff_keysArray_unit_perm {t₁ t₂ : Raw α Unit cmp} :
+    t₁ ~m t₂ ↔ t₁.keysArray.Perm t₂.keysArray :=
+  equiv_iff.trans Impl.Const.equiv_iff_keysArray_perm
+
 theorem Const.equiv_iff_keys_unit_eq {t₁ t₂ : Raw α Unit cmp} [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.keys = t₂.keys :=
   equiv_iff.trans (Impl.Const.equiv_iff_keys_eq h₁.1 h₂.1)
 
+theorem Const.equiv_iff_keysArray_unit_eq {t₁ t₂ : Raw α Unit cmp} [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ t₁.keysArray = t₂.keysArray :=
+  equiv_iff.trans (Impl.Const.equiv_iff_keysArray_eq h₁.1 h₂.1)
+
 theorem Equiv.of_constToList_perm : (Const.toList t₁).Perm (Const.toList t₂) → t₁ ~m t₂ :=
   Const.equiv_iff_toList_perm.mpr
 
+theorem Equiv.of_constToArray_perm : (Const.toArray t₁).Perm (Const.toArray t₂) → t₁ ~m t₂ :=
+  Const.equiv_iff_toArray_perm.mpr
+
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : Raw α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
   Const.equiv_iff_keys_unit_perm.mpr
+
+theorem Equiv.of_keysArray_unit_perm {t₁ t₂ : Raw α Unit cmp} :
+    t₁.keysArray.Perm t₂.keysArray → t₁ ~m t₂ :=
+  Const.equiv_iff_keysArray_unit_perm.mpr
 
 end Const
 
@@ -5795,6 +6054,11 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
     (t.filterMap f).toList =
       t.toList.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩)) :=
   Impl.toList_filterMap! h
+
+theorem toArray_filterMap {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
+    (t.filterMap f).toArray =
+      t.toArray.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩)) :=
+  Impl.toArray_filterMap! h
 
 @[grind =]
 theorem isEmpty_filterMap_iff [TransCmp cmp] [LawfulEqCmp cmp]
@@ -6019,6 +6283,12 @@ theorem toList_filterMap
       (Const.toList t).filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x))) :=
   Impl.Const.toList_filterMap! h
 
+theorem toArray_filterMap
+    {f : α → β → Option γ} (h : t.WF) :
+    Const.toArray (t.filterMap f) =
+      (Const.toArray t).filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x))) :=
+  Impl.Const.toArray_filterMap! h
+
 @[grind =]
 theorem getKey?_filterMap [TransCmp cmp]
     {f : α → β → Option γ} {k : α} (h : t.WF) :
@@ -6063,9 +6333,17 @@ theorem toList_filter {f : (a : α) → β a → Bool} (h : t.WF) :
     (t.filter f).toList = t.toList.filter (fun p => f p.1 p.2) :=
   Impl.toList_filter! h
 
+theorem toArray_filter {f : (a : α) → β a → Bool} (h : t.WF) :
+    (t.filter f).toArray = t.toArray.filter (fun p => f p.1 p.2) :=
+  Impl.toArray_filter! h
+
 theorem keys_filter_key {f : α → Bool} (h : t.WF) :
     (t.filter fun k _ => f k).keys = t.keys.filter f :=
   Impl.keys_filter!_key h
+
+theorem keysArray_filter_key {f : α → Bool} (h : t.WF) :
+    (t.filter fun k _ => f k).keysArray = t.keysArray.filter f :=
+  Impl.keysArray_filter!_key h
 
 @[grind =]
 theorem isEmpty_filter_iff [TransCmp cmp] [LawfulEqCmp cmp]
@@ -6336,6 +6614,11 @@ theorem toList_filter {f : α → β → Bool} (h : t.WF) :
       (Const.toList t).filter (fun p => f p.1 p.2) :=
   Impl.Const.toList_filter! h
 
+theorem toArray_filter {f : α → β → Bool} (h : t.WF) :
+    Const.toArray (t.filter f) =
+      (Const.toArray t).filter (fun p => f p.1 p.2) :=
+  Impl.Const.toArray_filter! h
+
 theorem keys_filter [TransCmp cmp] {f : α → β → Bool} (h : t.WF) :
     (t.filter f).keys =
       (t.keys.attach.filter (fun ⟨x, h'⟩ => f x (get t x (mem_of_mem_keys h h')))).unattach :=
@@ -6384,8 +6667,15 @@ theorem toList_map {f : (a : α) → β a → γ a} :
     (t.map f).toList = t.toList.map (fun p => ⟨p.1, f p.1 p.2⟩) :=
   Impl.toList_map
 
+theorem toArray_map {f : (a : α) → β a → γ a} :
+    (t.map f).toArray = t.toArray.map (fun p => ⟨p.1, f p.1 p.2⟩) :=
+  Impl.toArray_map
+
 theorem keys_map {f : (a : α) → β a → γ a} : (t.map f).keys = t.keys :=
   Impl.keys_map
+
+theorem keysArray_map {f : (a : α) → β a → γ a} : (t.map f).keysArray = t.keysArray :=
+  Impl.keysArray_map
 
 theorem filterMap_equiv_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} (h : t.WF) :
@@ -6552,6 +6842,11 @@ theorem toList_map {f : α → β → γ} :
     Const.toList (t.map f) =
       (Const.toList t).map (fun p => (p.1, f p.1 p.2)) :=
   Impl.Const.toList_map
+
+theorem toArray_map {f : α → β → γ} :
+    Const.toArray (t.map f) =
+      (Const.toArray t).map (fun p => (p.1, f p.1 p.2)) :=
+  Impl.Const.toArray_map
 
 end Const
 

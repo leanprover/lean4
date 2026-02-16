@@ -65,8 +65,16 @@ public def cwd : GitRepo := ⟨"."⟩
 @[inline] public def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
   testProc {cmd := "git", args, cwd := repo.dir}
 
-public def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
-  proc {cmd := "git", args := #["clone", url, repo.dir.toString]} (quiet := true)
+public def clone (url : String) (repo : GitRepo) (rev? : Option String) : LogIO PUnit  :=
+  proc {
+    cmd := "git",
+    args :=
+      if let some rev := rev? then
+        #["clone", url, repo.dir.toString, "--depth=1", "--revision", rev]
+      else
+        #["clone", url, repo.dir.toString, "--depth=1"]
+  }
+  (quiet := true)
 
 public def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]

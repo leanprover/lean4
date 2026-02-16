@@ -385,6 +385,7 @@ add_test_pile(elab_fail *.lean)
 add_test_pile(misc *.sh)
 add_test_pile(misc_bench *.sh BENCH PART2)
 
+add_test_dir(bench/build BENCH PART1)
 add_test_dir(bench/size BENCH PART1)
 add_test_dir(lake_bench/inundation BENCH PART2)
 

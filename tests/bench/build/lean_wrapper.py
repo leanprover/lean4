@@ -2,24 +2,27 @@
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
 
-NAME = "build"
-REPO = Path("..")
-BENCH = REPO / "tests" / "bench-radar"
-STAGE2 = REPO / "build" / "release" / "stage2"
-OUT = REPO / "measurements.jsonl"
+# Global paths
+TEST_DIR = Path(os.environ["TEST_DIR"])
+WRAPPER_OUT = Path(os.environ["WRAPPER_OUT"])
+WRAPPER_PREFIX = Path(os.environ["WRAPPER_PREFIX"])
+
+# Other config
+BENCHMARK = "build"
 
 
-def save_result(metric: str, value: float, unit: str | None = None) -> None:
+def save_measurement(metric: str, value: float, unit: str | None = None) -> None:
     data = {"metric": metric, "value": value}
     if unit is not None:
         data["unit"] = unit
-    with open(OUT, "a") as f:
+    with open(WRAPPER_OUT, "a") as f:
         f.write(f"{json.dumps(data)}\n")
 
 
@@ -46,7 +49,7 @@ def get_module(setup: Path) -> str:
 def count_lines(module: str, path: Path) -> None:
     with open(path) as f:
         lines = sum(1 for _ in f)
-    save_result(f"{NAME}/module/{module}//lines", lines)
+    save_measurement(f"{BENCHMARK}/module/{module}//lines", lines)
 
 
 def count_bytes(module: str, path: Path, suffix: str) -> None:
@@ -54,18 +57,18 @@ def count_bytes(module: str, path: Path, suffix: str) -> None:
         bytes = path.with_suffix(suffix).stat().st_size
     except FileNotFoundError:
         return
-    save_result(f"{NAME}/module/{module}//bytes {suffix}", bytes, "B")
+    save_measurement(f"{BENCHMARK}/module/{module}//bytes {suffix}", bytes, "B")
 
 
 def run_lean(module: str) -> None:
     stdout, stderr = run_capture(
-        f"{BENCH}/measure.py",
-        *("-t", f"{NAME}/module/{module}"),
-        *("-o", f"{OUT}"),
+        f"{TEST_DIR}/measure.py",
+        *("-t", f"{BENCHMARK}/module/{module}"),
+        *("-o", f"{WRAPPER_OUT}", "-a"),
         *("-m", "instructions"),
         *("-m", "cycles"),
         "--",
-        f"{STAGE2}/bin/lean.wrapped",
+        "lean",
         *("--profile", "-Dprofiler.threshold=9999999"),
         "--stat",
         *sys.argv[1:],
@@ -79,7 +82,7 @@ def run_lean(module: str) -> None:
             seconds = float(match.group(2))
             if match.group(3) == "ms":
                 seconds = seconds / 1000
-            save_result(f"{NAME}/profile/{name}//wall-clock", seconds, "s")
+            save_measurement(f"{BENCHMARK}/profile/{name}//wall-clock", seconds, "s")
 
     # Output of `lean --stat`
     stat = Counter[str]()
@@ -91,12 +94,20 @@ def run_lean(module: str) -> None:
     for name, count in stat.items():
         if count > 0:
             if name.endswith("bytes"):
-                save_result(f"{NAME}/stat/{name}//bytes", count, "B")
+                save_measurement(f"{BENCHMARK}/stat/{name}//bytes", count, "B")
             else:
-                save_result(f"{NAME}/stat/{name}//amount", count)
+                save_measurement(f"{BENCHMARK}/stat/{name}//amount", count)
 
 
 def main() -> None:
+    if sys.argv[1:] == ["--print-prefix"]:
+        print(WRAPPER_PREFIX)
+        return
+
+    if sys.argv[1:] == ["--githash"]:
+        run("lean", "--githash")
+        return
+
     parser = argparse.ArgumentParser()
     parser.add_argument("lean", type=Path)
     parser.add_argument("--setup", type=Path)

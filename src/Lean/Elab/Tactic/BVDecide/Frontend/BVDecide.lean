@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
 public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
 import Lean.Meta.Native
+import Lean.Meta.Tactic.Cbv.Main
 
 public section
 
@@ -277,36 +278,59 @@ Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
 def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
     (reflectionResult : ReflectionResult) : MetaM Expr := do
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
-    mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+    mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr) cfg
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
-    mkAuxDecl cfg.certDef (toExpr cert) (mkConst ``String)
+    mkAuxDecl cfg.certDef (toExpr cert) (mkConst ``String) cfg
 
   let reflectedExpr := mkConst cfg.exprDef
   let certExpr := mkConst cfg.certDef
   let reflectionTerm := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
-    match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
-    | .notTrue =>
-      throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
-        evaluating the following term returned `false`:{indentExpr reflectionTerm}"
-    | .success auxProof =>
-      return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
+    mkReflectionProof reflectedExpr certExpr reflectionTerm cfg
+    --match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
+    --| .notTrue =>
+    --  throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+    --    evaluating the following term returned `false`:{indentExpr reflectionTerm}"
+    --| .success auxProof =>
+    --  return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
 where
+  mkReflectionProof (reflectedExpr certExpr reflectionTerm : Expr) (cfg : TacticContext) : MetaM Expr := do
+    if cfg.native then
+      match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
+      | .notTrue =>
+        throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+          evaluating the following term returned `false`:{indentExpr reflectionTerm}"
+      | .success auxProof =>
+        return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
+    else
+      let target ← mkEq reflectionTerm (mkConst ``Bool.true)
+      let mvar ← mkFreshExprMVar (some target)
+      let [mvar'] ← mvar.mvarId!.applyConst ``of_decide_eq_true | throwError "Could not apply `of_decide_eq_true`"
+      match (← Tactic.Cbv.cbvGoalCore mvar') with
+      | .none => return (← instantiateMVars mvar)
+      | .some remaining => throwError "Could not evaluate expression to a value: {remaining}"
+
+
   /--
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
-  mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    withOptions (fun opt => opt.set `compiler.extract_closed false) do
-      addAndCompile <| .defnDecl {
-        name := name,
-        levelParams := [],
-        type := type,
-        value := value,
-        hints := .abbrev,
-        safety := .safe
-      }
+  mkAuxDecl (name : Name) (value type : Expr) (cfg : TacticContext) : CoreM Unit :=
+    let decl := .defnDecl {
+      name := name,
+      levelParams := [],
+      type := type,
+      value := value,
+      hints := .abbrev,
+      safety := .safe
+    }
+
+    if cfg.native then
+      withOptions (fun opt => opt.set `compiler.extract_closed false) do
+        addAndCompile decl
+    else
+      addDecl decl
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :

@@ -836,6 +836,14 @@ def main():
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
 
+        # For reference-manual, check that the release notes title is correct BEFORE tagging.
+        # This catches the case where the toolchain bump PR was merged without updating
+        # the release notes title (e.g., still showing "-rc1" for a stable release).
+        if name == "reference-manual":
+            if not check_reference_manual_release_title(url, toolchain, branch, github_token):
+                repo_status[name] = False
+                continue
+
         # Special handling for ProofWidgets4
         if name == "ProofWidgets4":
             if not check_proofwidgets4_release(url, toolchain, github_token):

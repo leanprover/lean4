@@ -100,11 +100,11 @@ end SubarrayIterator
 
 namespace Subarray
 
-theorem internalIter_eq {α : Type u} {s : Subarray α} :
+theorem Internal.iter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
   rfl
 
-theorem toList_internalIter {α : Type u} {s : Subarray α} :
+theorem Internal.toList_iter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       (s.array.toList.take s.stop).drop s.start := by
   simp [SubarrayIterator.toList_eq, Internal.iter_eq_toIteratorIter, ToIterator.iter_eq]
@@ -223,7 +223,7 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     rw [ListSlice.toList_eq]
-    simp +instances only [aslice, lslice, Std.Slice.toList, toList_internalIter]
+    simp +instances only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]

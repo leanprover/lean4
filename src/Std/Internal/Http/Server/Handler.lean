@@ -27,7 +27,9 @@ class Handler (σ : Type) where
   Called for each incoming HTTP request. The default implementation returns a 404 Not Found response.
   -/
   onRequest (self : σ) (request : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
-    pure { head := { status := .notFound }, body := ← Body.Stream.emptyWithCapacity }
+    let body ← Body.Stream.empty
+    body.close
+    pure { head := { status := .notFound }, body }
 
   /--
   Called when an error occurs while processing a request. The default implementation does nothing.

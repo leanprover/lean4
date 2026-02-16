@@ -294,6 +294,7 @@ theorem IsTable.push {b : ByteArray} {v : Array Nat} (h : IsTable b v) {d : Nat}
       obtain rfl : i = v.size := by omega
       exact hd
 
+set_option backward.isDefEq.respectTransparency false in
 theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
     (hi : i < s.copy.toByteArray.size) {patByte : UInt8}
     (hpat : patByte = s.copy.toByteArray[i])
@@ -403,6 +404,7 @@ theorem Invariants.isLongestMatchAt {pat s : Slice} {stackPos needlePos : String
   cases h'
   exact h.partialMatch.isLongestMatchAt h.isEmpty_eq_false h.isValidForSlice
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Invariants.not_matchesAt_of_prefixFunction_eq {pat s : Slice}
     {stackPos needlePos : String.Pos.Raw} (h : Invariants pat s needlePos stackPos)
     {k : Nat} {hki} (hk : prefixFunction pat.copy.toByteArray (needlePos.byteIdx - 1) hki = k)
@@ -433,6 +435,7 @@ theorem Invariants.of_prefixFunction_eq {pat s : Slice} {stackPos needlePos : St
   rw [Nat.sub_add_cancel (by simp at h'; omega)] at this
   exact hk ▸ (h.partialMatch.partialMatch_iff.1 this).2
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos : String.Pos.Raw}
     (it : Std.Iter (α := ForwardSliceSearcher s) (SearchStep s))
     (h : Invariants pat s needlePos stackPos)

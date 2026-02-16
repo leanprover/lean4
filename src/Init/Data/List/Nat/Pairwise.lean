@@ -53,10 +53,12 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
   | cons _ _ IH =>
     let ⟨is, IH⟩ := IH
     refine ⟨is.map (·.succ), ?_⟩
+    set_option backward.isDefEq.respectTransparency false in
     simpa [Function.comp_def, pairwise_map]
   | cons₂ _ _ IH =>
     rcases IH with ⟨is,IH⟩
     refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
+    set_option backward.isDefEq.respectTransparency false in
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
 set_option linter.listVariables false in

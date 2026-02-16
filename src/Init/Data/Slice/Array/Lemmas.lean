@@ -28,6 +28,7 @@ open Std Std.Iterators Std.PRange Std.Slice
 
 namespace SubarrayIterator
 
+set_option backward.isDefEq.respectTransparency false in
 theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step = if h : it.1.xs.start < it.1.xs.stop then
         haveI := it.1.xs.start_le_stop
@@ -66,6 +67,7 @@ theorem val_step_eq {it : Iter (α := SubarrayIterator α) α} :
   simp only [step_eq]
   split <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.toList =
       (it.internalState.xs.array.toList.take it.internalState.xs.stop).drop it.internalState.xs.start := by
@@ -104,11 +106,13 @@ theorem Internal.iter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Internal.toList_iter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       (s.array.toList.take s.stop).drop s.start := by
   simp [SubarrayIterator.toList_eq, Internal.iter_eq_toIteratorIter, ToIterator.iter_eq]
 
+set_option backward.isDefEq.respectTransparency false in
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     simp [SliceSize.size, ToIterator.iter_eq,
@@ -274,7 +278,7 @@ public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.
 
 public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
-  simp [getElem_eq_getElem_array, toList_eq_drop_take]
+  simp [getElem_eq_getElem_array, toList_eq_drop_take]; rfl
 
 public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by

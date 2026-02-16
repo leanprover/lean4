@@ -170,6 +170,7 @@ theorem getD_getElem? {xs : Array α} {i : Nat} {d : α} :
 
 @[simp] theorem getElem?_empty {i : Nat} : (#[] : Array α)[i]? = none := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem getElem_push_lt {xs : Array α} {x : α} {i : Nat} (h : i < xs.size) :
     have : i < (xs.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
     (xs.push x)[i] = xs[i] := by
@@ -895,7 +896,7 @@ theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
 @[simp] theorem getElem_set_ne {xs : Array α} {i : Nat} (h' : i < xs.size) {v : α} {j : Nat}
     (pj : j < xs.size) (h : i ≠ j) :
     (xs.set i v)[j]'(by simp [*]) = xs[j] := by
-  simp only [set, ← getElem_toList, List.getElem_set_ne h]
+  simp only [set, ← getElem_toList, List.getElem_set_ne h]; rfl
 
 @[simp] theorem getElem?_set_ne {xs : Array α} {i : Nat} (h : i < xs.size) {v : α} {j : Nat}
     (ne : i ≠ j) : (xs.set i v)[j]? = xs[j]? := by
@@ -2854,7 +2855,7 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
   · intro n h₁ h₂
-    simp
+    simp; rfl
 
 @[simp] theorem extract_size {xs : Array α} : xs.extract 0 xs.size = xs := by
   apply ext
@@ -3974,6 +3975,7 @@ theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
   · simp only [Id.run_pure]
     rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem toList_modify {xs : Array α} {f : α → α} {i : Nat} :
     (xs.modify i f).toList = xs.toList.modify i f := by
   apply List.ext_getElem
@@ -4259,6 +4261,7 @@ private theorem getElem_ofFn_go {f : Fin n → α} {acc i k} (h : i ≤ n) (w₁
     · simp
       omega
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem getElem_ofFn {f : Fin n → α} {i : Nat} (h : i < (ofFn f).size) :
     (ofFn f)[i] = f ⟨i, size_ofFn (f := f) ▸ h⟩ := by
   unfold ofFn
@@ -4490,11 +4493,13 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
   cases xs
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem finIdxOf?_toList [BEq α] {a : α} {xs : Array α} :
     xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast (by simp)) := by
   cases xs
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem findFinIdx?_toList {p : α → Bool} {xs : Array α} :
     xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast (by simp)) := by
   cases xs
@@ -4619,6 +4624,7 @@ namespace List
     as.toArray.unzip = Prod.map List.toArray List.toArray as.unzip := by
   ext1 <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp, grind =] theorem firstM_toArray [Alternative m] {as : List α} {f : α → m β} :
     as.toArray.firstM f = as.firstM f := by
   unfold Array.firstM

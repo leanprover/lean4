@@ -53,6 +53,7 @@ theorem Array.step_iterM {array : Array β} :
 
 section Equivalence
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β}
     {pos : Nat} :
     (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then

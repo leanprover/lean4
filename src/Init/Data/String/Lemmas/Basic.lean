@@ -106,25 +106,28 @@ These lemmas are slightly evil because they are non-definitional equalities betw
 are useful and they are at least equalities between slices with definitionally equal underlying
 strings, so it should be fine.
 -/
-
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceTo_sliceFrom {s : Slice} {pos pos'} :
     (s.sliceFrom pos).sliceTo pos' =
       s.slice pos (Slice.Pos.ofSliceFrom pos') Slice.Pos.le_ofSliceFrom := by
   ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceFrom_sliceTo {s : Slice} {pos pos'} :
     (s.sliceTo pos).sliceFrom pos' =
       s.slice (Slice.Pos.ofSliceTo pos') pos Slice.Pos.ofSliceTo_le := by
   ext <;> simp [String.Pos.ext_iff]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceFrom_sliceFrom {s : Slice} {pos pos'} :
     (s.sliceFrom pos).sliceFrom pos' =
       s.sliceFrom (Slice.Pos.ofSliceFrom pos') := by
   ext <;> simp [String.Pos.ext_iff, Pos.Raw.offsetBy_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem Slice.sliceTo_sliceTo {s : Slice} {pos pos'} :
     (s.sliceTo pos).sliceTo pos' = s.sliceTo (Slice.Pos.ofSliceTo pos') := by

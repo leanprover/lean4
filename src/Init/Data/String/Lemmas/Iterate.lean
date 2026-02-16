@@ -60,6 +60,7 @@ theorem Model.map_get_positionsFrom_startPos {s : Slice} :
     (Model.positionsFrom s.startPos).map (fun p => p.1.get p.2) = s.copy.toList :=
   Model.map_get_positionsFrom_of_splits (splits_startPos s)
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem toList_positionsFrom {s : Slice} {p : s.Pos} :
     (s.positionsFrom p).toList = Model.positionsFrom p := by
@@ -114,6 +115,7 @@ theorem Model.map_get_revPositionsFrom_endPos {s : Slice} :
     (Model.revPositionsFrom s.endPos).map (fun p => p.1.get p.2) = s.copy.toList.reverse :=
   Model.map_get_revPositionsFrom_of_splits (splits_endPos s)
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem toList_revPositionsFrom {s : Slice} {p : s.Pos} :
     (s.revPositionsFrom p).toList = Model.revPositionsFrom p := by
@@ -184,6 +186,7 @@ theorem Model.map_get_positionsFrom_startPos {s : String} :
     (Model.positionsFrom s.startPos).map (fun p => p.1.get p.2) = s.toList :=
   Model.map_get_positionsFrom_of_splits (splits_startPos s)
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem toList_positionsFrom {s : String} {p : s.Pos} :
     (s.positionsFrom p).toList = Model.positionsFrom p := by
@@ -237,6 +240,7 @@ theorem Model.map_get_revPositionsFrom_endPos {s : String} :
     (Model.revPositionsFrom s.endPos).map (fun p => p.1.get p.2) = s.toList.reverse :=
   Model.map_get_revPositionsFrom_of_splits (splits_endPos s)
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem toList_revPositionsFrom {s : String} {p : s.Pos} :
     (s.revPositionsFrom p).toList = Model.revPositionsFrom p := by

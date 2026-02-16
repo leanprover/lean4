@@ -3525,7 +3525,7 @@ theorem getElem?_insert_succ {l : List α} {a : α} {i : Nat} :
   · split
     · rfl
     · have h' : i - 1 < l.length := Nat.lt_of_le_of_lt (Nat.pred_le _) h
-      simp [h']
+      simp [h']; rfl
 
 theorem head?_insert {l : List α} {a : α} :
     (l.insert a).head? = some (if h : a ∈ l then l.head (ne_nil_of_mem h) else a) := by
@@ -3679,11 +3679,13 @@ theorem get_of_eq {l l' : List α} (h : l = l') (i : Fin l.length) :
 theorem getElem!_nil [Inhabited α] {n : Nat} : ([] : List α)[n]! = default := rfl
 
 theorem getElem!_cons_zero [Inhabited α] {l : List α} : (a::l)[0]! = a := by
-  rw [getElem!_pos] <;> simp
+  rw [getElem!_pos]; rfl; simp
 
 theorem getElem!_cons_succ [Inhabited α] {l : List α} : (a::l)[i+1]! = l[i]! := by
   by_cases h : i < l.length
-  · rw [getElem!_pos, getElem!_pos] <;> simp_all [Nat.succ_lt_succ_iff]
+  · rw [getElem!_pos, getElem!_pos]
+    · rfl
+    · simp; apply Nat.succ_lt_succ; assumption
   · rw [getElem!_neg, getElem!_neg] <;> simp_all [Nat.succ_lt_succ_iff]
 
 theorem getElem!_of_getElem? [Inhabited α] : ∀ {l : List α} {i : Nat}, l[i]? = some a → l[i]! = a

@@ -750,6 +750,7 @@ theorem Iter.anyM_filterMapM {α β β' : Type w} {m : Type w → Type w'}
   simp only [filterMapM_eq_toIter_filterMapM_toIterM, IterM.anyM_filterMapM]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 -- There is hope to generalize the following theorem as soon there is a `Shrink` type.
 /--
 This lemma expresses `Iter.anyM` in terms of `IterM.anyM`.

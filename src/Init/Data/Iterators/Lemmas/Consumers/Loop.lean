@@ -398,7 +398,7 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
     [Finite α Id] [IteratorLoop α Id Id]
     {f : γ → β → γ} {init : γ} {it : Iter (α := α) β} :
     it.fold (init := init) f = (it.toIterM.fold (init := init) f).run := by
-  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]
+  rw [fold_eq_foldM, foldM_eq_foldM_toIterM, IterM.fold_eq_foldM]; rfl
 
 @[simp]
 theorem Iter.forIn_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]

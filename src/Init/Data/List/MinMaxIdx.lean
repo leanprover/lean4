@@ -410,6 +410,7 @@ private theorem minIdxOn_append_aux [LE β] [DecidableLE β]
     match xs with
     | [] => simp [minIdxOn_cons_aux (xs := ys) ‹_›]
     | z :: zs =>
+      set_option backward.isDefEq.respectTransparency false in
       simp +singlePass only [cons_append]
       simp only [minIdxOn_cons_aux (xs := z :: zs ++ ys) (by simp), ih (by simp),
         minIdxOn_cons_aux (xs := z :: zs) (by simp), combineMinIdxOn_assoc]

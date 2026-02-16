@@ -2423,6 +2423,16 @@ defining the thing you are rewriting.
 -/
 syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
+/--
+Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
+
+You can instruct `cbv` to rewrite the lemma from right-to-left:
+```lean
+@[cbv_eval ←] theorem my_thm : rhs = lhs := ...
+```
+-/
+syntax (name := cbv_eval) "cbv_eval" patternIgnore("← " <|> "<- ")? (ppSpace ident)? : attr
+
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"
 

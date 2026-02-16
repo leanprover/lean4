@@ -10,10 +10,3 @@
       for f in *.lean; do printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
-- attributes:
-    description: leanchecker --fresh Init
-    tags: [other]
-  run_config:
-    <<: *time
-    cmd: leanchecker --fresh Init
-    max_runs: 1

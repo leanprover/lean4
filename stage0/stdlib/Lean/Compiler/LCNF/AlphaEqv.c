@@ -1394,7 +1394,7 @@ x_101 = 0;
 return x_101;
 }
 }
-default: 
+case 12:
 {
 if (lean_obj_tag(x_3) == 12)
 {
@@ -1473,6 +1473,62 @@ uint8_t x_115;
 lean_dec(x_3);
 x_115 = 0;
 return x_115;
+}
+}
+case 13:
+{
+if (lean_obj_tag(x_3) == 13)
+{
+lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; uint8_t x_120; 
+x_116 = lean_ctor_get(x_2, 0);
+x_117 = lean_ctor_get(x_2, 1);
+x_118 = lean_ctor_get(x_3, 0);
+lean_inc_ref(x_118);
+x_119 = lean_ctor_get(x_3, 1);
+lean_inc(x_119);
+lean_dec_ref(x_3);
+x_120 = l_Lean_Compiler_LCNF_AlphaEqv_eqvType(x_116, x_118, x_4);
+lean_dec_ref(x_118);
+if (x_120 == 0)
+{
+lean_dec(x_119);
+return x_120;
+}
+else
+{
+uint8_t x_121; 
+x_121 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_117, x_119, x_4);
+lean_dec(x_119);
+return x_121;
+}
+}
+else
+{
+uint8_t x_122; 
+lean_dec(x_3);
+x_122 = 0;
+return x_122;
+}
+}
+default: 
+{
+if (lean_obj_tag(x_3) == 14)
+{
+lean_object* x_123; lean_object* x_124; uint8_t x_125; 
+x_123 = lean_ctor_get(x_2, 0);
+x_124 = lean_ctor_get(x_3, 0);
+lean_inc(x_124);
+lean_dec_ref(x_3);
+x_125 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_123, x_124, x_4);
+lean_dec(x_124);
+return x_125;
+}
+else
+{
+uint8_t x_126; 
+lean_dec(x_3);
+x_126 = 0;
+return x_126;
 }
 }
 }

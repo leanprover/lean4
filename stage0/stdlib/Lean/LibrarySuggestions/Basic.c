@@ -252,7 +252,6 @@ static lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__1;
 static lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__2;
 LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__3___boxed__const__1;
 static lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__3;
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1;
 static lean_object* l_Lean_LibrarySuggestions_Selector_intersperse___closed__4;
 double lean_float_mul(double, double);
 uint32_t lean_float_to_uint32(double);
@@ -7800,21 +7799,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1() {
-_start:
-{
-double x_1; lean_object* x_2; 
-x_1 = l_Lean_LibrarySuggestions_Selector_intersperse___closed__0;
-x_2 = lean_box_float(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_LibrarySuggestions_Selector_intersperse___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_LibrarySuggestions_Selector_intersperse___closed__3;
-x_2 = l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1;
+x_2 = l_Lean_LibrarySuggestions_Selector_intersperse___closed__3___boxed__const__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -17613,8 +17603,6 @@ l_Lean_LibrarySuggestions_Selector_intersperse___closed__3___boxed__const__1 = _
 lean_mark_persistent(l_Lean_LibrarySuggestions_Selector_intersperse___closed__3___boxed__const__1);
 l_Lean_LibrarySuggestions_Selector_intersperse___closed__3 = _init_l_Lean_LibrarySuggestions_Selector_intersperse___closed__3();
 lean_mark_persistent(l_Lean_LibrarySuggestions_Selector_intersperse___closed__3);
-l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1 = _init_l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1();
-lean_mark_persistent(l_Lean_LibrarySuggestions_Selector_intersperse___closed__4___boxed__const__1);
 l_Lean_LibrarySuggestions_Selector_intersperse___closed__4 = _init_l_Lean_LibrarySuggestions_Selector_intersperse___closed__4();
 lean_mark_persistent(l_Lean_LibrarySuggestions_Selector_intersperse___closed__4);
 if (builtin) {res = l_Lean_LibrarySuggestions_initFn_00___x40_Lean_LibrarySuggestions_Basic_2108197918____hygCtx___hyg_2_();

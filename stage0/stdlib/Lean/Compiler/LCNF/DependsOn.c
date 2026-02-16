@@ -583,11 +583,25 @@ else
 return x_50;
 }
 }
+case 13:
+{
+lean_object* x_57; uint8_t x_58; 
+x_57 = lean_ctor_get(x_2, 1);
+x_58 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_57, x_3);
+return x_58;
+}
+case 14:
+{
+lean_object* x_59; uint8_t x_60; 
+x_59 = lean_ctor_get(x_2, 0);
+x_60 = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn_spec__0___redArg(x_59, x_3);
+return x_60;
+}
 default: 
 {
-uint8_t x_57; 
-x_57 = 0;
-return x_57;
+uint8_t x_61; 
+x_61 = 0;
+return x_61;
 }
 }
 block_12:

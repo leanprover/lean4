@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Pattern.Pred
-// Imports: public import Init.Data.String.Pattern.Basic import Init.Data.String.Termination public import Init.Data.String.Basic import Init.Omega public import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Order import Init.Data.Option.Lemmas
+// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Termination import Init.Omega public import Init.Data.String.Basic import Init.Data.String.Lemmas.Order import Init.Data.Option.Lemmas import Init.Data.String.Lemmas.FindPos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,7 +38,7 @@ static const lean_closure_object l_String_Slice_Pattern_CharPred_Decidable_instT
 static const lean_object* l_String_Slice_Pattern_CharPred_Decidable_instToForwardSearcherForallCharPropDefaultForwardSearcherOfDecidablePred___closed__0 = (const lean_object*)&l_String_Slice_Pattern_CharPred_Decidable_instToForwardSearcherForallCharPropDefaultForwardSearcherOfDecidablePred___closed__0_value;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_CharPred_Decidable_instToForwardSearcherForallCharPropDefaultForwardSearcherOfDecidablePred(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_CharPred_Decidable_instToForwardSearcherForallCharPropDefaultForwardSearcherOfDecidablePred___boxed(lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_CharPred_instBackwardPatternForallCharBool___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_CharPred_instBackwardPatternForallCharBool___lam__0___boxed(lean_object*, lean_object*);
@@ -404,7 +404,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint3
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_6, x_9);
 lean_dec(x_6);
-x_11 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_10);
+x_11 = l_String_Slice_posLE(x_2, x_10);
 x_12 = lean_nat_add(x_4, x_11);
 x_13 = lean_string_utf8_get_fast(x_3, x_12);
 lean_dec(x_12);
@@ -456,7 +456,7 @@ x_7 = lean_nat_sub(x_6, x_5);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
-x_10 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_9);
+x_10 = l_String_Slice_posLE(x_2, x_9);
 x_11 = lean_nat_add(x_5, x_10);
 x_12 = lean_string_utf8_get_fast(x_4, x_11);
 lean_dec(x_11);
@@ -504,7 +504,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint3
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_6, x_9);
 lean_dec(x_6);
-x_11 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_10);
+x_11 = l_String_Slice_posLE(x_2, x_10);
 x_12 = lean_nat_add(x_4, x_11);
 lean_dec(x_11);
 x_13 = lean_string_utf8_get_fast(x_3, x_12);
@@ -579,7 +579,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint3
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_6, x_9);
 lean_dec(x_6);
-x_11 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_10);
+x_11 = l_String_Slice_posLE(x_2, x_10);
 x_12 = lean_nat_add(x_4, x_11);
 x_13 = lean_string_utf8_get_fast(x_3, x_12);
 lean_dec(x_12);
@@ -631,7 +631,7 @@ x_7 = lean_nat_sub(x_6, x_5);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
-x_10 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_9);
+x_10 = l_String_Slice_posLE(x_2, x_9);
 x_11 = lean_nat_add(x_5, x_10);
 x_12 = lean_string_utf8_get_fast(x_4, x_11);
 lean_dec(x_11);
@@ -679,7 +679,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint3
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_6, x_9);
 lean_dec(x_6);
-x_11 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_10);
+x_11 = l_String_Slice_posLE(x_2, x_10);
 x_12 = lean_nat_add(x_4, x_11);
 lean_dec(x_11);
 x_13 = lean_string_utf8_get_fast(x_3, x_12);
@@ -754,12 +754,13 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
-lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Pattern_Pred(uint8_t builtin) {
 lean_object * res;
@@ -768,22 +769,25 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Pattern_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Termination(builtin);
+res = initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
+res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

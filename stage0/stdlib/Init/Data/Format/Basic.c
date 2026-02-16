@@ -152,7 +152,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___closed__1;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
@@ -161,6 +160,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prettyM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prettyM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2272,15 +2272,6 @@ return x_21;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_1);
-return x_11;
-}
-}
 static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___closed__1() {
 _start:
 {
@@ -2363,15 +2354,6 @@ lean_ctor_set(x_13, 1, x_4);
 x_14 = lean_apply_1(x_5, x_13);
 x_15 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg(x_6, x_7, x_8, x_14);
 return x_15;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_1);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2591,7 +2573,7 @@ lean_inc(x_50);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
-x_59 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed), 10, 9);
+x_59 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6), 10, 9);
 lean_closure_set(x_59, 0, x_56);
 lean_closure_set(x_59, 1, x_1);
 lean_closure_set(x_59, 2, x_2);
@@ -2877,7 +2859,7 @@ lean_inc(x_119);
 lean_dec_ref(x_24);
 x_120 = lean_ctor_get(x_3, 3);
 lean_inc(x_120);
-x_121 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed), 9, 8);
+x_121 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12), 9, 8);
 lean_closure_set(x_121, 0, x_26);
 lean_closure_set(x_121, 1, x_119);
 lean_closure_set(x_121, 2, x_25);
@@ -3052,7 +3034,7 @@ lean_inc(x_150);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
-x_159 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed), 10, 9);
+x_159 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6), 10, 9);
 lean_closure_set(x_159, 0, x_156);
 lean_closure_set(x_159, 1, x_1);
 lean_closure_set(x_159, 2, x_2);
@@ -3348,7 +3330,7 @@ lean_inc(x_223);
 lean_dec_ref(x_124);
 x_224 = lean_ctor_get(x_3, 3);
 lean_inc(x_224);
-x_225 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed), 9, 8);
+x_225 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12), 9, 8);
 lean_closure_set(x_225, 0, x_126);
 lean_closure_set(x_225, 1, x_223);
 lean_closure_set(x_225, 2, x_125);
@@ -3535,7 +3517,7 @@ lean_inc(x_256);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
-x_265 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed), 10, 9);
+x_265 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6), 10, 9);
 lean_closure_set(x_265, 0, x_262);
 lean_closure_set(x_265, 1, x_1);
 lean_closure_set(x_265, 2, x_2);
@@ -3854,7 +3836,7 @@ lean_inc(x_333);
 lean_dec_ref(x_229);
 x_334 = lean_ctor_get(x_3, 3);
 lean_inc(x_334);
-x_335 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed), 9, 8);
+x_335 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12), 9, 8);
 lean_closure_set(x_335, 0, x_231);
 lean_closure_set(x_335, 1, x_333);
 lean_closure_set(x_335, 2, x_230);
@@ -4056,7 +4038,7 @@ lean_inc(x_371);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_1);
-x_380 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed), 10, 9);
+x_380 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6), 10, 9);
 lean_closure_set(x_380, 0, x_377);
 lean_closure_set(x_380, 1, x_1);
 lean_closure_set(x_380, 2, x_2);
@@ -4390,7 +4372,7 @@ lean_inc(x_449);
 lean_dec_ref(x_344);
 x_450 = lean_ctor_get(x_3, 3);
 lean_inc(x_450);
-x_451 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed), 9, 8);
+x_451 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12), 9, 8);
 lean_closure_set(x_451, 0, x_346);
 lean_closure_set(x_451, 1, x_449);
 lean_closure_set(x_451, 2, x_345);
@@ -4415,6 +4397,24 @@ _start:
 lean_object* x_6; 
 x_6 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg(x_1, x_2, x_3, x_4);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__12(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_1);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_1);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

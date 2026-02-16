@@ -39352,7 +39352,7 @@ x_33 = l_Int8_reduceBin___redArg___closed__4_00___x40_Lean_Meta_Tactic_Simp_Buil
 x_34 = l_Int64_reduceBin___redArg___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_35 = l_Int64_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_36 = lean_unbox_uint64(x_29);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_37 = lean_int64_to_int_sint(x_36);
 x_38 = lean_int_neg(x_37);
 lean_dec(x_37);
@@ -39367,7 +39367,7 @@ else
 {
 uint64_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 x_42 = lean_unbox_uint64(x_29);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_43 = lean_int64_to_int_sint(x_42);
 x_44 = l_Int_toNat(x_43);
 lean_dec(x_43);
@@ -39494,7 +39494,7 @@ x_67 = l_Int8_reduceBin___redArg___closed__4_00___x40_Lean_Meta_Tactic_Simp_Buil
 x_68 = l_Int64_reduceBin___redArg___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_69 = l_Int64_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_70 = lean_unbox_uint64(x_63);
-lean_dec(x_63);
+lean_dec_ref(x_63);
 x_71 = lean_int64_to_int_sint(x_70);
 x_72 = lean_int_neg(x_71);
 lean_dec(x_71);
@@ -39509,7 +39509,7 @@ else
 {
 uint64_t x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 x_76 = lean_unbox_uint64(x_63);
-lean_dec(x_63);
+lean_dec_ref(x_63);
 x_77 = lean_int64_to_int_sint(x_76);
 x_78 = l_Int_toNat(x_77);
 lean_dec(x_77);
@@ -39708,7 +39708,7 @@ x_36 = l_Int8_reduceBin___redArg___closed__4_00___x40_Lean_Meta_Tactic_Simp_Buil
 x_37 = l_Int64_reduceBin___redArg___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_38 = l_Int64_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_39 = lean_unbox_uint64(x_32);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_40 = lean_int64_to_int_sint(x_39);
 x_41 = lean_int_neg(x_40);
 lean_dec(x_40);
@@ -39723,7 +39723,7 @@ else
 {
 uint64_t x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_45 = lean_unbox_uint64(x_32);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_46 = lean_int64_to_int_sint(x_45);
 x_47 = l_Int_toNat(x_46);
 lean_dec(x_46);
@@ -39850,7 +39850,7 @@ x_70 = l_Int8_reduceBin___redArg___closed__4_00___x40_Lean_Meta_Tactic_Simp_Buil
 x_71 = l_Int64_reduceBin___redArg___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_72 = l_Int64_reduceBin___redArg___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_4041591762____hygCtx___hyg_3_;
 x_73 = lean_unbox_uint64(x_66);
-lean_dec(x_66);
+lean_dec_ref(x_66);
 x_74 = lean_int64_to_int_sint(x_73);
 x_75 = lean_int_neg(x_74);
 lean_dec(x_74);
@@ -39865,7 +39865,7 @@ else
 {
 uint64_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; 
 x_79 = lean_unbox_uint64(x_66);
-lean_dec(x_66);
+lean_dec_ref(x_66);
 x_80 = lean_int64_to_int_sint(x_79);
 x_81 = l_Int_toNat(x_80);
 lean_dec(x_80);

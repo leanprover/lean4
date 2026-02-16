@@ -121,6 +121,7 @@ x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Std_Tactic_BVDecide_LRAT_check(x_6, x_1);
+lean_dec(x_6);
 return x_7;
 }
 }

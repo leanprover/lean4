@@ -4357,7 +4357,7 @@ lean_inc(x_6);
 lean_dec_ref(x_5);
 x_7 = lean_apply_1(x_1, x_6);
 x_8 = lean_unbox_uint64(x_7);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_uint64_to_nat(x_8);
 x_10 = l_Lean_mkRawNatLit(x_9);
 x_11 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -4459,7 +4459,7 @@ lean_inc(x_14);
 lean_dec_ref(x_13);
 x_15 = lean_apply_1(x_1, x_14);
 x_16 = lean_unbox_uint64(x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = lean_uint64_to_nat(x_16);
 x_18 = l_Lean_mkRawNatLit(x_17);
 x_19 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -5528,7 +5528,7 @@ x_31 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_32 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_33 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_34 = lean_unbox_uint64(x_27);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_35 = lean_int64_to_int_sint(x_34);
 x_36 = lean_int_neg(x_35);
 lean_dec(x_35);
@@ -5543,7 +5543,7 @@ else
 {
 uint64_t x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_40 = lean_unbox_uint64(x_27);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_41 = lean_int64_to_int_sint(x_40);
 x_42 = l_Int_toNat(x_41);
 lean_dec(x_41);
@@ -5659,7 +5659,7 @@ x_39 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_40 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_41 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_42 = lean_unbox_uint64(x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_43 = lean_int64_to_int_sint(x_42);
 x_44 = lean_int_neg(x_43);
 lean_dec(x_43);
@@ -5674,7 +5674,7 @@ else
 {
 uint64_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_48 = lean_unbox_uint64(x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_49 = lean_int64_to_int_sint(x_48);
 x_50 = l_Int_toNat(x_49);
 lean_dec(x_49);
@@ -9257,7 +9257,7 @@ lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_apply_2(x_1, x_8, x_10);
 x_12 = lean_unbox_uint64(x_11);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_13 = lean_uint64_to_nat(x_12);
 x_14 = l_Lean_mkRawNatLit(x_13);
 x_15 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -9352,7 +9352,7 @@ lean_inc(x_39);
 lean_dec_ref(x_38);
 x_40 = lean_apply_2(x_1, x_37, x_39);
 x_41 = lean_unbox_uint64(x_40);
-lean_dec(x_40);
+lean_dec_ref(x_40);
 x_42 = lean_uint64_to_nat(x_41);
 x_43 = l_Lean_mkRawNatLit(x_42);
 x_44 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -9469,7 +9469,7 @@ lean_inc(x_18);
 lean_dec_ref(x_17);
 x_19 = lean_apply_2(x_1, x_16, x_18);
 x_20 = lean_unbox_uint64(x_19);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_21 = lean_uint64_to_nat(x_20);
 x_22 = l_Lean_mkRawNatLit(x_21);
 x_23 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -9564,7 +9564,7 @@ lean_inc(x_47);
 lean_dec_ref(x_46);
 x_48 = lean_apply_2(x_1, x_45, x_47);
 x_49 = lean_unbox_uint64(x_48);
-lean_dec(x_48);
+lean_dec_ref(x_48);
 x_50 = lean_uint64_to_nat(x_49);
 x_51 = l_Lean_mkRawNatLit(x_50);
 x_52 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryUInt8___redArg___closed__3;
@@ -10980,7 +10980,7 @@ x_35 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_36 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_37 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_38 = lean_unbox_uint64(x_31);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_39 = lean_int64_to_int_sint(x_38);
 x_40 = lean_int_neg(x_39);
 lean_dec(x_39);
@@ -10995,7 +10995,7 @@ else
 {
 uint64_t x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_44 = lean_unbox_uint64(x_31);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_45 = lean_int64_to_int_sint(x_44);
 x_46 = l_Int_toNat(x_45);
 lean_dec(x_45);
@@ -11040,7 +11040,7 @@ x_56 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_57 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_58 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_59 = lean_unbox_uint64(x_52);
-lean_dec(x_52);
+lean_dec_ref(x_52);
 x_60 = lean_int64_to_int_sint(x_59);
 x_61 = lean_int_neg(x_60);
 lean_dec(x_60);
@@ -11055,7 +11055,7 @@ else
 {
 uint64_t x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
 x_65 = lean_unbox_uint64(x_52);
-lean_dec(x_52);
+lean_dec_ref(x_52);
 x_66 = lean_int64_to_int_sint(x_65);
 x_67 = l_Int_toNat(x_66);
 lean_dec(x_66);
@@ -11195,7 +11195,7 @@ x_43 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_44 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_45 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_46 = lean_unbox_uint64(x_39);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_47 = lean_int64_to_int_sint(x_46);
 x_48 = lean_int_neg(x_47);
 lean_dec(x_47);
@@ -11210,7 +11210,7 @@ else
 {
 uint64_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 x_52 = lean_unbox_uint64(x_39);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_53 = lean_int64_to_int_sint(x_52);
 x_54 = l_Int_toNat(x_53);
 lean_dec(x_53);
@@ -11255,7 +11255,7 @@ x_64 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnary
 x_65 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__4;
 x_66 = l___private_Lean_Meta_Sym_Simp_EvalGround_0__Lean_Meta_Sym_Simp_evalUnaryInt64___redArg___closed__6;
 x_67 = lean_unbox_uint64(x_60);
-lean_dec(x_60);
+lean_dec_ref(x_60);
 x_68 = lean_int64_to_int_sint(x_67);
 x_69 = lean_int_neg(x_68);
 lean_dec(x_68);
@@ -11270,7 +11270,7 @@ else
 {
 uint64_t x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = lean_unbox_uint64(x_60);
-lean_dec(x_60);
+lean_dec_ref(x_60);
 x_74 = lean_int64_to_int_sint(x_73);
 x_75 = l_Int_toNat(x_74);
 lean_dec(x_74);

@@ -20,6 +20,8 @@ open Meta
 declare_config_elab elabGrindConfig Grind.Config
 declare_config_elab elabGrindConfigInteractive Grind.ConfigInteractive
 declare_config_elab elabCutsatConfig Grind.CutsatConfig
+declare_config_elab elabLinarithConfig Grind.LinarithConfig
+declare_config_elab elabOrderConfig Grind.OrderConfig
 declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
@@ -418,6 +420,16 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   Tactic.TryThis.addSuggestion stx { suggestion := .tsyntax liaTac }
   -- Execute the same logic as lia
   let config ← elabCutsatConfig config
+  evalGrindCore stx { config with } none none none
+
+@[builtin_tactic Lean.Parser.Tactic.grind_order] def evalOrder : Tactic := fun stx => do
+  let `(tactic| grind_order $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabOrderConfig config
+  evalGrindCore stx { config with } none none none
+
+@[builtin_tactic Lean.Parser.Tactic.grind_linarith] def evalLinarith : Tactic := fun stx => do
+  let `(tactic| grind_linarith $config:optConfig) := stx | throwUnsupportedSyntax
+  let config ← elabLinarithConfig config
   evalGrindCore stx { config with } none none none
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do

@@ -128,17 +128,17 @@ def get_github_token():
     return None
 
 def find_proofwidgets_tag(version):
-    """Find the latest ProofWidgets4 tag compatible with the given toolchain version.
+    """Find the latest ProofWidgets4 tag that uses the given toolchain version.
 
     ProofWidgets4 uses sequential version tags (v0.0.X) rather than toolchain-based tags.
-    This function finds the most recent tag whose lean-toolchain is >= the target version.
+    This function finds the most recent tag whose lean-toolchain matches the target version
+    exactly, checking the 20 most recent tags.
     """
     github_token = get_github_token()
-    repo_url = "https://github.com/leanprover-community/ProofWidgets4"
-    api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
+    api_base = "https://api.github.com/repos/leanprover-community/ProofWidgets4"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
 
-    response = requests.get(f"{api_base}/git/matching-refs/tags/v0.0.", headers=headers)
+    response = requests.get(f"{api_base}/git/matching-refs/tags/v0.0.", headers=headers, timeout=30)
     if response.status_code != 200:
         return None
 
@@ -157,13 +157,13 @@ def find_proofwidgets_tag(version):
     if not tag_names:
         return None
 
-    # Sort by version number (descending) and check the most recent tags
+    # Sort by version number (descending) and check recent tags
     tag_names.sort(reverse=True)
     target = f"leanprover/lean4:{version}"
-    for _, tag_name in tag_names[:10]:
+    for _, tag_name in tag_names[:20]:
         # Fetch lean-toolchain for this tag
         api_url = f"{api_base}/contents/lean-toolchain?ref={tag_name}"
-        resp = requests.get(api_url, headers=headers)
+        resp = requests.get(api_url, headers=headers, timeout=30)
         if resp.status_code != 200:
             continue
         content = base64.b64decode(resp.json().get("content", "").replace("\n", "")).decode('utf-8').strip()
@@ -491,7 +491,12 @@ def execute_release_steps(repo, version, config):
             print(blue(f"Updating ProofWidgets4 pin to {pw_tag}..."))
             for lakefile in repo_path.glob("lakefile.*"):
                 content = lakefile.read_text()
-                new_content = re.sub(r'@ git "v0\.0\.\d+"', f'@ git "{pw_tag}"', content)
+                # Only update the ProofWidgets4 dependency line, not other v0.0.X pins
+                new_content = re.sub(
+                    r'(require\s+"leanprover-community"\s*/\s*"proofwidgets"\s*@\s*git\s+"v)0\.0\.\d+(")',
+                    rf'\g<1>{pw_tag.removeprefix("v")}\2',
+                    content
+                )
                 if new_content != content:
                     lakefile.write_text(new_content)
                     print(green(f"Updated ProofWidgets4 pin in {lakefile.name}"))

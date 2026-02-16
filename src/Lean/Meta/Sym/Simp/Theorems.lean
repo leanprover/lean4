@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.DiscrTree
 import Lean.Meta.Sym.Simp.DiscrTree
+import Lean.Meta.AbstractMVars
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -45,5 +46,11 @@ def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × 
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, rhs) ← mkEqPatternFromDecl declName
   return { expr := mkConst declName, pattern, rhs }
+
+public def mkSimprocPatternFromExpr (e : Expr) : MetaM Pattern := do
+  let processed ← abstractMVars e
+  let processed := processed.expr
+  let forPattern ← mkFreshExprMVar processed
+  mkPatternFromExpr forPattern
 
 end Lean.Meta.Sym.Simp

@@ -1844,11 +1844,13 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
     (startingAt : Nat := 0) : IO (Array EnvExtensionState) := do
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
+  let emptyEntries := Array.replicate mods.size #[]
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt...*] do
     -- safety: as in `modifyState`
-    states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
-      { s with importedEntries := .replicate mods.size #[] }
+    -- inline: `modifyState(Impl)` is not usually on the hot path, but certainly here
+    states := unsafe inline extDescr.toEnvExtension.modifyStateImpl states fun s =>
+      { s with importedEntries := emptyEntries }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in *...mods.size do
@@ -1856,7 +1858,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
         -- safety: as in `modifyState`
-        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+        states := unsafe inline extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 

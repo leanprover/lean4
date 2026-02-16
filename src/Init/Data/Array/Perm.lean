@@ -135,7 +135,7 @@ theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
-    List.extract_eq_drop_take]
+    List.extract_eq_take_drop]
   apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
   apply List.Perm.drop_of_getElem? (w := wlo)
   exact h

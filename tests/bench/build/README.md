@@ -1,7 +1,8 @@
 # The `build` benchmark
 
-This benchmark executes a complete build of the stage3 stdlib
-and collects global and per-module metrics.
+This benchmark executes a complete build of the stage3 stdlib from stage2 and
+collects global and per-module metrics. This is different from most other
+benchmarks, which benchmark the stage the bench suite is being executed in.
 
 The following metrics are collected by a wrapper around the entire build process:
 

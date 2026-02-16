@@ -120,7 +120,7 @@ where
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         trace[Elab.definition.structural.eqns] "whnfReducibleLHS succeeded"
         go mvarId
-      else if let some mvarId ← try simpMatch? mvarId catch _ => pure none then
+      else if let some mvarId ← simpMatch? mvarId then
         trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
         go mvarId
       else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then

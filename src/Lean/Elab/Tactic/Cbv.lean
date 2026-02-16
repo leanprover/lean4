@@ -27,9 +27,7 @@ namespace Lean.Elab.Tactic.Cbv
   | `(tactic| decide_cbv) => withMainContext do
     liftMetaFinishingTactic fun mvar => do
       let [mvar'] ← mvar.applyConst ``of_decide_eq_true | throwError "Could not apply `of_decide_eq_true`"
-      match (← Lean.Meta.Tactic.Cbv.cbvGoalCore mvar') with
-      | .none => return
-      | .some remaining => throwError "Could not evaluate expression to a value: {remaining}"
+      Lean.Meta.Tactic.Cbv.cbvDecideGoal mvar'
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Cbv

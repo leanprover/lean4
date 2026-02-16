@@ -77,21 +77,19 @@ theorem get_congr {o o' : Option α} {ho : o.isSome} (h : o = o') :
     o.get ho = o'.get (h ▸ ho) := by
   cases h; rfl
 
-theorem get_inj_iff {o1 o2 : Option α} {h1} {h2} :
+theorem get_inj {o1 o2 : Option α} {h1} {h2} :
     o1.get h1 = o2.get h2 ↔ o1 = o2 := by
   match o1, o2, h1, h2 with
   | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
 
-def get_inj := @get_inj_iff
-
-theorem getD_inj_iff {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) {fallback} :
+theorem getD_inj {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) {fallback} :
     o₁.getD fallback = o₂.getD fallback ↔ o₁ = o₂ := by
   match o₁, o₂, h₁, h₂ with
   | some a, some b, _, _ => simp only [Option.getD_some, Option.some.injEq]
 
-theorem get!_inj_iff [Inhabited α] {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) :
+theorem get!_inj [Inhabited α] {o₁ o₂ : Option α} (h₁ : o₁.isSome) (h₂ : o₂.isSome) :
     o₁.get! = o₂.get! ↔ o₁ = o₂ := by
-  simpa [get!_eq_getD] using getD_inj_iff h₁ h₂
+  simpa [get!_eq_getD] using getD_inj h₁ h₂
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb

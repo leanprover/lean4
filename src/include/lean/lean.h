@@ -1956,9 +1956,6 @@ static inline uint64_t lean_uint64_mix_hash(uint64_t h, uint64_t k) {
     return h;
 }
 
-//LEAN_EXPORT uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
-
-
 /* UInt64 -> other */
 static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }
 static inline uint16_t lean_uint64_to_uint16(uint64_t a) { return ((uint16_t)a); }

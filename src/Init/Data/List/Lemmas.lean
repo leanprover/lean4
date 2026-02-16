@@ -3641,7 +3641,7 @@ termination_by as.length
 
 /-- Loop invariant for `eraseDupsBy.loop`: membership in the result equals
 membership in the remaining list or the accumulator. -/
-theorem mem_eraseDupsBy_loop [BEq α] [LawfulBEq α] {a : α} {l acc : List α} :
+private theorem mem_eraseDupsBy_loop [BEq α] [LawfulBEq α] {a : α} {l acc : List α} :
     a ∈ eraseDupsBy.loop (· == ·) l acc ↔ a ∈ l ∨ a ∈ acc := by
   induction l generalizing acc with
   | nil => simp [eraseDupsBy.loop]

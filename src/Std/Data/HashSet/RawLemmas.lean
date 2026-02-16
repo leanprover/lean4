@@ -1539,6 +1539,13 @@ theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
 
+theorem insertManyIfNewUnit_list_equiv_foldl {l : List α} (h : m.WF) :
+    (insertMany m l).Equiv (l.foldl (init := m) fun acc a => acc.insert a) := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.Raw.insertManyIfNewUnit_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
 section filter
 
 theorem toList_filter {f : α → Bool} (h : m.WF) :

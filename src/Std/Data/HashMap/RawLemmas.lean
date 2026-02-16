@@ -3231,6 +3231,22 @@ theorem equiv_iff_keys_unit_perm [EquivBEq α] [LawfulHashable α] {m₁ m₂ : 
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys :=
   ⟨Equiv.keys_perm, Equiv.of_keys_unit_perm⟩
 
+theorem insertMany_list_equiv_foldl {m : HashMap.Raw α β} {l : List (α × β)} (h : m.WF) :
+    (m.insertMany l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact DHashMap.Raw.constInsertMany_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
+theorem insertManyIfNewUnit_list_equiv_foldl {m : HashMap.Raw α Unit}
+    {l : List α} (h : m.WF) :
+    (insertManyIfNewUnit m l).Equiv
+      (l.foldl (init := m) fun acc a => acc.insertIfNew a ()) := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact DHashMap.Raw.constInsertManyIfNewUnit_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
 section filterMap
 
 theorem toList_filterMap {f : α → β → Option γ} (h : m.WF) :

@@ -5229,6 +5229,24 @@ theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap.Raw α β} [EquivBEq α] [La
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
 
+theorem insertMany_list_equiv_foldl {m : DHashMap.Raw α β} {l : List ((a : α) × β a)} (h : m.WF) :
+    (m.insertMany l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
+  rw [insertMany_eq h]
+  exact (Raw₀.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem constInsertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
+    {l : List (α × β)} (h : m.WF) :
+    (Const.insertMany m l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
+  rw [Const.insertMany_eq h]
+  exact (Raw₀.Const.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem constInsertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
+    {l : List α} (h : m.WF) :
+    (Const.insertManyIfNewUnit m l).Equiv
+      (l.foldl (init := m) fun acc a => acc.insertIfNew a ()) := by
+  rw [Const.insertManyIfNewUnit_eq h]
+  exact (Raw₀.Const.insertManyIfNewUnit_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
 namespace Const
 
 variable {β : Type v} {m₁ m₂ : DHashMap.Raw α fun _ => β}

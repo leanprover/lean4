@@ -142,8 +142,6 @@ example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Na
 example : PostCond (Nat × List.Cursor (List.range' 1 3 1)) (PostShape.except Nat (PostShape.arg Nat PostShape.pure)) :=
   post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
 
-set_option backward.whnf.reducibleClassField true
-
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
   throwing_loop
@@ -153,8 +151,10 @@ theorem throwing_loop_spec :
   dsimp +instances only [throwing_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
   mspec
+  mspec
   case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝, fun e s => ⌜e = 42 ∧ s = 4⌝⟩
   case post.success =>
+    mspec
     mspec
     mspec
     simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SPred.down_pure, SPred.entails_nil,
@@ -564,26 +564,37 @@ instance : LawfulMonad Result :=
     (by dsimp only [bind]; grind)
     (by dsimp only [bind]; grind)
 
-instance Result.instWP : WP Result (.except Error .pure) where
-  wp x := match x with
-  | .ok v => wp (pure v : Except Error _)
-  | .fail e => wp (throw e : Except Error _)
+abbrev _root_.Std.Do.PredTrans.pushResult (x : Result α) : PredTrans (.except Error .pure) α :=
+  match x with
+  | .ok v => PredTrans.pure v
+  | .fail e => PredTrans.throw e
   | .div => PredTrans.const ⌜False⌝
 
-set_option backward.isDefEq.respectTransparency false in
+@[simp]
+theorem Result.apply_pushResult_pure {α} {a : α} {Q : PostCond α (.except Error .pure)} :
+  (PredTrans.pushResult (pure a)).apply Q = Q.1 a := by rfl
+
+@[simp]
+theorem Result.apply_pushResult_bind {α β} {x : Result α} {f : α → Result β} {Q : PostCond β (.except Error .pure)} :
+  (PredTrans.pushResult (do let a ← x; f a)).apply Q =
+    (PredTrans.pushResult x).apply (fun a => (PredTrans.pushResult (f a)).apply Q, Q.2) := by
+  simp only [PredTrans.pushResult, bind]
+  grind
+
+instance Result.instWP : WP Result (.except Error .pure) where
+  wp := PredTrans.pushResult
+
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
   wp_pure _ := by ext Q; simp [wp]
-  wp_bind x f := by
-    dsimp only [wp, bind]
-    ext Q
-    grind
+  wp_bind x f := by ext Q; simp [wp]
 
-set_option backward.isDefEq.respectTransparency false in
 theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
     intro hspec
-    simp only [wp] at hspec
-    split at hspec <;> simp_all
+    match x with
+    | .ok a => simpa [wp] using hspec
+    | .fail e => simpa [wp] using hspec
+    | .div => simp [wp] at hspec
 
 /-- Kinds of unsigned integers -/
 inductive UScalarTy where

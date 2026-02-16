@@ -48,6 +48,7 @@ public import Lean.Elab.MacroRules
 public import Lean.Elab.BuiltinCommand
 public import Lean.Elab.AssertExists
 public import Lean.Elab.Command.WithWeakNamespace
+public import Lean.Elab.Command.ScopedNamespace
 public import Lean.Elab.BuiltinEvalCommand
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.Eval

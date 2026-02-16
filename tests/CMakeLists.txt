@@ -377,7 +377,7 @@ foreach(T ${LEANLAKETESTS})
   endif()
 endforeach(T)
 
-add_test_pile(compile *.lean)
+add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(elab *.lean)
 add_test_pile(elab_bench *.lean BENCH PART2)

@@ -31,6 +31,11 @@ if [[ -n $DO_COMPILE ]]; then
     "$TEST_DIR/measure.py" -t "$TOPIC" -o "$1.measurements.jsonl" -a -d -- \
     "./$1.out" "${TEST_ARGS[@]}"
 
+  # Measure .out binary size
+  wc -c "$1.out" \
+    | jq -R 'split(" ")[0] | tonumber | {metric: "size/compile/.out//bytes", value: ., unit: "B"}' -c \
+    >> "$1.measurements.jsonl"
+
   extract_measurements "$1" "$TOPIC"
   check_exit "$1"
 

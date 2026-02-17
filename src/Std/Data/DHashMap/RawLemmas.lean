@@ -4148,6 +4148,9 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons]
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l := (rfl)
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -5228,6 +5231,36 @@ theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) : �
 theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap.Raw α β} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem insertMany_list_equiv_foldl {m : DHashMap.Raw α β} {l : List ((a : α) × β a)} (h : m.WF) :
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  rw [insertMany_eq h]
+  exact (Raw₀.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
+
+theorem Const.insertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
+    {l : List (α × β)} (h : m.WF) :
+    insertMany m l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  rw [Const.insertMany_eq h]
+  exact (Raw₀.Const.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem Const.ofList_equiv_foldl {β : Type v} {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
+
+theorem Const.insertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
+    {l : List α} (h : m.WF) :
+    insertManyIfNewUnit m l ~m
+      l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
+  rw [Const.insertManyIfNewUnit_eq h]
+  exact (Raw₀.Const.insertManyIfNewUnit_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem Const.unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl .empty
 
 namespace Const
 

@@ -12,12 +12,12 @@ instance : Std.Http.Server.Handler TestHandler where
 instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
   coe action := do
     let response ← action
-    pure { response with body := response.body.toOutgoing }
+    pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
 instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
   coe action := do
     let response ← action
-    pure { response with body := response.body.toOutgoing }
+    pure { response with body := Body.Internal.incomingToOutgoing response.body }
 
 
 /-- Send raw bytes to the server and return the response. -/

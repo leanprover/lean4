@@ -344,7 +344,7 @@ private def handle
 
         let size ← res.body.getKnownSize
         machine := machine.setKnownSize (size.getD .chunked)
-        respStream := some res.body.toIncoming
+        respStream := some (Body.Internal.outgoingToIncoming res.body)
 
   if ¬ (← requestOutgoing.isClosed) then
     requestOutgoing.close

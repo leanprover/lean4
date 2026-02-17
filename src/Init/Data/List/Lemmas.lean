@@ -3648,6 +3648,40 @@ theorem eraseDups_append [BEq α] [LawfulBEq α] {as bs : List α} :
     simp [removeAll_cons]
 termination_by as.length
 
+/-- Loop invariant for `eraseDupsBy.loop`: membership in the result equals
+membership in the remaining list or the accumulator. -/
+private theorem mem_eraseDupsBy_loop [BEq α] [LawfulBEq α] {a : α} {l acc : List α} :
+    a ∈ eraseDupsBy.loop (· == ·) l acc ↔ a ∈ l ∨ a ∈ acc := by
+  induction l generalizing acc with
+  | nil => simp [eraseDupsBy.loop]
+  | cons x xs ih =>
+    unfold eraseDupsBy.loop; split
+    · next h =>
+      rw [ih]; simp only [mem_cons]
+      apply Iff.intro (fun
+        | .inl hxs => Or.inl (Or.inr hxs)
+        | .inr hacc => Or.inr hacc) (fun
+        | .inl (.inl rfl) =>
+            have ⟨y, hy, heq⟩ := any_eq_true.mp h
+            .inr (LawfulBEq.eq_of_beq heq ▸ hy)
+        | .inl (.inr hxs) => .inl hxs
+        | .inr hacc => .inr hacc)
+    · rw [ih]; simp only [mem_cons]
+      apply Iff.intro (fun
+        | .inl hxs => Or.inl (Or.inr hxs)
+        | .inr (.inl rfl) => Or.inl (Or.inl rfl)
+        | .inr (.inr hacc) => Or.inr hacc) (fun
+        | .inl (.inl rfl) => Or.inr (Or.inl rfl)
+        | .inl (.inr hxs) => .inl hxs
+        | .inr hacc => Or.inr (Or.inr hacc))
+
+/-- Membership is preserved by `eraseDups`: an element is in the deduplicated list
+iff it was in the original list. -/
+@[simp]
+theorem mem_eraseDups [BEq α] [LawfulBEq α] {a : α} {l : List α} :
+    a ∈ l.eraseDups ↔ a ∈ l := by
+  simp only [eraseDups, eraseDupsBy, mem_eraseDupsBy_loop, not_mem_nil, or_false]
+
 /-! ### Legacy lemmas about `get`, `get?`, and `get!`.
 
 Hopefully these should not be needed, in favour of lemmas about `xs[i]`, `xs[i]?`, and `xs[i]!`,

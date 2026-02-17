@@ -268,7 +268,7 @@ theorem drop_eq_extract {l : List α} {k : Nat} :
     | 0 => simp
     | _ + 1 =>
       simp only [List.drop_succ_cons, List.length_cons, ih]
-      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
+      simp only [List.extract_eq_take_drop, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 

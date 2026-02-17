@@ -83,6 +83,10 @@ theorem findSome?_eq_some_iff {f : α → Option β} {xs : Array α} {b : β} :
   · rintro ⟨xs, a, ys, h₀, h₁, h₂⟩
     exact ⟨xs.toList, a, ys.toList, by simpa using congrArg toList h₀, h₁, by simpa⟩
 
+theorem isSome_findSome? {xs : Array α} {f : α → Option β} :
+    (xs.findSome? f).isSome = xs.any (f · |>.isSome) := by
+  simp [← findSome?_toList, List.isSome_findSome?]
+
 @[simp, grind =] theorem findSome?_guard {xs : Array α} : findSome? (Option.guard p) xs = find? p xs := by
   cases xs; simp
 
@@ -196,6 +200,10 @@ theorem find?_eq_some_iff_append {xs : Array α} :
   · rintro ⟨as, ⟨⟨⟨l⟩, h'⟩, h⟩⟩
     exact ⟨as.toList, ⟨l, by simpa using congrArg Array.toList h'⟩,
       by simpa using h⟩
+
+theorem isSome_find? {xs : Array α} {f : α → Bool} :
+    (xs.find? f).isSome = xs.any (f ·) := by
+  simp [← find?_toList, List.isSome_find?]
 
 theorem find?_push {xs : Array α} : (xs.push a).find? p = (xs.find? p).or (if p a then some a else none) := by
   cases xs; simp

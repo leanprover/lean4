@@ -2581,6 +2581,19 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show v - w = 0 by omega]
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
+/-- Sign-extending to `w + n` bits, extracting bits `[w - 1 + n..n]`, and setting width
+back to `w` is equivalent to arithmetic right shift by `n`, since both sides discard the `n`
+least significant bits and replicate the sign bit into the upper bits. -/
+@[simp]
+theorem signExtend_extractLsb_setWidth {x : BitVec w} {n : Nat} :
+    ((x.signExtend (w + n)).extractLsb (w - 1 + n) n).setWidth w = x.sshiftRight n := by
+  ext i hi
+  simp only [getElem_sshiftRight, getElem_setWidth, getLsbD_extract,
+    Nat.add_sub_cancel, show i ≤ w - 1 by omega, decide_true, getLsbD_signExtend,
+    Bool.true_and]
+  by_cases hni : n + i < w
+  <;> (simp [hni]; omega)
+
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by

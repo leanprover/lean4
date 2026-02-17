@@ -116,6 +116,9 @@ info: "text/html"
 #guard (Headers.empty.insert! "content-type" "text/html").size == 1
 #guard !(Headers.empty.insert! "content-type" "text/html").isEmpty
 #guard (Headers.empty.insert! "content-type" "text/html").contains (Name.ofString! "content-type")
+#guard (Headers.empty.insert? "content-type" "text/html").isSome
+#guard (Headers.empty.insert? "bad header name" "text/html").isNone
+#guard (Headers.empty.insert? "content-type" "bad\nvalue").isNone
 
 -- get? retrieves the value
 /--
@@ -286,6 +289,8 @@ info: ("content-length", "42")
 #guard (Header.TransferEncoding.parse =<< (Value.ofString? "")).isNone
 #guard (Header.TransferEncoding.parse =<< (Value.ofString? ",")).isNone
 #guard (Header.TransferEncoding.parse =<< (Value.ofString? " , , ")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "g zip")).isNone
+#guard (Header.TransferEncoding.parse =<< (Value.ofString? "\"chunked\"")).isNone
 
 /--
 info: ("transfer-encoding", "gzip,chunked")
@@ -294,4 +299,20 @@ info: ("transfer-encoding", "gzip,chunked")
 #eval do
   let te : Header.TransferEncoding := ⟨#["gzip", "chunked"], by native_decide⟩
   let (name, value) := Header.TransferEncoding.serialize te
+  return (name.value, value.value)
+
+#guard
+  match Header.Connection.parse (Value.ofString! "keep-alive, Close") with
+  | some c => c.containsToken "close" && c.shouldClose
+  | none => false
+
+#guard (Header.Connection.parse =<< (Value.ofString? "keep alive")).isNone
+
+/--
+info: ("connection", "keep-alive,close")
+-/
+#guard_msgs in
+#eval do
+  let c : Header.Connection := ⟨#["keep-alive", "close"], by native_decide⟩
+  let (name, value) := Header.Connection.serialize c
   return (name.value, value.value)

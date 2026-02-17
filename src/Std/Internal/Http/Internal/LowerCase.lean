@@ -17,7 +17,7 @@ public section
 /-!
 # LowerCase
 
-TThis module provides predicates and normalization functions for handling ASCII case-insensitivity.
+This module provides predicates and normalization functions for handling ASCII case-insensitivity.
 It includes proofs of idempotency for lowercase transformations, as well as utilities for validating
 the lowercase state of a String.
 -/

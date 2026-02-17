@@ -32,8 +32,8 @@ The main parts of a response.
 -/
 structure Response.Head where
   /--
-  The HTTP status code and reason phrase, indicating the result of the request.
-  For example, `.ok` corresponds to `200 OK`.
+  The HTTP status for the response.
+  The reason phrase is derived from `Status.reasonPhrase`.
   -/
   status : Status := .ok
 
@@ -54,7 +54,7 @@ HTTP response structure parameterized by body type
 -/
 structure Response (t : Type) where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Response.Head := {}
 
@@ -74,7 +74,7 @@ Builds an HTTP Response.
 -/
 structure Response.Builder where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Head := {}
 
@@ -140,6 +140,15 @@ def header! (builder : Builder) (key : String) (value : String) : Builder :=
   let key := Header.Name.ofString! key
   let value := Header.Value.ofString! value
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
+
+/--
+Adds a single header to the response being built.
+Returns `none` if the header name or value is invalid.
+-/
+def header? (builder : Builder) (key : String) (value : String) : Option Builder := do
+  let key ← Header.Name.ofString? key
+  let value ← Header.Value.ofString? value
+  pure <| { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
 Inserts a typed extension value into the response being built.

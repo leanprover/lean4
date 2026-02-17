@@ -14,8 +14,7 @@ public section
 /-!
 # Version
 
-The `Version` structure represents an HTTP version with a major and minor number. It includes several
-standard versions of the HTTP protocol, such as HTTP/1.1, HTTP/2.0, and HTTP/3.0.
+This module defines `Version`, the set of HTTP protocol versions modeled by this library.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#protocol.version
 -/
@@ -25,8 +24,7 @@ namespace Std.Http
 set_option linter.all true
 
 /--
-The `Version` structure represents an HTTP version with a major and minor number. It includes several
-standard versions of the HTTP protocol, such as HTTP/1.1, HTTP/2.0, and HTTP/3.0.
+HTTP protocol versions modeled by this library.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#protocol.version
 -/

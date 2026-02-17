@@ -27,7 +27,7 @@ namespace Std.Http.Internal
 set_option linter.all true
 
 /--
-A structure that accumulates multiple `ByteArray`s efficiently by tracking them in an array and
+A structure that accumulates multiple `ByteArray`s efficiently by tracking them in a queue and
 maintaining the total size. This allows building large buffers without repeated allocations and copies.
 -/
 structure ChunkedBuffer where
@@ -110,7 +110,7 @@ Build from an array of ByteArrays directly.
 -/
 @[inline]
 def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
-  { data := .empty |>.enqueueAll bs.reverse.toList , size := bs.foldl (· + ·.size) 0 }
+  { data := .empty |>.enqueueAll bs.reverse.toList, size := bs.foldl (· + ·.size) 0 }
 
 /--
 Dequeue the first `ByteArray` from the `ChunkedBuffer`, returning it along with the remaining buffer.
@@ -123,7 +123,7 @@ def dequeue? (c : ChunkedBuffer) : Option (ByteArray × ChunkedBuffer) :=
   | none => none
 
 /--
-Check if it's an empty array.
+Checks whether the buffer is empty.
 -/
 @[inline]
 def isEmpty (bb : ChunkedBuffer) : Bool :=

@@ -215,7 +215,7 @@ public abbrev stream [MonadLiftT BaseIO m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
 : MonadLog m where logEntry e := logToStream e out minLv useAnsi
 
-@[inline] public def error [Alternative m] [MonadLog m] (msg : String) : m α :=
+@[inline] public def error [Applicative m] [Alternative m] [MonadLog m] (msg : String) : m α :=
   logError msg *> failure
 
 end MonadLog

@@ -10,7 +10,7 @@ public import Init.System.IO
 
 namespace Lake
 
-public instance (priority := low) [Monad m] [MonadExceptOf PUnit m] : Alternative m where
+public instance (priority := low) [MonadExceptOf PUnit m] : Alternative m where
   failure := throw ()
   orElse := tryCatch
 
@@ -20,7 +20,7 @@ public instance (priority := high) [MonadLift α β] : MonadLiftT α β := ⟨Mo
 public instance (priority := low) [Pure m] : MonadLiftT Id m where
   monadLift act := pure act.run
 
-public instance (priority := low) [Alternative m] : MonadLiftT Option m where
+public instance (priority := low) [Alternative m] [Pure m] : MonadLiftT Option m where
   monadLift
     | some a => pure a
     | none => failure

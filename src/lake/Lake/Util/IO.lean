@@ -35,7 +35,10 @@ public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
     | e => throw e
   for ent in ents do
     -- Do not follow symlinks
-    if (← ent.path.symlinkMetadata).type == .dir then
+    let mdata ← try ent.path.symlinkMetadata catch
+      | .noFileOrDirectory .. => continue -- something else was faster
+      | e => throw e
+    if mdata.type == .dir then
       removeDirAllIfExists ent.path
     else
       removeFileIfExists ent.path

@@ -2601,6 +2601,18 @@ theorem pairwise_fst_eq_false [BEq α] {l : List ((a : α) × β a)} (h : Distin
   rw [DistinctKeys.def] at h
   assumption
 
+theorem nodup_of_distinctKeys [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} (h : DistinctKeys l) :
+    l.Nodup := by
+  rw [DistinctKeys.def] at h
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [pairwise_cons, List.nodup_cons] at h ⊢
+    refine And.intro ?_ (ih h.2)
+    intro h'
+    have := h.1 hd h'
+    simp at this
+
 theorem map_fst_map_toProd_eq_keys {β : Type v} {l : List ((_ : α) × β)} :
     List.map Prod.fst (List.map (fun x => (x.fst, x.snd)) l) = List.keys l := by
   induction l with
@@ -2679,7 +2691,6 @@ theorem getValue?_eq_some_iff_exists_beq_and_mem_toList {β : Type v} [BEq α] [
     exists ⟨k', v⟩
     simp only [and_true, getEntry?_congr k_k', h']
 
-
 theorem mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
     {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
     (k, v) ∈ l.map (fun x => (x.fst, x.snd)) ↔ getKey? k l = some k ∧ getValue? k l = some v := by
@@ -2692,6 +2703,19 @@ theorem pairwise_fst_eq_false_map_toProd [BEq α] {β : Type v}
   rw [DistinctKeys.def] at h
   simp [List.pairwise_map]
   assumption
+
+theorem nodup_map_of_distinctKeys [BEq α] [ReflBEq α] {β : Type v} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    (l.map (fun x => (x.fst, x.snd))).Nodup := by
+  rw [DistinctKeys.def] at h
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [pairwise_cons, List.map_cons, List.nodup_cons, List.mem_map, Prod.mk.injEq,
+      not_exists, not_and] at h ⊢
+    refine And.intro ?_ (ih h.2)
+    intro x h' hx₁ _
+    have := h.1 x h'
+    simp [hx₁] at this
 
 theorem foldlM_eq_foldlM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w'} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :

@@ -952,6 +952,14 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
   DHashMap.Const.distinct_keys_toList
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.Nodup := DHashMap.Const.nodup_toList
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} {x : α × β} (h' : ¬ k ∈ m) :
+    x ∈ (m.insert k v).toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.toList :=
+  DHashMap.Const.mem_toList_insert_of_not_mem h'
+
 @[simp]
 theorem toArray_toList :
     m.toList.toArray = m.toArray :=
@@ -3669,5 +3677,36 @@ theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
   DHashMap.getKeyD_map
 
 end map
+
+variable {m : HashMap α β}
+
+@[simp]
+theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} :
+    (m.partition f).1.size + (m.partition f).2.size = m.size :=
+  DHashMap.size_fst_partition_add_size_snd_partition_eq_size
+
+@[simp]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} :
+    (m.partition (fun a b => ! f a b)).fst = (m.partition f).snd := by
+  simp [partition, DHashMap.fst_partition_not_eq_snd_partition]
+
+@[simp]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} :
+    (m.partition (fun a b => ! f a b)).snd = (m.partition f).fst := by
+  simp [partition, DHashMap.snd_partition_not_eq_fst_partition]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool} :
+    (m.partition f).fst ~m m.filter f :=
+  ⟨DHashMap.fst_partition_equiv_filter⟩
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {f : α → β → Bool}  :
+    (m.partition f).snd ~m m.filter (fun a b => ! f a b) :=
+  ⟨DHashMap.snd_partition_equiv_filter_not⟩
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.HashMap

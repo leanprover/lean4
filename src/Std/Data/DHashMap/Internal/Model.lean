@@ -404,6 +404,15 @@ def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filter f), by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
+def partitionₘ [BEq α] [Hashable α] (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
+    Raw₀ α β × Raw₀ α β :=
+  m.1.fold (init := (emptyWithCapacity, emptyWithCapacity)) fun ⟨l, r⟩ a b =>
+    if f a b = true then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
+
+/-- Internal implementation detail of the hash map -/
 def insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
   match l with
   | .nil => m
@@ -657,6 +666,9 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := (rfl)
+
+theorem partition_eq_partitionₘ [BEq α] [Hashable α] (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
+    m.partition f = m.partition f := by rfl
 
 theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
   simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]

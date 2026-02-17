@@ -1612,6 +1612,35 @@ theorem get_filter [EquivBEq α] [LawfulHashable α]
 
 end filter
 
+@[simp]
+theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
+    {p : α → Bool} (h : m.WF) :
+    (m.partition p).1.size + (m.partition p).2.size = m.size :=
+  HashMap.Raw.size_fst_partition_add_size_snd_partition_eq_size h.out
+
+@[simp]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {p : α → Bool} (h : m.WF) :
+    (m.partition (fun a => ! p a)).fst = (m.partition p).snd := by
+  simp [partition, HashMap.Raw.fst_partition_not_eq_snd_partition h.out]
+
+@[simp]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {p : α → Bool} (h : m.WF) :
+    (m.partition (fun a => ! p a)).snd = (m.partition p).fst := by
+  simp [partition, HashMap.Raw.snd_partition_not_eq_fst_partition h.out]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {p : α → Bool} (h : m.WF)  :
+    (m.partition p).fst ~m m.filter p :=
+  ⟨HashMap.Raw.fst_partition_equiv_filter h.out⟩
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {p : α → Bool} (h : m.WF)  :
+    (m.partition p).snd ~m m.filter (fun a => ! p a) :=
+  ⟨HashMap.Raw.snd_partition_equiv_filter_not h.out⟩
+
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 

@@ -962,6 +962,14 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
   DHashMap.Raw.Const.distinct_keys_toList h.out
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.Nodup := DHashMap.Raw.Const.nodup_toList h.out
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β} {x : α × β} : ¬ k ∈ m →
+    (x ∈ (m.insert k v).toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.toList) :=
+  DHashMap.Raw.Const.mem_toList_insert_of_not_mem h.out
+
 @[simp]
 theorem toArray_toList (h : m.WF) :
     m.toList.toArray = m.toArray :=
@@ -3729,6 +3737,35 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.getD_map_of_getKey?_eq_some h.out h'
 
 end map
+
+@[simp]
+theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF) :
+    (m.partition p).1.size + (m.partition p).2.size = m.size :=
+  DHashMap.Raw.size_fst_partition_add_size_snd_partition_eq_size h.out
+
+@[simp]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF) :
+    (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
+  simp [partition, DHashMap.Raw.fst_partition_not_eq_snd_partition h.out]
+
+@[simp]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF) :
+    (m.partition (fun a b => ! p a b)).snd = (m.partition p).fst := by
+  simp [partition, DHashMap.Raw.snd_partition_not_eq_fst_partition h.out]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF)  :
+    (m.partition p).fst ~m m.filter p :=
+  ⟨DHashMap.Raw.fst_partition_equiv_filter h.out⟩
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {p : α → β → Bool} (h : m.WF)  :
+    (m.partition p).snd ~m m.filter (fun a b => ! p a b) :=
+  ⟨DHashMap.Raw.snd_partition_equiv_filter_not h.out⟩
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Raw
 

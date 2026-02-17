@@ -532,6 +532,73 @@ theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := h
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 
+theorem Perm.of_nodup_of_nodup_of_forall_mem_iff_mem {α : Type u} (l₁ l₂ : List α)
+    (h₁ : l₁.Nodup) (h₂ : l₂.Nodup) (h₃ : ∀ (a : α), a ∈ l₁ ↔ a ∈ l₂) :
+    l₁.Perm l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => simp
+    | cons hd tl =>
+      specialize h₃ hd
+      simp at h₃
+  | cons hd tl ih =>
+    have hd_mem : hd ∈ l₂ := (h₃ hd).mp (by simp)
+    rw [List.mem_iff_append] at hd_mem
+    rcases hd_mem with ⟨s, t, h⟩
+    rw [h]
+    apply List.Perm.trans ?_ List.perm_middle.symm
+    apply List.Perm.cons
+    have nodup_pre_post : (s ++ t).Nodup := by
+      rw [h] at h₂
+      have := List.Perm.nodup List.perm_middle h₂
+      simp only [List.nodup_cons, List.mem_append, not_or] at this
+      apply this.2
+    apply ih
+    · simp only [List.nodup_cons] at h₁
+      apply h₁.2
+    · apply nodup_pre_post
+    · simp only [List.mem_append]
+      intro x
+      constructor
+      · intro hx
+        specialize h₃ x
+        simp only [List.mem_cons, hx, or_true, h, List.mem_append, true_iff] at h₃
+        simp only [h] at h₂
+        cases h₃ with
+        | inl h => apply Or.inl h
+        | inr h =>
+          cases h with
+          | inl h =>
+            rw [h] at hx
+            simp only [List.nodup_cons] at h₁
+            simp [hx] at h₁
+          | inr h =>
+            apply Or.inr h
+      · intro h'
+        simp only [h, List.nodup_append, List.nodup_cons, List.mem_cons, ne_eq,
+          forall_eq_or_imp] at h₂
+        rw [h] at h₃
+        specialize h₃ x
+        simp only [List.mem_cons, List.mem_append] at h₃
+        cases h' with
+        | inl h' =>
+          simp only [h', true_or, iff_true] at h₃
+          cases h₃ with
+          | inl h₃ =>
+            have := (h₂.2.2 x h').1
+            contradiction
+          | inr h₃ =>
+            apply h₃
+        | inr h' =>
+          simp only [h', or_true, iff_true] at h₃
+          cases h₃ with
+          | inl h₃ =>
+            have := (h₂.2.1.1)
+            simp [← h₃, h'] at this
+          | inr h₃ =>
+            apply h₃
+
 grind_pattern Perm.nodup_iff => l₁ ~ l₂, Nodup l₁
 grind_pattern Perm.nodup_iff => l₁ ~ l₂, Nodup l₂
 

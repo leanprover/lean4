@@ -1264,6 +1264,17 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
   Raw₀.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.Nodup :=
+  Raw₀.nodup_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β k} {x : (a : α) × (β a)} (h' : ¬ k ∈ m) :
+    x ∈ (m.insert k v).toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.toList := by
+  apply Raw₀.mem_toList_insert_of_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+  rw [mem_iff_contains, Bool.not_eq_true] at h'
+  apply h'
+
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
@@ -1322,6 +1333,17 @@ theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
     (toList m).Pairwise (fun a b => (a.1 == b.1) = false) :=
   Raw₀.Const.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] :
+    (Const.toList m).Nodup :=
+  Raw₀.Const.nodup_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem mem_toList_insert_of_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} {x : α × β} (h' : ¬ k ∈ m) :
+    x ∈ (Const.toList (m.insert k v)) ↔ x = ⟨k, v⟩ ∨ x ∈ Const.toList m := by
+  apply Raw₀.Const.mem_toList_insert_of_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+  rw [mem_iff_contains, Bool.not_eq_true] at h'
+  apply h'
 
 end Const
 
@@ -5358,5 +5380,34 @@ theorem toList_map {m : DHashMap α fun _ => β}
 end Const
 
 end map
+
+@[simp]
+theorem size_fst_partition_add_size_snd_partition_eq_size [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → Bool} :
+    (m.partition f).1.size + (m.partition f).2.size = m.size :=
+  Raw₀.size_partition ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! f a b)).fst = (m.partition f).snd := by
+  simp [partition, Raw₀.fst_partition_not_eq_snd_partition ⟨m.1, m.2.size_buckets_pos⟩ (p:= f)]
+
+@[simp]
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! f a b)).snd = (m.partition f).fst := by
+  simp [partition, Raw₀.snd_partition_not_eq_fst_partition ⟨m.1, m.2.size_buckets_pos⟩ (p:= f)]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → Bool} :
+    (m.partition f).fst ~m m.filter f :=
+  ⟨Raw₀.fst_partition_equiv_filter ⟨m.1, m.2.size_buckets_pos⟩ m.2⟩
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → Bool}  :
+    (m.partition f).snd ~m m.filter (fun a b => ! f a b) :=
+  ⟨Raw₀.snd_partition_equiv_filter_not ⟨m.1, m.2.size_buckets_pos⟩ m.2⟩
+
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.DHashMap

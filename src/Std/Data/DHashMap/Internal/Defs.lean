@@ -444,6 +444,15 @@ def erase [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   ⟨⟨computeSize newBuckets, newBuckets⟩, by simpa [newBuckets] using hb⟩
 
 /-- Internal implementation detail of the hash map -/
+@[specialize] def partition [BEq α] [Hashable α] (f : (a : α) → β a → Bool) (m : Raw₀ α β) :
+    Raw₀ α β × Raw₀ α β :=
+  m.1.fold (init := (emptyWithCapacity, emptyWithCapacity)) fun ⟨l, r⟩ a b =>
+    if f a b = true then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
+
+/-- Internal implementation detail of the hash map -/
 def insertMany {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [BEq α] [Hashable α]
     (m : Raw₀ α β) (l : ρ) : { m' : Raw₀ α β // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insert a b)) → P m → P m' } := Id.run do

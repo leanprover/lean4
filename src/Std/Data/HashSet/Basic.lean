@@ -232,11 +232,9 @@ appearance.
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
+@[inline, inherit_doc HashMap.all] def all (m : HashSet α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
 
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+@[inline, inherit_doc HashMap.any] def any (m : HashSet α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
 /--
 Computes the union of the given hash sets.
 
@@ -259,6 +257,9 @@ This function always iterates through the smaller set, so the expected runtime i
 
 instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 
+@[inline, inherit_doc HashMap.partition] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 /--
 Compares two hash sets using Boolean equality on keys.
@@ -284,11 +285,6 @@ instance [BEq α] [Hashable α] : SDiff (HashSet α) := ⟨diff⟩
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
-
-/-- Partition a hashset into two hashsets based on a predicate. -/
-@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
-  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
-  ⟨⟨l⟩, ⟨r⟩⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

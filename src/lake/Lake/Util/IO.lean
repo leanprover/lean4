@@ -22,6 +22,25 @@ public def removeFileIfExists (path : FilePath) : IO Unit := do
     | .noFileOrDirectory .. => pure ()
     | e => throw e
 
+/--
+Remove a directory and all its contents.
+Like `IO.FS.removeDirAll`, but does not fail if `path` does not exist
+or if a file is first deleted by a racing process.
+-/
+public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
+  let ents ← try path.readDir catch
+    | .noFileOrDirectory .. => return -- path did not exist or something else was faster
+    | e => throw e
+  for ent in ents do
+    -- Do not follow symlinks
+    if (← ent.path.symlinkMetadata).type == .dir then
+      removeDirAllIfExists ent.path
+    else
+      removeFileIfExists ent.path
+  try IO.FS.removeDir path catch
+    | .noFileOrDirectory .. => return -- something else was faster
+    | e => throw e
+
 /-- Copy a file from `src` to `dst`. -/
 public def copyFile (src dst : FilePath) : IO Unit := do
   let contents ← IO.FS.readBinFile src

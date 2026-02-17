@@ -2633,7 +2633,7 @@ theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] 
 theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
   simp_to_model using List.Const.perm_of_beqModel
 
-theorem Const.beq_iff_equiv [LawfulBEq α] [LawfulHashable α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
+theorem Const.beq_iff_equiv [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true ↔ m₁.1.Equiv m₂.1 :=
   ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
 
 theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :

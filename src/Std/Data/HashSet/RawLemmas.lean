@@ -829,7 +829,7 @@ theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m�
 theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨HashMap.Raw.equiv_of_beq h₁.1 h₂.1 h⟩
 
-theorem beq_iff_equiv [LawfulBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+theorem beq_iff_equiv [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
   ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
 
 theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=

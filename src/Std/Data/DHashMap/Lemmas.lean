@@ -1883,7 +1883,7 @@ theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁
 theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
   ⟨Raw₀.Const.equiv_of_beq m₁.2 m₂.2 h⟩
 
-theorem Const.beq_iff_equiv [LawfulBEq α] [LawfulHashable α] [LawfulBEq β] : Const.beq m₁ m₂ ↔ m₁ ~m m₂ :=
+theorem Const.beq_iff_equiv [LawfulBEq α] [LawfulBEq β] : Const.beq m₁ m₂ ↔ m₁ ~m m₂ :=
   ⟨equiv_of_beq, Equiv.beq⟩
 
 theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : DHashMap α (fun _ => β)} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Const.beq m₁ m₂ = Const.beq m₃ m₄ :=

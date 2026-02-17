@@ -828,6 +828,9 @@ theorem Equiv.beq [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m 
 theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂): m₁ ~m m₂ :=
   ⟨TreeMap.Raw.Const.equiv_of_beq h₁.1 h₂.1 h⟩
 
+theorem beq_iff_equiv [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
 theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : Raw α cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   TreeMap.Raw.Const.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
 

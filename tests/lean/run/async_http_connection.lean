@@ -5,10 +5,20 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
+
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
+
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
 
 
 structure TestCase where
@@ -17,7 +27,7 @@ structure TestCase where
   /-- The HTTP request to send -/
   request : Request (Array Chunk)
   /-- Handler function to process the request -/
-  handler : Request Body.Stream → ContextAsync (Response Body.Stream)
+  handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing)
   /-- Expected response string -/
   expected : String
   /-- Whether to use chunked encoding -/
@@ -36,7 +46,7 @@ def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray 
 
 /-- Send multiple requests through a mock connection and return the response data. -/
 def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Request (Array Chunk)))
-    (onRequest : Request Body.Stream → ContextAsync (Response Body.Stream))
+    (onRequest : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
     (chunked : Bool := false) : IO ByteArray := Async.block do
   let mut data := .empty
   for req in reqs do data := data ++ (← toByteArray req chunked)
@@ -50,7 +60,7 @@ def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Re
 
 /-- Run a single test case, comparing actual response against expected response. -/
 def runTest (name : String) (client : Mock.Client) (server : Mock.Server) (req : Request (Array Chunk))
-    (handler : Request Body.Stream → ContextAsync (Response Body.Stream)) (expected : String) (chunked : Bool := false) :
+    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing)) (expected : String) (chunked : Bool := false) :
     IO Unit := do
   let response ← sendRequests client server #[req] handler chunked
   let responseData := String.fromUTF8! response
@@ -68,18 +78,18 @@ def runTestCase (tc : TestCase) : IO Unit := do
 -- Request Predicates
 
 /-- Check if request is a basic GET requests to the specified URI and host. -/
-def isBasicGetRequest (req : Request Body.Stream) (uri : String) (host : String) : Bool :=
+def isBasicGetRequest (req : Request Body.Incoming) (uri : String) (host : String) : Bool :=
   req.head.method == .get ∧
   req.head.version == .v11 ∧
   toString req.head.uri = uri ∧
   req.head.headers.hasEntry (.mk "host") (.ofString! host)
 
 /-- Check if request has a specific Content-Length header. -/
-def hasContentLength (req : Request Body.Stream) (length : String) : Bool :=
+def hasContentLength (req : Request Body.Incoming) (length : String) : Bool :=
   req.head.headers.hasEntry (.mk "content-length")  (.ofString! length)
 
 /-- Check if request uses chunked transfer encoding. -/
-def isChunkedRequest (req : Request Body.Stream) : Bool :=
+def isChunkedRequest (req : Request Body.Incoming) : Bool :=
   if let some te := req.head.headers.get? (.mk "transfer-encoding") then
     match Header.TransferEncoding.parse te with
     | some te => te.isChunked
@@ -88,18 +98,18 @@ def isChunkedRequest (req : Request Body.Stream) : Bool :=
     false
 
 /-- Check if request has a specific header with a specific value. -/
-def hasHeader (req : Request Body.Stream) (name : String) (value : String) : Bool :=
+def hasHeader (req : Request Body.Incoming) (name : String) (value : String) : Bool :=
   if let some name := Header.Name.ofString? name then
     req.head.headers.hasEntry name (.ofString! value)
   else
     false
 
 /-- Check if request method matches the expected method. -/
-def hasMethod (req : Request Body.Stream) (method : Method) : Bool :=
+def hasMethod (req : Request Body.Incoming) (method : Method) : Bool :=
   req.head.method == method
 
 /-- Check if request URI matches the expected URI string. -/
-def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
+def hasUri (req : Request Body.Incoming) (uri : String) : Bool :=
   toString req.head.uri = uri
 
 -- Tests
@@ -494,8 +504,8 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
     |>.header! "Connection" "close"
     |>.body #[]
 
-  handler := fun req => do
-    let stream ← Body.Stream.empty
+  handler := fun _ => do
+    let (stream, _incoming) ← Body.mkChannel
 
     background do
       for i in [0:3] do
@@ -522,7 +532,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
     |>.body #[]
 
   handler := fun _ => do
-    let stream ← Body.Stream.empty
+    let (stream, _incoming) ← Body.mkChannel
     stream.setKnownSize (some (.fixed 15))
 
     background do
@@ -548,7 +558,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
     |>.body #[]
 
   handler := fun _ => do
-    let stream ← Body.Stream.empty
+    let (stream, _incoming) ← Body.mkChannel
 
     background do
       stream.send <| Chunk.ofByteArray "hello".toUTF8
@@ -575,7 +585,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
     ]
 
   handler := fun req => do
-    let stream ← Body.Stream.empty
+    let (stream, _incoming) ← Body.mkChannel
 
     if isChunkedRequest req
     then
@@ -612,7 +622,7 @@ def hasUri (req : Request Body.Stream) (uri : String) : Bool :=
     ]
 
   handler := fun req => do
-    let stream ← Body.Stream.empty
+    let (stream, _incoming) ← Body.mkChannel
 
     if isChunkedRequest req
     then

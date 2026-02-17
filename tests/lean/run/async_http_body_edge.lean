@@ -5,10 +5,20 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
+
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
+
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
 
 
 /-!
@@ -20,7 +30,7 @@ edge cases, body reading/consuming, Transfer-Encoding conflicts, and trailer hea
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -53,7 +63,7 @@ def timeout408 : String :=
   "HTTP/1.1 408 Request Timeout\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 
 /-- Handler that reads and echoes the full request body. -/
-def echoBodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
+def echoBodyHandler : Request Body.Incoming → ContextAsync (Response Body.Outgoing) :=
   fun req => do
     let ctx ← ContextAsync.getContext
 

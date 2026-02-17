@@ -5,10 +5,20 @@ import Std.Internal.Async.Timer
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
+
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
+
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
 
 open Std.Http.Internal
 
@@ -22,7 +32,7 @@ and potential parser abuse scenarios.
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
     (config : Config := { lingeringTimeout := 3000, generateDate := false }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -42,7 +52,7 @@ def assertExact (name : String) (response : ByteArray) (expected : String) : IO 
   if responseStr != expected then
     throw <| IO.userError s!"Test '{name}' failed:\nExpected:\n{expected.quote}\nGot:\n{responseStr.quote}"
 
-def bodyHandler : Request Body.Stream → ContextAsync (Response Body.Stream) :=
+def bodyHandler : Request Body.Incoming → ContextAsync (Response Body.Outgoing) :=
   fun req => do
     let mut body := ByteArray.empty
     for chunk in req.body do

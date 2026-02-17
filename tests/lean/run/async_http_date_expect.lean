@@ -4,15 +4,25 @@ import Std.Internal.Async
 open Std.Internal.IO Async
 open Std Http
 
-abbrev TestHandler := Request Body.Stream → ContextAsync (Response Body.Stream)
+abbrev TestHandler := Request Body.Incoming → ContextAsync (Response Body.Outgoing)
 
 instance : Std.Http.Server.Handler TestHandler where
   onRequest handler request := handler request
 
+instance : Coe (ContextAsync (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
+
+instance : Coe (Async (Response Body.Incoming)) (ContextAsync (Response Body.Outgoing)) where
+  coe action := do
+    let response ← action
+    pure { response with body := response.body.toOutgoing }
+
 
 /-- Send raw bytes to the server and return the response. -/
 def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
-    (handler : Request Body.Stream → ContextAsync (Response Body.Stream))
+    (handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing))
     (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
   client.send raw
   Std.Http.Server.serveConnection server handler config
@@ -23,7 +33,7 @@ def sendRaw (client : Mock.Client) (server : Mock.Server) (raw : ByteArray)
 structure TestCase where
   name : String
   request : Request (Array Chunk)
-  handler : Request Body.Stream → ContextAsync (Response Body.Stream)
+  handler : Request Body.Incoming → ContextAsync (Response Body.Outgoing)
   config : Config := { lingeringTimeout := 3000 }
   check : String → IO Unit
   chunked : Bool := false

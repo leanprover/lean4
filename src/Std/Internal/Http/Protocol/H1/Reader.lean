@@ -113,7 +113,7 @@ structure Reader (dir : Direction) where
   messageHead : Message.Head dir := {}
 
   /--
-  Count of messages that this connection already parsed
+  Count of messages that this connection has already parsed.
   -/
   messageCount : Nat := 0
 

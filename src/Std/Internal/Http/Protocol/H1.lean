@@ -70,7 +70,7 @@ structure PulledChunk where
   chunk : Chunk
 
 /--
-The HTTP 1.1 protocol state machine.
+The HTTP/1.1 protocol state machine.
 -/
 structure Machine (dir : Direction) where
 
@@ -210,7 +210,12 @@ private def checkMessageHead (message : Message.Head dir) : Option BodyMode := d
 
 @[inline]
 private def hasExpectContinue (message : Message.Head dir) : Bool :=
-  message.headers.hasEntry (.mk "expect") (Header.Value.ofString! "100-continue")
+  match message.headers.getAll? Header.Name.expect with
+  | none => false
+  | some values =>
+      values.any fun value =>
+        value.value.split (· == ',')
+        |>.any (fun token => token.trimAscii.toString.toLower == "100-continue")
 
 @[inline]
 private def shouldIgnoreBodyPull (machine : Machine dir) : Bool :=
@@ -445,7 +450,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     state
   })
 
-/--Put some data inside the input of the machine. -/
+/-- Feeds input bytes into the reader side of the machine. -/
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   if machine.isReaderClosed then
@@ -453,7 +458,7 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   else
     { machine with reader := machine.reader.feed data, pullBodyStalled := false }
 
-/--Signal that reader is not going to receive any more messages. -/
+/-- Signals that the reader will not receive any more input bytes. -/
 @[inline]
 def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })

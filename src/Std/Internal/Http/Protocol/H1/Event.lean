@@ -67,7 +67,7 @@ inductive Event (dir : Direction)
   | next
 
   /--
-  Indicates that it needs a continue.
+  Signals that an `Expect: 100-continue` decision is pending.
   -/
   | «continue»
 deriving Inhabited, Repr

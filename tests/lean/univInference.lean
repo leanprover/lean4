@@ -115,14 +115,14 @@ set_option warn.sorry false
 
 /-!
 Used to have an 'accidental higher universe' error.
-Now there's no error. Since the resulting type is `Type`, it infers `sorry : Prop`.
+Now there's no error. Since the resulting type is `Type`, it infers `sorry : Type`.
 -/
 inductive Sorry1 where
   | y (b : sorry)
 
 /-!
 Used to have an 'invalid universe level in constructor' error.
-Now there's no error. Since the resulting type is `Type`, it infers `sorry : Prop`.
+Now there's no error. Since the resulting type is `Type`, it infers `sorry : Type`.
 -/
 inductive Sorry1' : Type where
   | y (b : sorry)

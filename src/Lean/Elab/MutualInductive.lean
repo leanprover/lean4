@@ -834,14 +834,14 @@ We don't assign the metavariable in the resulting universe right away in `inferR
 The issue is that there may be level metavariables in the assignment that will eventually become
 parameters, and we want to be sure we assign once we can normalize the level being assigned.
 -/
-structure ResultingUniverseResult where
+private structure ResultingUniverseResult where
   /-- Inferred resulting universe -/
   u : Level
   /-- Assignment to do once all level metavariables in `Level` are converted to parameters. -/
   assign? : Option (LMVarId × Level)
 
 /-- Performs the assignment that may be recorded in the result, while normalizing the level. -/
-def ResultingUniverseResult.assign (res : ResultingUniverseResult) : MetaM Unit := do
+private def ResultingUniverseResult.assign (res : ResultingUniverseResult) : MetaM Unit := do
   match res.assign? with
   | some (mvarId, level) =>
     assignLevelMVar mvarId (← instantiateLevelMVars level).normalize
@@ -1415,19 +1415,22 @@ private def mkInductiveDeclCore
       -- If there are expression metavariables, we should raise an error before attempting to infer universes.
       ensureNoUnassignedMVarsAtInductives indTypes
       /- Start universe inference. -/
-      let typeLMVarIds ← do
-        let mut lmvars := {}
-        for indType in indTypes do
-          lmvars := collectLevelMVars lmvars indType.type
-        lmvars ← Prod.snd <$> (elabs'.forM InductiveElabStep2.collectExtraHeaderLMVars).run lmvars
-        pure lmvars.result
-      let inferResult ← inferResultingUniverse views numParams indTypes indFVars typeLMVarIds
-      propagateUniversesToConstructors numParams indTypes inferResult
-      levelMVarToParamAtInductives indTypes typeLMVarIds inferResult
-      inferResult.assign
-      let indTypes ← indTypes.mapM instantiateMVarsAtInductive
+      -- allow general access to private data with `withoutExporting` to compute universe levels;
+      -- even though we are elaborating here, this can only leak universe level information
+      let indTypes ← withoutExporting do
+        let typeLMVarIds ← do
+          let mut lmvars := {}
+          for indType in indTypes do
+            lmvars := collectLevelMVars lmvars indType.type
+          lmvars ← Prod.snd <$> (elabs'.forM InductiveElabStep2.collectExtraHeaderLMVars).run lmvars
+          pure lmvars.result
+        let inferResult ← inferResultingUniverse views numParams indTypes indFVars typeLMVarIds
+        propagateUniversesToConstructors numParams indTypes inferResult
+        levelMVarToParamAtInductives indTypes typeLMVarIds inferResult
+        inferResult.assign
+        indTypes.mapM instantiateMVarsAtInductive
       /- Universe inference complete. -/
-      -- allow general access to private data with `withoutExporting` for steps that do no elaboration
+      -- allow general access to private data with `withoutExporting` while we do last universe checks
       withoutExporting do
         elabs'.forM fun elab' => elab'.finalizeTermElab
         ensureNoUnassignedLevelMVarsAtInductives views indTypes

@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 module
-
 prelude
 public import Init.Data.Fin.Basic
 import Init.PropLemmas
 import Init.WFTactics
-
+import Init.Hints
 public section
-
 namespace Fin
 
 /--

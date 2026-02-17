@@ -76,6 +76,7 @@ theorem IterM.stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [M
     · simp [pure]
     · simp [pure]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.filterMapWithPostcondition {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]

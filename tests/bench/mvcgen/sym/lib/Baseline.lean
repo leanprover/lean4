@@ -52,19 +52,6 @@ theorem Exec.ite {_ : Decidable c} (t e : StateM S α) :
 theorem modify_eq : (modify f : StateM S Unit) s = ((), f s) := by
   simp [modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, pure]
 
-def step (v : Nat) : StateM Nat Unit := do
-  let s ← get
-  set (s + v)
-  let s ← get
-  set (s - v)
-
-def loop (n : Nat) : StateM Nat Unit := do
-  match n with
-  | 0 => pure ()
-  | n+1 => step n; loop n
-
-def Goal (n : Nat) : Prop := ∀ s post, post () s → Exec s (loop n) post
-
 open Lean Meta Elab
 
 /-!
@@ -91,9 +78,10 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   let execSetRule ← mkBackwardRuleFromDecl ``Exec.set
   /-
   Creates simplification methods for each collection of rewriting rules we want to apply.
-  Recall Lean creates equational lemmas of the form `_eq_<idx>` for definitions.
+  It is assumed that the aux definitions such as `step`, `loop` and `Goal` have already been
+  unfolded.
   -/
-  let preMethods ← mkSimpMethods #[``step.eq_1, ``loop.eq_1, ``loop.eq_2,
+  let preMethods ← mkSimpMethods #[
     ``Nat.add_zero, ``Nat.sub_zero, ``bind_pure_comp, ``map_bind, ``id_map', ``unit_map, ``bind_assoc]
   let postMethods ← mkMethods #[``Nat.add_sub_cancel]
   -- ## Initialize
@@ -103,7 +91,8 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   let .goal _ mvarId ← Sym.introN mvarId 3 | failure
   let .goal mvarId ← Sym.simpGoal mvarId preMethods | failure
   -- ## Loop
-  -- We simulate the `repeat` block using a tail-recursive function `loop`
+  -- We simulate the `repeat` block using a tail-recursive function `loop`.
+  -- The loop is currently hard-coded for the `add_sub_cancel` benchmark.
   let rec loop (mvarId₀ : MVarId) : SymM MVarId := do
     -- apply Exec.bind; apply Exec.get; apply Exec.bind; apply Exec.set
     let .goals [mvarId] ← execBindRule.apply mvarId₀ | return mvarId₀

@@ -184,7 +184,7 @@ theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : α) = ((n : α) + 1) := by
 
 theorem ofNat_mul (a b : Nat) : OfNat.ofNat (α := α) (a * b) = OfNat.ofNat a * OfNat.ofNat b := by
   induction b with
-  | zero => simp [Nat.mul_zero, mul_zero]
+  | zero => simp [Nat.mul_zero, mul_zero]; rfl
   | succ a ih => rw [Nat.mul_succ, ofNat_add, ih, ofNat_add, left_distrib, mul_one]
 
 theorem natCast_mul (a b : Nat) : ((a * b : Nat) : α) = ((a : α) * (b : α)) := by

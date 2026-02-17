@@ -438,14 +438,6 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let f := e.getAppFn
   withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
-  -- let-expressions. Zeta aggressively for now.
-  if let .letE _x _ty val body _nonDep := f then
-    let e' := (body.instantiate1 val).betaRev e.getAppRevArgs
-    let wp := mkApp5 wpConst m ps instWP α e'
-    let T := mkAppN head (args.set! 2 wp)
-    let target := match target with | .app head _T => mkApp head T | _ => unreachable!
-    return .goals [← goal.replaceTargetDefEq target]
-
   -- Hard-code match splitting for `ite` for now.
   if f.isAppOf ``ite then
     let some info ← Lean.Elab.Tactic.Do.getSplitInfo? e | return .noStrategyForProgram e

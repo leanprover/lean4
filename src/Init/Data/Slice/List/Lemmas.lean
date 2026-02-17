@@ -27,7 +27,7 @@ theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with
         | some stop => s.internalRepresentation.list.iter.take stop
         | none => s.internalRepresentation.list.iter.toTake := by
-  simp only [Internal.iter, ToIterator.iter_eq]; rfl
+  simp only [Internal.iter]; rfl
 
 theorem toList_internalIter {α : Type u} {s : ListSlice α} :
     (Internal.iter s).toList = match s.internalRepresentation.stop with

@@ -444,6 +444,7 @@ instance : MonadAttach Option where
   CanReturn x a := x = some a
   attach x := x.attach
 
+set_option backward.isDefEq.respectTransparency false in
 public instance : LawfulMonadAttach Option where
   map_attach {α} x := by simp [MonadAttach.attach]
   canReturn_map_imp {α P x a} := by
@@ -455,6 +456,7 @@ end Option
 
 namespace OptionT
 
+set_option backward.isDefEq.respectTransparency false in
 public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (OptionT m) where
   map_attach {α} x := by

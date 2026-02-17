@@ -197,7 +197,7 @@ instance Pi.completeDistribLattice' {ι : Type _} {π : ι → Type _}
 CompleteDistribLattice.mk (Pi.coframe.infᵢ_sup_le_sup_infₛ)
 
 -- User: takes around 2 seconds wall clock time on my PC (but very quick in Lean 3)
-set_option maxHeartbeats 400 -- make sure it stays fast
+set_option maxHeartbeats 600 -- make sure it stays fast
 set_option synthInstance.maxHeartbeats 400
 instance Pi.completeDistribLattice'' {ι : Type _} {π : ι → Type _}
     [∀ i, CompleteDistribLattice (π i)] : CompleteDistribLattice (∀ i, π i) :=

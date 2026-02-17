@@ -220,6 +220,7 @@ instance Result.instWP : WP Result (.except Error .pure) where
   | .fail e => wp (throw e : Except Error _)
   | .div => PredTrans.const ⌜False⌝
 
+set_option backward.isDefEq.respectTransparency false in
 instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
   wp_pure _ := by
     ext Q

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Ext
 public import Init.Data.Nat.Div.Basic
@@ -15,7 +14,7 @@ import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Linear
 import Init.Omega
 import Init.TacticsExtra
-
+import Init.Hints
 @[expose] public section
 
 open Std
@@ -998,7 +997,7 @@ For the induction:
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp
+  rw [reverseInduction, reverseInduction.go]; simp; rfl
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1009,9 +1008,9 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   | succ j ih =>
     rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]
-    dsimp only
-    rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
+    · subst hij; simp [reverseInduction.go]; rfl
+    · dsimp only
+      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 
 @[simp, grind =] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =

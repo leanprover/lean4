@@ -1335,7 +1335,7 @@ return x_5;
 LEAN_EXPORT uint8_t l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_stringInfo_spec__0___lam__0(lean_object* x_1, uint32_t x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_21; 
+lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_21; 
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_35; 
@@ -1377,17 +1377,17 @@ goto block_34;
 }
 block_20:
 {
-if (x_4 == 2)
+if (x_5 == 2)
 {
 uint8_t x_7; 
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec(x_4);
 x_7 = 2;
 return x_7;
 }
 else
 {
-if (lean_obj_tag(x_5) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_8; 
 lean_dec(x_6);
@@ -1397,9 +1397,9 @@ return x_8;
 else
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = lean_ctor_get(x_5, 0);
+x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
-lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_10 = lean_unbox(x_9);
 if (x_10 == 2)
 {
@@ -1411,7 +1411,7 @@ return x_11;
 }
 else
 {
-if (x_4 == 0)
+if (x_5 == 0)
 {
 uint8_t x_12; 
 lean_dec(x_9);
@@ -1475,8 +1475,8 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_23; 
 x_23 = lean_box(0);
-x_4 = x_22;
-x_5 = x_21;
+x_4 = x_21;
+x_5 = x_22;
 x_6 = x_23;
 goto block_20;
 }
@@ -1493,8 +1493,8 @@ lean_dec(x_25);
 x_27 = l_Lean_FuzzyMatching_charType(x_26);
 x_28 = lean_box(x_27);
 lean_ctor_set(x_3, 0, x_28);
-x_4 = x_22;
-x_5 = x_21;
+x_4 = x_21;
+x_5 = x_22;
 x_6 = x_3;
 goto block_20;
 }
@@ -1510,8 +1510,8 @@ x_31 = l_Lean_FuzzyMatching_charType(x_30);
 x_32 = lean_box(x_31);
 x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
-x_4 = x_22;
-x_5 = x_21;
+x_4 = x_21;
+x_5 = x_22;
 x_6 = x_33;
 goto block_20;
 }
@@ -2569,7 +2569,7 @@ return x_9;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint16_t x_18; lean_object* x_19; uint16_t x_20; uint16_t x_21; lean_object* x_22; lean_object* x_38; uint16_t x_39; uint16_t x_40; uint16_t x_43; uint8_t x_106; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint16_t x_18; lean_object* x_19; uint16_t x_20; uint16_t x_21; lean_object* x_22; uint16_t x_38; lean_object* x_39; uint16_t x_40; uint16_t x_43; uint8_t x_106; 
 x_14 = lean_ctor_get(x_9, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_9, 1);
@@ -2667,9 +2667,9 @@ block_42:
 {
 uint16_t x_41; 
 x_41 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at___00__private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore_spec__2(x_7, x_10, x_40);
-x_20 = x_39;
+x_20 = x_38;
 x_21 = x_41;
-x_22 = x_38;
+x_22 = x_39;
 goto block_37;
 }
 block_105:
@@ -2782,15 +2782,15 @@ x_103 = l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_Score_map___at
 x_104 = lean_int16_dec_le(x_96, x_103);
 if (x_104 == 0)
 {
-x_38 = x_85;
-x_39 = x_43;
+x_38 = x_43;
+x_39 = x_85;
 x_40 = x_96;
 goto block_42;
 }
 else
 {
-x_38 = x_85;
-x_39 = x_43;
+x_38 = x_43;
+x_39 = x_85;
 x_40 = x_103;
 goto block_42;
 }

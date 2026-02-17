@@ -3884,33 +3884,33 @@ return x_89;
 block_23:
 {
 lean_object* x_21; 
+lean_inc(x_14);
+lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_15);
 lean_inc(x_17);
-lean_inc_ref(x_16);
-lean_inc(x_13);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__1_spec__3(x_1, x_2, x_3, x_18, x_20, x_13, x_16, x_17, x_15, x_12);
+x_21 = l___private_Lean_Util_ForEachExprWhere_0__Lean_ForEachExprWhere_visit_go___at___00Lean_ForEachExprWhere_visit___at___00Lean_MVarId_getNondepPropHyps_spec__1_spec__3(x_1, x_2, x_3, x_18, x_20, x_17, x_15, x_12, x_13, x_14);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_dec_ref(x_21);
 x_4 = x_19;
 x_5 = x_20;
-x_6 = x_13;
-x_7 = x_16;
-x_8 = x_17;
-x_9 = x_15;
-x_10 = x_12;
+x_6 = x_17;
+x_7 = x_15;
+x_8 = x_12;
+x_9 = x_13;
+x_10 = x_14;
 goto _start;
 }
 else
 {
 lean_dec_ref(x_19);
 lean_dec(x_17);
-lean_dec_ref(x_16);
 lean_dec_ref(x_15);
-lean_dec(x_13);
+lean_dec(x_14);
+lean_dec_ref(x_13);
 lean_dec(x_12);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -3928,12 +3928,12 @@ lean_inc_ref(x_31);
 x_32 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_32);
 lean_dec_ref(x_4);
-x_12 = x_29;
-x_13 = x_25;
-x_14 = lean_box(0);
-x_15 = x_28;
-x_16 = x_26;
-x_17 = x_27;
+x_12 = x_27;
+x_13 = x_28;
+x_14 = x_29;
+x_15 = x_26;
+x_16 = lean_box(0);
+x_17 = x_25;
 x_18 = x_31;
 x_19 = x_32;
 x_20 = x_24;
@@ -3947,12 +3947,12 @@ lean_inc_ref(x_33);
 x_34 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_34);
 lean_dec_ref(x_4);
-x_12 = x_29;
-x_13 = x_25;
-x_14 = lean_box(0);
-x_15 = x_28;
-x_16 = x_26;
-x_17 = x_27;
+x_12 = x_27;
+x_13 = x_28;
+x_14 = x_29;
+x_15 = x_26;
+x_16 = lean_box(0);
+x_17 = x_25;
 x_18 = x_33;
 x_19 = x_34;
 x_20 = x_24;
@@ -4785,8 +4785,8 @@ uint8_t x_43;
 x_43 = l_Lean_LocalDecl_hasValue(x_23, x_30);
 if (x_43 == 0)
 {
-x_24 = lean_box(0);
-x_25 = x_34;
+x_24 = x_34;
+x_25 = lean_box(0);
 goto block_29;
 }
 else
@@ -4800,8 +4800,8 @@ goto block_21;
 }
 else
 {
-x_24 = lean_box(0);
-x_25 = x_34;
+x_24 = x_34;
+x_25 = lean_box(0);
 goto block_29;
 }
 }
@@ -4848,7 +4848,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28;
 x_26 = l_Lean_LocalDecl_fvarId(x_23);
 lean_dec(x_23);
 x_27 = lean_box(0);
-x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_25, x_26, x_27);
+x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_24, x_26, x_27);
 x_15 = x_28;
 x_16 = lean_box(0);
 goto block_21;
@@ -5071,8 +5071,8 @@ uint8_t x_43;
 x_43 = l_Lean_LocalDecl_hasValue(x_23, x_30);
 if (x_43 == 0)
 {
-x_24 = x_34;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_34;
 goto block_29;
 }
 else
@@ -5086,8 +5086,8 @@ goto block_21;
 }
 else
 {
-x_24 = x_34;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_34;
 goto block_29;
 }
 }
@@ -5134,7 +5134,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28;
 x_26 = l_Lean_LocalDecl_fvarId(x_23);
 lean_dec(x_23);
 x_27 = lean_box(0);
-x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_24, x_26, x_27);
+x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_25, x_26, x_27);
 x_15 = x_28;
 x_16 = lean_box(0);
 goto block_21;
@@ -5356,8 +5356,8 @@ uint8_t x_43;
 x_43 = l_Lean_LocalDecl_hasValue(x_23, x_30);
 if (x_43 == 0)
 {
-x_24 = x_34;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_34;
 goto block_29;
 }
 else
@@ -5371,8 +5371,8 @@ goto block_21;
 }
 else
 {
-x_24 = x_34;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_34;
 goto block_29;
 }
 }
@@ -5419,7 +5419,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28;
 x_26 = l_Lean_LocalDecl_fvarId(x_23);
 lean_dec(x_23);
 x_27 = lean_box(0);
-x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_24, x_26, x_27);
+x_28 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_MVarId_getNondepPropHyps_spec__2___redArg(x_25, x_26, x_27);
 x_15 = x_28;
 x_16 = lean_box(0);
 goto block_21;
@@ -11131,7 +11131,7 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_7);
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -11139,7 +11139,7 @@ return x_11;
 }
 else
 {
-return x_8;
+return x_7;
 }
 }
 block_18:
@@ -11150,16 +11150,16 @@ if (x_16 == 0)
 {
 uint8_t x_17; 
 x_17 = l_Lean_Exception_isRuntime(x_14);
-x_7 = lean_box(0);
-x_8 = x_13;
+x_7 = x_13;
+x_8 = lean_box(0);
 x_9 = x_17;
 goto block_12;
 }
 else
 {
 lean_dec_ref(x_14);
-x_7 = lean_box(0);
-x_8 = x_13;
+x_7 = x_13;
+x_8 = lean_box(0);
 x_9 = x_16;
 goto block_12;
 }

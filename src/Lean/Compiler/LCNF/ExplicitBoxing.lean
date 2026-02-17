@@ -125,6 +125,11 @@ def getResultType : BoxM Expr := return (← read).currDeclResultType
 def typesEqvForBoxing (t₁ t₂ : Expr) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
+def getDeclSig (declName : Name) : BoxM (Option (Signature .impure)) := do
+  match (← read).decls.find? (·.name == declName) with
+  | some found => return some <| found.toSignature
+  | none => getImpureSignature? declName
+
 /--
 If `x` declaration is of the form `x := .lit _` or `x := .fap c #[]`,
 and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value.
@@ -300,7 +305,7 @@ where
   tryCorrectLetDeclType (currentType : Expr) (value : LetValue .impure) : BoxM Expr := do
     match value with
     | .fap f .. =>
-      let some sig ← getImpureSignature? f | unreachable!
+      let some sig ← getDeclSig f | unreachable!
       return sig.type
     | .pap .. => return object
     | .uproj .. => return usize
@@ -327,12 +332,12 @@ where
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         return code.updateLet! decl k
     | .fap f args =>
-      let some sig ← getImpureSignature? f | unreachable!
+      let some sig ← getDeclSig f | unreachable!
       castArgsIfNeeded args sig.params fun args => do
         let decl ← decl.updateValue (decl.value.updateArgs! args)
         castResultIfNeeded code decl sig.type k
     | .pap f args =>
-      let some sig ← getImpureSignature? f | unreachable!
+      let some sig ← getDeclSig f | unreachable!
       let f := if ← requiresBoxedVersion sig then mkBoxedName f else f
       boxArgsIfNeeded args fun args => do
         let decl ← decl.updateValue (decl.value.updatePap! f args)

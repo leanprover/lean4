@@ -10340,8 +10340,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_3, x_4);
-x_6 = lean_uint32_lor(x_2, x_5);
+x_5 = lean_uint32_lor(x_2, x_4);
+x_6 = lean_uint32_lor(x_3, x_5);
 return x_6;
 }
 block_15:
@@ -10350,8 +10350,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_11;
-x_3 = x_12;
+x_2 = x_12;
+x_3 = x_11;
 x_4 = x_13;
 goto block_7;
 }
@@ -10359,8 +10359,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_11;
-x_3 = x_12;
+x_2 = x_12;
+x_3 = x_11;
 x_4 = x_14;
 goto block_7;
 }
@@ -11301,27 +11301,27 @@ x_16 = 13;
 x_17 = lean_uint32_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {
-lean_dec(x_13);
+lean_dec(x_14);
 lean_dec(x_12);
-x_8 = x_14;
+x_8 = x_13;
 goto block_11;
 }
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_18 = lean_string_utf8_byte_size(x_14);
-lean_inc(x_13);
-lean_inc_ref(x_14);
+x_18 = lean_string_utf8_byte_size(x_13);
+lean_inc(x_14);
+lean_inc_ref(x_13);
 x_19 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_19, 0, x_14);
-lean_ctor_set(x_19, 1, x_13);
+lean_ctor_set(x_19, 0, x_13);
+lean_ctor_set(x_19, 1, x_14);
 lean_ctor_set(x_19, 2, x_18);
 x_20 = l_String_Slice_Pos_prevn(x_19, x_18, x_12);
 lean_dec_ref(x_19);
-x_21 = lean_string_utf8_extract(x_14, x_13, x_20);
+x_21 = lean_string_utf8_extract(x_13, x_14, x_20);
 lean_dec(x_20);
-lean_dec(x_13);
-lean_dec_ref(x_14);
+lean_dec(x_14);
+lean_dec_ref(x_13);
 x_8 = x_21;
 goto block_11;
 }
@@ -11374,8 +11374,8 @@ uint32_t x_37;
 lean_dec_ref(x_35);
 x_37 = 65;
 x_12 = x_28;
-x_13 = x_29;
-x_14 = x_33;
+x_13 = x_33;
+x_14 = x_29;
 x_15 = x_37;
 goto block_22;
 }
@@ -11393,8 +11393,8 @@ if (lean_obj_tag(x_39) == 0)
 uint32_t x_40; 
 x_40 = 65;
 x_12 = x_28;
-x_13 = x_29;
-x_14 = x_33;
+x_13 = x_33;
+x_14 = x_29;
 x_15 = x_40;
 goto block_22;
 }
@@ -11407,8 +11407,8 @@ lean_dec_ref(x_39);
 x_42 = lean_unbox_uint32(x_41);
 lean_dec(x_41);
 x_12 = x_28;
-x_13 = x_29;
-x_14 = x_33;
+x_13 = x_33;
+x_14 = x_29;
 x_15 = x_42;
 goto block_22;
 }

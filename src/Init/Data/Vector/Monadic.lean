@@ -53,7 +53,7 @@ theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
     (mk #[] rfl).mapM f = pure #v[] := by
   unfold mapM
   unfold mapM.go
-  simp
+  simp; rfl
 
 @[simp, grind =] theorem mapM_append [Monad m] [LawfulMonad m]
     {f : α → m β} {xs : Vector α n} {ys : Vector α n'} :

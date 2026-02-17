@@ -606,7 +606,7 @@ block_47:
 {
 lean_object* x_34; lean_object* x_35; 
 lean_inc_ref(x_1);
-x_34 = l_Lean_mkApp8(x_27, x_16, x_31, x_29, x_32, x_30, x_28, x_33, x_1);
+x_34 = l_Lean_mkApp8(x_27, x_16, x_28, x_32, x_31, x_30, x_29, x_33, x_1);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -690,8 +690,8 @@ if (lean_obj_tag(x_23) == 0)
 lean_object* x_53; lean_object* x_54; 
 x_53 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10;
 x_54 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_53);
-x_28 = x_52;
-x_29 = x_48;
+x_28 = x_48;
+x_29 = x_52;
 x_30 = x_49;
 x_31 = x_50;
 x_32 = x_51;
@@ -704,8 +704,8 @@ lean_object* x_55;
 x_55 = lean_ctor_get(x_23, 0);
 lean_inc(x_55);
 lean_dec_ref(x_23);
-x_28 = x_52;
-x_29 = x_48;
+x_28 = x_48;
+x_29 = x_52;
 x_30 = x_49;
 x_31 = x_50;
 x_32 = x_51;
@@ -749,8 +749,8 @@ lean_object* x_68; lean_object* x_69;
 x_68 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10;
 x_69 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_68);
 x_57 = x_65;
-x_58 = x_66;
-x_59 = x_67;
+x_58 = x_67;
+x_59 = x_66;
 x_60 = x_69;
 goto block_64;
 }
@@ -761,8 +761,8 @@ x_70 = lean_ctor_get(x_20, 0);
 lean_inc(x_70);
 lean_dec_ref(x_20);
 x_57 = x_65;
-x_58 = x_66;
-x_59 = x_67;
+x_58 = x_67;
+x_59 = x_66;
 x_60 = x_70;
 goto block_64;
 }
@@ -774,8 +774,8 @@ if (lean_obj_tag(x_19) == 0)
 lean_object* x_74; lean_object* x_75; 
 x_74 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg___closed__10;
 x_75 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_74);
-x_65 = x_73;
-x_66 = x_72;
+x_65 = x_72;
+x_66 = x_73;
 x_67 = x_75;
 goto block_71;
 }
@@ -785,8 +785,8 @@ lean_object* x_76;
 x_76 = lean_ctor_get(x_19, 0);
 lean_inc(x_76);
 lean_dec_ref(x_19);
-x_65 = x_73;
-x_66 = x_72;
+x_65 = x_72;
+x_66 = x_73;
 x_67 = x_76;
 goto block_71;
 }

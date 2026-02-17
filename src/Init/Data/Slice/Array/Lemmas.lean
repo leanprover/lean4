@@ -28,6 +28,7 @@ open Std Std.Iterators Std.PRange Std.Slice
 
 namespace SubarrayIterator
 
+set_option backward.isDefEq.respectTransparency false in
 theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step = if h : it.1.xs.start < it.1.xs.stop then
         haveI := it.1.xs.start_le_stop
@@ -66,6 +67,7 @@ theorem val_step_eq {it : Iter (α := SubarrayIterator α) α} :
   simp only [step_eq]
   split <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.toList =
       (it.internalState.xs.array.toList.take it.internalState.xs.stop).drop it.internalState.xs.start := by
@@ -100,15 +102,17 @@ end SubarrayIterator
 
 namespace Subarray
 
-theorem internalIter_eq {α : Type u} {s : Subarray α} :
+theorem Internal.iter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = ⟨⟨s⟩⟩ :=
   rfl
 
-theorem toList_internalIter {α : Type u} {s : Subarray α} :
+set_option backward.isDefEq.respectTransparency false in
+theorem Internal.toList_iter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       (s.array.toList.take s.stop).drop s.start := by
   simp [SubarrayIterator.toList_eq, Internal.iter_eq_toIteratorIter, ToIterator.iter_eq]
 
+set_option backward.isDefEq.respectTransparency false in
 public instance : LawfulSliceSize (Internal.SubarrayData α) where
   lawful s := by
     simp [SliceSize.size, ToIterator.iter_eq,
@@ -223,7 +227,7 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   change aslice.toList = _
   have : aslice.toList = lslice.toList := by
     rw [ListSlice.toList_eq]
-    simp +instances only [aslice, lslice, Std.Slice.toList, toList_internalIter]
+    simp +instances only [aslice, lslice, Std.Slice.toList, Internal.toList_iter]
     apply List.ext_getElem
     · have : stop - start ≤ array.size - start := by omega
       simp [Subarray.start, Subarray.stop, *, Subarray.array]
@@ -274,7 +278,7 @@ public theorem Subarray.getElem_eq_getElem_array {xs : Subarray α} {h : i < xs.
 
 public theorem Subarray.getElem_toList {xs : Subarray α} {h : i < xs.toList.length} :
     xs.toList[i]'h = xs[i]'(by simpa using h) := by
-  simp [getElem_eq_getElem_array, toList_eq_drop_take]
+  simp [getElem_eq_getElem_array, toList_eq_drop_take]; rfl
 
 public theorem Subarray.getElem_eq_getElem_toList {xs : Subarray α} {h : i < xs.size} :
     xs[i]'h = xs.toList[i]'(by simpa using h) := by
@@ -344,7 +348,7 @@ public theorem toList_mkSlice_rco {xs : Array α} {lo hi : Nat} :
 public theorem toArray_mkSlice_rco {xs : Array α} {lo hi : Nat} :
     xs[lo...hi].toArray = xs.extract lo hi := by
   simp only [← Subarray.toArray_toList, toList_mkSlice_rco]
-  rw [show xs = xs.toList.toArray by simp, List.extract_toArray, List.extract_eq_drop_take]
+  rw [show xs = xs.toList.toArray by simp, List.extract_toArray, List.extract_eq_take_drop]
   simp only [List.take_drop, mk.injEq]
   by_cases h : lo ≤ hi
   · congr 1

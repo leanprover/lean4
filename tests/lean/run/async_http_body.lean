@@ -4,237 +4,283 @@ open Std.Internal.IO Async
 open Std.Http
 open Std.Http.Body
 
-/-! ## Stream tests -/
+/-! ## Channel tests -/
 
--- Test send followed by recv returns the chunk
-def streamSendRecv : Async Unit := do
-  let stream ← Stream.empty
+-- Test send and recv on rendezvous channel
+
+def channelSendRecv : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
   let chunk := Chunk.ofByteArray "hello".toUTF8
-  stream.send chunk
-  let result ← stream.recv none
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send chunk
+  let result ← incoming.recv none
+
   assert! result.isSome
   assert! result.get!.data == "hello".toUTF8
+  await sendTask
 
-#eval streamSendRecv.block
+#eval channelSendRecv.block
 
--- Test tryRecv on empty stream returns none
-def streamTryRecvEmpty : Async Unit := do
-  let stream ← Stream.empty
-  let result ← stream.tryRecv
+-- Test tryRecv on empty channel returns none
+
+def channelTryRecvEmpty : Async Unit := do
+  let (_outgoing, incoming) ← Body.mkChannel
+  let result ← incoming.tryRecv
   assert! result.isNone
 
-#eval streamTryRecvEmpty.block
+#eval channelTryRecvEmpty.block
 
--- Test tryRecv returns data when available
-def streamTryRecvWithData : Async Unit := do
-  let stream ← Stream.empty
-  stream.send (Chunk.ofByteArray "data".toUTF8)
-  let result ← stream.tryRecv
+-- Test tryRecv consumes a waiting producer
+
+def channelTryRecvWithPendingSend : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "data".toUTF8)
+  let mut result := none
+  let mut fuel := 100
+  while result.isNone && fuel > 0 do
+    result ← incoming.tryRecv
+    if result.isNone then
+      let _ ← Selectable.one #[
+        .case (← Selector.sleep 1) pure
+      ]
+    fuel := fuel - 1
+
   assert! result.isSome
   assert! result.get!.data == "data".toUTF8
+  await sendTask
 
-#eval streamTryRecvWithData.block
+#eval channelTryRecvWithPendingSend.block
 
--- Test close sets the closed flag
-def streamClose : Async Unit := do
-  let stream ← Stream.empty
-  assert! !(← stream.isClosed)
-  stream.close
-  assert! (← stream.isClosed)
+-- Test close sets closed flag
 
-#eval streamClose.block
+def channelClose : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+  assert! !(← outgoing.isClosed)
+  outgoing.close
+  assert! (← incoming.isClosed)
 
--- Test recv on closed stream returns none
-def streamRecvAfterClose : Async Unit := do
-  let stream ← Stream.empty
-  stream.close
-  let result ← stream.recv none
+#eval channelClose.block
+
+-- Test recv on closed channel returns none
+
+def channelRecvAfterClose : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+  outgoing.close
+  let result ← incoming.recv none
   assert! result.isNone
 
-#eval streamRecvAfterClose.block
+#eval channelRecvAfterClose.block
 
--- Test FIFO ordering of multiple chunks
-def streamMultipleFIFO : Async Unit := do
-  let stream ← Stream.empty
-  stream.send (Chunk.ofByteArray "one".toUTF8)
-  stream.send (Chunk.ofByteArray "two".toUTF8)
-  stream.send (Chunk.ofByteArray "three".toUTF8)
-  let r1 ← stream.recv none
-  let r2 ← stream.recv none
-  let r3 ← stream.recv none
-  assert! r1.get!.data == "one".toUTF8
-  assert! r2.get!.data == "two".toUTF8
-  assert! r3.get!.data == "three".toUTF8
+-- Test for-in iteration collects chunks until close
 
-#eval streamMultipleFIFO.block
+def channelForIn : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
 
--- Test for-in iteration collects all chunks until close
-def streamForIn : Async Unit := do
-  let stream ← Stream.empty
-  stream.send (Chunk.ofByteArray "a".toUTF8)
-  stream.send (Chunk.ofByteArray "b".toUTF8)
-  stream.close
+  let producer ← async (t := AsyncTask) <| do
+    outgoing.send (Chunk.ofByteArray "a".toUTF8)
+    outgoing.send (Chunk.ofByteArray "b".toUTF8)
+    outgoing.close
 
   let mut acc : ByteArray := .empty
-  for chunk in stream do
+  for chunk in incoming do
     acc := acc ++ chunk.data
+
   assert! acc == "ab".toUTF8
+  await producer
 
-#eval streamForIn.block
+#eval channelForIn.block
 
--- Test chunks preserve extensions
-def streamExtensions : Async Unit := do
-  let stream ← Stream.empty
+-- Test chunk extensions are preserved
+
+def channelExtensions : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
   let chunk := { data := "hello".toUTF8, extensions := #[(.mk "key", some "value")] : Chunk }
-  stream.send chunk
-  let result ← stream.recv none
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send chunk
+  let result ← incoming.recv none
+
   assert! result.isSome
   assert! result.get!.extensions.size == 1
   assert! result.get!.extensions[0]! == (.mk "key", some "value")
-
-#eval streamExtensions.block
-
--- Test set/get known size
-def streamKnownSize : Async Unit := do
-  let stream ← Stream.empty
-  stream.setKnownSize (some (.fixed 100))
-  let size ← stream.getKnownSize
-  assert! size == some (.fixed 100)
-
-#eval streamKnownSize.block
-
--- Test capacity: filling up to capacity succeeds via tryRecv check
-def streamCapacityFull : Async Unit := do
-  let stream ← Stream.emptyWithCapacity (capacity := 3)
-  stream.send (Chunk.ofByteArray "a".toUTF8)
-  stream.send (Chunk.ofByteArray "b".toUTF8)
-  stream.send (Chunk.ofByteArray "c".toUTF8)
-  -- All three should be buffered
-  let r1 ← stream.tryRecv
-  let r2 ← stream.tryRecv
-  let r3 ← stream.tryRecv
-  let r4 ← stream.tryRecv
-  assert! r1.get!.data == "a".toUTF8
-  assert! r2.get!.data == "b".toUTF8
-  assert! r3.get!.data == "c".toUTF8
-  assert! r4.isNone
-
-#eval streamCapacityFull.block
-
--- Test capacity: send blocks when buffer is full and resumes after recv
-def streamCapacityBackpressure : Async Unit := do
-  let stream ← Stream.emptyWithCapacity (capacity := 2)
-  stream.send (Chunk.ofByteArray "a".toUTF8)
-  stream.send (Chunk.ofByteArray "b".toUTF8)
-
-  -- Spawn a send that should block because capacity is 2
-  let sendTask ← async (t := AsyncTask) <|
-    stream.send (Chunk.ofByteArray "c".toUTF8)
-
-  -- Consume one to free space
-  let r1 ← stream.recv none
-  assert! r1.get!.data == "a".toUTF8
-
-  -- Wait for the blocked send to complete
-  sendTask.block
-
-  -- Now we should be able to recv the remaining two
-  let r2 ← stream.recv none
-  let r3 ← stream.recv none
-  assert! r2.get!.data == "b".toUTF8
-  assert! r3.get!.data == "c".toUTF8
-
-#eval streamCapacityBackpressure.block
-
--- Test capacity 1: only one chunk at a time
-def streamCapacityOne : Async Unit := do
-  let stream ← Stream.emptyWithCapacity (capacity := 1)
-  stream.send (Chunk.ofByteArray "first".toUTF8)
-
-  let sendTask ← async (t := AsyncTask) <|
-    stream.send (Chunk.ofByteArray "second".toUTF8)
-
-  let r1 ← stream.recv none
-  assert! r1.get!.data == "first".toUTF8
-
-  sendTask.block
-
-  let r2 ← stream.recv none
-  assert! r2.get!.data == "second".toUTF8
-
-#eval streamCapacityOne.block
-
--- Test close unblocks pending producers
-def streamCloseUnblocksProducers : Async Unit := do
-  let stream ← Stream.emptyWithCapacity (capacity := 1)
-  stream.send (Chunk.ofByteArray "fill".toUTF8)
-
-  -- This send should block because buffer is full
-  let sendTask ← async (t := AsyncTask) <|
-    try
-      stream.send (Chunk.ofByteArray "blocked".toUTF8)
-    catch _ =>
-      pure ()
-
-  -- Close should unblock the producer (send gets error internally)
-  stream.close
-
   await sendTask
 
-#eval streamCloseUnblocksProducers.block
+#eval channelExtensions.block
+
+-- Test known size metadata
+
+def channelKnownSize : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+  outgoing.setKnownSize (some (.fixed 100))
+  let size ← incoming.getKnownSize
+  assert! size == some (.fixed 100)
+
+#eval channelKnownSize.block
+
+-- Test known size decreases when a chunk is consumed
+
+def channelKnownSizeDecreases : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+  outgoing.setKnownSize (some (.fixed 5))
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "hello".toUTF8)
+  let _ ← incoming.recv none
+  await sendTask
+
+  let size ← incoming.getKnownSize
+  assert! size == some (.fixed 0)
+
+#eval channelKnownSizeDecreases.block
+
+-- Test only one blocked producer is allowed
+
+def channelSingleProducerRule : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+
+  let send1 ← async (t := AsyncTask) <| do
+    try
+      outgoing.send (Chunk.ofByteArray "one".toUTF8)
+      return true
+    catch _ =>
+      return false
+
+  let send2 ← async (t := AsyncTask) <| do
+    try
+      outgoing.send (Chunk.ofByteArray "two".toUTF8)
+      return true
+    catch _ =>
+      return false
+
+  let first ← incoming.recv none
+  assert! first.isSome
+
+  outgoing.close
+
+  let ok1 ← await send1
+  let ok2 ← await send2
+
+  assert! (ok1 && !ok2) || (!ok1 && ok2)
+
+#eval channelSingleProducerRule.block
+
+-- Test only one blocked consumer is allowed
+
+def channelSingleConsumerRule : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+
+  let recv1 ← async (t := AsyncTask) <| incoming.recv none
+
+  let hasInterest ← Selectable.one #[
+    .case outgoing.interestSelector pure
+  ]
+  assert! hasInterest
+
+  let recv2Failed ←
+    try
+      let _ ← incoming.recv none
+      pure false
+    catch _ =>
+      pure true
+
+  assert! recv2Failed
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "ok".toUTF8)
+  let r1 ← await recv1
+
+  assert! r1.isSome
+  assert! r1.get!.data == "ok".toUTF8
+  await sendTask
+
+#eval channelSingleConsumerRule.block
+
+-- Test hasInterest reflects blocked receiver state
+
+def channelHasInterest : Async Unit := do
+  let (outgoing, incoming) ← Body.mkChannel
+  assert! !(← outgoing.hasInterest)
+
+  let recvTask ← async (t := AsyncTask) <| incoming.recv none
+
+  let hasInterest ← Selectable.one #[
+    .case outgoing.interestSelector pure
+  ]
+  assert! hasInterest
+  assert! (← outgoing.hasInterest)
+
+  let sendTask ← async (t := AsyncTask) <| outgoing.send (Chunk.ofByteArray "x".toUTF8)
+  let _ ← await recvTask
+  await sendTask
+
+  assert! !(← outgoing.hasInterest)
+
+#eval channelHasInterest.block
+
+-- Test interestSelector resolves false when channel closes first
+
+def channelInterestSelectorClose : Async Unit := do
+  let (outgoing, _incoming) ← Body.mkChannel
+
+  let waitInterest ← async (t := AsyncTask) <|
+    Selectable.one #[
+      .case outgoing.interestSelector pure
+    ]
+
+  outgoing.close
+  let interested ← await waitInterest
+  assert! interested == false
+
+#eval channelInterestSelectorClose.block
 
 /-! ## Request.Builder body tests -/
 
 -- Test Request.Builder.text sets correct headers
+
 def requestBuilderText : Async Unit := do
   let req ← Request.post (.originForm! "/api")
     |>.text "Hello, World!"
+
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
-  let body ← req.body.tryRecv
+
+  let body ← req.body.recv none
   assert! body.isSome
   assert! body.get!.data == "Hello, World!".toUTF8
 
 #eval requestBuilderText.block
 
 -- Test Request.Builder.json sets correct headers
+
 def requestBuilderJson : Async Unit := do
   let req ← Request.post (.originForm! "/api")
     |>.json "{\"key\": \"value\"}"
+
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← req.body.tryRecv
+  let body ← req.body.recv none
   assert! body.isSome
   assert! body.get!.data == "{\"key\": \"value\"}".toUTF8
 
 #eval requestBuilderJson.block
 
--- Test Request.Builder.bytes sets correct headers
-def requestBuilderBytes : Async Unit := do
+-- Test Request.Builder.fromBytes sets content-length and body
+
+def requestBuilderFromBytes : Async Unit := do
   let data := ByteArray.mk #[0x01, 0x02, 0x03]
   let req ← Request.post (.originForm! "/api")
-    |>.bytes data
-  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/octet-stream")
+    |>.fromBytes data
+
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "3")
-  let body ← req.body.tryRecv
+  let body ← req.body.recv none
   assert! body.isSome
   assert! body.get!.data == data
 
-#eval requestBuilderBytes.block
-
--- Test Request.Builder.html sets correct headers
-def requestBuilderHtml : Async Unit := do
-  let req ← Request.post (.originForm! "/api")
-    |>.html "<html></html>"
-  assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/html; charset=utf-8")
-  let body ← req.body.tryRecv
-  assert! body.isSome
-
-#eval requestBuilderHtml.block
+#eval requestBuilderFromBytes.block
 
 -- Test Request.Builder.noBody creates empty body
+
 def requestBuilderNoBody : Async Unit := do
   let req ← Request.get (.originForm! "/api")
     |>.noBody
+
   let body ← req.body.tryRecv
   assert! body.isNone
 
@@ -243,31 +289,53 @@ def requestBuilderNoBody : Async Unit := do
 /-! ## Response.Builder body tests -/
 
 -- Test Response.Builder.text sets correct headers
+
 def responseBuilderText : Async Unit := do
   let res ← Response.ok
     |>.text "Hello, World!"
+
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
-  let body ← res.body.tryRecv
+
+  let body ← res.body.recv none
   assert! body.isSome
   assert! body.get!.data == "Hello, World!".toUTF8
 
 #eval responseBuilderText.block
 
 -- Test Response.Builder.json sets correct headers
+
 def responseBuilderJson : Async Unit := do
   let res ← Response.ok
     |>.json "{\"status\": \"ok\"}"
+
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← res.body.tryRecv
+  let body ← res.body.recv none
   assert! body.isSome
+  assert! body.get!.data == "{\"status\": \"ok\"}".toUTF8
 
 #eval responseBuilderJson.block
 
+-- Test Response.Builder.fromBytes sets content-length and body
+
+def responseBuilderFromBytes : Async Unit := do
+  let data := ByteArray.mk #[0xaa, 0xbb]
+  let res ← Response.ok
+    |>.fromBytes data
+
+  assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "2")
+  let body ← res.body.recv none
+  assert! body.isSome
+  assert! body.get!.data == data
+
+#eval responseBuilderFromBytes.block
+
 -- Test Response.Builder.noBody creates empty body
+
 def responseBuilderNoBody : Async Unit := do
   let res ← Response.ok
     |>.noBody
+
   let body ← res.body.tryRecv
   assert! body.isNone
 

@@ -39,7 +39,7 @@ Results from a single step of the state machine.
 structure StepResult (dir : Direction) where
 
   /--
-  Events that occurred during this step (e.g., headers received, data available, errors).
+  Events that occurred during this step (e.g., headers received, control flow, errors).
   -/
   events : Array (Event dir) := #[]
 
@@ -47,6 +47,27 @@ structure StepResult (dir : Direction) where
   Output data ready to be sent to the socket.
   -/
   output : ChunkedBuffer := .empty
+
+/--
+A single body chunk produced by a pull-driven read.
+-/
+structure PulledChunk where
+
+  /--
+  Whether this chunk finishes the current body stream.
+  -/
+  final : Bool
+
+  /--
+  Whether the chunk data is partial for the current frame/body slice
+  (more bytes are still required to complete it).
+  -/
+  incomplete : Bool
+
+  /--
+  The pulled body chunk.
+  -/
+  chunk : Chunk
 
 /--
 The HTTP 1.1 protocol state machine.
@@ -185,6 +206,30 @@ private def checkMessageHead (message : Message.Head dir) : Option BodyMode := d
 private def hasExpectContinue (message : Message.Head dir) : Bool :=
   message.headers.hasEntry (.mk "expect") (Header.Value.ofString! "100-continue")
 
+@[inline]
+private def shouldIgnoreBodyPull (machine : Machine dir) : Bool :=
+  match dir with
+  | .receiving => machine.writer.sentMessage
+  | .sending => false
+
+@[inline]
+private def mkPulledChunk? (machine : Machine dir)
+    (final : Bool)
+    (incomplete : Bool)
+    (extensions : Array (ExtensionName × Option String))
+    (data : ByteSlice) : Option PulledChunk :=
+  if shouldIgnoreBodyPull machine then
+    none
+  else
+    some {
+      final
+      incomplete
+      chunk := {
+        data := ByteSlice.toByteArray data
+        extensions := extensions
+      }
+    }
+
 -- State Checks
 
 /--
@@ -240,6 +285,16 @@ def halted (machine : Machine dir) : Bool :=
   match machine.reader.state, machine.writer.state with
   | .closed, .closed => machine.writer.outputData.isEmpty
   | _, _ => false
+
+/--
+Returns `true` when `pullBody` can attempt to produce body data immediately.
+-/
+@[inline]
+def canPullBody (machine : Machine dir) : Bool :=
+  !shouldIgnoreBodyPull machine &&
+  match machine.reader.state with
+  | .readBody _ => true
+  | _ => false
 
 private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Option Nat)
     (expect : Option Nat := none) : Machine dir × Option α :=
@@ -302,9 +357,9 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   | none => machine.setFailure .badMessage
   | some mode =>
       let (machine, state) : Machine dir × Reader.State dir := match mode with
-      | .fixed n => (machine, Reader.State.needFixedBody n)
-      | .chunked => (machine, Reader.State.needChunkedSize)
-      | .eof => (machine.disableKeepAlive, Reader.State.needCloseDelimitedBody)
+      | .fixed n => (machine, Reader.State.readBody (.fixed n))
+      | .chunked => (machine, Reader.State.readBody .chunkedSize)
+      | .eof => (machine.disableKeepAlive, Reader.State.readBody .closeDelimited)
 
       let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
 
@@ -316,9 +371,10 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       let nextState : Reader.State dir := if waitingContinue then Reader.State.«continue» state else state
       let machine := if waitingContinue then machine.addEvent .continue else machine
 
-      machine.setReaderState nextState
-      |>.setWriterState .waitingHeaders
-      |>.addEvent .needAnswer
+      let machine := machine.setReaderState nextState
+        |>.setWriterState .waitingHeaders
+        |>.addEvent .needAnswer
+      machine
 
 /--
 This processes the message we are sending.
@@ -502,7 +558,6 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
 
         if remaining = 0 then
           machine.setWriterState .complete |> processWrite
-          |>.addEvent .closeBody
         else
           machine.setWriterState (.writingBody (.fixed remaining))
       else if machine.writer.userClosedBody then
@@ -568,6 +623,81 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
   |>.addEvent (.failed error)
   |>.setError error
 
+/--
+Parse body bytes according to the current body framing state.
+Returns the updated machine, an optional pulled chunk, and whether processing
+should continue immediately.
+-/
+private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
+    Machine dir × Option PulledChunk × Bool :=
+  match bodyState with
+  | .fixed 0 =>
+      let machine := machine
+        |>.setReaderState .complete
+        |>.addEvent .closeBody
+      (machine, mkPulledChunk? machine true false #[] .empty, true)
+
+  | .fixed size =>
+      let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
+      match result with
+      | some (.complete body) =>
+          let machine := machine
+            |>.setReaderState .complete
+            |>.addEvent .closeBody
+          (machine, mkPulledChunk? machine true false #[] body, true)
+      | some (.incomplete body remaining) =>
+          let machine := machine.setReaderState (.readBody (.fixed remaining))
+          (machine, mkPulledChunk? machine false true #[] body, true)
+      | none =>
+          (machine, none, false)
+
+  | .chunkedSize =>
+      let (machine, result) := parseWith machine (parseChunkSize machine.config) (limit := some 128)
+      match result with
+      | some (size, ext) =>
+          (machine.setReaderState (.readBody (.chunkedBody ext size)), none, true)
+      | none =>
+          (machine, none, false)
+
+  | .chunkedBody ext 0 =>
+      let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 2)
+      match result with
+      | some _ =>
+          let machine := machine
+            |>.setReaderState .complete
+            |>.addEvent .closeBody
+          (machine, mkPulledChunk? machine true false ext .empty, true)
+      | none =>
+          (machine, none, false)
+
+  | .chunkedBody ext size =>
+      let (machine, result) := parseWith machine (parseChunkSizedData size) (limit := none) (some size)
+      match result with
+      | some (.complete body) =>
+          let machine := machine.setReaderState (.readBody .chunkedSize)
+          (machine, mkPulledChunk? machine false false ext body, true)
+      | some (.incomplete body remaining) =>
+          let machine := machine.setReaderState (.readBody (.chunkedBody ext remaining))
+          (machine, mkPulledChunk? machine false true ext body, true)
+      | none =>
+          (machine, none, false)
+
+  | .closeDelimited =>
+      if machine.reader.input.atEnd then
+        if machine.reader.noMoreInput then
+          let machine := machine
+            |>.setReaderState Reader.State.complete
+            |>.addEvent .closeBody
+          (machine, mkPulledChunk? machine true false #[] .empty, true)
+        else
+          (machine.addEvent (.needMoreData none), none, false)
+      else
+        let data := machine.reader.input.array[machine.reader.input.pos...machine.reader.input.array.size]
+        let machine := machine
+          |>.modifyReader (fun r => r.advance r.remainingBytes)
+          |>.setReaderState (.readBody .closeDelimited)
+        (machine, mkPulledChunk? machine false false #[] data, true)
+
 /--Process the reader part of the machine. -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
@@ -623,85 +753,15 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       else
         machine
 
-  | .needChunkedSize =>
-      let (machine, result) := parseWith machine (parseChunkSize machine.config) (limit := some 128)
-
-      match result with
-      | some (size, ext) =>
-          machine
-          |>.setReaderState (.needChunkedBody ext size)
-          |> processRead
-      | none =>
-          machine
-
-  | .needChunkedBody ext 0 =>
-    let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 2)
-
-    match result with
-    | some _ =>
-        machine
-        |>.setReaderState .complete
-        |>.addEvent (.gotData true ext .empty)
-        |> processRead
-    | none =>
-        machine
-
-  | .needChunkedBody ext size =>
-      let (machine, result) := parseWith machine
-        (parseChunkSizedData size) (limit := none) (some size)
-
-      if let some body := result then
-        match body with
-        | .complete body =>
-            machine
-            |>.setReaderState .needChunkedSize
-            |>.addEvent (.gotData false ext body)
-            |> processRead
-        | .incomplete body remaining =>
-            machine
-            |>.setReaderState (.needChunkedBody ext remaining)
-            |>.addEvent (.gotData false ext body)
-      else
-        machine
-
-  | .needFixedBody 0 =>
-      machine
-      |>.setReaderState .complete
-      |>.addEvent (.gotData true #[] .empty)
-      |> processRead
-
-  | .needFixedBody size =>
-      let (machine, result) := parseWith machine (parseFixedSizeData size) (limit := none) (some size)
-
-      if let some body := result then
-        match body with
-        | .complete body =>
-            machine
-            |>.setReaderState .complete
-            |>.addEvent (.gotData true #[] body)
-            |> processRead
-        | .incomplete body remaining =>
-            machine
-            |>.setReaderState (.needFixedBody remaining)
-            |>.addEvent (.gotData false #[] body)
-      else
-        machine
-
-  | .needCloseDelimitedBody =>
-      if machine.reader.input.atEnd then
-        if machine.reader.noMoreInput then
-          machine
-          |>.setReaderState Reader.State.complete
-          |>.addEvent (.gotData true #[] .empty)
-          |> processRead
+  | .readBody bodyState =>
+      if shouldIgnoreBodyPull machine then
+        let (machine, _pulledChunk, shouldContinue) := parseBody machine bodyState
+        if shouldContinue then
+          processRead machine
         else
-          machine.addEvent (.needMoreData none)
+          machine
       else
-        let data := machine.reader.input.array[machine.reader.input.pos...machine.reader.input.array.size]
         machine
-        |>.modifyReader (fun r => r.advance r.remainingBytes)
-        |>.addEvent (.gotData false #[] data)
-        |> processRead
 
   | Reader.State.«continue» _ =>
       machine
@@ -726,5 +786,31 @@ def step (machine : Machine dir) : Machine dir × StepResult dir :=
   let (machine, events) := machine.takeEvents
   let (machine, output) := machine.takeOutput
   (machine, { events, output })
+
+private partial def pullNextChunk (machine : Machine dir) : Machine dir × Option PulledChunk :=
+  match machine.reader.state with
+  | .readBody bodyState =>
+      let (machine, pulledChunk, shouldContinue) := parseBody machine bodyState
+      match pulledChunk with
+      | some _ =>
+          (machine, pulledChunk)
+      | none =>
+          if shouldContinue then
+            pullNextChunk machine
+          else
+            (machine, none)
+  | _ =>
+      (machine, none)
+
+/--
+Pulls at most one body chunk from the reader.
+
+It advances body parsing until it either:
+- produces a chunk (`some PulledChunk`), or
+- cannot continue for now (`none`).
+-/
+@[inline]
+def pullBody (machine : Machine dir) : Machine dir × Option PulledChunk :=
+  pullNextChunk machine
 
 end Std.Http.Protocol.H1.Machine

@@ -20,7 +20,7 @@ public section
 # HTTP/1.1 Events
 
 This module defines the events that can occur during HTTP/1.1 message processing,
-including header completion, data arrival, and error conditions.
+including header completion and control/error signals.
 -/
 
 namespace Std.Http.Protocol.H1
@@ -35,11 +35,6 @@ inductive Event (dir : Direction)
   Indicates that all headers have been successfully parsed.
   -/
   | endHeaders (head : Message.Head dir)
-
-  /--
-  Carries a chunk of message body data.
-  -/
-  | gotData (final : Bool) (ext : Array (ExtensionName × Option String)) (data : ByteSlice)
 
   /--
   Signals that additional input data is required to continue processing.
@@ -67,9 +62,9 @@ inductive Event (dir : Direction)
   | needAnswer
 
   /--
-  Indicates that a message body is required.
+  Indicates that there is no more body to pull for the current message.
   -/
-  | needBody
+  | closeBody
 
   /--
   Indicates readiness to process the next message.

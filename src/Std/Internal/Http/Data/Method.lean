@@ -15,7 +15,7 @@ public section
 /-!
 # Method
 
-This module provides the `Method` type, that represents HTTP request methods. It defines the
+This module provides the `Method` type that represents HTTP request methods. It defines the
 standard set of HTTP methods (e.g. `GET`, `POST`, `PUT`, `DELETE`).
 -/
 

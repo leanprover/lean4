@@ -70,7 +70,7 @@ structure PulledChunk where
   chunk : Chunk
 
 /--
-The HTTP 1.1 protocol state machine.
+The HTTP/1.1 protocol state machine.
 -/
 structure Machine (dir : Direction) where
 
@@ -445,7 +445,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     state
   })
 
-/--Put some data inside the input of the machine. -/
+/-- Feeds input bytes into the reader side of the machine. -/
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   if machine.isReaderClosed then
@@ -453,7 +453,7 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   else
     { machine with reader := machine.reader.feed data, pullBodyStalled := false }
 
-/--Signal that reader is not going to receive any more messages. -/
+/-- Signals that the reader will not receive any more input bytes. -/
 @[inline]
 def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })

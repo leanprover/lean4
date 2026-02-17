@@ -52,14 +52,14 @@ inductive Event (dir : Direction)
   | close
 
   /--
+  The body should be closed.
+  -/
+  | closeBody
+
+  /--
   Indicates that a response is required.
   -/
   | needAnswer
-
-  /--
-  Indicates that there is no more body to pull for the current message.
-  -/
-  | closeBody
 
   /--
   Indicates readiness to process the next message.
@@ -67,7 +67,7 @@ inductive Event (dir : Direction)
   | next
 
   /--
-  Indicates that it needs a continue.
+  Signals that an `Expect: 100-continue` decision is pending.
   -/
   | «continue»
 deriving Inhabited, Repr

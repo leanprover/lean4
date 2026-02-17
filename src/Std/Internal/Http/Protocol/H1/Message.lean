@@ -42,7 +42,7 @@ inductive Direction
 deriving BEq
 
 /--
-Inverts the direction of the requests.
+Inverts the message direction.
 -/
 @[expose]
 abbrev Direction.swap : Direction → Direction

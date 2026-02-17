@@ -13,17 +13,20 @@ public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.Chunk
 public import Std.Internal.Http.Data.Body.Basic
 public import Std.Internal.Http.Data.Body.Length
-public import Init.Data.Queue
 public import Init.Data.ByteArray
 
 public section
 
 /-!
-# Body.Stream
+# Body Channels
 
-A `Stream` represents an asynchronous channel for streaming data in chunks. It provides an
-interface for producers and consumers to exchange chunks with optional metadata (extensions),
-making it suitable for HTTP chunked transfer encoding and other streaming scenarios.
+This module defines a zero-buffer rendezvous body channel split into two faces:
+
+- `Body.Outgoing`: producer side (send chunks)
+- `Body.Incoming`: consumer side (receive chunks)
+
+There is no queue and no capacity. A send waits for a receiver and a receive waits for a sender.
+At most one blocked producer and one blocked consumer are supported.
 -/
 
 namespace Std.Http.Body
@@ -31,10 +34,9 @@ open Std Internal IO Async
 
 set_option linter.all true
 
-namespace Stream
+namespace Channel
 
 open Internal.IO.Async in
-
 private inductive Consumer where
   | normal (promise : IO.Promise (Option Chunk))
   | select (finished : Waiter (Option Chunk))
@@ -55,503 +57,669 @@ private structure Producer where
   chunk : Chunk
   promise : IO.Promise Bool
 
+open Internal.IO.Async in
+private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Bool := do
+  let lose := return false
+  let win promise := do
+    promise.resolve (.ok x)
+    return true
+  waiter.race lose win
+
 private structure State where
   /--
-  Chunks pushed into the stream that are waiting to be consumed.
+  A single blocked producer waiting for a receiver
   -/
-  values : Std.Queue Chunk
+  pendingProducer : Option Producer
 
   /--
-  Current number of chunks buffered in the stream.
+  A single blocked consumer waiting for a producer
   -/
-  amount : Nat
+  pendingConsumer : Option Consumer
 
   /--
-  Maximum number of chunks allowed in the buffer. Writers block when amount ≥ capacity.
+  A waiter for `Outgoing.interestSelector`
   -/
-  capacity : Nat
+  interestWaiter : Option (Internal.IO.Async.Waiter Bool)
 
   /--
-  Consumers that are blocked on a producer providing them a chunk. They will be resolved to `none`
-  if the stream closes.
-  -/
-  consumers : Std.Queue Consumer
-
-  /--
-  Producers that are blocked waiting for buffer space to become available.
-  -/
-  producers : Std.Queue Producer
-
-  /--
-  Whether the stream is closed already.
+  Whether the channel is closed
   -/
   closed : Bool
+
   /--
-  Known size of the stream if available.
+  Known size of the stream if available
   -/
   knownSize : Option Body.Length
 deriving Nonempty
 
-end Stream
+end Channel
 
-/--
-A channel for chunks with support for chunk extensions.
--/
-structure Stream where
+/-- Receive-side face of a body channel. -/
+structure Incoming where
   private mk ::
-  private state : Mutex Stream.State
+  private state : Mutex Channel.State
 deriving Nonempty, TypeName
 
-namespace Stream
+/-- Send-side face of a body channel. -/
+structure Outgoing where
+  private mk ::
+  private state : Mutex Channel.State
+deriving Nonempty, TypeName
 
-/--
-Creates a new Stream with a specified capacity.
--/
-def emptyWithCapacity (capacity : Nat := 128) : Async Stream := do
-  return {
-    state := ← Mutex.new {
-      values := ∅
-      consumers := ∅
-      producers := ∅
-      amount := 0
-      capacity
-      closed := false
-      knownSize := none
-    }
+/-- Creates a rendezvous body channel. -/
+def mkChannel : Async (Outgoing × Incoming) := do
+  let state ← Mutex.new {
+    pendingProducer := none
+    pendingConsumer := none
+    interestWaiter := none
+    closed := false
+    knownSize := none
   }
+  return ({ state }, { state })
 
-/--
-Creates a new Stream with default capacity.
--/
-@[always_inline, inline]
-def empty : Async Stream :=
-  emptyWithCapacity
+namespace Channel
 
 private def decreaseKnownSize (knownSize : Option Body.Length) (chunk : Chunk) : Option Body.Length :=
   match knownSize with
   | some (.fixed res) => some (Body.Length.fixed (res - chunk.data.size))
   | _ => knownSize
 
-private def tryWakeProducer [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+private def pruneFinishedWaiters [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Unit := do
   let st ← get
-  -- Try to wake a producer if we have space
-  if st.amount < st.capacity then
-    if let some (producer, producers) := st.producers.dequeue? then
-      let chunk := producer.chunk
-      if st.amount + 1 <= st.capacity then
-        set { st with
-          values := st.values.enqueue chunk,
-          amount := st.amount + 1,
-          producers
-        }
-        producer.promise.resolve true
+
+  let pendingConsumer ←
+    match st.pendingConsumer with
+    | some (.select waiter) =>
+      if ← waiter.checkFinished then
+        pure none
       else
-        set { st with producers := producers.enqueue producer }
+        pure st.pendingConsumer
+    | _ =>
+      pure st.pendingConsumer
+
+  let interestWaiter ←
+    match st.interestWaiter with
+    | some waiter =>
+      if ← waiter.checkFinished then
+        pure none
+      else
+        pure st.interestWaiter
+    | none =>
+      pure none
+
+  set { st with pendingConsumer, interestWaiter }
+
+private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT State m Unit := do
+  let st ← get
+  if let some waiter := st.interestWaiter then
+    discard <| resolveInterestWaiter waiter true
+    set { st with interestWaiter := none }
+
+private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT State m Bool := do
+  let st ← get
+  return st.pendingProducer.isSome || st.closed
+
+private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
+    AtomicT State m Bool := do
+  let st ← get
+  return st.pendingConsumer.isSome
 
 private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m (Option Chunk) := do
   let st ← get
-  if let some (chunk, values) := st.values.dequeue? then
-    let newKnownSize := decreaseKnownSize st.knownSize chunk
-    let newAmount := st.amount - 1
-    set { st with values, knownSize := newKnownSize, amount := newAmount }
-    tryWakeProducer
-    return some chunk
+  if let some producer := st.pendingProducer then
+    producer.promise.resolve true
+    set {
+      st with
+      pendingProducer := none
+      knownSize := decreaseKnownSize st.knownSize producer.chunk
+    }
+    return some producer.chunk
   else
     return none
 
+private def close' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
+    AtomicT State m Unit := do
+  let st ← get
+  if st.closed then
+    return ()
+
+  if let some consumer := st.pendingConsumer then
+    discard <| consumer.resolve none
+
+  if let some producer := st.pendingProducer then
+    producer.promise.resolve false
+
+  if let some waiter := st.interestWaiter then
+    discard <| resolveInterestWaiter waiter false
+
+  set {
+    st with
+    pendingProducer := none
+    pendingConsumer := none
+    interestWaiter := none
+    closed := true
+  }
+
+end Channel
+
+namespace Incoming
+
 /--
-Attempts to receive a chunk from the stream. Returns `some` with a chunk when data is available, or `none`
-when the stream is closed or no data is available.
+Attempts to receive a chunk from the channel without blocking.
+Returns `some chunk` only when a producer is already waiting.
 -/
-def tryRecv (stream : Stream) : Async (Option Chunk) :=
-  stream.state.atomically do
-    tryRecv'
+def tryRecv (incoming : Incoming) : Async (Option Chunk) :=
+  incoming.state.atomically do
+    Channel.pruneFinishedWaiters
+    Channel.tryRecv'
 
-private def recv' (stream : Stream) : BaseIO (Task (Option Chunk)) := do
-  stream.state.atomically do
-    if let some chunk ← tryRecv' then
-      return .pure <| some chunk
-    else if (← get).closed then
-      return .pure none
-    else
-      let promise ← IO.Promise.new
-      modify fun st => { st with consumers := st.consumers.enqueue (.normal promise) }
-      return promise.result?.map (sync := true) (·.bind id)
+private def recv' (incoming : Incoming) : BaseIO (AsyncTask (Option Chunk)) := do
+  incoming.state.atomically do
+    Channel.pruneFinishedWaiters
 
-/--
-Receives a chunk from the stream. Blocks if no data is available yet. Returns `none` if the stream
-is closed and no data is available. The amount parameter is ignored for chunk streams.
--/
-def recv (stream : Stream) (_count : Option UInt64) : Async (Option Chunk) := do
-  Async.ofTask (← recv' stream)
+    if let some chunk ← Channel.tryRecv' then
+      return AsyncTask.pure (some chunk)
 
-private def trySend' (chunk : Chunk) : AtomicT State BaseIO Bool := do
-  while true do
     let st ← get
-    if let some (consumer, consumers) := st.consumers.dequeue? then
-      let newKnownSize := decreaseKnownSize st.knownSize chunk
-      let success ← consumer.resolve (some chunk)
-      set { st with consumers, knownSize := newKnownSize }
-      if success then
-        break
-    else
-      if st.amount + 1 <= st.capacity then
-        set { st with
-          values := st.values.enqueue chunk,
-          amount := st.amount + 1
-        }
-        return true
-      else
-        return false
-  return true
+    if st.closed then
+      return AsyncTask.pure none
 
-private def trySend (stream : Stream) (chunk : Chunk) : BaseIO Bool := do
-  stream.state.atomically do
-    if (← get).closed then
-      return false
-    else
-      trySend' chunk
+    if st.pendingConsumer.isSome then
+      return Task.pure (.error (IO.Error.userError "only one blocked consumer is allowed"))
 
-private def send' (stream : Stream) (chunk : Chunk) : BaseIO (Task (Except IO.Error Unit)) := do
-  stream.state.atomically do
-    if (← get).closed then
-      return .pure <| .error (.userError "channel closed")
-    else if ← trySend' chunk then
-      return .pure <| .ok ()
-    else
-      let promise ← IO.Promise.new
-      let producer : Producer := { chunk, promise }
-      modify fun st => { st with producers := st.producers.enqueue producer }
-      return promise.result?.map (sync := true) fun res =>
-        if res.getD false then .ok () else .error (.userError "channel closed")
+    let promise ← IO.Promise.new
+    set { st with pendingConsumer := some (.normal promise) }
+    Channel.signalInterest
+    return promise.result?.map (sync := true) fun
+      | none => .error (IO.Error.userError "the promise linked to the consumer was dropped")
+      | some res => .ok res
 
 /--
-Sends a chunk to the stream. Blocks if the buffer is full.
+Receives a chunk from the channel. Blocks until a producer sends one.
+Returns `none` if the channel is closed and no producer is waiting.
 -/
-def send (stream : Stream) (chunk : Chunk) : Async Unit := do
-  if chunk.data.isEmpty then
-    return
-
-  let res : AsyncTask _ ← send' stream chunk
-  await res
+def recv (incoming : Incoming) (_count : Option UInt64) : Async (Option Chunk) :=
+  do Async.ofAsyncTask (← recv' incoming)
 
 /--
-Gets the known size of the stream if available. Returns `none` if the size is not known.
+Closes the channel.
+-/
+def close (incoming : Incoming) : Async Unit :=
+  incoming.state.atomically do
+    Channel.close'
+
+/--
+Checks whether the channel is closed.
 -/
 @[always_inline, inline]
-def getKnownSize (stream : Stream) : Async (Option Body.Length) := do
-  stream.state.atomically do
+def isClosed (incoming : Incoming) : Async Bool :=
+  incoming.state.atomically do
+    return (← get).closed
+
+/--
+Gets the known size if available.
+-/
+@[always_inline, inline]
+def getKnownSize (incoming : Incoming) : Async (Option Body.Length) :=
+  incoming.state.atomically do
     return (← get).knownSize
 
 /--
-Sets the known size of the stream. Use this when the total expected size is known ahead of time.
+Sets known size metadata.
 -/
 @[always_inline, inline]
-def setKnownSize (stream : Stream) (size : Option Body.Length) : Async Unit := do
-  stream.state.atomically do
+def setKnownSize (incoming : Incoming) (size : Option Body.Length) : Async Unit :=
+  incoming.state.atomically do
     modify fun st => { st with knownSize := size }
 
-/--
-Closes the stream, preventing further sends and causing pending/future
-recv operations to return `none` when no data is available.
--/
-def close (stream : Stream) : Async Unit := do
-  stream.state.atomically do
-    let st ← get
-    if st.closed then return ()
-    for consumer in st.consumers.toArray do
-      discard <| consumer.resolve none
-    for producer in st.producers.toArray do
-      producer.promise.resolve false
-    set { st with consumers := ∅, producers := ∅, closed := true }
-
-/--
-Checks if the stream is closed.
--/
-@[always_inline, inline]
-def isClosed (stream : Stream) : Async Bool := do
-  stream.state.atomically do
-    return (← get).closed
-
-@[inline]
-private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
-    AtomicT State m Bool := do
-  let st ← get
-  return !st.values.isEmpty || st.closed
-
 open Internal.IO.Async in
-
 /--
-Creates a `Selector` that resolves once the `Stream` has data available and provides that data.
+Creates a selector that resolves when a producer is waiting (or the channel closes).
 -/
-def recvSelector (stream : Stream) : Selector (Option Chunk) where
+def recvSelector (incoming : Incoming) : Selector (Option Chunk) where
   tryFn := do
-    stream.state.atomically do
-      if ← recvReady' then
-        let val ← tryRecv'
-        return some val
+    incoming.state.atomically do
+      Channel.pruneFinishedWaiters
+      if ← Channel.recvReady' then
+        return some (← Channel.tryRecv')
       else
         return none
 
   registerFn waiter := do
-    stream.state.atomically do
-      if ← recvReady' then
+    incoming.state.atomically do
+      Channel.pruneFinishedWaiters
+      if ← Channel.recvReady' then
         let lose := return ()
         let win promise := do
-          promise.resolve (.ok (← tryRecv'))
-
+          promise.resolve (.ok (← Channel.tryRecv'))
         waiter.race lose win
       else
-        modify fun st => { st with consumers := st.consumers.enqueue (.select waiter) }
+        let st ← get
+        if st.pendingConsumer.isSome then
+          throw (.userError "only one blocked consumer is allowed")
+
+        set { st with pendingConsumer := some (.select waiter) }
+        Channel.signalInterest
 
   unregisterFn := do
-    stream.state.atomically do
-      let st ← get
-      let consumers ← st.consumers.filterM
-        fun
-          | .normal .. => return true
-          | .select waiter => return !(← waiter.checkFinished)
-      set { st with consumers }
+    incoming.state.atomically do
+      Channel.pruneFinishedWaiters
 
 /--
-Sends data to the stream and writes a chunk to it.
--/
-def writeChunk (stream : Stream) (chunk : Chunk) : Async Unit :=
-  stream.send chunk
-
-/--
-Iterate over the stream content in chunks, processing each chunk with the given step function.
+Iterates over chunks until the channel closes.
 -/
 @[inline]
 protected partial def forIn
-    {β : Type} (stream : Stream) (acc : β)
+    {β : Type} (incoming : Incoming) (acc : β)
     (step : Chunk → β → Async (ForInStep β)) : Async β := do
 
-  let rec @[specialize] loop (stream : Stream) (acc : β) : Async β := do
-    if let some chunk ← stream.recv none then
+  let rec @[specialize] loop (incoming : Incoming) (acc : β) : Async β := do
+    if let some chunk ← incoming.recv none then
       match ← step chunk acc with
       | .done res => return res
-      | .yield res => loop stream res
+      | .yield res => loop incoming res
     else
       return acc
 
-  loop stream acc
+  loop incoming acc
 
 /--
-Iterate over the stream content in chunks, processing each chunk with the given step function.
+Context-aware iteration over chunks until the channel closes.
 -/
 @[inline]
 protected partial def forIn'
-    {β : Type} (stream : Stream) (acc : β)
+    {β : Type} (incoming : Incoming) (acc : β)
     (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β := do
 
-  let rec @[specialize] loop (stream : Stream) (acc : β) : ContextAsync β := do
+  let rec @[specialize] loop (incoming : Incoming) (acc : β) : ContextAsync β := do
     let data ← Selectable.one #[
-      .case (stream.recvSelector) pure,
+      .case incoming.recvSelector pure,
       .case (← ContextAsync.doneSelector) (fun _ => pure none),
     ]
 
     if let some chunk := data then
       match ← step chunk acc with
       | .done res => return res
-      | .yield res => loop stream res
+      | .yield res => loop incoming res
     else
       return acc
 
-  loop stream acc
-
-instance : ForIn Async Stream Chunk where
-  forIn := Std.Http.Body.Stream.forIn
-
-instance : ForIn ContextAsync Stream Chunk where
-  forIn := Std.Http.Body.Stream.forIn'
+  loop incoming acc
 
 /--
-Reads all remaining chunks from the stream and returns the concatenated data as a `ByteArray`.
-Blocks until the stream is closed. If `maximumSize` is provided, throws an `IO.Error` if the
-total data exceeds that limit.
+Reads all remaining chunks and decodes them into `α`.
 -/
-partial def readAll [FromByteArray α] (stream : Stream) (maximumSize : Option UInt64 := none) : ContextAsync α := do
-  let mut result := ByteArray.empty
+partial def readAll
+    [FromByteArray α]
+    (incoming : Incoming)
+    (maximumSize : Option UInt64 := none) :
+    ContextAsync α := do
+  let rec loop (result : ByteArray) : ContextAsync ByteArray := do
+    let data ← Selectable.one #[
+      .case incoming.recvSelector pure,
+      .case (← ContextAsync.doneSelector) (fun _ => pure none),
+    ]
 
-  for chunk in stream do
-    result := result ++ chunk.data
-    if let some max := maximumSize then
-      if result.size.toUInt64 > max then
-        throw (.userError s!"body exceeded maximum size of {max} bytes")
+    match data with
+    | none => return result
+    | some chunk =>
+      let result := result ++ chunk.data
+      if let some max := maximumSize then
+        if result.size.toUInt64 > max then
+          throw (.userError s!"body exceeded maximum size of {max} bytes")
+      loop result
+
+  let result ← loop ByteArray.empty
 
   match FromByteArray.fromByteArray result with
   | .ok a => return a
   | .error msg => throw (.userError msg)
 
-end Std.Http.Body.Stream
+end Incoming
+
+namespace Outgoing
+
+private def send' (outgoing : Outgoing) (chunk : Chunk) : BaseIO (AsyncTask Unit) := do
+  outgoing.state.atomically do
+    Channel.pruneFinishedWaiters
+    while true do
+      let st ← get
+
+      if st.closed then
+        return Task.pure (.error (IO.Error.userError "channel closed"))
+
+      if let some consumer := st.pendingConsumer then
+        let success ← consumer.resolve (some chunk)
+        if success then
+          set {
+            st with
+            pendingConsumer := none
+            knownSize := Channel.decreaseKnownSize st.knownSize chunk
+          }
+          return AsyncTask.pure ()
+        else
+          set { st with pendingConsumer := none }
+      else
+        if st.pendingProducer.isSome then
+          return Task.pure (.error (IO.Error.userError "only one blocked producer is allowed"))
+
+        let promise ← IO.Promise.new
+        set { st with pendingProducer := some { chunk, promise } }
+        return promise.result?.map (sync := true) fun
+          | none => .error (IO.Error.userError "the promise linked to the producer was dropped")
+          | some true => .ok ()
+          | some false => .error (IO.Error.userError "channel closed")
+    return Task.pure (.error (IO.Error.userError "unreachable"))
+
+/--
+Sends a chunk. Blocks until a receiver is waiting.
+-/
+def send (outgoing : Outgoing) (chunk : Chunk) : Async Unit := do
+  if chunk.data.isEmpty then
+    return
+
+  let res ← send' outgoing chunk
+  await res
+
+/-- Alias for `send`. -/
+def writeChunk (outgoing : Outgoing) (chunk : Chunk) : Async Unit :=
+  outgoing.send chunk
+
+/-- Closes the channel. -/
+def close (outgoing : Outgoing) : Async Unit :=
+  outgoing.state.atomically do
+    Channel.close'
+
+/-- Checks whether the channel is closed. -/
+@[always_inline, inline]
+def isClosed (outgoing : Outgoing) : Async Bool :=
+  outgoing.state.atomically do
+    return (← get).closed
+
+/-- Returns true when a consumer is currently blocked waiting for data. -/
+def hasInterest (outgoing : Outgoing) : Async Bool :=
+  outgoing.state.atomically do
+    Channel.pruneFinishedWaiters
+    Channel.hasInterest'
+
+/-- Gets the known size if available. -/
+@[always_inline, inline]
+def getKnownSize (outgoing : Outgoing) : Async (Option Body.Length) :=
+  outgoing.state.atomically do
+    return (← get).knownSize
+
+/-- Sets known size metadata. -/
+@[always_inline, inline]
+def setKnownSize (outgoing : Outgoing) (size : Option Body.Length) : Async Unit :=
+  outgoing.state.atomically do
+    modify fun st => { st with knownSize := size }
+
+open Internal.IO.Async in
+/--
+Creates a selector that resolves when consumer interest is present.
+Returns `true` when a consumer is waiting, `false` when the channel closes first.
+-/
+def interestSelector (outgoing : Outgoing) : Selector Bool where
+  tryFn := do
+    outgoing.state.atomically do
+      Channel.pruneFinishedWaiters
+      let st ← get
+      if st.pendingConsumer.isSome then
+        return some true
+      else if st.closed then
+        return some false
+      else
+        return none
+
+  registerFn waiter := do
+    outgoing.state.atomically do
+      Channel.pruneFinishedWaiters
+      let st ← get
+
+      if st.pendingConsumer.isSome then
+        let lose := return ()
+        let win promise := do
+          promise.resolve (.ok true)
+        waiter.race lose win
+      else if st.closed then
+        let lose := return ()
+        let win promise := do
+          promise.resolve (.ok false)
+        waiter.race lose win
+      else if st.interestWaiter.isSome then
+        throw (.userError "only one blocked interest selector is allowed")
+      else
+        set { st with interestWaiter := some waiter }
+
+  unregisterFn := do
+    outgoing.state.atomically do
+      Channel.pruneFinishedWaiters
+
+end Outgoing
+
+/--
+Creates an incoming body from a producer function.
+This is one of the high-level body constructors intended for builders.
+-/
+def stream (gen : Outgoing → Async Unit) : Async Incoming := do
+  let (outgoing, incoming) ← mkChannel
+  background (gen outgoing)
+  return incoming
+
+/--
+Creates an incoming body from a fixed byte array.
+This is one of the high-level body constructors intended for builders.
+-/
+def fromBytes (content : ByteArray) : Async Incoming := do
+  let (outgoing, incoming) ← mkChannel
+  outgoing.setKnownSize (some (.fixed content.size))
+  background do
+    outgoing.send (Chunk.ofByteArray content)
+    outgoing.close
+  return incoming
+
+/--
+Creates an empty incoming body.
+This is one of the high-level body constructors intended for builders.
+-/
+def empty : Async Incoming := do
+  let (outgoing, incoming) ← mkChannel
+  outgoing.setKnownSize (some (.fixed 0))
+  outgoing.close
+  return incoming
+
+instance : ForIn Async Incoming Chunk where
+  forIn := Incoming.forIn
+
+instance : ForIn ContextAsync Incoming Chunk where
+  forIn := Incoming.forIn'
+
+end Std.Http.Body
 
 namespace Std.Http.Request.Builder
 open Internal.IO.Async
 
+private def withContentLength
+    (builder : Request.Builder)
+    (size : Nat) :
+    Request.Builder :=
+  Request.Builder.header builder Header.Name.contentLength (Header.Value.ofString! (toString size))
+
 /--
-Builds a request with a streaming body. The generator function receives the `Stream` and
-can write chunks to it asynchronously.
+Builds a request with a streaming body generator.
 -/
-def stream (builder : Builder) (gen : Body.Stream → Async Unit) : Async (Request Body.Stream) := do
-  let body ← Body.Stream.empty
-  background (gen body)
-  return { head := builder.head, body }
+def stream
+    (builder : Request.Builder)
+    (gen : Body.Outgoing → Async Unit) :
+    Async (Request Body.Incoming) := do
+  let incoming ← Body.stream gen
+  return Request.Builder.body builder incoming
+
+private def emptyBody (builder : Request.Builder) : Async (Request Body.Incoming) := do
+  let incoming ← Body.empty
+  let builder := withContentLength builder 0
+  return Request.Builder.body builder incoming
 
 /--
 Builds a request with an empty body.
 -/
-def blank (builder : Builder) : Async (Request Body.Stream) := do
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed 0))
-  body.close
-  return { head := builder.head, body }
+def blank (builder : Request.Builder) : Async (Request Body.Incoming) :=
+  emptyBody builder
+
+private def fromBytesCore
+    (builder : Request.Builder)
+    (content : ByteArray) :
+    Async (Request Body.Incoming) := do
+  let incoming ← Body.fromBytes content
+  let builder := withContentLength builder content.size
+  return Request.Builder.body builder incoming
 
 /--
-Builds a request with a text body. Sets Content-Type to text/plain and Content-Length automatically.
+Builds a request from raw bytes.
 -/
-def text (builder : Builder) (content : String) : Async (Request Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "text/plain; charset=utf-8")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def fromBytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Incoming) :=
+  fromBytesCore builder content
 
 /--
-Builds a request with a binary body. Sets Content-Type to application/octet-stream and Content-Length automatically.
+Builds a request with a binary body.
 -/
-def bytes (builder : Builder) (content : ByteArray) : Async (Request Body.Stream) := do
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed content.size))
-  body.send (Chunk.ofByteArray content)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "application/octet-stream")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString content.size))
-  return { head := { builder.head with headers }, body }
+def bytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Incoming) := do
+  let builder := Request.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "application/octet-stream")
+  fromBytesCore builder content
 
 /--
-Builds a request with a JSON body. Sets Content-Type to application/json and Content-Length automatically.
+Builds a request with a text body.
 -/
-def json (builder : Builder) (content : String) : Async (Request Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "application/json")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def text (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+  let builder := Request.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "text/plain; charset=utf-8")
+  fromBytesCore builder content.toUTF8
 
 /--
-Builds a request with an HTML body. Sets Content-Type to text/html and Content-Length automatically.
+Builds a request with a JSON body.
 -/
-def html (builder : Builder) (content : String) : Async (Request Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "text/html; charset=utf-8")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def json (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+  let builder := Request.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "application/json")
+  fromBytesCore builder content.toUTF8
 
 /--
-Builds a request with an empty body (alias for blank).
+Builds a request with an HTML body.
 -/
-def noBody (builder : Builder) : Async (Request Body.Stream) :=
-  builder.blank
+def html (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+  let builder := Request.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "text/html; charset=utf-8")
+  fromBytesCore builder content.toUTF8
+
+/--
+Builds a request with no body.
+-/
+def noBody (builder : Request.Builder) : Async (Request Body.Incoming) :=
+  Request.Builder.blank builder
 
 end Std.Http.Request.Builder
 
 namespace Std.Http.Response.Builder
 open Internal.IO.Async
 
+private def withContentLength
+    (builder : Response.Builder)
+    (size : Nat) :
+    Response.Builder :=
+  Response.Builder.header builder Header.Name.contentLength (Header.Value.ofString! (toString size))
+
 /--
-Builds a response with a streaming body. The generator function receives the `Stream` and
-can write chunks to it asynchronously.
+Builds a response with a streaming body generator.
 -/
-def stream (builder : Builder) (gen : Body.Stream → Async Unit) : Async (Response Body.Stream) := do
-  let body ← Body.Stream.empty
-  background (gen body)
-  return { head := builder.head, body }
+def stream
+    (builder : Response.Builder)
+    (gen : Body.Outgoing → Async Unit) :
+    Async (Response Body.Incoming) := do
+  let incoming ← Body.stream gen
+  return Response.Builder.body builder incoming
+
+private def emptyBody (builder : Response.Builder) : Async (Response Body.Incoming) := do
+  let incoming ← Body.empty
+  let builder := withContentLength builder 0
+  return Response.Builder.body builder incoming
 
 /--
 Builds a response with an empty body.
 -/
-def blank (builder : Builder) : Async (Response Body.Stream) := do
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed 0))
-  body.close
-  return { head := builder.head, body }
+def blank (builder : Response.Builder) : Async (Response Body.Incoming) :=
+  emptyBody builder
+
+private def fromBytesCore
+    (builder : Response.Builder)
+    (content : ByteArray) :
+    Async (Response Body.Incoming) := do
+  let incoming ← Body.fromBytes content
+  let builder := withContentLength builder content.size
+  return Response.Builder.body builder incoming
 
 /--
-Builds a response with a text body. Sets Content-Type to text/plain and Content-Length automatically.
+Builds a response from raw bytes.
 -/
-def text (builder : Builder) (content : String) : Async (Response Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "text/plain; charset=utf-8")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def fromBytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Incoming) :=
+  fromBytesCore builder content
 
 /--
-Builds a response with a binary body. Sets Content-Type to application/octet-stream and Content-Length automatically.
+Builds a response with a binary body.
 -/
-def bytes (builder : Builder) (content : ByteArray) : Async (Response Body.Stream) := do
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed content.size))
-  body.send (Chunk.ofByteArray content)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "application/octet-stream")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString content.size))
-  return { head := { builder.head with headers }, body }
+def bytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Incoming) := do
+  let builder := Response.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "application/octet-stream")
+  fromBytesCore builder content
 
 /--
-Builds a response with a JSON body. Sets Content-Type to application/json and Content-Length automatically.
+Builds a response with a text body.
 -/
-def json (builder : Builder) (content : String) : Async (Response Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "application/json")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def text (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+  let builder := Response.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "text/plain; charset=utf-8")
+  fromBytesCore builder content.toUTF8
 
 /--
-Builds a response with an HTML body. Sets Content-Type to text/html and Content-Length automatically.
+Builds a response with a JSON body.
 -/
-def html (builder : Builder) (content : String) : Async (Response Body.Stream) := do
-  let bytes := content.toUTF8
-  let body ← Body.Stream.empty
-  body.setKnownSize (some (.fixed bytes.size))
-  body.send (Chunk.ofByteArray bytes)
-  body.close
-  let headers := builder.head.headers
-    |>.insert Header.Name.contentType (Header.Value.ofString! "text/html; charset=utf-8")
-    |>.insert Header.Name.contentLength (Header.Value.ofString! (toString bytes.size))
-  return { head := { builder.head with headers }, body }
+def json (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+  let builder := Response.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "application/json")
+  fromBytesCore builder content.toUTF8
 
 /--
-Builds a response with an empty body (alias for blank).
+Builds a response with an HTML body.
 -/
-def noBody (builder : Builder) : Async (Response Body.Stream) :=
-  builder.blank
+def html (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+  let builder := Response.Builder.header
+    builder
+    Header.Name.contentType
+    (Header.Value.ofString! "text/html; charset=utf-8")
+  fromBytesCore builder content.toUTF8
+
+/--
+Builds a response with no body.
+-/
+def noBody (builder : Response.Builder) : Async (Response Body.Incoming) :=
+  Response.Builder.blank builder
 
 end Std.Http.Response.Builder

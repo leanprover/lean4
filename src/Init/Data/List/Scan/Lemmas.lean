@@ -277,10 +277,6 @@ theorem head_scanr {f : α → β → β} (h : scanr f b l ≠ []) :
     (scanr f b l).head h = foldr f b l := by
   simp [scanr_eq_scanl_reverse, - scanl_reverse, getLast_scanl, flip]
 
-@[simp]
-theorem head?_scanr {f : β → α → β} : (scanl f b l).head? = some b := by
-  simp [head?_eq_getElem?]
-
 @[grind =]
 theorem getLast_scanr {f : α → β → β} (h : scanr f b l ≠ []) :
     (scanr f b l).getLast h = b := by
@@ -319,6 +315,10 @@ theorem getElem?_scanr {f : α → β → β} :
   · rw [getElem?_pos _ _ (by simpa), getElem_scanr]
   · rename_i h
     simpa [getElem?_neg, length_scanr] using h
+
+@[simp]
+theorem head?_scanr {f : α → β → β} : (scanr f b l).head? = some (foldr f b l) := by
+  simp [head?_eq_getElem?]
 
 theorem getElem_scanr_zero {f : α → β → β} : (scanr f b l)[0] = foldr f b l := by
   simp

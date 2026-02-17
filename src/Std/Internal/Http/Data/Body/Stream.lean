@@ -25,6 +25,9 @@ This module defines a zero-buffer rendezvous body channel split into two faces:
 - `Body.Outgoing`: producer side (send chunks)
 - `Body.Incoming`: consumer side (receive chunks)
 
+Response/request builders produce `Body.Outgoing` because they only write body data.
+Consumers and handlers receive `Body.Incoming` because they only read body data.
+
 There is no queue and no capacity. A send waits for a receiver and a receive waits for a sender.
 At most one blocked producer and one blocked consumer are supported.
 -/
@@ -105,6 +108,22 @@ structure Outgoing where
   private mk ::
   private state : Mutex Channel.State
 deriving Nonempty, TypeName
+
+/- Internal conversions between channel faces.
+Use these only in HTTP internals where body direction must be adapted. -/
+namespace Internal
+
+/-- Reinterprets the receive-side handle as a send-side handle over the same channel. -/
+@[always_inline, inline]
+def incomingToOutgoing (incoming : Incoming) : Outgoing :=
+  { state := incoming.state }
+
+/-- Reinterprets the send-side handle as a receive-side handle over the same channel. -/
+@[always_inline, inline]
+def outgoingToIncoming (outgoing : Outgoing) : Incoming :=
+  { state := outgoing.state }
+
+end Internal
 
 /-- Creates a rendezvous body channel. -/
 def mkChannel : Async (Outgoing × Incoming) := do
@@ -425,34 +444,46 @@ def send (outgoing : Outgoing) (chunk : Chunk) : Async Unit := do
   let res ← send' outgoing chunk
   await res
 
-/-- Alias for `send`. -/
+/--
+Alias for `send`.
+-/
 def writeChunk (outgoing : Outgoing) (chunk : Chunk) : Async Unit :=
   outgoing.send chunk
 
-/-- Closes the channel. -/
+/--
+Closes the channel.
+-/
 def close (outgoing : Outgoing) : Async Unit :=
   outgoing.state.atomically do
     Channel.close'
 
-/-- Checks whether the channel is closed. -/
+/--
+Checks whether the channel is closed.
+-/
 @[always_inline, inline]
 def isClosed (outgoing : Outgoing) : Async Bool :=
   outgoing.state.atomically do
     return (← get).closed
 
-/-- Returns true when a consumer is currently blocked waiting for data. -/
+/--
+Returns true when a consumer is currently blocked waiting for data.
+-/
 def hasInterest (outgoing : Outgoing) : Async Bool :=
   outgoing.state.atomically do
     Channel.pruneFinishedWaiters
     Channel.hasInterest'
 
-/-- Gets the known size if available. -/
+/--
+Gets the known size if available.
+-/
 @[always_inline, inline]
 def getKnownSize (outgoing : Outgoing) : Async (Option Body.Length) :=
   outgoing.state.atomically do
     return (← get).knownSize
 
-/-- Sets known size metadata. -/
+/--
+Sets known size metadata.
+-/
 @[always_inline, inline]
 def setKnownSize (outgoing : Outgoing) (size : Option Body.Length) : Async Unit :=
   outgoing.state.atomically do
@@ -502,8 +533,8 @@ def interestSelector (outgoing : Outgoing) : Selector Bool where
 end Outgoing
 
 /--
-Creates an incoming body from a producer function.
-This is one of the high-level body constructors intended for builders.
+Creates a body from a producer function.
+Returns the receive-side handle; the producer writes via `Outgoing`.
 -/
 def stream (gen : Outgoing → Async Unit) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
@@ -511,8 +542,7 @@ def stream (gen : Outgoing → Async Unit) : Async Incoming := do
   return incoming
 
 /--
-Creates an incoming body from a fixed byte array.
-This is one of the high-level body constructors intended for builders.
+Creates a body from a fixed byte array.
 -/
 def fromBytes (content : ByteArray) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
@@ -523,8 +553,7 @@ def fromBytes (content : ByteArray) : Async Incoming := do
   return incoming
 
 /--
-Creates an empty incoming body.
-This is one of the high-level body constructors intended for builders.
+Creates an empty body.
 -/
 def empty : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
@@ -555,39 +584,39 @@ Builds a request with a streaming body generator.
 def stream
     (builder : Request.Builder)
     (gen : Body.Outgoing → Async Unit) :
-    Async (Request Body.Incoming) := do
+    Async (Request Body.Outgoing) := do
   let incoming ← Body.stream gen
-  return Request.Builder.body builder incoming
+  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
-private def emptyBody (builder : Request.Builder) : Async (Request Body.Incoming) := do
+private def emptyBody (builder : Request.Builder) : Async (Request Body.Outgoing) := do
   let incoming ← Body.empty
   let builder := withContentLength builder 0
-  return Request.Builder.body builder incoming
+  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
 /--
 Builds a request with an empty body.
 -/
-def blank (builder : Request.Builder) : Async (Request Body.Incoming) :=
+def blank (builder : Request.Builder) : Async (Request Body.Outgoing) :=
   emptyBody builder
 
 private def fromBytesCore
     (builder : Request.Builder)
     (content : ByteArray) :
-    Async (Request Body.Incoming) := do
+    Async (Request Body.Outgoing) := do
   let incoming ← Body.fromBytes content
   let builder := withContentLength builder content.size
-  return Request.Builder.body builder incoming
+  return Request.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
 /--
 Builds a request from raw bytes.
 -/
-def fromBytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Incoming) :=
+def fromBytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Outgoing) :=
   fromBytesCore builder content
 
 /--
 Builds a request with a binary body.
 -/
-def bytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Incoming) := do
+def bytes (builder : Request.Builder) (content : ByteArray) : Async (Request Body.Outgoing) := do
   let builder := Request.Builder.header
     builder
     Header.Name.contentType
@@ -597,7 +626,7 @@ def bytes (builder : Request.Builder) (content : ByteArray) : Async (Request Bod
 /--
 Builds a request with a text body.
 -/
-def text (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+def text (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
   let builder := Request.Builder.header
     builder
     Header.Name.contentType
@@ -607,7 +636,7 @@ def text (builder : Request.Builder) (content : String) : Async (Request Body.In
 /--
 Builds a request with a JSON body.
 -/
-def json (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+def json (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
   let builder := Request.Builder.header
     builder
     Header.Name.contentType
@@ -617,7 +646,7 @@ def json (builder : Request.Builder) (content : String) : Async (Request Body.In
 /--
 Builds a request with an HTML body.
 -/
-def html (builder : Request.Builder) (content : String) : Async (Request Body.Incoming) := do
+def html (builder : Request.Builder) (content : String) : Async (Request Body.Outgoing) := do
   let builder := Request.Builder.header
     builder
     Header.Name.contentType
@@ -627,7 +656,7 @@ def html (builder : Request.Builder) (content : String) : Async (Request Body.In
 /--
 Builds a request with no body.
 -/
-def noBody (builder : Request.Builder) : Async (Request Body.Incoming) :=
+def noBody (builder : Request.Builder) : Async (Request Body.Outgoing) :=
   Request.Builder.blank builder
 
 end Std.Http.Request.Builder
@@ -647,39 +676,39 @@ Builds a response with a streaming body generator.
 def stream
     (builder : Response.Builder)
     (gen : Body.Outgoing → Async Unit) :
-    Async (Response Body.Incoming) := do
+    Async (Response Body.Outgoing) := do
   let incoming ← Body.stream gen
-  return Response.Builder.body builder incoming
+  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
-private def emptyBody (builder : Response.Builder) : Async (Response Body.Incoming) := do
+private def emptyBody (builder : Response.Builder) : Async (Response Body.Outgoing) := do
   let incoming ← Body.empty
   let builder := withContentLength builder 0
-  return Response.Builder.body builder incoming
+  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
 /--
 Builds a response with an empty body.
 -/
-def blank (builder : Response.Builder) : Async (Response Body.Incoming) :=
+def blank (builder : Response.Builder) : Async (Response Body.Outgoing) :=
   emptyBody builder
 
 private def fromBytesCore
     (builder : Response.Builder)
     (content : ByteArray) :
-    Async (Response Body.Incoming) := do
+    Async (Response Body.Outgoing) := do
   let incoming ← Body.fromBytes content
   let builder := withContentLength builder content.size
-  return Response.Builder.body builder incoming
+  return Response.Builder.body builder (Body.Internal.incomingToOutgoing incoming)
 
 /--
 Builds a response from raw bytes.
 -/
-def fromBytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Incoming) :=
+def fromBytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Outgoing) :=
   fromBytesCore builder content
 
 /--
 Builds a response with a binary body.
 -/
-def bytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Incoming) := do
+def bytes (builder : Response.Builder) (content : ByteArray) : Async (Response Body.Outgoing) := do
   let builder := Response.Builder.header
     builder
     Header.Name.contentType
@@ -689,7 +718,7 @@ def bytes (builder : Response.Builder) (content : ByteArray) : Async (Response B
 /--
 Builds a response with a text body.
 -/
-def text (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+def text (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
   let builder := Response.Builder.header
     builder
     Header.Name.contentType
@@ -699,7 +728,7 @@ def text (builder : Response.Builder) (content : String) : Async (Response Body.
 /--
 Builds a response with a JSON body.
 -/
-def json (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+def json (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
   let builder := Response.Builder.header
     builder
     Header.Name.contentType
@@ -709,7 +738,7 @@ def json (builder : Response.Builder) (content : String) : Async (Response Body.
 /--
 Builds a response with an HTML body.
 -/
-def html (builder : Response.Builder) (content : String) : Async (Response Body.Incoming) := do
+def html (builder : Response.Builder) (content : String) : Async (Response Body.Outgoing) := do
   let builder := Response.Builder.header
     builder
     Header.Name.contentType
@@ -719,7 +748,7 @@ def html (builder : Response.Builder) (content : String) : Async (Response Body.
 /--
 Builds a response with no body.
 -/
-def noBody (builder : Response.Builder) : Async (Response Body.Incoming) :=
+def noBody (builder : Response.Builder) : Async (Response Body.Outgoing) :=
   Response.Builder.blank builder
 
 end Std.Http.Response.Builder

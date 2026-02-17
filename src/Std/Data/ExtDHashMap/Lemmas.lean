@@ -1507,7 +1507,7 @@ theorem insertMany_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l : List (α
     insertMany m l = l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
   refine m.inductionOn fun m => ?_
   rw [insertMany_list_mk, List.foldl_hom (g₁ := fun acc p => acc.insert p.1 p.2)]
-  · exact sound DHashMap.constInsertMany_list_equiv_foldl
+  · exact sound DHashMap.Const.insertMany_list_equiv_foldl
   · exact fun _ _ => rfl
 
 variable {m : ExtDHashMap α (fun _ => Unit)}
@@ -1731,7 +1731,7 @@ theorem insertManyIfNewUnit_list_eq_foldl [EquivBEq α] [LawfulHashable α] {l :
     insertManyIfNewUnit m l = l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
   refine m.inductionOn fun m => ?_
   rw [insertManyIfNewUnit_list_mk, List.foldl_hom (g₁ := fun acc a => acc.insertIfNew a ())]
-  · exact sound DHashMap.constInsertManyIfNewUnit_list_equiv_foldl
+  · exact sound DHashMap.Const.insertManyIfNewUnit_list_equiv_foldl
   · exact fun _ _ => rfl
 
 end Const

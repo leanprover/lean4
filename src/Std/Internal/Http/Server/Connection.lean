@@ -217,6 +217,8 @@ private def handle
           let canContinue ← Handler.onContinue handler head
           let status := if canContinue then Status.«continue» else Status.unauthorized
           machine := machine.canContinue status
+          if ¬canContinue then
+            pendingHead := none
 
       | .next => do
         if ¬(← requestOutgoing.isClosed) then

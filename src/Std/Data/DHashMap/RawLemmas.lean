@@ -5233,34 +5233,34 @@ theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap.Raw α β} [EquivBEq α] [La
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
 
 theorem insertMany_list_equiv_foldl {m : DHashMap.Raw α β} {l : List ((a : α) × β a)} (h : m.WF) :
-    (m.insertMany l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
   rw [insertMany_eq h]
   exact (Raw₀.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
 
 theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
-    (ofList l).Equiv (l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2) :=
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
   insertMany_list_equiv_foldl .empty
 
-theorem constInsertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
+theorem Const.insertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
     {l : List (α × β)} (h : m.WF) :
-    (Const.insertMany m l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
+    insertMany m l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
   rw [Const.insertMany_eq h]
   exact (Raw₀.Const.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
 
-theorem constOfList_equiv_foldl {β : Type v} {l : List (α × β)} :
-    (Const.ofList l).Equiv (l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2) :=
-  constInsertMany_list_equiv_foldl .empty
+theorem Const.ofList_equiv_foldl {β : Type v} {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
 
-theorem constInsertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
+theorem Const.insertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
     {l : List α} (h : m.WF) :
-    (Const.insertManyIfNewUnit m l).Equiv
-      (l.foldl (init := m) fun acc a => acc.insertIfNew a ()) := by
+    insertManyIfNewUnit m l ~m
+      l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
   rw [Const.insertManyIfNewUnit_eq h]
   exact (Raw₀.Const.insertManyIfNewUnit_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
 
-theorem constUnitOfList_equiv_foldl {l : List α} :
-    (Const.unitOfList l).Equiv (l.foldl (init := ∅) fun acc a => acc.insertIfNew a ()) :=
-  constInsertManyIfNewUnit_list_equiv_foldl .empty
+theorem Const.unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl .empty
 
 namespace Const
 

@@ -254,7 +254,7 @@ def module (checked : flag true) (xs : TSyntaxArray `inline) : DocM (Inline Elab
   let n := mkIdentFrom' s x
   if checked then
     let env ← getEnv
-    if x ∉ env.header.moduleNames then
+    if x != env.mainModule && x ∉ env.header.moduleNames then
       let ss := similarNames x env.header.moduleNames
       let ref ← getRef
       let unchecked : Option Meta.Hint.Suggestion ←

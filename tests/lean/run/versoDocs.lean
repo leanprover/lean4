@@ -626,3 +626,9 @@ Hint: `lit` shadows a role. Use the full name of the shadowed role:
 end Inner
 
 end DoubleShadowed
+
+/-!
+Self-module references should work without `-checked`.
+-/
+
+/-! {module}`lean.run.versoDocs` -/

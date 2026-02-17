@@ -1347,6 +1347,11 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
   apply toListModel_insertListₘ
   exact h
 
+theorem insertMany_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} :
+    (insertMany m l).1 = l.foldl (init := m) fun a b => a.insert b.1 b.2 := by
+  simpa [insertMany] using (List.foldl_hom Subtype.val (by simp)).symm
+
 /-! # `eraseMany` -/
 
 theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
@@ -1444,6 +1449,11 @@ theorem toListModel_insertManyIfNew_list [BEq α] [Hashable α] [EquivBEq α] [L
   rw [insertManyIfNew_eq_insertListIfNewₘ]
   apply toListModel_insertListIfNewₘ
   exact h
+
+theorem insertManyIfNew_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} :
+    (insertManyIfNew m l).1 = l.foldl (init := m) fun a b => a.insertIfNew b.1 b.2 := by
+  simpa [insertManyIfNew] using (List.foldl_hom Subtype.val (by simp)).symm
 
 /-! # `union` -/
 
@@ -1567,6 +1577,11 @@ theorem Const.wf_insertMany₀ {β : Type v} [BEq α] [Hashable α] [EquivBEq α
     {l : ρ} (h' : m.WF) : (Const.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
+theorem Const.insertMany_list_eq_foldl {β : Type v} [BEq α] [Hashable α]
+    {m : Raw₀ α (fun _ => β)} {l : List (α × β)} :
+    (Const.insertMany m l).1 = l.foldl (init := m) fun a b => a.insert b.1 b.2 := by
+  simpa [Const.insertMany] using (List.foldl_hom Subtype.val (by simp)).symm
+
 /-! # `Const.insertListIfNewUnitₘ` -/
 
 theorem Const.toListModel_insertListIfNewUnitₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -1599,6 +1614,11 @@ theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [La
     {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
+
+theorem Const.insertManyIfNewUnit_list_eq_foldl [BEq α] [Hashable α]
+    {m : Raw₀ α (fun _ => Unit)} {l : List α} :
+    (Const.insertManyIfNewUnit m l).1 = l.foldl (init := m) fun a b => a.insertIfNew b () := by
+  simpa [Const.insertManyIfNewUnit] using (List.foldl_hom Subtype.val (by simp)).symm
 
 theorem beq_eq_beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
     beq m₁ m₂ = beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by

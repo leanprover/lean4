@@ -1440,6 +1440,9 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
       insertManyIfNewUnit ((∅ : TreeMap α Unit cmp).insertIfNew hd ()) tl :=
   ext DTreeMap.Const.unitOfList_cons
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l := rfl
+
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
     (unitOfList l cmp).contains k = l.contains k :=
@@ -4353,6 +4356,28 @@ theorem equiv_iff_keys_unit_eq [TransCmp cmp] {t₁ t₂ : TreeMap α Unit cmp} 
 
 theorem Equiv.of_keys_unit_perm {t₁ t₂ : TreeMap α Unit cmp} : t₁.keys.Perm t₂.keys → t₁ ~m t₂ :=
   equiv_iff_keys_unit_perm.mpr
+
+theorem insertMany_list_equiv_foldl {l : List (α × β)} :
+    insertMany t₁ l ~m l.foldl (init := t₁) (fun acc p => acc.insert p.1 p.2) := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact DTreeMap.Const.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List (α × β)} :
+    ofList l cmp ~m l.foldl (init := ∅) (fun acc p => acc.insert p.1 p.2) := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
+
+theorem insertManyIfNewUnit_list_equiv_foldl {t₁ : TreeMap α Unit cmp} {l : List α} :
+    insertManyIfNewUnit t₁ l ~m l.foldl (init := t₁) fun acc a => acc.insertIfNew a () := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact DTreeMap.Const.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem unitOfList_equiv_foldl {l : List α} :
+    unitOfList l cmp ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  simpa only [unitOfList_eq_insertManyIfNewUnit_empty] using insertManyIfNewUnit_list_equiv_foldl
 
 end Equiv
 

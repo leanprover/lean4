@@ -1353,9 +1353,7 @@ theorem ofList_cons {hd : α} {tl : List α} :
 
 theorem ofList_eq_insertMany_empty {l : List α} :
     ofList l = insertMany (∅ : Raw α) l :=
-  match l with
-  | [] => by simp [insertMany_nil .empty]
-  | hd :: tl => by simp [ofList_cons, insertMany_cons .empty]
+  ext HashMap.Raw.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -1538,6 +1536,20 @@ theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
 theorem equiv_iff_toList_perm {m₁ m₂ : Raw α} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem insertMany_list_equiv_foldl {l : List α} (h : m.WF) :
+    insertMany m l ~m l.foldl (init := m) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.Raw.insertManyIfNewUnit_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List α} :
+    ofList l ~m l.foldl (init := ∅) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.Raw.unitOfList_equiv_foldl
+  · exact fun _ _ => rfl
 
 section filter
 

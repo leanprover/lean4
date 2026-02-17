@@ -84,8 +84,7 @@ repositories:
     toolchain-tag: false
     stable-branch: false
     branch: main
-    dependencies:
-      - batteries
+    dependencies: []
 
   - name: aesop
     url: https://github.com/leanprover-community/aesop

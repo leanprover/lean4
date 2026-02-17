@@ -101,15 +101,27 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     get_app_args(major, major_args);
     if (rule->get_nfields() > major_args.size()) return none_expr();
     if (length(const_levels(rec_fn)) != length(rec_info->get_lparams())) return none_expr();
-    expr rhs = instantiate_lparams(rule->get_rhs(), rec_info->get_lparams(), const_levels(rec_fn));
-    /* apply parameters, motives and minor premises from recursor application. */
-    rhs      = mk_app(rhs, rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(), rec_args.data());
-    /* The number of parameters in the constructor is not necessarily
-       equal to the number of parameters in the recursor when we have
-       nested inductive types. */
-    unsigned nparams = major_args.size() - rule->get_nfields();
+    /* The rule was constructed by the kernel and is always a lambda expression, instantiate directly. */
+    expr rhs = rule->get_rhs();
+    buffer<expr> rhs_args;
+    rhs_args.ensure_capacity(rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors() + rule->get_nfields());
+    for (unsigned i = 0; i < rec_val.get_nparams() + rec_val.get_nmotives() + rec_val.get_nminors(); i++) {
+        rhs_args.push_back(rec_args[i]);
+        lean_assert(is_lambda(rhs));
+        rhs = binding_body(rhs);
+    }
     /* apply fields from major premise */
-    rhs      = mk_app(rhs, rule->get_nfields(), major_args.data() + nparams);
+    /* The number of parameters in the constructor is not necessarily
+    equal to the number of parameters in the recursor when we have
+    nested inductive types. */
+    unsigned nparams = major_args.size() - rule->get_nfields();
+    for (unsigned i = nparams; i < major_args.size(); i++) {
+        rhs_args.push_back(major_args[i]);
+        lean_assert(is_lambda(rhs));
+        rhs = binding_body(rhs);
+    }
+    rhs = instantiate_lparams(rhs, rec_info->get_lparams(), const_levels(rec_fn));
+    rhs = instantiate_rev(rhs, rhs_args.size(), rhs_args.data());
     if (rec_args.size() > major_idx + 1) {
         /* recursor application has more arguments after major premise */
         unsigned nextra = rec_args.size() - major_idx - 1;

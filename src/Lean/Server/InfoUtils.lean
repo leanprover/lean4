@@ -187,6 +187,25 @@ def Info.stx : Info → Syntax
   | ofDocInfo i            => i.stx
   | ofDocElabInfo i        => i.stx
 
+def Info.setStx (stx : Syntax) : Info → Info
+  | ofTacticInfo i         => ofTacticInfo { i with stx := stx }
+  | ofTermInfo i           => ofTermInfo { i with stx := stx }
+  | ofPartialTermInfo i    => ofPartialTermInfo { i with stx := stx }
+  | ofCommandInfo i        => ofCommandInfo { i with stx := stx }
+  | ofMacroExpansionInfo i => ofMacroExpansionInfo { i with stx := stx }
+  | ofOptionInfo i         => ofOptionInfo { i with stx := stx }
+  | ofErrorNameInfo i      => ofErrorNameInfo { i with stx := stx }
+  | ofFieldInfo i          => ofFieldInfo { i with stx := stx }
+  | ofCompletionInfo i     => ofCompletionInfo i  -- TODO
+  | ofCustomInfo i         => ofCustomInfo { i with stx := stx }
+  | ofUserWidgetInfo i     => ofUserWidgetInfo { i with stx := stx }
+  | ofFVarAliasInfo i      => ofFVarAliasInfo i
+  | ofFieldRedeclInfo i    => ofFieldRedeclInfo { i with stx := stx }
+  | ofDelabTermInfo i      => ofDelabTermInfo { i with stx := stx }
+  | ofChoiceInfo i         => ofChoiceInfo { i with stx := stx }
+  | ofDocInfo i            => ofDocInfo { i with stx := stx }
+  | ofDocElabInfo i        => ofDocElabInfo { i with stx := stx }
+
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
   | .ofFieldInfo i          => i.lctx

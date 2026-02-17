@@ -19,6 +19,15 @@ public import Lean.Widget.Diff
 
 public section
 
+partial def Lean.Elab.InfoTree.addTrailing (trailing : Substring.Raw) : InfoTree → InfoTree
+  | .context i t => .context i (t.addTrailing trailing)
+  | .node info children => Id.run do
+    let stx := (Lean.Language.addTrailing info.stx trailing)
+    let info := info.setStx stx
+    let newChildren := children.map (·.addTrailing (stx.getTrailing?.getD trailing))
+    .node info newChildren
+  | .hole mvarId => .hole mvarId
+
 namespace Lean.Server.FileWorker
 open Lsp
 open RequestM
@@ -160,6 +169,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTa
         return snap.task.asServerTask.mapCheap fun tree => Id.run do
           let some infoTree := tree.element.infoTree?
             | return (oldGoals, .proceed (foldChildren := true))
+          let infoTree := infoTree.addTrailing (stx.getTrailing?.getD default)
 
           let goals := infoTree.goalsAt? text hoverPos
           let optimalSnapRange : Lean.Syntax.Range := ⟨pos, tailPos⟩

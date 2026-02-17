@@ -1244,6 +1244,8 @@ theorem getLastD_map {f : α → β} {l : List α} {a : α} : (map f l).getLastD
 grind_pattern map_map => map g (map f l) where
   g =/= List.reverse
   f =/= List.reverse
+  depth g < 4
+  depth f < 4
 
 /-! ### filter -/
 

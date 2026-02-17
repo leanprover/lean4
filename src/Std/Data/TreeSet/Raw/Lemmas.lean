@@ -2146,6 +2146,10 @@ theorem equiv_iff_toList_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
   equiv_iff.trans (TreeMap.Raw.equiv_iff_keys_unit_eq h₁.1 h₂.1)
 
+theorem equiv_iff_forall_mem_iff [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    t₁ ~m t₂ ↔ (∀ k, k ∈ t₁ ↔ k ∈ t₂) :=
+  ⟨fun h _ => h.mem_iff h₁ h₂, Equiv.of_forall_mem_iff h₁ h₂⟩
+
 theorem insertMany_list_equiv_foldl {l : List α} :
     insertMany t₁ l ~m l.foldl (init := t₁) fun acc a => acc.insert a := by
   constructor

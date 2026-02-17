@@ -2298,6 +2298,10 @@ theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
 theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList :=
   equiv_iff_equiv.trans TreeMap.equiv_iff_keys_unit_perm
 
+theorem equiv_iff_forall_mem_iff [TransCmp cmp] [LawfulEqCmp cmp] :
+    t₁ ~m t₂ ↔ (∀ k, k ∈ t₁ ↔ k ∈ t₂) :=
+  ⟨fun h _ => h.mem_iff, Equiv.of_forall_mem_iff⟩
+
 theorem Equiv.of_toList_perm (h : t₁.toList.Perm t₂.toList) : t₁ ~m t₂ :=
   ⟨.of_keys_unit_perm h⟩
 

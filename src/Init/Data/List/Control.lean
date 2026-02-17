@@ -124,6 +124,20 @@ def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) :
     let b ← f h
     filterAuxM f t (cond b (h :: acc) acc)
 
+theorem filterAuxM_append_right [Monad m] [LawfulMonad m] {as acc₁ acc₂ : List α} {p : α → m Bool} :
+    filterAuxM p as (acc₁ ++ acc₂) = (· ++ acc₂) <$> filterAuxM p as acc₁ := by
+  induction as generalizing acc₁ with
+  | nil => simp [filterAuxM]
+  | cons a as ih =>
+    simp only [filterAuxM, map_bind]
+    congr 1
+    ext pa
+    cases pa <;> simp only [← cons_append, cond_true, cond_false, ih]
+
+theorem filterAuxM_eq_map [Monad m] [LawfulMonad m] {as acc : List α} {p : α → m Bool} :
+    filterAuxM p as acc = (· ++ acc) <$> filterAuxM p as [] := by
+  simpa using filterAuxM_append_right (acc₁ := [])
+
 /--
 Applies the monadic predicate `p` to every element in the list, in order from left to right, and
 returns the list of elements for which `p` returns `true`.
@@ -153,6 +167,41 @@ def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as 
   let as ← filterAuxM p as []
   pure as.reverse
 
+@[simp]
+theorem filterM_nil {m : Type → Type v} [Monad m] [LawfulMonad m] {α : Type} (p : α → m Bool) :
+    filterM p [] = pure [] := by
+  simp [filterM, filterAuxM]
+
+theorem filterM_cons {m : Type → Type v} [Monad m] [LawfulMonad m] {a : α} {as : List α} {p : α → m Bool} :
+    filterM p (a :: as) =
+      (do let pa ← p a; let as ← filterM p as; return if pa then a :: as else as) := by
+  simp only [filterM, filterAuxM, bind_pure_comp, map_bind, Functor.map_map]
+  congr 1; ext pa
+  cases pa
+  · simp
+  rw [filterAuxM_eq_map]
+  simp
+
+theorem filterM_append {m : Type → Type v} [Monad m] [LawfulMonad m] {as bs : List α} {p : α → m Bool} :
+    filterM p (as ++ bs) = HAppend.hAppend <$> filterM p as <*> filterM p bs := by
+  induction as with
+  | nil =>
+    have : HAppend.hAppend ([] : List α) = id := funext List.nil_append
+    simp [pure_seq, this]
+  | cons a' as ih =>
+    simp only [cons_append, filterM_cons, ih, bind_pure_comp, map_bind, Functor.map_map, bind_assoc,
+      bind_map_left, seq_eq_bind_map]
+    congr; ext pa; congr; ext as'; congr; ext bs'
+    split <;> simp
+
+theorem filterM_concat {m : Type → Type v} [Monad m] [LawfulMonad m] {as : List α} {a : α} {p : α → m Bool} :
+    filterM p (as ++ [a]) =
+      (do let as ← filterM p as; let pa ← p a; return if pa then as ++ [a] else as) := by
+  rw [filterM_append, filterM_cons, filterM_nil, seq_eq_bind_map]
+  simp only [bind_pure_comp, map_pure, Functor.map_map, bind_map_left]
+  congr; ext as'; congr; ext pa
+  split <;> simp
+
 /--
 Applies the monadic predicate `p` on every element in the list in reverse order, from right to left,
 and returns those elements for which `p` returns `true`. The elements of the returned list are in
@@ -179,6 +228,31 @@ Checking 1
 @[inline]
 def filterRevM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) :=
   filterAuxM p as.reverse []
+
+theorem filterRevM_eq_reverse_map_filterM_reverse {m : Type → Type v} [Monad m] [LawfulMonad m] {α : Type} (p : α → m Bool) (as : List α):
+    filterRevM p as = reverse <$> filterM p as.reverse := by
+  simp [filterRevM, filterM]
+
+@[simp]
+theorem filterRevM_nil {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) :
+    filterRevM p [] = pure [] := by
+  simp [filterRevM, filterAuxM]
+
+@[simp]
+theorem filterRevM_concat {m : Type → Type v} [Monad m] [LawfulMonad m] {as : List α} {a : α} {p : α → m Bool} :
+    filterRevM p (as ++ [a]) =
+      (do let pa ← p a; let as ← filterRevM p as; return if pa then as ++ [a] else as) := by
+  simp only [filterRevM_eq_reverse_map_filterM_reverse, reverse_append, reverse_cons, reverse_nil,
+    nil_append, cons_append, filterM_cons, bind_pure_comp, map_bind, Functor.map_map]
+  congr; ext pa; congr; ext as'
+  split <;> simp
+
+theorem filterRevM_cons {m : Type → Type v} [Monad m] [LawfulMonad m] {as : List α} {a : α} {p : α → m Bool} :
+    filterRevM p (a :: as) =
+      (do let as ← filterRevM p as; let pa ← p a; return if pa then a :: as else as) := by
+  simp [filterRevM_eq_reverse_map_filterM_reverse, filterM_concat]
+  congr; ext as'; congr; ext pa
+  split <;> simp
 
 /--
 Applies a monadic function that returns an `Option` to each element of a list, collecting the

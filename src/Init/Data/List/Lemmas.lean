@@ -2424,15 +2424,6 @@ theorem getElem_reverse {l : List α} {i} (h : i < l.reverse.length) :
   rw [← getElem?_eq_getElem, ← getElem?_eq_getElem]
   rw [getElem?_reverse (by simpa using h)]
 
-theorem reverseAux_reverseAux_nil {as bs : List α} : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
-  induction as generalizing bs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih]
-
--- The argument `as : List α` is explicit to allow rewriting from right to left.
-@[simp, grind =] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
-  simp only [reverse]; rw [reverseAux_reverseAux_nil]; rfl
-
 theorem reverse_eq_iff {as bs : List α} : as.reverse = bs ↔ as = bs.reverse := by
   constructor <;> (rintro rfl; simp)
 
@@ -2486,27 +2477,9 @@ theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
     simp only [reverse_cons, filterMap_append, filterMap_cons, ih]
     split <;> simp_all
 
-@[simp] theorem reverse_append {as bs : List α} : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
-  induction as <;> simp_all
-
-grind_pattern reverse_append => (as ++ bs).reverse where
-  as =/= []
-  bs =/= []
-grind_pattern reverse_append => bs.reverse ++ as.reverse where
-  as =/= []
-  bs =/= []
-
 @[simp] theorem reverse_eq_append_iff {xs ys zs : List α} :
     xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
   rw [reverse_eq_iff, reverse_append]
-
-theorem reverse_concat {l : List α} {a : α} : (l ++ [a]).reverse = a :: l.reverse := by
-  rw [reverse_append]; rfl
-
-grind_pattern reverse_concat => (l ++ [a]).reverse where
-  l =/= []
-grind_pattern reverse_concat => a :: l.reverse where
-  l =/= []
 
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by

@@ -2540,6 +2540,10 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
       insertManyIfNewUnit ((∅ : HashMap α Unit).insertIfNew hd ()) tl :=
   ext DHashMap.Const.unitOfList_cons
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l :=
+  ext DHashMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -3164,6 +3168,29 @@ theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
 theorem equiv_iff_keys_unit_perm {m₁ m₂ : HashMap α Unit} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys :=
   ⟨Equiv.keys_perm, Equiv.of_keys_unit_perm⟩
+
+theorem insertMany_list_equiv_foldl {m : HashMap α β} {l : List (α × β)} :
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact DHashMap.Const.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl
+
+theorem insertManyIfNewUnit_list_equiv_foldl {m : HashMap α Unit}
+    {l : List α} :
+    insertManyIfNewUnit m l ~m l.foldl (init := m) fun acc a=> acc.insertIfNew a () := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact DHashMap.Const.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl
 
 end Equiv
 

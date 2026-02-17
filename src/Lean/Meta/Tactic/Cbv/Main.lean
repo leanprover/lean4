@@ -253,5 +253,31 @@ public def cbvGoal (m : MVarId) : MetaM (Option MVarId) := do
   | .none => return .none
   | .some m' => cbvGoalCore m' (inv := true)
 
+/--
+Attempt to close a goal of the form `decide P = true` by reducing only the LHS using `cbv`.
+
+- If the LHS reduces to `Bool.true`, the goal is closed successfully.
+- If the LHS reduces to `Bool.false`, throws a user-friendly error indicating the proposition is false.
+- Otherwise, throws a user-friendly error showing where the reduction got stuck.
+-/
+public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
+  Sym.SymM.run do
+    let methods := {pre := cbvPre, post := cbvPost}
+    let m ← Sym.preprocessMVar m
+    let mType ← m.getType
+    let some (_, lhs, _) := mType.eq? |
+      throwError "`decide_cbv`: expected goal of the form `decide _ = true`, got: {indentExpr mType}"
+    let result ← SimpM.run' (simp lhs) (methods := methods)
+    let checkResult (e : Expr) (onTrue : Sym.SymM Unit) : Sym.SymM Unit := do
+      if (← Sym.isBoolTrueExpr e) then
+        onTrue
+      else if (← Sym.isBoolFalseExpr e) then
+        throwError "`decide_cbv` failed: the proposition evaluates to `false`"
+      else
+        throwError "`decide_cbv` failed: could not reduce the expression to a boolean value; got stuck at: {indentExpr e}"
+    match result with
+    | .rfl _ => checkResult lhs (m.refl)
+    | .step e' proof _ => checkResult e' (m.assign proof)
+
 
 end Lean.Meta.Tactic.Cbv

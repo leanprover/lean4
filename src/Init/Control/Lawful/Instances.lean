@@ -30,6 +30,8 @@ namespace ExceptT
   simp [run] at h
   assumption
 
+@[simp] theorem stM_eq [Monad m] : stM m (ExceptT ε m) α = Except ε α := rfl
+
 @[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
 
 @[simp, grind =] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
@@ -116,10 +118,9 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
     ExceptT.run (liftWith f) = Except.ok <$> (f fun x => x.run) :=
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m (stM m (ExceptT ε m) α)) :
     ExceptT.run (controlAt m f) = f fun x => x.run := by
-  simp [controlAt, run_bind, bind_map_left]
+  simp [controlAt, run_bind]
 
 @[simp] theorem run_control [Monad m] [LawfulMonad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m (stM m (ExceptT ε m) α)) :
     ExceptT.run (control f) = f fun x => x.run := run_controlAt f

@@ -600,6 +600,7 @@ theorem IterM.toList_map_mapM {α β γ δ : Type w}
     toList_filterMapM_mapM]
   congr <;> simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem IterM.toList_filterMapWithPostcondition {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
@@ -623,6 +624,7 @@ theorem IterM.toList_filterMapWithPostcondition {α β γ : Type w} {m : Type w 
   · simp [ihs ‹_›, heq]
   · simp [heq]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem IterM.toList_mapWithPostcondition {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m] [Iterator α Id β] [Finite α Id]
@@ -643,6 +645,7 @@ theorem IterM.toList_mapWithPostcondition {α β γ : Type w} {m : Type w → Ty
   · simp [ihs ‹_›, heq]
   · simp [heq]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem IterM.toList_filterMapM {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
@@ -652,6 +655,7 @@ theorem IterM.toList_filterMapM {α β γ : Type w} {m : Type w → Type w'}
   simp [toList_filterMapM_eq_toList_filterMapWithPostcondition, toList_filterMapWithPostcondition,
     PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem IterM.toList_mapM {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
@@ -1297,6 +1301,7 @@ theorem IterM.forIn_filterMap
   rw [filterMap, forIn_filterMapWithPostcondition]
   simp [PostconditionT.run_eq_map]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.forIn_mapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]

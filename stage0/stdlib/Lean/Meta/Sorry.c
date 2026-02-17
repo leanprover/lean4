@@ -300,7 +300,7 @@ goto block_30;
 block_13:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = l_Lean_mkAppB(x_9, x_1, x_10);
+x_11 = l_Lean_mkAppB(x_8, x_1, x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;
@@ -325,8 +325,8 @@ if (x_2 == 0)
 {
 lean_object* x_25; 
 x_25 = l_Lean_Meta_mkSorry___closed__5;
-x_8 = lean_box(0);
-x_9 = x_24;
+x_8 = x_24;
+x_9 = lean_box(0);
 x_10 = x_25;
 goto block_13;
 }
@@ -334,8 +334,8 @@ else
 {
 lean_object* x_26; 
 x_26 = l_Lean_Meta_mkSorry___closed__8;
-x_8 = lean_box(0);
-x_9 = x_24;
+x_8 = x_24;
+x_9 = lean_box(0);
 x_10 = x_26;
 goto block_13;
 }

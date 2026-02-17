@@ -794,6 +794,7 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 @[expose]
 public def LinearOrderPackage.ofOrd (α : Type u)
     (args : Packages.LinearOrderOfOrdArgs α := by exact {}) : LinearOrderPackage α :=
+  set_option backward.isDefEq.respectTransparency false in
   letI := LinearPreorderPackage.ofOrd α args.toLinearPreorderOfOrdArgs
   haveI : LawfulEqOrd α := ⟨args.eq_of_compare _ _⟩
   letI : Min α := args.min

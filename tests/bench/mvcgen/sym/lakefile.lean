@@ -10,6 +10,9 @@ lean_lib VCGen where
 lean_lib Baseline where
   srcDir := "lib"
 
+lean_lib Driver where
+  srcDir := "lib"
+
 @[default_target]
 lean_lib VCGenBench where
   roots := #[`vcgen_add_sub_cancel, `vcgen_deep_add_sub_cancel, `vcgen_get_throw_set]

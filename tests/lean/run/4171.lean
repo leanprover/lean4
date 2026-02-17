@@ -685,6 +685,7 @@ def toComon_ : Comon_ (Mon_ C) ⥤ Comon_ C := (Mon_.forget C).mapComon
 theorem foo {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y (Opposite.op (unop := x)) = x := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -693,6 +694,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
     ext
     simp [(foo)] -- parentheses around `foo` works
 
+set_option backward.isDefEq.respectTransparency false in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -704,6 +706,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 theorem foo' {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y no_index (Opposite.op (unop := x)) = x := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -713,6 +716,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
     simp [foo'] -- or adding a `no_index` in the statement
 
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 trace: [simp] Diagnostics
   [simp] theorems with bad keys
@@ -734,6 +738,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 
 attribute [simp] foo
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 trace: [simp] Diagnostics
   [simp] theorems with bad keys

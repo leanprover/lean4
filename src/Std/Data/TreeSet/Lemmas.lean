@@ -463,7 +463,7 @@ theorem contains_toList [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
     t.toList.contains k = t.contains k :=
   TreeMap.contains_keys
 
-@[simp]
+@[simp, grind =]
 theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
     k ∈ t.toList ↔ k ∈ t :=
   TreeMap.mem_keys

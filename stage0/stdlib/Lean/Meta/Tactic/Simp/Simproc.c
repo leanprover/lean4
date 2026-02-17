@@ -12408,13 +12408,13 @@ if (lean_is_scalar(x_33)) {
  x_40 = x_33;
 }
 lean_ctor_set(x_40, 0, x_39);
-lean_ctor_set(x_40, 1, x_35);
+lean_ctor_set(x_40, 1, x_37);
 if (lean_is_scalar(x_30)) {
  x_41 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_41 = x_30;
 }
-lean_ctor_set(x_41, 0, x_37);
+lean_ctor_set(x_41, 0, x_36);
 lean_ctor_set(x_41, 1, x_40);
 x_42 = lean_box(x_38);
 if (lean_is_scalar(x_28)) {
@@ -12848,9 +12848,9 @@ lean_object* x_135;
 x_135 = lean_ctor_get(x_133, 0);
 lean_inc(x_135);
 lean_dec_ref(x_133);
-x_35 = x_135;
-x_36 = lean_box(0);
-x_37 = x_130;
+x_35 = lean_box(0);
+x_36 = x_130;
+x_37 = x_135;
 x_38 = x_46;
 goto block_45;
 }
@@ -12860,9 +12860,9 @@ lean_object* x_136;
 x_136 = lean_ctor_get(x_133, 0);
 lean_inc(x_136);
 lean_dec_ref(x_133);
-x_35 = x_136;
-x_36 = lean_box(0);
-x_37 = x_130;
+x_35 = lean_box(0);
+x_36 = x_130;
+x_37 = x_136;
 x_38 = x_132;
 goto block_45;
 }

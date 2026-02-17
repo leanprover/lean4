@@ -350,6 +350,7 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {acc : Array β} {i : Nat},
   | [], acc, i => by
     simp only [mapIdx.go, getElem?_def, Array.length_toList,
       ← Array.getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none]
+    rfl
   | a :: l, acc, i => by
     rw [mapIdx.go, getElem?_mapIdx_go]
     simp only [Array.size_push]

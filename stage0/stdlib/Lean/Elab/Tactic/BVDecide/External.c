@@ -4410,7 +4410,7 @@ goto block_21;
 else
 {
 uint8_t x_31; 
-x_31 = lean_string_memcmp(x_25, x_27, x_24, x_24, x_29);
+x_31 = lean_string_memcmp(x_25, x_27, x_23, x_23, x_29);
 if (x_31 == 0)
 {
 x_10 = x_22;
@@ -4581,8 +4581,8 @@ x_95 = lean_nat_dec_le(x_94, x_93);
 if (x_95 == 0)
 {
 x_22 = x_89;
-x_23 = lean_box(0);
-x_24 = x_78;
+x_23 = x_78;
+x_24 = lean_box(0);
 x_25 = x_88;
 x_26 = x_91;
 goto block_60;
@@ -4592,8 +4592,8 @@ else
 uint8_t x_96; 
 x_96 = lean_string_memcmp(x_88, x_92, x_78, x_78, x_94);
 x_22 = x_89;
-x_23 = lean_box(0);
-x_24 = x_78;
+x_23 = x_78;
+x_24 = lean_box(0);
 x_25 = x_88;
 x_26 = x_96;
 goto block_60;
@@ -4639,8 +4639,8 @@ x_110 = lean_nat_dec_le(x_109, x_108);
 if (x_110 == 0)
 {
 x_22 = x_104;
-x_23 = lean_box(0);
-x_24 = x_78;
+x_23 = x_78;
+x_24 = lean_box(0);
 x_25 = x_103;
 x_26 = x_106;
 goto block_60;
@@ -4650,8 +4650,8 @@ else
 uint8_t x_111; 
 x_111 = lean_string_memcmp(x_103, x_107, x_78, x_78, x_109);
 x_22 = x_104;
-x_23 = lean_box(0);
-x_24 = x_78;
+x_23 = x_78;
+x_24 = lean_box(0);
 x_25 = x_103;
 x_26 = x_111;
 goto block_60;

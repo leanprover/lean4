@@ -1474,7 +1474,7 @@ block_33:
 {
 if (x_31 == 0)
 {
-lean_dec_ref(x_29);
+lean_dec_ref(x_30);
 lean_dec(x_16);
 x_19 = x_7;
 x_20 = x_8;
@@ -1504,7 +1504,7 @@ if (lean_is_scalar(x_16)) {
  x_32 = x_16;
  lean_ctor_set_tag(x_32, 1);
 }
-lean_ctor_set(x_32, 0, x_29);
+lean_ctor_set(x_32, 0, x_30);
 return x_32;
 }
 }
@@ -1517,15 +1517,15 @@ if (x_36 == 0)
 uint8_t x_37; 
 lean_inc_ref(x_34);
 x_37 = l_Lean_Exception_isRuntime(x_34);
-x_29 = x_34;
-x_30 = lean_box(0);
+x_29 = lean_box(0);
+x_30 = x_34;
 x_31 = x_37;
 goto block_33;
 }
 else
 {
-x_29 = x_34;
-x_30 = lean_box(0);
+x_29 = lean_box(0);
+x_30 = x_34;
 x_31 = x_36;
 goto block_33;
 }

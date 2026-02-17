@@ -127,6 +127,7 @@ The difficulty in this lemma is that we want to argue that we can cancel
 `HetT.map QuotStep.bundledQuotient` because `QuotStep.bundledQuotient` is injective. This
 cancellation property does not hold for all monads.
 -/
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -161,6 +162,7 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
   let hex := ?hex
   exact hex.choose_spec
 
+set_option backward.isDefEq.respectTransparency false in
 theorem IterM.Equiv.lift_step_bind_congr {α₁ α₂ : Type w} [Monad m] [LawfulMonad m]
     [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
     [Iterator α₁ m β] [Iterator α₂ m β]

@@ -240,7 +240,7 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
           specThms := specThms.add thm
         catch _ =>
           simpStuff := simpStuff.push ⟨arg⟩
-      | _ => withRef term <| throwError "Could not resolve {repr term}"
+      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
     else if arg.getKind == ``simpStar then
       starArg := true
       simpStuff := simpStuff.push ⟨arg⟩

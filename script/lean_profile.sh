@@ -54,7 +54,7 @@ Reading demangled names:
       = foo (with lambda closure), specialized at bar (lambda, reduced arity)
 
   Multiple "spec at" entries indicate chained specializations.
-  See PROFILER_README.md for full documentation.
+  See script/PROFILER_README.md for full documentation.
 EOF
     exit "${1:-0}"
 }

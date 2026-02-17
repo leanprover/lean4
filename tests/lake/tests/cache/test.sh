@@ -11,6 +11,10 @@ TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
 export LAKE_CACHE_DIR="$CACHE_DIR"
 
+# Verify that `lake cache clean` works without a cache directory
+test_exp ! -d "$CACHE_DIR"
+test_run cache clean
+
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"

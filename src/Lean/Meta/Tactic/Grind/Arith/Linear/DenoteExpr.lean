@@ -73,6 +73,8 @@ def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Po
 
 def _root_.Lean.Grind.CommRing.Poly.toIntModuleExpr (p : Grind.CommRing.Poly) (generation := 0) : LinearM Expr := do
   let e ← p.denoteAsIntModuleExpr
+  -- Note: cannot use `preprocessAndInternalize` here; the expression form is tightly coupled
+  -- with the linear arithmetic solver's proof reconstruction.
   let e ← preprocessLight e
   internalize e generation (some getIntModuleVirtualParent)
   return e

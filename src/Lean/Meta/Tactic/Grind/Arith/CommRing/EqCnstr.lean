@@ -378,6 +378,8 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   modifyCommRing fun s => { s with invSet := s.invSet.insert e }
   let eInv ← pre <| mkApp (← getInvFn) e
   let lhs ← pre <| mkApp2 (← getMulFn) e eInv
+  -- Note: cannot use `preprocessAndInternalize` here; the expression form is tightly coupled
+  -- with the CommRing solver's proof reconstruction.
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
   pushEq lhs (← getOne) <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
@@ -390,6 +392,8 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   modifyCommRing fun s => { s with invSet := s.invSet.insert a }
   let aInv ← pre <| mkApp (← getInvFn) a
   let lhs ← pre <| mkApp2 (← getMulFn) a aInv
+  -- Note: cannot use `preprocessAndInternalize` here; the expression form is tightly coupled
+  -- with the CommRing solver's proof reconstruction.
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
   pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)

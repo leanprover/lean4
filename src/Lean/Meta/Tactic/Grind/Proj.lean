@@ -39,6 +39,9 @@ def propagateProjEq (parent : Expr) : GoalM Unit := do
       shareCommon (mkApp (mkAppN projFn params) ctor)
     else
       shareCommon (mkApp parent.appFn! ctor)
+    -- Note: cannot use `preprocessAndInternalize` here because `parentNew` must stay structurally
+    -- similar to `parent` for congruence closure to connect them. Preprocessing could reduce
+    -- `proj_i (ctor ...)` to the field value, breaking this mechanism.
     internalize parentNew (← getGeneration parent)
     pure parentNew
   trace_goal[grind.debug.proj] "{parentNew}"

@@ -317,9 +317,11 @@ where
       let h' ← mkCongrFun h arg
       go rhs' h' (i+1)
     else
-      let rhs ← preprocessLight rhs
-      internalize rhs (← getGeneration e) e
-      pushEq e rhs h
+      let r ← preprocessAndInternalize rhs (← getGeneration e) e
+      let h ← match r.proof? with
+        | some hp => mkEqTrans h hp
+        | none => pure h
+      pushEq e r.expr h
 
 /-- Propagates `ite` upwards -/
 builtin_grind_propagator propagateIte ↑ite := fun e => do

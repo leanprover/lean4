@@ -14,6 +14,12 @@ If `e` has not been internalized yet, instantiate metavariables, unfold reducibl
 and internalize the result.
 
 This is an auxiliary function used at `proveEq?` and `proveHEq?`.
+
+We deliberately use `preprocessLight` here rather than the full `preprocessAndInternalize`.
+Full preprocessing runs simp, which can normalize terms into forms that break congruence closure.
+For example, `i < (a :: l).length` becomes `i + 1 ≤ (a :: l).length`, making it impossible to
+prove equality with `0 < (a :: l).length` (which becomes `1 ≤ (a :: l).length`) by congruence
+when `i` and `0` are in the same equivalence class.
 -/
 private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then

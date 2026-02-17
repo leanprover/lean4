@@ -147,9 +147,8 @@ where
       let identityType := mkApp3 (mkConst ``Std.LawfulIdentity [u]) α op neutral
       if let some identityInst ← synthInstance? identityType then
         let neutral ← instantiateExprMVars neutral
-        let neutral ← preprocessLight neutral
-        internalize neutral (← getGeneration op)
-        pure (some identityInst, some neutral)
+        let r ← preprocessAndInternalize neutral (← getGeneration op)
+        pure (some identityInst, some r.expr)
       else
         pure (none, none)
     let id := (← get').structs.size

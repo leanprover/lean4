@@ -30,6 +30,21 @@ open Nat
 
 /-! ### Pairwise -/
 
+theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
+  induction l with | nil => simp | cons a l ihl =>
+    simp only [pairwise_cons, length_cons, mem_iff_getElem, ihl,
+        forall_exists_index, Nat.lt_succ_iff]
+    exact ⟨ fun h =>
+              fun | 0, _ + 1, _, _, _ => h.1 _ _ _ rfl
+                  | _ + 1, _ + 1, _, _, hij => h.2 _ _ _ _ <| lt_of_succ_lt_succ hij,
+            fun h =>
+          ⟨   fun | _, _, hj, Eq.refl _ => h _ _ (Nat.zero_le _) hj <| Nat.zero_lt_succ _,
+              fun _ _ hi hj hij => h (_ + 1) (_ + 1) hi hj <| Nat.succ_lt_succ hij⟩⟩
+
+theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} {hi : i < l.length} {hj : j < l.length}
+    (h : Pairwise R l) : i < j → R l[i] l[j] := pairwise_iff_getElem.mp h _ _ _ _
+
 @[grind →] theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .slnil, h => h
   | .cons _ s, .cons _ h₂ => h₂.sublist s
@@ -62,11 +77,9 @@ theorem Pairwise.imp_of_mem {S : α → α → Prop}
 
 theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
     l.Pairwise fun a b => R a b ∧ S a b := by
-  induction hR with
-  | nil => simp only [Pairwise.nil]
-  | cons R1 _ IH =>
-    simp only [pairwise_cons] at hS ⊢
-    exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
+  rw [pairwise_iff_getElem] at hR hS ⊢
+  simp only [imp_and, forall_and]
+  exact ⟨hR, hS⟩
 
 theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=
   ⟨fun h => ⟨h.imp fun h => h.1, h.imp fun h => h.2⟩, fun ⟨hR, hS⟩ => hR.and hS⟩
@@ -281,6 +294,33 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
 
 @[grind =] theorem nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
 
+theorem nodup_iff_eq_of_getElem_eq {l : List α} : List.Nodup l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length), l[i] = l[j] → i = j := by
+  simp only [nodup_iff_pairwise_ne, pairwise_iff_getElem, Nat.le_antisymm_iff,
+    ← Nat.not_le, Decidable.not_imp_not]
+  exact ⟨fun h _ _ hi hj hij => ⟨h _ _ hj hi hij.symm, h _ _ hi hj hij⟩, (And.right <| · · · · · ·)⟩
+
+theorem nodup_iff_getElem_inj {l : List α} : List.Nodup l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length), l[i] = l[j] ↔ i = j := by
+  simp only [nodup_iff_eq_of_getElem_eq, iff_iff_implies_and_implies,
+    forall_and, imp_self, true_and, and_imp]
+  exact ⟨fun _ _ _ _ _ => (· ▸ rfl), flip <| fun _ => id⟩
+
+theorem Nodup.getElem_eq_of_getElem_eq {xs : List α} (h : Nodup xs) {hi : i < xs.length}
+    {hj : j < xs.length} : xs[i] = xs[j] → i = j := nodup_iff_eq_of_getElem_eq.mp h _ _ _ _
+
+theorem Nodup.getElem_inj {xs : List α} (h : Nodup xs) {hi : i < xs.length}
+    {hj : j < xs.length} : xs[i] = xs[j] ↔ i = j := nodup_iff_getElem_inj.mp h _ _ _ _
+
+theorem Nodup.eq_of_getElem?_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
+    (hij : xs[i]? = xs[j]?) : i = j := by
+  simp only [getElem?_pos xs i hi, some_eq_getElem?_iff, h.getElem_inj] at hij
+  exact hij.choose_spec.symm
+
+@[deprecated Nodup.eq_of_getElem?_eq (since := "2025-10-26")]
+theorem getElem?_inj {xs : List α} (h₀ : i < xs.length) (h₁ : Nodup xs) (h₂ : xs[i]? = xs[j]?) :
+    i = j := h₁.eq_of_getElem?_eq h₀ h₂
+
 @[simp]
 theorem nodup_nil : @Nodup α [] :=
   Pairwise.nil
@@ -304,72 +344,32 @@ grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist
 
-theorem getElem?_inj {xs : List α}
-    (h₀ : i < xs.length) (h₁ : Nodup xs) (h₂ : xs[i]? = xs[j]?) : i = j := by
-  induction xs generalizing i j with
-  | nil => cases h₀
-  | cons x xs ih =>
-    match i, j with
-    | 0, 0 => rfl
-    | i+1, j+1 =>
-      cases h₁ with
-      | cons ha h₁ =>
-        simp only [getElem?_cons_succ] at h₂
-        exact congrArg (· + 1) (ih (Nat.lt_of_succ_lt_succ h₀) h₁ h₂)
-    | i+1, 0 => ?_
-    | 0, j+1 => ?_
-    all_goals
-      simp only [getElem?_cons_zero, getElem?_cons_succ] at h₂
-      cases h₁; rename_i h' h
-      have := h x ?_ rfl; cases this
-      rw [mem_iff_getElem?]
-    exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
-
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
 
-theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) : count a l = if a ∈ l then 1 else 0 := by
-  split <;> rename_i h'
-  · obtain ⟨s, t, rfl⟩ := List.append_of_mem h'
-    rw [nodup_append] at h
-    simp_all
-    rw [count_eq_zero.mpr ?_, count_eq_zero.mpr ?_]
-    · exact h.2.1.1
-    · intro w
-      simpa using h.2.2 _ w
-  · rw [count_eq_zero_of_not_mem h']
+theorem nodup_iff_count_of_mem [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a ∈ l, count a l = 1 := by
+  induction l with | nil => simp | cons b l ihl =>
+  simp only [nodup_cons, mem_cons, forall_eq_or_imp, count_cons_self,
+    succ_inj, count_eq_zero, and_congr_right_iff, ihl]
+  exact fun hb => forall₂_congr fun a ha => count_cons_of_ne (hb <| · ▸ ha : b ≠ a) ▸ Iff.rfl
+
+theorem nodup_iff_count_eq_ite [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a, count a l = if a ∈ l then 1 else 0 := by
+  rw [nodup_iff_count_of_mem]
+  exact forall_congr' fun a => by if ha : a ∈ l then simp [ha] else simp [ha, count_eq_zero]
+
+theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) :
+    l.count a = if a ∈ l then 1 else 0 := nodup_iff_count_eq_ite.mp h _
+
+theorem Nodup.count_of_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) (ha : a ∈ l) :
+    l.count a = 1 := h.count ▸ if_pos ha
 
 grind_pattern Nodup.count => count a l, Nodup l
 
 @[grind =]
 theorem nodup_iff_count [BEq α] [LawfulBEq α] {l : List α} : l.Nodup ↔ ∀ a, count a l ≤ 1 := by
-  induction l with
-  | nil => simp
-  | cons x l ih =>
-    constructor
-    · intro h a
-      simp at h
-      rw [count_cons]
-      split <;> rename_i h'
-      · simp at h'
-        rw [count_eq_zero.mpr ?_]
-        · exact Nat.le_refl _
-        · exact h' ▸ h.1
-      · simp at h'
-        refine ih.mp h.2 a
-    · intro h
-      simp only [count_cons] at h
-      simp only [nodup_cons]
-      constructor
-      · intro w
-        specialize h x
-        simp at h
-        have := count_pos_iff.mpr w
-        replace h := le_of_lt_succ h
-        apply Nat.lt_irrefl _ (Nat.lt_of_lt_of_le this h)
-      · rw [ih]
-        intro a
-        specialize h a
-        exact le_of_add_right_le h
+  simp only [nodup_iff_count_of_mem, Nat.le_iff_lt_or_eq, Nat.lt_one_iff, count_eq_zero]
+  exact forall_congr' fun _ => Decidable.imp_iff_not_or
 
 end List

@@ -31,8 +31,8 @@ The main parts of a response.
 -/
 structure Response.Head where
   /--
-  The HTTP status code and reason phrase, indicating the result of the request.
-  For example, `.ok` corresponds to `200 OK`.
+  The HTTP status for the response.
+  The reason phrase is derived from `Status.reasonPhrase`.
   -/
   status : Status := .ok
 
@@ -47,7 +47,7 @@ HTTP response structure parameterized by body type
 -/
 structure Response (t : Type) where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Response.Head := {}
 
@@ -67,7 +67,7 @@ Builds an HTTP Response.
 -/
 structure Response.Builder where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Head := {}
 

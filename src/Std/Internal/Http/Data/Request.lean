@@ -33,7 +33,7 @@ structure Request.Head where
   method : Method := .get
 
   /--
-  The HTTP protocol version (HTTP/1.0, HTTP/1.1, HTTP/2.0, etc.)
+  The HTTP protocol version for the request (e.g. HTTP/1.1, HTTP/2.0, HTTP/3.0).
   -/
   version : Version := .v11
 
@@ -97,16 +97,16 @@ instance : Encode .v11 Head where
     buffer.writeString "\r\n"
 
 /--
-Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty URI)
+Creates a new HTTP request builder with the default head
+(method: GET, version: HTTP/1.1, target: `*`).
 -/
 def new : Builder := { }
 
 namespace Builder
 
 /--
-Creates a new HTTP Request builder with default head (method: GET, version: HTTP/1.1, asterisk URI,
-empty URI)
+Creates a new HTTP request builder with the default head
+(method: GET, version: HTTP/1.1, target: `*`).
 -/
 def empty : Builder := { }
 

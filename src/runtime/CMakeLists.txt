@@ -21,6 +21,7 @@ set(
   sharecommon.cpp
   stack_overflow.cpp
   process.cpp
+  demangle.cpp
   object_ref.cpp
   mpn.cpp
   mutex.cpp

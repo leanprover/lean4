@@ -2309,7 +2309,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_IR_uint64ToByteArrayLE(x_2);
 return x_3;
 }

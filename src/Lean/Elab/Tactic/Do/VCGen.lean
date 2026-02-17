@@ -56,9 +56,9 @@ where
 
   tryGoal (mvar : MVarId) : OptionT VCGenM Expr := mvar.withContext do
     -- The type might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
-    forallTelescope (← mvar.getType) fun xs body => do
+    forallTelescope (← mvar.getType) fun xs body => withLocalSpecs xs do
       let res ← try mStart body catch _ => OptionT.fail
-      -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}"
+      -- trace[Elab.Tactic.Do.vcgen] "an MGoal: {res.goal.toExpr}, {xs}"
       let mut prf ← onGoal res.goal (← mvar.getTag)
       -- res.goal.checkProof prf
       if let some proof := res.proof? then
@@ -108,7 +108,7 @@ where
       return ← withLetDeclShared (← mkFreshUserName x) ty val fun shared fv leave => do
       let e' := (body.instantiate1 fv).betaRev e.getAppRevArgs
       let info? ← getSplitInfo? e'
-      if shared && isJP x && ctx.config.jp && info?.isSome then
+      if shared && isJP x && (← read).config.jp && info?.isSome then
         leave (← onJoinPoint fv val (goal.withNewProg e') info?.get! name)
       else
         leave (← onWPApp (goal.withNewProg e') name)
@@ -130,12 +130,12 @@ where
 
     -- delta-unfold definitions according to reducibility and spec attributes,
     -- apply specifications
-    if f.isConst then
+    if f.isConst || f.isFVar then
       burnOne
       -- Now try looking up and applying a spec
       let (prf, specHoles) ← try
-        let specThm ← findSpec ctx.specThms wp
-        trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
+        let specThm ← findSpec (← read).specThms wp
+        trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f}: {specThm.proof}"
         -- We eta-expand as far here as goal.σs permits.
         -- This is so that `mSpec` can frame hypotheses involving uninstantiated loop invariants.
         -- It is absolutely crucial that we do not lose these hypotheses in the inductive step.
@@ -188,23 +188,24 @@ where
     -- Last resort: Split match
     trace[Elab.Tactic.Do.vcgen] "split match: {e}"
     burnOne
-    -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
-    let context ← withLocalDecl `e .default (mkApp m α) fun e => do
-      mkLambdaFVars #[e] (goal.withNewProg e).toExpr
     return ← info.splitWith goal.toExpr (useSplitter := true) fun altSuff expAltType idx params => do
       burnOne
-      let e ← mkFreshExprMVar (mkApp m α)
-      unless ← isDefEq (goal.withNewProg e).toExpr expAltType do
-        throwError "The alternative type {expAltType} returned by `splitWith` does not match {(goal.withNewProg e).toExpr}. This is a bug in `mvcgen`."
+      let some goal := parseMGoal? expAltType
+        | throwError "Bug in `mvcgen`: Expected alt type {expAltType} could not be parsed as an MGoal."
+      let e := goal.target
+        |>.getArg! 2  -- PredTrans.apply
+        |>.getArg! 4  -- WP.wp
       let e ← instantiateMVarsIfMVarApp e
       let res ← liftMetaM <| rwIfOrMatcher idx e
-      -- When `FunInd.rwMatcher` fails, it returns the original expression. We'd loop in that case,
+      -- When `FunInd.rwMatcher` fails, it returns no proof. We'd loop in that case,
       -- so we rather throw an error.
-      if res.expr == e then
-        throwError "`rwMatcher` failed to rewrite {indentExpr e}\n\
-          Check the output of `trace.Elab.Tactic.Do.vcgen.split` for more info and submit a bug report."
-      let goal' := goal.withNewProg res.expr
-      let prf ← withAltCtx idx params <| onWPApp goal' (name ++ altSuff)
+      if res.proof?.isNone then
+        throwError "Bug in `mvcgen`: `rwMatcher` failed to rewrite {indentExpr e}\n\
+          Check the output of `trace.Elab.Tactic.Do.vcgen.split` for more info."
+      let prf ← withAltCtx idx params <| onWPApp (goal.withNewProg res.expr) (name ++ altSuff)
+      -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+      let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+        mkLambdaFVars #[e] (goal.withNewProg e).toExpr
       let res ← Simp.mkCongrArg context res
       res.mkEqMPR prf
 
@@ -457,19 +458,22 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   let goal ← if ctx.config.elimLets then elimLets goal else pure goal
   let { invariants, vcs } ← VCGen.genVCs goal ctx fuel
   trace[Elab.Tactic.Do.vcgen] "after genVCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
-  let runOnVCs (tac : TSyntax `tactic) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
-    vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
-      Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
-  let invariants ← Term.TermElabM.run' do
-    let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+  let runOnVCs (tac : TSyntax `tactic) (extraMsg : MessageData) (vcs : Array MVarId) : TermElabM (Array MVarId) :=
+    vcs.flatMapM fun vc =>
+      tryCatchRuntimeEx
+        (List.toArray <$> Term.withSynthesize do
+          Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals))
+        (fun ex => throwError "Error while running {tac} on {vc}Message: {indentD ex.toMessageData}\n{extraMsg}")
+  let invariants ←
+    if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." invariants else pure invariants
   trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"
   elabInvariants stx[3] invariants (suggestInvariant vcs)
   let invariants ← invariants.filterM (not <$> ·.isAssigned)
   trace[Elab.Tactic.Do.vcgen] "before trying trivial VCs {← (invariants ++ vcs).mapM fun m => m.getTag}"
-  let vcs ← Term.TermElabM.run' do
-    let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) vcs else pure vcs
-    let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) vcs else pure vcs
-    return vcs
+  let vcs ← do
+    let vcs ← if ctx.config.trivial then runOnVCs (← `(tactic| try mvcgen_trivial)) "Try again with -trivial." vcs else pure vcs
+    let vcs ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." vcs else pure vcs
+    pure vcs
   -- Eliminating lets here causes some metavariables in `mkFreshPair_triple` to become nonassignable
   -- so we don't do it. Presumably some weird delayed assignment thing is going on.
   -- let vcs ← if ctx.config.elimLets then liftMetaM <| vcs.mapM elimLets else pure vcs

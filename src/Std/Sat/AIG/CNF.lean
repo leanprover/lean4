@@ -11,8 +11,6 @@ public import Std.Sat.AIG.Lemmas
 import Init.ByCases
 import Init.Omega
 
-public section
-
 /-!
 This module contains an implementation of a verified Tseitin transformation on AIGs. The key results
 are the `toCNF` function and the `toCNF_equisat` correctness statement. The implementation is
@@ -85,8 +83,6 @@ theorem gateToCNF_eval :
 
 end Decl
 
-abbrev CNFVar (aig : AIG Nat) := Nat ⊕ (Fin aig.decls.size)
-
 namespace toCNF
 
 /--
@@ -95,29 +91,33 @@ Mix:
 2. An assignment for auxiliary Tseitin variables
 into an assignment that can be used by a CNF produced by our Tseitin transformation.
 -/
-def mixAssigns {aig : AIG Nat} (assign1 : Nat → Bool) (assign2 : Fin aig.decls.size → Bool) :
-    CNFVar aig → Bool
-  | .inl var => assign1 var
-  | .inr var => assign2 var
+def mixAssigns {aig : AIG Nat} (assign1 : Nat → Bool) (assign2 : Fin aig.decls.size → Bool)
+    (var : Nat) : Bool :=
+  if h : var < aig.decls.size then
+    assign2 ⟨var, h⟩
+  else
+    assign1 (var - aig.decls.size)
 
 /--
 Project the atom assignment out of a CNF assignment
 -/
-def projectLeftAssign (assign : CNFVar aig → Bool) : Nat → Bool := (assign <| .inl ·)
+def projectLeftAssign (aig : AIG Nat)  (assign : Nat → Bool) : Nat → Bool :=
+  fun var => assign (var + aig.decls.size)
 
 /--
 Project the auxiliary variable assignment out of a CNF assignment
 -/
-def projectRightAssign (assign : CNFVar aig → Bool) : (idx : Nat) → (idx < aig.decls.size) → Bool :=
-  fun idx h => assign (.inr ⟨idx, h⟩)
+def projectRightAssign (assign : Nat → Bool) :
+    (idx : Nat) → Bool := fun idx => assign idx
 
 @[simp]
-theorem projectLeftAssign_property : (projectLeftAssign assign) x = (assign <| .inl x) := by
+theorem projectLeftAssign_property :
+    (projectLeftAssign aig assign) x = (assign (x + aig.decls.size)) := by
   simp [projectLeftAssign]
 
 @[simp]
 theorem projectRightAssign_property :
-    (projectRightAssign assign) x hx = (assign <| .inr ⟨x, hx⟩) := by
+    (projectRightAssign assign) x = (assign x) := by
   simp [projectRightAssign]
 
 /--
@@ -125,17 +125,20 @@ Given an atom assignment, produce an assignment that will always satisfy the CNF
 Tseitin transformation. This is done by combining the atom assignment with an assignment for the
 auxiliary variables, that just evaluates the AIG at the corresponding node.
 -/
-def cnfSatAssignment (aig : AIG Nat) (assign1 : Nat → Bool) : CNFVar aig → Bool :=
+def cnfSatAssignment (aig : AIG Nat) (assign1 : Nat → Bool) : Nat → Bool :=
   mixAssigns assign1 (fun idx => ⟦aig, ⟨idx.val, false, idx.isLt⟩, assign1⟧)
 
 @[simp]
-theorem satAssignment_inl : (cnfSatAssignment aig assign1) (.inl x) = assign1 x := by
-  simp [cnfSatAssignment, mixAssigns]
+theorem satAssignment_inl : (cnfSatAssignment aig assign1) (x + aig.decls.size) = assign1 x := by
+  unfold cnfSatAssignment mixAssigns
+  rw [dif_neg]
+  · simp
+  · omega
 
 @[simp]
-theorem satAssignment_inr :
-    (cnfSatAssignment aig assign1) (.inr x) = ⟦aig, ⟨x.val, false, x.isLt⟩, assign1⟧ := by
-  simp [cnfSatAssignment, mixAssigns]
+theorem satAssignment_inr (h : x < aig.decls.size) :
+    (cnfSatAssignment aig assign1) x = ⟦aig, ⟨x, false, h⟩, assign1⟧ := by
+  simp [cnfSatAssignment, mixAssigns, h]
 
 /--
 The central invariant for the `Cache`.
@@ -147,17 +150,17 @@ This means that if the CNF is satisfiable at some assignment, we can evaluate th
 the atom part of that assignment and will get the value that was assigned to the corresponding
 auxiliary variable as a result.
 -/
-def Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool)
+def Cache.Inv (aig : AIG Nat) (cnf : CNF Nat) (marks : Array Bool)
     (hmarks : marks.size = aig.decls.size) : Prop :=
-  ∀ (assign : CNFVar aig → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
+  ∀ (assign : Nat → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
     (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
-      ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign assign⟧ = (projectRightAssign assign) idx hbound
+      ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign aig assign⟧ = (projectRightAssign assign) idx
 
 
 /--
 The `Cache` invariant always holds for an empty CNF when all nodes are unmarked.
 -/
-theorem Cache.Inv_init : Inv (.empty : CNF (CNFVar aig)) (.replicate aig.decls.size false)
+theorem Cache.Inv_init : Inv aig .empty (.replicate aig.decls.size false)
     (by simp) := by
   intro assign _ idx hbound hmark
   simp at hmark
@@ -166,7 +169,7 @@ theorem Cache.Inv_init : Inv (.empty : CNF (CNFVar aig)) (.replicate aig.decls.s
 The CNF cache. It keeps track of AIG nodes that we already turned into CNF to avoid adding the same
 CNF twice.
 -/
-structure Cache (aig : AIG Nat) (cnf : CNF (CNFVar aig)) where
+structure Cache (aig : AIG Nat) (cnf : CNF Nat) where
   /--
   Keeps track of AIG nodes that we already turned into CNF.
   -/
@@ -178,7 +181,7 @@ structure Cache (aig : AIG Nat) (cnf : CNF (CNFVar aig)) where
   /--
   The invariant to make sure that `marks` is well formed with respect to the `cnf`
   -/
-  inv : Cache.Inv cnf marks hmarks
+  inv : Cache.Inv aig cnf marks hmarks
 
 /--
 We say that a cache extends another by an index when it doesn't invalidate any entry and has an
@@ -256,7 +259,7 @@ Add a `Decl.false` to a `Cache`.
 def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .false) :
     {
-      out : Cache aig (cnf ++ Decl.falseToCNF (.inr ⟨idx, h⟩))
+      out : Cache aig (cnf ++ Decl.falseToCNF idx)
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -270,9 +273,8 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
         rw [Array.getElem_set] at hmarked
         split at hmarked
         next heq =>
-          simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
-            at htip heval
-          simp [denote_idx_false htip, projectRightAssign_property, heval]
+          simp [heq] at htip heval
+          simp [denote_idx_false htip, heval]
         next heq =>
           simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.left idx hbound hmarked
@@ -286,7 +288,7 @@ Add a `Decl.atom` to a cache.
 def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .atom a) :
     {
-      out : Cache aig ((cnf ++ Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)))
+      out : Cache aig ((cnf ++ Decl.atomToCNF idx (a + aig.decls.size)))
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -316,16 +318,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
     (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
     (hr : cache.marks[rhs.gate]'hrb = true) :
     {
-      out : Cache
-              aig
-              (cnf ++
-                Decl.gateToCNF
-                (.inr ⟨idx, h⟩)
-                (.inr ⟨lhs.gate, by have := aig.hdag h htip; omega⟩)
-                (.inr ⟨rhs.gate, by have := aig.hdag h htip; omega⟩)
-                lhs.invert
-                rhs.invert
-                )
+      out : Cache aig (cnf ++ Decl.gateToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert)
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -359,20 +352,20 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
 The key invariant about the `State` itself (without cache): The CNF we produce is always satisfiable
 at `cnfSatAssignment`.
 -/
-def State.Inv (cnf : CNF (CNFVar aig)) : Prop :=
+def State.Inv (aig : AIG Nat) (cnf : CNF Nat) : Prop :=
   ∀ (assign1 : Nat → Bool), cnf.Sat (cnfSatAssignment aig assign1)
 
 /--
 The `State` invariant always holds when we have an empty CNF.
 -/
-theorem State.Inv_nil : State.Inv (.empty : CNF (CNFVar aig)) := by
+theorem State.Inv_nil : State.Inv aig (.empty : CNF Nat) := by
   simp [State.Inv]
 
 /--
 Combining two CNFs for which `State.Inv` holds preserves `State.Inv`.
 -/
-theorem State.Inv_append (h1 : State.Inv cnf1) (h2 : State.Inv cnf2) :
-    State.Inv (cnf1 ++ cnf2) := by
+theorem State.Inv_append (h1 : State.Inv aig cnf1) (h2 : State.Inv aig cnf2) :
+    State.Inv aig (cnf1 ++ cnf2) := by
   intro assign1
   specialize h1 assign1
   specialize h2 assign1
@@ -382,37 +375,34 @@ theorem State.Inv_append (h1 : State.Inv cnf1) (h2 : State.Inv cnf2) :
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.false`.
 -/
-theorem State.Inv_falseToCNF (heq : aig.decls[upper] = .false) :
-    State.Inv (aig := aig) (Decl.falseToCNF (.inr ⟨upper, h⟩)) := by
+theorem State.Inv_falseToCNF {upper : Nat} {h : upper < aig.decls.size}
+    (heq : aig.decls[upper] = .false) :
+    State.Inv aig (Decl.falseToCNF upper) := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_false heq]
+  simp [CNF.sat_def, denote_idx_false heq, h]
 
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.atom`
 -/
-theorem State.Inv_atomToCNF (heq : aig.decls[upper] = .atom a) :
-    State.Inv (aig := aig) (Decl.atomToCNF (.inr ⟨upper, h⟩) (.inl a)) := by
+theorem State.Inv_atomToCNF {h : upper < aig.decls.size}
+    (heq : aig.decls[upper] = .atom a) :
+    State.Inv aig (Decl.atomToCNF upper (a + aig.decls.size)) := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_atom heq]
+  simp [CNF.sat_def, denote_idx_atom heq, h]
 
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.gate`
 -/
 theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
     (heq : aig.decls[upper]'h = .gate lhs rhs) :
-    State.Inv
-      (aig := aig)
-      (Decl.gateToCNF
-        (.inr ⟨upper, h⟩)
-        (.inr ⟨lhs.gate, by have := aig.hdag h heq; omega⟩)
-        (.inr ⟨rhs.gate, by have := aig.hdag h heq; omega⟩)
-        lhs.invert
-        rhs.invert)
-    := by
+    State.Inv aig (Decl.gateToCNF upper lhs.gate rhs.gate lhs.invert rhs.invert) := by
   intro assign1
+  have hlhs : lhs.gate < aig.decls.size := Nat.lt_trans (aig.hdag h heq).left h
+  have hrhs : rhs.gate < aig.decls.size := Nat.lt_trans (aig.hdag h heq).right h
   generalize hlinv : lhs.invert = linv
   generalize hrinv : rhs.invert = rinv
-  cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_gate heq, hlinv, hrinv]
+  rw [CNF.sat_def]
+  cases linv <;> cases rinv <;> simp [denote_idx_gate heq, hlinv, hrinv, h, hlhs, hrhs]
 
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
@@ -421,7 +411,7 @@ structure State (aig : AIG Nat) where
   /--
   The CNF clauses so far.
   -/
-  cnf : CNF (CNFVar aig)
+  cnf : CNF Nat
   /--
   A cache so that we don't generate CNF for an AIG node more than once.
   -/
@@ -429,7 +419,7 @@ structure State (aig : AIG Nat) where
   /--
   The invariant that `cnf` has to maintain as we build it up.
   -/
-  inv : State.Inv cnf
+  inv : State.Inv aig cnf
 
 /--
 An initial state with no CNF clauses and an empty cache.
@@ -475,7 +465,7 @@ def State.addFalse (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .false) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   let ⟨cnf, cache, inv⟩ := state
-  let newCnf := Decl.falseToCNF (.inr ⟨idx, h⟩)
+  let newCnf := Decl.falseToCNF idx
   have hinv := toCNF.State.Inv_falseToCNF htip
   let ⟨cache, hcache⟩ := cache.addFalse idx h htip
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
@@ -487,7 +477,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .atom a) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   let ⟨cnf, cache, inv⟩ := state
-  let newCnf := Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)
+  let newCnf := Decl.atomToCNF idx (a + aig.decls.size)
   have hinv := toCNF.State.Inv_atomToCNF htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
@@ -501,13 +491,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
     { out : State aig // State.IsExtensionBy state out idx h } :=
   have := aig.hdag h htip
   let ⟨cnf, cache, inv⟩ := state
-  let newCnf :=
-    Decl.gateToCNF
-      (.inr ⟨idx, h⟩)
-      (.inr ⟨lhs.gate, by omega⟩)
-      (.inr ⟨rhs.gate, by omega⟩)
-      lhs.invert
-      rhs.invert
+  let newCnf := Decl.gateToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert
   have hinv := toCNF.State.Inv_gateToCNF htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
@@ -515,13 +499,13 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
 /--
 Evaluate the CNF contained within the state.
 -/
-def State.eval (assign : CNFVar aig → Bool) (state : State aig) : Bool :=
+def State.eval (assign : Nat → Bool) (state : State aig) : Bool :=
   state.cnf.eval assign
 
 /--
 The CNF within the state is sat.
 -/
-def State.Sat (assign : CNFVar aig → Bool) (state : State aig) : Prop :=
+def State.Sat (assign : Nat → Bool) (state : State aig) : Prop :=
   state.cnf.Sat assign
 
 /--
@@ -540,30 +524,15 @@ theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by rf
 @[simp]
 theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by rfl
 
-@[deprecated State.sat_iff (since := "2025-10-29")]
-theorem State.sat_def (assign : CNFVar aig → Bool) (state : State aig) :
-    state.Sat assign ↔ state.cnf.Sat assign := by
-  rfl
-
-@[deprecated State.unsat_iff (since := "2025-10-29")]
-theorem State.unsat_def (state : State aig) :
-    state.Unsat ↔ state.cnf.Unsat := by
-  rfl
-
 end toCNF
 
 /--
 Convert an AIG into CNF, starting at some entry node.
 -/
-def toCNF (entry : Entrypoint Nat) : CNF Nat :=
+public def toCNF (entry : Entrypoint Nat) : CNF Nat :=
   let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
-  let cnf : CNF (CNFVar entry.aig) := state.cnf.add [(.inr ⟨entry.ref.gate, entry.ref.hgate⟩, !entry.ref.invert)]
-  cnf.relabel inj
+  state.cnf.add [(entry.ref.gate, !entry.ref.invert)]
 where
-  inj {aig : AIG Nat} (var : CNFVar aig) : Nat :=
-    match var with
-    | .inl var => aig.decls.size + var
-    | .inr var => var.val
   go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
     if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
@@ -595,52 +564,23 @@ where
         ⟩
 
 /--
-The function we use to convert from CNF with explicit auxiliary variables to just `Nat` variables
-in `toCNF` is an injection.
--/
-private theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
-    toCNF.inj a = toCNF.inj b → a = b := by
-  intro h
-  cases a with
-  | inl =>
-    cases b with
-    | inl =>
-      dsimp only [inj] at h
-      congr
-      omega
-    | inr rhs =>
-      exfalso
-      dsimp only [inj] at h
-      have := rhs.isLt
-      omega
-  | inr lhs =>
-    cases b with
-    | inl =>
-      dsimp only [inj] at h
-      omega
-    | inr =>
-      dsimp only [inj] at h
-      congr
-      omega
-
-/--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
-private theorem toCNF.go_marks :
+theorem toCNF.go_marks :
     (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
   (go aig start h state).property.trueAt
 
 /--
 The CNF returned by `go` will always be SAT at `cnfSatAssignment`.
 -/
-private theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
+theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
     (state : toCNF.State aig) :
     (go aig start h1 state).val.Sat (cnfSatAssignment aig assign1)  := by
   have := (go aig start h1 state).val.inv assign1
   rw [State.sat_iff]
   simp [this]
 
-private theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
+theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
     ⟦aig, ⟨start, inv, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
   have := go_sat aig start h1 assign1 (.empty aig)
   simp only [State.Sat, CNF.sat_def] at this
@@ -649,7 +589,7 @@ private theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1)
 /--
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
-private theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
+theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
     ((⟦aig, ⟨start, inv, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
     (⟦aig, ⟨start, inv, h1⟩, assign1⟧ = sat?) := by
@@ -659,10 +599,10 @@ private theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
 -/
-private theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
-    (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign assign⟧ = false)
+theorem toCNF.denote_as_go {assign : Nat → Bool} :
+    (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign aig assign⟧ = false)
       →
-    CNF.eval assign (((go aig start h1 (.empty aig)).val.cnf.add [(.inr ⟨start, h1⟩, !inv)])) = false := by
+    CNF.eval assign (((go aig start h1 (.empty aig)).val.cnf.add [(start, !inv)])) = false := by
   intro h
   match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>
@@ -675,20 +615,16 @@ private theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
 /--
 An AIG is unsat iff its CNF is unsat.
 -/
-theorem toCNF_equisat (entry : Entrypoint Nat) : (toCNF entry).Unsat ↔ entry.Unsat := by
-  dsimp only [toCNF]
-  rw [CNF.unsat_relabel_iff]
-  · constructor
-    · intro h assign1
-      apply toCNF.go_as_denote
-      specialize h (toCNF.cnfSatAssignment entry.aig assign1)
-      rcases entry with ⟨_, ⟨_, _ | _, _⟩⟩ <;> simpa using h
-    · intro h assign
-      apply toCNF.denote_as_go
-      specialize h (toCNF.projectLeftAssign assign)
-      assumption
-  · intro a b _ _ hinj
-    apply toCNF.inj_is_injection
+public theorem toCNF_equisat (entry : Entrypoint Nat) : (toCNF entry).Unsat ↔ entry.Unsat := by
+  simp only [toCNF]
+  constructor
+  · intro h assign1
+    apply toCNF.go_as_denote
+    specialize h (toCNF.cnfSatAssignment entry.aig assign1)
+    rcases entry with ⟨_, ⟨_, _ | _, hgate⟩⟩ <;> simpa [hgate] using h
+  · intro h assign
+    apply toCNF.denote_as_go
+    specialize h (toCNF.projectLeftAssign entry.aig assign)
     assumption
 
 end AIG

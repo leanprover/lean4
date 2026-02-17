@@ -31,7 +31,7 @@ private def letValueDepOn (e : LetValue pu) : M Bool :=
   match e with
   | .erased | .lit .. => return false
   | .proj _ _ fvarId _ | .oproj _ fvarId _ | .uproj _ fvarId _ | .sproj _ _ fvarId _
-  | .reset _ fvarId  _ => fvarDepOn fvarId
+  | .reset _ fvarId  _ | .box _ fvarId _ | .unbox fvarId _ => fvarDepOn fvarId
   | .fvar fvarId args | .reuse fvarId _ _ args _ => fvarDepOn fvarId <||> args.anyM argDepOn
   | .const _ _ args _ | .ctor _ args _ | .fap _ args _ | .pap _ args _ => args.anyM argDepOn
 

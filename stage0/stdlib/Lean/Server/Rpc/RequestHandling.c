@@ -468,7 +468,7 @@ _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Server_instInhabitedRpcProcedure_default___lam__0(x_5, x_2, x_3);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -1082,7 +1082,7 @@ _start:
 {
 uint64_t x_6; lean_object* x_7; 
 x_6 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = l_Lean_Server_handleRpcCall___lam__0(x_1, x_6, x_3, x_4);
 return x_7;
 }
@@ -1268,7 +1268,7 @@ _start:
 uint8_t x_11; uint64_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_4);
 x_12 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_13 = l_Lean_Server_handleRpcCall___lam__3(x_1, x_2, x_3, x_11, x_12, x_6, x_7, x_8, x_9);
 lean_dec_ref(x_8);
 return x_13;
@@ -2983,9 +2983,9 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_Server_wrapRpcProcedure___redArg___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -3254,7 +3254,7 @@ _start:
 {
 uint64_t x_10; lean_object* x_11; 
 x_10 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_11 = l_Lean_Server_wrapRpcProcedure___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_10, x_7, x_8);
 return x_11;
 }

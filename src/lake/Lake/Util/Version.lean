@@ -235,13 +235,14 @@ open ToolchainVer in
 /-- A Lean toolchain version. -/
 inductive ToolchainVer
 | release (ver : LeanVer)
-| nightly (date : Date)
+| nightly (date : Date) (rev : Option Nat := none)
 | pr (n : Nat)
 | other (v : String)
 with
   @[computed_field] toString : ToolchainVer → String
     | .release ver => s!"{defaultOrigin}:v{ver}"
-    | .nightly date => s!"{defaultOrigin}:nightly-{date}"
+    | .nightly date rev => s!"{defaultOrigin}:nightly-{date}" ++
+        match rev with | none => "" | some r => s!"-rev{r}"
     | .pr n => s!"{prOrigin}:pr-release-{n}"
     | .other v => v
 deriving Repr, DecidableEq
@@ -264,13 +265,20 @@ public def ofString (ver : String) : ToolchainVer := Id.run do
     if let .ok ver := StdVer.parse (tag.drop 1).copy then
       if noOrigin|| origin == defaultOrigin then
         return .release ver
-  else if let some date := tag.dropPrefix? "nightly-" then
-    if let some date := Date.ofString? date.toString then
-      if noOrigin then
-        return .nightly date
-      else if let some suffix := origin.dropPrefix? defaultOrigin then
-        if suffix.isEmpty || suffix == "-nightly" then
-          return .nightly date
+  else if let some rest := tag.dropPrefix? "nightly-" then
+    let rest := rest.toString
+    -- Dates are exactly 10 characters (YYYY-MM-DD); anything after must be a -revK suffix
+    if let some date := Date.ofString? (rest.take 10).toString then
+      let rev? : Option Nat := do
+        let suffix ← (rest.drop 10).dropPrefix? "-rev"
+        suffix.toString.toNat?
+      -- Accept if no suffix (plain nightly) or valid -revK suffix
+      if rest.length ≤ 10 || rev?.isSome then
+        if noOrigin then
+          return .nightly date rev?
+        else if let some suffix := origin.dropPrefix? defaultOrigin then
+          if suffix.isEmpty || suffix == "-nightly" then
+            return .nightly date rev?
   else if let some n := tag.dropPrefix?  "pr-release-" then
     if let some n := n.toNat? then
       if noOrigin || origin == prOrigin then
@@ -301,7 +309,8 @@ public instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJso
 public def blt (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 < v2
-  | .nightly d1, .nightly d2 => d1 < d2
+  | .nightly d1 r1, .nightly d2 r2 =>
+    d1 < d2 || (d1 == d2 && (r1.getD 0) < (r2.getD 0))
   | _, _ => false
 
 public instance : LT ToolchainVer := ⟨(·.blt ·)⟩
@@ -311,7 +320,8 @@ public instance decLt (a b : ToolchainVer) : Decidable (a < b) :=
 public def ble (a b : ToolchainVer) : Bool :=
   match a, b with
   | .release v1, .release v2 => v1 ≤ v2
-  | .nightly d1, .nightly d2 => d1 ≤ d2
+  | .nightly d1 r1, .nightly d2 r2 =>
+    d1 < d2 || (d1 == d2 && (r1.getD 0) ≤ (r2.getD 0))
   | .pr n1, .pr n2 => n1 = n2
   | .other v1, .other v2 => v1 = v2
   | _, _ => false

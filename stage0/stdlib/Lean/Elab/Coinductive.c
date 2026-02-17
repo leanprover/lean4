@@ -583,7 +583,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static const lean_string_object l_Lean_Elab_Command_elabCoinductive___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 14, .m_capacity = 14, .m_length = 13, .m_data = "Elaborating: "};
 static const lean_object* l_Lean_Elab_Command_elabCoinductive___closed__0 = (const lean_object*)&l_Lean_Elab_Command_elabCoinductive___closed__0_value;
 static lean_object* l_Lean_Elab_Command_elabCoinductive___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabCoinductive___boxed__const__1;
 lean_object* l_Lean_Meta_getLocalInstances___redArg(lean_object*);
 lean_object* l_Lean_Elab_partialFixpoint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
@@ -10975,15 +10974,6 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Command_elabCoinductive___boxed__const__1() {
-_start:
-{
-size_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_usize(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabCoinductive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -11100,7 +11090,7 @@ lean_inc(x_33);
 lean_inc(x_37);
 x_39 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Command_elabCoinductive_spec__3(x_37, x_38, x_22, x_33);
 x_40 = lean_box_usize(x_31);
-x_41 = l_Lean_Elab_Command_elabCoinductive___boxed__const__1;
+x_41 = l___private_Lean_Elab_Coinductive_0__Lean_Elab_Command_generateCoinductiveConstructor___boxed__const__1;
 lean_inc(x_24);
 x_42 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabCoinductive___lam__0___boxed), 14, 5);
 lean_closure_set(x_42, 0, x_37);
@@ -11510,8 +11500,6 @@ l_Array_mapFinIdxM_map___at___00Lean_Elab_Command_elabCoinductive_spec__5___redA
 lean_mark_persistent(l_Array_mapFinIdxM_map___at___00Lean_Elab_Command_elabCoinductive_spec__5___redArg___closed__0);
 l_Lean_Elab_Command_elabCoinductive___closed__1 = _init_l_Lean_Elab_Command_elabCoinductive___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabCoinductive___closed__1);
-l_Lean_Elab_Command_elabCoinductive___boxed__const__1 = _init_l_Lean_Elab_Command_elabCoinductive___boxed__const__1();
-lean_mark_persistent(l_Lean_Elab_Command_elabCoinductive___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

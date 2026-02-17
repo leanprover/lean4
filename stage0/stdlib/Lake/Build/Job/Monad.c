@@ -5810,9 +5810,9 @@ goto block_14;
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lake_JobState_merge(x_5, x_6);
+x_7 = l_Lake_JobState_merge(x_4, x_6);
 x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
@@ -5822,8 +5822,8 @@ lean_object* x_13;
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec_ref(x_10);
-x_4 = x_11;
-x_5 = x_12;
+x_4 = x_12;
+x_5 = x_11;
 x_6 = x_13;
 goto block_9;
 }
@@ -6009,9 +6009,9 @@ goto block_14;
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lake_JobState_merge(x_5, x_6);
+x_7 = l_Lake_JobState_merge(x_4, x_6);
 x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_4);
+lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
@@ -6021,8 +6021,8 @@ lean_object* x_13;
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec_ref(x_10);
-x_4 = x_11;
-x_5 = x_12;
+x_4 = x_12;
+x_5 = x_11;
 x_6 = x_13;
 goto block_9;
 }

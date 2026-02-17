@@ -64,6 +64,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := d
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
     if (← tryURefl mvarId) then
+      trace[Elab.definition.eqns] "proved directly by rfl"
       return ← instantiateMVars main
 
     go (← unfoldLHS declName mvarId)

@@ -521,14 +521,14 @@ protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → x
   rw [← toList_toArray, Array.sum_toList, sum_toArray]
 
 @[simp, grind =]
-theorem Vector.toList_zip {as : Vector α n} {bs : Vector β n} :
+theorem toList_zip {as : Vector α n} {bs : Vector β n} :
     (Vector.zip as bs).toList = List.zip as.toList bs.toList := by
   rw [mk_zip_mk, toList_mk, Array.toList_zip, toList_toArray, toList_toArray]
 
 @[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
-  simp
+  simp; rfl
 
 @[simp] theorem getElem?_toList {xs : Vector α n} {i : Nat} :
     xs.toList[i]? = xs[i]? := by
@@ -2908,6 +2908,7 @@ theorem replace_extract {xs : Vector α n} {i : Nat} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.replace_extract]
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
     (replicate n a).replace a b = (#v[b] ++ replicate (n - 1) a).cast (by omega) := by
   match n, h with
@@ -2926,6 +2927,7 @@ set_option linter.indexVariables false in
 theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
   ext i
   by_cases h : i < n
@@ -3019,6 +3021,7 @@ theorem forall_zero_iff {P : Vector α 0 → Prop} :
     obtain (rfl : xs = #v[]) := (by ext i h; simp at h)
     apply h
 
+set_option backward.isDefEq.respectTransparency false in
 theorem forall_cons_iff {P : Vector α (n + 1) → Prop} :
     (∀ xs : Vector α (n + 1), P xs) ↔ (∀ (x : α) (xs : Vector α n), P (xs.push x)) := by
   constructor

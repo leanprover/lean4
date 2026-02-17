@@ -1735,16 +1735,16 @@ return x_68;
 else
 {
 lean_dec_ref(x_38);
-x_15 = x_36;
-x_16 = x_35;
+x_15 = x_35;
+x_16 = x_36;
 goto block_24;
 }
 }
 else
 {
 lean_dec_ref(x_38);
-x_15 = x_36;
-x_16 = x_35;
+x_15 = x_35;
+x_16 = x_36;
 goto block_24;
 }
 }
@@ -1762,8 +1762,8 @@ x_73 = lean_nat_dec_lt(x_27, x_72);
 if (x_73 == 0)
 {
 lean_dec_ref(x_69);
-x_2 = x_36;
-x_3 = x_70;
+x_2 = x_70;
+x_3 = x_36;
 x_4 = x_71;
 goto block_14;
 }
@@ -1774,8 +1774,8 @@ x_74 = lean_usize_of_nat(x_72);
 x_75 = 0;
 x_76 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualLink_spec__3(x_69, x_74, x_75, x_71);
 lean_dec_ref(x_69);
-x_2 = x_36;
-x_3 = x_70;
+x_2 = x_70;
+x_3 = x_36;
 x_4 = x_76;
 goto block_14;
 }
@@ -1787,11 +1787,11 @@ block_14:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_box(0);
 x_6 = l_List_mapTR_loop___at___00Lean_manualLink_spec__1(x_4, x_5);
-x_7 = l_String_intercalate(x_3, x_6);
-lean_dec_ref(x_3);
-x_8 = ((lean_object*)(l_Lean_manualLink___closed__3));
-x_9 = lean_string_append(x_8, x_2);
+x_7 = l_String_intercalate(x_2, x_6);
 lean_dec_ref(x_2);
+x_8 = ((lean_object*)(l_Lean_manualLink___closed__3));
+x_9 = lean_string_append(x_8, x_3);
+lean_dec_ref(x_3);
 x_10 = ((lean_object*)(l_Lean_manualLink___closed__4));
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_7);
@@ -1804,12 +1804,12 @@ block_24:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_17 = ((lean_object*)(l___private_Lean_DocString_Links_0__Lean_rw___closed__0));
-x_18 = lean_string_append(x_17, x_15);
-lean_dec_ref(x_15);
+x_18 = lean_string_append(x_17, x_16);
+lean_dec_ref(x_16);
 x_19 = ((lean_object*)(l___private_Lean_DocString_Links_0__Lean_rw___closed__1));
 x_20 = lean_string_append(x_18, x_19);
-x_21 = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(x_16);
-lean_dec(x_16);
+x_21 = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(x_15);
+lean_dec(x_15);
 x_22 = lean_string_append(x_20, x_21);
 lean_dec_ref(x_21);
 x_23 = lean_alloc_ctor(0, 1, 0);

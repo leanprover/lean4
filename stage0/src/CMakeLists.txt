@@ -250,7 +250,7 @@ else()
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     # smallest+slower | -Oz .. -Os .. -O3 | largest+faster

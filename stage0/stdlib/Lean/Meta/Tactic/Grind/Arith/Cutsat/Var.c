@@ -1848,15 +1848,15 @@ lean_closure_set(x_22, 0, x_2);
 lean_closure_set(x_22, 1, x_20);
 lean_closure_set(x_22, 2, x_15);
 x_23 = l_Lean_Meta_Grind_Arith_Cutsat_cutsatExt;
-x_24 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_23, x_22, x_17);
-lean_dec(x_17);
+x_24 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_23, x_22, x_19);
+lean_dec(x_19);
 return x_24;
 }
 else
 {
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_20);
-lean_dec(x_17);
+lean_dec(x_19);
 lean_dec(x_15);
 lean_dec(x_2);
 x_25 = lean_box(0);
@@ -1889,9 +1889,9 @@ if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
 x_36 = lean_box(0);
-x_17 = x_28;
+x_17 = lean_box(0);
 x_18 = x_34;
-x_19 = lean_box(0);
+x_19 = x_28;
 x_20 = x_36;
 goto block_27;
 }
@@ -1901,9 +1901,9 @@ lean_object* x_37;
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec_ref(x_35);
-x_17 = x_28;
+x_17 = lean_box(0);
 x_18 = x_34;
-x_19 = lean_box(0);
+x_19 = x_28;
 x_20 = x_37;
 goto block_27;
 }

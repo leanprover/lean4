@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Termination
-// Imports: public import Init.Data.String.Lemmas.Splits import Init.Data.Option.Lemmas import Init.Omega
+// Imports: public import Init.Data.String.Lemmas.Splits public import Init.Data.String.FindPos import Init.Data.Option.Lemmas import Init.Omega import Init.ByCases import Init.Data.String.Lemmas.FindPos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1556,8 +1556,11 @@ return x_112;
 }
 }
 lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
+lean_object* initialize_Init_Data_String_FindPos(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_ByCases(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Termination(uint8_t builtin) {
 lean_object * res;
@@ -1566,10 +1569,19 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_String_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__31 = _init_l_String___aux__Init__Data__String__Termination______macroRules__tacticDecreasing__trivial__1___closed__31();

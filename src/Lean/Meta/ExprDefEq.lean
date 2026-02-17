@@ -22,7 +22,7 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
 }
 
 register_builtin_option backward.isDefEq.respectTransparency : Bool := {
-  defValue := false
+  defValue := true
   descr    := "if true (the default), do not bump transparency to `.default` \
   when checking whether implicit arguments are definitionally equal"
 }

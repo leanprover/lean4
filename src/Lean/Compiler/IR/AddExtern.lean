@@ -7,12 +7,14 @@ Authors: Cameron Zwarich
 module
 
 prelude
-public import Lean.Compiler.IR.Boxing
+import Init.While
 import Lean.Compiler.IR.RC
+import Lean.Compiler.IR.ToIR
 import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.ToImpure
-import Init.While
-import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.ExplicitBoxing
+import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.ExternAttr
 
 public section
 
@@ -23,8 +25,8 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
   if !isPrivateName declName then
     modifyEnv (Compiler.LCNF.setDeclPublic · declName)
   let monoDecl ← addMono declName
-  let impureDecl ← addImpure monoDecl
-  addIr impureDecl
+  let impureDecls ← addImpure monoDecl
+  addIr impureDecls
 where
   addMono (declName : Name) : CoreM (Compiler.LCNF.Decl .pure) := do
     let type ← Compiler.LCNF.getOtherDeclMonoType declName
@@ -51,11 +53,11 @@ where
     decl.saveMono
     return decl
 
-  addImpure (decl : Compiler.LCNF.Decl .pure) : CoreM (Compiler.LCNF.Decl .impure) := do
+  addImpure (decl : Compiler.LCNF.Decl .pure) : CoreM (Array (Compiler.LCNF.Decl .impure)) := do
     let type ← Compiler.LCNF.lowerResultType decl.type decl.params.size
     let params ← decl.params.mapM fun param =>
       return { param with type := ← Compiler.LCNF.toImpureType param.type }
-    let decl := {
+    let decl : Compiler.LCNF.Decl .impure := {
       name := decl.name,
       levelParams := decl.levelParams,
       value := .extern externAttrData
@@ -63,15 +65,13 @@ where
       type,
       params
     }
-    decl.saveImpure
-    return decl
-
-  addIr (decl : Compiler.LCNF.Decl .impure) : CoreM Unit := do
-    let params := decl.params.mapIdx fun idx param =>
-      { x := ⟨idx⟩, borrow := param.borrow, ty := toIRType param.type  }
-    let type := toIRType decl.type
-    let decls := #[.extern declName params type externAttrData]
-    let decls := ExplicitBoxing.addBoxedVersions (← Lean.getEnv) decls
+    Compiler.LCNF.CompilerM.run (phase := .impure) do
+      let decl ← decl.internalize
+      decl.saveImpure
+      Compiler.LCNF.addBoxedVersions #[decl]
+      
+  addIr (decls : Array (Compiler.LCNF.Decl .impure)) : CoreM Unit := do
+    let decls ← toIR decls
     let decls ← explicitRC decls
     logDecls `result decls
     addDecls decls

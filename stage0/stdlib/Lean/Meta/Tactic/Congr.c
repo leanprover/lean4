@@ -291,15 +291,15 @@ if (x_47 == 0)
 uint8_t x_48; 
 lean_inc(x_46);
 x_48 = l_Lean_Exception_isRuntime(x_46);
-x_10 = x_46;
-x_11 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_46;
 x_12 = x_48;
 goto block_29;
 }
 else
 {
-x_10 = x_46;
-x_11 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_46;
 x_12 = x_47;
 goto block_29;
 }
@@ -329,7 +329,7 @@ block_29:
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_9);
 lean_inc(x_8);
 x_13 = l_Lean_MVarId_assumptionCore(x_8, x_2, x_3, x_4, x_5);
@@ -423,7 +423,7 @@ if (lean_is_scalar(x_9)) {
  x_28 = x_9;
  lean_ctor_set_tag(x_28, 1);
 }
-lean_ctor_set(x_28, 0, x_10);
+lean_ctor_set(x_28, 0, x_11);
 return x_28;
 }
 }

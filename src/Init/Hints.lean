@@ -4,14 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Tactics
 import Init.NotationExtra
-
 public section
 
 /- Hint for making sure `Not p` is definitionally equal to `p → False` even when
    `TransparencyMode.reducible` -/
 unif_hint (p : Prop) where
-  |- Not p =?= p → False
+  ⊢ Not p =?= p → False
+
+unif_hint (n : Nat) where
+  ⊢ n - 0 =?= n
+
+unif_hint (n : Nat) where
+  ⊢ n + 0 =?= n
+
+unif_hint (n : Nat) where
+  ⊢ n * 0 =?= 0

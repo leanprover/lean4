@@ -79,7 +79,6 @@ static const lean_ctor_object l_instHashableArray___redArg___lam__1___closed__8_
 static const lean_object* l_instHashableArray___redArg___lam__1___closed__8 = (const lean_object*)&l_instHashableArray___redArg___lam__1___closed__8_value;
 static const lean_ctor_object l_instHashableArray___redArg___lam__1___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_instHashableArray___redArg___lam__1___closed__8_value),((lean_object*)&l_instHashableArray___redArg___lam__1___closed__6_value)}};
 static const lean_object* l_instHashableArray___redArg___lam__1___closed__9 = (const lean_object*)&l_instHashableArray___redArg___lam__1___closed__9_value;
-LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__1___boxed__const__1;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -145,9 +144,9 @@ lean_dec_ref(x_3);
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_apply_1(x_2, x_5);
 x_8 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_unbox_uint64(x_7);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = lean_uint64_mix_hash(x_8, x_9);
 return x_10;
 }
@@ -260,7 +259,7 @@ lean_dec_ref(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = 13;
 x_7 = lean_unbox_uint64(x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = lean_uint64_mix_hash(x_7, x_6);
 return x_8;
 }
@@ -299,7 +298,7 @@ _start:
 lean_object* x_4; uint64_t x_5; uint64_t x_6; 
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_uint64_mix_hash(x_2, x_5);
 return x_6;
 }
@@ -309,7 +308,7 @@ _start:
 {
 uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_instHashableList___redArg___lam__0(x_1, x_4, x_3);
 x_6 = lean_box_uint64(x_5);
 return x_6;
@@ -369,7 +368,7 @@ _start:
 lean_object* x_4; uint64_t x_5; uint64_t x_6; 
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox_uint64(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_uint64_mix_hash(x_2, x_5);
 return x_6;
 }
@@ -379,19 +378,10 @@ _start:
 {
 uint64_t x_4; uint64_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_instHashableArray___redArg___lam__0(x_1, x_4, x_3);
 x_6 = lean_box_uint64(x_5);
 return x_6;
-}
-}
-static lean_object* _init_l_instHashableArray___redArg___lam__1___boxed__const__1() {
-_start:
-{
-uint64_t x_1; lean_object* x_2; 
-x_1 = 7;
-x_2 = lean_box_uint64(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT uint64_t l_instHashableArray___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
@@ -426,7 +416,7 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint64_t x_13; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
-x_11 = l_instHashableArray___redArg___lam__1___boxed__const__1;
+x_11 = l_instHashableList___redArg___lam__1___boxed__const__1;
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_9, x_10, x_11);
 x_13 = lean_unbox_uint64(x_12);
 lean_dec(x_12);
@@ -438,7 +428,7 @@ else
 size_t x_14; size_t x_15; lean_object* x_16; lean_object* x_17; uint64_t x_18; 
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_5);
-x_16 = l_instHashableArray___redArg___lam__1___boxed__const__1;
+x_16 = l_instHashableList___redArg___lam__1___boxed__const__1;
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_14, x_15, x_16);
 x_18 = lean_unbox_uint64(x_17);
 lean_dec(x_17);
@@ -486,7 +476,7 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_instHashableUInt64___lam__0(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -602,7 +592,7 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_hash64(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -623,8 +613,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instHashableList___redArg___lam__1___boxed__const__1 = _init_l_instHashableList___redArg___lam__1___boxed__const__1();
 lean_mark_persistent(l_instHashableList___redArg___lam__1___boxed__const__1);
-l_instHashableArray___redArg___lam__1___boxed__const__1 = _init_l_instHashableArray___redArg___lam__1___boxed__const__1();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___boxed__const__1);
 l_instHashableInt___lam__0___closed__0 = _init_l_instHashableInt___lam__0___closed__0();
 lean_mark_persistent(l_instHashableInt___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

@@ -83,6 +83,7 @@ def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
 @[simp]
 theorem toUInt8_val {c : Char} : c.val.toUInt8 = c.toUInt8 := rfl
 
+@[simp]
 theorem toString_eq_singleton {c : Char} : c.toString = String.singleton c := rfl
 
 end Char

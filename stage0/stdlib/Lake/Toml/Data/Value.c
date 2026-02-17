@@ -198,7 +198,7 @@ static const lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsaf
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropEndWhile_go___at___00Lake_Toml_ppTable_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropEndWhile_go___at___00Lake_Toml_ppTable_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_ppTable___closed__0;
@@ -2337,7 +2337,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_16; lean_obje
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_7, x_10);
 lean_dec(x_7);
-x_12 = l_String_Slice_Pos_prevAux_go___redArg(x_6, x_11);
+x_12 = l_String_Slice_posLE(x_6, x_11);
 x_18 = lean_nat_add(x_4, x_12);
 x_19 = lean_string_utf8_get_fast(x_3, x_18);
 lean_dec(x_18);

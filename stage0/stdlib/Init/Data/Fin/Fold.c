@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin.Fold
-// Imports: public import Init.Control.Lawful.Basic public import Init.Ext import Init.Data.Fin.Lemmas import Init.Data.Nat.Lemmas import Init.Omega import Init.TacticsExtra import Init.WFTactics
+// Imports: public import Init.Control.Lawful.Basic public import Init.Ext import Init.Data.Fin.Lemmas import Init.Data.Nat.Lemmas import Init.Omega import Init.TacticsExtra import Init.WFTactics import Init.Hints
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,8 +31,8 @@ LEAN_EXPORT lean_object* l_Fin_foldr_loop___boxed(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Fin_foldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_foldr(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_foldlM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,15 +200,6 @@ x_5 = l_Fin_foldr_loop___redArg(x_3, x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_1);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -236,7 +227,7 @@ x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 lean_inc(x_3);
 lean_inc(x_5);
-x_11 = lean_alloc_closure((void*)(l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0___boxed), 5, 4);
+x_11 = lean_alloc_closure((void*)(l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0), 5, 4);
 lean_closure_set(x_11, 0, x_5);
 lean_closure_set(x_11, 1, x_1);
 lean_closure_set(x_11, 2, x_2);
@@ -255,6 +246,15 @@ x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_add(x_1, x_6);
 x_8 = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg(x_2, x_3, x_4, x_5, x_7);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_1);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -281,15 +281,6 @@ lean_object* x_7; lean_object* x_8;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop___redArg(x_3, x_4, x_5, x_6, x_7);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -320,13 +311,22 @@ x_12 = lean_nat_sub(x_3, x_11);
 lean_inc(x_2);
 lean_inc(x_12);
 x_13 = lean_apply_2(x_2, x_12, x_4);
-x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg___boxed), 4, 3);
+x_14 = lean_alloc_closure((void*)(l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg), 4, 3);
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_2);
 lean_closure_set(x_14, 2, x_12);
 x_15 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_13, x_14);
 return x_15;
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldrM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -490,6 +490,7 @@ lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
+lean_object* initialize_Init_Hints(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Fin_Fold(uint8_t builtin) {
 lean_object * res;
@@ -514,6 +515,9 @@ res = initialize_Init_TacticsExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_WFTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Hints(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

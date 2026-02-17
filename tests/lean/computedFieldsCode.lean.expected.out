@@ -240,10 +240,10 @@
       default →
         let x_4 : u64 := 42;
         ret x_4
-    def Exp.hash._override._boxed (x_1 : tobj) : tobj :=
+    def Exp.hash._override._boxed (x_1 : tobj) : obj :=
       let x_2 : u64 := Exp.hash._override x_1;
       dec x_1;
-      let x_3 : tobj := box x_2;
+      let x_3 : obj := box x_2;
       ret x_3
 [Compiler.IR] [result]
     def Exp.app._override (x_1 : tobj) (x_2 : tobj) : tobj :=

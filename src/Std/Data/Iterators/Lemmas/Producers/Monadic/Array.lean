@@ -53,6 +53,7 @@ theorem Array.step_iterM {array : Array β} :
 
 section Equivalence
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β}
     {pos : Nat} :
     (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then
@@ -145,7 +146,7 @@ theorem Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat
   rw [← List.toArray_drop]
 
 @[simp, grind =]
-theorem Array.toArray_toIterM [LawfulMonad m] {array : Array β} :
+theorem Array.toArray_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toArray = pure array := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toArray_iterFromIdxM]
 
@@ -155,6 +156,16 @@ theorem Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : N
   simp [IterM.toListRev_eq, Array.toList_iterFromIdxM]
 
 @[simp, grind =]
-theorem Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
+theorem Array.toListRev_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toListRev = pure array.toListRev := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toListRev_iterFromIdxM]
+
+@[simp, grind =]
+theorem Array.length_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+    (array.iterFromIdxM m pos).length = pure (.up (array.size - pos)) := by
+  simp [← IterM.up_length_toList_eq_length]
+
+@[simp, grind =]
+theorem Array.length_iterM [LawfulMonad m] {array : Array β} :
+    (array.iterM m).length = pure (.up array.size) := by
+  simp [← IterM.up_length_toList_eq_length]

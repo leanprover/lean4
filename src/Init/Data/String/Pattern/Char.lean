@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
+import Init.Data.String.Lemmas.FindPos
 import Init.Data.String.Termination
-public import Init.Data.String.Basic
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.String.Lemmas.Order
 import Init.Data.Option.Lemmas

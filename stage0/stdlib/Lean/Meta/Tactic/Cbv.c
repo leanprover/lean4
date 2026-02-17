@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Cbv
-// Imports: public import Lean.Meta.Tactic.Cbv.Main public import Lean.Meta.Tactic.Cbv.Util
+// Imports: public import Lean.Meta.Tactic.Cbv.Main public import Lean.Meta.Tactic.Cbv.Util public import Lean.Meta.Tactic.Cbv.CbvEvalExt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -207,6 +207,7 @@ return x_2;
 }
 lean_object* initialize_Lean_Meta_Tactic_Cbv_Main(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Cbv_Util(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Cbv_CbvEvalExt(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cbv(uint8_t builtin) {
 lean_object * res;
@@ -216,6 +217,9 @@ res = initialize_Lean_Meta_Tactic_Cbv_Main(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Cbv_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Cbv_CbvEvalExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Cbv_0__Lean_initFn___closed__22_00___x40_Lean_Meta_Tactic_Cbv_4268171306____hygCtx___hyg_2_ = _init_l___private_Lean_Meta_Tactic_Cbv_0__Lean_initFn___closed__22_00___x40_Lean_Meta_Tactic_Cbv_4268171306____hygCtx___hyg_2_();

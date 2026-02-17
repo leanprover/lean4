@@ -257,7 +257,7 @@ def calcNeeds (s : State) (i : ModuleIdx) : Needs := Id.run do
       needs := visitExpr k e needs
 
   for use in getExtraModUses env i do
-    let j := env.getModuleIdx? use.module |>.get!
+    let j : Nat := env.getModuleIdx? use.module |>.get!
     needs := needs.union { use with } {j}
 
   return needs
@@ -268,11 +268,11 @@ where
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
       if let some c := getDepConstName? s c then
-        if let some j := env.getModuleIdxFor? c then
+        if let some (j : Nat) := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
             deps := deps.union k {j}
-            for indMod in s.indirectModUses[c]?.getD #[] do
+            for (indMod : Nat) in s.indirectModUses[c]?.getD #[] do
               if s.transDeps[i]!.has k indMod then
                 deps := deps.union k {indMod}
       return deps
@@ -427,7 +427,7 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
   -- Add additional preserved imports
   for impStx in imports do
     let imp := decodeImport impStx
-    let j := s.env.getModuleIdx? imp.module |>.get!
+    let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if addOnly ||
         -- TODO: allow per-library configuration instead of hardcoding `Init`
@@ -456,13 +456,14 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
             deps := deps.sub k' (transDeps.sub k' {j} |>.get k')
 
   if prelude?.isNone then
-    deps := deps.union .pub {s.env.getModuleIdx? `Init |>.get!}
+    let j : Nat := s.env.getModuleIdx? `Init |>.get!
+    deps := deps.union .pub {j}
 
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty
   let mut alwaysAdd : Array Import := #[]  -- to be added even if implied by other imports
   for imp in s.mods[i]!.imports do
-    let j := s.env.getModuleIdx? imp.module |>.get!
+    let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if deps.has k j || imp.importAll then
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!

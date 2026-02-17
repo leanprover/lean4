@@ -143,6 +143,12 @@ partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M F
     withGetFVarValue var fun var => do
       let irArgs ← args.mapM lowerArg
       continueLet (.reuse var (lowerCtorInfo i) updateHeader irArgs)
+  | .box ty var =>
+    withGetFVarValue var fun var => do
+      continueLet (.box (toIRType ty) var)
+  | .unbox var =>
+    withGetFVarValue var fun var => do
+      continueLet (.unbox var)
   | .erased => mkErased ()
 where
   mkErased (_ : Unit) : M FnBody := do

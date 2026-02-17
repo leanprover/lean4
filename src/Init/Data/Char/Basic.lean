@@ -163,16 +163,19 @@ The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 -/
 @[inline]
 def toUpper (c : Char) : Char :=
-  if h : c.val ≥ 'a'.val ∧ c.val ≤ 'z'.val then
+  if h : 'a'.val ≤ c.val ∧ c.val ≤ 'z'.val then
     ⟨c.val + ('A'.val - 'a'.val), ?_⟩
   else
     c
 where finally
-  have h₁ : 2^32 ≤ c.val.toNat + ('A'.val - 'a'.val).toNat :=
-    @Nat.add_le_add 'a'.val.toNat _ (2^32 - 'a'.val.toNat) _ h.1 (by decide)
-  have h₂ : c.val.toBitVec.toNat + ('A'.val - 'a'.val).toNat < 2^32 + 0xd800 :=
-    Nat.add_lt_add_right (Nat.lt_of_le_of_lt h.2 (by decide)) _
-  have add_eq {x y : UInt32} : (x + y).toNat = (x.toNat + y.toNat) % 2^32 := rfl
+  -- This expression is a ground non-value; generalize for better
+  -- control on where it is evaluated.
+  generalize hx : 'A'.val - 'a'.val = x
+  have h₁ : 2^32 ≤ c.val.toNat + x.toNat :=
+    @Nat.add_le_add 'a'.val.toNat _ (2^32 - 'a'.val.toNat) _ h.1 (by rw [← hx]; decide)
+  have h₂ : c.val.toBitVec.toNat + x.toNat < 2^32 + 0xd800 :=
+    Nat.add_lt_of_lt_sub (Nat.lt_of_le_of_lt h.2 (by rw [← hx]; decide))
+  have add_eq {x y : UInt32} : (x + y).toNat = (x.toNat + y.toNat) % 2^32 := id rfl
   replace h₂ := Nat.sub_lt_left_of_lt_add h₁ h₂
   exact .inl <| lt_of_eq_of_lt (add_eq.trans (Nat.mod_eq_sub_mod h₁) |>.trans
     (Nat.mod_eq_of_lt (Nat.lt_trans h₂ (by decide)))) h₂

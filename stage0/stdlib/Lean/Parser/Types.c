@@ -2205,19 +2205,19 @@ x_15 = lean_string_append(x_13, x_14);
 lean_dec_ref(x_14);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_8);
-x_2 = x_9;
+lean_ctor_set(x_16, 1, x_9);
+x_2 = x_8;
 x_3 = x_16;
 goto block_7;
 }
 block_25:
 {
 lean_object* x_24; 
-lean_dec(x_18);
-x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Parser_Error_toString_spec__1___redArg(x_22, x_21, x_23);
+lean_dec(x_19);
+x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Parser_Error_toString_spec__1___redArg(x_18, x_21, x_23);
 lean_dec(x_23);
-x_8 = x_19;
-x_9 = x_20;
+x_8 = x_20;
+x_9 = x_22;
 x_10 = x_24;
 goto block_17;
 }
@@ -2229,8 +2229,8 @@ if (x_32 == 0)
 {
 lean_dec(x_29);
 lean_inc(x_31);
-x_18 = x_26;
-x_19 = x_27;
+x_18 = x_27;
+x_19 = x_26;
 x_20 = x_28;
 x_21 = x_31;
 x_22 = x_30;
@@ -2239,8 +2239,8 @@ goto block_25;
 }
 else
 {
-x_18 = x_26;
-x_19 = x_27;
+x_18 = x_27;
+x_19 = x_26;
 x_20 = x_28;
 x_21 = x_31;
 x_22 = x_30;
@@ -2270,28 +2270,28 @@ if (x_45 == 0)
 {
 lean_inc(x_44);
 x_26 = x_40;
-x_27 = x_37;
+x_27 = x_39;
 x_28 = x_36;
 x_29 = x_44;
-x_30 = x_39;
+x_30 = x_37;
 x_31 = x_44;
 goto block_33;
 }
 else
 {
 x_26 = x_40;
-x_27 = x_37;
+x_27 = x_39;
 x_28 = x_36;
 x_29 = x_44;
-x_30 = x_39;
+x_30 = x_37;
 x_31 = x_41;
 goto block_33;
 }
 }
 else
 {
-x_8 = x_37;
-x_9 = x_36;
+x_8 = x_36;
+x_9 = x_37;
 x_10 = x_39;
 goto block_17;
 }

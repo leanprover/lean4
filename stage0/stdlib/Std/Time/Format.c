@@ -3070,10 +3070,10 @@ block_42:
 {
 lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 x_39 = l_Std_Time_PlainDate_format___lam__0___closed__2;
-x_40 = lean_int_mod(x_37, x_39);
-lean_dec(x_37);
-x_41 = lean_int_dec_eq(x_40, x_38);
+x_40 = lean_int_mod(x_38, x_39);
 lean_dec(x_38);
+x_41 = lean_int_dec_eq(x_40, x_37);
+lean_dec(x_37);
 lean_dec(x_40);
 x_28 = x_36;
 x_29 = x_41;
@@ -3106,8 +3106,8 @@ if (x_50 == 0)
 if (x_47 == 0)
 {
 x_36 = x_43;
-x_37 = x_25;
-x_38 = x_46;
+x_37 = x_46;
+x_38 = x_25;
 goto block_42;
 }
 else
@@ -3121,8 +3121,8 @@ goto block_35;
 else
 {
 x_36 = x_43;
-x_37 = x_25;
-x_38 = x_46;
+x_37 = x_46;
+x_38 = x_25;
 goto block_42;
 }
 }

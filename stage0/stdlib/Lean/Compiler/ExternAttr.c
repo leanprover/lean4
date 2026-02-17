@@ -630,7 +630,7 @@ _start:
 {
 uint64_t x_3; uint64_t x_4; lean_object* x_5; 
 x_3 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_List_foldl___at___00Lean_instHashableExternAttrData_hash_spec__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box_uint64(x_4);

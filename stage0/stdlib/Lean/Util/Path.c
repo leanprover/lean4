@@ -2015,8 +2015,8 @@ return x_37;
 block_43:
 {
 lean_object* x_42; 
-x_42 = lean_string_append(x_41, x_40);
-lean_dec_ref(x_40);
+x_42 = lean_string_append(x_40, x_41);
+lean_dec_ref(x_41);
 x_19 = x_42;
 x_20 = lean_box(0);
 goto block_38;
@@ -2038,8 +2038,8 @@ x_51 = lean_nat_dec_le(x_50, x_49);
 if (x_51 == 0)
 {
 x_39 = lean_box(0);
-x_40 = x_48;
-x_41 = x_47;
+x_40 = x_47;
+x_41 = x_48;
 goto block_43;
 }
 else
@@ -2052,8 +2052,8 @@ lean_dec(x_53);
 if (x_54 == 0)
 {
 x_39 = lean_box(0);
-x_40 = x_48;
-x_41 = x_47;
+x_40 = x_47;
+x_41 = x_48;
 goto block_43;
 }
 else

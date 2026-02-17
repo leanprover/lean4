@@ -11,7 +11,9 @@ public import Init.Data.String.Lemmas.Pattern.Basic
 import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.Basic
 
-namespace String.Slice.Pattern.CharPred
+public section
+
+namespace String.Slice.Pattern.Model.CharPred
 
 instance {p : Char → Bool} : ForwardPatternModel p where
   Matches s := ∃ c, s = singleton c ∧ p c
@@ -24,7 +26,7 @@ instance {p : Char → Bool} : NoPrefixForwardPatternModel p :=
 theorem isMatch_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔
       ∃ (h : s.startPos ≠ s.endPos), pos = s.startPos.next h ∧ p (s.startPos.get h) := by
-  simp only [Pattern.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
+  simp only [Model.isMatch_iff, ForwardPatternModel.Matches, sliceTo_copy_eq_iff_exists_splits]
   refine ⟨?_, ?_⟩
   · simp only [splits_singleton_iff]
     refine fun ⟨c, ⟨t₂, h, h₁, h₂, h₃⟩, hc⟩ => ⟨h, h₁, h₂ ▸ hc⟩
@@ -84,4 +86,4 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulToForwardSearcherModel p 
 
 end Decidable
 
-end String.Slice.Pattern.CharPred
+end String.Slice.Pattern.Model.CharPred

@@ -27,7 +27,7 @@ theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with
         | some stop => s.internalRepresentation.list.iter.take stop
         | none => s.internalRepresentation.list.iter.toTake := by
-  simp only [Internal.iter, ToIterator.iter_eq]; rfl
+  simp only [Internal.iter]; rfl
 
 theorem toList_internalIter {α : Type u} {s : ListSlice α} :
     (Internal.iter s).toList = match s.internalRepresentation.stop with
@@ -61,21 +61,10 @@ public theorem toList_toArray {xs : ListSlice α} :
     xs.toArray.toList = xs.toList := by
   simp [Std.Slice.toArray, Std.Slice.toList]
 
-@[simp, grind =]
-public theorem length_toList {xs : ListSlice α} :
-    xs.toList.length = xs.size := by
-  simp [ListSlice.toList_eq, Std.Slice.size, Std.Slice.SliceSize.size, ← Iter.length_toList_eq_length,
-    toList_internalIter]; rfl
-
 @[grind =]
 public theorem size_eq_length_toList {xs : ListSlice α} :
     xs.size = xs.toList.length :=
-  length_toList.symm
-
-@[simp, grind =]
-public theorem size_toArray {xs : ListSlice α} :
-    xs.toArray.size = xs.size := by
-  simp [← ListSlice.toArray_toList]
+  length_toList_eq_size.symm
 
 end ListSlice
 
@@ -100,35 +89,34 @@ public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
 @[simp, grind =]
 public theorem size_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo...hi].size = min hi xs.length - lo := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp, grind =]
 public theorem mkSlice_rcc_eq_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo...=hi] = xs[lo...(hi + 1)] := by
   simp [Std.Rcc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].toList = (xs.take (hi + 1)).drop lo := by
-  simp
+  simp [mkSlice_rcc_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].toArray = ((xs.take (hi + 1)).drop lo).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_rcc {xs : List α} {lo hi : Nat} :
     xs[lo...=hi].size = min (hi + 1) xs.length - lo := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toList = xs.drop lo := by
   rw [List.drop_eq_drop_min]
   simp +instances [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toArray = (xs.drop lo).toArray := by
   simp [← ListSlice.toArray_toList]
@@ -143,164 +131,156 @@ public theorem toArray_mkSlice_rci_eq_toArray_mkSlice_rco {xs : List α} {lo : N
     xs[lo...*].toArray = xs[lo...xs.length].toArray := by
   simp
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].size = xs.length - lo := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp, grind =]
 public theorem mkSlice_roo_eq_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo<...hi] = xs[(lo + 1)...hi] := by
   simp [Std.Roo.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].toList = (xs.take hi).drop (lo + 1) := by
-  simp
+  simp [mkSlice_roo_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].toArray = ((xs.take hi).drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...hi].size = min hi xs.length - (lo + 1) := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp]
 public theorem mkSlice_roc_eq_mkSlice_roo {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[lo<...(hi + 1)] := by
   simp [Std.Roc.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice]
 
-@[simp, grind =]
 public theorem mkSlice_roc_eq_mkSlice_rco {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[(lo + 1)...(hi + 1)] := by
-  simp
+  simp [mkSlice_roc_eq_mkSlice_roo, mkSlice_roo_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].toList = (xs.take (hi + 1)).drop (lo + 1) := by
-  simp
+  simp [mkSlice_roc_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].toArray = ((xs.take (hi + 1)).drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_roc {xs : List α} {lo hi : Nat} :
     xs[lo<...=hi].size = min (hi + 1) xs.length - (lo + 1) := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp, grind =]
 public theorem mkSlice_roi_eq_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo<...*] = xs[(lo + 1)...*] := by
   simp [Std.Roi.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice]
 
 public theorem toList_mkSlice_roi_eq_toList_mkSlice_roo {xs : List α} {lo : Nat} :
     xs[lo<...*].toList = xs[lo<...xs.length].toList := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
 public theorem toArray_mkSlice_roi_eq_toArray_mkSlice_roo {xs : List α} {lo : Nat} :
     xs[lo<...*].toArray = xs[lo<...xs.length].toArray := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
 public theorem toList_mkSlice_roi_eq_toList_mkSlice_rco {xs : List α} {lo : Nat} :
     xs[lo<...*].toList = xs[(lo + 1)...xs.length].toList := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
 public theorem toArray_mkSlice_roi_eq_toArray_mkSlice_rco {xs : List α} {lo : Nat} :
     xs[lo<...*].toArray = xs[(lo + 1)...xs.length].toArray := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].toList = xs.drop (lo + 1) := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].toArray = (xs.drop (lo + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_roi {xs : List α} {lo : Nat} :
     xs[lo<...*].size = xs.length - (lo + 1) := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp, grind =]
 public theorem mkSlice_rio_eq_mkSlice_rco {xs : List α} {hi : Nat} :
     xs[*...hi] = xs[0...hi] := by
   simp [Std.Rio.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].toList = xs.take hi := by
-  simp
+  simp [mkSlice_rio_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].toArray = (xs.take hi).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...hi].size = min hi xs.length := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp]
 public theorem mkSlice_ric_eq_mkSlice_rio {xs : List α} {hi : Nat} :
     xs[*...=hi] = xs[*...(hi + 1)] := by
   simp [Std.Ric.Sliceable.mkSlice, Std.Rio.Sliceable.mkSlice]
 
-@[grind =]
 public theorem mkSlice_ric_eq_mkSlice_rco {xs : List α} {hi : Nat} :
     xs[*...=hi] = xs[0...(hi + 1)] := by
-  simp
+  simp [mkSlice_ric_eq_mkSlice_rio, mkSlice_rio_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].toList = xs.take (hi + 1) := by
-  simp
+  simp [mkSlice_ric_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].toArray = (xs.take (hi + 1)).toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_ric {xs : List α} {hi : Nat} :
     xs[*...=hi].size = min (hi + 1) xs.length := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
-@[simp, grind =]
 public theorem mkSlice_rii_eq_mkSlice_rci {xs : List α} :
     xs[*...*] = xs[0...*] := by
   simp [Std.Rii.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice]
 
 public theorem toList_mkSlice_rii_eq_toList_mkSlice_rco {xs : List α} :
     xs[*...*].toList = xs[0...xs.length].toList := by
-  simp
+  simp [mkSlice_rii_eq_mkSlice_rci]
 
 public theorem toArray_mkSlice_rii_eq_toArray_mkSlice_rco {xs : List α} :
     xs[*...*].toArray = xs[0...xs.length].toArray := by
-  simp
+  simp [mkSlice_rii_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rii {xs : List α} :
     xs[*...*].toList = xs := by
-  simp
+  simp [mkSlice_rii_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rii {xs : List α} :
     xs[*...*].toArray = xs.toArray := by
   simp [← ListSlice.toArray_toList]
 
-@[simp]
+@[simp, grind =]
 public theorem size_mkSlice_rii {xs : List α} :
     xs[*...*].size = xs.length := by
-  simp [← ListSlice.length_toList]
+  simp [← length_toList_eq_size]
 
 end List
 
@@ -323,21 +303,30 @@ public theorem toArray_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
   simp [← toArray_toList, List.drop_take]
 
 @[simp, grind =]
+public theorem size_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
+    xs[lo...hi].size = min hi xs.size - lo := by
+  simp [← length_toList_eq_size]
+
 public theorem mkSlice_rcc_eq_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...=hi] = xs[lo...(hi + 1)] := by
   simp [Std.Rcc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...=hi].toList = (xs.toList.take (hi + 1)).drop lo := by
-  simp
+  simp [mkSlice_rcc_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...=hi].toArray = xs.toArray.extract lo (hi + 1) := by
   simp [← ListSlice.toArray_toList, List.drop_take]
 
-@[simp]
+@[simp, grind =]
+public theorem size_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
+    xs[lo...=hi].size = min (hi + 1) xs.size - lo := by
+  simp [← length_toList_eq_size]
+
+@[simp, grind =]
 public theorem toList_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toList = xs.toList.drop lo := by
   simp +instances only [instSliceableListSliceNat_2, ListSlice.toList_eq (xs := xs)]
@@ -345,71 +334,83 @@ public theorem toList_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
   simp +instances only
   split <;> simp
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toArray = xs.toArray.extract lo := by
   simp only [← toArray_toList, toList_mkSlice_rci]
   rw (occs := [1]) [← List.take_length (l := List.drop lo xs.toList)]
   simp [- toArray_toList]
 
+@[simp, grind =]
+public theorem size_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
+    xs[lo...*].size = xs.size - lo := by
+  simp [← length_toList_eq_size]
+
 @[grind =]
 public theorem toList_mkSlice_rci_eq_toList_mkSlice_rco {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toList = xs[lo...xs.size].toList := by
-  simp [← length_toList, - Slice.length_toList_eq_size]
+  simp [← length_toList_eq_size]
 
 @[grind =]
 public theorem toArray_mkSlice_rci_eq_toArray_mkSlice_rco {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toArray = xs[lo...xs.size].toArray := by
   simp
 
-@[simp, grind =]
 public theorem mkSlice_roo_eq_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...hi] = xs[(lo + 1)...hi] := by
   simp [Std.Roo.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...hi].toList = (xs.toList.take hi).drop (lo + 1) := by
-  simp
+  simp [mkSlice_roo_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...hi].toArray = xs.toArray.extract (lo + 1) hi := by
   simp [← toArray_toList, List.drop_take]
 
-@[simp]
+@[simp, grind =]
+public theorem size_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
+    xs[lo<...hi].size = min hi xs.size - (lo + 1) := by
+  simp [← length_toList_eq_size]
+
 public theorem mkSlice_roc_eq_mkSlice_roo {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[lo<...(hi + 1)] := by
   simp [Std.Roc.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice]
 
-@[simp]
 public theorem mkSlice_roc_eq_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[(lo + 1)...=hi] := by
-  simp [Std.Roc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
+  simp [Std.Roc.Sliceable.mkSlice, mkSlice_rcc_eq_mkSlice_rco, Std.Rco.Sliceable.mkSlice,
+    Roo.Sliceable.mkSlice]
 
-@[simp, grind =]
 public theorem mkSlice_roc_eq_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi] = xs[(lo + 1)...(hi + 1)] := by
-  simp [Std.Roc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
+  simp [Std.Roc.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice, Roo.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi].toList = (xs.toList.take (hi + 1)).drop (lo + 1) := by
-  simp
+  simp [mkSlice_roc_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roc {xs : ListSlice α} {lo hi : Nat} :
     xs[lo<...=hi].toArray = xs.toArray.extract (lo + 1) (hi + 1) := by
   simp [← toArray_toList, List.drop_take]
 
 @[simp, grind =]
+public theorem size_mkSlice_roc {xs : ListSlice α} {lo hi : Nat} :
+    xs[lo<...=hi].size = min (hi + 1) xs.size - (lo + 1) := by
+  simp [← length_toList_eq_size]
+
 public theorem mkSlice_roi_eq_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*] = xs[(lo + 1)...*] := by
-  simp [Std.Roi.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice]
+  simp [Std.Roi.Sliceable.mkSlice, Std.Rci.Sliceable.mkSlice,
+    Std.Rco.Sliceable.mkSlice, Std.Roo.Sliceable.mkSlice]
 
 public theorem toList_mkSlice_roi_eq_toList_mkSlice_roo {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toList = xs[lo<...xs.size].toList := by
-  simp [← length_toList, - Slice.length_toList_eq_size]
+  simp [← length_toList_eq_size, mkSlice_roi_eq_mkSlice_rci]
 
 public theorem toArray_mkSlice_roi_eq_toArray_mkSlice_roo {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toArray = xs[lo<...xs.size].toArray := by
@@ -418,18 +419,18 @@ public theorem toArray_mkSlice_roi_eq_toArray_mkSlice_roo {xs : ListSlice α} {l
 
 public theorem toList_mkSlice_roi_eq_toList_mkSlice_rco {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toList = xs[(lo + 1)...xs.size].toList := by
-  simp [← length_toList, - Slice.length_toList_eq_size]
+  simp [← length_toList_eq_size, mkSlice_roi_eq_mkSlice_rci]
 
 public theorem toArray_mkSlice_roi_eq_toArray_mkSlice_rco {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toArray = xs[(lo + 1)...xs.size].toArray := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toList = xs.toList.drop (lo + 1) := by
-  simp
+  simp [mkSlice_roi_eq_mkSlice_rci]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
     xs[lo<...*].toArray = xs.toArray.extract (lo + 1) := by
   simp only [← toArray_toList, toList_mkSlice_roi]
@@ -437,44 +438,55 @@ public theorem toArray_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
   simp [- toArray_toList]
 
 @[simp, grind =]
+public theorem size_mkSlice_roi {xs : ListSlice α} {lo : Nat} :
+    xs[lo<...*].size = xs.size - (lo + 1) := by
+  simp [← length_toList_eq_size]
+
 public theorem mkSlice_rio_eq_mkSlice_rco {xs : ListSlice α} {hi : Nat} :
     xs[*...hi] = xs[0...hi] := by
   simp [Std.Rio.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
     xs[*...hi].toList = xs.toList.take hi := by
-  simp
+  simp [mkSlice_rio_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
     xs[*...hi].toArray = xs.toArray.extract 0 hi := by
   simp [← toArray_toList]
 
-@[simp]
+@[simp, grind =]
+public theorem size_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
+    xs[*...hi].size = min hi xs.size := by
+  simp [← length_toList_eq_size]
+
 public theorem mkSlice_ric_eq_mkSlice_rio {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi] = xs[*...(hi + 1)] := by
   simp [Std.Ric.Sliceable.mkSlice, Std.Rio.Sliceable.mkSlice]
 
-@[simp]
 public theorem mkSlice_ric_eq_mkSlice_rcc {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi] = xs[0...=hi] := by
-  simp [Std.Ric.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
+  simp only [mkSlice_ric_eq_mkSlice_rio, mkSlice_rio_eq_mkSlice_rco, mkSlice_rcc_eq_mkSlice_rco]
 
-@[grind =]
 public theorem mkSlice_ric_eq_mkSlice_rco {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi] = xs[0...(hi + 1)] := by
-  simp [Std.Ric.Sliceable.mkSlice, Std.Rco.Sliceable.mkSlice]
+  simp only [mkSlice_ric_eq_mkSlice_rcc, mkSlice_rcc_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toList_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi].toList = xs.toList.take (hi + 1) := by
-  simp
+  simp [mkSlice_ric_eq_mkSlice_rco]
 
-@[simp]
+@[simp, grind =]
 public theorem toArray_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
     xs[*...=hi].toArray = xs.toArray.extract 0 (hi + 1) := by
   simp [← toArray_toList]
+
+@[simp, grind =]
+public theorem size_mkSlice_ric {xs : ListSlice α} {hi : Nat} :
+    xs[*...=hi].size = min (hi + 1) xs.size := by
+  simp [← length_toList_eq_size]
 
 @[simp, grind =]
 public theorem mkSlice_rii {xs : ListSlice α} :

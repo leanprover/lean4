@@ -3,7 +3,7 @@
 {"items":
  [{"label": "veryLongDefinitionName",
    "kind": 6,
-   "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.35"]},
+   "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.39"]},
   {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
    "data":
@@ -17,7 +17,7 @@ Resolution of veryLongDefinitionName:
 {"label": "veryLongDefinitionName",
  "kind": 6,
  "detail": "Nat",
- "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.35"]}
+ "data": ["file:///completionPrefixIssue.lean", 1, 64, 0, "f_uniq.39"]}
 Resolution of veryLongDefinitionNameVeryLongDefinitionName:
 {"label": "veryLongDefinitionNameVeryLongDefinitionName",
  "kind": 21,

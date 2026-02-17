@@ -428,7 +428,7 @@ if (lean_is_exclusive(x_3)) {
 x_6 = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_16; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_16; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 if (lean_is_exclusive(x_6)) {
@@ -464,9 +464,9 @@ block_15:
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_9);
-lean_ctor_set(x_13, 2, x_10);
-lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_11);
+lean_ctor_set(x_13, 1, x_10);
+lean_ctor_set(x_13, 2, x_11);
+lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_9);
 if (lean_is_scalar(x_8)) {
  x_14 = lean_alloc_ctor(0, 1, 0);
 } else {
@@ -517,9 +517,9 @@ x_32 = 1;
 if (lean_obj_tag(x_29) == 0)
 {
 lean_dec_ref(x_25);
-x_9 = x_30;
-x_10 = x_31;
-x_11 = x_32;
+x_9 = x_32;
+x_10 = x_30;
+x_11 = x_31;
 x_12 = x_27;
 goto block_15;
 }
@@ -531,9 +531,9 @@ x_33 = lean_ctor_get(x_29, 0);
 lean_inc(x_33);
 lean_dec_ref(x_29);
 x_34 = l_System_FilePath_join(x_33, x_25);
-x_9 = x_30;
-x_10 = x_31;
-x_11 = x_32;
+x_9 = x_32;
+x_10 = x_30;
+x_11 = x_31;
 x_12 = x_34;
 goto block_15;
 }
@@ -3927,13 +3927,13 @@ lean_dec(x_94);
 x_107 = l_List_appendTR___redArg(x_104, x_106);
 x_108 = l_Lean_Json_mkObj(x_107);
 x_109 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_109, 0, x_97);
+lean_ctor_set(x_109, 0, x_96);
 lean_ctor_set(x_109, 1, x_108);
 x_110 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_110, 0, x_109);
 lean_ctor_set(x_110, 1, x_10);
 x_111 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_111, 0, x_96);
+lean_ctor_set(x_111, 0, x_97);
 lean_ctor_set(x_111, 1, x_110);
 x_22 = x_111;
 goto block_34;
@@ -3952,8 +3952,8 @@ case 0:
 lean_object* x_118; 
 x_118 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__4;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_118;
 goto block_112;
 }
@@ -3962,8 +3962,8 @@ case 1:
 lean_object* x_119; 
 x_119 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__6;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_119;
 goto block_112;
 }
@@ -3972,8 +3972,8 @@ case 2:
 lean_object* x_120; 
 x_120 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__8;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_120;
 goto block_112;
 }
@@ -3982,8 +3982,8 @@ case 3:
 lean_object* x_121; 
 x_121 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__10;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_121;
 goto block_112;
 }
@@ -3992,8 +3992,8 @@ case 4:
 lean_object* x_122; 
 x_122 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__12;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_122;
 goto block_112;
 }
@@ -4002,8 +4002,8 @@ case 5:
 lean_object* x_123; 
 x_123 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__14;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_123;
 goto block_112;
 }
@@ -4012,8 +4012,8 @@ case 6:
 lean_object* x_124; 
 x_124 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__16;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_124;
 goto block_112;
 }
@@ -4022,8 +4022,8 @@ case 7:
 lean_object* x_125; 
 x_125 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__18;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_125;
 goto block_112;
 }
@@ -4032,8 +4032,8 @@ case 8:
 lean_object* x_126; 
 x_126 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__20;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_126;
 goto block_112;
 }
@@ -4042,8 +4042,8 @@ case 9:
 lean_object* x_127; 
 x_127 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__22;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_127;
 goto block_112;
 }
@@ -4052,8 +4052,8 @@ case 10:
 lean_object* x_128; 
 x_128 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__24;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_128;
 goto block_112;
 }
@@ -4062,8 +4062,8 @@ default:
 lean_object* x_129; 
 x_129 = l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__26;
 x_95 = x_117;
-x_96 = x_115;
-x_97 = x_116;
+x_96 = x_116;
+x_97 = x_115;
 x_98 = x_129;
 goto block_112;
 }

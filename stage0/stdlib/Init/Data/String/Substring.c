@@ -98,7 +98,7 @@ extern lean_object* l_String_instInhabitedSlice;
 lean_object* l_panic___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_foldl___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_foldl(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_Slice_Pos_prevAux_go___redArg(lean_object*, lean_object*);
+lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_foldr___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_revPositions(lean_object*);
@@ -1577,10 +1577,10 @@ lean_object* x_18;
 x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_6);
-lean_inc(x_16);
-x_3 = x_16;
-x_4 = x_16;
-x_5 = x_15;
+lean_inc(x_15);
+x_3 = x_15;
+x_4 = x_15;
+x_5 = x_16;
 x_6 = x_18;
 goto _start;
 }
@@ -1646,8 +1646,8 @@ lean_dec(x_3);
 x_41 = lean_nat_dec_le(x_23, x_40);
 if (x_41 == 0)
 {
-x_24 = x_37;
-x_25 = x_33;
+x_24 = x_33;
+x_25 = x_37;
 x_26 = x_38;
 x_27 = x_40;
 goto block_32;
@@ -1656,8 +1656,8 @@ else
 {
 lean_dec(x_40);
 lean_inc(x_23);
-x_24 = x_37;
-x_25 = x_33;
+x_24 = x_33;
+x_25 = x_37;
 x_26 = x_38;
 x_27 = x_23;
 goto block_32;
@@ -1669,8 +1669,8 @@ lean_object* x_42;
 lean_dec(x_38);
 lean_dec(x_3);
 x_42 = ((lean_object*)(l_Substring_Raw_extract___closed__1));
-x_15 = x_37;
-x_16 = x_33;
+x_15 = x_33;
+x_16 = x_37;
 x_17 = x_42;
 goto block_20;
 }
@@ -2092,7 +2092,7 @@ x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
-x_13 = l_String_Slice_Pos_prevAux_go___redArg(x_1, x_12);
+x_13 = l_String_Slice_posLE(x_1, x_12);
 x_14 = lean_nat_add(x_10, x_13);
 x_15 = lean_string_utf8_get_fast(x_9, x_14);
 lean_dec(x_14);

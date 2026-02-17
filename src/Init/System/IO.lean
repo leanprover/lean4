@@ -1122,6 +1122,8 @@ structure Metadata where
   Whether the file is an ordinary file, a directory, a symbolic link, or some other kind of file.
   -/
   type     : FileType
+  /-- The number of hard links to the file. -/
+  numLinks : UInt64
   deriving Repr
 
 end FS

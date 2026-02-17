@@ -8779,7 +8779,7 @@ block_19:
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_Expr_bindingName_x21(x_3);
 lean_dec_ref(x_3);
-x_18 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(x_1, x_17, x_11, x_10, x_12, x_13, x_14, x_15);
+x_18 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl___redArg(x_1, x_17, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_18;
 }
 block_35:
@@ -8830,8 +8830,8 @@ return x_34;
 }
 else
 {
-x_10 = x_26;
-x_11 = x_25;
+x_10 = x_25;
+x_11 = x_26;
 x_12 = x_20;
 x_13 = x_21;
 x_14 = x_22;

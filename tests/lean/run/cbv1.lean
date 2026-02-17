@@ -174,15 +174,52 @@ example : Nat.brazilianFactorial 7 = 125411328000 := by
 
 attribute [cbv_opaque] Std.DHashMap.emptyWithCapacity
 attribute [cbv_opaque] Std.DHashMap.insert
-attribute [cbv_opaque] Std.DHashMap.contains
 attribute [cbv_opaque] Std.DHashMap.getEntry
+attribute [cbv_opaque] Std.DHashMap.contains
+attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_emptyWithCapacity
+attribute [cbv_eval Std.DHashMap.contains] Std.DHashMap.contains_insert
 
-/--
-error: unsolved goals
-⊢ (Std.DHashMap.emptyWithCapacity.insert 5 3).contains 5 = true
--/
-#guard_msgs in
 example : ((Std.DHashMap.emptyWithCapacity : Std.DHashMap Nat (fun _ => Nat)).insert 5 3).contains 5 = true := by
   conv =>
     lhs
     cbv
+
+@[cbv_opaque] def opaque_const : Nat := Nat.zero
+
+@[cbv_eval] theorem opaque_fn_spec : opaque_const = 0 := by rfl
+
+example : opaque_const = 0 := by conv => lhs; cbv
+
+def myAdd (m n : Nat) := match m with
+| 0 => n
+| m' + 1 => (myAdd m' n) + 1
+
+@[cbv_eval] theorem myAdd_test : myAdd 22 23 = 45 := by rfl
+
+theorem fast_path : myAdd 22 23 = 45 := by conv => lhs; cbv
+
+/--
+info: theorem fast_path : myAdd 22 23 = 45 :=
+Eq.mpr
+  (id
+    ((fun a a_1 e_a =>
+        Eq.rec (motive := fun a_2 e_a => ∀ (a_3 : Nat), (a = a_3) = (a_2 = a_3)) (fun a_2 => Eq.refl (a = a_2)) e_a)
+      (myAdd 22 23) 45 (Eq.trans myAdd_test (Eq.refl 45)) 45))
+  (Eq.refl 45)
+-/
+#guard_msgs in
+#print fast_path
+
+theorem slow_path : myAdd 0 1 = 1 := by conv => lhs; cbv
+
+/--
+info: theorem slow_path : myAdd 0 1 = 1 :=
+Eq.mpr
+  (id
+    ((fun a a_1 e_a =>
+        Eq.rec (motive := fun a_2 e_a => ∀ (a_3 : Nat), (a = a_3) = (a_2 = a_3)) (fun a_2 => Eq.refl (a = a_2)) e_a)
+      (myAdd 0 1) 1 (Eq.trans (myAdd.eq_1 1) (Eq.refl 1)) 1))
+  (Eq.refl 1)
+-/
+#guard_msgs in
+#print slow_path

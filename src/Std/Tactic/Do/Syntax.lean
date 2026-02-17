@@ -60,7 +60,7 @@ Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` t
   simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
   applications of constants.
 -/
-syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := spec) "spec" (ppSpace prio)? : attr
 
 end Attr
 

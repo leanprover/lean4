@@ -179,6 +179,11 @@ theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
   simp [← toByteArray_inj]
 
+@[simp]
+theorem append_right_inj (s : String) {t₁ t₂ : String} :
+    s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ := by
+  simp [← toByteArray_inj]
+
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
   simp [← toByteArray_inj, ByteArray.append_assoc]
 
@@ -398,6 +403,7 @@ achieved by tracking the bounds by hand, the slice API is much more convenient.
 `String.Slice` bundles proofs to ensure that the start and end positions always delineate a valid
 string. For this reason, it should be preferred over `Substring.Raw`.
 -/
+@[ext]
 structure Slice where
   /-- The underlying strings. -/
   str : String

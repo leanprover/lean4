@@ -232,6 +232,7 @@ public theorem Iter.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → T
     (it₁.flatMapM f).toArray = Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray := by
   simp [flatMapM, toArray_flatMapAfterM]
 
+set_option backward.isDefEq.respectTransparency false in
 public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
@@ -242,6 +243,7 @@ public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α I
   simp only [flatMapAfter, Iter.toList, toIterM_toIter, IterM.toList_flatMapAfter]
   cases it₂ <;> simp [map, IterM.toList_map_eq_toList_mapM, - IterM.toList_map]
 
+set_option backward.isDefEq.respectTransparency false in
 public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :

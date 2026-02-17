@@ -172,7 +172,7 @@ def getLocalImpureDecl? (declName : Name) : CoreM (Option (Decl .impure)) := do
   return impureExt.getState (← getEnv) |>.find? declName
 
 def getImpureSignature? (declName : Name) : CoreM (Option (Signature .impure)) := do
-  return impureSigExt.getState (← getEnv) |>.find? declName
+  return getSigCore? (← getEnv) impureSigExt declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl .pure) : Environment :=
   baseExt.addEntry env decl

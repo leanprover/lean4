@@ -1422,11 +1422,11 @@ x_39 = l_Lean_MessageData_ofExpr(x_1);
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
-x_41 = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__5___redArg(x_40, x_37, x_35, x_36, x_34);
-lean_dec(x_34);
-lean_dec_ref(x_36);
+x_41 = l_Lean_throwError___at___00Lean_Meta_getConstUnfoldEqnFor_x3f_spec__5___redArg(x_40, x_34, x_33, x_37, x_35);
 lean_dec(x_35);
 lean_dec_ref(x_37);
+lean_dec(x_33);
+lean_dec_ref(x_34);
 x_42 = !lean_is_exclusive(x_41);
 if (x_42 == 0)
 {
@@ -1463,11 +1463,11 @@ if (x_59 == 0)
 lean_dec_ref(x_56);
 lean_dec_ref(x_21);
 lean_dec_ref(x_20);
-x_33 = lean_box(0);
-x_34 = x_49;
-x_35 = x_47;
-x_36 = x_48;
-x_37 = x_46;
+x_33 = x_47;
+x_34 = x_46;
+x_35 = x_49;
+x_36 = lean_box(0);
+x_37 = x_48;
 goto block_45;
 }
 else
@@ -1479,11 +1479,11 @@ if (x_60 == 0)
 {
 lean_dec_ref(x_21);
 lean_dec_ref(x_20);
-x_33 = lean_box(0);
-x_34 = x_49;
-x_35 = x_47;
-x_36 = x_48;
-x_37 = x_46;
+x_33 = x_47;
+x_34 = x_46;
+x_35 = x_49;
+x_36 = lean_box(0);
+x_37 = x_48;
 goto block_45;
 }
 else

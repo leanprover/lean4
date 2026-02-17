@@ -44,7 +44,7 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 -- triggered very frequently. This seems to be an independent
 -- problem, having nothing to do with `getLast_scanr`.
 #guard_msgs in
-#grind_lint inspect (min := 100) List.drop_append_length
+#grind_lint inspect (min := 100) List.getLast_scanr
 
 /-! Check List namespace: -/
 

@@ -16,6 +16,22 @@ public section
 /-!
 Commands to validate tactic results.
 -/
+namespace Lean.Parser
+
+/--
+`#check_tactic t ~> r by commands` runs the tactic sequence `commands`
+on a goal with `t` and sees if the resulting expression has reduced it
+to `r`.
+-/
+syntax (name := checkTactic) "#check_tactic " term "~>" Term.termBeforeBy "by" tactic : command
+
+/--
+`#check_tactic_failure t by tac` runs the tactic `tac`
+on a goal with `t` and verifies it fails.
+-/
+syntax  (name := checkTacticFailure) "#check_tactic_failure " Term.termBeforeBy "by" tactic : command
+
+end Lean.Parser
 
 namespace Lean.Elab.CheckTactic
 

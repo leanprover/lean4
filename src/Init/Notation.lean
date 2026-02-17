@@ -949,19 +949,6 @@ syntax (name := setLibrarySuggestionsCmd)
 namespace Parser
 
 /--
-`#check_tactic t ~> r by commands` runs the tactic sequence `commands`
-on a goal with `t` and sees if the resulting expression has reduced it
-to `r`.
--/
-syntax (name := checkTactic) "#check_tactic " term "~>" term "by" tactic : command
-
-/--
-`#check_tactic_failure t by tac` runs the tactic `tac`
-on a goal with `t` and verifies it fails.
--/
-syntax  (name := checkTacticFailure) "#check_tactic_failure " term "by" tactic : command
-
-/--
 `#check_simp t ~> r` checks `simp` reduces `t` to `r`.
 -/
 syntax (name := checkSimp) "#check_simp " term "~>" term : command

@@ -1782,7 +1782,7 @@ macro (name := showTermElab) tk:"show_term " t:term : term =>
 The command `by?` will print a suggestion for replacing the proof block with a proof term
 using `show_term`.
 -/
-macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+macro:arg (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
 /--
 `expose_names` renames all inaccessible variables with accessible names, making them available

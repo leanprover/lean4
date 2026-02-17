@@ -153,7 +153,7 @@ def declBody : Parser :=
   do not call `byTactic` directly to avoid differences in pretty printing or behavior or error
   reporting between the two branches.
   -/
-  lookahead (setExpected [] "by") >> termParser leadPrec <|>
+  lookahead (setExpected [] "by") >> termParser argPrec <|>
   termParser
 
 -- As the pretty printer ignores `lookahead`, we need a custom parenthesizer to choose the correct

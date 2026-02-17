@@ -1,3 +1,5 @@
+import Lean.Elab.CheckTactic
+
 section
 variable {α : Type _}
 variable [Inhabited α]

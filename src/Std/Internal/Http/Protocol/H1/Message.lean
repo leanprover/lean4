@@ -73,22 +73,27 @@ def Message.Head.version (m : Message.Head dir) : Version :=
   | .receiving => Request.Head.version m
   | .sending => Response.Head.version m
 
-private def isChunked (message : Message.Head dir) : Option Bool :=
-  match message.headers.get? .transferEncoding with
-  | none => some false
-  | some v => Header.TransferEncoding.parse v |>.map (·.isChunked)
-
 /--
 Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
 -/
 def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Option Body.Length :=
-  match (message.headers.getAll? .contentLength, isChunked message) with
-  | (some #[cl], some false) => .fixed <$> cl.value.toNat?
-  | (none, some false) => if allowEOFBody then some (.fixed 0) else none
-  | (none, some true) => some .chunked
-  | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
-  | (_, none) => none -- Error validating the chunked encoding
-
+  let contentLength := message.headers.getAll? .contentLength
+  match message.headers.get? .transferEncoding with
+  | none =>
+      match contentLength with
+      | some #[cl] => .fixed <$> cl.value.toNat?
+      | none => if allowEOFBody then some (.fixed 0) else none
+      | some _ => none -- To avoid request smuggling with malformed/multiple content-length headers.
+  | some teHeader =>
+      match Header.TransferEncoding.parse teHeader with
+      | none => none -- Error validating the transfer encoding.
+      | some te =>
+          if te.isChunked then
+            match contentLength with
+            | none => some .chunked
+            | some _ => none -- To avoid request smuggling when TE and CL are mixed.
+          else
+            none -- Non-chunked transfer codings are not supported.
 
 /--
 Checks whether the message indicates that the connection should be kept alive.

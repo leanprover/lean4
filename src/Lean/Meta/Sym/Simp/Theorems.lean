@@ -47,10 +47,4 @@ def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, rhs) ← mkEqPatternFromDecl declName
   return { expr := mkConst declName, pattern, rhs }
 
-public def mkSimprocPatternFromExpr (e : Expr) : MetaM Pattern := do
-  let processed ← abstractMVars e
-  let processed := processed.expr
-  let forPattern ← mkFreshExprMVar processed
-  mkPatternFromExpr forPattern
-
 end Lean.Meta.Sym.Simp

@@ -13,6 +13,7 @@ public import Lean.Meta.Tactic.Cbv.ControlFlow
 import Lean.Meta.Tactic.Cbv.Util
 import Lean.Meta.Tactic.Cbv.TheoremsLookup
 import Lean.Meta.Tactic.Cbv.CbvEvalExt
+import Lean.Meta.Tactic.Cbv.CbvSimprocExt
 import Lean.Meta.Sym
 import Lean.Meta.Tactic.Refl
 
@@ -70,6 +71,20 @@ def tryCbvTheorems : Simproc := fun e => do
   let some fnName := e.getAppFn.constName? | return .rfl
   let some evalLemmas ← getCbvEvalLemmas fnName | return .rfl
   Theorems.rewrite evalLemmas (d := dischargeNone) e
+
+def tryCbvPreSimprocs : Simproc := fun e => do
+  let candidates ← getCbvPreSimprocs e
+  for entry in candidates do
+    let result ← entry.proc e
+    if !result.isRfl then return result
+  return .rfl
+
+def tryCbvPostSimprocs : Simproc := fun e => do
+  let candidates ← getCbvPostSimprocs e
+  for entry in candidates do
+    let result ← entry.proc e
+    if !result.isRfl then return result
+  return .rfl
 
 def handleApp : Simproc := fun e => do
   unless e.isApp do return .rfl
@@ -187,9 +202,9 @@ def cbvPreStep : Simproc := fun e => do
   | .forallE .. | .lam .. | .fvar .. | .mvar .. | .bvar .. | .sort .. => return .rfl (done := true)
   | _ => return .rfl
 
-def cbvPre : Simproc := isBuiltinValue <|> isProofTerm <|> cbvPreStep
+def cbvPre : Simproc := isBuiltinValue <|> isProofTerm <|> tryCbvPreSimprocs <|> cbvPreStep
 
-def cbvPost : Simproc := evalGround <|> handleApp
+def cbvPost : Simproc := evalGround <|> tryCbvPostSimprocs <|> handleApp
 
 public def cbvEntry (e : Expr) : MetaM Result := do
   trace[Meta.Tactic.cbv] "Called cbv tactic to simplify {e}"

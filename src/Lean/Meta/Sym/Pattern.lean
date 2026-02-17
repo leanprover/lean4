@@ -17,6 +17,7 @@ import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
+import Lean.Meta.AbstractMVars
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Linear
 namespace Lean.Meta.Sym
@@ -230,6 +231,49 @@ Throws an error if the theorem's conclusion is not an equality.
 public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
   let (levelParams, type) ← preprocessDeclPattern declName
   mkEqPatternFromType levelParams type
+
+/--
+Like `mkPatternCore` but takes a lambda expression instead of a forall type.
+Uses `lambdaBoundedTelescope` to open binders and detect instance/proof arguments.
+-/
+def mkPatternCoreFromLambda (lam : Expr) (levelParams : List Name)
+    (varTypes : Array Expr) (pattern : Expr) : MetaM Pattern := do
+  let fnInfos ← mkProofInstInfoMapFor pattern
+  let checkTypeMask := mkCheckTypeMask pattern varTypes.size
+  let checkTypeMask? := if checkTypeMask.all (· == false) then none else some checkTypeMask
+  let varInfos? ← lambdaBoundedTelescope lam varTypes.size fun xs _ =>
+    mkProofInstArgInfo? xs
+  return { levelParams, varTypes, pattern, fnInfos, varInfos?, checkTypeMask? }
+
+/--
+Creates a `Pattern` from an expression containing metavariables.
+
+Metavariables in `e` become pattern variables (wildcards). For example,
+`Nat.succ ?m` produces a pattern matching `Nat.succ _` with discrimination
+tree keys `[Nat.succ, *]`.
+
+This is used for user-registered simproc patterns where the user provides
+an expression with underscores (elaborated as metavariables) to specify
+what the simproc should match.
+-/
+public def mkSimprocPatternFromExpr (e : Expr) : MetaM Pattern := do
+  let result ← abstractMVars e
+  -- `result.expr` is `fun (x₁ : T₁) ... (xₙ : Tₙ) => body` where each `xᵢ`
+  -- replaces a metavariable from `e`, and `body` uses de Bruijn indices.
+  let expr := result.expr
+  -- Rename abstracted level params to `_uvar` names expected by the Sym pattern system
+  let levelParams := result.paramNames.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.toList.map mkLevelParam
+  let expr := expr.instantiateLevelParamsArray result.paramNames us.toArray
+  -- Strip lambda binders to extract variable types and the pattern body.
+  let rec stripLambdas (e : Expr) (varTypes : Array Expr) : Expr × Array Expr :=
+    match e with
+    | .lam _ d b _ => stripLambdas b (varTypes.push d)
+    | _ => (e, varTypes)
+  let (pattern, varTypes) := stripLambdas expr #[]
+  -- Preprocess the pattern body (unfold reducible defs, beta/zeta/eta reduce)
+  let pattern ← preprocessType pattern
+  mkPatternCoreFromLambda expr levelParams.toList varTypes pattern
 
 structure UnifyM.Context where
   pattern   : Pattern

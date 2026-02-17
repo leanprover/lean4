@@ -210,7 +210,12 @@ private def checkMessageHead (message : Message.Head dir) : Option BodyMode := d
 
 @[inline]
 private def hasExpectContinue (message : Message.Head dir) : Bool :=
-  message.headers.hasEntry (.mk "expect") (Header.Value.ofString! "100-continue")
+  match message.headers.getAll? Header.Name.expect with
+  | none => false
+  | some values =>
+      values.any fun value =>
+        value.value.split (· == ',')
+        |>.any (fun token => token.trimAscii.toString.toLower == "100-continue")
 
 @[inline]
 private def shouldIgnoreBodyPull (machine : Machine dir) : Bool :=

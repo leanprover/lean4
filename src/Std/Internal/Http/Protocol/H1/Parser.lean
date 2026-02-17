@@ -217,10 +217,10 @@ def parseQuotedPair : Parser UInt8 := do
     fail s!"invalid quoted-pair byte: {Char.ofUInt8 b |>.quote}"
 
 -- quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE
-partial def parseQuotedString : Parser String := do
+partial def parseQuotedString (maxLength : Nat) : Parser String := do
   skipByte '"'.toUInt8
 
-  let rec loop (buf : ByteArray) : Parser ByteArray := do
+  let rec loop (buf : ByteArray) (length : Nat) : Parser ByteArray := do
     let b ← any
 
     if b == '"'.toUInt8 then
@@ -228,14 +228,23 @@ partial def parseQuotedString : Parser String := do
     else if b == '\\'.toUInt8 then
       let next ← any
       if next == '\t'.toUInt8 ∨ next == ' '.toUInt8 ∨ isVChar next ∨ isObsChar next
-        then loop (buf.push next)
+        then
+          let length := length + 1
+          if length > maxLength then
+            fail "quoted-string too long"
+          else
+            loop (buf.push next) length
         else fail s!"invalid quoted-pair byte: {Char.ofUInt8 next |>.quote}"
     else if isQdText b then
-      loop (buf.push b)
+      let length := length + 1
+      if length > maxLength then
+        fail "quoted-string too long"
+      else
+        loop (buf.push b) length
     else
       fail s!"invalid qdtext byte: {Char.ofUInt8 b |>.quote}"
 
-  opt <| String.fromUTF8? (← loop .empty)
+  opt <| String.fromUTF8? (← loop .empty 0)
 
 -- chunk-ext = *( BWS ";" BWS chunk-ext-name [ BWS "=" BWS chunk-ext-val] )
 def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String) := do
@@ -247,7 +256,7 @@ def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String)
 
   if (← peekWhen? (· == '='.toUInt8)) |>.isSome then
     osp limits *> skipByte '='.toUInt8 *> osp limits
-    let value ← osp limits *> (parseQuotedString <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
+    let value ← osp limits *> (parseQuotedString limits.maxChunkExtValueLength <|> opt =<< (String.fromUTF8? <$> ByteSlice.toByteArray <$> token limits.maxChunkExtValueLength))
 
     return (name, some value)
 

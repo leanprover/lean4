@@ -13,10 +13,10 @@ public import Std.Internal.Http.Internal
 public section
 
 /-!
-# Header Names and Values
+# Header Names
 
-This module defines the `Name` and `Value` types, which represent validated HTTP header names and
-values that conform to HTTP standards.
+This module defines the `Name` type, which represents validated HTTP header names that conform to
+HTTP standards.
 -/
 
 namespace Std.Http.Header

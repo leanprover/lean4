@@ -122,6 +122,16 @@ def insert! (headers : Headers) (name : String) (value : String) : Headers :=
   headers.insert (Header.Name.ofString! name) (Header.Value.ofString! value)
 
 /--
+Adds a header from string name and value.
+Returns `none` if either the header name or value is invalid.
+-/
+@[inline]
+def insert? (headers : Headers) (name : String) (value : String) : Option Headers := do
+  let name ← Header.Name.ofString? name
+  let value ← Header.Value.ofString? value
+  pure <| headers.insert name value
+
+/--
 Inserts a new key with an array of values.
 -/
 @[inline]

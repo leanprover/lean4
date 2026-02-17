@@ -142,6 +142,15 @@ def header! (builder : Builder) (key : String) (value : String) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
+Adds a single header to the response being built.
+Returns `none` if the header name or value is invalid.
+-/
+def header? (builder : Builder) (key : String) (value : String) : Option Builder := do
+  let key ← Header.Name.ofString? key
+  let value ← Header.Value.ofString? value
+  pure <| { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
+
+/--
 Inserts a typed extension value into the response being built.
 -/
 def extension (builder : Builder) [TypeName α] (data : α) : Builder :=

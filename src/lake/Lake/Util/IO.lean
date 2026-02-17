@@ -10,13 +10,15 @@ public import Init.System.IO
 
 open System
 
+set_option doc.verso true
+
 namespace Lake
 
-/-- Creates any missing parent directories of `path`. -/
+/-- Creates any missing parent directories of {lean}`path`. -/
 public def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
-/-- Remove the file at `path` if it exists. -/
+/-- Remove the file at {lean}`path` if it exists. -/
 public def removeFileIfExists (path : FilePath) : IO Unit := do
   try IO.FS.removeFile path catch
     | .noFileOrDirectory .. => pure ()
@@ -24,7 +26,7 @@ public def removeFileIfExists (path : FilePath) : IO Unit := do
 
 /--
 Remove a directory and all its contents.
-Like `IO.FS.removeDirAll`, but does not fail if `path` does not exist
+Like {lean}`IO.FS.removeDirAll`, but does not fail if {lean}`path` does not exist
 or if a file is first deleted by a racing process.
 -/
 public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
@@ -41,12 +43,12 @@ public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
     | .noFileOrDirectory .. => return -- something else was faster
     | e => throw e
 
-/-- Copy a file from `src` to `dst`. -/
+/-- Copy a file from {lean}`src` to {lean}`dst`. -/
 public def copyFile (src dst : FilePath) : IO Unit := do
   let contents ← IO.FS.readBinFile src
   IO.FS.writeBinFile dst contents
 
-/-- Returns the normalized real path of a file if it exists. Otherwise, returns `""`. -/
+/-- Returns the normalized real path of a file if it exists. Otherwise, returns {lean}`""`. -/
 public def resolvePath (path : FilePath) : BaseIO FilePath := do
   match (← (IO.FS.realPath path).toBaseIO) with
   | .ok path =>

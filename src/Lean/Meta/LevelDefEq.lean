@@ -137,8 +137,10 @@ mutual
         return lhs.getOffset == rhs.getOffset
       else
         let lhs' ← instantiateLevelMVars lhs
-        let lhs' := lhs'.normalize
         let rhs' ← instantiateLevelMVars rhs
+        unless lhs'.hasMVar || rhs'.hasMVar do
+          return lhs'.isEquiv rhs'
+        let lhs' := lhs'.normalize
         let rhs' := rhs'.normalize
         if lhs != lhs' || rhs != rhs' then
           isLevelDefEqAux lhs' rhs'

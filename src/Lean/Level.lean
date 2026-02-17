@@ -397,12 +397,120 @@ partial def normalize (l : Level) : Level :=
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
+section equiv
+
+mutual
+
+/-- Represents `if ∀ n ∈ conds, "n" = 0 then 0 else level` -/
+private structure Conditional where
+  level : FlatLevel
+  conds : NameSet
+
+/-- Represents `max constOff (param + paramOff)... extra...` -/
+private structure FlatLevel where
+  constOff : Nat := 0
+  paramOffs : NameMap Nat := ∅
+  extra : Array Conditional := #[]
+  /-- which parameters need to be `0` for the level to be `0`? -/
+  zeroConds : Option NameSet := some ∅
+
+end
+
+private def flattenAux (l : Level) (off : Nat) (acc : FlatLevel) : FlatLevel :=
+  match l with
+  | .zero => acc
+  | .succ l' =>
+    if acc.constOff ≤ off then
+      flattenAux l' (off + 1) { acc with zeroConds := none, constOff := off + 1 }
+    else
+      flattenAux l' (off + 1) { acc with zeroConds := none }
+  | .max l₁ l₂ => flattenAux l₂ off (flattenAux l₁ off acc)
+  | .imax l₁ l₂ =>
+    let prevConds := acc.zeroConds
+    let acc := flattenAux l₂ off { acc with zeroConds := some ∅ }
+    match acc.zeroConds with
+    | none => flattenAux l₁ off acc
+    | some c =>
+      if c.isEmpty then
+        { acc with zeroConds := prevConds }
+      else
+        { acc with
+          extra := acc.extra.push ⟨flattenAux l₁ off { constOff := off }, c⟩,
+          zeroConds := prevConds.map (·.union c) }
+  | .param p =>
+    { acc with
+      paramOffs :=
+        match acc.paramOffs.find? p with
+        | none => acc.paramOffs.insert p off
+        | some prev => if prev < off then acc.paramOffs.insert p off else acc.paramOffs,
+      zeroConds := acc.zeroConds.map (·.insert p) }
+  | .mvar _ => acc -- assume no mvars
+
+private def FlatLevel.merge (l l' : FlatLevel) : FlatLevel :=
+  { l with
+    constOff := l.constOff.max l'.constOff,
+    paramOffs := l.paramOffs.mergeWith (fun _ => Max.max) l'.paramOffs,
+    extra := l.extra ++ l'.extra } -- `zeroConds` is not maintained during the equiv checks
+
+private partial def FlatLevel.setZero (l : FlatLevel) (param : Name) : FlatLevel := Id.run do
+  let mut newExtra : Array Conditional := #[]
+  for ⟨l', c⟩ in l.extra do
+    let l' := setZero l' param
+    let c := c.erase param
+    unless c.isEmpty do
+      newExtra := newExtra.push ⟨l', c⟩
+  return { l with extra := newExtra, paramOffs := l.paramOffs.erase param }
+
+private partial def FlatLevel.setNonzero (l : FlatLevel) (param : Name) : FlatLevel := Id.run do
+  let oldExtra := l.extra
+  let mut l := { l with extra := #[] }
+  for ⟨l', c⟩ in oldExtra do
+    let l' := setNonzero l' param
+    if c.contains param then
+      l := l.merge l'
+    else
+      l := { l with extra := l.extra.push ⟨l', c⟩ }
+  let off := l.paramOffs.find? param
+  match off with
+  | none => return l
+  | some off => return { l with constOff := Max.max l.constOff (off + 1) }
+
+private partial def FlatLevel.isEquiv (l₁ l₂ : FlatLevel) : Bool := Id.run do
+  if l₁.constOff != l₂.constOff then
+    return false
+  if h : l₁.extra.size > 0 then
+    let a := l₁.extra[0]
+    let .inner _ nm _ _ _ := a.conds.inner.inner.inner | unreachable! -- any key from the set
+    return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
+      isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
+  if h : l₂.extra.size > 0 then
+    let a := l₂.extra[0]
+    let .inner _ nm _ _ _ := a.conds.inner.inner.inner | unreachable! -- any key from the set
+    return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
+      isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
+  return l₁.paramOffs.size == l₂.paramOffs.size && l₁.paramOffs.toArray == l₂.paramOffs.toArray
+
+@[inline]
+private def isEquivCore (u v : Level) : Bool :=
+  (flattenAux u 0 {}).isEquiv (flattenAux v 0 {})
+
+@[inline]
+private def geqCore (u v : Level) : Bool :=
+  let fu := flattenAux u 0 {}
+  let fv := flattenAux v 0 {}
+  fu.isEquiv (fu.merge fv)
+
 /--
 Return true if `u` and `v` denote the same level.
-Check is currently incomplete.
+Assumes that `u` and `v` don't contain meta-variables.
 -/
+@[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  u == v || u.normalize == v.normalize
+  -- the first two (redundant) cases are the most common
+  -- only use the complete procedure if both others failed
+  u == v || u.normalize == v.normalize || isEquivCore u v
+
+end equiv
 
 /-- Reduce (if possible) universe level by 1 -/
 def dec : Level → Option Level
@@ -605,8 +713,9 @@ def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
 
+@[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  go u.normalize v.normalize
+  u == v || go u.normalize v.normalize || geqCore u v
 where
   go (u v : Level) : Bool :=
     u == v ||

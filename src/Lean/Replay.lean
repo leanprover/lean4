@@ -55,6 +55,13 @@ def isTodo (name : Name) : M Bool := do
 def throwKernelException (ex : Kernel.Exception) : M Unit := do
   throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
+/-- Execute `x`. If it throws an error, prepend `msg` to it. -/
+def prependError (msg : String) (x : M α) : M α := do
+  try
+    x
+  catch ex =>
+    throw <| .userError s!"{msg}\n{ex}"
+
 /-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
   match (← get).env.addDeclCore 0 d (cancelTk? := none) with
@@ -77,7 +84,7 @@ partial def replayConstant (name : Name) : M Unit := do
     replayConstants ci.getUsedConstantsAsSet
     -- Check that this name is still pending: a mutual block may have taken care of it.
     if (← get).pending.contains name then
-      try
+      prependError s!"while replaying declaration '{name}':" do
         match ci with
         | .defnInfo   info =>
           addDecl (Declaration.defnDecl   info)
@@ -117,8 +124,6 @@ partial def replayConstant (name : Name) : M Unit := do
         | .quotInfo _ =>
           addDecl (Declaration.quotDecl)
         modify fun s => { s with pending := s.pending.erase name }
-      catch ex =>
-        throw <| .userError s!"while replaying declaration '{name}':\n{ex}"
 
 /-- Replay a set of constants one at a time. -/
 partial def replayConstants (names : NameSet) : M Unit := do

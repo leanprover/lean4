@@ -92,13 +92,17 @@ def Message.Head.getSize (message : Message.Head dir) (allowEOFBody : Bool) : Op
           pure (acc ++ te.codings)
         ) (some #[])
 
-      let codings ← codings?
-      guard (Header.TransferEncoding.Validate codings)
-      guard (codings == #["chunked"]) -- Non-chunked transfer codings are not supported.
-
-      match contentLength with
-      | none => some .chunked
-      | some _ => none -- To avoid request smuggling when TE and CL are mixed.
+      match codings? with
+      | none => none
+      | some codings =>
+          if ¬Header.TransferEncoding.Validate codings then
+            none
+          else if codings != #["chunked"] then -- Non-chunked transfer codings are not supported.
+            none
+          else
+            match contentLength with
+            | none => some .chunked
+            | some _ => none -- To avoid request smuggling when TE and CL are mixed.
 
 /--
 Checks whether the message indicates that the connection should be kept alive.

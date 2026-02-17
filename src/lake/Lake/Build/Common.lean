@@ -447,42 +447,45 @@ the file in the cache.
 public def Cache.saveArtifact
   (cache : Cache) (file : FilePath) (ext := "art") (text exe useLocalFile := false)
 : IO Artifact := do
-  if text then
-    let contents ← IO.FS.readFile file
-    let normalized := contents.crlfToLf
-    let hash := Hash.ofString normalized
-    let descr := artifactWithExt hash ext
-    let cacheFile := cache.artifactDir / descr.relPath
-    -- make the local file unwritable where possible to discourage users from
-    -- writing to such paths as this can corrupt the cache if the file was hard linked
-    let r := {read := true, write := false, execution := false}
-    IO.setAccessRights file ⟨r, r, r⟩
-    unless (← cacheFile.pathExists) do
-      createParentDirs cacheFile
-      IO.FS.writeFile cacheFile normalized
-      IO.setAccessRights cacheFile ⟨r, r, r⟩
-    writeFileHash file hash
-    let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
-    let path := if useLocalFile then file else cacheFile
-    return {descr, name := file.toString, path, mtime}
-  else
-    let contents ← IO.FS.readBinFile file
-    let hash := Hash.ofByteArray contents
-    let descr := artifactWithExt hash ext
-    let cacheFile := cache.artifactDir / descr.relPath
-    -- make the local file unwritable where possible to discourage users from
-    -- writing to such paths as this can corrupt the cache if the file is hard linked
-    let r := {read := true, write := false, execution := exe}
-    IO.setAccessRights file ⟨r, r, r⟩
-    unless (← cacheFile.pathExists) do
-      createParentDirs cacheFile
-      if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
-        IO.FS.writeBinFile cacheFile contents
+  try
+    if text then
+      let contents ← IO.FS.readFile file
+      let normalized := contents.crlfToLf
+      let hash := Hash.ofString normalized
+      let descr := artifactWithExt hash ext
+      let cacheFile := cache.artifactDir / descr.relPath
+      -- make the local file unwritable where possible to discourage users from
+      -- writing to such paths as this can corrupt the cache if the file was hard linked
+      let r := {read := true, write := false, execution := false}
+      IO.setAccessRights file ⟨r, r, r⟩
+      unless (← cacheFile.pathExists) do
+        createParentDirs cacheFile
+        IO.FS.writeFile cacheFile normalized
         IO.setAccessRights cacheFile ⟨r, r, r⟩
-    writeFileHash file hash
-    let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
-    let path := if useLocalFile then file else cacheFile
-    return {descr, name := file.toString, path, mtime}
+      writeFileHash file hash
+      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let path := if useLocalFile then file else cacheFile
+      return {descr, name := file.toString, path, mtime}
+    else
+      let contents ← IO.FS.readBinFile file
+      let hash := Hash.ofByteArray contents
+      let descr := artifactWithExt hash ext
+      let cacheFile := cache.artifactDir / descr.relPath
+      -- make the local file unwritable where possible to discourage users from
+      -- writing to such paths as this can corrupt the cache if the file is hard linked
+      let r := {read := true, write := false, execution := exe}
+      IO.setAccessRights file ⟨r, r, r⟩
+      unless (← cacheFile.pathExists) do
+        createParentDirs cacheFile
+        if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
+          IO.FS.writeBinFile cacheFile contents
+          IO.setAccessRights cacheFile ⟨r, r, r⟩
+      writeFileHash file hash
+      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let path := if useLocalFile then file else cacheFile
+      return {descr, name := file.toString, path, mtime}
+  catch e =>
+    error s!"failed to cache artifact: {e}"
 
 @[inline, inherit_doc Cache.saveArtifact]
 public def cacheArtifact

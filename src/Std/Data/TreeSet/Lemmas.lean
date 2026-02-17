@@ -1126,9 +1126,7 @@ theorem ofList_cons {hd : α} {tl : List α} :
 
 theorem ofList_eq_insertMany_empty {l : List α} :
     ofList l cmp = insertMany (∅ : TreeSet α cmp) l :=
-  match l with
-  | [] => by simp
-  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+  ext TreeMap.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -2303,6 +2301,17 @@ theorem Equiv.of_toList_perm (h : t₁.toList.Perm t₂.toList) : t₁ ~m t₂ :
 theorem equiv_iff_toList_eq [TransCmp cmp] :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
   equiv_iff_equiv.trans TreeMap.equiv_iff_keys_unit_eq
+
+theorem insertMany_list_equiv_foldl {l : List α} :
+    insertMany t₁ l ~m l.foldl (init := t₁) fun acc a => acc.insert a := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact TreeMap.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List α} :
+    ofList l cmp ~m l.foldl (init := ∅) fun acc a => acc.insert a := by
+  simpa only [ofList_eq_insertMany_empty] using insertMany_list_equiv_foldl
 
 end Equiv
 

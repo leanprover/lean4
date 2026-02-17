@@ -14,7 +14,7 @@ public section
 # Transport
 
 This module exposes a `Transport` type class that is used to represent different transport mechanisms
-that can be used with a HTTP connection.
+that can be used with an HTTP connection.
 -/
 
 namespace Std.Http

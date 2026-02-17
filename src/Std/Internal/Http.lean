@@ -21,7 +21,7 @@ custom connection handlers.
 
 This module provides a complete HTTP/1.1 server implementation with support for:
 
-- Request/response handling with streaming bodies
+- Request/response handling with directional streaming bodies
 - Keep-alive connections
 - Chunked transfer encoding
 - Header validation and management
@@ -58,15 +58,15 @@ def main : IO Unit := Async.block do
 
 ## Working with Requests
 
-Incoming requests are represented by `Request Body.Stream`, which bundles together the
-request line, parsed headers, and a lazily-consumed body. Headers are available
-immediately, while the body can be streamed or collected on demand, allowing handlers
-to efficiently process both small and large requests.
+Incoming requests are represented by `Request Body.Incoming`, which bundles the request
+line, parsed headers, and a lazily-consumed body. Headers are available immediately,
+while the body can be streamed or collected on demand, allowing handlers to process both
+small and large payloads efficiently.
 
 ### Reading Headers
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Incoming) : ContextAsync (Response Body.Outgoing) := do
   -- Access request method and URI
   let method := req.head.method      -- Method.get, Method.post, etc.
   let uri := req.head.uri            -- RequestTarget
@@ -80,12 +80,12 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 
 ### Reading the Request Body
 
-The request body is exposed as a `Body.Stream`, which can be consumed incrementally or
+The request body is exposed as `Body.Incoming`, which can be consumed incrementally or
 collected into memory. The `readAll` method reads the entire body, with an optional size
 limit to protect against unbounded payloads.
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Incoming) : ContextAsync (Response Body.Outgoing) := do
   -- Collect entire body as a String
   let bodyStr : String ← req.body.readAll
 
@@ -100,6 +100,8 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 Responses are constructed using a builder API that starts from a status code and adds
 headers and a body. Common helpers exist for text, HTML, JSON, and binary responses, while
 still allowing full control over status codes and header values.
+
+Response builders produce `Async (Response Body.Outgoing)`.
 
 ```lean
 -- Text response
@@ -129,7 +131,7 @@ Response.ok
 For large responses or server-sent events, use streaming:
 
 ```lean
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) := do
+def handler (req : Request Body.Incoming) : ContextAsync (Response Body.Outgoing) := do
   Response.ok
     |>.header! "Content-Type" "text/plain"
     |>.stream fun stream => do

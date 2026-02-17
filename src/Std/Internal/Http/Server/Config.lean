@@ -119,7 +119,7 @@ structure Config where
 namespace Config
 
 /--
-Converts to HTTP 1.1 config
+Converts to HTTP/1.1 config.
 -/
 def toH1Config (config : Config) : Protocol.H1.Config where
   maxMessages := config.maxRequests

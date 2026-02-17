@@ -54,7 +54,7 @@ public structure Connection (α : Type) where
   socket : α
 
   /--
-  The processing machine for HTTP 1.1
+  The processing machine for HTTP/1.1.
   -/
   machine : H1.Machine .receiving
 

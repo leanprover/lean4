@@ -50,7 +50,7 @@ structure Server where
   activeConnections : Std.Mutex UInt64
 
   /--
-  Indicates when the server has successfully shutdown
+  Indicates when the server has successfully shut down.
   -/
   shutdownPromise : Std.Channel Unit
 

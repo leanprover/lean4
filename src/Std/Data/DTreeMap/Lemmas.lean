@@ -2905,6 +2905,9 @@ theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
 theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨Impl.equiv_of_beq m₁.2 m₂.2 h⟩
 
+theorem beq_iff_equiv [∀ k, LawfulBEq (β k)] : m₁ == m₂ ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
+
 theorem Equiv.beq_congr {m₃ m₄ : DTreeMap α β cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   Impl.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
 
@@ -2919,6 +2922,9 @@ theorem Const.Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : DTreeMa
 
 theorem Const.equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
   ⟨Impl.Const.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Const.beq_iff_equiv [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] : Const.beq m₁ m₂ ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
 
 theorem Const.Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : DTreeMap α (fun _ => β) cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Const.beq m₁ m₂ = Const.beq m₃ m₄ :=
   Impl.Const.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1

@@ -797,6 +797,9 @@ theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁ ==
 theorem equiv_of_beq [LawfulBEq α] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨HashMap.equiv_of_beq h⟩
 
+theorem beq_iff_equiv [LawfulBEq α] : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
+
 theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : HashSet α} (h₁ : m₁ ~m m₃) (h₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   HashMap.Equiv.beq_congr h₁.1 h₂.1
 
@@ -1457,6 +1460,10 @@ theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔
 theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+theorem equiv_iff_forall_mem_iff [LawfulBEq α] :
+    m₁ ~m m₂ ↔ (∀ k, k ∈ m₁ ↔ k ∈ m₂) :=
+  ⟨fun h _ => h.mem_iff, Equiv.of_forall_mem_iff⟩
 
 theorem insertMany_list_equiv_foldl {m : HashSet α} {l : List α} :
     m.insertMany l ~m l.foldl (init := m) fun acc a => acc.insert a := by

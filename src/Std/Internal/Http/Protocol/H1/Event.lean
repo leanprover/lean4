@@ -62,11 +62,6 @@ inductive Event (dir : Direction)
   | needAnswer
 
   /--
-  Indicates that there is no more body to pull for the current message.
-  -/
-  | closeBody
-
-  /--
   Indicates readiness to process the next message.
   -/
   | next

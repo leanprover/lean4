@@ -31,6 +31,31 @@ set_option linter.all true
 /--
 The state of the `Reader` state machine.
 -/
+inductive Reader.BodyState where
+  /--
+  Parse fixed-length body bytes, tracking the number of bytes remaining.
+  -/
+  | fixed (remaining : Nat)
+
+  /--
+  Parse the next chunk-size line in chunked transfer encoding.
+  -/
+  | chunkedSize
+
+  /--
+  Parse chunk data for the current chunk.
+  -/
+  | chunkedBody (ext : Array (ExtensionName × Option String)) (remaining : Nat)
+
+  /--
+  Parse body bytes until EOF (connection close).
+  -/
+  | closeDelimited
+deriving Inhabited, Repr, BEq
+
+/--
+The state of the `Reader` state machine.
+-/
 inductive Reader.State (dir : Direction) : Type
   /--
   Initial state waiting for HTTP start line.
@@ -43,24 +68,9 @@ inductive Reader.State (dir : Direction) : Type
   | needHeader : Nat → State dir
 
   /--
-  State waiting for chunk size in chunked transfer encoding.
+  Unified body-reading state.
   -/
-  | needChunkedSize : State dir
-
-  /--
-  State waiting for chunk body data of specified size.
-  -/
-  | needChunkedBody : Array (ExtensionName × Option String) → Nat → State dir
-
-  /--
-  State waiting for fixed-length body data of specified size.
-  -/
-  | needFixedBody : Nat → State dir
-
-  /--
-  State waiting for EOF-delimited body data (read-until-close).
-  -/
-  | needCloseDelimitedBody : State dir
+  | readBody : Reader.BodyState → State dir
 
   /--
   Paused waiting for a `canContinue` decision, carrying the next state.
@@ -253,14 +263,14 @@ Transitions to the state for reading a fixed-length body.
 -/
 @[inline]
 def startFixedBody (size : Nat) (reader : Reader dir) : Reader dir :=
-  { reader with state := .needFixedBody size }
+  { reader with state := .readBody (.fixed size) }
 
 /--
 Transitions to the state for reading chunked transfer encoding.
 -/
 @[inline]
 def startChunkedBody (reader : Reader dir) : Reader dir :=
-  { reader with state := .needChunkedSize }
+  { reader with state := .readBody .chunkedSize }
 
 /--
 Marks that no more input will be provided (connection closed).

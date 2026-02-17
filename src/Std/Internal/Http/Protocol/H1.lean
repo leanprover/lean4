@@ -119,6 +119,12 @@ structure Machine (dir : Direction) where
   -/
   host : Option Header.Value := none
 
+  /--
+  Set when a previous `pullBody` call could not make progress in `.readBody`.
+  Cleared on new input or state reset.
+  -/
+  pullBodyStalled : Bool := false
+
 namespace Machine
 
 @[inline]
@@ -296,6 +302,13 @@ def canPullBody (machine : Machine dir) : Bool :=
   | .readBody _ => true
   | _ => false
 
+/--
+Returns `true` when `pullBody` is currently expected to make progress.
+-/
+@[inline]
+def canPullBodyNow (machine : Machine dir) : Bool :=
+  machine.canPullBody && !machine.pullBodyStalled
+
 private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Option Nat)
     (expect : Option Nat := none) : Machine dir × Option α :=
   let remaining := machine.reader.input.remainingBytes
@@ -337,7 +350,8 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
         sentMessage := false
       },
       events := machine.events.push .next,
-      error := none
+      error := none,
+      pullBodyStalled := false
     }
   else
     machine.addEvent .close
@@ -437,7 +451,7 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   if machine.isReaderClosed then
     machine
   else
-    { machine with reader := machine.reader.feed data }
+    { machine with reader := machine.reader.feed data, pullBodyStalled := false }
 
 /--Signal that reader is not going to receive any more messages. -/
 @[inline]
@@ -457,7 +471,7 @@ def userClosedBody (machine : Machine dir) : Machine dir :=
 /--Signal that the socket is not sending data anymore. -/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
-  machine.modifyReader ({ · with noMoreInput := true })
+  { machine.modifyReader ({ · with noMoreInput := true }) with pullBodyStalled := false }
 
 /--Set a known size for the message body. -/
 @[inline]
@@ -811,6 +825,13 @@ It advances body parsing until it either:
 -/
 @[inline]
 def pullBody (machine : Machine dir) : Machine dir × Option PulledChunk :=
-  pullNextChunk machine
+  let (machine, pulledChunk) := pullNextChunk machine
+  let stalled :=
+    pulledChunk.isNone &&
+    !shouldIgnoreBodyPull machine &&
+    match machine.reader.state with
+    | .readBody _ => true
+    | _ => false
+  ({ machine with pullBodyStalled := stalled }, pulledChunk)
 
 end Std.Http.Protocol.H1.Machine

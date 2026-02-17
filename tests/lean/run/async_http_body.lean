@@ -233,6 +233,12 @@ def channelInterestSelectorClose : Async Unit := do
 
 /-! ## Request.Builder body tests -/
 
+private def recvBuiltBody (body : Body.Outgoing) : Async (Option Chunk) :=
+  (Body.Internal.outgoingToIncoming body).recv none
+
+private def tryRecvBuiltBody (body : Body.Outgoing) : Async (Option Chunk) :=
+  (Body.Internal.outgoingToIncoming body).tryRecv
+
 -- Test Request.Builder.text sets correct headers
 
 def requestBuilderText : Async Unit := do
@@ -242,7 +248,7 @@ def requestBuilderText : Async Unit := do
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
 
-  let body ← req.body.recv none
+  let body ← recvBuiltBody req.body
   assert! body.isSome
   assert! body.get!.data == "Hello, World!".toUTF8
 
@@ -255,7 +261,7 @@ def requestBuilderJson : Async Unit := do
     |>.json "{\"key\": \"value\"}"
 
   assert! req.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← req.body.recv none
+  let body ← recvBuiltBody req.body
   assert! body.isSome
   assert! body.get!.data == "{\"key\": \"value\"}".toUTF8
 
@@ -269,7 +275,7 @@ def requestBuilderFromBytes : Async Unit := do
     |>.fromBytes data
 
   assert! req.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "3")
-  let body ← req.body.recv none
+  let body ← recvBuiltBody req.body
   assert! body.isSome
   assert! body.get!.data == data
 
@@ -281,7 +287,7 @@ def requestBuilderNoBody : Async Unit := do
   let req ← Request.get (.originForm! "/api")
     |>.noBody
 
-  let body ← req.body.tryRecv
+  let body ← tryRecvBuiltBody req.body
   assert! body.isNone
 
 #eval requestBuilderNoBody.block
@@ -297,7 +303,7 @@ def responseBuilderText : Async Unit := do
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "text/plain; charset=utf-8")
   assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "13")
 
-  let body ← res.body.recv none
+  let body ← recvBuiltBody res.body
   assert! body.isSome
   assert! body.get!.data == "Hello, World!".toUTF8
 
@@ -310,7 +316,7 @@ def responseBuilderJson : Async Unit := do
     |>.json "{\"status\": \"ok\"}"
 
   assert! res.head.headers.get? Header.Name.contentType == some (Header.Value.ofString! "application/json")
-  let body ← res.body.recv none
+  let body ← recvBuiltBody res.body
   assert! body.isSome
   assert! body.get!.data == "{\"status\": \"ok\"}".toUTF8
 
@@ -324,7 +330,7 @@ def responseBuilderFromBytes : Async Unit := do
     |>.fromBytes data
 
   assert! res.head.headers.get? Header.Name.contentLength == some (Header.Value.ofString! "2")
-  let body ← res.body.recv none
+  let body ← recvBuiltBody res.body
   assert! body.isSome
   assert! body.get!.data == data
 
@@ -336,7 +342,7 @@ def responseBuilderNoBody : Async Unit := do
   let res ← Response.ok
     |>.noBody
 
-  let body ← res.body.tryRecv
+  let body ← tryRecvBuiltBody res.body
   assert! body.isNone
 
 #eval responseBuilderNoBody.block

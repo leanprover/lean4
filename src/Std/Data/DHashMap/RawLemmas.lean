@@ -4148,6 +4148,9 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons]
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l := (rfl)
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -5234,11 +5237,19 @@ theorem insertMany_list_equiv_foldl {m : DHashMap.Raw α β} {l : List ((a : α)
   rw [insertMany_eq h]
   exact (Raw₀.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
 
+theorem ofList_equiv_foldl {l : List ((a : α) × β a)} :
+    (ofList l).Equiv (l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2) :=
+  insertMany_list_equiv_foldl .empty
+
 theorem constInsertMany_list_equiv_foldl {β : Type v} {m : DHashMap.Raw α fun _ => β}
     {l : List (α × β)} (h : m.WF) :
     (Const.insertMany m l).Equiv (l.foldl (init := m) fun acc p => acc.insert p.1 p.2) := by
   rw [Const.insertMany_eq h]
   exact (Raw₀.Const.insertMany_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem constOfList_equiv_foldl {β : Type v} {l : List (α × β)} :
+    (Const.ofList l).Equiv (l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2) :=
+  constInsertMany_list_equiv_foldl .empty
 
 theorem constInsertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => Unit}
     {l : List α} (h : m.WF) :
@@ -5246,6 +5257,10 @@ theorem constInsertManyIfNewUnit_list_equiv_foldl {m : DHashMap.Raw α fun _ => 
       (l.foldl (init := m) fun acc a => acc.insertIfNew a ()) := by
   rw [Const.insertManyIfNewUnit_eq h]
   exact (Raw₀.Const.insertManyIfNewUnit_list_equiv_foldl ⟨m, h.size_buckets_pos⟩ (l := l))
+
+theorem constUnitOfList_equiv_foldl {l : List α} :
+    (Const.unitOfList l).Equiv (l.foldl (init := ∅) fun acc a => acc.insertIfNew a ()) :=
+  constInsertManyIfNewUnit_list_equiv_foldl .empty
 
 namespace Const
 

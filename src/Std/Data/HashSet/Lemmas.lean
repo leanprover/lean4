@@ -1271,9 +1271,7 @@ theorem ofList_singleton {k : α} :
 
 theorem ofList_eq_insertMany_empty {l : List α} :
     ofList l = insertMany (∅ : HashSet α) l :=
-  match l with
-  | [] => by simp
-  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+  ext HashMap.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -1465,6 +1463,13 @@ theorem insertMany_list_equiv_foldl {m : HashSet α} {l : List α} :
   constructor
   rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
   · exact HashMap.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List α} :
+    (ofList l).Equiv (l.foldl (init := ∅) fun acc a => acc.insert a) := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact HashMap.unitOfList_equiv_foldl
   · exact fun _ _ => rfl
 
 end Equiv

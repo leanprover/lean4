@@ -8,6 +8,6 @@ but function has type
   False →
     ∀ (x y z n : Nat),
       instLTNat.lt 0 x →
-        instLTNal.lt 0 y →
+        instLTNat.lt 0 y →
           instLTNat.lt 0 z →
             instLTNat.lt 2 n → Ne (instHAdd.hAdd (instHPow.hPow x n) (instHPow.hPow y n)) (instHPow.hPow z n)

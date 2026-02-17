@@ -181,6 +181,11 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
     if_neg h'
   (mod_eq a b).symm ▸ this
 
+grind_pattern mod_eq_of_lt => a % b where
+  -- when `b` is a value, `lia` doesn't need `mod_eq_of_lt`
+  not_value b
+  guard a < b
+
 @[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by
   match n with
   | 0 => simp

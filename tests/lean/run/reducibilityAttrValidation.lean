@@ -25,7 +25,7 @@ attribute [semireducible] f
 attribute [irreducible] f
 
 /--
-error: failed to set `[irreducible]`, `f` is not currently `[semireducible]` nor `[instance_reducible]`, but `[irreducible]`
+error: failed to set `[irreducible]`, `f` is not currently `[semireducible]` nor `[implicit_reducible]`, but `[irreducible]`
 
 Note: Use `set_option allowUnsafeReducibility true` to override reducibility status validation
 -/
@@ -45,7 +45,7 @@ attribute [local semireducible] f
 attribute [local irreducible] f
 
 /--
-error: failed to set `[local irreducible]`, `f` is currently `[irreducible]`, `[semireducible]` nor `[instance_reducible]` expected
+error: failed to set `[local irreducible]`, `f` is currently `[irreducible]`, `[semireducible]` nor `[implicit_reducible]` expected
 
 Note: Use `set_option allowUnsafeReducibility true` to override reducibility status validation
 -/

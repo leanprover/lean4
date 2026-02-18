@@ -146,7 +146,7 @@ public structure Public where
 deriving Repr
 
 /--
-info: @[instance_reducible, expose] def instReprPublic : Repr Public :=
+info: @[implicit_reducible, expose] def instReprPublic : Repr Public :=
 { reprPrec := instReprPublic.repr }
 -/
 #guard_msgs in

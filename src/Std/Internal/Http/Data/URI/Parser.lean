@@ -23,68 +23,11 @@ It handles parsing of schemes, authorities, paths, queries, and fragments.
 
 namespace Std.Http.URI.Parser
 
+open Internal Char
+
 set_option linter.all true
 
 open Std Internal Parsec ByteArray
-
-@[inline]
-private def isDigit (c : UInt8) : Bool :=
-  c >= '0'.toUInt8 ∧ c <= '9'.toUInt8
-
-@[inline]
-private def isHexDigit (c : UInt8) : Bool :=
-  isDigit c ∨ (c >= 'A'.toUInt8 ∧ c <= 'F'.toUInt8) ∨ (c >= 'a'.toUInt8 ∧ c <= 'f'.toUInt8)
-
-@[inline]
-private def isAlpha (c : UInt8) : Bool :=
-  (c >= 'A'.toUInt8 ∧ c <= 'Z'.toUInt8) ∨ (c >= 'a'.toUInt8 ∧ c <= 'z'.toUInt8)
-
-@[inline]
-private def isAlphaNum (c : UInt8) : Bool :=
-  isAlpha c ∨ isDigit c
-
-@[inline]
-private def isUnreserved (c : UInt8) : Bool :=
-  isAlphaNum c ∨ c = '-'.toUInt8 ∨ c = '.'.toUInt8 ∨ c = '_'.toUInt8 ∨ c = '~'.toUInt8
-
-@[inline]
-private def isSubDelims (c : UInt8) : Bool :=
-  c = '!'.toUInt8 ∨ c = '$'.toUInt8 ∨ c = '&'.toUInt8 ∨ c = '\''.toUInt8 ∨
-  c = '('.toUInt8 ∨ c = ')'.toUInt8 ∨ c = '*'.toUInt8 ∨ c = '+'.toUInt8 ∨
-  c = ','.toUInt8 ∨ c = ';'.toUInt8 ∨ c = '='.toUInt8
-
-@[inline]
-private def isGenDelims (c : UInt8) : Bool :=
-  c = ':'.toUInt8 ∨ c = '/'.toUInt8 ∨ c = '?'.toUInt8 ∨ c = '#'.toUInt8 ∨
-  c = '['.toUInt8 ∨ c = ']'.toUInt8 ∨ c = '@'.toUInt8
-
-@[inline]
-private def isReserved (c : UInt8) : Bool :=
-  isGenDelims c ∨ isSubDelims c
-
-@[inline]
-private def isPChar (c : UInt8) : Bool :=
-  isUnreserved c ∨ isSubDelims c ∨ c = ':'.toUInt8 ∨ c = '@'.toUInt8 ∨ c = '%'.toUInt8
-
-@[inline]
-private def isRegNameChar (c : UInt8) : Bool :=
-  isUnreserved c ∨ isSubDelims c ∨ c = '%'.toUInt8
-
-@[inline]
-private def isSchemeChar (c : UInt8) : Bool :=
-  isAlphaNum c ∨ c = '+'.toUInt8 ∨ c = '-'.toUInt8 ∨ c = '.'.toUInt8
-
-@[inline]
-private def isQueryChar (c : UInt8) : Bool :=
-  isPChar c ∨ c = '/'.toUInt8 ∨ c = '?'.toUInt8
-
-@[inline]
-private def isFragmentChar (c : UInt8) : Bool :=
-  isPChar c ∨ c = '/'.toUInt8 ∨ c = '?'.toUInt8
-
-@[inline]
-private def isUserInfoChar (c : UInt8) : Bool :=
-  isUnreserved c ∨ isSubDelims c ∨ c = '%'.toUInt8 ∨ c = ':'.toUInt8
 
 @[inline]
 private def tryOpt (p : Parser α) : Parser (Option α) :=
@@ -114,7 +57,11 @@ private def parsePctEncoded : Parser UInt8 := do
 -- scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 private def parseScheme : Parser URI.Scheme := do
   let first ← takeWhileUpTo1 isAlpha 1
-  let rest ← takeWhileUpTo isSchemeChar 62
+  let rest ← takeWhileUpTo
+    (fun c =>
+      isAlphaNum c ∨
+      c = '+'.toUInt8 ∨ c = '-'.toUInt8 ∨ c = '.'.toUInt8)
+    62
   let schemeBytes := first.toByteArray ++ rest.toByteArray
   return ⟨String.fromUTF8! schemeBytes |>.toLower, .isLowerCase_toLower⟩
 
@@ -134,7 +81,11 @@ private def parsePortNumber : Parser UInt16 := do
 
 -- userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 private def parseUserInfo : Parser URI.UserInfo := do
-  let userBytesName ← takeWhileUpTo (fun x => x ≠ ':'.toUInt8 ∧ isUserInfoChar x) 1024
+  let userBytesName ← takeWhileUpTo
+    (fun x =>
+      x ≠ ':'.toUInt8 ∧
+      (isUserInfoChar x ∨ x = '%'.toUInt8))
+    1024
 
   let some userName := URI.EncodedUserInfo.ofByteArray? userBytesName.toByteArray
     | fail "invalid percent encoding in user info"
@@ -142,7 +93,9 @@ private def parseUserInfo : Parser URI.UserInfo := do
   let userPass ← if ← peekIs (· == ':'.toUInt8) then
       skip
 
-      let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
+      let userBytesPass ← takeWhileUpTo
+        (fun x => isUserInfoChar x ∨ x = '%'.toUInt8)
+        1024
 
       let some userStrPass := URI.EncodedUserInfo.ofByteArray? userBytesPass.toByteArray >>= URI.EncodedUserInfo.decode
         | fail "invalid percent encoding in user info"
@@ -160,7 +113,9 @@ private def parseUserInfo : Parser URI.UserInfo := do
 private def parseIPv6 : Parser Net.IPv6Addr := do
   skipByte '['.toUInt8
 
-  let result ← takeWhileUpTo1 (fun x => x = ':'.toUInt8 ∨ isHexDigit x) 256
+  let result ← takeWhileUpTo1
+    (fun x => x = ':'.toUInt8 ∨ isHexDigit x)
+    256
 
   skipByte ']'.toUInt8
 
@@ -172,7 +127,9 @@ private def parseIPv6 : Parser Net.IPv6Addr := do
 
 -- IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
 private def parseIPv4 : Parser Net.IPv4Addr := do
-  let result ← takeWhileUpTo1 (fun x => x = '.'.toUInt8 ∨ isDigit x) 256
+  let result ← takeWhileUpTo1
+    (fun x => x = '.'.toUInt8 ∨ isDigit x)
+    256
 
   let ipv4Str := String.fromUTF8! result.toByteArray
   let some ipv4Str := Std.Net.IPv4Addr.ofString ipv4Str
@@ -187,14 +144,14 @@ private def parseHost : Parser URI.Host := do
   if (← peekWhen? (· == '['.toUInt8)).isSome then
     return .ipv6 (← parseIPv6)
   else
-    if (← peekWhen? isDigit).isSome then
+    if (← peekWhen? Internal.Char.isDigit).isSome then
       if let some ipv4 ← tryOpt parseIPv4 then
         return .ipv4 ipv4
 
     -- It needs to be a legal DNS label, so it differs from reg-name.
-    let isHostName x := isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8
-
-    let some str := String.fromUTF8? (← takeWhileUpTo1 isHostName 1024).toByteArray
+    let some str := String.fromUTF8? (← takeWhileUpTo1
+      (fun x => isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8)
+      1024).toByteArray
       | fail s!"invalid host"
 
     let lower := str.toLower
@@ -220,7 +177,7 @@ private def parseAuthority : Parser URI.Authority := do
 
 -- segment = *pchar
 private def parseSegment : Parser ByteSlice := do
-  takeWhileUpTo isPChar 256
+  takeWhileUpTo (fun c => isPChar c ∨ c = '%'.toUInt8) 256
 
 /-
 path = path-abempty ; begins with "/" or is empty
@@ -243,7 +200,8 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   let mut isAbsolute := false
   let mut segments : Array _ := #[]
 
-  let isSegmentOrSlash ← peekIs (fun c => isPChar c ∨ c = '/'.toUInt8)
+  let isSegmentOrSlash ←
+    peekIs (fun c => isPChar c ∨ c = '%'.toUInt8 ∨ c = '/'.toUInt8)
 
   if ¬allowEmpty ∧ ((← isEof) ∨ ¬isSegmentOrSlash) then
     fail "need a path"
@@ -280,7 +238,8 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
 
 -- query = *( pchar / "/" / "?" )
 private def parseQuery : Parser URI.Query := do
-  let queryBytes ← takeWhileUpTo isQueryChar 1024
+  let queryBytes ←
+    takeWhileUpTo (fun c => isQueryChar c ∨ c = '%'.toUInt8) 1024
 
   let some queryStr := String.fromUTF8? queryBytes.toByteArray
     | fail "invalid query string"
@@ -303,7 +262,8 @@ private def parseQuery : Parser URI.Query := do
 
 --  fragment = *( pchar / "/" / "?" )
 private def parseFragment : Parser URI.EncodedFragment := do
-  let fragmentBytes ← takeWhileUpTo isFragmentChar 1024
+  let fragmentBytes ←
+    takeWhileUpTo (fun c => isFragmentChar c ∨ c = '%'.toUInt8) 1024
 
   let some fragmentStr := URI.EncodedFragment.ofByteArray? fragmentBytes.toByteArray
     | fail "invalid percent encoding in fragment"

@@ -292,6 +292,7 @@ partial def Code.explicitBoxing (code : Code .impure) : BoxM (Code .impure) := d
     let some jpDecl ← findFunDecl? fvarId | unreachable!
     castArgsIfNeeded args jpDecl.params fun args => return code.updateJmp! fvarId args
   | .unreach .. => return code.updateUnreach! (← getResultType)
+  | .inc .. | .dec .. => unreachable!
 where
   /--
   Up to this point the type system of IR is quite loose so we can for example encounter situations
@@ -368,7 +369,7 @@ def run (decls : Array (Decl .impure)) : CompilerM (Array (Decl .impure)) := do
 public def explicitBoxing : Pass where
   phase := .impure
   phaseOut := .impure
-  name := `boxing
+  name := `explicitBoxing
   run := run
 
 builtin_initialize

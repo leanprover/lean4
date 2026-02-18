@@ -143,6 +143,10 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
     return Code.updateSset! c (← f fvarId) i offset (← f y) (← Expr.mapFVarM f ty) (← mapFVarM f k)
   | .uset fvarId offset y k _ =>
     return Code.updateUset! c (← f fvarId) offset (← f y) (← mapFVarM f k)
+  | .inc fvarId n check persistent k _ =>
+    return Code.updateInc! c (← f fvarId) n check persistent (← mapFVarM f k)
+  | .dec fvarId n check persistent k _ =>
+    return Code.updateDec! c (← f fvarId) n check persistent (← mapFVarM f k)
 
 partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Unit := do
   match c with
@@ -178,6 +182,9 @@ partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code pu) : m Un
     f fvarId
     f y
     forFVarM f k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    f fvarId
+    forFVarM f k
 
 instance : TraverseFVar (Code pu) where
   mapFVarM := Code.mapFVarM
@@ -204,6 +211,8 @@ instance : TraverseFVar (CodeDecl pu) where
     | .let decl => return .let (← mapFVarM f decl)
     | .uset var i y _ => return .uset (← f var) i (← f y)
     | .sset var i offset y ty _ => return .sset (← f var) i offset (← f y) (← mapFVarM f ty)
+    | .inc fvarId n check persistent _ => return .inc (← f fvarId) n check persistent
+    | .dec fvarId n check persistent _ => return .dec (← f fvarId) n check persistent
   forFVarM f decl :=
     match decl with
     | .fun decl _ => forFVarM f decl
@@ -211,6 +220,7 @@ instance : TraverseFVar (CodeDecl pu) where
     | .let decl => forFVarM f decl
     | .uset var i y _ => do f var; f y
     | .sset var i offset y ty _ => do f var; f y; forFVarM f ty
+    | .inc (fvarId := fvarId) .. | .dec (fvarId := fvarId) .. => f fvarId
 
 instance : TraverseFVar (Alt pu) where
   mapFVarM f alt := do

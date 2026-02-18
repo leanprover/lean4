@@ -76,6 +76,8 @@ where
           go decl.value
     | .return var => visitVar var
     | .unreach .. => return false
+    | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+      visitVar fvarId <||> go k
 
   @[inline]
   visitVar (x : FVarId) : LiveM Bool :=

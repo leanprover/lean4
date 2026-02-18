@@ -109,6 +109,12 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     let .var y ← getFVarValue y | unreachable!
     let .var var ← getFVarValue var | unreachable!
     return .uset var i y (← lowerCode k)
+  | .inc fvarId n check persistent k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .inc var n check persistent (← lowerCode k)
+  | .dec fvarId n check persistent k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .dec var n check persistent (← lowerCode k)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M FnBody := do

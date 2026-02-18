@@ -237,7 +237,7 @@ path-empty    = 0<pchar>
 -/
 
 /--
-Parses an URI with combined parsing and validation.
+Parses a URI path with combined parsing and validation.
 -/
 def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   let mut isAbsolute := false

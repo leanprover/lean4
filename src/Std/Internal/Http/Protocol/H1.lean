@@ -398,7 +398,7 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       machine
 
 /--
-This processes the message we are sending.
+Processes the message we are sending.
 -/
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
@@ -462,21 +462,21 @@ def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })
 
 /--
-Signal that the writer cannot send more messages because the socket closed.
+Signals that the writer cannot send more messages because the socket closed.
 -/
 @[inline]
 def closeWriter (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with state := .closed, userClosedBody := true })
 
 /--
-Signal that the user is not sending data anymore.
+Signals that the user is not sending data anymore.
 -/
 @[inline]
 def userClosedBody (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with userClosedBody := true })
 
 /--
-Signal that the socket is not sending data anymore.
+Signals that the socket is not sending data anymore.
 -/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
@@ -530,7 +530,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
     machine
 
 /--
-Allow body processing to continue after receiving `Expect: 100-continue`.
+Allows body processing to continue after receiving `Expect: 100-continue`.
 -/
 def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
   match dir, machine.reader.state with
@@ -550,7 +550,7 @@ def canContinue (machine : Machine dir) (status : Status) : Machine dir :=
         |>.setReaderState .closed
   | .receiving, _ => machine
 
-/--Send data to the socket. -/
+/-- Sends data to the socket. -/
 @[inline]
 def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   if data.isEmpty then
@@ -558,18 +558,18 @@ def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   else
     machine.modifyWriter (fun writer => { writer with userData := writer.userData ++ data })
 
-/--Get all the events of the machine. -/
+/-- Gets all events of the machine. -/
 @[inline]
 def takeEvents (machine : Machine dir) : Machine dir × Array (Event dir) :=
   ({ machine with events := #[] }, machine.events)
 
-/--Take all the accumulated output to send to the socket. -/
+/-- Takes all accumulated output to send to the socket. -/
 @[inline]
 def takeOutput (machine : Machine dir) : Machine dir × ChunkedBuffer :=
   let output := machine.writer.outputData
   ({ machine with writer := { machine.writer with outputData := .empty } }, output)
 
-/--Process the writer part of the machine. -/
+/-- Processes the writer part of the machine. -/
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
   | .pending =>
@@ -651,7 +651,7 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
   | .closed =>
       machine
 
-/-- Handle the failed state for the reader. -/
+/-- Maps a reader failure to an HTTP status code. -/
 private def errorResponseStatus (error : H1.Error) : Status :=
   match error with
   | .unsupportedVersion => .httpVersionNotSupported
@@ -659,7 +659,7 @@ private def errorResponseStatus (error : H1.Error) : Status :=
   | .unsupportedMethod => .notImplemented
   | _ => .badRequest
 
-/-- Handle the failed state for the reader. -/
+/-- Handles the failed state for the reader. -/
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
     match dir with
@@ -703,7 +703,7 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           (machine, mkPulledChunk? machine true false #[] body, true)
       | some (.incomplete body remaining) =>
           let machine := machine.setReaderState (.readBody (.fixed remaining))
-          (machine, mkPulledChunk? machine false false #[] body, true) -- Its not an incomplete "chunk"
+          (machine, mkPulledChunk? machine false false #[] body, true) -- It's not an incomplete "chunk"
       | none =>
           (machine, none, false)
 
@@ -759,7 +759,7 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           |>.setReaderState (.readBody .closeDelimited)
         (machine, mkPulledChunk? machine false false #[] data, true)
 
-/--Process the reader part of the machine. -/
+/-- Processes the reader part of the machine. -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
   | .needStartLine =>

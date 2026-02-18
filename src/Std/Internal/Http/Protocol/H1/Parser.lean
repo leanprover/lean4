@@ -261,7 +261,7 @@ def parseChunkExt (limits : H1.Config) : Parser (ExtensionName × Option String)
   return (name, none)
 
 /--
-This function parses the size and extension of a chunk
+Parses the size and extensions of a chunk.
 -/
 public def parseChunkSize (limits : H1.Config) : Parser (Nat × Array (ExtensionName × Option String)) := do
   let size ← hex
@@ -277,7 +277,7 @@ public inductive TakeResult
   | incomplete (data : ByteSlice) (remaining : Nat)
 
 /--
-This function parses a single chunk in chunked transfer encoding
+Parses a single chunk in chunked transfer encoding.
 -/
 public def parseChunk (limits : H1.Config) : Parser (Option (Nat × Array (ExtensionName × Option String) × ByteSlice)) := do
   let (size, ext) ← parseChunkSize limits
@@ -307,12 +307,12 @@ public def parseChunkSizedData (size : Nat) : Parser TakeResult := do
   | .incomplete data res => return .incomplete data res
 
 /--
-This function parses a trailer header (used after chunked body)
+Parses a trailer header (used after a chunked body).
 -/
 def parseTrailerHeader (limits : H1.Config) : Parser (Option (String × String)) := parseSingleHeader limits
 
 /--
-This function parses trailer headers after chunked body
+Parses trailer headers after a chunked body.
 -/
 public def parseTrailers (limits : H1.Config) : Parser (Array (String × String)) := do
   let trailers ← manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders

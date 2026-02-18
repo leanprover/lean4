@@ -51,6 +51,18 @@ instance [h : Header α] : Encode .v11 α where
 namespace Header
 
 /--
+Checks whether a string is a valid non-empty HTTP token.
+-/
+def isToken (s : String) : Bool :=
+  !s.isEmpty && s.toList.all Header.isValidHeaderNameChar
+
+/--
+Parses a comma-separated token list with OWS trimming and lowercase normalization.
+-/
+def parseTokenList (v : Value) : Array String :=
+  v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
+
+/--
 The `Content-Length` header, representing the size of the message body in bytes.
 Parses only valid natural number values.
 -/
@@ -65,13 +77,13 @@ deriving BEq, Repr
 namespace ContentLength
 
 /--
-Parses a content length header from a name and value
+Parses a content length header value.
 -/
 def parse (v : Value) : Option ContentLength :=
    v.value.toNat?.map (.mk)
 
 /--
-Serialize a content length header back to a name-value pair
+Serializes a content length header back to a name-value pair.
 -/
 def serialize (h : ContentLength) : Name × Value :=
   (Header.Name.contentLength, Value.ofString! (toString h.length))
@@ -85,7 +97,7 @@ Validates the chunked placement rules. Returns `none` if the encoding list viola
 -/
 @[expose]
 def TransferEncoding.Validate (codings : Array String) : Bool :=
-  if codings.isEmpty || codings.any (· == "") then
+  if codings.isEmpty || codings.any (fun coding => !isToken coding) then
     false
   else
     let chunkedCount := codings.filter (· == "chunked") |>.size
@@ -130,7 +142,7 @@ def isChunked (te : TransferEncoding) : Bool :=
 Parses a comma-separated list of transfer codings from a header value, validating chunked placement.
 -/
 def parse (v : Value) : Option TransferEncoding :=
-  let codings := v.value.split (· == ',') |>.toArray.map (·.trimAscii.toString.toLower)
+  let codings := parseTokenList v
   if h : TransferEncoding.Validate codings then
     some ⟨codings, h⟩
   else
@@ -145,4 +157,57 @@ def serialize (te : TransferEncoding) : Header.Name × Header.Value :=
 
 instance : Header TransferEncoding := ⟨parse, serialize⟩
 
-end Std.Http.Header.TransferEncoding
+end TransferEncoding
+
+/--
+The `Connection` header, represented as a list of connection option tokens.
+-/
+structure Connection where
+  /--
+  The normalized connection-option tokens.
+  -/
+  tokens : Array String
+
+  /--
+  Valid connection-option tokens.
+  -/
+  valid : tokens.size > 0 ∧ tokens.all isToken = true
+deriving Repr
+
+namespace Connection
+
+/--
+Checks whether a specific token is present in the `Connection` header value.
+-/
+def containsToken (connection : Connection) (token : String) : Bool :=
+  let token := token.trimAscii.toString.toLower
+  connection.tokens.any (· == token)
+
+/--
+Checks whether the `Connection` header requests connection close semantics.
+-/
+def shouldClose (connection : Connection) : Bool :=
+  connection.containsToken "close"
+
+/--
+Parses a `Connection` header value into normalized tokens.
+-/
+def parse (v : Value) : Option Connection :=
+  let tokens := parseTokenList v
+  if h : tokens.size > 0 ∧ tokens.all isToken = true then
+    some ⟨tokens, h⟩
+  else
+    none
+
+/--
+Serializes a `Connection` header back to a comma-separated value.
+-/
+def serialize (connection : Connection) : Header.Name × Header.Value :=
+  let value := ",".intercalate connection.tokens.toList
+  (Header.Name.connection, Value.ofString! value)
+
+instance : Header Connection := ⟨parse, serialize⟩
+
+end Connection
+
+end Std.Http.Header

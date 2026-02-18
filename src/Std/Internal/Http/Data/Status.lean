@@ -13,9 +13,9 @@ public section
 /-!
 # Status
 
-This module defines the `Status` type, which is a representation of HTTP status codes. Status codes are three-digit
-integer codes that describe the result of an HTTP request. This implementation includes common
-named statuses and supports custom codes through `Status.other`.
+This module defines the `Status` type, a representation of HTTP status codes. Status codes are
+three-digit integer codes that describe the result of an HTTP request. This implementation
+includes common named statuses and supports custom codes through `Status.other`.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes
 -/
@@ -504,7 +504,7 @@ def isInformational (c : Status) : Bool :=
   100 ≤ c.toCode ∧ c.toCode < 200
 
 /--
-Checks if the type of the status code is success, meaning that the request was successfully received,
+Checks if the status code is a success status, meaning that the request was successfully received,
 understood, and accepted.
 
 * Reference: https://httpwg.org/specs/rfc9110.html#status.codes

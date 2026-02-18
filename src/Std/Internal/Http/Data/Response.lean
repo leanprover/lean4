@@ -32,10 +32,15 @@ The main parts of a response.
 -/
 structure Response.Head where
   /--
-  The HTTP status code and reason phrase, indicating the result of the request.
-  For example, `.ok` corresponds to `200 OK`.
+  The HTTP status for the response.
+  The reason phrase is derived from `Status.reasonPhrase`.
   -/
   status : Status := .ok
+
+  /--
+  Optional reason-phrase override for the status line.
+  -/
+  reasonPhrase : Option String := none
 
   /--
   The HTTP protocol version used in the response, e.g. `HTTP/1.1`.
@@ -54,7 +59,7 @@ HTTP response structure parameterized by body type
 -/
 structure Response (t : Type) where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Response.Head := {}
 
@@ -74,7 +79,7 @@ Builds an HTTP Response.
 -/
 structure Response.Builder where
   /--
-  The information of the status-line of the response
+  The response status-line information.
   -/
   head : Head := {}
 
@@ -87,9 +92,10 @@ namespace Response
 
 instance : ToString Head where
   toString r :=
+    let reasonPhrase := r.reasonPhrase.getD r.status.reasonPhrase
     toString r.version ++ " " ++
     toString r.status.toCode ++ " " ++
-    toString r.status ++ "\r\n" ++
+    reasonPhrase ++ "\r\n" ++
     toString r.headers ++
     "\r\n"
 
@@ -140,6 +146,15 @@ def header! (builder : Builder) (key : String) (value : String) : Builder :=
   let key := Header.Name.ofString! key
   let value := Header.Value.ofString! value
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
+
+/--
+Adds a single header to the response being built.
+Returns `none` if the header name or value is invalid.
+-/
+def header? (builder : Builder) (key : String) (value : String) : Option Builder := do
+  let key ← Header.Name.ofString? key
+  let value ← Header.Value.ofString? value
+  pure <| { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
 Inserts a typed extension value into the response being built.

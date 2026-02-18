@@ -133,7 +133,12 @@ Parses the method token as text.
 -/
 def parseMethodToken (limits : H1.Config) : Parser String := do
   let raw ← token limits.maxHeaderNameLength
-  opt <| String.fromUTF8? raw.toByteArray
+
+  let methodToken ← opt <| String.fromUTF8? raw.toByteArray
+  if methodToken.toList.any (fun c => c.toNat ≥ 'a'.toNat ∧ c.toNat ≤ 'z'.toNat) then
+    fail "method token must be uppercase"
+  else
+    pure methodToken
 
 def parseURI (limits : H1.Config) : Parser ByteArray := do
   let uri ← takeUntilUpTo (· == ' '.toUInt8) limits.maxUriLength

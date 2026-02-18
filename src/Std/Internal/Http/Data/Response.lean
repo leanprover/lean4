@@ -32,7 +32,7 @@ The main parts of a response.
 structure Response.Head where
   /--
   The HTTP status for the response.
-  The reason phrase is derived from `Status.reasonPhrase`.
+  The reason phrase defaults to `Status.reasonPhrase` unless `reasonPhrase` overrides it.
   -/
   status : Status := .ok
 
@@ -93,9 +93,12 @@ instance : ToString Head where
 open Internal in
 instance : Encode .v11 Head where
   encode buffer r :=
+    let reasonPhrase := r.reasonPhrase.getD r.status.reasonPhrase
     let buffer := Encode.encode (v := .v11) buffer r.version
     let buffer := buffer.writeChar ' '
-    let buffer := Encode.encode (v := .v11) buffer r.status
+    let buffer := buffer.writeString (toString r.status.toCode)
+    let buffer := buffer.writeChar ' '
+    let buffer := buffer.writeString reasonPhrase
     buffer.writeString "\r\n"
 
 /--

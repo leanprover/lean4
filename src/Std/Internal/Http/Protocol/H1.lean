@@ -495,6 +495,7 @@ Send the head of a message to the machine.
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   if machine.isWaitingMessage then
+    let hadFailure := machine.failed
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
     let framingInHeaders :=
       message.headers.contains Header.Name.contentLength ∨
@@ -521,7 +522,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
           else
             machine
 
-    if machine.failed then
+    if machine.failed && !hadFailure then
       machine
     else
       machine.setWriterState .waitingForFlush
@@ -720,7 +721,7 @@ private def parseBody (machine : Machine dir) (bodyState : Reader.BodyState) :
           (machine, none, false)
 
   | .chunkedBody ext 0 =>
-      let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 2)
+      let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := none)
       match result with
       | some _ =>
           let machine := machine

@@ -82,6 +82,11 @@ structure Config where
   maxUriLength : Nat := 8192
 
   /--
+  Maximum number of bytes consumed while parsing request start-lines (default: 8192 bytes).
+  -/
+  maxStartLineLength : Nat := 8192
+
+  /--
   Maximum length of header field name (default: 256 bytes)
   -/
   maxHeaderNameLength : Nat := 256
@@ -107,6 +112,21 @@ structure Config where
   maxChunkExtValueLength : Nat := 256
 
   /--
+  Maximum number of bytes consumed while parsing one chunk-size line with extensions (default: 8192 bytes).
+  -/
+  maxChunkLineLength : Nat := 8192
+
+  /--
+  Maximum allowed chunk payload size in bytes (default: 8 MiB).
+  -/
+  maxChunkSize : Nat := 8 * 1024 * 1024
+
+  /--
+  Maximum allowed total body size per request in bytes (default: 64 MiB).
+  -/
+  maxBodySize : Nat := 64 * 1024 * 1024
+
+  /--
   Maximum length of reason phrase (default: 512 bytes)
   -/
   maxReasonPhraseLength : Nat := 512
@@ -125,11 +145,15 @@ def toH1Config (config : Config) : Protocol.H1.Config where
   maxMessages := config.maxRequests
   maxHeaders := config.maxHeaders
   maxUriLength := config.maxUriLength
+  maxStartLineLength := config.maxStartLineLength
   maxHeaderNameLength := config.maxHeaderNameLength
   maxHeaderValueLength := config.maxHeaderValueLength
   maxSpaceSequence := config.maxSpaceSequence
   maxChunkExtNameLength := config.maxChunkExtNameLength
   maxChunkExtValueLength := config.maxChunkExtValueLength
+  maxChunkLineLength := config.maxChunkLineLength
+  maxChunkSize := config.maxChunkSize
+  maxBodySize := config.maxBodySize
   maxReasonPhraseLength := config.maxReasonPhraseLength
   maxTrailerHeaders := config.maxTrailerHeaders
   enableKeepAlive := config.enableKeepAlive

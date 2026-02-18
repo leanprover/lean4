@@ -20,7 +20,7 @@ public section
 /-!
 # Body Channels
 
-This module defines a zero-buffer rendezvous body channel split into two faces:
+This module defines a body channel split into two faces:
 
 - `Body.Outgoing`: producer side (send chunks)
 - `Body.Incoming`: consumer side (receive chunks)
@@ -28,8 +28,10 @@ This module defines a zero-buffer rendezvous body channel split into two faces:
 Response/request builders produce `Body.Outgoing` because they only write body data.
 Consumers and handlers receive `Body.Incoming` because they only read body data.
 
-There is no queue and no capacity. A send waits for a receiver and a receive waits for a sender.
-At most one blocked producer and one blocked consumer are supported.
+The channel supports an internal FIFO queue for pre-buffered chunks.
+Sends enqueue chunks while buffer capacity is available; when full, one producer may block until
+space is freed. At most one blocked producer, one blocked consumer, and one blocked
+interest-selector are supported.
 -/
 
 namespace Std.Http.Body
@@ -70,9 +72,24 @@ private def resolveInterestWaiter (waiter : Waiter Bool) (x : Bool) : BaseIO Boo
 
 private structure State where
   /--
-  A single blocked producer waiting for a receiver
+  Single blocked producer slot used when the internal queue is full.
   -/
-  pendingProducer : Option Producer
+  pendingProducer : Option Producer := none
+
+  /--
+  FIFO chunks waiting to be consumed.
+  -/
+  queuedChunks : Std.Queue Chunk := ∅
+
+  /--
+  Number of chunks currently buffered in `queuedChunks`.
+  -/
+  queuedSize : Nat := 0
+
+  /--
+  Maximum number of buffered chunks allowed before producers block.
+  -/
+  capacity : Nat
 
   /--
   A single blocked consumer waiting for a producer
@@ -99,12 +116,6 @@ private structure State where
   These partial pieces are collapsed and emitted as a single chunk on the next complete send.
   -/
   pendingIncompleteChunk : Option Chunk := none
-
-  /--
-  Optional background producer task used by `Body.stream`.
-  Keeping this handle alive prevents the detached producer from being dropped early.
-  -/
-  backgroundTask : Option (AsyncTask Unit) := none
 deriving Nonempty
 
 end Channel
@@ -137,15 +148,18 @@ def outgoingToIncoming (outgoing : Outgoing) : Incoming :=
 
 end Internal
 
-/-- Creates a rendezvous body channel. -/
-def mkChannel : Async (Outgoing × Incoming) := do
+/-- Creates a queue-backed body channel. -/
+def mkChannel (capacity : Nat := 64) : Async (Outgoing × Incoming) := do
+  let capacity := capacity.max 1
   let state ← Mutex.new {
     pendingProducer := none
+    queuedChunks := ∅
+    queuedSize := 0
+    capacity := capacity
     pendingConsumer := none
     interestWaiter := none
     closed := false
     knownSize := none
-    backgroundTask := none
   }
   return ({ state }, { state })
 
@@ -198,7 +212,7 @@ private def signalInterest [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLift
 private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
   let st ← get
-  return st.pendingProducer.isSome || st.closed
+  return st.queuedSize > 0 || st.pendingProducer.isSome || st.closed
 
 private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
     AtomicT State m Bool := do
@@ -208,7 +222,26 @@ private def hasInterest' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
 private def tryRecv' [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m] :
     AtomicT State m (Option Chunk) := do
   let st ← get
-  if let some producer := st.pendingProducer then
+  if let some (chunk, queuedChunks) := st.queuedChunks.dequeue? then
+    let mut next := {
+      st with
+      queuedChunks
+      queuedSize := st.queuedSize - 1
+      knownSize := decreaseKnownSize st.knownSize chunk
+    }
+
+    if let some producer := st.pendingProducer then
+      producer.promise.resolve true
+      next := {
+        next with
+        pendingProducer := none
+        queuedChunks := next.queuedChunks.enqueue producer.chunk
+        queuedSize := next.queuedSize + 1
+      }
+
+    set next
+    return some chunk
+  else if let some producer := st.pendingProducer then
     producer.promise.resolve true
     set {
       st with
@@ -249,7 +282,7 @@ namespace Incoming
 
 /--
 Attempts to receive a chunk from the channel without blocking.
-Returns `some chunk` only when a producer is already waiting.
+Returns `some chunk` only when data is already queued.
 -/
 def tryRecv (incoming : Incoming) : Async (Option Chunk) :=
   incoming.state.atomically do
@@ -278,8 +311,8 @@ private def recv' (incoming : Incoming) : BaseIO (AsyncTask (Option Chunk)) := d
       | some res => .ok res
 
 /--
-Receives a chunk from the channel. Blocks until a producer sends one.
-Returns `none` if the channel is closed and no producer is waiting.
+Receives a chunk from the channel. Blocks until data is available or the channel closes.
+Returns `none` if the channel is closed and no queued data remains.
 -/
 def recv (incoming : Incoming) (_count : Option UInt64) : Async (Option Chunk) :=
   do Async.ofAsyncTask (← recv' incoming)
@@ -317,7 +350,7 @@ def setKnownSize (incoming : Incoming) (size : Option Body.Length) : Async Unit 
 
 open Internal.IO.Async in
 /--
-Creates a selector that resolves when a producer is waiting (or the channel closes).
+Creates a selector that resolves when queued data is available (or the channel closes).
 -/
 def recvSelector (incoming : Incoming) : Selector (Option Chunk) where
   tryFn := do
@@ -464,6 +497,13 @@ private def send' (outgoing : Outgoing) (chunk : Chunk) : BaseIO (AsyncTask Unit
           return AsyncTask.pure ()
         else
           set { st with pendingConsumer := none }
+      else if st.queuedSize < st.capacity then
+        set {
+          st with
+          queuedChunks := st.queuedChunks.enqueue chunk
+          queuedSize := st.queuedSize + 1
+        }
+        return AsyncTask.pure ()
       else
         if st.pendingProducer.isSome then
           return Task.pure (.error (IO.Error.userError "only one blocked producer is allowed"))
@@ -482,7 +522,7 @@ Sends a chunk.
 If `incomplete := true`, the chunk is buffered and collapsed with subsequent chunks, and is not
 delivered to the receiver yet.
 If `incomplete := false`, any buffered incomplete pieces are collapsed with this chunk and the
-single merged chunk is delivered (blocking until a receiver is waiting).
+single merged chunk is sent.
 -/
 def send (outgoing : Outgoing) (chunk : Chunk) (incomplete : Bool := false) : Async Unit := do
   if chunk.data.isEmpty ∧ chunk.extensions.isEmpty then
@@ -590,20 +630,14 @@ Creates a body from a producer function.
 Returns the receive-side handle immediately and runs `gen` in a detached task.
 The channel is always closed when `gen` returns or throws.
 Errors from `gen` are not rethrown here; consumers observe end-of-stream via `recv = none`.
-The detached task handle is retained in channel state for the channel lifetime.
 -/
 def stream (gen : Outgoing → Async Unit) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
-  let task ← async (t := AsyncTask) <| do
+  background <| do
     try
       gen outgoing
     finally
       outgoing.close
-
-  incoming.state.atomically do
-    let st ← get
-    set { st with backgroundTask := some task }
-
   return incoming
 
 /--
@@ -612,7 +646,14 @@ Creates a body from a fixed byte array.
 def fromBytes (content : ByteArray) : Async Incoming := do
   let (outgoing, incoming) ← mkChannel
   outgoing.setKnownSize (some (.fixed content.size))
-  outgoing.send (Chunk.ofByteArray content)
+  if content.size > 0 then
+    outgoing.state.atomically do
+      let st ← get
+      set {
+        st with
+        queuedChunks := st.queuedChunks.enqueue (Chunk.ofByteArray content)
+        queuedSize := st.queuedSize + 1
+      }
   outgoing.close
   return incoming
 

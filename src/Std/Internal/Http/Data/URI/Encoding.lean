@@ -13,10 +13,12 @@ import Init.Data.UInt.Lemmas
 import Init.Data.UInt.Bitwise
 import Init.Data.Array.Lemmas
 public import Init.Data.String
+public import Std.Internal.Http.Internal.Char
 
 public section
 
 namespace Std.Http.URI
+open Internal Char
 
 set_option linter.all true
 
@@ -27,77 +29,6 @@ This module provides utilities for percent-encoding URI components according to 
 character validation, encoding/decoding functions, and types that maintain encoding invariants through
 Lean's dependent type system.
 -/
-
-/--
-Checks if a byte represents an ASCII character (value < 128).
--/
-def isAscii (c : UInt8) : Bool :=
-  c < 128
-
-/--
-Checks if a byte is a hexadecimal digit (0-9, a-f, or A-F). Note: This accepts both lowercase and
-uppercase hex digits.
--/
-def isHexDigit (c : UInt8) : Bool :=
-  (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) ||
-  (c ≥ 'a'.toUInt8 && c ≤ 'f'.toUInt8) ||
-  (c ≥ 'A'.toUInt8 && c ≤ 'F'.toUInt8)
-
-/--
-Checks if a byte is an alphanumeric digit (0-9, a-z, or A-Z).
--/
-def isAlphaNum (c : UInt8) : Bool :=
-  (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) ||
-  (c ≥ 'a'.toUInt8 && c ≤ 'z'.toUInt8) ||
-  (c ≥ 'A'.toUInt8 && c ≤ 'Z'.toUInt8)
-
-/--
-Checks if a byte is an unreserved character according to RFC 3986. Unreserved characters are:
-alphanumeric, hyphen, period, underscore, and tilde.
--/
-def isUnreserved (c : UInt8) : Bool :=
-  isAlphaNum c ||
-  (c = '-'.toUInt8 || c = '.'.toUInt8 || c = '_'.toUInt8 || c = '~'.toUInt8)
-
-/--
-Checks if a byte is a sub-delimiter character according to RFC 3986.
-Sub-delimiters are: `!`, `$`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`.
--/
-def isSubDelims (c : UInt8) : Bool :=
-  c = '!'.toUInt8 || c = '$'.toUInt8 || c = '&'.toUInt8 || c = '\''.toUInt8 ||
-  c = '('.toUInt8 || c = ')'.toUInt8 || c = '*'.toUInt8 || c = '+'.toUInt8 ||
-  c = ','.toUInt8 || c = ';'.toUInt8 || c = '='.toUInt8
-
-/--
-Checks if a byte is a valid path character (`pchar`) according to RFC 3986.
-`pchar = unreserved / pct-encoded / sub-delims / ":" / "@"`
-
-Note: The percent-encoding (`pct-encoded`) is handled separately by `isEncodedChar`,
-so this predicate only covers the non-percent characters.
--/
-def isPChar (c : UInt8) : Bool :=
-  isUnreserved c || isSubDelims c || c = ':'.toUInt8 || c = '@'.toUInt8
-
-/--
-Checks if a byte is a valid character in a URI query component according to RFC 3986.
-`query = *( pchar / "/" / "?" )`
--/
-def isQueryChar (c : UInt8) : Bool :=
-  isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
-
-/--
-Checks if a byte is a valid character in a URI fragment component according to RFC 3986.
-`fragment = *( pchar / "/" / "?" )`
--/
-def isFragmentChar (c : UInt8) : Bool :=
-  isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
-
-/--
-Checks if a byte is a valid character in a URI userinfo component according to RFC 3986.
-`userinfo = *( unreserved / pct-encoded / sub-delims / ":" )`
--/
-def isUserInfoChar (c : UInt8) : Bool :=
-  isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
 /--
 Checks if a byte is a valid character in a percent-encoded URI component. Valid characters are
@@ -490,7 +421,7 @@ private def push (s : EncodedQueryString r) (c : UInt8) (h : isEncodedQueryChar 
 Attempts to create an `EncodedQueryString` from a `ByteArray`. Returns `some` if the byte array contains
 only valid encoded query characters and all percent signs are followed by exactly two hex digits, `none` otherwise.
 -/
-def ofByteArray? (ba : ByteArray) : Option (EncodedQueryString r) :=
+def ofByteArray? (ba : ByteArray) (r : UInt8 → Bool := isQueryChar) : Option (EncodedQueryString r) :=
   if h : isAllowedEncodedQueryChars r ba then
     if isValidPercentEncoding ba then some ⟨ba, h⟩ else none
   else none
@@ -498,8 +429,8 @@ def ofByteArray? (ba : ByteArray) : Option (EncodedQueryString r) :=
 /--
 Creates an `EncodedQueryString` from a `ByteArray`, panicking if the byte array is invalid.
 -/
-def ofByteArray! (ba : ByteArray) : EncodedQueryString r :=
-  match ofByteArray? ba with
+def ofByteArray! (ba : ByteArray) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
+  match ofByteArray? ba r with
   | some es => es
   | none => panic! "invalid encoded query string"
 
@@ -507,14 +438,14 @@ def ofByteArray! (ba : ByteArray) : EncodedQueryString r :=
 Creates an `EncodedQueryString` from a `String` by checking if it's already a valid percent-encoded string.
 Returns `some` if valid, `none` otherwise.
 -/
-def ofString? (s : String) : Option (EncodedQueryString r) :=
-  ofByteArray? s.toUTF8
+def ofString? (s : String) (r : UInt8 → Bool := isQueryChar) : Option (EncodedQueryString r) :=
+  ofByteArray? s.toUTF8 r
 
 /--
 Creates an `EncodedQueryString` from a `String`, panicking if the string is not a valid percent-encoded string.
 -/
-def ofString! (s : String) : EncodedQueryString r :=
-  ofByteArray! s.toUTF8
+def ofString! (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
+  ofByteArray! s.toUTF8 r
 
 /--
 Creates an `EncodedQueryString` from a `ByteArray` with compile-time proofs.
@@ -545,7 +476,7 @@ private def byteToHex (b : UInt8) (s : EncodedQueryString r) : EncodedQueryStrin
 Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Unreserved characters
 are kept as-is, spaces are encoded as '+', and all other characters are percent-encoded.
 -/
-def encode {r} (s : String) : EncodedQueryString r :=
+def encode (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
   s.toUTF8.foldl (init := EncodedQueryString.empty) fun acc c =>
     if h : isAscii c ∧ r c then
       acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (And.intro h.left (Or.inl h.right)))

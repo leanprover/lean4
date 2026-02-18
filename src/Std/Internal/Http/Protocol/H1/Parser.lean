@@ -18,27 +18,13 @@ reference used is https://httpwg.org/specs/rfc9112.html.
 
 namespace Std.Http.Protocol.H1
 
-open Std Internal Parsec ByteArray Internal
+open Std Internal Parsec ByteArray Internal Internal.Char
 
 set_option linter.all true
 
 @[inline]
-def isDigit (c : UInt8) : Bool :=
-  c ≥ '0'.toUInt8 ∧ c ≤ '9'.toUInt8
-
-@[inline]
-def isAlpha (c : UInt8) : Bool :=
-  (c ≥ 'a'.toUInt8 ∧ c ≤ 'z'.toUInt8) ∨ (c ≥ 'A'.toUInt8 ∧ c ≤ 'Z'.toUInt8)
-
-@[inline]
 def isVChar (c : UInt8) : Bool :=
   c ≥ 0x21 ∧ c ≤ 0x7E
-
-def isTokenCharacter (c : UInt8) : Bool :=
-  isDigit c ∨ isAlpha c ∨ c == '!'.toUInt8 ∨ c == '#'.toUInt8 ∨ c == '$'.toUInt8 ∨ c == '%'.toUInt8 ∨
-  c == '&'.toUInt8 ∨   c == '\''.toUInt8 ∨ c == '*'.toUInt8 ∨  c == '+'.toUInt8 ∨ c == '-'.toUInt8 ∨
-  c == '.'.toUInt8 ∨  c == '^'.toUInt8 ∨ c == '_'.toUInt8 ∨ c == '`'.toUInt8 ∨   c == '|'.toUInt8 ∨
-  c == '~'.toUInt8
 
 @[inline]
 def isObsChar (c : UInt8) : Bool :=
@@ -76,7 +62,7 @@ def opt (x : Option α) : Parser α :=
 
 @[inline]
 def token (limit : Nat) : Parser ByteSlice :=
-  takeWhileUpTo1 isTokenCharacter limit
+  takeWhileUpTo1 (fun c => isTokenCharacter (Char.ofUInt8 c)) limit
 
 @[inline]
 def crlf : Parser Unit := do

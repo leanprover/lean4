@@ -166,25 +166,25 @@ info: some "\x00"
 info: some "hello+world"
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedQueryString.ofByteArray? (r := isQueryChar) "hello+world".toUTF8))
+#eval IO.println (repr (EncodedQueryString.ofByteArray? "hello+world".toUTF8))
 
 /--
 info: none
 -/
 #guard_msgs in
-#eval IO.println (repr (EncodedQueryString.ofByteArray? (r := isQueryChar) "%".toUTF8))
+#eval IO.println (repr (EncodedQueryString.ofByteArray? "%".toUTF8))
 
 /--
 info: some "hello world"
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedQueryString.decode (r := isQueryChar) =<< (EncodedQueryString.ofByteArray? (r := isQueryChar) "hello+world".toUTF8))
+#eval IO.println (repr <| EncodedQueryString.decode =<< (EncodedQueryString.ofByteArray? "hello+world".toUTF8))
 
 /--
 info: some " "
 -/
 #guard_msgs in
-#eval IO.println (repr <| EncodedQueryString.decode (r := isQueryChar) =<< (EncodedQueryString.ofByteArray? (r := isQueryChar) "%20".toUTF8))
+#eval IO.println (repr <| EncodedQueryString.decode =<< (EncodedQueryString.ofByteArray? "%20".toUTF8))
 
 -- ============================================================================
 -- Request Target Parsing - Basic Tests

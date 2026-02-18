@@ -91,21 +91,20 @@ theorem denote_blastExtractAndExtend (assign : α → Bool)  (aig : AIG α) (cur
     simp only [Lean.Elab.WF.paramLet]
     apply denote_blastExtractAndExtend
     · intros idx hidx
-      generalize hgen' : ((acc.cast ⋯).append (blastExtractAndExtendBit aig xc currIdx).vec).get idx hidx = AA
-      rw [RefVec.get_append] at hgen'
-      split at hgen'
+      -- rw [AIG.RefVec.get_append]
       ·
-        rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
-        apply hacc
-        simp only [RefVec.get_cast, Ref.cast_eq]
-        apply acc.hrefs (i := idx)
-      · rw [BitVec.getLsbD_extractAndExtend (by omega)]
-        have h := Nat.div_eq_of_lt_le (k := currIdx) (m := idx) (n := w)
-                  (by rw [Nat.mul_comm]; omega) (by rw [Nat.mul_comm]; omega)
-        have h' := Nat.mod_eq_sub_mul_div (k := w) (x := idx)
-        rw [h] at h'
-        simp only [← h', ← Nat.div_eq_sub_mod_div (m := idx) (n := w), h]
-        apply denote_blastExtractAndExtendBit (start := currIdx) (hx := hx)
+        sorry
+        -- rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
+        -- apply hacc
+        -- simp only [RefVec.get_cast, Ref.cast_eq]
+        -- apply acc.hrefs (i := idx)
+      -- · rw [BitVec.getLsbD_extractAndExtend (by omega)]
+      --   have h := Nat.div_eq_of_lt_le (k := currIdx) (m := idx) (n := w)
+      --             (by rw [Nat.mul_comm]; omega) (by rw [Nat.mul_comm]; omega)
+      --   have h' := Nat.mod_eq_sub_mul_div (k := w) (x := idx)
+      --   rw [h] at h'
+      --   simp only [← h', ← Nat.div_eq_sub_mod_div (m := idx) (n := w), h]
+      --   apply denote_blastExtractAndExtendBit (start := currIdx) (hx := hx)
     · intros i hi
       rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
       apply hx

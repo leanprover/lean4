@@ -2982,14 +2982,6 @@ theorem extractLsb'_append_extractLsb' {x : BitVec (w + len)} :
   · rw [← getLsbD_eq_getElem]
   · simp [show len + (i - len) = i by omega, ← getLsbD_eq_getElem]
 
-theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
-    (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast = x := by
-  ext i hi
-  simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
-  rw [← getLsbD_eq_getElem, ite_eq_left_iff, Nat.not_lt]
-  intros
-  simp only [show (x_len - 1) * w + (i - (x_len - 1) * w) = i by omega]
-
 theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
     x.setWidth w = x.extractLsb' 0 w := by
   rw [setWidth_eq_append_extractLsb']
@@ -3027,7 +3019,18 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   congr 1
   omega
 
-theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k) :
+theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)}
+    (hcast : w + (x_len - 1) * w = x_len * w) :
+    (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast = x := by
+  ext i hi
+  simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
+  rw [← getLsbD_eq_getElem, ite_eq_left_iff, Nat.not_lt]
+  intros
+  simp only [show (x_len - 1) * w + (i - (x_len - 1) * w) = i by omega]
+
+
+theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k)
+      (hcast : w + k * w = (k + 1) * w) :
     extractLsb' (i * w) w ((y ++ x).cast hcast) = extractLsb' (i * w) w x := by
   ext j hj
   simp [← getLsbD_eq_getElem, getLsbD_append, hj]
